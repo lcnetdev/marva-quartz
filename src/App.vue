@@ -101,7 +101,8 @@ export default {
       </nav>
     </div>
   </header> -->
-
+  <router-link to="/edit/@">edit</router-link>
+  
   <RouterView />
   <LoadingModal/>
 
