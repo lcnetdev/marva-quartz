@@ -1,0 +1,30 @@
+@import './base.css';
+
+
+
+:root {
+
+  --c-edit-main-splitpane-properties-background-color: #ffffff;
+
+
+}
+
+
+
+
+
+
+
+#app{
+
+  height: 100vh;
+
+}
+
+/* the Edit page */
+
+
+/* left hand pane for property listing */
+.edit-main-splitpane-properties{ 
+  background-color: var(--c-edit-main-splitpane-properties-background-color) !important;
+}
