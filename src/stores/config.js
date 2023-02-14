@@ -514,6 +514,8 @@ export const useConfigStore = defineStore('config', {
           return state.regionUrls.production
         }else if (window && window.location.href.includes('bibframe.org/marva')){
           return state.regionUrls.bibframeDotOrg
+        }else{
+          return state.regionUrls.dev
         }
       }else{
         return state.regionUrls.dev
