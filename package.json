@@ -12,6 +12,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "floating-vue": "^2.0.0-beta.20",
+    "object-scan": "^18.5.1",
     "pinia": "^2.0.28",
     "short-uuid": "^4.2.2",
     "splitpanes": "^3.1.5",

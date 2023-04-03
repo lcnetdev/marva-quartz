@@ -54,7 +54,7 @@ export default {
     }
   },
 
-  mounted() {
+  async mounted() {
     console.log(`The initial count is `)
     console.log(this.configStore.versionMajor)
 //     const configStore = useConfigStore()
@@ -63,14 +63,18 @@ export default {
 
 
     // this.profileStore.buildProfiles()
-    window.setTimeout(async ()=>{
+    //window.setTimeout(async ()=>{
       await this.profileStore.buildProfiles()
       let profile =  this.profileStore.loadNewTemplate('Monograph','mattmatt')
 
       this.profileStore.activeProfile = profile
       console.log('profile',profile)
 
-    },500)
+      // window.setInterval(()=>{
+      //   this.profileStore.activeProfile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_title__title_information']['userValue']['@root'] = this.profileStore.activeProfile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_title__title_information']['userValue']['@root'] + ':)'
+      // },1000)
+
+    //},500)
 
 
 
@@ -101,7 +105,6 @@ export default {
       </nav>
     </div>
   </header> -->
-  <router-link to="/edit/@">edit</router-link>
   
   <RouterView />
   <LoadingModal/>

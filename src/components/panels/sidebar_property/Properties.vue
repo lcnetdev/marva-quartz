@@ -154,7 +154,7 @@
 
 .sidebar-property-ul{
 
-  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-properties-font-size')");
+/*  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-properties-font-size')");*/
   margin-left: 0;
   padding-left: 0;
   font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-font-family')");
@@ -187,9 +187,11 @@
 
 .sidebar-property-li-sub-li::before{
   content: "\200B";
+
 }
 .sidebar-property-ul-alink-sublink{
-  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-properties-font-size', true) / 1.1  + 'em'");
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-properties-font-size', true) - 0.15  + 'em'") !important;
+/*    font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-properties-font-size')");*/
 
 }
 

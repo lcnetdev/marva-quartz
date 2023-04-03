@@ -246,7 +246,7 @@ export const usePreferenceStore = defineStore('preference', {
           value: 'bolt',
           type: 'string',
           unit: null,
-          group: 'General Edit',
+          group: 'Action Button',
           range: [1,2]
       },
       '--c-edit-general-action-button-color' : {
@@ -254,16 +254,16 @@ export const usePreferenceStore = defineStore('preference', {
           desc: 'The color of the icon on the action button.',
           descShort: 'Action button color',
           type: 'color',
-          group: 'General Edit',
+          group: 'Action Button',
           range: null
         },
 
       '--c-edit-general-action-button-background-color' : {
           value:'#fff',
-          desc: 'The color of background on the action button.',
+          desc: 'The color of background on the action button.C',
           descShort: 'Action Button background color',
           type: 'color',
-          group: 'General Edit',
+          group: 'Action Button',
           range: null
         },
       '--n-edit-general-action-button-size' : {
@@ -273,7 +273,7 @@ export const usePreferenceStore = defineStore('preference', {
           step: 0.1,
           type: 'number',
           unit: 'em',
-          group: 'General Edit',
+          group: 'Action Button',
           range: [1,2]
       },
       '--n-edit-general-action-button-border-width' : {
@@ -283,7 +283,7 @@ export const usePreferenceStore = defineStore('preference', {
           step: 0.1,
           type: 'number',
           unit: 'px',
-          group: 'General Edit',
+          group: 'Action Button',
           range: [0,10]
       },
       '--c-edit-general-action-button-border-color' : {
@@ -291,7 +291,7 @@ export const usePreferenceStore = defineStore('preference', {
           desc: 'The color of background on the action button.',
           descShort: 'Action background color',
           type: 'color',
-          group: 'General Edit',
+          group: 'Action Button',
           range: null
         },
       '--n-edit-general-action-button-border-radius' : {
@@ -301,7 +301,7 @@ export const usePreferenceStore = defineStore('preference', {
           step: 0.1,
           type: 'number',
           unit: 'px',
-          group: 'General Edit',
+          group: 'Action Button',
           range: [0,10]
       },
 
@@ -313,7 +313,7 @@ export const usePreferenceStore = defineStore('preference', {
           desc: 'Background color of the action button menu.',
           descShort: 'Action btn menu color',
           type: 'color',
-          group: 'General Edit',
+          group: 'Action Button',
           range: null
         },
 
@@ -324,7 +324,7 @@ export const usePreferenceStore = defineStore('preference', {
           step: 0.1,
           type: 'number',
           unit: 'em',
-          group: 'General Edit',
+          group: 'Action Button',
           range: [1,2]
       },
       '--n-edit-general-action-button-continer-border-width' : {
@@ -334,7 +334,7 @@ export const usePreferenceStore = defineStore('preference', {
           type: 'number',
           step: 0.1,
           unit: 'px',
-          group: 'General Edit',
+          group: 'Action Button',
           range: [0,10]
       },
       '--c-edit-general-action-button-continer-border-color' : {
@@ -342,7 +342,7 @@ export const usePreferenceStore = defineStore('preference', {
           desc: 'The color of background on the action button.',
           descShort: 'Action btn menu border color',
           type: 'color',
-          group: 'General Edit',
+          group: 'Action Button',
           range: null
         },
       '--n-edit-general-action-button-continer-border-radius' : {
@@ -352,7 +352,7 @@ export const usePreferenceStore = defineStore('preference', {
           step: 0.1,
           type: 'number',
           unit: 'px',
-          group: 'General Edit',
+          group: 'Action Button',
           range: [0,10]
       },
       '--c-edit-general-action-button-continer-color' : {
@@ -360,7 +360,7 @@ export const usePreferenceStore = defineStore('preference', {
           desc: 'The color of the text in the action button menu.',
           descShort: 'Action btn menu font color',
           type: 'color',
-          group: 'General Edit',
+          group: 'Action Button',
           range: null
         },
       '--n-edit-general-action-button-continer-background-highlight-color' : {
@@ -368,7 +368,7 @@ export const usePreferenceStore = defineStore('preference', {
           desc: 'Background color of the action button menu item when selected.',
           descShort: 'Action btn menu highlight color',
           type: 'color',
-          group: 'General Edit',
+          group: 'Action Button',
           range: null
         },
 
@@ -378,7 +378,7 @@ export const usePreferenceStore = defineStore('preference', {
           value: true,
           type: 'boolean',
           unit: null,
-          group: 'General Edit',
+          group: 'Action Button',
           range: [true,false]
       },
 

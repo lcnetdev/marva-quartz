@@ -13,6 +13,9 @@
           ></textarea>
       </form>
 
+      <button @click="displayModal=true">button ({{displayModal}}</button>
+
+      <ComplexLookupModal :structure="structure" v-model="displayModal"/>
 
 </template>
 
@@ -418,6 +421,8 @@
 // import EditLabelDereference from "@/components/EditLabelDereference.vue";
 
 
+import ComplexLookupModal from "@/components/panels/edit/modals/ComplexLookupModal.vue";
+
 
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
@@ -428,6 +433,8 @@ import { mapStores, mapState } from 'pinia'
 export default {
   name: "LookupComplex",
   components: {    
+    ComplexLookupModal
+
     // Keypress: () => import('vue-keypress'),
     // EditSubjectEditor,
     // // EditLabelRemark,
@@ -454,7 +461,9 @@ export default {
   data: function() {
     return {
 
-      // displayModal: false,
+      displayModal: false,
+
+
       // lookups: this.structure.valueConstraint.useValuesFrom,
       // lookupConfig: config.lookupConfig,
       // modeSelect: null,

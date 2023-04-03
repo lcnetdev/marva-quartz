@@ -2,13 +2,19 @@ import { defineStore } from 'pinia'
 import { useConfigStore } from './config'
 
 
+import utilsProfile from '../lib/utils_profile'
+
 import short from 'short-uuid'
 const translator = short();
 const decimalTranslator = short("0123456789");
 
 const hashCode = s => s.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
 
-
+const LABEL_PREDICATES = [
+  'http://www.w3.org/2000/01/rdf-schema#label',
+  'http://www.loc.gov/mads/rdf/v1#authoritativeLabel',
+  'http://id.loc.gov/ontologies/bibframe/code',
+]
 
 export const useProfileStore = defineStore('profile', {
   state: () => ({
@@ -27,6 +33,15 @@ export const useProfileStore = defineStore('profile', {
 
     // the current active profile
     activeProfile: {},
+
+
+    // bf:title component/predicate for example, value will be the structure object for this component
+
+    activeComponent: null,
+
+    // bf:mainTitle for example, value will be the the structure object for this field
+    // main thing we can use it for is to see which field is currently active in the interface via the @guid
+    activeField: { '@guid' : null },
 
 
 
@@ -799,8 +814,335 @@ export const useProfileStore = defineStore('profile', {
     },
 
 
-    // increment() {
-    //   this.count++
-    // },
+    /**
+    * Keeps track of what field and component the user interface is currently working in
+    * 
+    * @param {object} structure - the profile structure the field is being built with 
+    * @return {void}
+    */    
+    setActiveField: function(structure){
+
+      
+
+
+    },
+
+
+    /**
+    * Sets a "Simple lookup" value, things from small controlled lists like role
+    * this function only creates new values, does not modify (aka delete)
+    * @async
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {string} fieldGuid - the guid of the field
+    * @param {array} propertyPath - array of strings mapping the predicates to the blanknode for the value
+    * @param {string} URI - the URI for the value
+    * @param {string} label - the label to use
+
+    * @return {void}
+    */    
+    setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){  
+
+      let lastProperty = propertyPath.at(-1).propertyURI 
+      // locate the correct pt to work on in the activeProfile
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      if (pt !== false){
+        
+        // find the correct blank node to edit if possible, if we don't find it then we need to create it
+        let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
+        console.log("blankNode === ",blankNode, fieldGuid)
+        if (blankNode === false){
+          // create the path to the blank node
+          let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
+          console.log('buildBlankNodeResult',buildBlankNodeResult)
+
+          pt = buildBlankNodeResult[0]
+
+          // now we can make a link to the parent of where the literal value should live
+          blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
+
+          // set the URI
+          // if its null then we are adding a literal
+          if (URI !== null){
+            blankNode['@id'] = URI
+          }else{
+            // do nothing for now...
+          }
+
+          blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = [
+            {
+              '@guid': short.generate(),
+              'http://www.w3.org/2000/01/rdf-schema#label' : label
+            }
+          ]
+        }else{
+
+          let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
+
+          // make sure we can find where to put the new one
+          if (parent[lastProperty]){
+            // create a new node here
+            parent[lastProperty].push({
+              '@id': URI,
+              '@guid' : short.generate(),
+              'http://www.w3.org/2000/01/rdf-schema#label' : [
+                {
+                  '@guid': short.generate(),
+                  'http://www.w3.org/2000/01/rdf-schema#label' : label
+                }
+              ]
+            })
+
+
+          }else{
+            console.error("Could not find the parent[lastProperty] of the existing value", {'parent':parent,'pt.userValue':pt.userValue, 'fieldGuid':fieldGuid})
+          }
+
+
+        }
+      }else{
+        console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
+      }
+
+
+    },
+
+    /**
+    * This removes the values of a simple lookup field    
+    * 
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {string} fieldGuid - the guid of the field
+    * @return {void}
+    */    
+    removeValueSimple: async function(componentGuid, fieldGuid){  
+
+
+      // locate the correct pt to work on in the activeProfile
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      if (pt !== false){
+        
+        // find the correct blank node to edit if possible, if we don't find it then we need to create it
+
+        let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
+
+        console.log("Found em:",parent)
+
+        // just look through all of the properties, if its an array filter it
+        for (let p in parent){
+          if (Array.isArray(parent[p])){
+            parent[p] = parent[p].filter((v) => {
+
+              if (v && v['@guid'] && v['@guid'] === fieldGuid){
+                return false
+              }else{
+                return true
+              }
+            })
+          }
+        }
+
+        // check to make sure that we didn't make an empty property
+        // remove the property key if so
+        for (let p in parent){
+          if (Array.isArray(parent[p])){
+            if (parent[p].length===0){
+              delete parent[p]
+            }
+          }
+        }
+
+
+        console.log("psot filter em:",parent)
+
+
+        // if (blankNode === false){
+
+
+        // }else{
+
+
+
+        // }
+      }else{
+        console.error('removeValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
+      }
+
+
+    },
+
+
+    /**
+    * Sets a literal value of field
+    * 
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {string} fieldGuid - the guid of the field
+    * @param {array} propertyPath - array of strings mapping the predicates to the blanknode for the value
+    * @param {string} lang - the ISO rdf language value like 'en' to append to the literal 'xxxxx@en'
+    * @return {void}
+    */    
+    setValueLiteral: async function(componentGuid, fieldGuid, propertyPath, value, lang){  
+
+      let lastProperty = propertyPath.at(-1).propertyURI 
+      // locate the correct pt to work on in the activeProfile
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      if (pt !== false){
+        
+        // find the correct blank node to edit if possible, if we don't find it then we need to create it
+        let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
+        
+        if (blankNode === false){
+          // create the path to the blank node
+          let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
+
+          pt = buildBlankNodeResult[0]
+
+          // now we can make a link to the parent of where the literal value should live
+          blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
+  
+          // this is a new node, so we want to overwrite the guid created in the build process
+          // with the one that was already created in the userinterface
+          blankNode['@guid'] = fieldGuid 
+          // set a temp value that will be over written below
+          blankNode[lastProperty] = true
+        }
+        
+        if (!blankNode[lastProperty]){
+          console.error('Trying to find the value of this literal, unable to:',componentGuid, fieldGuid, propertyPath, value, lang, pt)
+        }
+
+        // and now add in the literal value into the correct property
+        blankNode[lastProperty] = value      
+
+      }else{
+        console.error('setValueLiteral: Cannot locate the component by guid', componentGuid, this.activeProfile)
+      }
+
+
+    },
+
+
+    /**
+    * returns a literal value of field
+    * 
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {array} propertyPath - array of strings mapping the predicates to the blanknode for the value
+    * @return {array} - an array of objs representing the literals
+    */    
+    returnLiteralValueFromProfile: function(componentGuid, propertyPath){
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
+      
+      let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
+
+      
+
+      if (valueLocation){
+
+        let values = []
+
+        
+
+        for (let v of valueLocation){
+          
+          if (v[deepestLevelURI]){
+            values.push({
+              '@guid':v['@guid'],
+              value: v[deepestLevelURI],
+              '@lang' : (v['@lang']) ? v['@lang'] : null,
+            })
+          }else{
+            return false
+            //console.warn('While looking for ',deepestLevelURI, ' could not find in ', pt, 'valueLocation:',valueLocation)
+          }
+        }
+
+        return values
+
+      }
+
+      // will return false if here
+      return valueLocation
+
+      
+    },
+
+    /**
+    * returns a simple lookup value of field
+    * 
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {array} propertyPath - array of strings mapping the predicates to the blanknode for the value
+    * @return {array} - an array of objs representing the simple lookup values
+    */    
+    returnSimpleLookupValueFromProfile: function(componentGuid, propertyPath){
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
+      let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
+      if (valueLocation){
+
+        let values = []
+
+        for (let v of valueLocation){
+
+          let URI = null
+          let label = null
+
+
+          if (v['@id']){
+            URI = v['@id']
+          }
+          for (let lP of LABEL_PREDICATES){
+            if (v[lP] && v[lP][0][lP]){
+              label = v[lP][0][lP]
+              break
+            }
+          }
+
+
+
+          if (URI && label){
+            values.push({
+              '@guid':v['@guid'],
+              URI: URI,
+              label: label,
+              needsDereference: false,
+              isLiteral: false,
+            })
+          }else if (URI && !label){
+            values.push({
+              '@guid':v['@guid'],
+              URI: URI,
+              label: label,
+              needsDereference: true,
+              isLiteral: false,
+            })
+          }else if (!URI && label){
+            values.push({
+              '@guid':v['@guid'],
+              URI: URI,
+              label: label,
+              needsDereference: false,
+              isLiteral: true,
+            })
+          }         
+          
+        }
+
+        return values
+
+      }
+
+      // if valueLocation is false then it did not find anytihng meaning its empty, return empty array 
+      return []
+
+      
+    }
+
+
+
+
   },
 })

@@ -20,7 +20,7 @@
 
     </template>
     <template v-if="instanceMode == false">
-
+      
       <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
           :key="profileCompoent">
         <div style="font-weight: bold">{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>

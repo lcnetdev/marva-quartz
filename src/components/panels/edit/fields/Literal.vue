@@ -1,31 +1,33 @@
 <template>
     
-  <div class="literal-holder">
-
+<div>
+  <div class="literal-holder" v-for="lValue in literalValues">
     <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
-
     <div class="literal-field">
       <form autocomplete="off" >
+
         <textarea 
-          :class="['literal-textarea',{}]" 
+          :class="['literal-textarea', 'can-select',{}]" 
+          v-model="lValue.value"
           v-on:keydown.enter.prevent="submitField"
           autocomplete="off"
-          @focus="focused" 
+          @focusin="focused" 
           @blur="blured"
+          @input="valueChanged"
           :placeholder="structure.propertyLabel" 
+          :ref="'input_' + lValue.guid"
+          :data-guid="lValue['@guid']"
           ></textarea>
+        
       </form>
     </div>
-    <Transition name="action">
-      <div class="literal-action" v-if="showActionButton">
-        <button @mouseover="actionButtonShow" class=""><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span> </button>      <!-- <Teleport to="body"> -->
-            <div @mouseout="startHideActionButton" @mousemove="actionButtonShow" ref="actionMenu" v-if="showActionButtonMenu" class="action-button-list-container">
-                <a @mouseover.stop="" href="@">Add non-latin literal</a>
-            </div>
+      <Transition name="action">
+        <div class="literal-action" v-if="showActionButton && structure['@guid'] == activeField['@guid']">
+          <action-button :type="'literal'" @action-button-command="actionButtonCommand" />
       </div>
     </Transition>
   </div>
-
+</div>
 
 </template>
 
@@ -223,21 +225,23 @@
 // import EditLabelRemark from "@/components/EditLabelRemark.vue";
 
 
-// const short = require('short-uuid');
 
 
 
-
+import short from 'short-uuid'
 
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 
-import { mapStores, mapState } from 'pinia'
+import { mapStores, mapState, mapWritableState } from 'pinia'
 
+
+import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.vue";
 
 export default {
   name: "Literal",
   components: {
+    ActionButton,
     // EditLiteralEditor,
     // EditLabelRemark,
     // Keypress: () => import('vue-keypress')    
@@ -267,39 +271,44 @@ export default {
   methods: {
 
 
-    /**
-    * When the mouse moves over the relevant elements open the action menu
-    * if they move again it will clear any close timer
-    * @return {void}
-    */
-    actionButtonShow: function(){
-      this.showActionButtonMenu=true
-      window.clearTimeout(this.showActionButtonMenuTimer)
-    },
-    /**
-    * When the mouse moves out of the menu start the time to close it 
-    * @return {void}
-    */
-    startHideActionButton: function(){
-      this.showActionButtonMenuTimer = window.setTimeout(()=>{
-        this.showActionButtonMenu=false
-      },500)
-    },
-
-
-
     focused: function(){
+
+      // set the state active field 
+      this.activeField = this.structure
+
+      // if enabled show the action button
 
       if (this.preferenceStore.returnValue('--b-edit-general-action-button-display')){
         this.showActionButton=true
+      }else{
+        this.showActionButton=false
       }
 
     },
     blured: function(){
+      // this.$nextTick(()=>{
+      //   this.showActionButton=false
+      // });
+    },
 
-      this.showActionButton=false
+    valueChanged: function(event){
+      this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,event.target.value,event.target.dataset.lang)
+    },
+
+
+
+    actionButtonCommand: function(cmd){
+
+
+
+      this.$refs.input.focus()
+      
+
 
     },
+
+
+
 
 
     // jumpToLangWindow: function(idVal){
@@ -1421,6 +1430,81 @@ export default {
     ...mapStores(useProfileStore),
     ...mapStores(usePreferenceStore),
 
+    ...mapWritableState(useProfileStore, ['activeField','activeProfile']),
+
+
+    literalValues(){
+
+
+      
+
+      // profileStore.setActiveField()
+      let values = this.profileStore.returnLiteralValueFromProfile(this.guid,this.propertyPath)
+      if (values === false){
+        values = [{
+          value: '',
+          '@lang': null,
+          '@guid': short.generate()
+        }]
+      }
+
+
+      return values
+
+    }, 
+
+
+
+    // literalFieldValue: {
+    //   // getter
+    //   get() {
+
+    //     let literalValues = {}
+
+    //     // to accommodate multiple values in the a literal field (@ language tags)
+
+    //     // if (this.structure.propertyURI == 'http://id.loc.gov/ontologies/bflc/nonSortNum'){
+    //     //   console.log("getting new data")
+    //     //   console.log(this.guid)
+    //     //   console.log(this.structure)
+    //     //   console.log(this.activeProfile)
+    //     //   // console.log(JSON.stringify(this.activeProfile))
+
+
+    //     // }
+
+
+    //     // for (let rt in this.activeProfile.rt){
+    //     //   for (let pt in this.activeProfile.rt[rt].pt){              
+    //     //     if (this.activeProfile.rt[rt].pt[pt]['@guid'] == this.guid){
+    //     //       return this.activeProfile.rt[rt].pt[pt]['userValue']['@root']
+    //     //     }
+    //     //   }
+    //     // }
+
+    //     // no values were found stored in the profile, must be a empty / new value
+
+    //     // if (Object.keys(literalValues).length == 0){
+
+    //     //   literalValues['new'] = {
+    //     //     value: '',  
+    //     //     lang: null, 
+    //     //     guid: 'new'  
+    //     //   }
+
+    //     // }
+
+    //     return ['hello','okay']
+
+
+    //     return literalValues
+    //   },
+    //   // setter
+    //   set(newValue,event) {
+
+    //     console.log(newValue, event)
+    //   }
+    // },
 
 
   },
@@ -1505,8 +1589,7 @@ export default {
       showActionButton: false,
 
       //
-      showActionButtonMenu: false,
-      showActionButtonMenuTimer: null,
+
 
 
 
@@ -1622,60 +1705,6 @@ textarea{
   flex-shrink:1;
 }
 
-.action-button-icon{
-  font-size: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-size')");
-
-  color: v-bind("preferenceStore.returnValue('--c-edit-general-action-button-color')");
-}
-.action-button{
-    background-color: v-bind("preferenceStore.returnValue('--c-edit-general-action-button-background-color')");
-    border-width: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-border-width')");
-    border-color: v-bind("preferenceStore.returnValue('--c-edit-general-action-button-border-color')");
-    border-radius: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-border-radius')");
-    margin: 1px;
-    display: inline-flex;
-    align-items: center; 
-    
-}
-
-.action-button-list-container{
-  position: absolute;
-  z-index: 1000;
-  padding: 1em 0 1em 0;
-  width: 250px;
-  transform: translateX(-215px);
-  border: solid;
-  background-color: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-continer-background-color')");
-  border-width: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-continer-border-width')");
-  border-color: v-bind("preferenceStore.returnValue('--c-edit-general-action-button-continer-border-color')");
-  border-radius: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-continer-border-radius')");
-
-}
-.action-button-list-container a{
-  text-decoration: none;
-  color: v-bind("preferenceStore.returnValue('--c-edit-general-action-button-continer-color')") !important;
-  font-size: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-continer-font-size')");
-  display: block;
-  width: 100%;
-  padding: 0 1em 0 1em;
-
-}
-.action-button-list-container a:hover{
-  background-color: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-continer-background-highlight-color')");
-
-}
-
-
-
-.action-enter-active,
-.action-leave-active {
-  transition: opacity 0.25s ease;
-}
-
-.action-enter-from,
-.action-leave-to {
-  opacity: 0;
-}
 
 
 /*

@@ -21,11 +21,9 @@ export const useConfigStore = defineStore('config', {
         // profiles : 'http://localhost:9401/util/profiles/profile/prod',
         // starting: 'http://localhost:9401/util/profiles/starting/prod',
 
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
-        profiles: '/marva-quartz/assets/profiles.json',
-        starting: '/marva-quartz/assets/starting.json',
 
 
         id: 'https://id.loc.gov/',
@@ -176,10 +174,6 @@ export const useConfigStore = defineStore('config', {
     'http://id.loc.gov/ontologies/bibframe/hasInstance',
   ], 
 
-  // used in parseProfile isUriALiteral()
-  isLiteral: [
-    'http://www.w3.org/2000/01/rdf-schema#Literal'
-  ],
 
 
 
