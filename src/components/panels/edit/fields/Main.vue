@@ -1,8 +1,8 @@
 <template>
 
 
-  <div>
-
+  <div :id="`edit_${parentId}_${id}`">
+    
     <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} -->
 
     <Ref
@@ -27,7 +27,6 @@
       :guid="guid"
     />
     <Literal
-      r="rrrr"
       v-if="componentType === 'LITERAL'"
       :propertyPath="buildPropertyPath(propertyPath)"
       :level="level+1"
@@ -340,6 +339,8 @@ export default {
     propertyPath: Array,
     inheritedStructure: Object,   // this is the sturcture passed to it from its parents, we use this one if it is not the first level of the hierarchy
     nested: Boolean,
+    id: String,
+    parentId: String,
 
     // structure: Object,
     // parentStructure: Array,

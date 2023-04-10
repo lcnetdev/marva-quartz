@@ -13,9 +13,9 @@
           ></textarea>
       </form>
 
-      <button @click="displayModal=true">button ({{displayModal}}</button>
+      <button @click="showComplexModal()">button ({{displayModal}}</button>
 
-      <ComplexLookupModal :structure="structure" v-model="displayModal"/>
+      <ComplexLookupModal ref="complexLookupModal" @emitComplexValue="setComplexValue" @hideComplexModal="displayModal=false" :structure="structure" v-model="displayModal"/>
 
 </template>
 
@@ -430,6 +430,7 @@ import { usePreferenceStore } from '@/stores/preference'
 import { mapStores, mapState } from 'pinia'
 
 
+
 export default {
   name: "LookupComplex",
   components: {    
@@ -462,6 +463,10 @@ export default {
     return {
 
       displayModal: false,
+
+
+
+      searchValue: null,
 
 
       // lookups: this.structure.valueConstraint.useValuesFrom,
@@ -623,7 +628,28 @@ export default {
   //   }
   // }),
     
+
   methods:{
+
+
+    showComplexModal: function(){
+      this.displayModal=true
+    },
+
+    /**
+    * emited from the modal to set the value
+    * @return {object} profile
+    */    
+    setComplexValue: function(contextValue){
+
+
+      console.log(contextValue)
+      delete contextValue.typeFull
+      
+      this.profileStore.setValueComplex(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
+
+
+    },
 
 
     // focusCurrentInput: uiUtils.focusCurrentInput,

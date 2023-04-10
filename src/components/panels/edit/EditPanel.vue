@@ -15,7 +15,9 @@
         <div style="font-weight: bold">{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
         <Main       
           :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
-          :level="0"/>   
+          :level="0"
+          :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+          :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
       </div>
 
     </template>
@@ -26,7 +28,10 @@
         <div style="font-weight: bold">{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
         <Main       
           :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
-          :level="0"/>   
+          :level="0"
+          :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+          :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
+
       </div>
 
 
@@ -70,11 +75,35 @@
       
       // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent']),
 
 
 
     },
+
+    watch:{
+
+      activeComponent(newVal){
+
+        console.log(newVal)
+
+        console.log(document.getElementById('edit_' + newVal.id))
+
+
+            this.$nextTick(() => {
+              window.setTimeout(()=> {
+                document.getElementById(`edit_${newVal.parentId}_${newVal.id}`).scrollIntoView({behavior: "smooth"});
+
+              },10);             
+            });
+
+
+
+      }
+
+
+    },
+
 
     methods: {
 

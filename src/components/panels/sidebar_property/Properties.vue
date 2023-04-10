@@ -2,7 +2,7 @@
   import { useProfileStore } from '@/stores/profile'
   import { usePreferenceStore } from '@/stores/preference'
 
-  import { mapStores, mapState } from 'pinia'
+  import { mapStores, mapState, mapWritableState } from 'pinia'
 
   export default {
     data() {
@@ -16,21 +16,14 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeComponent']),
       ...mapState(usePreferenceStore, ['styleDefault']),
 
+      ...mapWritableState(useProfileStore, ['activeComponent']),
 
 
     },
 
-    // watch: {
-    //   // whenever question changes, this function will run
-    //   question(newVal, oldVal) {
-    //     if(newVal===true){
-
-    //     }
-    //   }
-    // },
 
     methods: {
 
@@ -54,19 +47,6 @@
 
     mounted() {
      
-
-
-
-      // console.log(this.styleDefault)
-      // console.log(this.styleDefault)
-
-      // this.styleDefault['--n-edit-main-splitpane-properties-width'].value = 30
-
-      // window.setInterval(()=>{
-      // //   this.styleDefault['--n-edit-main-splitpane-properties-width'].value = this.styleDefault['--n-edit-main-splitpane-properties-width'].value + 1
-      // //   console.log(this.styleDefault['--n-edit-main-splitpane-properties-width'].value)
-      //       // this.styleDefault['--n-edit-main-splitpane-properties-font-size'].value = this.styleDefault['--n-edit-main-splitpane-properties-font-size'].value + 0.001       
-      // },250)      
 
 
     }
@@ -106,8 +86,8 @@
         </div>
 
         <ul class="sidebar-property-ul" role="list">
-            <li v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent" class="sidebar-property-li sidebar-property-li-empty" >
-                  <a href="#" class="sidebar-property-ul-alink">
+            <li v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" @click.stop="activeComponent = activeProfile.rt[profileName].pt[profileCompoent]" :key="profileCompoent" class="sidebar-property-li sidebar-property-li-empty" >
+                  <a href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[profileCompoent]" class="sidebar-property-ul-alink">
                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{idx}}</template>
                       {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                   </a>

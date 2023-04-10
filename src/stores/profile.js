@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { useConfigStore } from './config'
 
+import utilsNetwork from '@/lib/utils_network';
+
 
 import utilsProfile from '../lib/utils_profile'
 
@@ -1139,7 +1141,113 @@ export const useProfileStore = defineStore('profile', {
       return []
 
       
-    }
+    },
+
+
+
+
+    /**
+    * Sets a "Complex lookup" value, things from large lookups like NAF LCSH, etc
+    * this function only creates new values, does not modify (aka delete)
+    * @async
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {string} fieldGuid - the guid of the field
+    * @param {array} propertyPath - array of strings mapping the predicates to the blanknode for the value
+    * @param {string} URI - the URI for the value
+    * @param {string} label - the label to use
+    * @param {string} type - the URI of the type to use, like http://www.loc.gov/mads/rdf/v1#CorporateName
+
+    * @return {void}
+    */    
+    setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type){  
+
+
+      // TODO: reconcile this to how the profiles are built, or dont..
+      // remove the sameAs from this property path, which will be the last one, we don't need it
+      propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
+      console.log("propertyPath=",propertyPath)
+
+      let lastProperty = propertyPath.at(-1).propertyURI 
+      // locate the correct pt to work on in the activeProfile
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+
+      if (!type){
+        // I regrefully inform you we will need to look this up
+        let context = await utilsNetwork.returnContext(URI)
+        type = context.typeFull
+      }
+
+      if (pt !== false){
+        
+        // find the correct blank node to edit if possible, if we don't find it then we need to create it
+        let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
+        console.log("blankNode === ",blankNode, fieldGuid)
+        if (blankNode === false){
+
+          // create the path to the blank node
+          let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
+          console.log('buildBlankNodeResult',buildBlankNodeResult)
+
+          pt = buildBlankNodeResult[0]
+
+          // now we can make a link to the parent of where the literal value should live
+          blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
+
+          // set the URI
+          // if its null then we are adding a literal
+          if (URI !== null){
+            blankNode['@id'] = URI
+          }else{
+            // do nothing for now...
+          }
+
+          // overwrite whatever the helper methods set the type to for this one, we know the final
+          // type and what it needs to be
+          blankNode['@type'] = type
+
+
+          blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = [
+            {
+              '@guid': short.generate(),
+              'http://www.w3.org/2000/01/rdf-schema#label' : label
+            }
+          ]
+        }else{
+
+          let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
+
+          // make sure we can find where to put the new one
+          if (parent[lastProperty]){
+            // create a new node here
+            parent[lastProperty].push({
+              '@id': URI,
+              '@guid' : short.generate(),
+              'http://www.w3.org/2000/01/rdf-schema#label' : [
+                {
+                  '@guid': short.generate(),
+                  'http://www.w3.org/2000/01/rdf-schema#label' : label
+                }
+              ]
+            })
+
+
+          }else{
+            console.error("Could not find the parent[lastProperty] of the existing value", {'parent':parent,'pt.userValue':pt.userValue, 'fieldGuid':fieldGuid})
+          }
+
+
+        }
+      }else{
+        console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
+      }
+
+
+      console.log("pt is ",pt)
+
+
+    },
+
 
 
 

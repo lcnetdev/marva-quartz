@@ -260,7 +260,7 @@ export const usePreferenceStore = defineStore('preference', {
 
       '--c-edit-general-action-button-background-color' : {
           value:'#fff',
-          desc: 'The color of background on the action button.C',
+          desc: 'The color of background on the action button.',
           descShort: 'Action Button background color',
           type: 'color',
           group: 'Action Button',
@@ -382,6 +382,21 @@ export const usePreferenceStore = defineStore('preference', {
           range: [true,false]
       },
 
+
+
+
+
+      // COMPLEX LOOKUP
+
+      '--b-edit-complex-use-select-dropdown' : {
+          desc: 'Use dropdown select instead of buttons.',
+          descShort: 'Use lookup dropdown',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Complex Lookup',
+          range: [true,false]
+      },
 
 
 
