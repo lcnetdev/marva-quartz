@@ -1,5 +1,5 @@
 <template>
- <span v-for="icon in useIcon" class="material-icons-two-tone">{{icon}}</span>
+ <span v-for="icon in useIcon" :class="['material-icons-two-tone',passClass]">{{icon}}</span>
 </template>
 
 <script>
@@ -12,6 +12,7 @@ export default {
 
   props: {
     type: String,
+    passClass: String
   },
 
   data:function() {
@@ -92,3 +93,14 @@ export default {
 };
 
 </script>
+
+<style scoped>
+
+/*A custom class passed to style the icon to the context it is being used*/
+.complex-lookup-inline{
+  
+}
+
+
+</style>
+

@@ -17,13 +17,16 @@
 
     },
     props: {
+      // structure of the field that owns this modal
       structure: Object,
+      // the inital search value starting the search
+      searchValue: String
     },
     data() {
       return {
 
         modeSelect: null,
-        searchValue: null,
+        searchValueLocal: null,
 
 
         searchTimeout: null,
@@ -85,7 +88,7 @@
 
 
       // watching the search input, when it changes kick off a search
-      searchValue: async function(){
+      searchValueLocal: async function(){
         this.doSearch()
       },
 
@@ -105,15 +108,15 @@
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
 
-        if (!this.searchValue){ return false}
+        if (!this.searchValueLocal){ return false}
 
-        if (this.searchValue.trim()==''){
+        if (this.searchValueLocal.trim()==''){
           return false
         }
 
-        if (this.searchValue.length<3){
+        if (this.searchValueLocal.length<3){
           // if it is non-latin 
-          if (this.searchValue.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/)){
+          if (this.searchValueLocal.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/)){
             // if it is a CJK language don't impose that limit
           }else{
             // check the config, some vocabs have very short codes, like the marc geo
@@ -125,7 +128,7 @@
               }
             })
 
-            if (this.searchValue.length<minCharBeforeSearch){
+            if (this.searchValueLocal.length<minCharBeforeSearch){
               return false
             }
           }
@@ -135,7 +138,7 @@
         let searchPayload = {
           processor: null,
           url: [],
-          searchValue: this.searchValue
+          searchValueLocal: this.searchValueLocal
         }
         // if (this.modeSelect == 'All'){
         //   this.modalSelectOptions.forEach((a)=>{
@@ -150,7 +153,7 @@
           this.modalSelectOptions.forEach((a)=>{
             if (a.label==this.modeSelect){
               searchPayload.processor=a.processor
-              searchPayload.url.push(a.urls.replace('<QUERY>',this.searchValue))            
+              searchPayload.url.push(a.urls.replace('<QUERY>',this.searchValueLocal))            
             }
           })
 
@@ -181,12 +184,15 @@
         if (event.target.selectedIndex == 0){
           // pop back up into the search field
           if (event.key==='ArrowUp'){
-            this.$refs.inputLookup.focus()
-            this.$nextTick(() => {
-              window.setTimeout(()=> {
-                this.$refs.inputLookup.setSelectionRange(1000,1000);
-              },10);             
-            });
+            if (this.$refs.inputLookup){
+              this.$refs.inputLookup.focus()
+              this.$nextTick(() => {
+                window.setTimeout(()=> {
+                  // put the cursor at the end
+                  this.$refs.inputLookup.setSelectionRange(1000,1000);
+                },10);             
+              });
+            }
           }          
         }
         if (event.key==='Enter' && event.shiftKey){
@@ -263,7 +269,12 @@
 
       this.$nextTick(() => {
         this.$nextTick(() => {
-          this.$refs.inputLookup.focus()
+          if (this.$refs.inputLookup){
+            this.$refs.inputLookup.focus()
+          }
+
+          this.searchValueLocal = this.searchValue
+
           let modalStopsAt = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + this.$refs.complexLookupModalContainer.getBoundingClientRect().top
           let selectHeight =  modalStopsAt - this.$refs.selectOptions.getBoundingClientRect().y
           this.$refs.selectOptions.style.height = selectHeight - 1 + 'px'
@@ -330,7 +341,7 @@
                   <option  v-for="opt in modalSelectOptions">{{opt.label}}</option>
                 </select>
               </template>
-              <input class="lookup-input" v-model="searchValue" ref="inputLookup" @keydown="inputKeydown($event)" type="text" />
+              <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" type="text" />
 
               <div>
 

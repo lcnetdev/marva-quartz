@@ -1,9 +1,9 @@
 <template>
 
 
-  <div :id="`edit_${parentId}_${id}`">
+  <div :class="[{'component': (level == 0)}]" :id="`edit_${parentId}_${id}`">
     
-    <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} -->
+    <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} id: {{id}} -->
 
     <Ref
       v-if="componentType === 'REF'"

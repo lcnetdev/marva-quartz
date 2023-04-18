@@ -1,11 +1,13 @@
 <template>
     
-<div>
-  <div class="literal-holder" v-for="lValue in literalValues">
+<div class="lookup-fake-input" >
+
+  <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues">
     <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
     <div class="literal-field">
-      <form autocomplete="off" >
 
+      <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
+      <form autocomplete="off" >
         <textarea 
           :class="['literal-textarea', 'can-select',{}]" 
           v-model="lValue.value"
@@ -14,8 +16,8 @@
           @focusin="focused" 
           @blur="blured"
           @input="valueChanged"
-          :placeholder="structure.propertyLabel" 
-          :ref="'input_' + lValue.guid"
+          
+          :ref="'input_' + lValue['@guid']"
           :data-guid="lValue['@guid']"
           ></textarea>
         
@@ -34,7 +36,6 @@
 <script>
 
 
-  
 
 
 
@@ -270,6 +271,11 @@ export default {
 
   methods: {
 
+  
+    focusClick: function(lValue){
+
+      this.$refs['input_' + lValue['@guid']][0].focus()
+    },
 
     focused: function(){
 
@@ -277,6 +283,7 @@ export default {
       this.activeField = this.structure
 
       // if enabled show the action button
+
 
       if (this.preferenceStore.returnValue('--b-edit-general-action-button-display')){
         this.showActionButton=true
@@ -300,9 +307,18 @@ export default {
     actionButtonCommand: function(cmd){
 
 
+      console.log(cmd)
 
-      this.$refs.input.focus()
+      if (cmd == 'addField'){
+
+
+        this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,"new value",null,true)
+
+
+      }
       
+      this.$refs['input_' + this.literalValues[0]['@guid']][0].focus()
+
 
 
     },
@@ -1672,6 +1688,16 @@ export default {
 
 
 
+.lookup-fake-input-label{
+  position: absolute;
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-edit-show-field-labels-size')");
+
+
+  z-index: 1;
+  top: -4px;
+  left: 2px;
+  color: gray;
+}
 
 
 
@@ -1689,8 +1715,12 @@ textarea{
 
   height: 1.25em;
   line-height: 1.25em;
+  margin-top: 0.5em;
 }
 
+.lookup-fake-input{
+  min-height: 2em;
+}
 
 
 .literal-holder{
@@ -1700,6 +1730,7 @@ textarea{
 
 .literal-field{
   flex-grow:1;
+  position: relative;
 }
 .literal-action{
   flex-shrink:1;

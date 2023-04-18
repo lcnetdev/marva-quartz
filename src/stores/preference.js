@@ -175,6 +175,27 @@ export const usePreferenceStore = defineStore('preference', {
 
 
 
+      '--b-edit-main-splitpane-edit-show-field-labels' : {
+          desc: 'Display  labels in the field.',
+          descShort: 'Display field labels',
+          value: true,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
+
+      '--n-edit-main-splitpane-edit-show-field-labels-size' : {
+          desc: 'Field Label font size.',
+          descShort: 'Field Label font size',
+          value: 0.65,
+          step: 0.01,
+          type: 'number',
+          unit: 'em',
+          group: 'Edit Panel',
+          range: [0,1]
+      },
+
 
 
       // the NAV panel

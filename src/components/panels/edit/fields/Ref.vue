@@ -1,7 +1,13 @@
 <template>
 
   <template  v-if="structure.valueConstraint.valueTemplateRefs.length > 1">
-    <button>Switch Templates</button>
+
+      <select>
+          
+          <option v-for="rt in allRtTemplate">{{rt.resourceLabel}}</option>
+
+
+      </select>
   </template>
 
   <Main v-for="(pt,idx) in thisRtTemplate.propertyTemplates" 
@@ -251,9 +257,6 @@ export default {
         console.warn("Could not find the template in the rtLookup: ",useId )
       }
 
-
-
-
       //   // little hack here for now
       //   if (useId == 'lc:RT:bf2:Monograph:Dissertation'){
       //     this.multiTemplateSelect = this.rtLookup[useId].resourceLabel
@@ -273,15 +276,14 @@ export default {
 
       // }
 
+    },
 
-
-
-
-
-
-
-
-
+    allRtTemplate(){
+      let templates = []
+      for (let id of this.structure.valueConstraint.valueTemplateRefs){
+        templates.push(JSON.parse(JSON.stringify(this.rtLookup[id])))
+      }
+      return templates
     }
 
 
@@ -480,7 +482,11 @@ export default {
 
 
 <style scoped>
-
+select{
+  width: 100%;
+  border-bottom: none;
+  border-top: none;
+}
 /*.component-container-fake-input:focus-within {
   border: solid 1px #a6acb7;
   background-color: #dfe5f1;

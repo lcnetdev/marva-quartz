@@ -12,7 +12,7 @@
 
       <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
           :key="profileCompoent">
-        <div style="font-weight: bold">{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+        <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
         <Main       
           :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
           :level="0"
@@ -25,7 +25,7 @@
       
       <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
           :key="profileCompoent">
-        <div style="font-weight: bold">{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+        <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
         <Main       
           :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
           :level="0"
@@ -125,8 +125,12 @@
 
 .edit-panel-work{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')") !important;
-
 }
+
+.component-label{
+  font-size: 0.85em;
+}
+
 
 
 </style>

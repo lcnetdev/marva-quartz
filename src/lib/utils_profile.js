@@ -118,6 +118,77 @@ const utilsProfile = {
 
 
   /**
+  * Will return the number of values in a given property path for a uservalue
+  * Useful to know when dealing with repeated literal values in a something like a mainTitle
+  * @async
+  * @param {object} pt - the pt field for that component
+  * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
+  * @return {number} - will return the count
+  */    
+  countValues: function(pt,propertyPath){
+      // link to the base userValue
+      let pointer = pt.userValue
+      let counter = 0
+      for (let p of propertyPath){
+        p = p.propertyURI
+        if (!pointer[p]){
+          return counter
+        }else{
+          // if this is the last property in the list then take the count at the end of it
+          if (p === propertyPath[propertyPath.length-1].propertyURI){            
+            counter = pointer[p].length
+          }else{
+            if (pointer[p][0]){            
+              pointer = pointer[p][0]
+            }else{
+              return counter
+            }
+          }
+        }
+      }
+
+      return counter
+
+  },
+
+
+
+  /**
+  * Will return the postion at the end of the property hiearchy but not the specific value blank node
+  * Used to get to the parent of a value
+  * @async
+  * @param {object} pt - the pt field for that component
+  * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
+  * @return {object|boolean} - the position in the pt hiearchy or false
+  */    
+  returnPropertyPathParent: function(pt,propertyPath){
+      // link to the base userValue
+      let pointer = pt.userValue
+
+      for (let p of propertyPath){
+        p = p.propertyURI
+        if (!pointer[p]){
+          return false
+        }else{
+          // if this is the last property in the list then take the count at the end of it
+          if (p === propertyPath[propertyPath.length-1].propertyURI){            
+            return pointer
+          }else{
+            if (pointer[p][0]){            
+              pointer = pointer[p][0]
+            }else{
+              return false
+            }
+          }
+        }
+      }
+
+
+
+  },
+
+
+  /**
   * creates a path to the blank node supplied, there mgiht be some special rules around
   * the propertes and how we represent them in the userValue
   * @async
@@ -171,6 +242,7 @@ const utilsProfile = {
         }else{
           // if we don't need to create this level, so just link to it
           if (pointer[p][0]){
+            console.log("Linink to",pointer[p][0])
             pointer = pointer[p][0]
           }else{
             console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)  
@@ -243,7 +315,37 @@ const utilsProfile = {
       return pointer
 
 
-  }
+  },
+
+
+  /**
+  * Loops through a uservalue and looks for properties that have children that 
+  * only have a @guid and/or a @type but no other data, an empty blank node
+  * @param {object} userValue - the userValue
+  * @return {object} - will return the userValue pruned
+  */    
+  pruneUserValue: function(userValue){
+      
+    for (let key in userValue){
+
+      if (Array.isArray(userValue[key])){
+        let hasData = false
+        for (let value of userValue[key]){
+          for (let key2 in value){
+            if (!['@guid','@type'].includes(key2)){
+              hasData=true
+            }
+          }
+        }
+        if (!hasData){
+          // console.log(key,'does not have data')
+          delete userValue[key]
+        }      
+      }
+    }
+      return userValue
+  },
+
 
 
 

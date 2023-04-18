@@ -1,6 +1,8 @@
 <template>
       <form autocomplete="off" @submit.prevent="null" >
-        <div class="lookup-fake-input">
+        <div class="lookup-fake-input" @click="focusClick()">
+
+          <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && simpleLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
 
           <div class="lookup-fake-input-entities">
             <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
@@ -315,6 +317,11 @@ export default {
   //   }
   // }),  
   methods:{
+
+    focusClick: function(){
+
+      this.$refs.lookupInput.focus()
+    },
 
     focused: function(){
 
@@ -1180,8 +1187,20 @@ export default {
   display: flex;
 }
 
+
 .lookup-fake-input-entities{
   flex-shrink: 1;
+  padding: 0.2em;
+}
+
+.lookup-fake-input-label{
+  position: absolute;
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-edit-show-field-labels-size')");
+  z-index: 1;
+  top: -4px;
+  left: 2px;
+  color: gray;
+
 }
 
 .lookup-fake-input-text{
@@ -1189,10 +1208,16 @@ export default {
 }
 .lookup-fake-input-text input{
   width: 100%;
+  outline: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  margin-top: 0.5em;
 }
 
 .lookup-action{
   flex-shrink: 1;
+
 }
 
 
@@ -1206,7 +1231,7 @@ export default {
   background-color: whitesmoke;
   white-space: nowrap;
   display: inline-block;
-
+  height: 2em;
 
 
 }
@@ -1240,7 +1265,7 @@ export default {
 
 
 .selected-value-icon{
-  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;
+/*  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;*/
   padding-right: 0.3em;
   margin-left: 5px; 
   border-left: 1px solid black; 

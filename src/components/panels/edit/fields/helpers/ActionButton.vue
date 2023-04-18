@@ -15,6 +15,18 @@
     <button class="action-button"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
     <template #popper>
+
+      <template v-if="type=='literal'">
+
+          <button class="" @click="$emit('actionButtonCommand', 'addField')">
+            Add Additional Field
+          </button><br>
+          <button style="width:100%" class="">
+            Transliterate
+          </button>
+      </template>
+
+      <!-- 
         <VDropdown
           v-for="n in 5"
           :key="n"
@@ -24,7 +36,7 @@
           <button class="rounded hover:bg-green-100 px-4 py-2">
             Sub menu >
           </button>
-        </VDropdown>
+        </VDropdown> -->
 
 
     </template>

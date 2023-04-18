@@ -3,19 +3,48 @@
 
   <!-- <div>Complext Lookup ({{propertyPath.map((x)=>{return x.propertyURI}).join('->')}})</div> -->
       <form autocomplete="off" >
-        <textarea 
-          :class="['literal-textarea',{}]" 
-          v-on:keydown.enter.prevent="submitField"
-          autocomplete="off"
-          @focus="focused" 
-          @blur="blured"
-          :placeholder="structure.propertyLabel" 
-          ></textarea>
+
+
+        <div class="lookup-fake-input" @click="focusClick()">
+      <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && complexLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
+
+          <div class="lookup-fake-input-entities">
+            <div v-for="(avl,idx) in complexLookupValues" class="selected-value-container">
+
+              <div class="selected-value-container-auth">
+                <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type" :type="avl.type"/>
+
+              </div>
+
+              <div class="selected-value-container-title">
+
+                <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
+                <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
+                <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+
+              </div>
+
+
+
+              <div class="selected-value-container-action">
+                <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+              </div>
+
+
+            </div>
+          </div>
+
+          <div class="lookup-fake-input-text">
+            <input   v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
+          </div>   
+
+
+
+        </div>
+
       </form>
 
-      <button @click="showComplexModal()">button ({{displayModal}}</button>
-
-      <ComplexLookupModal ref="complexLookupModal" @emitComplexValue="setComplexValue" @hideComplexModal="displayModal=false" :structure="structure" v-model="displayModal"/>
+      <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" @emitComplexValue="setComplexValue" @hideComplexModal="displayModal=false" :structure="structure" v-model="displayModal"/>
 
 </template>
 
@@ -422,6 +451,8 @@
 
 
 import ComplexLookupModal from "@/components/panels/edit/modals/ComplexLookupModal.vue";
+import LabelDereference from "@/components/panels/edit/fields/helpers/LabelDereference.vue";
+import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
 
 
 import { useProfileStore } from '@/stores/profile'
@@ -434,7 +465,9 @@ import { mapStores, mapState } from 'pinia'
 export default {
   name: "LookupComplex",
   components: {    
-    ComplexLookupModal
+    ComplexLookupModal,
+    LabelDereference,
+    AuthTypeIcon
 
     // Keypress: () => import('vue-keypress'),
     // EditSubjectEditor,
@@ -527,6 +560,13 @@ export default {
     ...mapStores(useProfileStore),
     ...mapStores(usePreferenceStore),
 
+    complexLookupValues(){
+
+
+      let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
+      return values
+
+    }, 
 
 
   },
@@ -632,6 +672,12 @@ export default {
   methods:{
 
 
+
+    focusClick: function(){
+
+      this.$refs.lookupInput.focus()
+    },
+
     showComplexModal: function(){
       this.displayModal=true
     },
@@ -641,15 +687,31 @@ export default {
     * @return {object} profile
     */    
     setComplexValue: function(contextValue){
-
-
-      console.log(contextValue)
       delete contextValue.typeFull
-      
       this.profileStore.setValueComplex(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
+      this.searchValue=''
+      this.displayModal=false
+
+      this.$nextTick(() => {
+        window.setTimeout(()=>{
+          this.$refs.lookupInput.focus()
+        },10)
+      })
+    },
+    removeValue: function(){
+      this.profileStore.removeValueComplex(this.guid, this.complexLookupValues[0]['@guid'] )
+    },
+
+    textInputEvent: function(event){
+
+
+      this.displayModal=true
+
 
 
     },
+
+
 
 
     // focusCurrentInput: uiUtils.focusCurrentInput,
@@ -1088,25 +1150,7 @@ export default {
 
 
     // },
-    // removeValue: function(){
 
-
-    //       this.userData = {}
-    //       this.$store.dispatch("clearContext", { self: this}).then(() => {
-
-    //         this.$store.dispatch("setValueComplex", { self: this, profileComponet: this.profileCompoent, template:this.activeTemplate, structure: this.structure, parentStructure: this.parentStructureObj, propertyPath: this.propertyPath })
-    //         .then(() => {
-
-    //           this.checkForUserData()
-    //           // put the focus back on the input
-    //           setTimeout(()=>{
-    //             document.getElementById(this.assignedId).focus()
-    //           },0)
-    //         })
-    //       })   
-
-
-    // },
 
     // doubleDeleteCheck: function(event){
 
@@ -1843,21 +1887,90 @@ export default {
 
 <style scoped>
 
-textarea{
-  border: none;
-  overflow: hidden;
-  outline: none;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;  
-  resize: none;
-  width: 100%;
-  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
 
-  height: 1.25em;
-  line-height: 1.25em;
+.lookup-fake-input-label{
+
+  position: absolute;
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-edit-show-field-labels-size')");
+
+  z-index: 1;
+  top: -4px;
+  left: 2px;
+  color: gray;
+
+
 }
+
+.lookup-fake-input{
+  display: flex;
+  background-color: white;
+  padding: 0.1em;
+}
+
+.lookup-fake-input:focus-within{
+  background-color: #f2f6f6;
+}
+
+.lookup-fake-input-entities{
+  flex-shrink: 1;
+  padding: 0.1em;
+}
+
+.lookup-fake-input-text{
+  margin-top: 0.5em;
+  flex-grow: 1;
+}
+.lookup-fake-input-text input{
+  width: 100%;
+  border: none;
+  outline:none;
+  background-color: transparent;
+}
+
+
+
+
+.selected-value-container{
+ 
+  border: solid 1px;
+  border-radius: 0.5em;
+  padding: 0.35em;
+  font-size: 0.75em;
+  background-color: whitesmoke;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2em;
+
+
+
+
+}
+.selected-value-container-nested{
+  margin: 0.25em;
+  border: solid 1px;
+  border-radius: 0.5em;
+  padding: 0.35em;
+  font-size: 0.75em;
+  background-color: whitesmoke;
+  white-space: nowrap;
+  display: inline;
+}
+.selected-value-icon{
+/*  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;*/
+  padding-right: 0.3em;
+  margin-left: 5px; 
+  border-left: 1px solid black; 
+  padding: 0px 7px; 
+  font-size: 1em;
+}
+
+
+
+
+
+
 
 
 /*

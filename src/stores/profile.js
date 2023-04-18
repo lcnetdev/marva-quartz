@@ -909,6 +909,70 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+
+
+    /**
+    * This removes the values of a complex lookup field    
+    * 
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {string} fieldGuid - the guid of the field
+    * @return {void}
+    */    
+    removeValueComplex: async function(componentGuid, fieldGuid){  
+
+
+      // locate the correct pt to work on in the activeProfile
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      if (pt !== false){
+        
+        // find the correct blank node to edit if possible, if we don't find it then we need to create it
+
+        let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
+
+        // just look through all of the properties, if its an array filter it
+        for (let p in parent){
+          if (Array.isArray(parent[p])){
+            parent[p] = parent[p].filter((v) => {
+
+              if (v && v['@guid'] && v['@guid'] === fieldGuid){
+                return false
+              }else{
+                return true
+              }
+            })
+          }
+        }
+
+        // check to make sure that we didn't make an empty property
+        // remove the property key if so
+        for (let p in parent){
+          if (Array.isArray(parent[p])){
+            if (parent[p].length===0){
+              delete parent[p]
+            }
+          }
+        }
+
+
+        // console.log("post filter:",parent)
+        // console.log("The PT",pt)
+ 
+        // make sure we don't leave any blank blank nodes behind
+        pt.userValue = utilsProfile.pruneUserValue(pt.userValue)
+
+
+
+      }else{
+        console.error('removeValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
+      }
+
+
+    },
+
+
+
+
     /**
     * This removes the values of a simple lookup field    
     * 
@@ -983,7 +1047,7 @@ export const useProfileStore = defineStore('profile', {
     * @param {string} lang - the ISO rdf language value like 'en' to append to the literal 'xxxxx@en'
     * @return {void}
     */    
-    setValueLiteral: async function(componentGuid, fieldGuid, propertyPath, value, lang){  
+    setValueLiteral: async function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){  
 
       let lastProperty = propertyPath.at(-1).propertyURI 
       // locate the correct pt to work on in the activeProfile
@@ -993,22 +1057,71 @@ export const useProfileStore = defineStore('profile', {
         
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
-        
+        console.log("blankNode -->",blankNode)
         if (blankNode === false){
           // create the path to the blank node
-          let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
+          let buildBlankNodeResult
 
-          pt = buildBlankNodeResult[0]
+          let currentValueCount = utilsProfile.countValues(pt,propertyPath)
 
-          // now we can make a link to the parent of where the literal value should live
-          blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
-  
-          // this is a new node, so we want to overwrite the guid created in the build process
-          // with the one that was already created in the userinterface
-          blankNode['@guid'] = fieldGuid 
-          // set a temp value that will be over written below
-          blankNode[lastProperty] = true
+          if (currentValueCount === 0){
+
+            // this is the first value, we need to construct the hierarchy to the bnode
+            buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
+          
+            console.log("buildBlankNodeResult",JSON.stringify(buildBlankNodeResult,null,2))
+            pt = buildBlankNodeResult[0]
+
+            // now we can make a link to the parent of where the literal value should live
+            blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
+            
+            console.log("blankNode",JSON.stringify(blankNode,null,2))
+            // this is a new node, so we want to overwrite the guid created in the build process
+            // with the one that was already created in the userinterface
+            blankNode['@guid'] = fieldGuid 
+            // set a temp value that will be over written below
+            blankNode[lastProperty] = true
+
+
+          }else{
+
+            // there is already values here, so we need to insert a new value into the hiearchy
+
+            let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
+
+            if (!parent){
+              console.error("Trying to add second literal, could not find the property path parent", pt)
+              return false
+            }
+
+            if (!parent[lastProperty]){
+              console.error('Trying to find the value of this literal, unable to:',componentGuid, fieldGuid, propertyPath, value, lang, pt)
+              return false
+            }
+            let newGuid = short.generate()
+
+            // make a place for it
+            parent[lastProperty].push(
+              {
+                '@guid': newGuid,
+              }
+            )
+
+            // get a link to it we'll edit it below
+            blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
+            // set a temp value that will be over written below
+            blankNode[lastProperty] = true
+
+
+
+          }
+
+          console.log("currentValueCount",currentValueCount)
+
+
+
         }
+
         
         if (!blankNode[lastProperty]){
           console.error('Trying to find the value of this literal, unable to:',componentGuid, fieldGuid, propertyPath, value, lang, pt)
@@ -1143,7 +1256,87 @@ export const useProfileStore = defineStore('profile', {
       
     },
 
+    /**
+    * returns a complex lookup value of field
+    * 
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {array} propertyPath - array of strings mapping the predicates to the blanknode for the value
+    * @return {array} - an array of objs representing the simple lookup values
+    */    
+    returnComplexLookupValueFromProfile: function(componentGuid, propertyPath){
 
+      // TODO: reconcile this to how the profiles are built, or dont..
+      // remove the sameAs from this property path, which will be the last one, we don't need it
+      propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
+      console.log("propertyPath=",propertyPath)
+
+
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
+      let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
+      if (valueLocation){
+
+        let values = []
+
+        for (let v of valueLocation){
+
+          let URI = null
+          let label = null
+
+
+          if (v['@id']){
+            URI = v['@id']
+          }
+          for (let lP of LABEL_PREDICATES){
+            if (v[lP] && v[lP][0][lP]){
+              label = v[lP][0][lP]
+              break
+            }
+          }
+
+
+
+          if (URI && label){
+            values.push({
+              '@guid':v['@guid'],
+              URI: URI,
+              label: label,
+              needsDereference: false,
+              isLiteral: false,
+              type:v['@type']
+            })
+          }else if (URI && !label){
+            values.push({
+              '@guid':v['@guid'],
+              URI: URI,
+              label: label,
+              needsDereference: true,
+              isLiteral: false,
+              type:v['@type']
+            })
+          }else if (!URI && label){
+            values.push({
+              '@guid':v['@guid'],
+              URI: URI,
+              label: label,
+              needsDereference: false,
+              isLiteral: true,
+              type:v['@type']
+            })
+          }         
+          
+        }
+
+        return values
+
+      }
+
+      // if valueLocation is false then it did not find anytihng meaning its empty, return empty array 
+      return []
+
+      
+    },
 
 
     /**
@@ -1173,7 +1366,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       if (!type){
-        // I regrefully inform you we will need to look this up
+        // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
         type = context.typeFull
       }
