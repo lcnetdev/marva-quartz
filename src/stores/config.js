@@ -18,11 +18,11 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
         bfdb : 'https://preprod-8230.id.loc.gov/',
-        // profiles : 'http://localhost:9401/util/profiles/profile/prod',
-        // starting: 'http://localhost:9401/util/profiles/starting/prod',
+        profiles : 'http://localhost:9401/util/profiles/profile/prod',
+        starting: 'http://localhost:9401/util/profiles/starting/prod',
 
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
 
 
@@ -486,8 +486,22 @@ export const useConfigStore = defineStore('config', {
         }
       ]
     }
+  },
 
-  }
+ testData:[
+      {
+        filename: '21890923.convertedit-pkg.xml',
+        desc: 'monograph - Michelle Obama, Becoming'
+      },
+      {
+        filename: '19768691.editor-pkg.xml',
+        desc:'periodical - Tax administration and procedure'
+      },
+      {
+        filename: '22835043.convertedit-pkg.xml',
+        desc: 'moving image - Nostradamus effect'
+      }
+  ],
 
 
   }),

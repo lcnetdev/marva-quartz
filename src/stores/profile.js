@@ -25,7 +25,7 @@ export const useProfileStore = defineStore('profile', {
     profilesLoaded: false,
 
     // holds all profiles
-    profiles: [],
+    profiles: {},
 
     // holds all rts, with its ID as the key
     rtLookup: {},
@@ -590,7 +590,7 @@ export const useProfileStore = defineStore('profile', {
               }
           }
       }
-
+      console.log('this.profiles',this.profiles)
       this.profilesLoaded = true
       // return { profiles: this.profiles, lookup: this.rtLookup, startingPoints: this.startingPoints}
 
@@ -849,6 +849,8 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt !== false){
+
+        pt.hasData = true
         
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
@@ -1048,12 +1050,13 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */    
     setValueLiteral: async function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){  
-
       let lastProperty = propertyPath.at(-1).propertyURI 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt !== false){
+
+        pt.hasData = true
         
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
@@ -1152,7 +1155,9 @@ export const useProfileStore = defineStore('profile', {
       
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
 
-      
+      // console.log(propertyPath[0], deepestLevelURI)
+      // console.log('pt',pt)
+      // console.log(valueLocation)
 
       if (valueLocation){
 
@@ -1161,6 +1166,8 @@ export const useProfileStore = defineStore('profile', {
         
 
         for (let v of valueLocation){
+
+          // console.log('v->',v)
           
           if (v[deepestLevelURI]){
             values.push({
@@ -1268,6 +1275,12 @@ export const useProfileStore = defineStore('profile', {
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
+
+      // TODOL reconcile this in the profiles (!!!)
+      propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.loc.gov/mads/rdf/v1#componentList')  })
+      propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.loc.gov/mads/rdf/v1#Topic')  })
+
+
       console.log("propertyPath=",propertyPath)
 
 
@@ -1372,6 +1385,8 @@ export const useProfileStore = defineStore('profile', {
       }
 
       if (pt !== false){
+
+        pt.hasData = true
         
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)

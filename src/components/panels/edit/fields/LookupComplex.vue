@@ -9,6 +9,7 @@
       <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && complexLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
 
           <div class="lookup-fake-input-entities">
+
             <div v-for="(avl,idx) in complexLookupValues" class="selected-value-container">
 
               <div class="selected-value-container-auth">

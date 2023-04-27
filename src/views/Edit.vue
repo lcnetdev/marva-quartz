@@ -11,7 +11,7 @@
 
       <splitpanes>
         <pane  v-if="panelDisplay.properties"
-          :class="{'edit-main-splitpane-properties': true, 'edit-main-splitpane-properties-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-properties-no-scrollbar')}" 
+          :class="{'edit-main-splitpane-properties': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-properties-no-scrollbar')}" 
           :size="preferenceStore.returnValue('--n-edit-main-splitpane-properties-width')" 
           min-size="5">
           <Properties/>
@@ -49,8 +49,12 @@
         </template>
 
 
-        <pane v-if="panelDisplay.opac" size="5">
-          Preview Panel
+        <pane v-if="panelDisplay.opac"
+          :class="{'edit-main-splitpane-opac': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}" 
+          :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')" 
+
+        >
+          <Opac/>
         </pane>
 
       </splitpanes>
@@ -75,11 +79,12 @@
   import Properties from "@/components/panels/sidebar_property/Properties.vue";
   import EditPanel from "@/components/panels/edit/EditPanel.vue";
   import Nav from "@/components/panels/nav/Nav.vue";
+  import Opac from "@/components/panels/sidebar_preview_opac/Opac.vue";
 
 
 
   export default {
-    components: { Splitpanes, Pane, Properties, EditPanel, Nav },
+    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac },
     data() {
       return {
         color: 'blue',
@@ -145,12 +150,20 @@
     overflow-y: scroll;
 }
 
-.edit-main-splitpane-properties-no-scrollbar{
+.edit-main-splitpane-opac{
+    height: 100%;
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')") !important;
+    
+    overflow-y: scroll;
+}
+
+
+.edit-main-splitpane-no-scrollbar{
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
 
 }
-.edit-main-splitpane-properties-no-scrollbar::-webkit-scrollbar { /* WebKit */
+.edit-main-splitpane-no-scrollbar::-webkit-scrollbar { /* WebKit */
     width: 0;
     height: 0;
 }

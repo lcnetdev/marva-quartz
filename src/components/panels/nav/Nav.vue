@@ -68,8 +68,9 @@
           },
 
           { text: "Menu",  menu: [
-            { text: "Item 1", click: () => alert("Action 1") },
-            { text: "Item 2", click: () => alert("Action 2") }
+            { text: "Load Resource", click: () => this.$router.push('/load') },
+            { text: "Blank Resource", click: () => this.$router.push('/load') }
+
           ] },
           { text: "View",  menu: [     
 

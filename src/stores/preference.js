@@ -141,6 +141,73 @@ export const usePreferenceStore = defineStore('preference', {
           range: [true,false]
       },
 
+      // preview - opac
+
+      '--c-edit-main-splitpane-opac-background-color' : {
+          value:'#f2f2f2',
+          desc: 'The background color of the opac side bar on the edit screen.',
+          descShort: 'Background Color',
+          type: 'color',
+          group: 'Sidebars - OPAC',
+          range: null
+        },
+      '--c-edit-main-splitpane-opac-highlight-background-color' : {
+          value:'#6f6f6f',
+          desc: 'The background color of the field when selected or hovered.',
+          descShort: 'Highlight Color',
+          type: 'color',
+          group: 'Sidebars - OPAC',
+          range: null
+       },
+
+      '--n-edit-main-splitpane-opac-width' : {
+          desc: 'The width of the property side bar on the edit screen.',
+          descShort: 'Sidebar width',
+          value: 5,
+          type: 'number',
+          step: 1,
+          group: 'Sidebars - OPAC',
+          range: [5,100]
+      },
+
+      '--n-edit-main-splitpane-opac-font-size' : {
+          desc: 'The fontsize of the text in the property list side bar.',
+          descShort: 'Font Size',
+          value: 1,
+          step: 0.01,
+          type: 'number',
+          unit: 'em',
+          group: 'Sidebars - OPAC',
+          range: [1,2]
+      },
+      '--c-edit-main-splitpane-opac-font-family' : {
+          value:'Avenir, Helvetica, Arial, sans-serif',
+          desc: 'The font of the text in the property list.',
+          descShort: 'Font',
+          type: 'font',
+          group: 'Sidebars - OPAC',
+          range: null
+      },
+
+      '--c-edit-main-splitpane-opac-font-color' : {
+          value:'#202124',
+          desc: 'The font color of the text in the property list.',
+          descShort: 'Text Color',
+          type: 'color',
+          group: 'Sidebars - OPAC',
+          range: null
+      },      
+      '--b-edit-main-splitpane-opac-no-scrollbar' : {
+          desc: 'Do not display a scroll bar in the opac preview side panel.',
+          descShort: 'No Scrollbar',
+          value: true,
+          type: 'boolean',
+          unit: null,
+          group: 'Sidebars - OPAC',
+          range: [true,false]
+      },
+
+
 
       
       // the edit panel

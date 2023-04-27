@@ -24,6 +24,14 @@
           <button style="width:100%" class="">
             Transliterate
           </button>
+          <hr/>
+
+          <button style="width:100%" class="">
+            Debug
+          </button>
+
+
+
       </template>
 
       <!-- 

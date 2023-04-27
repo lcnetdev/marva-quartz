@@ -1114,7 +1114,27 @@ const utilsNetwork = {
 
 
 
+    fetchBfdbXML: async function(url){
 
+        // bdfb quirk /works/ only serve xml at .rdf
+        if (url.includes('/works/')){
+          url = url.replace(/\.jsonld/,'.rdf')
+        }
+
+        url = url.replace(/\.jsonld/,'.xml')
+
+        if (!url.includes('?')){
+          url = url + '?nocache='+Date.now()
+        }
+
+        let r
+        try{
+          r = await this.fetchSimpleLookup(url)
+        }catch (error) {
+          r = 'ERROR: Error fetching record.'
+        }
+        return r
+    },
 
 
 

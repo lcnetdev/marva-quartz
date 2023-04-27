@@ -1,5 +1,6 @@
 import {useConfigStore} from "../stores/config";
 import {useProfileStore} from "../stores/profile";
+
 import short from 'short-uuid'
 
 // import utilsNetwork from './utils_network';
@@ -166,8 +167,8 @@ const utilsParse = {
   testSeperateRdfTypeProperty: function(pt){
     if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs){
       for (let id of pt.valueConstraint.valueTemplateRefs){
-        if (store.state.rtLookup[id]){          
-          for (let p of store.state.rtLookup[id].propertyTemplates){
+        if (useProfileStore().rtLookup[id]){          
+          for (let p of useProfileStore().rtLookup[id].propertyTemplates){
             if (p.propertyURI === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
               return true
             }
@@ -186,7 +187,7 @@ const utilsParse = {
   * @param {string} xml - the XML payload
   * @return {void}
   */
-  parse: function(xml){
+  parseXml: function(xml){
 
     // if (!xml){
     //   xml = this.testXml
@@ -215,7 +216,9 @@ const utilsParse = {
   },
 
 
-
+  specialTransforms: {
+    // not currently used
+  },
 
 
   transformRts: async function(profile){
@@ -385,11 +388,13 @@ const utilsParse = {
 
         if (el.length>0){
 
-          console.log("Putting ", el)
-          console.log("Into ", ptk)
+          // console.log("Putting ", el)
+          // console.log("Into ", ptk)
 
           // we have that element
           sucessfulProperties.push(prefixURI)
+
+          ptk.hasData = true
           
           // loop through all of them
           let counter = 0
@@ -453,9 +458,9 @@ const utilsParse = {
 
             populateData['@guid'] = short.generate()
           
-            if (this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)]){
-              populateData.valueConstraint.valueTemplateRefs.push(this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)])              
-            }
+            // if (this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)]){
+            //   populateData.valueConstraint.valueTemplateRefs.push(this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)])              
+            // }
 
 
             // we want all userValues to includ the root predicate property
@@ -481,7 +486,7 @@ const utilsParse = {
               let eProperty = this.UriNamespace(e.tagName)
 
               // could be a first level bnode with no children
-
+              console.log(e.tagName,this.isClass(e.tagName))
               if (this.isClass(e.tagName)){
                 
                 userValue['@type'] = this.UriNamespace(e.tagName)
@@ -538,39 +543,38 @@ const utilsParse = {
                 }
 
                 // it doesn't have any children, so it will be a literal or something like that
-                let eData = {'@guid': short.generate()}
+                // let eData = {'@guid': short.generate()}
 
                 if (e.attributes && e.attributes['rdf:about']){
-                  eData['@id'] = this.extractURI(e.attributes['rdf:about'].value)
+                  userValue['@id'] = this.extractURI(e.attributes['rdf:about'].value)
                 }else if (e.attributes && e.attributes['rdf:resource']){
-                  eData['@id'] = this.extractURI(e.attributes['rdf:resource'].value)
+                  userValue['@id'] = this.extractURI(e.attributes['rdf:resource'].value)
                 }else{
                   // console.log('No URI for this child property')
                 }
 
                 if (e.innerHTML != null && e.innerHTML.trim() != ''){
-                  eData[eProperty] = e.innerHTML
+                  userValue[eProperty] = e.innerHTML
 
                   // does it have a data type or lang                 
                   if (e.attributes && e.attributes['rdf:datatype']){
-                    eData['@datatype'] = e.attributes['rdf:datatype'].value
+                    userValue['@datatype'] = e.attributes['rdf:datatype'].value
                   }
                   if (e.attributes && e.attributes['http://www.w3.org/1999/02/22-rdf-syntax-ns#datatype']){
-                    eData['@datatype'] = e.attributes['http://www.w3.org/1999/02/22-rdf-syntax-ns#datatype'].value
+                    userValue['@datatype'] = e.attributes['http://www.w3.org/1999/02/22-rdf-syntax-ns#datatype'].value
                   }
                   if (e.attributes && e.attributes['xml:lang']){
-                    eData['@language'] = e.attributes['xml:lang'].value
+                    userValue['@language'] = e.attributes['xml:lang'].value
                   }
                   if (e.attributes && e.attributes['rdf:parseType']){
-                    eData['@parseType'] = e.attributes['rdf:parseType'].value
+                    userValue['@parseType'] = e.attributes['rdf:parseType'].value
                   }                 
 
 
                 }
 
+                
                 // console.log(userValue)
-
-                userValue[eProperty].push(eData)
 
 
               }
@@ -1044,45 +1048,24 @@ const utilsParse = {
 
                                 gggData[ggggChildProperty].push(ggggChildData)
 
-
-
-                                
-
                               }
 
-
-
-
                             }
-
-
-
-
-
 
                             // last thing is add it to the lat structure
                             gChildData[gggChildProperty].push(gggData)
 
-                          }                           
-
-
-
-
-
-
+                          }
 
                         }
 
                         userValue[gChildProperty].push(gChildData)
-
                         gChildData = false
 
                       }else{
 
                         // its something else
                         if (this.UriNamespace(ggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
-
-
                           if (ggChild.attributes && ggChild.attributes['rdf:about']){
                             gChildData['@type'] = ggChild.attributes['rdf:about'].value
                           }else if (ggChild.attributes && ggChild.attributes['rdf:resource']){
@@ -1166,44 +1149,7 @@ const utilsParse = {
               }
             }
 
-            sucessfulElements.push(e.outerHTML)
-
-            // if (populateData.isMultiLiteral){
-            //  populateData.isMultiLiteralCounter = {}
-            //  // keep a count of how many fields it made for each property, this will be useful later for the interface rendering
-            //  for (let multiLiteralKey in populateData.userValue){
-                
-            //    // no @ sign means it's a real property
-            //    if (!multiLiteralKey.includes('@')){
-            //      // keep track of the length of the value, which is always an array at this level
-            //      populateData.isMultiLiteralCounter[multiLiteralKey] = populateData.userValue[multiLiteralKey].length
-
-            //      // then we need to check one level deeper if it is a blank node because it might be a repeated rdf:label in the blank node
-            //      // loop through each value of the main property array
-            //      for (let multiLiteralValue of populateData.userValue[multiLiteralKey]){
-            //        for (let multiLiteralKey2 in multiLiteralValue){
-
-            //          // is real property
-            //          if (!multiLiteralKey2.includes('@')){
-            //            // at this level we are either in a blank node or just the value level of the main component
-            //            // so if its an array that means we want to look into this as opposed to it just being a string literal at this level
-            //            if (Array.isArray(multiLiteralValue[multiLiteralKey2])){
-                          
-            //              // if it is a blank node then delete the count for the parent since its useless
-            //              if (populateData.isMultiLiteralCounter[multiLiteralKey]){
-            //                delete populateData.isMultiLiteralCounter[multiLiteralKey]
-            //              }
-            //              // make a combined key of the parent property and repeated litearl poperty, this is how we use it in the literal component
-            //              populateData.isMultiLiteralCounter[multiLiteralKey+'|'+multiLiteralKey2] = multiLiteralValue[multiLiteralKey2].length 
-            //            }                       
-            //          }
-            //        }   
-            //      } 
-            //    }
-            //  }             
-            // }
-
-            
+            sucessfulElements.push(e.outerHTML)          
 
             // since we created a brand new populateData we either need to 
             // replace the orginal in the profile or if there is more than one we 
@@ -1227,9 +1173,7 @@ const utilsParse = {
           }
 
 
-        }
-
-        
+        }        
         
         // we did something with it, so remove it from the xml
         // doing this inside the loop because some PT use the same element (like primary contribuitor vs contributor)
@@ -1237,9 +1181,7 @@ const utilsParse = {
         for (let p of sucessfulProperties){
           let els = xml.getElementsByTagName(p)
           // this is a strange loop here because we need to remvoe elements without changing the parent order which will mess up the dom tree and the loop
-          for (let step = els.length-1; step >= 0; step=step-1) {
-
-            
+          for (let step = els.length-1; step >= 0; step=step-1) {            
             
             if (sucessfulElements.indexOf(els[step].outerHTML)> -1){
               els[step].remove()
@@ -1252,39 +1194,29 @@ const utilsParse = {
 
       }
 
-
-
-
-
       // store the unused xml
       profile.rt[pkey].unusedXml = xml.outerHTML;
       if (xml.children.length == 0){
         profile.rt[pkey].unusedXml = false
       }
 
-      // let parser = new DOMParser();
-      // profile.rt[pkey].unusedXmlNodes = parser.parseFromString(xml.outerHTML, "text/xml").children[0];
-      // let namespaceValues = Object.values(this.namespace)
-      
+
       for (let key in profile.rt[pkey].pt){
 
         // populate the admin data
-
         if (profile.rt[pkey].pt[key].propertyURI == 'http://id.loc.gov/ontologies/bibframe/adminMetadata'){
-          
 
           if (!profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata']){
             profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'] = [{}]
           }         
           let userValue = profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'][0]
 
-
           // if it doesnt already have a cataloger id use ours
           if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
             userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
               {
                 "@guid": short.generate(),
-                "http://id.loc.gov/ontologies/bflc/catalogerId": store.state.catInitials
+                "http://id.loc.gov/ontologies/bflc/catalogerId": useProfileStore().catInitials
               }
             ]
           }
@@ -1331,16 +1263,10 @@ const utilsParse = {
       }
       
 
-
-
-
-
-      // let totalHasDataLoaded = 0
       let uniquePropertyURIs  = {}
       // we are now going to do some ananlyis on profile, see how many properties are acutally used, what is not used, etc
       // also do some post-load data cleanup (like &amp; -> &)
       for (let key in profile.rt[pkey].pt){
-
         
         if (Object.keys(uniquePropertyURIs).indexOf(profile.rt[pkey].pt[key].propertyURI)===-1){
           uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI] = {status:false,data:[],resourceTemplates:{},unAssingedProperties:[]}
@@ -1351,7 +1277,6 @@ const utilsParse = {
           profile.rt[pkey].pt[key].dataLoaded=true
         }else{
           profile.rt[pkey].pt[key].dataLoaded=false
-          // totalHasDataLoaded++
 
 
           for (let k in profile.rt[pkey].pt[key].userValue){
@@ -1408,9 +1333,6 @@ const utilsParse = {
 
           }
 
-
-
-
           uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI].status = true
 
           uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI].data.push({'json':profile.rt[pkey].pt[key].userValue,'propertyLabel': profile.rt[pkey].pt[key].propertyLabel, 'xml':profile.rt[pkey].pt[key].xmlSource})
@@ -1425,7 +1347,7 @@ const utilsParse = {
             // console.log(pkey,key)
             // console.log(profile.rt[pkey].pt[key].valueConstraint.valueTemplateRefs)
             // console.log(rtName)
-            store.state.rtLookup[rtName].propertyTemplates.forEach((ptObj)=>{
+            useProfileStore().rtLookup[rtName].propertyTemplates.forEach((ptObj)=>{
               if (allUris.indexOf(ptObj.propertyURI)==-1){
                 allUris.push(ptObj.propertyURI)
               }
@@ -1433,8 +1355,6 @@ const utilsParse = {
             })  
           })
 
-
-          
           
           profile.rt[pkey].pt[key].missingProfile = []
           // loop though the URIs we have
@@ -1453,9 +1373,6 @@ const utilsParse = {
           if (uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI].unAssingedProperties.length>0){
             uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI].status='mixed'
           }
-
-          
-
 
         }
       }
@@ -1481,12 +1398,10 @@ const utilsParse = {
     }
 
     // these RTs did not have any data parsed into them, because they were not present
-    // remove them from the profile
     for (let x of toDeleteNoData){
       profile.rt[x].noData=true     
-      // profile.rtOrder.splice(profile.rtOrder.indexOf(x), 1);
     }
-
+    console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
 
     return profile
 
