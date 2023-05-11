@@ -1,7 +1,6 @@
 <template>
     
 <div class="lookup-fake-input" >
-
   <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues">
     <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
     <div class="literal-field">
@@ -24,8 +23,8 @@
       </form>
     </div>
       <Transition name="action">
-        <div class="literal-action" v-if="showActionButton && structure['@guid'] == activeField['@guid']">
-          <action-button :type="'literal'" @action-button-command="actionButtonCommand" />
+        <div class="literal-action" v-if="showActionButton && myGuid == activeField">
+          <action-button :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
       </div>
     </Transition>
   </div>
@@ -280,7 +279,7 @@ export default {
     focused: function(){
 
       // set the state active field 
-      this.activeField = this.structure
+      this.activeField = this.myGuid
 
       // if enabled show the action button
 
@@ -1448,6 +1447,10 @@ export default {
 
     ...mapWritableState(useProfileStore, ['activeField','activeProfile']),
 
+
+    myGuid(){
+      return `${this.structure['@guid']}--${this.guid}`
+    },
 
     literalValues(){
 

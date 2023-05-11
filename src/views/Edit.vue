@@ -60,6 +60,12 @@
       </splitpanes>
 
     </pane>
+
+
+  <template v-if="showDebugModal==true">
+    <Debug v-model="showDebugModal" />
+  </template>
+
   </splitpanes>
 
 
@@ -72,7 +78,7 @@
   import 'splitpanes/dist/splitpanes.css'
   import { usePreferenceStore } from '@/stores/preference'
 
-  import { mapStores, mapState } from 'pinia'
+  import { mapStores, mapState, mapWritableState } from 'pinia'
 
  
 
@@ -80,11 +86,12 @@
   import EditPanel from "@/components/panels/edit/EditPanel.vue";
   import Nav from "@/components/panels/nav/Nav.vue";
   import Opac from "@/components/panels/sidebar_preview_opac/Opac.vue";
+  import Debug from "@/components/panels/edit/modals/DebugModal.vue";
 
 
 
   export default {
-    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac },
+    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug },
     data() {
       return {
         color: 'blue',
@@ -97,7 +104,9 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore),
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
-      
+      ...mapWritableState(usePreferenceStore, ['showDebugModal']),
+
+
       // // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
     },

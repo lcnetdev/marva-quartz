@@ -2,9 +2,9 @@
 
   <template  v-if="structure.valueConstraint.valueTemplateRefs.length > 1">
 
-      <select>
+      <select @change="templateChange($event)">
           
-          <option v-for="rt in allRtTemplate">{{rt.resourceLabel}}</option>
+          <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
 
 
       </select>
@@ -182,6 +182,10 @@ export default {
   },  
   data: function() {
     return {
+
+      manualOverride: null,
+
+
       // multiTemplateSelect: "",
       // multiTemplateSelectURI: "",
       // multiTemplateSelectOptions: [],
@@ -195,13 +199,25 @@ export default {
   },
   computed:{
 
-
+    ...mapStores(useProfileStore),
     ...mapState(useProfileStore, ['rtLookup']),
 
 
 
     thisRtTemplate(){
 
+
+      if (this.manualOverride !== null){
+        for (let tmpid of this.structure.valueConstraint.valueTemplateRefs){
+          console.log('tmpid',tmpid)
+          if (tmpid === this.manualOverride){
+            let use = JSON.parse(JSON.stringify(this.rtLookup[tmpid]))
+            console.log(use)
+            return use
+          }
+        }
+        return true
+      }
       
       // // grab the first component from the struecture, but there might be mutluple ones
       let useId = this.structure.valueConstraint.valueTemplateRefs[0]
@@ -284,7 +300,8 @@ export default {
         templates.push(JSON.parse(JSON.stringify(this.rtLookup[id])))
       }
       return templates
-    }
+    },
+
 
 
 
@@ -336,6 +353,25 @@ export default {
     
   },
   methods: {
+
+    templateChange(event){
+
+      
+
+      let nextRef = this.allRtTemplate.filter((v)=>{ return (v.id === event.target.value) })[0]
+      let thisRef = this.thisRtTemplate
+
+      this.profileStore.changeRefTemplate(this.guid,this.propertyPath,nextRef,thisRef)
+
+
+      this.manualOverride = event.target.value
+
+
+
+    }
+
+
+
 
     // buildPropertyTemplatesOrderLookup: function(){
       

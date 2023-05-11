@@ -128,14 +128,22 @@
       loadUrl: async function(useInstanceProfile){
         console.log(this.urlToLoad)
 
-        let xml = await utilsNetwork.fetchBfdbXML(this.urlToLoad)
-        console.log(xml)
+       
 
-        // check for XML problems here ?
 
-        utilsParse.parseXml(xml)
 
-        console.log(utilsParse.hasItem)
+        if (this.urlToLoad.trim() !== ''){
+
+          let xml = await utilsNetwork.fetchBfdbXML(this.urlToLoad)
+          console.log(xml)
+
+          // check for XML problems here ?
+
+          utilsParse.parseXml(xml)
+
+          console.log(utilsParse.hasItem)
+
+        }
 
         // find the right profile to use from the instance profile name used
         let useProfile = null
@@ -150,44 +158,46 @@
           return false
         }
 
-        // we might need to load in a item
-        if (utilsParse.hasItem>0){ 
-          // loop the number of ITEMS there are in the XML
-          Array.from(Array(utilsParse.hasItem)).map((_,i) => {
-            let useItemRtLabel
-            // look for the RT for this item
-            useItemRtLabel = useInstanceProfile.replace(':Instance',':Item')
+        if (this.urlToLoad.trim() !== ''){
 
-            let foundCorrectItemProfile = false
-            for (let pkey in this.profiles){
-              for (let rtkey in this.profiles[pkey].rt){
-                if (rtkey == useItemRtLabel){
-                  let useRtLabel =  useItemRtLabel + '-' + (i+1) 
-                  let useItem = JSON.parse(JSON.stringify(this.profiles[pkey].rt[rtkey]))
+          // we might need to load in a item
+          if (utilsParse.hasItem>0){ 
+            // loop the number of ITEMS there are in the XML
+            Array.from(Array(utilsParse.hasItem)).map((_,i) => {
+              let useItemRtLabel
+              // look for the RT for this item
+              useItemRtLabel = useInstanceProfile.replace(':Instance',':Item')
 
-                  // make the guids for all the properties unique
-                  for (let ptk in useItem.pt){
-                    useItem.pt[ptk]['@guid'] = short.generate()
+              let foundCorrectItemProfile = false
+              for (let pkey in this.profiles){
+                for (let rtkey in this.profiles[pkey].rt){
+                  if (rtkey == useItemRtLabel){
+                    let useRtLabel =  useItemRtLabel + '-' + (i+1) 
+                    let useItem = JSON.parse(JSON.stringify(this.profiles[pkey].rt[rtkey]))
+
+                    // make the guids for all the properties unique
+                    for (let ptk in useItem.pt){
+                      useItem.pt[ptk]['@guid'] = short.generate()
+                    }
+
+
+                    // console.log('using',this.profiles[pkey].rt[rtkey])
+                    foundCorrectItemProfile = true
+                    useProfile.rtOrder.push(useRtLabel)
+                    useProfile.rt[useRtLabel] = useItem     
+                    // console.log(JSON.parse(JSON.stringify(useProfile)))           
                   }
-
-
-                  // console.log('using',this.profiles[pkey].rt[rtkey])
-                  foundCorrectItemProfile = true
-                  useProfile.rtOrder.push(useRtLabel)
-                  useProfile.rt[useRtLabel] = useItem     
-                  // console.log(JSON.parse(JSON.stringify(useProfile)))           
                 }
               }
-            }
 
 
-            if (!foundCorrectItemProfile){
-              console.warn('error: foundCorrectItemProfile not set ---------')
-              console.warn(this.rtLookup[useItemRtLabel])
-            }
-          });
+              if (!foundCorrectItemProfile){
+                console.warn('error: foundCorrectItemProfile not set ---------')
+                console.warn(this.rtLookup[useItemRtLabel])
+              }
+            });
+          }
         }
-
 
         if (!useProfile.log){
           useProfile.log = []
@@ -213,9 +223,14 @@
           useProfile.status = 'unposted'
         }
 
-        let profileDataMerge  = await utilsParse.transformRts(useProfile)
 
-        this.activeProfile = profileDataMerge
+        if (this.urlToLoad.trim() !== ''){
+          let profileDataMerge  = await utilsParse.transformRts(useProfile)
+          this.activeProfile = profileDataMerge
+        }else{
+          this.activeProfile = useProfile
+        }
+        
         console.log("this.activeProfile",this.activeProfile)
         this.$router.push(`/edit/${useProfile.eId}`)
 

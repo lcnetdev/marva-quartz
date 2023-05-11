@@ -26,13 +26,35 @@
           </button>
           <hr/>
 
-          <button style="width:100%" class="">
+          <button style="width:100%" class="" @click="showDebug()">
             Debug
           </button>
 
 
 
       </template>
+
+
+      <template v-if="type=='lookupSimple'">
+
+          <button style="width:100%" class="" @click="showDebug()">
+            Debug
+          </button>
+      </template>
+
+      <template v-if="type=='lookupComplex'">
+
+          <button style="width:100%" class="" @click="showDebug()">
+            Debug
+          </button>
+      </template>
+
+
+      
+
+
+
+
 
       <!-- 
         <VDropdown
@@ -57,13 +79,16 @@
 <script>
 
   import { usePreferenceStore } from '@/stores/preference'
+  import { useProfileStore } from '@/stores/profile'
 
-  import { mapStores, mapState } from 'pinia'
+
+  import { mapStores, mapState, mapWritableState } from 'pinia'
 
 
   export default {
     props: {
       type: String,
+      guid: String,
     },
     data () {
       return {
@@ -73,6 +98,10 @@
     },
     computed: {
       ...mapStores(usePreferenceStore),
+      ...mapStores(useProfileStore),
+      ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
+
+
     },
 
     methods: {
@@ -83,6 +112,13 @@
         console.log("CLOSED")
       },
 
+      showDebug: function() {
+        
+
+        this.debugModalData= this.profileStore.returnStructureByComponentGuid(this.guid); 
+        this.showDebugModal = true
+
+      },
 
       // /**
       // * When the mouse moves over the relevant elements open the action menu

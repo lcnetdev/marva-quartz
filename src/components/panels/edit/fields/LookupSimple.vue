@@ -1,5 +1,6 @@
 <template>
       <form autocomplete="off" @submit.prevent="null" >
+
         <div class="lookup-fake-input" @click="focusClick()">
 
           <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && simpleLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
@@ -19,8 +20,8 @@
           </div>     
 
           <Transition name="action">
-            <div class="lookup-action" v-if="showActionButton && structure['@guid'] == activeField['@guid']">
-              <action-button :type="'lookupSimple'" @action-button-command="actionButtonCommand" />
+            <div class="lookup-action" v-if="showActionButton && myGuid == activeField">
+              <action-button :type="'lookupSimple'" :guid="guid" @action-button-command="actionButtonCommand" />
             </div>
           </Transition>
 
@@ -269,8 +270,11 @@ export default {
         return values[0]['@guid']
       }
       return null
-    }
+    },
 
+    myGuid(){
+      return `${this.structure['@guid']}--${this.guid}`
+    },
 
   },
 
@@ -326,7 +330,7 @@ export default {
     focused: function(){
 
       // set the state active field 
-      this.activeField = this.structure
+      this.activeField = this.myGuid
 
       // if enabled show the action button
 
@@ -365,6 +369,10 @@ export default {
       }
       console.log(this.uri)
       console.log(utilsNetwork.lookupLibrary)
+
+      if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
+        this.activeValue="🙀ERROR WITH LOOKUP"
+      }
       Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]).forEach((v)=>{
         
         // the list has a special key metdata that contains more info

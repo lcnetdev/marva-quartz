@@ -11,6 +11,8 @@ export const usePreferenceStore = defineStore('preference', {
     // which group to display in the modal
     showPrefModalGroup: 'Sidebars - Property',
 
+    showDebugModal: false,
+    debugModalData: {},
 
     fontFamilies: ['Avenir, Helvetica, Arial, sans-serif','serif','sans-serif','monospace','cursive','fantasy','system-ui','ui-serif','ui-sans-serif','ui-monospace','ui-rounded'],
    
@@ -592,6 +594,18 @@ export const usePreferenceStore = defineStore('preference', {
       return true
     },
 
+    /**
+    * Dispalys the debug modal
+    * @return {void}
+    */  
+    togglePrefModal: function(){
+      if (this.showDebugModal){
+        this.showDebugModal = false
+      }else{
+        
+        this.showDebugModal = true    
+      }
+    },
 
     /**
     * Dispalys the preference modal

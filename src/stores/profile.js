@@ -830,6 +830,170 @@ export const useProfileStore = defineStore('profile', {
     },
 
 
+    
+    /**
+    * Prepares the data in the component for switch the ref template, for example going
+    * from main title to variant title, it needs to change the userValue mostly
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {array} propertyPath - array of strings mapping the predicates to the blanknode for the value
+    * @param {object} nextRef - the template object representing the template we are switching to
+    * @param {object} thisRef - the template object representing the template we currently on
+
+    * @return {void}
+    */    
+
+    changeRefTemplate: function(componentGuid, propertyPath, nextRef, thisRef){  
+
+      // let lastProperty = propertyPath.at(-1).propertyURI 
+      // // locate the correct pt to work on in the activeProfile
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      if (pt !== false){
+
+        pt.activeType = nextRef.resourceURI
+        let baseURI = pt.propertyURI
+
+        // map to the first level
+        if (!pt.userValue[baseURI]){
+            pt.userValue[baseURI]=[{}]
+        }
+        let userValue = pt.userValue[baseURI][0]
+        // always remove the @id
+        if (userValue['@id']){
+            delete userValue['@id']
+        }
+
+        userValue['@type'] = nextRef.resourceURI
+
+        // store the other properies as well
+        if (!pt.refTemplateUserValueKeys){
+            pt.refTemplateUserValueKeys = {}
+        }
+
+        if (!pt.refTemplateUserValueKeys[thisRef.id]){
+            pt.refTemplateUserValueKeys[thisRef.id] = []
+        }
+
+        for (let key in pt.userValue){
+            if (!key.startsWith('@')){
+                pt.refTemplateUserValueKeys[thisRef.id].push(key)
+            }
+        }
+
+        // if there are properties in the old template that are not in the new one then we need to remove them from the userValue
+        let possibleProperties = nextRef.propertyTemplates.map((p) => {return p.propertyURI})
+
+        if (!pt.refTemplateUserValue){
+            pt.refTemplateUserValue = {}
+        }
+
+        for (let key in userValue){
+            if (!key.startsWith('@')){
+                if (possibleProperties.indexOf(key)==-1){
+                    // 
+                    // this property has no place in the ref template we are about to switch to
+                    // so store them over in the refTemplateUserValue for later if needed
+                    pt.refTemplateUserValue[key] =JSON.parse(JSON.stringify(userValue[key]))
+                    delete userValue[key]
+                }
+            }
+        }
+
+        // see if there are any properties stored in refTemplateUserValue that 
+        // can be filled into this template
+
+        for (let pp of possibleProperties){
+            if (pt.refTemplateUserValue[pp]){
+                // don't use http://id.loc.gov/ontologies/bibframe/assigner aka source
+                // kind of a hackish thing, but the source is really not transferable between
+                // differnt types of classifications so leave it out, it will get populated with the default so
+                // we shouldn't loose any data, only if they change it then cycle the options then it will be lost and need to re-add
+                if (pp != 'http://id.loc.gov/ontologies/bibframe/assigner'){
+                    userValue[pp]= JSON.parse(JSON.stringify(pt.refTemplateUserValue[pp]))
+                }
+                delete pt.refTemplateUserValue[pp]
+            }
+
+        }
+
+
+        // also check to see if there are default values in the orignal profile that we might need to over write with if they are switching 
+
+        
+        for (let ptIdx of this.rtLookup[nextRef.id].propertyTemplates){
+            if (ptIdx.valueConstraint.defaults && ptIdx.valueConstraint.defaults.length>0){
+                // console.log("These fdautls:",ptIdx.valueConstraint.defaults && ptIdx.valueConstraint.defaults[0])
+                // console.log(ptIdx.propertyURI)
+                // if there is already this property in the uservalue remove it
+                if (userValue[ptIdx.propertyURI]){
+                    userValue[ptIdx.propertyURI] = []
+                }
+
+                // popualte with the default
+
+                if (ptIdx.valueConstraint.defaults[0].defaultLiteral){
+
+
+
+                    // if the default is for a label property, don't double nest it
+                    if (ptIdx.propertyURI === 'http://www.w3.org/2000/01/rdf-schema#label'){
+
+                        userValue[ptIdx.propertyURI]= [
+                            {
+                                'http://www.w3.org/2000/01/rdf-schema#label':ptIdx.valueConstraint.defaults[0].defaultLiteral,
+                                '@guid': short.generate(),
+                            }                              
+                        ]
+
+                    }else{
+                        userValue[ptIdx.propertyURI]= [{
+                            '@guid': short.generate(),
+                            'http://www.w3.org/2000/01/rdf-schema#label': [
+                                {
+                                    'http://www.w3.org/2000/01/rdf-schema#label':ptIdx.valueConstraint.defaults[0].defaultLiteral,
+                                    '@guid': short.generate(),
+                                }
+                            ]
+                            
+                        }]
+
+                    }
+
+
+
+                }
+
+                if (ptIdx.valueConstraint.defaults[0].defaultURI && ptIdx.valueConstraint.defaults[0].defaultURI.trim() != ""){
+
+
+                    userValue[ptIdx.propertyURI][0]['@id'] = ptIdx.valueConstraint.defaults[0].defaultURI
+
+                    if (ptIdx.valueConstraint.valueDataType && ptIdx.valueConstraint.valueDataType.dataTypeURI){
+                        userValue[ptIdx.propertyURI][0]['@type'] = ptIdx.valueConstraint.valueDataType.dataTypeURI
+                    }
+
+
+
+                }      
+
+
+
+
+            }
+        }
+
+
+        
+      }else{
+        console.error('changeRefTemplate: Cannot locate the component by guid', componentGuid, this.activeProfile)
+      }
+
+
+    },
+
+
+
+
     /**
     * Sets a "Simple lookup" value, things from small controlled lists like role
     * this function only creates new values, does not modify (aka delete)
@@ -843,6 +1007,9 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */    
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){  
+
+      propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
+
 
       let lastProperty = propertyPath.at(-1).propertyURI 
       // locate the correct pt to work on in the activeProfile
@@ -1053,7 +1220,7 @@ export const useProfileStore = defineStore('profile', {
       let lastProperty = propertyPath.at(-1).propertyURI 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
+      console.log(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral)
       if (pt !== false){
 
         pt.hasData = true
@@ -1131,7 +1298,49 @@ export const useProfileStore = defineStore('profile', {
         }
 
         // and now add in the literal value into the correct property
-        blankNode[lastProperty] = value      
+        blankNode[lastProperty] = value   
+
+        // if we just set an empty value, remove the value property, and if there are no other values, remvoe the entire property
+        if (value.trim() === ''){
+          delete blankNode[lastProperty]
+
+          let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
+
+          console.log('PARENT is',parent)
+          if (parent && parent[lastProperty]){
+            let keep = []
+
+            if (parent[lastProperty].length>0){
+              for (let value of parent[lastProperty]){
+                // does it have a value?
+                if (value[lastProperty] && value[lastProperty] != ''){
+                  keep.push(value)
+                }
+              }
+            }
+
+            parent[lastProperty] = keep
+
+            if (parent[lastProperty].length==0){
+              delete parent[lastProperty]
+            }
+
+            
+
+
+          }
+
+
+        }
+
+        // console.log("Before prune")
+        // console.log(JSON.stringify(pt.userValue))
+
+        // pt.userValue = utilsProfile.pruneUserValue(pt.userValue)
+
+        // console.log("affter prune")
+        // console.log(JSON.stringify(pt.userValue))
+
 
       }else{
         console.error('setValueLiteral: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -1199,6 +1408,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {array} - an array of objs representing the simple lookup values
     */    
     returnSimpleLookupValueFromProfile: function(componentGuid, propertyPath){
+
+
+      // TODO: reconcile this to how the profiles are built, or dont..
+      // remove the sameAs from this property path, which will be the last one, we don't need it
+      propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
+
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
@@ -1455,6 +1670,23 @@ export const useProfileStore = defineStore('profile', {
 
 
     },
+
+    /**
+    * returns the structure of the component, used in the debug modal
+    * 
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @return {array} - an array of objs representing the simple lookup values
+    */    
+    returnStructureByComponentGuid: function(componentGuid){
+
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      return pt
+
+    }
+
+
 
 
 

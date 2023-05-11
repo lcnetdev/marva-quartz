@@ -2,7 +2,7 @@
 
 
   <!-- <div>Complext Lookup ({{propertyPath.map((x)=>{return x.propertyURI}).join('->')}})</div> -->
-      <form autocomplete="off" >
+      <form autocomplete="off" v-on:submit.prevent >
 
 
         <div class="lookup-fake-input" @click="focusClick()">
@@ -39,13 +39,18 @@
             <input   v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
           </div>   
 
-
+          <Transition name="action">
+            <div class="lookup-action" v-if="showActionButton && myGuid == activeField">
+              <action-button :type="'lookupComplex'" :guid="guid" @action-button-command="actionButtonCommand" />
+            </div>
+          </Transition>
 
         </div>
 
       </form>
 
       <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" @emitComplexValue="setComplexValue" @hideComplexModal="displayModal=false" :structure="structure" v-model="displayModal"/>
+      <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" @emitComplexValue="setComplexSubjectValue" @hideSubjectModal="displaySubjectModal=false" :structure="structure" v-model="displaySubjectModal"/>
 
 </template>
 
@@ -452,14 +457,17 @@
 
 
 import ComplexLookupModal from "@/components/panels/edit/modals/ComplexLookupModal.vue";
+import SubjectEditor from "@/components/panels/edit/modals/SubjectEditor.vue";
+
 import LabelDereference from "@/components/panels/edit/fields/helpers/LabelDereference.vue";
 import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
+import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.vue";
 
 
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 
-import { mapStores, mapState } from 'pinia'
+import { mapStores, mapState, mapWritableState } from 'pinia'
 
 
 
@@ -467,8 +475,10 @@ export default {
   name: "LookupComplex",
   components: {    
     ComplexLookupModal,
+    SubjectEditor,
     LabelDereference,
-    AuthTypeIcon
+    AuthTypeIcon,
+    ActionButton
 
     // Keypress: () => import('vue-keypress'),
     // EditSubjectEditor,
@@ -497,7 +507,9 @@ export default {
     return {
 
       displayModal: false,
+      displaySubjectModal: false,
 
+      showActionButton: false,
 
 
       searchValue: null,
@@ -561,6 +573,10 @@ export default {
     ...mapStores(useProfileStore),
     ...mapStores(usePreferenceStore),
 
+    ...mapWritableState(useProfileStore, ['activeField','activeProfile']),
+
+
+
     complexLookupValues(){
 
 
@@ -569,6 +585,9 @@ export default {
 
     }, 
 
+    myGuid(){
+      return `${this.structure['@guid']}--${this.guid}`
+    },
 
   },
 
@@ -675,13 +694,34 @@ export default {
 
 
     focusClick: function(){
-
       this.$refs.lookupInput.focus()
     },
 
     showComplexModal: function(){
       this.displayModal=true
     },
+
+    actionButtonCommand: function(cmd){
+      this.$refs.lookupInput.focus()
+      console.log(this.$refs.lookupInput)
+    },
+
+    focused: function(){
+
+      // set the state active field 
+      this.activeField = this.myGuid
+
+      // if enabled show the action button
+
+      if (this.preferenceStore.returnValue('--b-edit-general-action-button-display')){
+        this.showActionButton=true
+      }else{
+        this.showActionButton=false
+      }
+
+
+    },
+
 
     /**
     * emited from the modal to set the value
@@ -699,6 +739,27 @@ export default {
         },10)
       })
     },
+
+
+    /**
+    * emited from the modal to set the value
+    * @return {object} profile
+    */    
+    setComplexSubjectValue: function(contextValue){
+      delete contextValue.typeFull
+      this.profileStore.setComplexSubjectValue(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
+      this.searchValue=''
+      this.displaySubjectModal=false
+
+      this.$nextTick(() => {
+        window.setTimeout(()=>{
+          this.$refs.lookupInput.focus()
+        },10)
+      })
+    },
+    
+
+
     removeValue: function(){
       this.profileStore.removeValueComplex(this.guid, this.complexLookupValues[0]['@guid'] )
     },
@@ -1901,6 +1962,13 @@ export default {
 
 
 }
+
+.lookup-action{
+  flex-shrink: 1;
+
+}
+
+
 
 .lookup-fake-input{
   display: flex;

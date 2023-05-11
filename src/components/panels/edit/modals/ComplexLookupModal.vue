@@ -274,14 +274,14 @@
           }
 
           this.searchValueLocal = this.searchValue
+          if (this.$refs.complexLookupModalContainer){
+            let modalStopsAt = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + this.$refs.complexLookupModalContainer.getBoundingClientRect().top
+            let selectHeight =  modalStopsAt - this.$refs.selectOptions.getBoundingClientRect().y
+            this.$refs.selectOptions.style.height = selectHeight - 1 + 'px'
 
-          let modalStopsAt = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + this.$refs.complexLookupModalContainer.getBoundingClientRect().top
-          let selectHeight =  modalStopsAt - this.$refs.selectOptions.getBoundingClientRect().y
-          this.$refs.selectOptions.style.height = selectHeight - 1 + 'px'
-
-          
-          this.$refs.complexLookupModalDisplay.style.height = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + 'px'
-
+            
+            this.$refs.complexLookupModalDisplay.style.height = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + 'px'
+          }
         })       
       })
     },

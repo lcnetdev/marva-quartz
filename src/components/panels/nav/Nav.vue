@@ -26,6 +26,13 @@
          test:'testsss'
       }
     },
+    props:{
+      disable: {
+        default: [],
+        type: Array
+      }
+
+    },
     computed: {
       // other computed properties
       // ...
@@ -53,53 +60,61 @@
       },
 
       my_menu () {
-        return [
-            {
-            html: `
-                <svg width="25px" height="25px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                 <g class="nav-icon-color" >
-                  <path d="m55.5 34.398-20.199 63.102 11.898-1.1992 31.199-63.801z"/>
-                  <path d="m59.898 4.5-3.1992 23.898 21.199-1.6992z"/>
-                  <path d="m54.301 2.5-26.699 11.699 23.398 12.801z"/>
-                  <path d="m24.102 18.898-2.5 69.301 8.0977 7.8008 20.102-63z"/>
-                 </g>
-                </svg>
-                `,         
-          },
+        console.log(this.disable)
+        let menu =  []
 
+        if (!this.disable.includes('logo')){
+          menu.push({
+              html: `
+                  <svg width="25px" height="25px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                   <g class="nav-icon-color" >
+                    <path d="m55.5 34.398-20.199 63.102 11.898-1.1992 31.199-63.801z"/>
+                    <path d="m59.898 4.5-3.1992 23.898 21.199-1.6992z"/>
+                    <path d="m54.301 2.5-26.699 11.699 23.398 12.801z"/>
+                    <path d="m24.102 18.898-2.5 69.301 8.0977 7.8008 20.102-63z"/>
+                   </g>
+                  </svg>
+                  `,         
+          })
+        }
+
+        if (!this.disable.includes('Menu')){
+          menu.push(
           { text: "Menu",  menu: [
-            { text: "Load Resource", click: () => this.$router.push('/load') },
-            { text: "Blank Resource", click: () => this.$router.push('/load') }
-
-          ] },
-          { text: "View",  menu: [     
-
-            { text: 'Properties', click: () => this.preferenceStore.togglePanel('properties'), icon: this.panelTitleProperties },
-            { text: 'Dual Edit', click: () => this.preferenceStore.togglePanel('dualEdit'), icon: this.panelTitleDualEdit },
-            { text: 'Preview OPAC', click: () => this.preferenceStore.togglePanel('opac'), icon: this.panelTitleOpacEdit },
-
-            { text: 'Preview XML', click: () => this.preferenceStore.togglePanel('xml'), icon: this.panelTitleXMLEdit },
-            { text: 'Preview MARC', click: () => this.preferenceStore.togglePanel('marc'), icon: this.panelTitleMARCEdit },
-
-
-
-            { is: 'separator'},
-
-
-            { text: "Preferences", menu: [
-              { text: 'Panels - Propert List', click: () => this.preferenceStore.togglePrefModal('Sidebars - Property')}
-
-
-
-
-            ]},
-
+            { text: "Load Resource", click: () => this.$router.push('/load'), icon:"💾" },
+            
 
           ] }
+          )
+        }
+
+
+        if (!this.disable.includes('View')){
+          menu.push(
+            { text: "View",  menu: [    
+
+              { text: 'Properties', click: () => this.preferenceStore.togglePanel('properties'), icon: this.panelTitleProperties },
+              { text: 'Dual Edit', click: () => this.preferenceStore.togglePanel('dualEdit'), icon: this.panelTitleDualEdit },
+              { text: 'Preview OPAC', click: () => this.preferenceStore.togglePanel('opac'), icon: this.panelTitleOpacEdit },
+
+              { text: 'Preview XML', click: () => this.preferenceStore.togglePanel('xml'), icon: this.panelTitleXMLEdit },
+              { text: 'Preview MARC', click: () => this.preferenceStore.togglePanel('marc'), icon: this.panelTitleMARCEdit },
 
 
 
-        ]
+              { is: 'separator'},
+
+
+              { text: "Preferences", menu: [
+                { text: 'Panels - Propert List', click: () => this.preferenceStore.togglePrefModal('Sidebars - Property')}
+              ]},
+            ] }
+          )
+        }
+       
+        return menu
+
+
       }
 
 

@@ -329,16 +329,36 @@ const utilsProfile = {
     for (let key in userValue){
 
       if (Array.isArray(userValue[key])){
+        console.log(key)
         let hasData = false
         for (let value of userValue[key]){
           for (let key2 in value){
+            console.log(key2)
             if (!['@guid','@type'].includes(key2)){
               hasData=true
             }
+
+
+            // // go one level deeper
+            // if (Array.isArray(value[key2])){
+            //   for (let value2 of value[key2]){
+            //     let hasData2 = false
+            //     for (let key3 in value){
+            //       console.log(key3)
+            //       if (!['@guid','@type'].includes(key3)){
+            //         hasData2=true
+            //       }
+            //     }
+            //   }
+
+            // }
+
+
+
           }
         }
         if (!hasData){
-          // console.log(key,'does not have data')
+          console.log(key,'does not have data')
           delete userValue[key]
         }      
       }

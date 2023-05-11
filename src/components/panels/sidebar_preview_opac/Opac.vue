@@ -52,7 +52,7 @@
 
         let results = []
 
-        console.log('userValueuserValueuserValueuserValue',userValue)
+        // console.log('userValueuserValueuserValueuserValue',userValue)
         for (let k1 in userValue){
 
           if (!k1.startsWith('@')){
@@ -66,32 +66,54 @@
               }
 
               for (let k2 in value){
-                console.log('doing k2',k2)
+                // console.log('doing k2',k2)
 
                 if (k2 == '@id'){
                   toAdd.uri = value['@id']
                 }
                 else if (k2.startsWith('@')){
                   // do nothing if not id
-                  console.log('@')
+                  // console.log('@')
                 }
                 else if (ignore.includes(k2)){
                   // do nothing
-                  console.log('ignore')
+                  // console.log('ignore')
                 }
                 else{
-                  console.log('value[k2]',value[k2])
+                  // console.log('value[k2]',value[k2])
                   if (Array.isArray(value[k2])){
-                    console.log('is arrat')
+                    // console.log('is arrat')
                     for (let value2 of value[k2]){
-                      console.log('value2',value2, 'k2',k2)
+                      // console.log('value2',value2, 'k 2',k2)
                       //if there is a literal value with the same property then possibly add that
                       if (value2[k2]){
-                        console.log("yeah", value2[k2])
+                        // console.log("yeah", value2[k2])
                         if (!textAdded.includes(value2[k2])){
                           textAdded.push(value2[k2])
                           toAdd.label.push(value2[k2])
                         }
+                      }else if (value2['@id']){
+
+                        // console.log("ITS A ENTTITY")
+                        // console.log(value2)
+                        toAdd.uri = value2['@id']
+                        // toAdd.label = value2['@id'].split('/').pop()
+                        for (let labelUri of ['http://www.w3.org/2000/01/rdf-schema#label','http://www.loc.gov/mads/rdf/v1#authoritativeLabel', 'http://id.loc.gov/ontologies/bibframe/code']){
+                          if (value2[labelUri]){
+                            for (let vl of value2[labelUri]){
+                              toAdd.label.push(vl[labelUri])  
+                            }                            
+                          }
+                        }
+                        results.push(toAdd)
+                        toAdd = {
+                          uri: null,
+                          label: [],
+                          children:[]
+                        }                        
+
+
+
                       }
 
 
@@ -107,7 +129,7 @@
               }
 
 
-              console.log('toAdd',toAdd)
+              // console.log(userValue,'toAdd',toAdd)
               if (toAdd.uri!== null || toAdd.label.length>0){
                 results.push(toAdd)
               }
@@ -171,15 +193,15 @@
                     <a style="font-size:0.95em" href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[profileCompoent]" class="sidebar-property-ul-alink">
                         {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                     </a>
-                    <div style="padding-left:0.4em; font-size:0.85em; margin-bottom:0.5em" v-for="value in buildDisplayObjects(activeProfile.rt[profileName].pt[profileCompoent].userValue)">
+                    <div style="" class="sidebar-opac-li-value" v-for="value in buildDisplayObjects(activeProfile.rt[profileName].pt[profileCompoent].userValue)">
                         
                         <template v-if="value.uri !== null">
                           <a :href="value.uri" target="_blank">
-                            <span v-for="l in value.label">{{l}}</span>
+                            <div class="sidebar-opac-li-value-text" v-for="l in value.label">{{l}}</div>
                           </a>
                         </template>
                         <template v-else>
-                          <span v-for="l in value.label">{{l}}</span>
+                          <div class="sidebar-opac-li-value-text" v-for="l in value.label">{{l}}</div>
 
                         </template>
 
@@ -252,6 +274,21 @@
   cursor: pointer;
   padding-left: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size', true) / 2  + 'em'");
   list-style: none;
+}
+
+.sidebar-opac-li-value{
+  padding-left:0.4em; 
+  font-size:0.85em; 
+  margin-bottom:0.5em;
+}
+
+.sidebar-opac-li-value a{
+
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
+
+}
+.sidebar-opac-li-value-text{
+  font-weight:bold;
 }
 
 .sidebar-property-li:hover{
