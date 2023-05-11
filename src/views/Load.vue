@@ -121,7 +121,7 @@
       },
 
       loadTestData: function(filename){
-        this.urlToLoad = '/test_files/' + filename
+        this.urlToLoad = '/bfe2/quartz/test_files/' + filename
         // this.loadUrl()
       },
 
