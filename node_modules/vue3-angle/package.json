@@ -1,9 +1,0 @@
-{
-  "name": "vue3-angle",
-  "version": "0.1.6",
-  "main": "vue3-angle.es.js",
-  "types": "types/index.d.ts",
-  "peerDependencies": {
-    "vue": "^3.2.6"
-  }
-}

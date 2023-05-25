@@ -35,7 +35,8 @@ export const usePreferenceStore = defineStore('preference', {
 
 
 
-      
+      // the left properties panel
+
       '--c-edit-main-splitpane-properties-background-color' : {
           value:'#2a2a2a',
           desc: 'The background color of the properties side bar on the edit screen.',
@@ -127,7 +128,7 @@ export const usePreferenceStore = defineStore('preference', {
       '--b-edit-main-splitpane-properties-show-types' : {
           desc: 'Show all type labels, such as "Variant Title" under "Title".',
           descShort: 'Type Labels',
-          value: true,
+          value: false,
           type: 'boolean',
           unit: null,
           group: 'Sidebars - Property',
@@ -142,6 +143,28 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Property',
           range: [true,false]
       },
+
+
+      '--b-edit-main-splitpane-properties-accordion' : {
+          desc: 'The property list expands and contracts.',
+          descShort: 'Accordion List',
+          value: true,
+          type: 'boolean',
+          unit: null,
+          group: 'Sidebars - Property',
+          range: [true,false]
+      },
+
+      // not implemented
+      // '--b-edit-main-splitpane-properties-accordion-autoclose' : {
+      //     desc: 'The accordion closes by itself.',
+      //     descShort: 'Accordion List - Autoclose',
+      //     value: true,
+      //     type: 'boolean',
+      //     unit: null,
+      //     group: 'Sidebars - Property',
+      //     range: [true,false]
+      // },
 
       // preview - opac
 

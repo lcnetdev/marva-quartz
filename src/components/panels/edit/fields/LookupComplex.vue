@@ -4,7 +4,6 @@
   <!-- <div>Complext Lookup ({{propertyPath.map((x)=>{return x.propertyURI}).join('->')}})</div> -->
       <form autocomplete="off" v-on:submit.prevent >
 
-
         <div class="lookup-fake-input" @click="focusClick()">
       <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && complexLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
 
@@ -36,7 +35,8 @@
           </div>
 
           <div class="lookup-fake-input-text">
-            <input   v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
+            <input   v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
+            <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
           </div>   
 
           <Transition name="action">
@@ -465,6 +465,8 @@ import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.v
 
 
 import { useProfileStore } from '@/stores/profile'
+import { useConfigStore } from '@/stores/config'
+
 import { usePreferenceStore } from '@/stores/preference'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
@@ -571,6 +573,7 @@ export default {
     // ...
     // gives access to this.counterStore and this.userStore
     ...mapStores(useProfileStore),
+    ...mapStores(useConfigStore),
     ...mapStores(usePreferenceStore),
 
     ...mapWritableState(useProfileStore, ['activeField','activeProfile']),
@@ -697,9 +700,15 @@ export default {
       this.$refs.lookupInput.focus()
     },
 
-    showComplexModal: function(){
-      this.displayModal=true
-    },
+    // showComplexModal: function(){
+    //   console.log(configStore.useSubjectEditor)
+    //   if (configStore.useSubjectEditor.contains(this.structure.propertyURI)){
+    //     this.displaySubjectModal=true
+    //   }else{
+    //     this.displayModal=true
+    //   }
+      
+    // },
 
     actionButtonCommand: function(cmd){
       this.$refs.lookupInput.focus()
@@ -767,8 +776,13 @@ export default {
     textInputEvent: function(event){
 
 
-      this.displayModal=true
 
+      console.log(this.configStore.useSubjectEditor)
+      if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
+        this.displaySubjectModal=true
+      }else{
+        this.displayModal=true
+      }
 
 
     },

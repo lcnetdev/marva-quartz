@@ -92,7 +92,21 @@
 
             this.$nextTick(() => {
               window.setTimeout(()=> {
-                document.getElementById(`edit_${newVal.parentId}_${newVal.id}`).scrollIntoView({behavior: "smooth"});
+                document.getElementById(`edit_${newVal.parentId}_${newVal.id}`).scrollIntoView({behavior: "smooth", block:"start"});
+                console.log(document.getElementById(`edit_${newVal.parentId}_${newVal.id}`))
+
+                document.getElementById(`edit_${newVal.parentId}_${newVal.id}`).querySelector('input,textarea').focus()
+
+                for (let el of document.getElementById(`edit_${newVal.parentId}_${newVal.id}`).querySelectorAll('input,textarea')){
+                  el.style.transition = "background 500ms"
+                  el.style.background='yellow'
+                }
+                window.setTimeout(()=> {
+                  for (let el of document.getElementById(`edit_${newVal.parentId}_${newVal.id}`).querySelectorAll('input,textarea')){
+                    el.style.background='transparent'
+                  }
+                },500);
+
 
               },10);             
             });

@@ -175,6 +175,13 @@ export const useConfigStore = defineStore('config', {
   ], 
 
 
+  // use the subject editor not the complex lookup modal when it has this propertyURI value
+  useSubjectEditor: [
+    'http://www.loc.gov/mads/rdf/v1#Topic',
+    'http://www.loc.gov/mads/rdf/v1#componentList'
+  ],
+
+
 
 
   lookupConfig: {
