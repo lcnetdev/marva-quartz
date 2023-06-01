@@ -288,6 +288,17 @@ export const usePreferenceStore = defineStore('preference', {
           range: [0,1]
       },
 
+      '--b-edit-main-splitpane-edit-shortcode-display-mode' : {
+          desc: 'Display abbrivated BF tags instead of natural language labels.',
+          descShort: 'BF display tags',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
+
+
 
 
       // the NAV panel

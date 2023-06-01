@@ -3,21 +3,59 @@
 
         <div class="lookup-fake-input" @click="focusClick()">
 
-          <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && simpleLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
+          <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
+            <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && simpleLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
+          </template>
 
-          <div class="lookup-fake-input-entities">
-            <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
-                <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span>
-                
-                <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
 
-                <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+
+          <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == true">
+
+            <div class="bfcode-display-mode-holder">
+              <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
+              <div class="bfcode-display-mode-holder-value">
+                  
+                <div class="lookup-fake-input-entities" style="display:inline-block;">
+                  <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
+                      <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span>
+                      
+                      <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+
+                      <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+                  </div>
+                </div>
+                <div class="lookup-fake-input-text" style="display: inline-block;">
+                  <input v-model="activeValue" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
+                </div>   
+
+              </div>
             </div>
 
-          </div>
-          <div class="lookup-fake-input-text">
-            <input v-model="activeValue" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
-          </div>     
+          </template>
+
+          <template v-else>
+          
+            <div class="lookup-fake-input-entities">
+              <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
+                  <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span>
+                  
+                  <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+
+                  <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+              </div>
+            </div>
+            <div class="lookup-fake-input-text">
+              <input v-model="activeValue" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
+            </div>     
+
+
+          </template>
+
+
+
+
+
+
 
           <Transition name="action">
             <div class="lookup-action" v-if="showActionButton && myGuid == activeField">
@@ -346,9 +384,6 @@ export default {
     },
 
     actionButtonCommand: function(cmd){
-
-
-
       this.$refs.input.focus()
       console.log(this.$refs.input)
     },
@@ -1181,6 +1216,23 @@ export default {
 
 
 <style scoped>
+
+.bfcode-display-mode-holder{
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.bfcode-display-mode-holder-label{
+  flex-shrink: 1;
+  max-width: 100px;
+  font-family: monospace;
+  color:gray;
+}
+.bfcode-display-mode-holder-value{
+  flex-grow: 1;
+}
+
+
 
 .check-mark{
   color: green;

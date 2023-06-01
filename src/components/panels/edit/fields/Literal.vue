@@ -5,21 +5,55 @@
     <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
     <div class="literal-field">
 
-      <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
+
+      <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
+        <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>       
+      </template>
       <form autocomplete="off" >
-        <textarea 
-          :class="['literal-textarea', 'can-select',{}]" 
-          v-model="lValue.value"
-          v-on:keydown.enter.prevent="submitField"
-          autocomplete="off"
-          @focusin="focused" 
-          @blur="blured"
-          @input="valueChanged"
-          
-          :ref="'input_' + lValue['@guid']"
-          :data-guid="lValue['@guid']"
-          ></textarea>
-        
+
+        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == true">
+
+          <div class="bfcode-display-mode-holder">
+            <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
+            <div class="bfcode-display-mode-holder-value">
+                <textarea 
+                :class="['literal-textarea', 'can-select',{'bfcode-textarea': preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode')}]" 
+                v-model="lValue.value"
+                v-on:keydown.enter.prevent="submitField"
+                autocomplete="off"
+                @focusin="focused" 
+                @blur="blured"
+                @input="valueChanged"          
+                :ref="'input_' + lValue['@guid']"
+                :data-guid="lValue['@guid']"
+                ></textarea>
+
+
+            </div>
+          </div>
+
+
+        </template>
+        <template v-else>
+
+          <textarea 
+            :class="['literal-textarea', 'can-select',{}]" 
+            v-model="lValue.value"
+            v-on:keydown.enter.prevent="submitField"
+            autocomplete="off"
+            @focusin="focused" 
+            @blur="blured"
+            @input="valueChanged"          
+            :ref="'input_' + lValue['@guid']"
+            :data-guid="lValue['@guid']"
+            ></textarea>
+
+        </template>
+
+
+
+
+
       </form>
     </div>
       <Transition name="action">
@@ -1671,23 +1705,44 @@ export default {
 
 <style scoped>
 
-    /*translate fade (top to down)*/
-    .translate-fade-down-enter-active, .translate-fade-down-leave-active {
-        transition: all 250ms;
-        transition-timing-function: cubic-bezier(.53,2,.36,.85);
-    }
-    .translate-fade-down-enter, .translate-fade-down-leave-active {
-        opacity: 0;
-    }
-    .translate-fade-down-enter, .translate-fade-down-leave-to {
-        position: absolute;
-    }
-    .translate-fade-down-enter {
-        transform: translateY(-10px);
-    }
-    .translate-fade-down-leave-active {
-        transform: translateY(10px);
-    }
+
+.bfcode-textarea{
+  margin-top: 0 !important;
+  margin-left: 5px;
+}
+
+.bfcode-display-mode-holder{
+  display: flex;
+  align-items: center;
+}
+.bfcode-display-mode-holder-label{
+  flex-shrink: 1;
+  max-width: 100px;
+  font-family: monospace;
+  color:gray;
+}
+.bfcode-display-mode-holder-value{
+  flex-grow: 1;
+}
+
+
+/*translate fade (top to down)*/
+.translate-fade-down-enter-active, .translate-fade-down-leave-active {
+    transition: all 250ms;
+    transition-timing-function: cubic-bezier(.53,2,.36,.85);
+}
+.translate-fade-down-enter, .translate-fade-down-leave-active {
+    opacity: 0;
+}
+.translate-fade-down-enter, .translate-fade-down-leave-to {
+    position: absolute;
+}
+.translate-fade-down-enter {
+    transform: translateY(-10px);
+}
+.translate-fade-down-leave-active {
+    transform: translateY(10px);
+}
 
 
 

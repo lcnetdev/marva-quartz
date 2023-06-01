@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { useConfigStore } from './config'
 
 import utilsNetwork from '@/lib/utils_network';
+import utilsParse from '@/lib/utils_parse';
 
 
 import utilsProfile from '../lib/utils_profile'
@@ -1683,6 +1684,73 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       return pt
+
+    },
+
+
+
+    /**
+    * returns the label to use in bf code mode
+    * 
+    * @param {object} structure - the structure value from the profile
+    * @return {string} - the label
+    */    
+    returnBfCodeLabel: function(structure){
+
+      let code = utilsParse.namespaceUri(structure.propertyURI)
+      console.log(structure.propertyURI, code)
+
+      // HACK HACK HAVK
+      if (structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic'){
+        code = "bf:subject"
+      }
+
+      if (['rdfs:label', 'owl:sameAs'].includes(code)){
+        console.log(structure.propertyURI)
+        code = utilsParse.namespaceUri(this.rtLookup[structure.parentId].resourceURI)
+      }
+
+      code = code.replace('bflc:','lc:')
+
+      // TODO - why are these classes?
+      // bf:Note becomes bf:note
+      if (code.charAt(3) === code.charAt(3).toUpperCase()){
+        code = code.substring(0, 3) + code.charAt(3).toLowerCase() + code.substring(3 + 1);
+      }
+      console.log("code=",code)
+      let justProperty = code.split(':')[1]
+
+      let numUpper = justProperty.length - justProperty.replace(/[A-Z]/g, '').length;  
+
+      if (numUpper == 2){
+        code = code.split(':')[0] + ':' + justProperty.charAt(0) + justProperty.replace(/[a-z]/g, '')
+      }else if (numUpper == 1){
+        code = code.split(':')[0] + ':' + justProperty.charAt(0) + justProperty.charAt(1) + justProperty.replace(/[a-z]/g, '')        
+      }else if (numUpper == 0){
+        code = code.split(':')[0] + ':' + justProperty.charAt(0) + justProperty.charAt(1) + justProperty.charAt(2)
+      }
+      console.log("code=",code)
+
+      // if its just a rdf value then replace it with the acutal text
+      if (code == 'rdf:val'){
+        let useLabel = structure.propertyLabel.split(' ')[0]
+        if (useLabel.length <= 6){
+          code = useLabel.toLowerCase()
+        }else{
+          code = `${useLabel.charAt(0)}${useLabel.charAt(1)}${useLabel.charAt(2)}${useLabel.charAt(3)}${useLabel.charAt(4)}${useLabel.charAt(5)}`.toLowerCase()
+        }
+        console.log("HEY CODE IS",code)
+      }
+
+
+      // if (uri == '')
+
+      console.log(structure)
+      console.log(this.rtLookup[structure.parentId])
+
+
+
+      return code
 
     }
 

@@ -78,6 +78,17 @@
 
 
 
+.bfcode-display-mode-holder{
+  display: flex;
+  align-items: center;
+}
+.bfcode-display-mode-holder-label{
+  flex-shrink: 1;
+  max-width: 100px;
+}
+.bfcode-display-mode-holder-value{
+  flex-grow: 1;
+}
 
 
 

@@ -25,7 +25,11 @@
       
       <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
           :key="profileCompoent">
-        <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+
+        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
+          <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+        </template>
+        
         <Main       
           :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
           :level="0"

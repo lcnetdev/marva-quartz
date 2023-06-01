@@ -32,7 +32,9 @@ const utilsParse = {
     'xsd': 'http://www.w3.org/2001/XMLSchema#',
     'mstatus': 'https://id.loc.gov/vocabulary/mstatus/',
     'mnotetype': 'http://id.loc.gov/vocabulary/mnotetype/',
-    'dcterms': 'http://purl.org/dc/terms/'
+    'dcterms': 'http://purl.org/dc/terms/',
+    'owl': 'http://www.w3.org/2002/07/owl#',
+
   },
 
 
