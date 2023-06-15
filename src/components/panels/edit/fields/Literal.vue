@@ -1,23 +1,70 @@
 <template>
-    
-<div class="lookup-fake-input" >
-  <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues">
-    <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
-    <div class="literal-field">
 
+  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
+    <template v-if="inlineModeShouldDisplay">
+      
+      <template v-if="literalValues.length===1 && literalValues[0].value === ''">
+          
+          <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+          <span @focus="inlineEmptyFocus" contenteditable="true" class="inline-mode-editable-span" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>        
 
-      <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
-        <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>       
       </template>
-      <form autocomplete="off" >
+      <template v-else>
 
-        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == true">
+        <template v-for="lValue in literalValues">
+          <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+          <span contenteditable="true" class="inline-mode-editable-span" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>        
+        </template>
 
-          <div class="bfcode-display-mode-holder">
-            <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
-            <div class="bfcode-display-mode-holder-value">
-                <textarea 
-                :class="['literal-textarea', 'can-select',{'bfcode-textarea': preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode')}]" 
+
+      </template>
+
+
+    </template>
+
+
+  </template>
+
+  <template v-else>
+
+    <div class="lookup-fake-input" >
+      <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues">
+        <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
+        <div class="literal-field">
+
+
+          <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
+            <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>       
+          </template>
+          <form autocomplete="off" >
+
+            <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == true">
+
+              <div class="bfcode-display-mode-holder">
+                <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
+                <div class="bfcode-display-mode-holder-value">
+                    <textarea 
+                    :class="['literal-textarea', 'can-select',{'bfcode-textarea': preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode')}]" 
+                    v-model="lValue.value"
+                    v-on:keydown.enter.prevent="submitField"
+                    autocomplete="off"
+                    @focusin="focused" 
+                    @blur="blured"
+                    @input="valueChanged"          
+                    :ref="'input_' + lValue['@guid']"
+                    :data-guid="lValue['@guid']"
+                    ></textarea>
+
+
+                </div>
+              </div>
+
+
+            </template>
+            <template v-else>
+
+              <textarea 
+                :class="['literal-textarea', 'can-select',{}]" 
                 v-model="lValue.value"
                 v-on:keydown.enter.prevent="submitField"
                 autocomplete="off"
@@ -28,41 +75,23 @@
                 :data-guid="lValue['@guid']"
                 ></textarea>
 
+            </template>
 
-            </div>
+
+
+
+
+          </form>
+        </div>
+          <Transition name="action">
+            <div class="literal-action" v-if="showActionButton && myGuid == activeField">
+              <action-button :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
           </div>
-
-
-        </template>
-        <template v-else>
-
-          <textarea 
-            :class="['literal-textarea', 'can-select',{}]" 
-            v-model="lValue.value"
-            v-on:keydown.enter.prevent="submitField"
-            autocomplete="off"
-            @focusin="focused" 
-            @blur="blured"
-            @input="valueChanged"          
-            :ref="'input_' + lValue['@guid']"
-            :data-guid="lValue['@guid']"
-            ></textarea>
-
-        </template>
-
-
-
-
-
-      </form>
-    </div>
-      <Transition name="action">
-        <div class="literal-action" v-if="showActionButton && myGuid == activeField">
-          <action-button :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
+        </Transition>
       </div>
-    </Transition>
-  </div>
-</div>
+    </div>
+  </template>
+
 
 </template>
 
@@ -304,6 +333,11 @@ export default {
 
   methods: {
 
+    inlineEmptyFocus: function(event){
+      if (event.target.innerText.trim() === ''){
+        event.target.innerText=''
+      }
+    },
   
     focusClick: function(lValue){
 
@@ -332,7 +366,18 @@ export default {
     },
 
     valueChanged: function(event){
-      this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,event.target.value,event.target.dataset.lang)
+
+      let v = event.target.value
+      console.log(event)
+      if (event.target.tagName === 'SPAN'){
+        v = event.target.innerText
+        if (event.data && event.data === '|'){
+          event.target.innerText = event.target.innerText.slice(0,-1)
+          event.preventDefault()
+          return false
+        }
+      }
+      this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,event.target.dataset.lang)
     },
 
 
@@ -1487,10 +1532,6 @@ export default {
     },
 
     literalValues(){
-
-
-      
-
       // profileStore.setActiveField()
       let values = this.profileStore.returnLiteralValueFromProfile(this.guid,this.propertyPath)
       if (values === false){
@@ -1506,7 +1547,24 @@ export default {
 
     }, 
 
+    inlineModeShouldDisplay(){
 
+
+      if (this.profileStore.inlinePropertyHasValue(this.guid, this.structure,this.propertyPath)){
+        return true
+      } else if (this.profileStore.inlineFieldIsToggledForDisplay(this.guid, this.structure)){
+        return true
+
+      }else{
+        // no value in it, but maybe its the "main" property, so display it anyway
+        if (this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath)){
+          return true
+        }
+      } 
+
+      return false
+
+    }
 
     // literalFieldValue: {
     //   // getter
@@ -1705,6 +1763,21 @@ export default {
 
 <style scoped>
 
+.inline-mode-editable-span{
+  min-width: 250px;
+  display: inline;
+  padding: 0.2em;
+  outline: 1px solid transparent;
+
+}
+
+.inline-mode-editable-span:focus-within {
+  background-color: #dfe5f1;
+}
+.inline-mode-editable-span:focus {
+  outline: none;
+}
+
 
 .bfcode-textarea{
   margin-top: 0 !important;
@@ -1719,6 +1792,7 @@ export default {
   flex-shrink: 1;
   max-width: 100px;
   font-family: monospace;
+  padding-right: 10px;
   color:gray;
 }
 .bfcode-display-mode-holder-value{

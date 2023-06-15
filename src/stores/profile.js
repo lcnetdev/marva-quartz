@@ -844,7 +844,6 @@ export const useProfileStore = defineStore('profile', {
     */    
 
     changeRefTemplate: function(componentGuid, propertyPath, nextRef, thisRef){  
-
       // let lastProperty = propertyPath.at(-1).propertyURI 
       // // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
@@ -1748,17 +1747,154 @@ export const useProfileStore = defineStore('profile', {
       console.log(structure)
       console.log(this.rtLookup[structure.parentId])
 
-
+      // chop off the namespace
+      code = code.split(':')[1]
 
       return code
 
+    },
+
+    /**
+    * returns if the request property is the "main" property of that component
+    * 
+    * @param {string} componentGuid - the guid of the component
+    * @param {array} propertyPath - the property path of the property in question
+    * @return {boolean} - 
+    */    
+    inlineIsMainProperty: function(componentGuid, fieldStructure, propertyPath){    
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      // let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
+      // some hard coded hacks
+
+      if (fieldStructure.propertyURI === 'http://id.loc.gov/ontologies/bflc/nonSortNum'){ 
+        return false
+      }
+      if (fieldStructure.propertyURI === 'http://id.loc.gov/ontologies/bibframe/mainTitle'){ 
+        return true
+      }
+
+
+
+
+      // if it doesn't have any valuetemplates then it is a single property component
+      if (pt.valueConstraint.valueTemplateRefs.length==0){
+        return true
+      }
+
+      // if the label matches the first label in one of the value templates then it is the first property and probably the most important?
+      for (let ref of pt.valueConstraint.valueTemplateRefs){
+        if (this.rtLookup[ref].propertyTemplates[0].propertyLabel === fieldStructure.propertyLabel){
+          return true
+        }
+      }
+
+      return false
+
+    },
+    /**
+    * returns if the request property has a value in it
+    * 
+    * @param {string} componentGuid - the guid of the component
+    * @param {array} propertyPath - the property path of the property in question
+    * @return {boolean} - 
+    */    
+    inlinePropertyHasValue: function(componentGuid, fieldStructure, propertyPath){    
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
+      if (valueLocation !== false){
+        return true
+      }
+      return false
+
+    },
+    /**
+    * returns possible fields in that can be displated in the componnet
+    * 
+    * @return {array} - array of the fields
+    */    
+    returnPossibleFieldsInComponent: function(componentGuid){    
+      console.log("returnPossibleFieldsInComponent")
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      
+      if (pt.valueConstraint.valueTemplateRefs.length==0){
+        console.log('n o valueTemplateRefs')
+        return []
+      }
+      let use = []
+
+      if (pt.valueConstraint.valueTemplateRefs.length===1){
+        use = this.rtLookup[pt.valueConstraint.valueTemplateRefs[0]].propertyTemplates
+      }else{
+
+        if (pt.activeType){
+          console.log("HAS activeType",pt.activeType)
+          console.log("out of",pt.valueConstraint.valueTemplateRefs)
+          for (let ref of pt.valueConstraint.valueTemplateRefs){
+            console.log(this.rtLookup[ref])
+           if (this.rtLookup[ref].resourceURI === pt.activeType){
+            console.log("using this one:",this.rtLookup[ref])
+              use = this.rtLookup[ref].propertyTemplates
+              break
+           }
+          }
+        }else{
+          // just use the first template
+          use = this.rtLookup[pt.valueConstraint.valueTemplateRefs[0]].propertyTemplates
+        }
+      }
+
+
+      // let codes = this.returnBfCodeLabel(pt)
+      let useReturn = []
+      for (let p of use){
+
+        useReturn.push({'code':this.returnBfCodeLabel(p), 'label' : p.propertyLabel})
+
+      }
+      return useReturn
+
+    },
+
+    
+    /**
+    * 
+    * 
+    * @return {array} - array of the fields
+    */    
+    setInlineDisplay: function(componentGuid, label){   
+      console.log("YEAH")
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      if (!pt.inlineModeDisplay){
+        pt.inlineModeDisplay = {}
+      }
+
+      pt.inlineModeDisplay[label] = true
+      console.log(pt)
+    },
+
+    /**
+    * 
+    * 
+    * @return {array} - array of the fields
+    */    
+    inlineFieldIsToggledForDisplay: function(componentGuid, structure){   
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      if (!pt.inlineModeDisplay){
+        return false
+      }
+
+
+      if (pt.inlineModeDisplay[structure.propertyLabel]){
+        return true
+      }
+
+      
     }
 
 
 
-
-
-
-
-  },
+  }
 })

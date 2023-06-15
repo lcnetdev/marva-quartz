@@ -28,6 +28,13 @@ const app = createApp(App);
 import Main from "./components/panels/edit/fields/Main.vue";
 app.component('Main', Main)
 
+// import MainInline from "./components/panels/edit/fields/MainInline.vue";
+// app.component('MainInline', MainInline)
+
+
+
+
+
 
 const vfm = createVfm()
 app.use(vfm)

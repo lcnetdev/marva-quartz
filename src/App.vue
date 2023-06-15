@@ -1,6 +1,6 @@
 <script>
 import { RouterLink, RouterView } from "vue-router";
-import HelloWorld from "./components/HelloWorld.vue";
+
 import LoadingModal from "@/components/general/LoadingModal.vue";
 import PreferenceModal from "@/components/general/PreferenceModal.vue";
 
@@ -16,7 +16,7 @@ import { mapStores, mapState } from 'pinia'
 
 export default {
   components: {
-    HelloWorld,
+
     LoadingModal,
     PreferenceModal,
   },

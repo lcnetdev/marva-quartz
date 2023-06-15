@@ -297,7 +297,15 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: [true,false]
       },
-
+      '--b-edit-main-splitpane-edit-inline-mode' : {
+          desc: 'One line edit mode via bf short code tags.',
+          descShort: 'Inline edit mode',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
 
 
 

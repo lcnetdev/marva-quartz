@@ -1,4 +1,51 @@
 <template>
+
+  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
+
+    <template v-if="inlineModeShouldDisplay">
+      
+      <template v-if="simpleLookupValues.length===0">
+          
+          <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+
+      </template>
+      <template v-else>
+
+
+                  <template v-for="(avl,idx) in simpleLookupValues" >
+                      <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+
+                      <span v-if="!avl.needsDereference" style="">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span></span>
+                      <!-- <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span> -->
+                      
+                      <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+
+                      <!-- <span @click="removeValue(idx)" style="">x</span> -->
+                  </template>
+
+
+      </template>
+
+
+    </template>
+
+
+        <!-- 
+    <template v-if="inlineModeShouldDisplay">
+      
+      {{structure}}
+      {{guid}}
+
+    </template>
+     -->
+
+
+
+  </template>
+
+  <template v-else>
+
+
       <form autocomplete="off" @submit.prevent="null" >
 
         <div class="lookup-fake-input" @click="focusClick()">
@@ -78,6 +125,8 @@
           </li>
         </ul>
       </div>
+  </template>
+
 </template>
 
 <script>
@@ -313,6 +362,25 @@ export default {
     myGuid(){
       return `${this.structure['@guid']}--${this.guid}`
     },
+
+    inlineModeShouldDisplay(){
+
+
+      if (this.profileStore.inlinePropertyHasValue(this.guid, this.structure,this.propertyPath)){
+        return true
+      } else if (this.profileStore.inlineFieldIsToggledForDisplay(this.guid, this.structure)){
+        return true
+
+      }else{
+        // no value in it, but maybe its the "main" property, so display it anyway
+        if (this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath)){
+          return true
+        }
+      } 
+
+      return false
+
+    }
 
   },
 
@@ -1226,6 +1294,7 @@ export default {
   flex-shrink: 1;
   max-width: 100px;
   font-family: monospace;
+  padding-right: 10px;
   color:gray;
 }
 .bfcode-display-mode-holder-value{

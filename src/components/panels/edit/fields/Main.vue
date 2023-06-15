@@ -1,7 +1,7 @@
 <template>
 
 
-  <div :class="[{'component': (level == 0)}]" :id="`edit_${parentId}_${id}`">
+  <div :class="[{'component': (level == 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode'))}]" :id="`edit_${parentId}_${id}`">
     
     <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} id: {{id}} -->
 
@@ -33,7 +33,6 @@
       :structure="structure"
       :guid="guid"
     />
-
 
     <!-- {{structure}} -->
 
@@ -298,6 +297,7 @@
 
 import { useProfileStore } from '@/stores/profile'
 import { useConfigStore } from '@/stores/config'
+import { usePreferenceStore } from '@/stores/preference'
 
 
 
@@ -374,6 +374,7 @@ export default {
     // ...
     // gives access to this.counterStore and this.userStore
     ...mapStores(useProfileStore),
+    ...mapStores(usePreferenceStore),
 
 
 
@@ -562,6 +563,12 @@ export default {
 <style scoped>
 
 
+.inline-mode{
+  background-color: white;
+  display: inline;
+  border: none !important;
+
+}
 
 
 </style>

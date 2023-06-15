@@ -2,12 +2,24 @@
 
   <template  v-if="structure.valueConstraint.valueTemplateRefs.length > 1">
 
-      <select @change="templateChange($event)">
-          
+
+    <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
+
+
+      <select style="display: inline; width: 20px; border-color:whitesmoke;" @change="templateChange($event)">          
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
-
-
       </select>
+
+    </template>
+    <template v-else>
+      <select @change="templateChange($event)">          
+          <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
+      </select>
+      
+
+    </template>
+
+
   </template>
 
   <Main v-for="(pt,idx) in thisRtTemplate.propertyTemplates" 
@@ -150,6 +162,8 @@
 // import Main from "@/components/panels/edit/fields/Main.vue";
 
 import { useProfileStore } from '@/stores/profile'
+import { usePreferenceStore } from '@/stores/preference'
+
 import { mapStores, mapState } from 'pinia'
 
 
@@ -200,6 +214,8 @@ export default {
   computed:{
 
     ...mapStores(useProfileStore),
+    ...mapStores(usePreferenceStore),
+
     ...mapState(useProfileStore, ['rtLookup']),
 
 

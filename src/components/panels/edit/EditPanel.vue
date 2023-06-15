@@ -18,23 +18,31 @@
           :level="0"
           :id="activeProfile.rt[profileName].pt[profileCompoent].id"
           :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
+
+
       </div>
 
     </template>
     <template v-if="instanceMode == false">
       
-      <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
+      <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')) }" v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
           :key="profileCompoent">
 
-        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
+        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false ">
           <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
         </template>
-        
+
         <Main       
           :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
           :level="0"
           :id="activeProfile.rt[profileName].pt[profileCompoent].id"
           :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
+
+            <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
+              <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />  
+            </template>
+            
+
 
       </div>
 
@@ -53,13 +61,16 @@
   import { useProfileStore } from '@/stores/profile'
   import { mapStores, mapState } from 'pinia'
 
+  import InlineModeAddField from "@/components/panels/edit/fields/helpers/InlineModeAddField.vue";
+
+
 
   // import Main from "@/components/panels/edit/fields/Main.vue";
 
 
 
   export default {
-    components: {  },
+    components: {InlineModeAddField  },
     props: {
 
       instanceMode: Boolean,
@@ -140,6 +151,10 @@
 </script>
 <style scoped>
 
+.inline-mode{
+  background-color: white;
+  border-top: solid 1px whitesmoke;
+}
 
 .edit-panel-work{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')") !important;

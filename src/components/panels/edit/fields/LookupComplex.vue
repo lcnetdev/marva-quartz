@@ -1,5 +1,52 @@
 <template>
 
+  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
+
+    <template v-if="inlineModeShouldDisplay">
+      
+      <template v-if="complexLookupValues.length===0">
+          
+          <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+            <input style="border:none"  v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
+
+
+      </template>
+      <template v-else>
+
+        <template v-for="(avl,idx) in complexLookupValues" class="">
+          <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+
+          <span v-if="!avl.needsDereference" style="">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
+
+<!--           <div class="selected-value-container-auth">
+            <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type" :type="avl.type"/>
+          </div>
+          <div class="selected-value-container-title">
+
+            <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
+            <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+          </div>
+          <div class="selected-value-container-action">
+            <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+          </div> -->
+        </template>
+
+<!-- 
+        <template v-for="lValue in literalValues">
+          <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+          <span contenteditable="true" class="inline-mode-editable-span" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>        
+        </template>
+ -->
+
+      </template>
+
+
+    </template>
+
+
+  </template>
+
+  <template v-else>
 
   <!-- <div>Complext Lookup ({{propertyPath.map((x)=>{return x.propertyURI}).join('->')}})</div> -->
       <form autocomplete="off" v-on:submit.prevent >
@@ -78,6 +125,8 @@
 
       <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" @emitComplexValue="setComplexValue" @hideComplexModal="displayModal=false" :structure="structure" v-model="displayModal"/>
       <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" @emitComplexValue="setComplexSubjectValue" @hideSubjectModal="displaySubjectModal=false" :structure="structure" v-model="displaySubjectModal"/>
+
+  </template>
 
 </template>
 
@@ -618,6 +667,26 @@ export default {
     myGuid(){
       return `${this.structure['@guid']}--${this.guid}`
     },
+    inlineModeShouldDisplay(){
+
+      return true
+
+      if (this.profileStore.inlinePropertyHasValue(this.guid, this.structure,this.propertyPath)){
+        return true
+      } else if (this.profileStore.inlineFieldIsToggledForDisplay(this.guid, this.structure)){
+        return true
+
+      }else{
+        // no value in it, but maybe its the "main" property, so display it anyway
+        if (this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath)){
+          return true
+        }
+      } 
+
+      return false
+
+    }
+
 
   },
 
@@ -1999,6 +2068,7 @@ export default {
   flex-shrink: 1;
   max-width: 100px;
   font-family: monospace;
+  padding-right: 10px;
   color:gray;
 }
 .bfcode-display-mode-holder-value{
