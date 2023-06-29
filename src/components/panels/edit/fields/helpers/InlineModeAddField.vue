@@ -1,15 +1,15 @@
 <template>
   
-
-  <input ref="input" @input="codeInput" v-model="filter" @focus="codeInput" @blur="blur">
-  <div ref="dropdown" class="dropdown">
-
-    <template v-for="pf in possibleFields">
-      <div @click="addToDisplay(pf)" v-if="(filter != '' && pf.code.toLowerCase().startsWith(filter.toLowerCase())) || (filter.trim() == '')" class="dropdown-item">
-        {{pf.code}} - {{pf.label}}
-      </div>
-    </template>
-  </div>
+  <template v-if="possibleFields.length>1">
+    <input ref="input" @input="codeInput" v-model="filter" @focus="codeInput" @blur="blur">
+    <div ref="dropdown" class="dropdown">    
+      <template v-for="pf in possibleFields">
+        <div @click="addToDisplay(pf)" v-if="(filter != '' && pf.code.toLowerCase().startsWith(filter.toLowerCase())) || (filter.trim() == '')" class="dropdown-item">
+          {{pf.code}} - {{pf.label}}
+        </div>
+      </template>
+    </div>
+  </template>
 </template>
 
 <script>
@@ -104,10 +104,12 @@ export default {
 
 <style scoped>
   input{
-    width: 100px;
-    background-color: white;
+    width: 50px;
+    background-color: transparent;
     border: none;
-
+  }
+  input:hover{
+    background-color: whitesmoke;
   }
 input:focus {
   outline: none;

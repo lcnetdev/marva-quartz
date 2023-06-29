@@ -1,5 +1,6 @@
 <template>
  <span v-for="icon in useIcon" :class="['material-icons-two-tone',passClass]">{{icon}}</span>
+  
 </template>
 
 <script>
@@ -65,8 +66,11 @@ export default {
         if (type == 'http://id.loc.gov/ontologies/bibframe/Place') return iconGeographic
         if (type == 'http://id.loc.gov/ontologies/bibframe/Topic') return iconSubjectTopic
         if (type == 'http://id.loc.gov/ontologies/bibframe/Organization') return iconCorporate
+        if (type == 'http://id.loc.gov/ontologies/bibframe/GenreForm') return iconGenre
 
 
+
+        if (type == 'http://id.loc.gov/ontologies/bibframe/Agent') return iconPersonal
 
 
         // if (result.label == 'xxxxxx') return iconPersonal

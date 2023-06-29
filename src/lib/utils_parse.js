@@ -397,6 +397,7 @@ const utilsParse = {
           sucessfulProperties.push(prefixURI)
 
           ptk.hasData = true
+          ptk.canBeHidden = false
           
           // loop through all of them
           let counter = 0

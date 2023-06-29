@@ -7,7 +7,7 @@
       <template v-if="complexLookupValues.length===0">
           
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-            <input style="border:none"  v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
+          <input class="input-inline-mode"  v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
 
 
       </template>
@@ -16,7 +16,13 @@
         <template v-for="(avl,idx) in complexLookupValues" class="">
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
 
-          <span v-if="!avl.needsDereference" style="">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
+          <a href="#" class="inline-auth-link" @click="searchValue = avl.label; textInputEvent()">
+            <span v-if="avl.type" class="complex-lookup-inline-mode">
+              <span class="complex-lookup-inline-mode-icon"><AuthTypeIcon  :small="true" :type="avl.type"/></span>
+            </span>
+            <span v-if="!avl.needsDereference" style="">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="" style=""><span class="material-icons check-mark inline-mode-validation-icon">check_circle_outline</span></span></span>
+            <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class=""><span class="material-icons check-mark inline-mode-validation-icon">check_circle_outline</span></span></span>
+          </a>
 
 <!--           <div class="selected-value-container-auth">
             <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type" :type="avl.type"/>
@@ -29,7 +35,10 @@
           <div class="selected-value-container-action">
             <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
           </div> -->
+        <a href="#" @click="removeValue(idx)" style="padding: 0 0 0 2.5px; text-decoration: none; font-size: 1em; cursor: pointer; color: gray;">x</a>
+
         </template>
+        <input class="input-inline-mode" style="width: 20px;"  v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
 
 <!-- 
         <template v-for="lValue in literalValues">
@@ -123,10 +132,11 @@
 
       </form>
 
-      <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" @emitComplexValue="setComplexValue" @hideComplexModal="displayModal=false" :structure="structure" v-model="displayModal"/>
-      <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" @emitComplexValue="setComplexSubjectValue" @hideSubjectModal="displaySubjectModal=false" :structure="structure" v-model="displaySubjectModal"/>
 
   </template>
+
+  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false" :structure="structure" v-model="displayModal"/>
+  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" @emitComplexValue="setComplexSubjectValue" @hideSubjectModal="displaySubjectModal=false" :structure="structure" v-model="displaySubjectModal"/>
 
 </template>
 
@@ -879,7 +889,7 @@ export default {
       }else{
         this.displayModal=true
       }
-
+      console.log(this.displayModal)
 
     },
 
@@ -2059,6 +2069,14 @@ export default {
 
 <style scoped>
 
+.input-inline-mode{
+  border: none;
+  outline: none;
+}
+
+.input-inline-mode:focus-within {
+  background-color: #dfe5f1;
+}
 
 .bfcode-display-mode-holder{
   display: flex;
@@ -2163,12 +2181,41 @@ export default {
 }
 
 
+.inline-mode-validation-icon{
+  font-size: 15px;
+
+  display: inline-block;
+  height: 15px;
+  vertical-align: text-bottom;
+  padding-left: 2px;
+
+  color: inherit;
+}
+
+.complex-lookup-inline-mode{
+  
+  position: relative;
+  padding-left: 2px;
+  display: inline-block;
+  width: 30px;
+
+}
+
+.complex-lookup-inline-mode-icon{
+  position: absolute;
+  top: -16px;
 
 
+}
 
+.inline-auth-link{
+  color: inherit !important;
+  text-decoration: none !important;
+}
 
-
-
+.inline-auth-link:hover{
+  background-color: whitesmoke;
+}
 /*
 li::before{
   content: '';

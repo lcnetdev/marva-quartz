@@ -406,7 +406,7 @@ export const useProfileStore = defineStore('profile', {
                               pt.userValue =  {'@root':pt.propertyURI}
                               pt.valueConstraint.valueTemplateRefs = pt.valueConstraint.valueTemplateRefs.filter((v)=>{return (v.length>0)})
                               pt['@guid'] = short.generate()
-                              pt.canBeHidden = false
+                              pt.canBeHidden = true
                               
                               if (pt.type === 'literal-lang'){
                                   this.profiles[p.json.Profile.id].rt[rt.id].hasLiteralLangFields = true
@@ -1744,11 +1744,13 @@ export const useProfileStore = defineStore('profile', {
 
       // if (uri == '')
 
-      console.log(structure)
-      console.log(this.rtLookup[structure.parentId])
-
       // chop off the namespace
-      code = code.split(':')[1]
+      if (code.includes(':')){
+        code = code.split(':')[1]
+      }
+      console.log(code)
+      console.log(structure.propertyURI)
+      console.log(this.rtLookup[structure.parentId])
 
       return code
 
@@ -1892,8 +1894,56 @@ export const useProfileStore = defineStore('profile', {
       }
 
       
-    }
+    },
 
+    /**
+    * 
+    * 
+    * @return {boolean} - true or false if the pt passed will have a ref component drop down selection
+    */    
+    ptHasRefComponent: function(pt){   
+
+      if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length > 1){
+        return true
+      }else{
+
+        // if it only has 1 reference template, that one might have multuple
+        if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length == 1){
+          // loop through all the pts and see if any of them have multi valuetemplates
+          // for (let subPt of this.rtLookup[pt.valueConstraint.valueTemplateRefs[0]].propertyTemplates){
+          //   if (subPt.valueConstraint && subPt.valueConstraint.valueTemplateRefs && subPt.valueConstraint.valueTemplateRefs.length > 1){
+          //     return true
+          //   }
+          // }
+
+          // acutally just look at the first one, we don't really care if a sub pt has multi
+            let subPt = this.rtLookup[pt.valueConstraint.valueTemplateRefs[0]].propertyTemplates[0]
+            if (subPt.valueConstraint && subPt.valueConstraint.valueTemplateRefs && subPt.valueConstraint.valueTemplateRefs.length > 1){
+              return true
+            }
+        }
+      }
+      return false
+    },
+
+
+    /**
+    * Flips the canBeHidden flag on a property and reordereds it to the the end of the property list
+    * In adhoc mode this makes it look like its being added to the profile
+    * @return {void} - 
+    */    
+    setPropertyVisible: function(profile,component){   
+      console.log(profile,component)
+      this.activeProfile.rt[profile].pt[component].canBeHidden = false
+
+
+
+      console.log(this.activeProfile)
+      this.activeProfile.rt[profile].ptOrder.push(this.activeProfile.rt[profile].ptOrder.splice(this.activeProfile.rt[profile].ptOrder.indexOf(component), 1)[0]);
+
+
+    }
+    
 
 
   }

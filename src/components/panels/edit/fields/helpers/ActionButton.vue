@@ -11,8 +11,8 @@
   </div>
  -->
 
-  <VMenu @hide="menuClosed">
-    <button class="action-button"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
+  <VMenu :triggers="useOpenModes" @hide="menuClosed">
+    <button :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
     <template #popper>
 
@@ -89,6 +89,8 @@
     props: {
       type: String,
       guid: String,
+      clickmode: Boolean,
+      small: Boolean,
     },
     data () {
       return {
@@ -101,6 +103,15 @@
       ...mapStores(useProfileStore),
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
 
+      useOpenModes(){
+
+        if (this.clickmode){
+          return ['click','touch']
+        }else{
+          return ['hover','focus','click','touch']
+        }
+
+      },
 
     },
 
@@ -204,6 +215,12 @@
   .action-enter-from,
   .action-leave-to {
     opacity: 0;
+  }
+
+  .small-mode{
+    height: 14px;
+    background-color: red;
+    margin-left: 5px;
   }
 
 </style>

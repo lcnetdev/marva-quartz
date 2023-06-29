@@ -264,6 +264,16 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: null
         },
+      '--c-edit-main-splitpane-edit-background-color-instance' : {
+          value:'#8b588ba3',
+          desc: 'The background color of the instance on edit screen panel.',
+          descShort: 'Instance Background Color',
+          type: 'color',
+          group: 'Edit Panel',
+          range: null
+        },
+
+
 
 
 
@@ -300,6 +310,16 @@ export const usePreferenceStore = defineStore('preference', {
       '--b-edit-main-splitpane-edit-inline-mode' : {
           desc: 'One line edit mode via bf short code tags.',
           descShort: 'Inline edit mode',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
+
+      '--b-edit-main-splitpane-edit-adhoc-mode' : {
+          desc: 'Add properties as needed using a drop down list.',
+          descShort: 'Properties adhoc',
           value: false,
           type: 'boolean',
           unit: null,

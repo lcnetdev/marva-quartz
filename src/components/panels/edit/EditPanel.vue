@@ -7,49 +7,80 @@
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work')}">
 
 
+      <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
 
-    <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
-
-      <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
-          :key="profileCompoent">
-        <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
-        <Main       
-          :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
-          :level="0"
-          :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-          :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
+        <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
+            :key="profileCompoent">
 
 
-      </div>
+          <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false"> 
 
-    </template>
-    <template v-if="instanceMode == false">
-      
-      <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')) }" v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
-          :key="profileCompoent">
 
-        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false ">
-          <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+            <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+            <Main       
+              :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
+              :level="0"
+              :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+              :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
+
+          </template>
+
+        </div>
+
+      </template>
+      <template v-if="instanceMode == false">
+        
+        <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
+
+          <template v-if="!hideProps.includes(activeProfile.rt[profileName].pt[profileCompoent].propertyURI)">
+          
+            <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false"> 
+
+              <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')) }">
+
+
+
+                <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false ">
+                  <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+                </template>
+
+                <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
+                  <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
+                  <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
+                  <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
+                  
+                  
+                </template>
+
+                <Main       
+                  :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
+                  :level="0"
+                  :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+                  :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
+
+                    <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
+                      <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />  
+                    </template>
+                    
+                  </div>
+
+              </template>
+
+            </template>
+
         </template>
 
-        <Main       
-          :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
-          :level="0"
-          :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-          :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
-
-            <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
-              <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />  
-            </template>
-            
+      </template>
 
 
-      </div>
 
 
-    </template>
-
-
+      <select style="margin-left:40px; margin-bottom:0px" @change="addProperty($event,profileName)" v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true">
+        <option value="home" selected>Add Property</option>
+        <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder">
+          <option :value="profileCompoent" v-if="activeProfile.rt[profileName].pt[profileCompoent].canBeHidden == true" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</option>
+        </template>
+      </select>
   </div>
 
 </template>
@@ -78,6 +109,12 @@
     },
     data() {
       return {
+
+        hideProps:[
+          'http://id.loc.gov/ontologies/bibframe/hasInstance',
+          'http://id.loc.gov/ontologies/bibframe/instanceOf',
+          'http://id.loc.gov/ontologies/bibframe/hasItem'
+        ]
         
       }
     },    
@@ -86,6 +123,9 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore),
+      ...mapStores(useProfileStore),
+
+
       ...mapState(usePreferenceStore, ['styleDefault']),
       
       // gives read access to this.count and this.double
@@ -95,6 +135,26 @@
 
 
     },
+
+    methods: {
+
+        inlineRowButtonMouseEnter: function(event){
+          console.log(event)
+
+        },
+
+        addProperty: function(event,profile){
+
+          console.log(profile,event.target.value)
+          this.profileStore.setPropertyVisible(profile,event.target.value)
+          event.target.value = "home"
+        }
+
+
+
+    },
+
+
 
     watch:{
 
@@ -134,14 +194,6 @@
     },
 
 
-    methods: {
-
-
-
-
-    },
-
-
     created: function(){
 
     }
@@ -151,6 +203,34 @@
 </script>
 <style scoped>
 
+.inline-mode-resource-color-work{
+  display: inline-block;
+  width: 5px;
+  margin-right: 5px;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')");
+  content: ' ';
+}
+.inline-mode-resource-color-instance{
+  display: inline-block;
+  width: 5px;
+  margin-right: 5px;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')");
+  content: ' ';
+}
+.inline-mode-mian-button{
+  height: 15px;
+  background-color: transparent;
+  border: solid 1px #dcdcdc;
+  margin-right: 19px;
+}
+
+.inline-mode-mian-button-has-ref{
+  margin-right: 0;
+}
+.inline-mode-mian-button:hover{
+  background-color: cornflowerblue;
+  cursor: pointer;
+}
 .inline-mode{
   background-color: white;
   border-top: solid 1px whitesmoke;

@@ -2,23 +2,29 @@
 
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
     <template v-if="inlineModeShouldDisplay">
-      
+
       <template v-if="literalValues.length===1 && literalValues[0].value === ''">
           
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <span @focus="inlineEmptyFocus" contenteditable="true" class="inline-mode-editable-span" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>        
+          <!-- <span @focus="inlineEmptyFocus" contenteditable="true" class="inline-mode-editable-span" ><span class="inline-mode-editable-span-space-maker">&nbsp;</span></span>         -->
+          <input type="text" @focusin="focused"  @input="valueChanged($event,true)" class="inline-mode-editable-span-input" :ref="'input_' + literalValues[0]['@guid']" :data-guid="literalValues[0]['@guid']" />     
 
       </template>
       <template v-else>
 
         <template v-for="lValue in literalValues">
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <span contenteditable="true" class="inline-mode-editable-span" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>        
+          <span contenteditable="true" @focusin="focused" @blur="blured" class="inline-mode-editable-span" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>        
         </template>
 
 
       </template>
 
+      <Transition name="action">
+        <div class="literal-action-inline-mode" v-if="showActionButton && myGuid == activeField">
+          <action-button :clickmode="true" :small="true" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
+      </div>
+    </Transition>
 
     </template>
 
@@ -338,6 +344,8 @@ export default {
         event.target.innerText=''
       }
     },
+
+
   
     focusClick: function(lValue){
 
@@ -365,7 +373,7 @@ export default {
       // });
     },
 
-    valueChanged: function(event){
+    valueChanged: async function(event,setFocus){
 
       let v = event.target.value
       console.log(event)
@@ -377,7 +385,36 @@ export default {
           return false
         }
       }
-      this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,event.target.dataset.lang)
+      console.log(event.target.dataset.guid)
+      await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,event.target.dataset.lang)
+      
+      if (setFocus){
+
+        let r = 'input_' + this.literalValues[0]['@guid']
+        let el = this.$refs[r][0]
+
+        el.focus();
+        if (typeof window.getSelection != "undefined"
+                && typeof document.createRange != "undefined") {
+            var range = document.createRange();
+            range.selectNodeContents(el);
+            range.collapse(false);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        } else if (typeof document.body.createTextRange != "undefined") {
+            var textRange = document.body.createTextRange();
+            textRange.moveToElementText(el);
+            textRange.collapse(false);
+            textRange.select();
+        }
+
+
+        
+
+
+
+      }      
     },
 
 
@@ -1763,20 +1800,44 @@ export default {
 
 <style scoped>
 
-.inline-mode-editable-span{
-  min-width: 250px;
+.inline-mode-editable-span-input{
   display: inline;
-  padding: 0.2em;
-  outline: 1px solid transparent;
+  outline: none;
+  border: none;
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
+  height: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
+
 
 }
-
+.inline-mode-editable-span-input:focus-within {
+  background-color: #dfe5f1;
+}
+.inline-mode-editable-span-input:hover {
+  background-color: #dfe5f1;
+}
+.inline-mode-editable-span{
+  display: inline;
+  padding: 0.2em;
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
+  outline: none;
+  margin-right: 15px;
+}
+.inline-mode-editable-span-space-maker{
+  display: inline-block;
+  background-color: red;
+  min-width: 250px;
+}
 .inline-mode-editable-span:focus-within {
   background-color: #dfe5f1;
 }
-.inline-mode-editable-span:focus {
+/*.inline-mode-editable-span:focus {
   outline: none;
-}
+  background-color: blue;
+  display: inline-table;
+  min-width: 250px;
+  height: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
+
+}*/
 
 
 .bfcode-textarea{
@@ -1868,6 +1929,9 @@ textarea{
   flex-shrink:1;
 }
 
+.literal-action-inline-mode{
+  display: inline-block;
+}
 
 
 /*

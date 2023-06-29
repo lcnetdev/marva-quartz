@@ -7,6 +7,8 @@
       <template v-if="simpleLookupValues.length===0">
           
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+          <input v-model="activeValue" class="inline-lookup-input" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" />
+
 
       </template>
       <template v-else>
@@ -15,12 +17,18 @@
                   <template v-for="(avl,idx) in simpleLookupValues" >
                       <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
 
-                      <span v-if="!avl.needsDereference" style="">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span></span>
+
+                      
+                      
+                      <span v-if="!avl.needsDereference" style="">
+                        <!-- <span class="material-icons icon inline-icon">playlist_add_check</span> -->
+                        {{avl.label}}
+                        <span class="uncontrolled" v-if="avl.isLiteral"> (uncontrolled)</span></span>
                       <!-- <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span> -->
                       
                       <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
 
-                      <!-- <span @click="removeValue(idx)" style="">x</span> -->
+                      <a href="#" class="inline-remove-x" @click="removeValue(idx)" style="">x</a>
                   </template>
 
 
@@ -117,15 +125,18 @@
         </div>
 
       </form>
-      <div v-if="displayAutocomplete==true" class="autocomplete-container">
-        <ul>
-          <li v-for="(item, idx) in displayList" :data-idx="idx" v-bind:key="idx" @click="clickAdd(item)">
-              <span v-if="item==activeSelect" :data-idx="idx" class="selected">{{item}}</span>
-              <span v-else :data-idx="idx">{{item}}</span>
-          </li>
-        </ul>
-      </div>
+
   </template>
+
+    <div v-if="displayAutocomplete==true" ref="selectlist" class="autocomplete-container">
+      <ul>
+        <li v-for="(item, idx) in displayList" :data-idx="idx" v-bind:key="idx" @click="clickAdd(item)">
+            <span v-if="item==activeSelect" :data-idx="idx" class="selected">{{item}}</span>
+            <span v-else :data-idx="idx">{{item}}</span>
+        </li>
+      </ul>
+    </div>
+
 
 </template>
 
@@ -638,8 +649,28 @@ export default {
 
 
     },    
-    keyDownEvent: function(event){
+    keyDownEvent: function(event, reposLeft){
       
+      if (reposLeft){
+
+        this.findSelectListTime = window.setInterval(()=>{
+
+          if (this.$refs.selectlist && this.$refs.selectlist.style){
+            window.clearTimeout(this.findSelectListTime)
+            console.log(this.$refs.selectlist)
+            var rect = event.target.getBoundingClientRect();
+            console.log(rect.top, rect.right, rect.bottom, rect.left);
+            this.$refs.selectlist.style.left = rect.left + 'px'
+
+          }
+
+
+
+
+        },100)
+
+
+      }
 
 
       this.activeValue = event.target.value
@@ -1284,6 +1315,30 @@ export default {
 
 
 <style scoped>
+.inline-lookup-input{
+  outline: none;
+  border: none;
+
+}
+.inline-lookup-input:focus-within{
+  background-color: #dfe5f1;
+}
+.inline-lookup-input:hover{
+  background-color: #dfe5f1;
+}
+.inline-icon{
+  display: inline-block;
+  height: 15px;
+  vertical-align: sub;
+}
+.inline-remove-x{
+
+  margin-left: 5px;
+  text-decoration: none;
+  color: gray !important;
+  margin-right: 15px;
+
+}
 
 .bfcode-display-mode-holder{
   display: flex;
@@ -1380,7 +1435,7 @@ export default {
 }
 .autocomplete-container{
   padding: 0.45em;
-  position: absolute;
+  position: fixed;
   z-index: 100;
   background-color: white;
   border-radius: 15px;
