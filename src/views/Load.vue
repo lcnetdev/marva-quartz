@@ -22,6 +22,8 @@
 
           <div class="load-buttons"> 
             <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>
+            <button class="load-button" @click="loadUrl(startingPointsFiltered[0].instance,true)">test</button>
+
           </div>
           <hr>
 
@@ -125,7 +127,7 @@
         // this.loadUrl()
       },
 
-      loadUrl: async function(useInstanceProfile){
+      loadUrl: async function(useInstanceProfile,multiTestFlag){
         console.log(this.urlToLoad)
 
        
@@ -232,6 +234,12 @@
         }
         
         console.log("this.activeProfile",this.activeProfile)
+
+        if (multiTestFlag){
+          this.$router.push(`/multiedit/`)          
+          return true
+        }
+
         this.$router.push(`/edit/${useProfile.eId}`)
 
 

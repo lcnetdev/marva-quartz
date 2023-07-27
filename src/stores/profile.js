@@ -1697,7 +1697,7 @@ export const useProfileStore = defineStore('profile', {
     returnBfCodeLabel: function(structure){
 
       let code = utilsParse.namespaceUri(structure.propertyURI)
-      console.log(structure.propertyURI, code)
+      // console.log(structure.propertyURI, code)
 
       // HACK HACK HAVK
       if (structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic'){
@@ -1705,9 +1705,11 @@ export const useProfileStore = defineStore('profile', {
       }
 
       if (['rdfs:label', 'owl:sameAs'].includes(code)){
-        console.log(structure.propertyURI)
+        // console.log(structure.propertyURI)
         code = utilsParse.namespaceUri(this.rtLookup[structure.parentId].resourceURI)
       }
+
+      let orgCode = code
 
       code = code.replace('bflc:','lc:')
 
@@ -1716,7 +1718,7 @@ export const useProfileStore = defineStore('profile', {
       if (code.charAt(3) === code.charAt(3).toUpperCase()){
         code = code.substring(0, 3) + code.charAt(3).toLowerCase() + code.substring(3 + 1);
       }
-      console.log("code=",code)
+      // console.log("code=",code)
       let justProperty = code.split(':')[1]
 
       let numUpper = justProperty.length - justProperty.replace(/[A-Z]/g, '').length;  
@@ -1728,7 +1730,7 @@ export const useProfileStore = defineStore('profile', {
       }else if (numUpper == 0){
         code = code.split(':')[0] + ':' + justProperty.charAt(0) + justProperty.charAt(1) + justProperty.charAt(2)
       }
-      console.log("code=",code)
+      // console.log("code=",code)
 
       // if its just a rdf value then replace it with the acutal text
       if (code == 'rdf:val'){
@@ -1738,7 +1740,7 @@ export const useProfileStore = defineStore('profile', {
         }else{
           code = `${useLabel.charAt(0)}${useLabel.charAt(1)}${useLabel.charAt(2)}${useLabel.charAt(3)}${useLabel.charAt(4)}${useLabel.charAt(5)}`.toLowerCase()
         }
-        console.log("HEY CODE IS",code)
+        // console.log("HEY CODE IS",code)
       }
 
 
@@ -1748,9 +1750,12 @@ export const useProfileStore = defineStore('profile', {
       if (code.includes(':')){
         code = code.split(':')[1]
       }
-      console.log(code)
-      console.log(structure.propertyURI)
-      console.log(this.rtLookup[structure.parentId])
+
+      console.log('****!',orgCode, ',', (orgCode.includes('bf:')) ? `https://id.loc.gov/ontologies/bibframe.html#p_${orgCode.split(':')[1]}` : 'bflc or other', ',',code)
+
+      // console.log(code)
+      // console.log(structure.propertyURI)
+      // console.log(this.rtLookup[structure.parentId])
 
       return code
 

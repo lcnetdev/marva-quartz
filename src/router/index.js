@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import Edit from "../views/Edit.vue";
 import Load from "../views/Load.vue";
+import EditMulti from "../views/EditMulti.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +27,13 @@ const router = createRouter({
       component: Edit
 
     },
+    {
+      path: "/multiedit/",
+      name: "MultiEdit",
+      component: EditMulti
+
+    },
+
     {
       path: "/load/",
       name: "Load",

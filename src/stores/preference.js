@@ -326,7 +326,24 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: [true,false]
       },
-
+      '--b-edit-main-splitpane-edit-switch-between-resource-button' : {
+          desc: 'Lets you switch displaying work and instances in the edit panel.',
+          descShort: 'Resource switch button',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
+      '--b-edit-main-splitpane-edit-scroll-x' : {
+          desc: 'The edit fields display does not wrap, a scroll bar appears at the bottom',
+          descShort: 'Horizontal Edit Panel scroll',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
 
 
       // the NAV panel

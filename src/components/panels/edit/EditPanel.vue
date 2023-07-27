@@ -1,31 +1,43 @@
 <template>
 
+  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true"> 
+      
+      <div style="text-align: right;">
+        <button @click="userActiveResourceName = profileName" v-for="profileName in this.activeProfile.rtOrder" :class="{'activeResourceButton': (activeResourceName === profileName)}">
+          {{profileName.split(':').slice(-1)[0]}}
+        </button>
+      </div>
+
+  </template>
 
   <div 
     v-for="profileName in this.activeProfile.rtOrder" 
     :key="profileName"
-    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work')}">
+    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
 
 
       <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
 
-        <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
-            :key="profileCompoent">
+        <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
+
+          <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
+              :key="profileCompoent">
 
 
-          <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false"> 
+            <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false"> 
 
 
-            <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
-            <Main       
-              :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
-              :level="0"
-              :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-              :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
+              <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+              <Main       
+                :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
+                :level="0"
+                :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+                :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
 
-          </template>
+            </template>
 
-        </div>
+          </div>
+        </template>
 
       </template>
       <template v-if="instanceMode == false">
@@ -36,33 +48,36 @@
           
             <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false"> 
 
-              <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')) }">
+              <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
+
+                <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
 
 
 
-                <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false ">
-                  <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
-                </template>
+                  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false ">
+                    <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+                  </template>
 
-                <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
-                  <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
-                  <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
-                  <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
-                  
-                  
-                </template>
-
-                <Main       
-                  :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
-                  :level="0"
-                  :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-                  :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
-
-                    <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
-                      <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />  
-                    </template>
+                  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
+                    <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
+                    <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
+                    <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
                     
+                    
+                  </template>
+
+                  <Main       
+                    :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
+                    :level="0"
+                    :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+                    :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
+
+                      <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
+                        <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />  
+                      </template>
+                      
                   </div>
+                </template>
 
               </template>
 
@@ -109,7 +124,7 @@
     },
     data() {
       return {
-
+        userActiveResourceName: null,
         hideProps:[
           'http://id.loc.gov/ontologies/bibframe/hasInstance',
           'http://id.loc.gov/ontologies/bibframe/instanceOf',
@@ -132,6 +147,17 @@
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent']),
 
+      activeResourceName(){
+
+        if (this.userActiveResourceName===null){
+          if (this.activeProfile && this.activeProfile.rtOrder){
+            return this.activeProfile.rtOrder[0]
+          }
+        }else{
+          return this.userActiveResourceName
+        }
+
+      },
 
 
     },
@@ -194,7 +220,7 @@
     },
 
 
-    created: function(){
+    mounted: function(){
 
     }
 
@@ -203,6 +229,18 @@
 </script>
 <style scoped>
 
+.edit-panel-scroll-x-parent{
+  overflow-x: scroll;
+}
+.edit-panel-scroll-x-child{
+  width:1500px;
+}
+
+
+
+.activeResourceButton{
+  background-color: skyblue;
+}
 .inline-mode-resource-color-work{
   display: inline-block;
   width: 5px;
