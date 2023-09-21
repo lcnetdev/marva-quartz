@@ -884,6 +884,7 @@ export default {
 
 
       console.log(this.configStore.useSubjectEditor)
+      console.log(this.structure.propertyURI)
       if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
         this.displaySubjectModal=true
       }else{

@@ -71,13 +71,30 @@ const utilsProfile = {
           break
         }
 
-        
+        console.log("Looking for ",guid)
         if (pointer[pos]===guid){
           // if we just hit the guid it means the index -1 is the blank node of the value
           // then it's index -2 would be the array containing the blank node
           // and it index -3 would be object holding the property with the array value that contains the blank node
           // so return index -3 from the end
-          return pointerHistory[pointerHistory.length-3]
+          console.log("pointerHistory[pointerHistory.length-1]",pointerHistory[pointerHistory.length-1])
+          console.log("pointerHistory[pointerHistory.length-2]",pointerHistory[pointerHistory.length-2])
+          console.log("pointerHistory[pointerHistory.length-3]",pointerHistory[pointerHistory.length-3])
+          // unless it is a top level component, meaning it doesn't have a blank node
+          if (pointerHistory[pointerHistory.length-3]){
+            return pointerHistory[pointerHistory.length-3]
+          }else{
+            return pointerHistory[0]
+          }
+
+          // else if (pointerHistory[pointerHistory.length-1]){
+          //   // if (Array.isArray(pointerHistory[pointerHistory.length-2]) == true){
+          //   //   pointerHistory[pointerHistory.length-2] = pointerHistory[pointerHistory.length-2][0]
+          //   // } 
+          //   return pointerHistory[pointerHistory.length-1]
+          // }
+
+          
         }else{
           // add it to the history if we didn't just find it
           pointerHistory.push(pointer[pos])          
@@ -88,6 +105,7 @@ const utilsProfile = {
 
 
       }
+      console.log("pointerHistory",pointerHistory)
     }
     // if it can't find it at all, like a new userValue return false
     return false

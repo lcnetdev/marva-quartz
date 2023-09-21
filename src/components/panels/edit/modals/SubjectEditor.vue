@@ -129,7 +129,7 @@
                     <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
 
                       
-                      <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + contextData.type" v-html="returnAuthIcon(contextData.type)"></span>{{contextData.title}}</h3>
+                      <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + contextData.type"><AuthTypeIcon v-if="contextData.type" :type="contextData.type"></AuthTypeIcon></span>{{contextData.title}}</h3>
 
                       <div class="modal-context-data-title">{{contextData.type}}</div>
                       <a style="color:#2c3e50" :href="contextData.uri" target="_blank">view on id.loc.gov</a>
@@ -357,6 +357,7 @@
       display: flex; 
       height: 468px;
       position: relative;
+      overflow-y: hidden;
     }
 
     .subject-editor-container-left .modal-context-data-li{
@@ -379,7 +380,7 @@
       flex:1; 
       align-self: flex-start; 
       padding: 2em;
-      height: 403px;
+      height: 503px;
       overflow-y: scroll;
       background: whitesmoke;
     }
@@ -541,12 +542,20 @@
     }
 
   .input-single-subject{
-    width: 95%;
+    width: 99%;
     border:none;
     font-size: 1.5em;
-    min-height: 2em;
-    max-height: 2em;  
+    min-height: 1.5em;
+    max-height: 1.5em;  
     background:none;
+    
+    background-color: #fff;
+    border: 1px solid #9aa4a4;
+    border-top-right-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+
+
+
   }
 
   .input-single-subject:focus {outline:0;}
@@ -571,10 +580,14 @@
   .subjectEditorModeButtons{
     display: inline-flex;
     font-size: 0.9em;
+    color: white;
+    font-size: 1.1em;
+    line-height: 1.5em;
   }
 
   .subjectEditorModeTextEnabled{
     text-decoration: underline;
+
   }
 
 
@@ -649,8 +662,27 @@ const debounce = (callback, wait) => {
 export default {
   name: "SubjectEditor",
   components: {
-    VueFinalModal
+    VueFinalModal,
+    AuthTypeIcon,
     
+  },
+  props: {
+    structure: Object,
+    searchValue: String,
+
+  },
+
+
+  watch: {
+
+    // // watch when the undoindex changes, means they are undoing redoing, so refresh the
+    // // value in the acutal input box
+    searchValue: function(){
+        this.subjectString = this.searchValue 
+        this.linkModeString = this.searchValue
+    }
+
+
   },
 
   data: function() {
@@ -659,7 +691,7 @@ export default {
 
       subjectEditorMode: 'subjectEditorMode',
 
-      contextData: 'contextData',
+      contextData: {nodeMap:{}},
 
 
 
@@ -797,7 +829,7 @@ export default {
       
 
       
-      that.searchResults = await lookupUtil.subjectSearch(searchString,searchStringFull,that.searchMode) 
+      that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode) 
 
 
       // if they clicked around while it was doing this lookup bail out
@@ -948,17 +980,18 @@ export default {
         }
       }
       
-      that.$store.dispatch("clearContext", { self: that})
+      // that.contextData.dispatch("clearContext", { self: that})
+
       if (that.pickLookup[that.pickPostion] && !that.pickLookup[that.pickPostion].literal){
         that.contextRequestInProgress = true
-        that.$store.dispatch("fetchContext", { self: that, searchPayload: that.pickLookup[that.pickPostion].uri }).then(() => {
-          that.contextRequestInProgress = false
-          // keep a local copy of it for looking up subject type
-          if (that.contextData){
-            that.localContextCache[that.contextData.uri] = JSON.parse(JSON.stringify(that.contextData))
-          }
+        
+        that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
 
-        })         
+        // keep a local copy of it for looking up subject type
+        if (that.contextData){
+          that.localContextCache[that.contextData.uri] = JSON.parse(JSON.stringify(that.contextData))
+        }
+
       }
 
  
@@ -1062,29 +1095,34 @@ export default {
 
     },
 
-    loadContext: function(pickPostion){
+    loadContext: async function(pickPostion){
 
 
         this.pickPostion = pickPostion
 
 
-        this.$store.dispatch("clearContext", { self: this})
+        // this.$store.dispatch("clearContext", { self: this})
 
         if (this.pickLookup[this.pickPostion].literal){
           return false
         }
 
         this.contextRequestInProgress = true
-        this.$store.dispatch("fetchContext", { self: this, searchPayload: this.pickLookup[this.pickPostion].uri }).then(() => {
+
+        this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
+
+        if (this.contextData){
+          this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
+        }
+
+        this.contextRequestInProgress = false
+
+        // this.$store.dispatch("fetchContext", { self: this, searchPayload: this.pickLookup[this.pickPostion].uri }).then(() => {
           
-          // keep a local copy of it for looking up subject type
-          if (this.contextData){
-            this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
-          }
+        //   // keep a local copy of it for looking up subject type
 
-          this.contextRequestInProgress = false
 
-        })  
+        // })  
 
 
 
@@ -1664,7 +1702,7 @@ export default {
 
     closeEditor: function(){
 
-      this.$emit('closeEditor', true)
+      this.$emit('hideSubjectModal', true)
 
     },
 

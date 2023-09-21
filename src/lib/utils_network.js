@@ -1294,7 +1294,7 @@ const utilsNetwork = {
 
       // the complex heading is just xyz--abc--mnl used to see if the full heading is already authorized
       let complexHeading = headings.map((r)=>{ return r.label }).join('--')    
-      let subjectUrlComplex = config.lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexHeading).replace('&count=25','&count=5')+'&rdftype=ComplexType'
+      let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexHeading).replace('&count=25','&count=5')+'&rdftype=ComplexType'
       let searchPayloadSubjectsComplex = {
         processor: 'lcAuthorities',
         url: [subjectUrlComplex],
@@ -1316,22 +1316,22 @@ const utilsNetwork = {
 
         // we'll define all this for each one but not nessisarly use all of them
 
-        let namesUrl = config.lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
-        let namesUrlSubdivision = config.lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+        let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
+        let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
-        let subjectUrlSimple = config.lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=SimpleType'
-        let subjectUrlSimpleSubdivison = config.lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
-        let subjectUrlTemporal = config.lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
-        let subjectUrlGenre = config.lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=GenreForm'
+        let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=SimpleType'
+        let subjectUrlSimpleSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+        let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
+        let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=GenreForm'
 
-        let worksUrlAnchored = config.lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
-        let hubsUrlAnchored = config.lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
+        let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
+        let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
 
-        let subjectUrlHierarchicalGeographic = config.lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')            
-        let subjectUrlHierarchicalGeographicLCSH = config.lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+ '&rdftype=HierarchicalGeographic'         
+        let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')            
+        let subjectUrlHierarchicalGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+ '&rdftype=HierarchicalGeographic'         
 
-        let subjectUrlGeographicLCSH = config.lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
-        let subjectUrlGeographicLCNAF = config.lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+        let subjectUrlGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+        let subjectUrlGeographicLCNAF = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
         // console.log('subjectUrlSimpleSubdivison',subjectUrlSimpleSubdivison)
         let searchPayloadNames = {
@@ -1808,6 +1808,267 @@ const utilsNetwork = {
       // console.log("result",result)
       return result
     },    
+
+    /**
+    * Send the URI it returns the URI to the MADS RDF type, mostly used for authoirties/names uris from id.loc.gov
+    * @async
+    * @param {string} uri - the URI to the authority we want to find the RDF type for
+    * @return {string} - The URI of the likely MADSRDF rdf type
+    */
+    returnRDFType: async function(uri){
+
+      uri=uri.trim()
+      let uriToLookFor = uri
+
+      // just clean up the URI a little we are probably asking for a id.loc.gov authority url
+      if (uri.indexOf('id.loc.gov')>-1){
+
+        // most uris in the id.loc.gov dataset do not have https in the data uris
+        uriToLookFor = uriToLookFor.replace('https://','http://')
+
+        // any trailing slashers
+        if (uri[uri.length-1] === '/'){
+          uri = uri.slice(0,-2)
+        }
+
+        uri=uri.replace('.html','.json')
+
+        // add in the filetype for the request if not yet
+        if (uri.indexOf('.json')===-1){
+          uri=uri+'.json'
+        }
+      }
+
+      let data = await this.fetchSimpleLookup(uri,true)
+
+      if (uri.indexOf('id.loc.gov')>-1){
+
+        for (let d of data){
+
+          // loop through the graphs
+          if (d && d['@id'] && d['@id'] == uriToLookFor){
+            // this is the right graph
+            if (d['@type']){
+              for (let type of d['@type']){
+
+                // for now we are looking for spefic mads types
+                if (type == 'http://www.loc.gov/mads/rdf/v1#Temporal'){ return 'http://www.loc.gov/mads/rdf/v1#Temporal'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){ return 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'}  
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#ConferenceName'){ return 'http://www.loc.gov/mads/rdf/v1#ConferenceName'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#CorporateName'){ return 'http://www.loc.gov/mads/rdf/v1#CorporateName'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#FamilyName'){ return 'http://www.loc.gov/mads/rdf/v1#FamilyName'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#Geographic'){ return 'http://www.loc.gov/mads/rdf/v1#Geographic'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#GenreForm'){ return 'http://www.loc.gov/mads/rdf/v1#GenreForm'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#Language'){ return 'http://www.loc.gov/mads/rdf/v1#Language'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#MainTitleElement'){ return 'http://www.loc.gov/mads/rdf/v1#MainTitleElement'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#Meeting'){ return 'http://www.loc.gov/mads/rdf/v1#Meeting'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#NameTitle'){ return 'http://www.loc.gov/mads/rdf/v1#NameTitle'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#PersonalName'){ return 'http://www.loc.gov/mads/rdf/v1#PersonalName'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#Temporal'){ return 'http://www.loc.gov/mads/rdf/v1#Temporal'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#Title'){ return 'http://www.loc.gov/mads/rdf/v1#Title'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#Topic'){ return 'http://www.loc.gov/mads/rdf/v1#Topic'}
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#SimpleType'){ return 'http://www.loc.gov/mads/rdf/v1#SimpleType'}
+              }
+            }
+          }
+        }
+      }
+
+      return false
+
+    },
+
+
+    /**
+    * 
+    * @async
+    * @param {string} searchVal - the value to search lcsh for
+    * @param {string} complexVal - The orginal full string
+    * @param {string} mode - the search mode LCSHNAF GEO WORKS HUBS
+    * @return {} - 
+    */
+    subjectSearch: async function(searchVal,complexVal,mode){
+      
+      console.log(useConfigStore().lookupConfig)
+
+      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4')
+      let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5')+'&rdftype=ComplexType'
+      let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4')+'&rdftype=SimpleType'
+
+      let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
+      let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
+
+
+      let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
+      let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
+
+
+
+      let searchValHierarchicalGeographic = searchVal.replaceAll('‑','-') //.split(' ').join('--')
+
+
+      let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count=4')
+
+
+      if (mode == 'GEO'){
+        subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12')
+      }
+
+
+
+
+      let searchPayloadNames = {
+        processor: 'lcAuthorities',
+        url: [namesUrl],
+        searchValue: searchVal
+      }
+
+      let searchPayloadSubjectsSimple = {
+        processor: 'lcAuthorities',
+        url: [subjectUrlSimple],
+        searchValue: searchVal
+      }
+      let searchPayloadSubjectsComplex = {
+        processor: 'lcAuthorities',
+        url: [subjectUrlComplex],
+        searchValue: searchVal
+      }
+
+
+      let searchPayloadHierarchicalGeographic = {
+        processor: 'lcAuthorities',
+        url: [subjectUrlHierarchicalGeographic],
+        searchValue: searchValHierarchicalGeographic
+      }
+
+
+      let searchPayloadWorksAnchored = {
+        processor: 'lcAuthorities',
+        url: [worksUrlAnchored],
+        searchValue: searchVal
+      }
+
+      let searchPayloadWorksKeyword = {
+        processor: 'lcAuthorities',
+        url: [worksUrlKeyword],
+        searchValue: searchVal
+      }
+
+      let searchPayloadHubsAnchored = {
+        processor: 'lcAuthorities',
+        url: [hubsUrlAnchored],
+        searchValue: searchVal
+      }
+      
+      let searchPayloadHubsKeyword = {
+        processor: 'lcAuthorities',
+        url: [hubsUrlKeyword],
+        searchValue: searchVal
+      }
+
+
+
+      let resultsNames =[]
+      let resultsSubjectsSimple=[]
+      let resultsSubjectsComplex=[]
+      let resultsHierarchicalGeographic=[]
+      let resultsWorksAnchored=[]
+      let resultsWorksKeyword=[]
+      let resultsHubsAnchored=[]
+      let resultsHubsKeyword=[]
+
+      if (mode == "LCSHNAF"){
+        [resultsNames, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
+            this.searchComplex(searchPayloadNames),
+            this.searchComplex(searchPayloadSubjectsSimple),
+            this.searchComplex(searchPayloadSubjectsComplex),
+            this.searchComplex(searchPayloadHierarchicalGeographic)
+        ]);
+
+      }else if (mode == "GEO"){
+
+        [resultsHierarchicalGeographic] = await Promise.all([
+            this.searchComplex(searchPayloadHierarchicalGeographic)
+        ]);
+
+      }else if (mode == "WORKS"){
+
+        [resultsWorksAnchored,resultsWorksKeyword ] = await Promise.all([
+            this.searchComplex(searchPayloadWorksAnchored),
+            this.searchComplex(searchPayloadWorksKeyword)
+        ]);
+
+      }else if (mode == "HUBS"){
+
+        [resultsHubsAnchored,resultsHubsKeyword ] = await Promise.all([
+            this.searchComplex(searchPayloadHubsAnchored),
+            this.searchComplex(searchPayloadHubsKeyword)
+        ]);
+
+      }
+
+
+
+
+      // drop the litearl value from names and complex
+      if (resultsNames.length>0){
+        resultsNames.pop()
+      }
+      if (resultsSubjectsComplex.length>0){
+        resultsSubjectsComplex.pop()
+      }
+
+
+      if (resultsSubjectsSimple.length>0){
+        resultsSubjectsSimple.push(resultsSubjectsSimple.pop())
+        resultsSubjectsSimple.reverse()
+      }
+
+
+      resultsSubjectsComplex.reverse()
+
+
+      // don't do literals
+
+      let newresultsHierarchicalGeographic = []
+      for (let x of resultsHierarchicalGeographic){
+        if (!x.literal){
+          newresultsHierarchicalGeographic.push(x)
+        }
+      }
+      resultsHierarchicalGeographic = newresultsHierarchicalGeographic
+      // resultsHierarchicalGeographic = [{
+      //     "label": "Ohio--Cleveland",
+      //     "suggestLabel": "Ohio--Cleveland",
+      //     "uri": "http://id.loc.gov/authorities/names/n79086863",
+      //     "literal": false,
+      //     "extra": "",
+      //     "labelOrginal": "Ohio--Cleveland",
+      //     "picked": false
+      // }]
+
+
+      if (mode == "WORKS"){
+        // over write the subjects if we are doing a work search
+        resultsSubjectsSimple = resultsWorksAnchored
+        resultsSubjectsComplex = resultsWorksKeyword
+      }
+      if (mode == "HUBS"){
+        // over write the subjects if we are doing a work search
+        resultsSubjectsSimple = resultsHubsAnchored
+        resultsSubjectsComplex = resultsHubsKeyword
+      }
+      let results = {
+        'subjectsSimple': resultsSubjectsSimple,
+        'subjectsComplex': resultsSubjectsComplex,
+        'names':resultsNames,
+        'hierarchicalGeographic': resultsHierarchicalGeographic
+      }
+
+
+      return results
+
+    },
 
 
 

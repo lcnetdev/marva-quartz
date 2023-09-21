@@ -14,22 +14,22 @@
       <template v-else>
 
 
-                  <template v-for="(avl,idx) in simpleLookupValues" >
-                      <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+          <template v-for="(avl,idx) in simpleLookupValues" >
+              <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
 
 
-                      
-                      
-                      <span v-if="!avl.needsDereference" style="">
-                        <!-- <span class="material-icons icon inline-icon">playlist_add_check</span> -->
-                        {{avl.label}}
-                        <span class="uncontrolled" v-if="avl.isLiteral"> (uncontrolled)</span></span>
-                      <!-- <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span> -->
-                      
-                      <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+              
+              
+              <span v-if="!avl.needsDereference" style="">
+                <!-- <span class="material-icons icon inline-icon">playlist_add_check</span> -->
+                {{avl.label}}
+                <span class="uncontrolled" v-if="avl.isLiteral"> (uncontrolled)</span></span>
+              <!-- <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span> -->
+              
+              <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
 
-                      <a href="#" class="inline-remove-x" @click="removeValue(idx)" style="">x</a>
-                  </template>
+              <a href="#" class="inline-remove-x" @click="removeValue(idx)" style="">x</a>
+          </template>
 
 
       </template>
@@ -127,7 +127,6 @@
       </form>
 
   </template>
-
     <div v-if="displayAutocomplete==true" ref="selectlist" class="autocomplete-container">
       <ul>
         <li v-for="(item, idx) in displayList" :data-idx="idx" v-bind:key="idx" @click="clickAdd(item)">
@@ -483,17 +482,18 @@ export default {
       }
       console.log(this.uri)
       console.log(utilsNetwork.lookupLibrary)
-
+      console.log(utilsNetwork.lookupLibrary[this.uri+addKeyword])
       if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
         this.activeValue="🙀ERROR WITH LOOKUP"
       }
       Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]).forEach((v)=>{
-        
+        console.log(v)
         // the list has a special key metdata that contains more info
         if (v==='metadata'){return false}
         // no filter yet show first 25
         if (this.activeFilter.trim()===''){
           utilsNetwork.lookupLibrary[this.uri+addKeyword][v].forEach((x)=>{
+            console.log(x)
             // if (this.displayList.length<=25){
               if (this.displayList.indexOf(x)==-1){
                 this.displayList.push(x)  
@@ -525,10 +525,11 @@ export default {
 
 
       })
-
+      console.log("this.activeFilter",this.activeFilter)
       // sometimes you'll find code hacks circumvents ontology
       this.displayList = this.displayList.filter((v)=>{ return (v === 'Englisch (eng)') ? false : true})
 
+      console.log("this.displayList",this.displayList)
 
       this.displayList.sort()
 
@@ -571,7 +572,7 @@ export default {
       if (this.activeFilter.length==0){
         this.displayAutocomplete = true
       }
-
+      console.log(this.displayAutocomplete)
       if (this.displayAutocomplete){        
         // this.$store.dispatch("disableMacroNav")
       }else{
@@ -1435,7 +1436,7 @@ export default {
 }
 .autocomplete-container{
   padding: 0.45em;
-  position: fixed;
+  position: absolute;
   z-index: 100;
   background-color: white;
   border-radius: 15px;
