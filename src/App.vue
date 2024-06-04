@@ -11,7 +11,7 @@ import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 
 
-import { mapStores, mapState } from 'pinia'
+import { mapStores, mapState, mapWritableState } from 'pinia'
 
 
 
@@ -34,7 +34,8 @@ export default {
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
     ...mapState(useProfileStore, ['profilesLoaded', 'showPostModal']),
-    ...mapState(usePreferenceStore, ['showPrefModal','showLoginModal']),
+    ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal']),
 
 
     showLocalPreferenceModal: {
@@ -67,7 +68,11 @@ export default {
     this.preferenceStore.initalize()
     // this.profileStore.buildProfiles()
     //window.setTimeout(async ()=>{
-      await this.profileStore.buildProfiles()
+
+    if (!this.catCode){
+      this.showLoginModal = true
+    }
+    await this.profileStore.buildProfiles()
       //let profile =  this.profileStore.loadNewTemplate('Monograph','mattmatt')
       //this.profileStore.activeProfile = profile
       

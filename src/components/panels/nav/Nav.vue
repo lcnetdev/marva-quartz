@@ -46,7 +46,7 @@
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal']),
-      ...mapWritableState(useProfileStore, ['showLoginModal','showPostModal']),
+      ...mapWritableState(useProfileStore, ['showPostModal']),
 
 
       

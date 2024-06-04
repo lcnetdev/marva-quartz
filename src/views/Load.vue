@@ -390,7 +390,7 @@
     },
     created: async function(){
 
-    
+      console.log(this.preferenceStore.returnUserNameForSaving)
 
       let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
       console.log(records)
