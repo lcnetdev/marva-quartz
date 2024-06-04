@@ -93,6 +93,7 @@ export const useConfigStore = defineStore('config', {
   postUsingAlmaXmlFormat: false,
 
 
+  
 
   // used in the profile store, if the profle name ends with one of these it is a top level resource template
   validTopLevelProfileSufixes: [':Work',':Item',':Instance',':Hub'],

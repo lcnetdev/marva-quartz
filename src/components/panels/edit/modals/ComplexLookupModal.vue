@@ -287,7 +287,7 @@
     },
 
     mounted() {
-      console.log("mounted yeah")
+      // console.log("mounted yeah")
 
 
       if (this.modeSelect === null){
@@ -320,8 +320,7 @@
       :background="'non-interactive'"
       :lock-scroll="true"
       class="complex-lookup-modal"
-      content-class="complex-lookup-modal-content"
-      
+      content-class="complex-lookup-modal-content"      
       >
 
         <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">

@@ -1,7 +1,11 @@
 import objectScan from 'object-scan';
 import utilsRDF from './utils_rdf';
+import utilsNetwork from './utils_network';
+import utilsParse from './utils_parse';
+
 import short from 'short-uuid'
 
+import { useProfileStore } from '@/stores/profile'
 
 
 const utilsProfile = {
@@ -71,15 +75,12 @@ const utilsProfile = {
           break
         }
 
-        console.log("Looking for ",guid)
+
         if (pointer[pos]===guid){
           // if we just hit the guid it means the index -1 is the blank node of the value
           // then it's index -2 would be the array containing the blank node
           // and it index -3 would be object holding the property with the array value that contains the blank node
           // so return index -3 from the end
-          console.log("pointerHistory[pointerHistory.length-1]",pointerHistory[pointerHistory.length-1])
-          console.log("pointerHistory[pointerHistory.length-2]",pointerHistory[pointerHistory.length-2])
-          console.log("pointerHistory[pointerHistory.length-3]",pointerHistory[pointerHistory.length-3])
           // unless it is a top level component, meaning it doesn't have a blank node
           if (pointerHistory[pointerHistory.length-3]){
             return pointerHistory[pointerHistory.length-3]
@@ -105,7 +106,7 @@ const utilsProfile = {
 
 
       }
-      console.log("pointerHistory",pointerHistory)
+
     }
     // if it can't find it at all, like a new userValue return false
     return false
@@ -384,6 +385,233 @@ const utilsProfile = {
       return userValue
   },
 
+
+  /**
+  * Loads a record from the marva backend store and parses the XML into the profile
+  * 
+  * @param {string} recordId - the userValue
+  * @return {object} - the profile
+  */ 
+  loadRecordFromBackend: async function(recordId){
+    console.log(recordId)
+    let xml = await utilsNetwork.loadSavedRecord(recordId)
+    console.log(xml)
+    let meta = this.returnMetaFromSavedXML(xml)
+    console.log(meta.xml)
+
+    
+    
+    utilsParse.parseXml(meta.xml)
+
+    // alert(parseBfdb.hasItem)
+
+    let useProfile = null
+
+
+    if (useProfileStore().profiles[meta.profile]){
+      useProfile = JSON.parse(JSON.stringify(useProfileStore().profiles[meta.profile]))
+    }else{
+      alert('Cannot find that profile:',meta.profile)
+    }
+
+    // we might need to load in a item
+    if (utilsParse.hasItem>0){       
+      let useItemRtLabel
+      // look for the RT for this item
+      let instanceId = meta.rts.filter((id)=>{ return id.includes(':Instance')  })
+      if (instanceId.length>0){
+        useItemRtLabel = instanceId[0].replace(':Instance',':Item')          
+      }
+      if (!useItemRtLabel){
+        let instanceId = meta.rts.filter((id)=>{ return id.includes(':Work')  })
+        if (instanceId.length>0){
+          useItemRtLabel = instanceId[0].replace(':Work',':Item')          
+        }
+
+      }
+      for (let step = 0; step < utilsParse.hasItem; step++) {
+          for (let pkey in useProfileStore().profiles){
+            for (let rtkey in useProfileStore().profiles[pkey].rt){
+              if (rtkey == useItemRtLabel){
+                let useItem = JSON.parse(JSON.stringify(useProfileStore().profiles[pkey].rt[rtkey]))
+                useProfile.rtOrder.push(useItemRtLabel+'-'+step)
+                useProfile.rt[useItemRtLabel+'-'+step] = useItem                
+              }
+            }
+          }
+
+
+
+      }         
+
+      
+
+
+    }
+
+    
+    
+    if (!useProfile.log){
+      useProfile.log = []
+    
+    }
+    useProfile.log.push({action:'loadInstanceFromSave',from:meta.eid})
+    // useProfile.procInfo= "update instance"
+
+
+    useProfile.procInfo = meta.procInfo
+    
+    // console.log('meta',meta)
+
+    // also give it an ID for storage
+    useProfile.eId= meta.eid
+    useProfile.user = meta.user
+    useProfile.status = meta.status
+
+
+    
+    let transformResults  = await utilsParse.transformRts(useProfile)
+
+    transformResults = this.reorderRTOrder(transformResults)
+
+    console.log("transformResults",transformResults)
+    return transformResults
+
+
+
+  },
+
+
+  /**
+  * Pass it a profile and it will reorder the rtOrder array abased on how it should flow
+  * Work->Instance1->Item1,Item2->Instance2-Item2-1,etc..
+  * 
+  * @param {object} profile - the profile
+  * @return {object} - the profile
+  */ 
+  reorderRTOrder: function(profile){
+      //build an item lookup
+      let itemLookup = {}
+
+      for (let rt of profile.rtOrder){
+
+          if (rt.includes(':Item')){
+              if (profile.rt[rt] && profile.rt[rt].itemOf){
+                  itemLookup[rt] = profile.rt[rt].itemOf
+              }else{
+                  console.warn('Cannot find the itemOf of this item',rt)
+              }                
+          }
+      }
+
+      let newOrder = []
+      let theWork = null
+
+      for (let rt of profile.rtOrder){
+          if (rt.includes(':Work')){
+              theWork = rt
+          }
+
+          if (rt.includes(':Instance')){
+
+              
+              // add itself in 
+              newOrder.push(rt)
+              let thisInstanceURI = profile.rt[rt].URI
+
+              // then look for its items
+              for (let k in itemLookup){
+                  if (itemLookup[k] == thisInstanceURI){
+                      
+                      newOrder.push(k)                        
+                  }
+              }
+          }
+      }
+
+      // add the work first
+      if (theWork){
+          newOrder.unshift(theWork)
+      }
+
+
+      // as a backup if there is anything in the old order than is not present just toss it in
+      for (let rt of profile.rtOrder){
+          if (newOrder.indexOf(rt)===-1){
+
+              // if its a hub put it up front
+              if (rt.includes(':Hub')){
+                  newOrder.unshift(rt);
+              }else{
+                  newOrder.push(rt)
+              }
+
+
+          }
+
+
+      }
+
+
+      profile.rtOrder = JSON.parse(JSON.stringify(newOrder))
+
+
+      return profile
+  },
+
+
+
+  returnMetaFromSavedXML: function(xml){      
+
+      let parser = new DOMParser();
+      xml = parser.parseFromString(xml, "text/xml");
+      let voidData = xml.getElementsByTagName('void:DatasetDescription')[0]
+
+      let rts = []
+
+      for (let rt of voidData.getElementsByTagName('lclocal:rtsused')){
+          rts.push(rt.innerHTML)
+      }
+
+      let eid = null
+      for (let el of voidData.getElementsByTagName('lclocal:eid')){
+          eid = el.innerHTML
+      }
+
+      let status = null
+      for (let el of voidData.getElementsByTagName('lclocal:status')){
+          status = el.innerHTML
+      }
+
+      let profile = null
+      for (let el of voidData.getElementsByTagName('lclocal:typeid')){
+          profile = el.innerHTML
+      }
+      let procInfo = null
+      for (let el of voidData.getElementsByTagName('lclocal:procinfo')){
+          procInfo = el.innerHTML
+      }
+
+
+      let user = null
+      for (let el of voidData.getElementsByTagName('lclocal:user')){
+          user = el.innerHTML
+      }
+
+      voidData.remove()
+
+      xml = (new XMLSerializer()).serializeToString(xml)
+
+      return {
+          rts:rts,
+          xml:xml,
+          eid: eid,
+          status:status,
+          profile:profile,
+          procInfo:procInfo,
+          user:user
+      }
+  },
 
 
 

@@ -42,7 +42,8 @@
             <pane 
               :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}" 
               :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
-              <EditPanel :instanceMode="false"/>
+              {{ (this.activeProfile) ? Object.keys(this.activeProfile).length : "" }}
+              <EditPanel :key="test" :instanceMode="false"/>
             </pane>
 
 
@@ -77,10 +78,13 @@
   import { Splitpanes, Pane } from 'splitpanes'
   import 'splitpanes/dist/splitpanes.css'
   import { usePreferenceStore } from '@/stores/preference'
+  import { useProfileStore } from '@/stores/profile'
 
+  
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
- 
+  import utilsProfile from '@/lib/utils_profile';
+
 
   import Properties from "@/components/panels/sidebar_property/Properties.vue";
   import EditPanel from "@/components/panels/edit/EditPanel.vue";
@@ -94,17 +98,21 @@
     components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug },
     data() {
       return {
-        color: 'blue',
 
+        test: 1
+        
       }
-    },    
+    },
     computed: {
       // other computed properties
       // ...
       // gives access to this.counterStore and this.userStore
-      ...mapStores(usePreferenceStore),
+      ...mapStores(usePreferenceStore,useProfileStore),
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
-      ...mapWritableState(usePreferenceStore, ['showDebugModal']),
+      ...mapState(useProfileStore, ['profilesLoaded']),
+
+      
+      ...mapWritableState(usePreferenceStore, ['showDebugModal', 'activeProfile']),
 
 
       // // gives read access to this.count and this.double
@@ -121,7 +129,36 @@
 
 
     },
+
+
+    mounted: function(){
+
+      console.log(this.$route.params)
+
+      if (this.profilesLoaded){
+        this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
+      }else{
+        // console.error("Somehow profiles are not loaded at this point")
+      }
+
+
+
+    },
     created: function(){
+
+
+      this.profileStore.$subscribe(async (mutation, state)=>{
+        console.log(state.profilesLoaded, Object.keys(state.activeProfile).length)
+
+        if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){  
+          // the profilesLoaded flipped and there is no active profile, so load the data
+          this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
+        }else{
+          //console.error("profilesLoaded is never true, cannot load into data")
+        }
+
+
+      }, { detached: false })
 
     }
   }

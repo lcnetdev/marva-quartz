@@ -1,8 +1,11 @@
 import { defineStore } from 'pinia'
 import { useConfigStore } from './config'
+import { usePreferenceStore } from './preference'
 
 import utilsNetwork from '@/lib/utils_network';
 import utilsParse from '@/lib/utils_parse';
+import utilsRDF from '@/lib/utils_rdf';
+import utilsExport from '@/lib/utils_export';
 
 
 import utilsProfile from '../lib/utils_profile'
@@ -37,6 +40,9 @@ export const useProfileStore = defineStore('profile', {
     // the current active profile
     activeProfile: {},
 
+    activeProfileSaved: true,
+
+    showPostModal: false,
 
     // bf:title component/predicate for example, value will be the structure object for this component
 
@@ -50,17 +56,6 @@ export const useProfileStore = defineStore('profile', {
 
   }),
   getters: {
-    // doubleCount: (state) => state.count * 2,
-
-    // returnStructureByGUID: (state) => {
-
-    //   return "yessssssss"
-
-    // }
-    // returnStructureByGUID2: (state) => (id) => {
-
-    //   return "OMG -_- " + id 
-    // },
 
     /**
     * Can be used to return the structure of the component by passing the GUID
@@ -685,7 +680,7 @@ export const useProfileStore = defineStore('profile', {
       }
 
       if (!useProfile.user){
-        useProfile.user = this.catInitials
+        useProfile.user = usePreferenceStore().returnUserNameForSaving
       }
 
       if (!useProfile.status){
@@ -982,6 +977,9 @@ export const useProfileStore = defineStore('profile', {
             }
         }
 
+        // they changed something
+        this.activeProfileSaved = false
+
 
         
       }else{
@@ -1071,6 +1069,9 @@ export const useProfileStore = defineStore('profile', {
 
 
         }
+        // they changed something
+        this.activeProfileSaved = false
+
       }else{
         console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
@@ -1090,14 +1091,22 @@ export const useProfileStore = defineStore('profile', {
     removeValueComplex: async function(componentGuid, fieldGuid){  
 
 
+
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt !== false){
+          
+        console.log("pt ==",pt)
+        console.log('fieldGuid ==',fieldGuid)
         
-        // find the correct blank node to edit if possible, if we don't find it then we need to create it
+        // find the correct blank node to edit if possible,
 
         let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
+        if (parent && parent.length === 1 && parent[0]['@guid'] === fieldGuid ){
+          // console.log("The parent is the node we are looking for")
+          parent = pt.userValue
+        }
 
         // just look through all of the properties, if its an array filter it
         for (let p in parent){
@@ -1130,7 +1139,8 @@ export const useProfileStore = defineStore('profile', {
         // make sure we don't leave any blank blank nodes behind
         pt.userValue = utilsProfile.pruneUserValue(pt.userValue)
 
-
+        // they changed something
+        this.activeProfileSaved = false
 
       }else{
         console.error('removeValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -1189,12 +1199,12 @@ export const useProfileStore = defineStore('profile', {
 
         
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
-        console.log(pt)
-        console.log("fieldGuid",fieldGuid)
+        // console.log(pt)
+        // console.log("fieldGuid",fieldGuid)
 
         let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
 
-        console.log("Found em:",JSON.stringify(parent,null,2))
+        // console.log("Found em:",JSON.stringify(parent,null,2))
 
         // just look through all of the properties, if its an array filter it
         for (let p in parent){
@@ -1220,8 +1230,10 @@ export const useProfileStore = defineStore('profile', {
           }
         }
 
+        // they changed something
+        this.activeProfileSaved = false
 
-        console.log("psot filter em:",parent)
+        // console.log("psot filter em:",parent)
 
 
         // if (blankNode === false){
@@ -1374,6 +1386,9 @@ export const useProfileStore = defineStore('profile', {
         // console.log("affter prune")
         // console.log(JSON.stringify(pt.userValue))
 
+
+        // they changed something
+        this.activeProfileSaved = false
 
       }else{
         console.error('setValueLiteral: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -1529,7 +1544,7 @@ export const useProfileStore = defineStore('profile', {
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.loc.gov/mads/rdf/v1#Topic')  })
 
 
-      console.log("propertyPath=",propertyPath)
+      // console.log("propertyPath=",propertyPath)
 
 
 
@@ -1619,7 +1634,7 @@ export const useProfileStore = defineStore('profile', {
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
-      console.log("propertyPath=",propertyPath)
+      // console.log("propertyPath=",propertyPath)
 
       let lastProperty = propertyPath.at(-1).propertyURI 
       // locate the correct pt to work on in the activeProfile
@@ -1694,6 +1709,9 @@ export const useProfileStore = defineStore('profile', {
 
 
         }
+        // they changed something
+        this.activeProfileSaved = false
+
       }else{
         console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
@@ -1703,6 +1721,195 @@ export const useProfileStore = defineStore('profile', {
 
 
     },
+
+    /**
+    * sets the uservalue when dealing with subject headings
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {array} subjectComponents - objects with the data to represent the component parts of subject heading
+    * @param {array} propertyPath - the path of uris to get to this level
+    * @return {void} - 
+    */    
+    setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
+
+        // we're just going to overwrite the whole userValue with the constructed headings
+
+        
+        let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+        console.log('-----')
+        console.log(pt)
+        console.log(subjectComponents)
+        console.log(propertyPath)
+
+
+
+        // find it
+        if (pt){
+
+
+            // build out the hiearchy
+            let userValue = {}
+
+            // build the hiearchy if it doesn't exist to place the data
+
+            // we are adding the rdfs:label and the @id to this property
+            // we just need to know where to put it
+
+            // a reference to allow us to write to the end of the hierarchy
+            let currentUserValuePos = userValue
+
+            // used as a reference to the last postion's parent, so we can easily add a new sibling
+            // let currentUserValuePosParent = null
+
+            // keeps track of the @type, will be the last @type of the hiearchy when done looping
+            let thisLevelType
+
+            for (let p of propertyPath){
+
+                // if the property is owl:sameAs it is the last field 
+                // of where we are building the entitiy, so we don't  want
+                // bf:Agent -> owl:sameAs we just want the bf:Agent with values filed in there
+                if (p.propertyURI=='http://www.w3.org/2002/07/owl#sameAs'){
+                    break
+                }
+                // same with component list, we'll build that manually
+                if (p.propertyURI=='http://www.loc.gov/mads/rdf/v1#componentList'){
+                    break
+                }
+
+
+
+                if (!currentUserValuePos[p.propertyURI]){
+                    currentUserValuePos[p.propertyURI] = []
+                }
+                // thisLevelType = await exportXML.suggestType(p.propertyURI)
+
+                let thisLevelType = utilsRDF.suggestTypeProfile(p.propertyURI,pt)
+                if (thisLevelType === false){
+                  // did not find it in the profile, look to the network
+                  thisLevelType = await utilsRDF.suggestTypeNetwork(p.propertyURI)
+                } 
+
+
+                let thisLevel = {'@guid':short.generate()}
+                if (!utilsRDF.isUriALiteral(thisLevelType)){
+                    thisLevel['@type'] = thisLevelType
+                }
+                if (currentUserValuePos[p.propertyURI].length==0){
+                    currentUserValuePos[p.propertyURI].push(thisLevel)
+                }
+                // currentUserValuePosParent = currentUserValuePos[p.propertyURI]
+                currentUserValuePos = currentUserValuePos[p.propertyURI][0]
+            } 
+
+
+            if (pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"] &&
+                pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] &&
+                pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"] &&
+                pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"][0]){
+
+                userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"] = JSON.parse(JSON.stringify(pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"]))
+            }               
+
+            if (pt.userValue['@root']){
+                userValue['@root'] = JSON.parse(JSON.stringify(pt.userValue['@root']))
+            }
+            if (pt.userValue['@guid']){
+                userValue['@guid'] = JSON.parse(JSON.stringify(pt.userValue['@guid']))
+            }
+
+            currentUserValuePos["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"] = [{
+                "@guid": short.generate(),
+                "@id": "http://id.loc.gov/authorities/subjects"
+            }]
+
+
+
+            // if it is a solo subject heading
+            if (subjectComponents.length==1){
+
+                currentUserValuePos['@id'] = subjectComponents[0].uri
+
+                currentUserValuePos['@type'] = subjectComponents[0].type.replace('madsrdf:','http://www.loc.gov/mads/rdf/v1#')
+
+                currentUserValuePos["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"] = [{
+                    "@guid": short.generate(),
+                    "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": subjectComponents[0].label
+                }]
+                currentUserValuePos["http://www.w3.org/2000/01/rdf-schema#label"] = [{
+                    "@guid": short.generate(),
+                    "http://www.w3.org/2000/01/rdf-schema#label": subjectComponents[0].label
+                }]
+                
+                // store.state.activeUndoLog.push(`Added subject heading ${subjectComponents[0].label}`)
+
+
+            }else if (subjectComponents.length>1){
+
+                //userValue
+
+                
+                let fullLabel = subjectComponents.map((c)=>{return c.label}).join('--')
+
+                // store.state.activeUndoLog.push(`Added subject heading ${fullLabel}`)
+
+                currentUserValuePos["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"] = [{
+                    "@guid": short.generate(),
+                    "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": fullLabel
+                }]
+                currentUserValuePos["http://www.w3.org/2000/01/rdf-schema#label"] = [{
+                    "@guid": short.generate(),
+                    "http://www.w3.org/2000/01/rdf-schema#label": fullLabel
+                }]
+
+                // we need to make the component list then
+
+
+                currentUserValuePos["http://www.loc.gov/mads/rdf/v1#componentList"] = []
+
+                for (let c of subjectComponents){
+
+                    let compo = {
+                            "@guid": short.generate(),
+                            "@type": c.type.replace('madsrdf:','http://www.loc.gov/mads/rdf/v1#'),
+                            "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [{
+                                "@guid": short.generate(),
+                                "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": c.label
+                            }]
+                    }
+
+                    if (c.uri){
+                        compo['@id'] = c.uri
+                    }
+
+                    currentUserValuePos["http://www.loc.gov/mads/rdf/v1#componentList"].push(compo)
+
+
+                }
+            }
+
+
+            // they changed something
+            this.activeProfileSaved = false
+
+            console.log("USERVALUE IS",userValue)
+            pt.userValue = userValue
+        }
+
+
+
+
+
+
+
+        // return true
+
+
+
+    },
+
+
+
 
     /**
     * returns the structure of the component, used in the debug modal
@@ -1718,6 +1925,82 @@ export const useProfileStore = defineStore('profile', {
       return pt
 
     },
+
+
+
+    /**
+    * return the XML of the active editing record
+    * 
+
+    * @return {string} - the XML string of output
+    */    
+    buildExportXML: function(){
+      return utilsExport.buildXML(this.activeProfile)
+    },
+
+
+    /**
+    * Save the record to the Marva scratch-pad backend
+    * 
+
+    * @return {boolean} - did it save
+    */    
+    saveRecord: async function(){
+      let xml = await utilsExport.buildXML(this.activeProfile)
+      utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
+      this.activeProfileSaved = true
+    },
+
+    /**
+    * Ask for a record and parse it to load it into the editor
+    * 
+
+    * @return {boolean} - did it save
+    */    
+    loadRecord: async function(eid, profile){
+      let xml = await utilsExport.buildXML(this.activeProfile)
+      console.log("*****")
+      console.log(xml)
+      utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
+      this.activeProfileSaved = true
+    },
+
+    /**
+    * Publish record to backend
+    * 
+
+    * @return {obj} - response from posting action
+    */    
+    publishRecord: async function(eid, profile){
+      let xml = await utilsExport.buildXML(this.activeProfile)     
+      let pubResuts = utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
+      pubResuts.resourceLinks=[]
+      // if it was accepted by the system send it to the marva backend to store as posted
+      if (pubResuts.status){
+        this.activeProfile.status = 'published'
+        await this.saveRecord()
+
+
+        
+        const config = useConfigStore()
+
+        for (let rt in this.activeProfile.rt){
+          let type = rt.split(':').slice(-1)[0]
+          let url = config.convertToRegionUrl(this.activeProfile.rt[rt].URI)
+          let env = config.returnUrls().env
+          pubResuts.resourceLinks.push({
+            'type':type,
+            'url': url,
+            'env': env
+          })
+        }
+      }
+      return pubResuts
+      
+    },
+
+
+
 
 
 
@@ -1850,7 +2133,7 @@ export const useProfileStore = defineStore('profile', {
 
     },
     /**
-    * returns possible fields in that can be displated in the componnet
+    * returns possible fields in that can be displayed in the component
     * 
     * @return {array} - array of the fields
     */    
@@ -1980,7 +2263,202 @@ export const useProfileStore = defineStore('profile', {
       this.activeProfile.rt[profile].ptOrder.push(this.activeProfile.rt[profile].ptOrder.splice(this.activeProfile.rt[profile].ptOrder.indexOf(component), 1)[0]);
 
 
-    }
+    },
+
+    /**
+    * Loads the record from marva backend by E id
+    * 
+    * @return {void} - 
+    */    
+    loadRecordFromBackend: async function(eid){  
+      console.log("Loading", eid)
+      this.activeProfile = await utilsProfile.loadRecordFromBackend(eid)
+
+    },
+
+    
+
+
+
+    /**
+    * Duplicate / create new component
+    * 
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {boolean} createEmpty - if true make the component have no pre-populated data, if false "duplicate" the data from the source component
+    * @return {void}
+    */    
+    duplicateComponent: async function(componentGuid, createEmpty){  
+
+      console.log(componentGuid)
+
+      createEmpty = true
+
+      // locate the correct pt to work on in the activeProfile
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      if (pt !== false){
+        console.log(this.activeProfile)
+
+        let profile
+        let propertyPosition
+        for (let r of this.activeProfile.rtOrder){
+          propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
+          if (propertyPosition != -1){
+            profile = r
+            break
+          }
+        }
+
+        let key = pt.propertyURI.replace('http://','').replace('https://','').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"_") + '__' + ((pt.propertyLabel) ? pt.propertyLabel.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g,'_').toLowerCase() : "plabel")
+        let newPropertyId = key + '_'+ (+ new Date())
+
+
+        let newPt = JSON.parse(JSON.stringify(pt))
+        newPt.id = newPropertyId
+        newPt['@guid'] = short.generate()
+
+
+        console.log("Lookign at this PT", pt)
+        console.log(this.activeProfile)
+        console.log(propertyPosition)
+        console.log(key,newPropertyId)
+        if (createEmpty){
+
+          
+          // store.state.activeUndoLog.push(`Added another property ${exportXML.namespaceUri(activeProfile.rt[profile].pt[id].propertyURI)}`)
+
+          // console.log(activeProfile.rt[profile].pt[newPropertyId])
+          // console.log(profile,newPropertyId)
+          newPt.userValue = {
+              '@guid': short.generate(),
+              '@root' : newPt.propertyURIhihi
+
+          }
+
+          // we also want to add any default values in if it is just a empty new property and not duping
+
+          let idPropertyId = newPt.propertyURI  
+
+          let baseURI = newPt.propertyURI
+
+
+          // let defaults = null
+          let defaultsProperty
+
+
+          let useProfile = profile
+          // if the profile is a multiple, like lc:RT:bf2:Monograph:Item-0 split off the -0 for it to find it in the RT lookup
+          if (!this.rtLookup[useProfile]){
+              if (useProfile.includes('-')){
+                  useProfile = useProfile.split('-')[0]
+              }
+          }
+          // first check the top level
+          if (this.rtLookup[useProfile]){
+              defaultsProperty = this.rtLookup[useProfile].propertyTemplates.filter((x)=>{ return (x.propertyURI === idPropertyId) ? true : false})
+              if (defaultsProperty.length>0){
+                  defaultsProperty=defaultsProperty[0]
+
+              }
+          }
+
+
+
+          if (defaultsProperty && defaultsProperty.valueConstraint.defaults.length>0){              
+              // make sure the base URI exists in the uservalue
+              if (!newPt.userValue[baseURI]){
+                  newPt.userValue[baseURI] = [{}]
+              }
+              let userValue = newPt.userValue[baseURI][0]
+
+              // there are defauts at this level
+              // its not a nested component just add it in the first level                
+              if (defaultsProperty.valueConstraint.defaults[0].defaultLiteral){
+                  // console.log(newPt)
+                  userValue['http://www.w3.org/2000/01/rdf-schema#label'] = [{
+                      '@guid': short.generate(),
+                      'http://www.w3.org/2000/01/rdf-schema#label':defaultsProperty.valueConstraint.defaults[0].defaultLiteral
+                  }]
+              }
+              if (defaultsProperty.valueConstraint.defaults[0].defaultURI){
+                  userValue['@id'] = defaultsProperty.valueConstraint.defaults[0].defaultURI
+              }                  
+
+
+          }else if (defaultsProperty && defaultsProperty.valueConstraint.valueTemplateRefs.length>0){
+
+              if (!newPt.userValue[baseURI]){
+                  newPt.userValue[baseURI] = [{}]
+              }
+              let userValue = newPt.userValue[baseURI][0]
+
+
+              // it doesn't exist at the top level, see if it has at least one reference template, if so use the first one and look up if that one has defualt values
+              // the first one since it is the default for the referencetemplace componment
+              let useRef = defaultsProperty.valueConstraint.valueTemplateRefs[0]
+
+              // look through all of them and add in any default
+              for (let refPt of this.rtLookup[useRef].propertyTemplates){
+                  if (refPt.valueConstraint.defaults.length>0){
+                      let defaults = refPt.valueConstraint.defaults[0]
+                      if (defaults.defaultLiteral){
+                          userValue[refPt.propertyURI]= [{
+                              '@guid': short.generate(),
+                              'http://www.w3.org/2000/01/rdf-schema#label': [
+                                  {
+                                      'http://www.w3.org/2000/01/rdf-schema#label':defaults.defaultLiteral,
+                                      '@guid': short.generate(),
+                                  }
+                              ]                              
+                          }]
+                      }
+                      if (defaults.defaultURI){
+                          if (userValue[refPt.propertyURI][0]){
+                              userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI    
+                              if (refPt.valueConstraint.valueDataType && refPt.valueConstraint.valueDataType.dataTypeURI){
+                                  userValue[refPt.propertyURI][0]['@type'] = refPt.valueConstraint.valueDataType.dataTypeURI
+                              }
+                          }                          
+                      } 
+                  }
+              }
+          }
+
+
+          // make sure we didnt make an empty propery array [{}]
+          if (newPt.userValue[baseURI]){
+              if (newPt.userValue[baseURI][0]){
+                  if (Object.keys(newPt.userValue[baseURI][0]).length === 0){
+                      delete newPt.userValue[baseURI]
+                  }
+              }
+          }
+
+
+
+
+        }else{
+
+
+
+        }
+
+        console.log(JSON.stringify(newPt,null,2))
+        this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
+        this.activeProfile.rt[profile].ptOrder.splice(propertyPosition+1, 0, newPropertyId);
+        console.log(this.activeProfile.rt[profile].ptOrder)
+        // they changed something
+        this.activeProfileSaved = false
+
+      }else{
+        console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
+        console.log(JSON.stringify(this.activeProfile))
+      }
+
+
+    },
+
+
     
 
 

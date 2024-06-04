@@ -3,7 +3,7 @@ import {useProfileStore} from "../stores/profile";
 
 import short from 'short-uuid'
 
-// import utilsNetwork from './utils_network';
+import utilsRDF from './utils_rdf';
 
 
 
@@ -19,23 +19,7 @@ const utilsParse = {
   hasItem: false,
 
 
-  namespace: {
-    'bflc': 'http://id.loc.gov/ontologies/bflc/',
-    'bf':'http://id.loc.gov/ontologies/bibframe/',  
-    'bfsimple':'http://id.loc.gov/ontologies/bfsimple/',
-    'madsrdf': 'http://www.loc.gov/mads/rdf/v1#',
-    'rdfs':'http://www.w3.org/2000/01/rdf-schema#',
-    'rdf' : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-    'lclocal':'http://id.loc.gov/ontologies/lclocal/',    
-    'pmo' :'http://performedmusicontology.org/ontology/',
-    'datatypes': 'http://id.loc.gov/datatypes/',
-    'xsd': 'http://www.w3.org/2001/XMLSchema#',
-    'mstatus': 'https://id.loc.gov/vocabulary/mstatus/',
-    'mnotetype': 'http://id.loc.gov/vocabulary/mnotetype/',
-    'dcterms': 'http://purl.org/dc/terms/',
-    'owl': 'http://www.w3.org/2002/07/owl#',
-
-  },
+  namespace: utilsRDF.namespace,
 
 
   /**

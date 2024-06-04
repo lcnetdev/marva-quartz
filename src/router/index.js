@@ -10,7 +10,7 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
-      component: HomeView,
+      component: Load,
     },
     // {
     //   path: "/about",
@@ -28,11 +28,13 @@ const router = createRouter({
 
     },
     {
-      path: "/multiedit/",
+      path: "/multiedit/:recordId",
       name: "MultiEdit",
       component: EditMulti
 
     },
+
+    
 
     {
       path: "/load/",

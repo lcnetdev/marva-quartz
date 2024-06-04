@@ -19,17 +19,15 @@
       <template v-if="type=='literal'">
 
           <button class="" @click="$emit('actionButtonCommand', 'addField')">
-            Add Additional Field
+            Additonal Literal
           </button><br>
           <button style="width:100%" class="">
             Transliterate
           </button>
-          <hr/>
 
-          <button style="width:100%" class="" @click="showDebug()">
-            Debug
-          </button>
-
+          
+   
+          
 
 
       </template>
@@ -37,21 +35,25 @@
 
       <template v-if="type=='lookupSimple'">
 
-          <button style="width:100%" class="" @click="showDebug()">
-            Debug
-          </button>
+        
       </template>
 
       <template v-if="type=='lookupComplex'">
 
-          <button style="width:100%" class="" @click="showDebug()">
-            Debug
-          </button>
+
       </template>
 
 
-      
+      <hr>
 
+
+
+      <button style="width:100%" class="" @click="showDebug()">
+        Debug
+      </button>
+      <button style="width:100%" class="" @click="duplicateComponent()">
+        Duplicate Component
+      </button>
 
 
 
@@ -91,6 +93,7 @@
       guid: String,
       clickmode: Boolean,
       small: Boolean,
+
     },
     data () {
       return {
@@ -105,11 +108,12 @@
 
       useOpenModes(){
 
-        if (this.clickmode){
-          return ['click','touch']
-        }else{
-          return ['hover','focus','click','touch']
-        }
+        // if (this.clickmode){
+        //   return ['click','touch']
+        // }else{
+        //   return ['hover','focus','click','touch']
+        // }
+        return ['click','touch']
 
       },
 
@@ -120,7 +124,7 @@
 
 
       menuClosed: function(){
-        console.log("CLOSED")
+        //console.log("CLOSED")
       },
 
       showDebug: function() {
@@ -128,6 +132,17 @@
 
         this.debugModalData= this.profileStore.returnStructureByComponentGuid(this.guid); 
         this.showDebugModal = true
+
+      },
+
+      duplicateComponent: function(){
+        
+        this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
+
+
+
+      },
+      addComponent: function(){
 
       },
 

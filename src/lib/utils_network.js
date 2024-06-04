@@ -1,4 +1,7 @@
 import {useConfigStore} from "../stores/config";
+import short from 'short-uuid'
+const translator = short();
+
 
 
 const utilsNetwork = {
@@ -224,6 +227,7 @@ const utilsNetwork = {
       }catch(err){
         //alert("There was an error retriving the record from:",url)
         console.error(err);
+        return false
         // Handle errors here
       }
     },
@@ -2070,7 +2074,222 @@ const utilsNetwork = {
 
     },
 
+    /**
+    * Send the UNPOSTED record to the back end
+    * @async
+    * @param {string} xml - the XML from the export process
+    * @param {string} eId - the editor id
+    * @return {void} - 
+    */
 
+    saveRecord: async function(xml, eId){
+      const putMethod = {
+        method: 'PUT', // Method itself
+        headers: {
+          'Content-type': 'application/xml', // Indicates the content 
+        },
+        body: xml // We send data in JSON format
+      }
+      console.log(putMethod)
+      let url = useConfigStore().returnUrls.ldpjs +'ldp/' + eId
+      
+      await fetch(url, putMethod)
+      .then(response => console.log(response.text))
+      .then((responseText)=>{
+        // console.log(responseText)
+      })
+      // .then(data => console.log(data)) // Manipulate the data retrieved back, if we want to do something with it
+      .catch((err) => {
+       console.log(err)
+       alert("Error: Could not save the record!", err)
+      }) // Do something with the error
+     },
+ 
+    /**
+    * Retrive the UNPOSTED record from the back end
+    * @async
+    * @param {string} xml - the XML from the export process
+    * @param {string} eId - the editor id
+    * @return {void} - 
+    */
+    loadSavedRecord: async function(id) {
+      
+       let url = useConfigStore().returnUrls.ldpjs +'ldp/' + id
+
+       // let options = {}
+       // if (json){
+       //   options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors"}        
+       // }
+       // console.log('options:',options)
+       try{
+         let response = await fetch(url);
+ 
+         let data =  await response.text()
+         
+         return  data;
+ 
+       }catch(err){
+         //alert("There was an error retriving the record from:",url)
+         console.error(err);
+ 
+         // Handle errors here
+       }
+     },
+
+     searchSavedRecords: async function(user,search){
+
+      let utilUrl = useConfigStore().returnUrls.util
+      let utilPath = useConfigStore().returnUrls.env
+
+      let url
+      if (user && !search){
+        url = `${utilUrl}myrecords/${utilPath}/${user}`
+      }else if (user && search){
+        url = `${utilUrl}allrecords/${utilPath}/${search}/${user}`
+      }else{
+        url = `${utilUrl}allrecords/${utilPath}/`
+      }
+      let r = await this.fetchSimpleLookup(url)
+
+      if (r!==false){
+
+        let rSorted = [];
+        for (let id in r) {
+            rSorted.push(r[id]);
+        }
+        rSorted.sort(function(a, b) {
+            return b.timestamp - a.timestamp ;
+        });
+        
+        return rSorted
+
+      }
+
+      return []
+
+  },
+  /**
+  * Send the record 
+  * @async
+  * @param {string} xml - The xml string
+  * @param {string} eid - the e12345678 number
+  * @param {obj} activeProfile - the activeProfile we're posting
+  * @return {obj} - {status:false, msg: ""}
+  */
+
+  publish: async function(xml,eid,activeProfile){
+
+    // console.log("activeProfile",activeProfile)
+    let postingHub = false
+
+    // check if we are posting a HUB if so set that flag
+    // activeProfile is not required but if it is check
+    if (activeProfile){
+      if (activeProfile.id && activeProfile.id === 'Hub'){
+        postingHub = true
+      }
+    }
+
+    let url = useConfigStore().returnUrls.publish
+
+    let uuid = translator.toUUID(translator.new())
+
+    const rawResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({name: uuid, rdfxml:xml, eid: eid, hub:postingHub})
+    });
+    const content = await rawResponse.json();
+
+    // console.log(content);
+
+    if (content && content.publish && content.publish.status && content.publish.status == 'published'){
+
+      return {status:true}
+
+    }else{
+
+      // alert("Did not post, please report this error--" + JSON.stringify(content.publish,null,2))
+      return {status:false, msg: JSON.stringify(content.publish,null,2)}
+    }
+  },        
+
+
+  /**
+  * Send off a rdf bibframe xml files in the format <rdf:RDF><bf:Work/><bf:Instance/>...etc...</rdf:RDF>
+  * @async
+  * @param {string} xml - The xml string
+  * @return {string} - the MARC in XML response
+  */
+  marcPreview: async function(xml){
+
+    let url = useConfigStore().returnUrls.util + '/marcpreview'
+
+
+    const rawResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({rdfxml:xml})
+    });
+    const content = await rawResponse.json();
+
+    console.log(content);
+
+    return content
+    
+  },        
+
+
+    /**
+    * A result from searching ID by LCCN
+    * @typedef {lccnSearchResult} lccnSearchResult
+    * @property {string} lccn - the lccn searched
+    * @property {string} label - the label to display in a search result
+    * @property {string} bfdbURL - the http url to the bfdb url\
+    * @property {string} idURL - the http url to the id.loc.gov page for instance
+    * @property {string} bfdbPackageURL - the http url to the data package for this instance
+    */
+
+    /**
+    * Looks for instances by LCCN against ID, returns into for them to be displayed and load the resource
+    * @param {string} lccn - the lccn to search for
+    * @return {array} - An array of {@link lccnSearchResult} results
+    */
+    searchInstanceByLCCN: async function(lccn){
+
+      lccn = lccn.replaceAll(' ','')
+      try{
+        let req = await fetch(useConfigStore().returnUrls.id + `resources/instances/suggest2?q=${lccn}&searchtype=keyword` )
+        let results = await req.json()
+        let returnVal = []
+
+        for (let r of results.hits){
+
+          returnVal.push({
+            lccn: lccn,
+            label: r.aLabel,
+            bfdbURL: useConfigStore().returnUrls.bfdb + r.uri.split('id.loc.gov/')[1],
+            idURL: useConfigStore().returnUrls.id + r.uri.split('id.loc.gov/')[1],
+            bfdbPackageURL: useConfigStore().returnUrls.bfdb + r.uri.split('id.loc.gov/')[1] + '.convertedit-pkg.xml'
+          })
+
+        }
+
+
+        return returnVal
+
+
+      }catch{
+        return ["Error searching LCCN"]
+      }
+
+    },
 
 
 }

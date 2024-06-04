@@ -7,7 +7,7 @@
       <template v-if="simpleLookupValues.length===0">
           
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <input v-model="activeValue" class="inline-lookup-input" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" />
+          <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" />
 
 
       </template>
@@ -80,7 +80,7 @@
                   </div>
                 </div>
                 <div class="lookup-fake-input-text" style="display: inline-block;">
-                  <input v-model="activeValue" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
+                  <input v-model="activeValue" class="can-select" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
                 </div>   
 
               </div>
@@ -100,7 +100,7 @@
               </div>
             </div>
             <div class="lookup-fake-input-text">
-              <input v-model="activeValue" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
+              <input v-model="activeValue" class="can-select" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
             </div>     
 
 
@@ -259,6 +259,8 @@ import { mapStores, mapState, mapWritableState } from 'pinia'
 
 import utilsNetwork from '@/lib/utils_network';
 
+import utilsMisc from '@/lib/utils_misc'
+
 
 export default {
   name: "LookupSimple",
@@ -338,7 +340,7 @@ export default {
    
     // this.refreshInputDisplay()    
 
-    console.log("this.structure.valueConstraint.useValuesFrom[0]",this.structure.valueConstraint.useValuesFrom[0])
+    // console.log("this.structure.valueConstraint.useValuesFrom[0]",this.structure.valueConstraint.useValuesFrom[0])
 
 
   },
@@ -645,6 +647,16 @@ export default {
         // this.$store.dispatch("disableMacroNav")
         this.filter()
 
+      }
+
+
+
+
+      if (event && event.code === 'ArrowUp' && this.displayAutocomplete == false){
+        utilsMisc.globalNav('up',event.target)
+      }
+      if (event && event.code === 'ArrowDown' && this.displayAutocomplete == false){
+        utilsMisc.globalNav('down',event.target)
       }
 
 

@@ -136,7 +136,6 @@
     computed: {
       // other computed properties
       // ...
-      // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore),
       ...mapStores(useProfileStore),
 

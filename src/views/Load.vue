@@ -11,31 +11,110 @@
       <splitpanes>
         <pane class="load">
           
-          <h1>Load</h1>
-
           
-          <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
-            <input placeholder="URL to resource" class="url-to-load" type="text" v-model="urlToLoad" ref="urlToLoad">
-          </form>
 
-          <h3>Profiles:</h3>
+          <div class="load-columns">
+            
+            <div>
+              <h1>
+                <span style="font-size: 1.15em; vertical-align: bottom; margin-right: 5px;" class="material-icons">cloud_download</span>
+                <span>Load</span></h1>
 
-          <div class="load-buttons"> 
-            <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>
-            <button class="load-button" @click="loadUrl(startingPointsFiltered[0].instance,true)">test</button>
+              <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
+                <input placeholder="URL to resource or LCCN to search" class="url-to-load" type="text" @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
+              </form>
 
-          </div>
-          <hr>
 
-          <details>
-            <summary>Test Data</summary>
-            <table>
-              <tr v-for="t in testData">
-                <td>{{t.desc}}</td>
-                <td><button @click="loadTestData(t.filename)">Set URL</button></td>
-              </tr>
-            </table>
-          </details>
+              <ol>
+
+                  <li v-if="searchByLccnResults && searchByLccnResults.length === 0">No results...</li>
+
+                  <template v-if="searchByLccnResults && typeof searchByLccnResults === 'string'">
+
+                    <li>Searching...</li>
+
+                  </template>
+                  <template v-else>
+
+                    <li v-for="(r,idx) in searchByLccnResults" :key="r.idURL">
+                        <div style="display:flex">
+                          
+                            <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.label}}</span></div>
+                            <div style="flex:1">
+                              <a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">View on BFDB</a>
+                              <label :for="'lccnsearch'+idx">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx"/>
+                            </div>
+                            
+                          <!-- <div style="flex:1"><a href="#" target="_blank" @click.prevent="instanceEditorLink = r.bfdbPackageURL; testInstance()">Retrieve</a></div> -->
+
+                        </div>
+                      </li>   
+
+        
+                      
+                    
+                    
+                  </template>
+
+
+                  </ol>
+                <div v-if="(!urlToLoadIsHttp && !lccnLoadSelected)" style="font-weight: bold; margin-bottom: 1em;">
+                  First Enter URL to resource or search for LCCN above to select profile.
+                </div>
+
+              <h3>Load with profile:</h3>
+
+              <div class="load-buttons"> 
+                <button class="load-button" @click="loadUrl(s.instance)" :disabled="(urlToLoadIsHttp || lccnLoadSelected ) ? false : true"  v-for="s in startingPointsFiltered">{{s.name}}</button>
+
+                
+              </div>
+              <hr>
+
+              <details>
+                <summary>Test Data</summary>
+                <table>
+                  <tr v-for="t in testData">
+                    <td>{{t.desc}}</td>
+                    <td><button @click="loadTestData(t.filename)">Set URL</button></td>
+                  </tr>
+                </table>
+              </details>
+
+
+            </div>
+
+            <div>
+              <h1>
+                <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_note</span>
+                <span>Your Records</span></h1>                
+                <div>
+                  <ul class="continue-record-list">
+                    <li class="continue-record" v-for="record in continueRecords" >
+                      <router-link :to="{ name: 'Edit', params: { recordId: record.eid }}">
+                        <div><span class="continue-record-title">{{record.title}}</span><span v-if="record.contributor"> by {{record.contributor}}</span><span> ({{record.lccn}})</span></div>
+                        <div class="continue-record-lastedit"><span v-if="record.status=='posted'">Posted</span><span v-if="record.status=='unposted'">last edited</span> <span>{{ returnTimeAgo(record.timestamp) }}</span></div>
+                      </router-link>
+                      <div class="material-icons" v-if="record.status=='posted'" title="Posted record">check_box</div>
+
+
+
+                    </li>
+
+                  </ul>
+
+
+
+                </div>
+
+
+            </div>
+
+
+            <div></div>
+
+          </div> 
+          
 
 
         </pane>
@@ -67,6 +146,11 @@
   import utilsNetwork from '@/lib/utils_network';
   import utilsParse from '@/lib/utils_parse';
   import short from 'short-uuid'
+  import TimeAgo from 'javascript-time-ago'
+  import en from 'javascript-time-ago/locale/en'
+
+  TimeAgo.addDefaultLocale(en)
+  const timeAgo = new TimeAgo('en-US')
 
   const decimalTranslator = short("0123456789");
 
@@ -77,9 +161,16 @@
     data() {
       return {
 
-        urlToLoad:''
-        
+        urlToLoad:'',
 
+        continueRecords: [],
+
+        urlToLoadIsHttp: false,
+        
+        searchByLccnResults: null,
+        lccnToSearchTimeout: null,
+
+        lccnLoadSelected:false,
       }
     },    
     computed: {
@@ -118,21 +209,63 @@
 
     methods: {
 
+      returnTimeAgo: function(timestamp){
+        console.log(timestamp, timestamp*1000,Date.now())
+        return timeAgo.format(timestamp*1000)
+      },
+
       returnPixleAsPercent: function(pixles){
         return pixles/window.innerHeight*100
       },
 
       loadTestData: function(filename){
         this.urlToLoad = '/bfe2/quartz/test_files/' + filename
+        this.urlToLoadIsHttp=true
         // this.loadUrl()
       },
 
+      loadYourRecord: async function(){
+
+
+
+      },
+
+      loadSearch: function(){
+
+        this.lccnLoadSelected = null
+
+        if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")){
+          this.urlToLoadIsHttp = true
+          return false
+        }else{
+          this.urlToLoadIsHttp = false
+
+        }
+        // lccns are not short
+        if (this.urlToLoad.length < 8){ return false}
+
+        window.clearTimeout(this.lccnToSearchTimeout)
+          this.searchByLccnResults = 'Searching...'
+          this.lccnToSearchTimeout = window.setTimeout(async ()=>{
+
+          this.searchByLccnResults = await utilsNetwork.searchInstanceByLCCN(this.urlToLoad)
+          console.log(this.searchByLccnResults)
+
+        },500)
+
+
+      },
+
       loadUrl: async function(useInstanceProfile,multiTestFlag){
+
+
+        if (this.lccnLoadSelected){
+          console.log(this.lccnLoadSelected.bfdbPackageURL)
+          this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
+
+        }
+
         console.log(this.urlToLoad)
-
-       
-
-
 
         if (this.urlToLoad.trim() !== ''){
 
@@ -216,9 +349,9 @@
           useProfile.eId= uuid
         }
 
-        // TODO
+
         if (!useProfile.user){
-          useProfile.user = 'TODO'
+          useProfile.user = this.preferenceStore.returnUserNameForSaving
         }
 
         if (!useProfile.status){
@@ -255,15 +388,93 @@
 
 
     },
-    created: function(){
+    created: async function(){
+
+    
+
+      let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
+      console.log(records)
+      let lccnLookup = {}
+
+      // in this view we want to remove any records that are repeats, so only show the latest LCCN being edited
+      this.continueRecords = []
+      for (let r of records){
+        if (r.lccn && r.lccn != '' && r.lccn !== null){
+          if (!lccnLookup[r.lccn]){
+            this.continueRecords.push(r)
+            lccnLookup[r.lccn]=true
+          }
+        }
+
+      }
+      
+      console.log(this.continueRecords)
 
     }
   }
 
 </script>
 
-<style scoped>
+<style scoped>  
 
+label{
+  cursor: pointer;
+}
+
+  ol{
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 2em;
+  }
+
+  .continue-record .material-icons{
+      position: absolute;
+      right: 0;
+      top: 0;
+      color: limegreen;
+    }
+
+  .continue-record-list{
+    margin-top: 1em;
+    padding-left: 0.1em;
+    list-style: none;
+
+  }
+
+  .continue-record a{
+    text-decoration: none;
+    color: inherit !important;
+  }
+
+  .continue-record:hover{
+    box-shadow: 0px 0px 3px -1px rgba(0,0,0,0.46);
+    background-color: whitesmoke;
+
+  }
+
+  .continue-record-list li:nth-of-type(1n+15) {
+    display: none;
+  } 
+
+  .continue-record-title{
+    font-style: italic;
+  }
+  .continue-record{
+    border: solid 1px lightgray;
+    padding: 4px;
+    position: relative;
+
+  }
+  .continue-record-lastedit{
+    color: grey;
+  }
+  .load-columns{
+    display: flex;
+  }
+
+  .load-columns > div{
+    flex: 1;
+  }
   .url-to-load{
     font-size: 1.25em;
     margin-bottom: 1em;

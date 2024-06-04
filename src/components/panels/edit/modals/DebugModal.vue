@@ -47,7 +47,6 @@
     },
 
     watch: {
-      // whenever question changes, this function will run
       showDebugModal(newVal, oldVal) {
         console.log(newVal,oldVal)
         // if (newVal === true){
@@ -83,7 +82,6 @@
     },
 
     mounted() {
-      console.log("mounted")
       this.$nextTick(()=>{
      
       })

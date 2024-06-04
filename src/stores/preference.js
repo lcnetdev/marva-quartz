@@ -14,6 +14,15 @@ export const usePreferenceStore = defineStore('preference', {
     showDebugModal: false,
     debugModalData: {},
 
+    // the cataloger initals, like abcd, often the username/email
+    catInitals: null,
+    // in LC we also have a secondary id that gets put into the distributed record
+    // catRequireCode: false,
+    catCode: null,
+
+    // show the login box
+    showLoginModal: false,
+
     fontFamilies: ['Avenir, Helvetica, Arial, sans-serif','serif','sans-serif','monospace','cursive','fantasy','system-ui','ui-serif','ui-sans-serif','ui-monospace','ui-rounded'],
    
 
@@ -274,7 +283,14 @@ export const usePreferenceStore = defineStore('preference', {
         },
 
 
-
+      '--c-edit-main-splitpane-edit-focused-field-color' : {
+          value:'#f2f6f6',
+          desc: 'The background color of the field when it has the focus.',
+          descShort: 'Field Focus Background Color',
+          type: 'color',
+          group: 'Edit Panel',
+          range: null
+        },
 
 
       '--b-edit-main-splitpane-edit-show-field-labels' : {
@@ -604,10 +620,21 @@ export const usePreferenceStore = defineStore('preference', {
 
 
   }),
+
+  // catInitals: null,
+  // // in LC we also have a secondary id that gets put into the distributed record
+  // // catRequireCode: false,
+  // catCode:
+
   getters: {
 
     
-
+    returnUserNameForSaving: function(){
+      return `${this.catInitals} (${this.catCode})`
+    },
+    returnUserNameForPosting: function(){
+      return this.catCode
+    },
     
     // /**
     // * Returns the part of the config based on the current URL (or enviornment)
@@ -634,6 +661,23 @@ export const usePreferenceStore = defineStore('preference', {
 
   },
   actions: {
+
+    /**
+    * Setup the preference store, access settings stored in localstorage, etc.
+    * @return {void} - 
+    */ 
+    initalize: function(){
+
+      // check to see if we have the settings locally we can populate
+      if (window.localStorage.getItem('marva-catInitals')){
+        this.catInitals = window.localStorage.getItem('marva-catInitals')
+      }
+      if (window.localStorage.getItem('marva-catCode')){
+        this.catCode = window.localStorage.getItem('marva-catCode')
+      }    
+
+
+    },
 
     /**
     * returns the value of the preference property requested
@@ -748,4 +792,11 @@ export const usePreferenceStore = defineStore('preference', {
 
 
   },
+
+  
+  
+
+
 })
+
+

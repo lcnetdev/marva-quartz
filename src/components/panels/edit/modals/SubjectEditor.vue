@@ -7,6 +7,8 @@
       :content-transition="'vfm-fade'"
       :click-to-close="true"
       :esc-to-close="true"
+      @closed="closeEditor()"
+
       :background="'non-interactive'"
       :lock-scroll="true"
       class="complex-lookup-modal"
@@ -184,7 +186,7 @@
                       <div  style="display: flex;">
                         <div  style="flex:1; position: relative;">
                           <form autocomplete="off" style="height: 3em;">            
-                            <input v-on:keydown.enter.prevent="navInput" placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"  class="input-single-subject subject-input">            
+                            <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"  class="input-single-subject subject-input">            
                           </form>
 
                           <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx" >
@@ -775,6 +777,17 @@ export default {
       return false
     },
 
+    focusInput: function(){
+      this.$nextTick(() => {
+
+        let timeoutFocus = window.setTimeout(()=>{
+          if (this.$refs.subjectInput){
+            this.$refs.subjectInput.focus()
+            window.clearTimeout(timeoutFocus)
+          }
+        },10)
+      })
+    },
 
     /**
     * Change state to display different interface
@@ -784,9 +797,17 @@ export default {
     editorModeSwitch: function(mode){
       this.subjectEditorMode = mode
       // this.$store.dispatch("subjectEditorMode", { self: this, mode: mode})
-      // this.$nextTick(() => {
+
+      if (mode == 'build'){
+        this.subjectString = this.linkModeString     
+        this.subjectStringChanged()    
+      }else{
+        this.linkModeString = this.subjectString
+      }
+ 
+      this.$nextTick(() => {
         this.$refs.subjectInput.focus()
-      // })
+      })
       
     },
 
@@ -1968,9 +1989,9 @@ export default {
   },
 
 
-  mounted: function () {
+  before: function () {
     
-
+    
 
   }
 };

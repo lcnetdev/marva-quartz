@@ -7,7 +7,7 @@
       <template v-if="complexLookupValues.length===0">
           
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <input class="input-inline-mode"  v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
+          <input class="input-inline-mode can-select" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
 
 
       </template>
@@ -38,7 +38,7 @@
         <a href="#" @click="removeValue(idx)" style="padding: 0 0 0 2.5px; text-decoration: none; font-size: 1em; cursor: pointer; color: gray;">x</a>
 
         </template>
-        <input class="input-inline-mode" style="width: 20px;"  v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
+        <input class="input-inline-mode can-select" style="width: 20px;" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
 
 <!-- 
         <template v-for="lValue in literalValues">
@@ -88,7 +88,7 @@
                       </div>
                     </div>
 
-                    <input style="width:auto"  v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
+                    <input style="width:auto" @keyup="navKey" class="can-select" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
                     <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
                   </div>
                 </div>
@@ -117,7 +117,7 @@
             </div>            
 
             <div class="lookup-fake-input-text">              
-                <input   v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
+                <input   v-on:keydown.enter.prevent="submitField" @keyup="navKey" class="can-select" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" />
                 <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
             </div>  
           </template> 
@@ -136,7 +136,7 @@
   </template>
 
   <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false" :structure="structure" v-model="displayModal"/>
-  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" @emitComplexValue="setComplexSubjectValue" @hideSubjectModal="displaySubjectModal=false" :structure="structure" v-model="displaySubjectModal"/>
+  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
 
 </template>
 
@@ -557,6 +557,7 @@ import { usePreferenceStore } from '@/stores/preference'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
 
+import utilsMisc from '@/lib/utils_misc'
 
 
 export default {
@@ -806,6 +807,19 @@ export default {
       this.$refs.lookupInput.focus()
     },
 
+    navKey: function(event){
+      console.log(event)
+
+      if (event && event.code === 'ArrowUp'){
+        utilsMisc.globalNav('up',event.target)
+      }
+      if (event && event.code === 'ArrowDown'){
+        utilsMisc.globalNav('down',event.target)
+      }
+
+    },
+
+
     // showComplexModal: function(){
     //   console.log(configStore.useSubjectEditor)
     //   if (configStore.useSubjectEditor.contains(this.structure.propertyURI)){
@@ -856,45 +870,91 @@ export default {
     },
 
 
-    /**
-    * emited from the modal to set the value
-    * @return {object} profile
-    */    
-    setComplexSubjectValue: function(contextValue){
-      delete contextValue.typeFull
-      this.profileStore.setComplexSubjectValue(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
-      this.searchValue=''
-      this.displaySubjectModal=false
+    // /**
+    // * emited from the modal to set the value
+    // * @return {object} profile
+    // */    
+    // setComplexSubjectValue: function(contextValue){
+    //   delete contextValue.typeFull
+    //   this.profileStore.setComplexSubjectValue(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
+    //   this.searchValue=''
+    //   this.displaySubjectModal=false
 
+    //   this.$nextTick(() => {
+    //     window.setTimeout(()=>{
+    //       this.$refs.lookupInput.focus()
+    //     },10)
+    //   })
+    // },
+    
+
+
+    removeValue: function(){
+      this.profileStore.removeValueComplex(this.guid, this.complexLookupValues[0]['@guid'])
+    },
+
+    textInputEvent: function(event){
+      // if there is already a value abort
+      if (this.complexLookupValues.length > 0){
+        this.searchValue = ""
+        return false
+      }
+      if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
+        this.displaySubjectModal=true
+        this.$nextTick(() => {
+          this.$refs.subjectEditorModal.focusInput()
+        })
+
+      }else{
+        this.displayModal=true
+      }
+
+      
+    },
+
+
+
+
+    hideSubjectModal: function(){
+
+      this.displaySubjectModal = false;
+      this.searchValue = ""
       this.$nextTick(() => {
         window.setTimeout(()=>{
           this.$refs.lookupInput.focus()
         },10)
       })
     },
-    
 
 
-    removeValue: function(){
-      this.profileStore.removeValueComplex(this.guid, this.complexLookupValues[0]['@guid'] )
+    subjectAdded: function(components){      
+
+      this.profileStore.setValueSubject(this.guid,components,this.propertyPath)
+      this.hideSubjectModal()
+      // this.profileStore.setComplexSubjectValue(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
+
+
+      // this.$store.dispatch("setValueSubject", { self: this, profileComponet: this.profileCompoent, subjectComponents: components, propertyPath: this.propertyPath }).then(() => {
+      //   this.componentKey++
+      //   this.displayModal = false
+      //   this.checkForUserData()
+      //   this.$emit('updated', null)
+
+      //   this.validated = false
+      //   this.validateHeading()
+
+      //   // put the focus back on the input
+      //   setTimeout(()=>{
+      //       document.getElementById(this.assignedId).focus()
+      //         this.$store.dispatch("enableMacroNav", { self: this})
+
+      //   },0)
+
+      //   this.$store.dispatch("setSubjectList")
+
+      // }) 
+
     },
-
-    textInputEvent: function(event){
-
-
-
-      console.log(this.configStore.useSubjectEditor)
-      console.log(this.structure.propertyURI)
-      if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
-        this.displaySubjectModal=true
-      }else{
-        this.displayModal=true
-      }
-      console.log(this.displayModal)
-
-    },
-
-
 
 
     // focusCurrentInput: uiUtils.focusCurrentInput,
@@ -1639,34 +1699,7 @@ export default {
     // },
 
 
-    // subjectAdded: function(components){
 
-
-    //   this.$store.dispatch("setValueSubject", { self: this, profileComponet: this.profileCompoent, subjectComponents: components, propertyPath: this.propertyPath }).then(() => {
-    //     this.componentKey++
-    //     this.displayModal = false
-    //     this.checkForUserData()
-    //     this.$emit('updated', null)
-
-    //     this.validated = false
-    //     this.validateHeading()
-
-    //     // put the focus back on the input
-    //     setTimeout(()=>{
-    //         document.getElementById(this.assignedId).focus()
-    //           this.$store.dispatch("enableMacroNav", { self: this})
-
-    //     },0)
-
-    //     this.$store.dispatch("setSubjectList")
-
-    //   }) 
-
-
-
-
-
-    // },
 
 
     // selectChange: function(event){
@@ -2076,7 +2109,7 @@ export default {
 }
 
 .input-inline-mode:focus-within {
-  background-color: #dfe5f1;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
 }
 
 .bfcode-display-mode-holder{
@@ -2123,7 +2156,9 @@ export default {
 }
 
 .lookup-fake-input:focus-within{
-  background-color: #f2f6f6;
+/*  background-color: #f2f6f6;*/
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
+
 }
 
 .lookup-fake-input-entities{

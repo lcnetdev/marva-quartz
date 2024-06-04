@@ -3,6 +3,7 @@ import { RouterLink, RouterView } from "vue-router";
 
 import LoadingModal from "@/components/general/LoadingModal.vue";
 import PreferenceModal from "@/components/general/PreferenceModal.vue";
+import LoginModal from "@/components/panels/nav/LoginModal.vue";
 
 
 import { useConfigStore } from '@/stores/config'
@@ -19,6 +20,7 @@ export default {
 
     LoadingModal,
     PreferenceModal,
+    LoginModal,
   },
   data() {
     return {
@@ -31,8 +33,8 @@ export default {
     // gives access to this.counterStore and this.userStore
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
-    ...mapState(useProfileStore, ['profilesLoaded']),
-    ...mapState(usePreferenceStore, ['showPrefModal']),
+    ...mapState(useProfileStore, ['profilesLoaded', 'showPostModal']),
+    ...mapState(usePreferenceStore, ['showPrefModal','showLoginModal']),
 
 
     showLocalPreferenceModal: {
@@ -57,18 +59,19 @@ export default {
   async mounted() {
     console.log(`The initial count is `)
     console.log(this.configStore.versionMajor)
+    console.log(useConfigStore().returnUrls.ldpjs +'ldp/')
 //     const configStore = useConfigStore()
 // const profileStore = useProfileStore()
     console.log(this.profilesLoaded)
 
-
+    this.preferenceStore.initalize()
     // this.profileStore.buildProfiles()
     //window.setTimeout(async ()=>{
       await this.profileStore.buildProfiles()
-      let profile =  this.profileStore.loadNewTemplate('Monograph','mattmatt')
-
-      this.profileStore.activeProfile = profile
-      console.log('profile',profile)
+      //let profile =  this.profileStore.loadNewTemplate('Monograph','mattmatt')
+      //this.profileStore.activeProfile = profile
+      
+      // console.log('profile',profile)
 
       // window.setInterval(()=>{
       //   this.profileStore.activeProfile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_title__title_information']['userValue']['@root'] = this.profileStore.activeProfile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_title__title_information']['userValue']['@root'] + ':)'
@@ -113,6 +116,11 @@ export default {
   <template v-if="showLocalPreferenceModal==true">
     <PreferenceModal v-model="showLocalPreferenceModal" />
   </template>
+  <template v-if="showLoginModal==true">
+    <LoginModal v-model="showLoginModal" />
+  </template>
+
+
 
 </template>
 

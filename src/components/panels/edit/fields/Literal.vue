@@ -7,14 +7,14 @@
           
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
           <!-- <span @focus="inlineEmptyFocus" contenteditable="true" class="inline-mode-editable-span" ><span class="inline-mode-editable-span-space-maker">&nbsp;</span></span>         -->
-          <input type="text" @focusin="focused"  @input="valueChanged($event,true)" class="inline-mode-editable-span-input" :ref="'input_' + literalValues[0]['@guid']" :data-guid="literalValues[0]['@guid']" />     
+          <input type="text" @focusin="focused" @keyup="navKey"  @input="valueChanged($event,true)" class="inline-mode-editable-span-input can-select" :ref="'input_' + literalValues[0]['@guid']" :data-guid="literalValues[0]['@guid']" />     
 
       </template>
       <template v-else>
 
         <template v-for="lValue in literalValues">
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <span contenteditable="true" @focusin="focused" @blur="blured" class="inline-mode-editable-span" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>        
+          <span contenteditable="true" @focusin="focused" @blur="blured" class="inline-mode-editable-span can-select" @keyup="navKey" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>        
         </template>
 
 
@@ -22,7 +22,7 @@
 
       <Transition name="action">
         <div class="literal-action-inline-mode" v-if="showActionButton && myGuid == activeField">
-          <action-button :clickmode="true" :small="true" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
+          <action-button :clickmode="true"  :small="true" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
       </div>
     </Transition>
 
@@ -56,7 +56,8 @@
                     autocomplete="off"
                     @focusin="focused" 
                     @blur="blured"
-                    @input="valueChanged"          
+                    @input="valueChanged" 
+                    @keyup="navKey"         
                     :ref="'input_' + lValue['@guid']"
                     :data-guid="lValue['@guid']"
                     ></textarea>
@@ -76,7 +77,8 @@
                 autocomplete="off"
                 @focusin="focused" 
                 @blur="blured"
-                @input="valueChanged"          
+                @input="valueChanged"
+                @keyup="navKey"           
                 :ref="'input_' + lValue['@guid']"
                 :data-guid="lValue['@guid']"
                 ></textarea>
@@ -91,7 +93,7 @@
         </div>
           <Transition name="action">
             <div class="literal-action" v-if="showActionButton && myGuid == activeField">
-              <action-button :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
+              <action-button :type="'literal'"  :guid="guid"  @action-button-command="actionButtonCommand" />
           </div>
         </Transition>
       </div>
@@ -299,10 +301,13 @@
 
 import short from 'short-uuid'
 
+
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
+
+import utilsMisc from '@/lib/utils_misc'
 
 
 import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.vue";
@@ -345,7 +350,16 @@ export default {
       }
     },
 
+    navKey: function(event){
 
+      if (event && event.code === 'ArrowUp'){
+        utilsMisc.globalNav('up',event.target)
+      }
+      if (event && event.code === 'ArrowDown'){
+        utilsMisc.globalNav('down',event.target)
+      }
+
+    },
   
     focusClick: function(lValue){
 
@@ -354,17 +368,20 @@ export default {
 
     focused: function(){
 
+
+      
       // set the state active field 
       this.activeField = this.myGuid
 
       // if enabled show the action button
-
-
       if (this.preferenceStore.returnValue('--b-edit-general-action-button-display')){
         this.showActionButton=true
       }else{
         this.showActionButton=false
       }
+
+      // does annoying height change when moving into field
+      // this.expandHeightToContent()
 
     },
     blured: function(){
@@ -373,10 +390,19 @@ export default {
       // });
     },
 
+    expandHeightToContent: function(){
+
+      for (let key of Object.keys(this.$refs)){
+        if (key.startsWith('input_')){
+          this.$refs[key][0].style.height =  this.$refs[key][0].scrollHeight + "px"
+        }      
+      }
+
+    },
     valueChanged: async function(event,setFocus){
 
       let v = event.target.value
-      console.log(event)
+      
       if (event.target.tagName === 'SPAN'){
         v = event.target.innerText
         if (event.data && event.data === '|'){
@@ -385,7 +411,7 @@ export default {
           return false
         }
       }
-      console.log(event.target.dataset.guid)
+      
       await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,event.target.dataset.lang)
       
       if (setFocus){
@@ -422,7 +448,7 @@ export default {
     actionButtonCommand: function(cmd){
 
 
-      console.log(cmd)
+      
 
       if (cmd == 'addField'){
 
@@ -1760,9 +1786,17 @@ export default {
       
     }
   },
+
+  mounted: function(){
+    this.$nextTick().then(() => {
+      this.expandHeightToContent()
+    })
+  },
   created: function(){
 
-    
+    this.$nextTick().then(() => {
+      this.expandHeightToContent()
+    })
 
     // this.refreshInputDisplay()
 

@@ -26,6 +26,27 @@ import utilsNetwork from './utils_network';
 
 const utilsRDF = {
 
+  namespace: {
+    'bflc': 'http://id.loc.gov/ontologies/bflc/',
+    'bf':'http://id.loc.gov/ontologies/bibframe/',  
+    'bfsimple':'http://id.loc.gov/ontologies/bfsimple/',
+    'madsrdf': 'http://www.loc.gov/mads/rdf/v1#',
+    'rdfs':'http://www.w3.org/2000/01/rdf-schema#',
+    'rdf' : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    'lclocal':'http://id.loc.gov/ontologies/lclocal/',    
+    'pmo' :'http://performedmusicontology.org/ontology/',
+    'datatypes': 'http://id.loc.gov/datatypes/',
+    'xsd': 'http://www.w3.org/2001/XMLSchema#',
+    'mstatus': 'https://id.loc.gov/vocabulary/mstatus/',
+    'mnotetype': 'http://id.loc.gov/vocabulary/mnotetype/',
+    'dcterms': 'http://purl.org/dc/terms/',
+    'owl': 'http://www.w3.org/2002/07/owl#',
+		'void':'http://rdfs.org/ns/void#',
+
+
+  },
+
+
 
   // these are the RDF:Types that are considered literals in the system
   LITERAL_TYPES: [
