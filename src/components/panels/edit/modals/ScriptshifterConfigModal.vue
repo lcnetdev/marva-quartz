@@ -110,25 +110,25 @@
 
     async created(){
 
-      let req = await fetch(this.configStore.returnUrls.scriptshifter + 'languages')
-      let json = await req.json()
-      for (let k in json){
+      // let req = await fetch(this.configStore.returnUrls.scriptshifter + 'languages')
+      // let json = await req.json()
+      // for (let k in json){
 
-        json[k].s2r = false
-        json[k].r2s = false
+      //   json[k].s2r = false
+      //   json[k].r2s = false
 
-        if (this.scriptShifterOptions[k]){
-          if (this.scriptShifterOptions[k].s2r){
-            json[k].s2r = true
-          }
-          if (this.scriptShifterOptions[k].r2s){
-            json[k].r2s = true
-          }              
-        }
+      //   if (this.scriptShifterOptions[k]){
+      //     if (this.scriptShifterOptions[k].s2r){
+      //       json[k].s2r = true
+      //     }
+      //     if (this.scriptShifterOptions[k].r2s){
+      //       json[k].r2s = true
+      //     }              
+      //   }
 
-      }
+      // }
 
-      this.allLanguages = json
+      this.allLanguages = {}
 
     },
 
