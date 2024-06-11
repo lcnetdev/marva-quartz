@@ -43,6 +43,7 @@
 
       // array of the pssobile groups from the stlyes
       possilbleGroups() { 
+        // console.log([...new Set(Object.keys(this.styleDefault).map((v)=>{return this.styleDefault[v].group}))])
         return [...new Set(Object.keys(this.styleDefault).map((v)=>{return this.styleDefault[v].group}))]
       },
 

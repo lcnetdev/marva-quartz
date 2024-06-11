@@ -4,6 +4,8 @@ import { RouterLink, RouterView } from "vue-router";
 import LoadingModal from "@/components/general/LoadingModal.vue";
 import PreferenceModal from "@/components/general/PreferenceModal.vue";
 import LoginModal from "@/components/panels/nav/LoginModal.vue";
+import ScriptshifterConfigModal from "@/components/panels/edit/modals/ScriptshifterConfigModal.vue";
+
 
 
 import { useConfigStore } from '@/stores/config'
@@ -21,6 +23,7 @@ export default {
     LoadingModal,
     PreferenceModal,
     LoginModal,
+    ScriptshifterConfigModal,
   },
   data() {
     return {
@@ -35,7 +38,7 @@ export default {
     // // gives read access to this.count and this.double
     ...mapState(useProfileStore, ['profilesLoaded', 'showPostModal']),
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
-    ...mapWritableState(usePreferenceStore, ['showLoginModal']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal']),
 
 
     showLocalPreferenceModal: {
@@ -124,7 +127,11 @@ export default {
   <template v-if="showLoginModal==true">
     <LoginModal v-model="showLoginModal" />
   </template>
+  <template v-if="showScriptshifterConfigModal==true">
+    <ScriptshifterConfigModal v-model="showScriptshifterConfigModal" />
+  </template>
 
+  
 
 
 </template>

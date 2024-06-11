@@ -45,7 +45,7 @@
 
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
-      ...mapWritableState(usePreferenceStore, ['showLoginModal']),
+      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal']),
       ...mapWritableState(useProfileStore, ['showPostModal']),
 
 
@@ -131,12 +131,36 @@
               { is: 'separator'},
 
 
-              { text: "Preferences", menu: [
-                { text: 'Panels - Propert List', click: () => this.preferenceStore.togglePrefModal('Sidebars - Property')}
-              ]},
             ] }
           )
         }
+
+        if (!this.disable.includes('Preferences')){
+          menu.push(
+            { text: "Preferences",  menu: [    
+
+              { text: 'Scriptshifter', click: () => this.showScriptshifterConfigModal = true, icon: 'translate' },
+
+
+              { is: 'separator'},
+
+
+              { text: 'General', click: () => this.preferenceStore.togglePrefModal('General')},
+              { text: 'Edit Panel', click: () => this.preferenceStore.togglePrefModal('Edit Panel')},
+              { text: 'Literal Field', click: () => this.preferenceStore.togglePrefModal('Literal Field')},
+              { text: 'Complex Lookup', click: () => this.preferenceStore.togglePrefModal('Complex Lookup')},
+              { text: 'Action Button', click: () => this.preferenceStore.togglePrefModal('Action Button')},
+              { text: 'Nav Bar', click: () => this.preferenceStore.togglePrefModal('Nav Bar')},
+              { text: 'Sidebars - OPAC', click: () => this.preferenceStore.togglePrefModal('General')},
+              { text: 'Sidebars - Property', click: () => this.preferenceStore.togglePrefModal('General')},
+
+
+
+
+            ] }
+          )
+        }
+
 
         if (this.$route.path.startsWith('/edit/')){
           menu.push({ is: "separator" })

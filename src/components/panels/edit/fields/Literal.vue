@@ -93,7 +93,7 @@
         </div>
           <Transition name="action">
             <div class="literal-action" v-if="showActionButton && myGuid == activeField">
-              <action-button :type="'literal'"  :guid="guid"  @action-button-command="actionButtonCommand" />
+              <action-button :type="'literal'" :fieldGuid="lValue['@guid']"  :guid="guid"  @action-button-command="actionButtonCommand" />
           </div>
         </Transition>
       </div>
@@ -308,6 +308,7 @@ import { usePreferenceStore } from '@/stores/preference'
 import { mapStores, mapState, mapWritableState } from 'pinia'
 
 import utilsMisc from '@/lib/utils_misc'
+import utilsNetwork from '@/lib/utils_network'
 
 
 import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.vue";
@@ -445,19 +446,33 @@ export default {
 
 
 
-    actionButtonCommand: function(cmd){
+    actionButtonCommand: async function(cmd,options){
 
 
       
 
       if (cmd == 'addField'){
-
-
         this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,"new value",null,true)
-
-
       }
       
+      if (cmd == 'trans'){
+        // this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,"new value",null,true)
+
+        let fieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] == options.fieldGuid) })
+        console.log(options,fieldValue[0].value)
+
+
+
+        let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
+        transValue = JSON.parse(transValue)
+
+        this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,transValue.output,null,true)
+
+        console.log()
+
+      }
+
+
       this.$refs['input_' + this.literalValues[0]['@guid']][0].focus()
 
 

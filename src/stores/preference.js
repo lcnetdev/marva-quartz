@@ -14,6 +14,9 @@ export const usePreferenceStore = defineStore('preference', {
     showDebugModal: false,
     debugModalData: {},
 
+    showScriptshifterConfigModal: false,
+    scriptShifterOptions: {},
+
     // the cataloger initals, like abcd, often the username/email
     catInitals: null,
     // in LC we also have a secondary id that gets put into the distributed record
@@ -675,7 +678,9 @@ export const usePreferenceStore = defineStore('preference', {
       if (window.localStorage.getItem('marva-catCode')){
         this.catCode = window.localStorage.getItem('marva-catCode')
       }    
-
+      if (window.localStorage.getItem('marva-scriptShifterOptions')){
+        this.scriptShifterOptions = JSON.parse(window.localStorage.getItem('marva-scriptShifterOptions'))
+      }    
 
     },
 

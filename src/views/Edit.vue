@@ -53,10 +53,17 @@
         <pane v-if="panelDisplay.opac"
           :class="{'edit-main-splitpane-opac': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}" 
           :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')" 
-
         >
           <Opac/>
         </pane>
+
+        <pane v-if="panelDisplay.xml"
+          :class="{'edit-main-splitpane-xml': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}" 
+          :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')" 
+        >
+          <Xml/>
+        </pane>
+
 
       </splitpanes>
 
@@ -91,6 +98,7 @@
   import Nav from "@/components/panels/nav/Nav.vue";
   import Opac from "@/components/panels/sidebar_preview_opac/Opac.vue";
   import Debug from "@/components/panels/edit/modals/DebugModal.vue";
+  import Xml from "@/components/panels/sidebar_preview_xml/Xml.vue";
 
 
 
@@ -202,6 +210,13 @@
     
     overflow-y: scroll;
 }
+.edit-main-splitpane-xml{
+    height: 100%;
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')") !important;
+    
+    overflow-y: scroll;
+}
+
 
 
 .edit-main-splitpane-no-scrollbar{

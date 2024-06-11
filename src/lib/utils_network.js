@@ -2291,6 +2291,59 @@ const utilsNetwork = {
 
     },
 
+    /**
+    * Send off a rdf bibframe xml files in the format <rdf:RDF><bf:Work/><bf:Instance/>...etc...</rdf:RDF>
+    * @async
+    * @param {string} xml - The xml string
+    * @return {string} - the MARC in XML response
+    */
+    scriptShifterRequestTrans: async function(lang,text,capitalize,t_dir){
+
+
+      let url = useConfigStore().returnUrls.scriptshifter + 'trans'
+
+      let r = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          lang: lang,
+          text:text,
+          capitalize:capitalize,
+          t_dir:t_dir
+        })
+        
+      })
+
+      let results =  await r.text()
+      if (r.status !== 200){
+        alert(results)
+        return false
+      }else{
+        return results
+      }
+
+
+
+      const rawResponse = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({rdfxml:xml})
+      });
+      const content = await rawResponse.json();
+
+      console.log(content);
+
+      return content
+      
+    },        
+
+
 
 }
 

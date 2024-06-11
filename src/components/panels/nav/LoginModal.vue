@@ -129,7 +129,7 @@
 
             <h1>Hello! Before you start...</h1>
 
-            <div>Please enter a name to assoicate records with you, this is internal to Marva.</div>            
+            <div>Please enter a name to associate records with you, this is internal to Marva.</div>            
             <input placeholder="User Name" v-model="catInitals" ref="catInitals" type="text">
 
             <div>Please enter your unique cataloging code which will appear in distributed records .</div>            

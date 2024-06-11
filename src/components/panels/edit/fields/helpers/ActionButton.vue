@@ -18,12 +18,21 @@
 
       <template v-if="type=='literal'">
 
-          <button class="" @click="$emit('actionButtonCommand', 'addField')">
+          <template v-for="lang in Object.keys(scriptShifterOptions)">
+            <button v-if="scriptShifterOptions[lang].s2r"  style="width:100%" class="" @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'s2r', fieldGuid: fieldGuid} )">
+              <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} S2R</span>
+            </button>
+            <button v-if="scriptShifterOptions[lang].r2s"  style="width:100%" class="" @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'r2s', fieldGuid: fieldGuid} )">
+              <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} R2S</span>
+            </button>
+
+          </template>
+
+
+
+          <button style="width:100%" class="" @click="$emit('actionButtonCommand', 'addField')">
             Additonal Literal
           </button><br>
-          <button style="width:100%" class="">
-            Transliterate
-          </button>
 
           
    
@@ -93,6 +102,7 @@
       guid: String,
       clickmode: Boolean,
       small: Boolean,
+      fieldGuid: String
 
     },
     data () {
@@ -104,6 +114,8 @@
     computed: {
       ...mapStores(usePreferenceStore),
       ...mapStores(useProfileStore),
+      ...mapState(usePreferenceStore, ['scriptShifterOptions']),
+
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
 
       useOpenModes(){
@@ -182,6 +194,11 @@
 </script>
 
 <style scoped>
+  button{
+    margin-bottom: 5px;
+
+  }
+
   .action-button-icon{
     font-size: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-size')");
     color: v-bind("preferenceStore.returnValue('--c-edit-general-action-button-color')");
