@@ -46,12 +46,12 @@
     },
 
     watch: {
-      showDebugModal(newVal, oldVal) {
-        console.log(newVal,oldVal)
-        // if (newVal === true){
-        //   this.loadPrefGroup()
-        // }
-      }
+      // showDebugModal(newVal, oldVal) {
+      //   console.log(newVal,oldVal)
+      //   // if (newVal === true){
+      //   //   this.loadPrefGroup()
+      //   // }
+      // }
     },
 
     methods: {
@@ -105,6 +105,30 @@
 
         
 
+
+    },
+
+    async created(){
+
+      let req = await fetch(this.configStore.returnUrls.scriptshifter + 'languages')
+      let json = await req.json()
+      for (let k in json){
+
+        json[k].s2r = false
+        json[k].r2s = false
+
+        if (this.scriptShifterOptions[k]){
+          if (this.scriptShifterOptions[k].s2r){
+            json[k].s2r = true
+          }
+          if (this.scriptShifterOptions[k].r2s){
+            json[k].r2s = true
+          }              
+        }
+
+      }
+
+      this.allLanguages = json
 
     },
 
