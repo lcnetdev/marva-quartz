@@ -682,6 +682,42 @@ export const usePreferenceStore = defineStore('preference', {
         this.scriptShifterOptions = JSON.parse(window.localStorage.getItem('marva-scriptShifterOptions'))
       }    
 
+
+
+        // fetch(this.configStore.returnUrls.scriptshifter + 'languages', { 
+        //   method: 'GET'
+        // })
+        // .then((response) => { return response.json(); })
+        // .then((json) => {
+          
+        //   for (let k in json){
+
+        //     json[k].s2r = false
+        //     json[k].r2s = false
+
+        //     if (this.scriptShifterOptions[k]){
+        //       if (this.scriptShifterOptions[k].s2r){
+        //         json[k].s2r = true
+        //       }
+        //       if (this.scriptShifterOptions[k].r2s){
+        //         json[k].r2s = true
+        //       }              
+        //     }
+
+        //   }
+          
+        //   this.allScriptShifterOptions = json
+
+          
+          
+
+        // });
+
+
+
+
+
+
     },
 
     /**

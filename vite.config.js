@@ -7,10 +7,10 @@ import vue from "@vitejs/plugin-vue";
 export default defineConfig({
   plugins: [vue()],
   base: '/bfe2/quartz/',
-  build: {
-    sourcemap: true,
-    minify: false,
-  },  
+  // build: {
+  //   sourcemap: true,
+  //   minify: false,
+  // },  
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
