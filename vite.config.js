@@ -9,6 +9,7 @@ export default defineConfig({
   base: '/bfe2/quartz/',
   build: {
     sourcemap: true,
+    minify: false,
   },  
   resolve: {
     alias: {
