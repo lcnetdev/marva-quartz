@@ -157,7 +157,7 @@
               </div>
             
             </div>
-            <div v-if="posting == true && Object.keys(postResults).length != 0">
+            <div v-if="posting == false && Object.keys(postResults).length != 0">
 
               <div v-if="postResults.resourceLinks.length>0" style="margin: 0.5em 0 0.5em 0;background-color: #90ee9052;padding: 0.5em;border-radius: 0.25em;">
                 The record was accepted by the system. To view the record follow these links:
