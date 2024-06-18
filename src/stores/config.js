@@ -41,11 +41,11 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter: 'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
-        bfdb : 'https://preprod-8230.id.loc.gov/',
+        bfdb : 'https://preprod-8210.id.loc.gov/',
         profiles : '/bfe2/util/profiles/profile/stage',
         // profiles: 'https://preprod-3001.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
         starting : '/bfe2/util/profiles/starting/stage',
-        id: 'https://preprod-8080.id.loc.gov/',
+        id: 'https://preprod-8299.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
 

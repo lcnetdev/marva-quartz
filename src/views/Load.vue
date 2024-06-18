@@ -89,6 +89,9 @@
                 <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_note</span>
                 <span>Your Records</span></h1>                
                 <div>
+                  <div class="saved-records-empty" v-if="continueRecords.length==0">
+                    No saved records found.
+                  </div>
                   <ul class="continue-record-list">
                     <li class="continue-record" v-for="record in continueRecords" >
                       <router-link :to="{ name: 'Edit', params: { recordId: record.eid }}">
@@ -389,8 +392,8 @@
 
     },
     created: async function(){
-
-      console.log(this.preferenceStore.returnUserNameForSaving)
+      
+      
 
       let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
       console.log(records)
@@ -416,6 +419,12 @@
 </script>
 
 <style scoped>  
+
+.saved-records-empty{
+  margin-top: 2em;
+  margin-left: 1em;
+  font-style: italic;
+}
 
 label{
   cursor: pointer;

@@ -1938,6 +1938,61 @@ export const useProfileStore = defineStore('profile', {
       return utilsExport.buildXML(this.activeProfile)
     },
 
+    /**
+    * return the MARC transformation from the back end
+    * 
+
+    * @return {string} - the MARC string of output
+    */    
+    marcPreview: async function(){
+      let xml = await utilsExport.buildXML(this.activeProfile)
+      let preview = await utilsNetwork.marcPreview(xml.bf2Marc)
+
+      // clean it up a bit for the component
+      let versions = preview.map((v)=>{ return v.version}).sort().reverse()
+
+      let results = []
+
+      let newResults = []
+      let selectedDefault = false
+      
+      
+      for (let v of versions){
+        let toAdd = preview.filter((p) => { return (p.version == v) })[0]
+        if (toAdd.results && toAdd.results.stdout && selectedDefault == false){
+          toAdd.default = true
+          selectedDefault = true
+        }else{
+          toAdd.default = false
+        }
+
+        if (toAdd.results && !toAdd.results.stdout){
+          toAdd.error = true
+        }else{
+          toAdd.error = false
+        }
+        newResults.push(toAdd)
+
+
+      }
+
+
+
+      let defaultVer = newResults.filter((p) => { return (p.default == true) })[0]
+      if (defaultVer && defaultVer.default){
+        defaultVer = defaultVer.version
+      }else{
+        defaultVer = null
+      }
+      return({
+        default: defaultVer,
+        versions: newResults
+      })
+
+      
+    },
+
+
 
     /**
     * Save the record to the Marva scratch-pad backend

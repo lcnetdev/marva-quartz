@@ -62,7 +62,17 @@
           :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')" 
         >
           <Xml/>
+
         </pane>
+        <pane v-if="panelDisplay.marc"
+          :class="{'edit-main-splitpane-marc': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}" 
+          :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')" 
+        >
+          <Marc/>
+
+        </pane>
+
+        
 
 
       </splitpanes>
@@ -99,11 +109,12 @@
   import Opac from "@/components/panels/sidebar_preview_opac/Opac.vue";
   import Debug from "@/components/panels/edit/modals/DebugModal.vue";
   import Xml from "@/components/panels/sidebar_preview_xml/Xml.vue";
+  import Marc from "@/components/panels/sidebar_preview_marc/Marc.vue";
 
 
 
   export default {
-    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug },
+    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc },
     data() {
       return {
 
@@ -216,6 +227,14 @@
     
     overflow-y: scroll;
 }
+.edit-main-splitpane-marc{
+    height: 100%;
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')") !important;
+    
+    overflow-y: scroll;
+}
+
+
 
 
 

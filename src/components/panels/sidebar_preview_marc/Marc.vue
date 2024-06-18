@@ -1,20 +1,20 @@
 <script>
   import { useProfileStore } from '@/stores/profile'
   import { usePreferenceStore } from '@/stores/preference'
-  import XmlViewer from 'vue3-xml-viewer'
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
   export default {
     components: {
-        XmlViewer
+
     },
 
     data() {
       return {
-        xml : "",
+        previewData : {default:null,versions:[]},
         timeout: null,
         firstLoad: true,
+        selected: null
       }
     },
     computed: {
@@ -37,23 +37,10 @@
 
     methods: {
 
-      async refreshXml() {
+      async refreshMarc() {
 
-
-        let exportResult = await this.profileStore.buildExportXML()
-
-        this.xml = exportResult.xlmStringBasic
-
-        if (this.firstLoad){
-          this.$nextTick(()=>{
-            for (let el of document.querySelectorAll('.element-name')){                
-                if (el.innerText == 'bf:Work' || el.innerText == 'bf:Instance' || el.innerText == 'void:DatasetDescription'){
-                  el.click()
-                  this.firstLoad = false
-                }
-            }            
-          })
-        }
+        this.previewData = await this.profileStore.marcPreview()
+       
 
       }
       
@@ -72,7 +59,7 @@
           window.clearTimeout(this.timeout)
           this.timeout = window.setTimeout(()=>{
 
-            this.refreshXml()
+            this.refreshMarc()
 
           },500)
 
@@ -81,21 +68,13 @@
         }
 
 
-        // if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){  
-        //   // the profilesLoaded flipped and there is no active profile, so load the data
-        //   this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
-        // }else{
-        //   //console.error("profilesLoaded is never true, cannot load into data")
-        // }
-
-
       }, { detached: false })
 
       // build the XML on first load
       this.$nextTick(()=>{
         window.setTimeout(()=>{
 
-          this.refreshXml()
+          this.refreshMarc()
 
          },1000)
       })
@@ -114,21 +93,85 @@
 
 <template>
 
-  <div>
+  <div class="marc-preview-content">
+
+    <ul>
+      <li v-for="ver in previewData.versions">
+        <button @click="selected = ver.version">{{ ver.version }} <span v-if="ver.error">(err)</span></button>
+      </li>
+    </ul>
+
+
+    <template v-if="!selected">
+      <template v-for="ver in previewData.versions">
+        <div v-if="ver.default">
+          <div class="version-number">{{ ver.version  }}</div>
+          <pre>
+            <code>
+{{ ver.marcRecord }}
+            </code>
+          </pre>
+          <hr>
+          <pre>
+            <code>
+{{ ver.results.stdout.trim() }}
+            </code>
+          </pre>
+        </div>
+      </template>
     
-    <XmlViewer ref="xmlviewer" :xml="xml" />
+    </template>
+    <template v-else>
+      <template v-for="ver in previewData.versions">
+        <div v-if="selected == ver.version">
+          <div class="version-number">{{ ver.version  }}</div>
+          <template v-if="ver.error">
+            
+            <pre>
+              <code>
+{{ ver.results }}
+              </code>
+            </pre>            
+          </template>
+          <template v-else>            
+            <pre>
+              <code>
+{{ ver.marcRecord }}
+              </code>
+            </pre>
+            <hr>
+            <pre>
+              <code>
+{{ ver.results.stdout.trim() }}
+              </code>
+            </pre>
+          </template>
+        </div>
+      </template>
 
 
+
+    </template>
 
   </div>
-
-
 </template>
 
 <style scoped>
 
+ul{
+  padding: 0;
+}
+li{
+  display: inline-block;
+}
 
-
+.marc-preview-content{
+  padding: 0.25em;
+}
+.version-number{
+  font-size: 1.25em;
+  font-weight: bold;
+}
 
 
 .sidebar-header-text{  

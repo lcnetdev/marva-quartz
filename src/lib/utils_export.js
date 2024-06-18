@@ -1295,9 +1295,9 @@ const utilsExport = {
 		// console.log(strBf2MarcXmlElBib, strXmlFormatted, strXmlBasic, strXml)
 			
 		// console.log("-------componentXmlLookup",componentXmlLookup)
-    console.log(strXmlFormatted)
-    console.log("------")
-    console.log(strXmlBasic)
+    // console.log(strXmlFormatted)
+    // console.log("------")
+    // console.log(strXmlBasic)
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,

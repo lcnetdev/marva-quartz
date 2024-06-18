@@ -36,7 +36,7 @@ export const usePreferenceStore = defineStore('preference', {
       dualEdit: false,
       opac: true,
       xml:false,
-      marc: false
+      marc: true
 
 
     },

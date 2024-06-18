@@ -410,6 +410,9 @@ const utilsParse = {
 
               // does it have a rdf type of that 
               for (let typeEl of e.getElementsByTagName('rdf:type')){
+                if (typeEl.attributes['rdf:resource']){
+                  console.log(typeEl.attributes['rdf:resource'])
+                }
                 if (typeEl.attributes['rdf:resource'] && typeEl.attributes['rdf:resource'].value == 'http://id.loc.gov/ontologies/bflc/PrimaryContribution'){
                   isPrimaryContribXML = true
                 }

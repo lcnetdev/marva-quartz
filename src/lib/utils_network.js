@@ -2226,9 +2226,9 @@ const utilsNetwork = {
   */
   marcPreview: async function(xml){
 
-    let url = useConfigStore().returnUrls.util + '/marcpreview'
+    let url = useConfigStore().returnUrls.util + 'marcpreview'
 
-
+    console.log(xml)
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
@@ -2238,8 +2238,6 @@ const utilsNetwork = {
       body: JSON.stringify({rdfxml:xml})
     });
     const content = await rawResponse.json();
-
-    console.log(content);
 
     return content
     
