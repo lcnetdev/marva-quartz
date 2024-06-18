@@ -2031,6 +2031,7 @@ export const useProfileStore = defineStore('profile', {
       let pubResuts = utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
       pubResuts.resourceLinks=[]
       // if it was accepted by the system send it to the marva backend to store as posted
+      console.log("pubResuts.status",pubResuts.status)
       if (pubResuts.status){
         this.activeProfile.status = 'published'
         await this.saveRecord()
@@ -2042,7 +2043,7 @@ export const useProfileStore = defineStore('profile', {
         for (let rt in this.activeProfile.rt){
           let type = rt.split(':').slice(-1)[0]
           let url = config.convertToRegionUrl(this.activeProfile.rt[rt].URI)
-          let env = config.returnUrls().env
+          let env = config.returnUrls.env
           pubResuts.resourceLinks.push({
             'type':type,
             'url': url,
@@ -2050,6 +2051,9 @@ export const useProfileStore = defineStore('profile', {
           })
         }
       }
+      console.log("pubResuts",pubResuts)
+
+
       return pubResuts
       
     },
