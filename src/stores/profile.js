@@ -2028,7 +2028,7 @@ export const useProfileStore = defineStore('profile', {
     */    
     publishRecord: async function(eid, profile){
       let xml = await utilsExport.buildXML(this.activeProfile)     
-      let pubResuts = utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
+      let pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
       pubResuts.resourceLinks=[]
       // if it was accepted by the system send it to the marva backend to store as posted
       console.log("pubResuts.status",pubResuts.status)
