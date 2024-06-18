@@ -146,7 +146,7 @@
 
             <h1 v-if="posting">Posting please wait...</h1>
             
-            <div v-if="posting == false && Object.keys(postResults).length != 0">
+            <div v-if="posting == false && Object.keys(postResults).length == 0">
             
               <h2>There was an error posting. Please report error. </h2><button @click="copyErrorToClipboard">Copy error to clipboard</button>              <button @click="done">Close</button>
 

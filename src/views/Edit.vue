@@ -128,7 +128,7 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore,useProfileStore),
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
-      ...mapState(useProfileStore, ['profilesLoaded']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfileSaved']),
 
       
       ...mapWritableState(usePreferenceStore, ['showDebugModal', 'activeProfile']),
@@ -143,7 +143,15 @@
 
       returnPixleAsPercent: function(pixles){
         return pixles/window.innerHeight*100
-      }
+      },
+      confirmLeaving (event) {
+
+        if (this.activeProfileSaved == false){
+          event.preventDefault()
+          return false
+        }
+        
+      }      
 
 
 
@@ -152,8 +160,8 @@
 
     mounted: function(){
 
-      console.log(this.$route.params)
 
+      
       if (this.profilesLoaded){
         this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
       }else{
@@ -178,6 +186,30 @@
 
 
       }, { detached: false })
+
+
+
+      window.addEventListener('beforeunload', this.confirmLeaving)
+
+      
+      
+
+    },
+
+    beforeRouteLeave (to, from , next) {
+      if (this.activeProfileSaved == false){
+
+        const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
+        if (answer) {
+          next()
+        } else {
+          next(false)
+        }
+        
+      }else{
+        next()
+      }
+
 
     }
   }
