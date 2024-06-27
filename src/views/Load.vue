@@ -71,7 +71,7 @@
               </div>
               <hr>
 
-              <details>
+              <!-- <details>
                 <summary>Test Data</summary>
                 <table>
                   <tr v-for="t in testData">
@@ -79,7 +79,7 @@
                     <td><button @click="loadTestData(t.filename)">Set URL</button></td>
                   </tr>
                 </table>
-              </details>
+              </details> -->
 
 
             </div>
@@ -89,6 +89,7 @@
                 <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_note</span>
                 <span>Your Records</span></h1>                
                 <div>
+
                   <div class="saved-records-empty" v-if="continueRecords.length==0">
                     No saved records found.
                   </div>
@@ -114,7 +115,22 @@
             </div>
 
 
-            <div></div>
+            <div>
+
+              <h1 style="margin-bottom: 10px;">
+                <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_document</span>
+                <span>Create Blank Record</span></h1>                
+                <div>
+                  <div class="load-buttons"> 
+                    <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>
+
+                    
+                  </div>
+                </div>
+
+
+
+            </div>
 
           </div> 
           
@@ -407,12 +423,15 @@
             this.continueRecords.push(r)
             lccnLookup[r.lccn]=true
           }
+        }else{
+          // no LCCN just add it
+          this.continueRecords.push(r)
         }
 
       }
       
-      console.log(this.continueRecords)
 
+      
     }
   }
 
