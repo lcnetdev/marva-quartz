@@ -80,7 +80,7 @@ export const useConfigStore = defineStore('config', {
         bfdb : 'https://id.loc.gov/',
         profiles : 'https://bibframe.org/marva/util/profiles/profile/prod',
         starting : 'https://bibframe.org/marva/util/profiles/starting/prod',
-        id: 'https://preprod-8080.id.loc.gov/',
+        id: 'https://id.loc.gov/',
         env : 'production',
         publicEndpoints:true,
         displayLCOnlyFeatures: false
@@ -528,7 +528,7 @@ export const useConfigStore = defineStore('config', {
           return state.regionUrls.staging
         }else if (window && window.location.href.startsWith('https://editor.id')){
           return state.regionUrls.production
-        }else if (window && window.location.href.includes('bibframe.org/marva')){
+        }else if (window && window.location.href.includes('bibframe.org')){
           return state.regionUrls.bibframeDotOrg
         }else{
           return state.regionUrls.dev

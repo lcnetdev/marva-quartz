@@ -1,6 +1,8 @@
 <script>
   import { useProfileStore } from '@/stores/profile'
+  import { useConfigStore } from '@/stores/config'
 
+  
   import {  mapStores, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
   import VueDragResize from 'vue3-drag-resize'
@@ -33,11 +35,16 @@
       // other computed properties
       // ...
       // gives access to this.counterStore and this.userStore
-      ...mapStores(useProfileStore),
+      ...mapStores(useProfileStore,useConfigStore),
 
+      
+      
       // ...mapState(usePreferenceStore, ['debugModalData']),
       ...mapWritableState(useProfileStore, ['showPostModal']),
 
+      
+
+      
       
 
     },
@@ -65,6 +72,19 @@
 
 
         post: async function(){
+
+          const config = useConfigStore()
+          
+          if (!config.returnUrls.displayLCOnlyFeatures){
+            this.showPostModal=false
+            alert("Sorry you cannot post in this Marva environment")
+            return false
+          }
+
+
+
+
+
           this.$refs.errorHolder.style.height = this.initalHeight + 'px'
           this.posting = true
           this.postResults = {}

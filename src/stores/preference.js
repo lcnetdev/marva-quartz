@@ -29,6 +29,9 @@ export const usePreferenceStore = defineStore('preference', {
     fontFamilies: ['Avenir, Helvetica, Arial, sans-serif','serif','sans-serif','monospace','cursive','fantasy','system-ui','ui-serif','ui-sans-serif','ui-monospace','ui-rounded'],
    
 
+    // keeps a copy of the orginal values to be able to reset
+    styleDefaultOrginal: {},
+    panelDisplayOrginal: {},
 
     panelDisplay:{
 
@@ -36,11 +39,10 @@ export const usePreferenceStore = defineStore('preference', {
       dualEdit: false,
       opac: true,
       xml:false,
-      marc: true
+      marc: false
 
 
     },
-
 
     styleDefault: {
 
@@ -639,27 +641,7 @@ export const usePreferenceStore = defineStore('preference', {
       return this.catCode
     },
     
-    // /**
-    // * Returns the part of the config based on the current URL (or enviornment)
-    // * @return {object} - The url config object
-    // */       
-    // returnUrls: (state) => {
-    //   // testing for window here because of running unit tests in node
-    //   if (typeof window !== 'undefined'){
-    //     if (window && (window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1'))){
-    //       return state.regionUrls.dev
-    //     }else if (window && window.location.href.startsWith('https://preprod-3001')){
-    //       return state.regionUrls.staging
-    //     }else if (window && window.location.href.startsWith('https://editor.id')){
-    //       return state.regionUrls.production
-    //     }else if (window && window.location.href.includes('bibframe.org/marva')){
-    //       return state.regionUrls.bibframeDotOrg
-    //     }
-    //   }else{
-    //     return state.regionUrls.dev
-    //   }
-    // }
-
+   
 
 
   },
@@ -682,8 +664,10 @@ export const usePreferenceStore = defineStore('preference', {
         this.scriptShifterOptions = JSON.parse(window.localStorage.getItem('marva-scriptShifterOptions'))
       }    
 
-
-
+      this.styleDefaultOrginal = JSON.parse(JSON.stringify(this.styleDefault))
+      this.panelDisplayOrginal = JSON.parse(JSON.stringify(this.panelDisplay))
+      this.loadPreferences()
+      
         // fetch(this.configStore.returnUrls.scriptshifter + 'languages', { 
         //   method: 'GET'
         // })
@@ -719,6 +703,39 @@ export const usePreferenceStore = defineStore('preference', {
 
 
     },
+    /**
+    * Saves the current settings to be reused later
+    * @return {void} 
+    */  
+    savePreferences: function(){
+      let bfPrefs = {
+        styleDefault: this.styleDefault,
+        panelDisplay: this.panelDisplay
+      }
+      let prefs = JSON.stringify(bfPrefs)
+      window.localStorage.setItem('marva-preferences',prefs)  
+    },
+    /**
+    * Loads the saved preferences into the current preferences
+    * @return {void} 
+    */  
+    loadPreferences: function(){      
+      if (window.localStorage.getItem('marva-preferences')){
+        let prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
+        this.styleDefault = prefs.styleDefault
+        this.panelDisplay = prefs.panelDisplay
+      }  
+    },
+    /**
+    * Changes the preferences back to the default values
+    * @return {void} 
+    */  
+    resetPreferences: function(){      
+      this.styleDefault = this.styleDefaultOrginal
+      this.panelDisplay = this.panelDisplayOrginal
+      this.savePreferences()
+    },
+
 
     /**
     * returns the value of the preference property requested
@@ -755,6 +772,7 @@ export const usePreferenceStore = defineStore('preference', {
       }
 
       this.styleDefault[propertyName].value = value
+      this.savePreferences()
       return true
     },
 

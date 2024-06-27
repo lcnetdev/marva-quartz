@@ -155,7 +155,12 @@
               { text: 'Sidebars - Property', click: () => this.preferenceStore.togglePrefModal('General')},
 
 
+              { is: 'separator'},
 
+              { text: 'Reset Prefs', click: () => this.preferenceStore.resetPreferences(), icon: 'restart_alt' },
+
+
+              
 
             ] }
           )
