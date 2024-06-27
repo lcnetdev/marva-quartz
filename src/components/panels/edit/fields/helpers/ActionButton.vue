@@ -61,7 +61,7 @@
         Debug
       </button>
       <button style="width:100%" class="" @click="duplicateComponent()">
-        Duplicate Component
+        Add Component
       </button>
 
 
