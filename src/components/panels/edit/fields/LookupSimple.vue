@@ -7,7 +7,7 @@
       <template v-if="simpleLookupValues.length===0">
           
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" />
+          <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" />
 
 
       </template>
@@ -80,7 +80,7 @@
                   </div>
                 </div>
                 <div class="lookup-fake-input-text" style="display: inline-block;">
-                  <input v-model="activeValue" class="can-select" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
+                  <input v-model="activeValue" class="can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
                 </div>   
 
               </div>
@@ -100,7 +100,7 @@
               </div>
             </div>
             <div class="lookup-fake-input-text">
-              <input v-model="activeValue" class="can-select" ref="lookupInput" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
+              <input v-model="activeValue" class="can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
             </div>     
 
 
@@ -443,6 +443,11 @@ export default {
     focusClick: function(){
 
       this.$refs.lookupInput.focus()
+    },
+
+    blur: function(){
+
+      this.displayAutocomplete = false
     },
 
     focused: function(){
