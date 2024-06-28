@@ -52,23 +52,23 @@
 
     created() {
 
-      this.profileStore.$subscribe(async (mutation, state)=>{
+      // this.profileStore.$subscribe(async (mutation, state)=>{
 
-        if (mutation && mutation.events && mutation.events.target && mutation.events.target['@guid'] ){
+      //   if (mutation && mutation.events && mutation.events.target && mutation.events.target['@guid'] ){
           
-          window.clearTimeout(this.timeout)
-          this.timeout = window.setTimeout(()=>{
+      //     window.clearTimeout(this.timeout)
+      //     this.timeout = window.setTimeout(()=>{
 
-            this.refreshMarc()
+      //       this.refreshMarc()
 
-          },500)
+      //     },500)
 
 
           
-        }
+      //   }
 
 
-      }, { detached: true })
+      // }, { detached: true })
 
       // build the XML on first load
       this.$nextTick(()=>{

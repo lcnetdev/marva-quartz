@@ -174,18 +174,26 @@
     created: function(){
 
 
-      this.profileStore.$subscribe(async (mutation, state)=>{
-        console.log(state.profilesLoaded, Object.keys(state.activeProfile).length)
+      // this.profileStore.$subscribe(async (mutation, state)=>{
+      //   console.log(state.profilesLoaded, Object.keys(state.activeProfile).length)
 
-        if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){  
+      //   if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){  
+      //     // the profilesLoaded flipped and there is no active profile, so load the data
+      //     this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
+      //   }else{
+      //     //console.error("profilesLoaded is never true, cannot load into data")
+      //   }
+
+
+      // }, { detached: true })
+
+      if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){  
           // the profilesLoaded flipped and there is no active profile, so load the data
           this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
         }else{
           //console.error("profilesLoaded is never true, cannot load into data")
         }
-
-
-      }, { detached: true })
+      }
 
 
 
