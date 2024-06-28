@@ -137,6 +137,15 @@
       // // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
     },
+    watch: {
+      // if this flips from false to true it means they are landing on this page so ask for the record from the backend
+      profilesLoaded(newProfilesLoaded, oldProfilesLoaded) {
+        if (oldProfilesLoaded == false && newProfilesLoaded == true){
+          this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
+        }
+      }
+    },
+
 
     methods: {
 
@@ -187,12 +196,7 @@
 
       // }, { detached: true })
 
-      if (this.profilesLoaded && this.activeProfile && Object.keys(this.activeProfile).length == 0){  
-        // the profilesLoaded flipped and there is no active profile, so load the data
-        this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
-      }else{
-        //console.error("profilesLoaded is never true, cannot load into data")
-      }
+      
       
 
 
