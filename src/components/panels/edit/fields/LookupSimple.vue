@@ -485,6 +485,9 @@ export default {
       console.log(this.uri)
       console.log(utilsNetwork.lookupLibrary)
       console.log(utilsNetwork.lookupLibrary[this.uri+addKeyword])
+      if (addKeyword == 'KEYWORD' && !utilsNetwork.lookupLibrary[this.uri+addKeyword]){
+        await new Promise(r => setTimeout(r, 500));
+      }
       if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
         this.activeValue="🙀ERROR WITH LOOKUP"
       }
