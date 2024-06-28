@@ -487,14 +487,46 @@ export default {
         addKeyword = 'KEYWORD'
         this.activeKeyword = true
       }
+      console.log(`"${addKeyword}"`)
       console.log(this.uri)
       console.log(utilsNetwork.lookupLibrary)
       console.log(utilsNetwork.lookupLibrary[this.uri+addKeyword])
-      if (addKeyword == 'KEYWORD' && !utilsNetwork.lookupLibrary[this.uri+addKeyword]){
-        await new Promise(r => setTimeout(r, 500));
-      }
+
+      
+
       if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
-        this.activeValue="🙀ERROR WITH LOOKUP"
+        this.displayList.push("Loading Data.")
+        // if the data isn't loaded yet we will wait a few times 
+        await new Promise(r => setTimeout(r, 1000));
+        this.displayList=[]
+        console.log(utilsNetwork.lookupLibrary,this.uri+addKeyword)
+        if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
+          this.displayList.push("Loading Data..")
+          await new Promise(r => setTimeout(r, 1000));
+          this.displayList=[]
+
+          console.log(utilsNetwork.lookupLibrary,this.uri+addKeyword)
+          if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
+            this.displayList.push("Loading Data...")
+            await new Promise(r => setTimeout(r, 1000));
+            this.displayList=[]
+            console.log(utilsNetwork.lookupLibrary,this.uri+addKeyword)
+            if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
+              this.displayList.push("Loading Data....")
+              await new Promise(r => setTimeout(r, 1000));
+              this.displayList=[]
+              console.log(utilsNetwork.lookupLibrary,this.uri+addKeyword)
+              if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
+                this.activeValue="🙀ERROR WITH LOOKUP"
+
+                
+              }
+
+            }
+          }
+
+        }
+        
       }
       Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]).forEach((v)=>{
         console.log(v)
@@ -503,7 +535,7 @@ export default {
         // no filter yet show first 25
         if (this.activeFilter.trim()===''){
           utilsNetwork.lookupLibrary[this.uri+addKeyword][v].forEach((x)=>{
-            console.log(x)
+
             // if (this.displayList.length<=25){
               if (this.displayList.indexOf(x)==-1){
                 this.displayList.push(x)  
