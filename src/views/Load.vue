@@ -546,5 +546,11 @@ label{
     cursor: pointer;
   }
 
+  .header{
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-background-color')") !important;
+    
+  }
+
+
 
 </style>
