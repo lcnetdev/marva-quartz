@@ -2269,12 +2269,18 @@ const utilsNetwork = {
 
         for (let r of results.hits){
 
+          let bfdbPackageURL = useConfigStore().returnUrls.bfdb + r.uri.split('id.loc.gov/')[1] + '.convertedit-pkg.xml'
+
+          if (useConfigStore().returnUrls.publicEndpoints){
+            bfdbPackageURL = useConfigStore().returnUrls.id + r.uri.split('id.loc.gov/')[1] + '.cbd.rdf'
+          }
+
           returnVal.push({
             lccn: lccn,
             label: r.aLabel,
             bfdbURL: useConfigStore().returnUrls.bfdb + r.uri.split('id.loc.gov/')[1],
             idURL: useConfigStore().returnUrls.id + r.uri.split('id.loc.gov/')[1],
-            bfdbPackageURL: useConfigStore().returnUrls.bfdb + r.uri.split('id.loc.gov/')[1] + '.convertedit-pkg.xml'
+            bfdbPackageURL: bfdbPackageURL
           })
 
         }
