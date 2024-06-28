@@ -68,7 +68,7 @@
         }
 
 
-      }, { detached: false })
+      }, { detached: true })
 
       // build the XML on first load
       this.$nextTick(()=>{

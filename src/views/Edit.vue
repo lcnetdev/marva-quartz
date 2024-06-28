@@ -185,7 +185,7 @@
         }
 
 
-      }, { detached: false })
+      }, { detached: true })
 
 
 
