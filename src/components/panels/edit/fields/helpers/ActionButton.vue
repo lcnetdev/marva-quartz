@@ -12,14 +12,14 @@
  -->
 
   <VMenu :triggers="useOpenModes" @hide="menuClosed">
-    <button :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
+    <button tabindex="-1" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
     <template #popper>
 
       <template v-if="type=='literal'">
 
           <template v-for="lang in Object.keys(scriptShifterOptions)">
-            <button v-if="scriptShifterOptions[lang].s2r"  style="width:100%" class="" @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'s2r', fieldGuid: fieldGuid} )">
+            <button  v-if="scriptShifterOptions[lang].s2r"  style="width:100%" class="" @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'s2r', fieldGuid: fieldGuid} )">
               <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} S2R</span>
             </button>
             <button v-if="scriptShifterOptions[lang].r2s"  style="width:100%" class="" @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'r2s', fieldGuid: fieldGuid} )">
