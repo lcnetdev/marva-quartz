@@ -22,6 +22,9 @@ const LABEL_PREDICATES = [
   'http://id.loc.gov/ontologies/bibframe/code',
 ]
 
+let cachePt = {}
+let cacheGuid = {}
+
 export const useProfileStore = defineStore('profile', {
   state: () => ({
    
@@ -1264,14 +1267,28 @@ export const useProfileStore = defineStore('profile', {
     setValueLiteral: async function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){  
       let lastProperty = propertyPath.at(-1).propertyURI 
       // locate the correct pt to work on in the activeProfile
-      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      let pt
+      if (cachePt[componentGuid]){
+        pt = cachePt[componentGuid]
+      }else{
+        pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+        cachePt[componentGuid] = pt
+      }
+      // let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       console.log(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral)
       if (pt !== false){
 
         pt.hasData = true
         
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
-        let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
+        let blankNode
+        if (cacheGuid[fieldGuid]){
+          blankNode = cacheGuid[fieldGuid]          
+        }else{
+          blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
+          cacheGuid[fieldGuid] = blankNode
+        }
+        // let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
         console.log("blankNode -->",blankNode)
         if (blankNode === false){
           // create the path to the blank node

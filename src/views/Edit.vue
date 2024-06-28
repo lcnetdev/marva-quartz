@@ -187,7 +187,7 @@
 
       // }, { detached: true })
 
-      if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){  
+      if (this.profilesLoaded && this.activeProfile && Object.keys(this.activeProfile).length == 0){  
         // the profilesLoaded flipped and there is no active profile, so load the data
         this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
       }else{
