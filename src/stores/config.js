@@ -182,7 +182,13 @@ export const useConfigStore = defineStore('config', {
     'http://www.loc.gov/mads/rdf/v1#componentList'
   ],
 
+  // xml files stored in the static file directory
+  testData:[
+    {lccn:'2001059208',label:"The knitter's handy book of patterns: basic designs in multiple sizes & gauges", idUrl:'https://id.loc.gov/resources/instances/12618072.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+    {lccn:'2024591512',label:"The Berkshires, Massachusetts discovery map 2022-2023", idUrl:'https://id.loc.gov/resources/instances/23486403.html', profile:'Cartographic',profileId:'lc:RT:bf2:Cartographic:Instance'},
 
+
+  ],
 
 
   lookupConfig: {
@@ -496,21 +502,8 @@ export const useConfigStore = defineStore('config', {
     }
   },
 
- testData:[
-      {
-        filename: '21890923.convertedit-pkg.xml',
-        desc: 'monograph - Michelle Obama, Becoming'
-      },
-      {
-        filename: '19768691.editor-pkg.xml',
-        desc:'periodical - Tax administration and procedure'
-      },
-      {
-        filename: '22835043.convertedit-pkg.xml',
-        desc: 'moving image - Nostradamus effect'
-      }
-  ],
 
+  
 
   }),
   getters: {

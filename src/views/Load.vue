@@ -71,14 +71,18 @@
               </div>
               <hr>
 
-              <!-- <details>
-                <summary>Test Data</summary>
-                <table>
-                  <tr v-for="t in testData">
-                    <td>{{t.desc}}</td>
-                    <td><button @click="loadTestData(t.filename)">Set URL</button></td>
+
+              
+              <h2>Test Data:</h2>
+              <table id="test-data-table">
+                  <tr class="test-data" v-for="t in testData">
+                    <td><a :href="t.idUrl">{{t.label}}</a></td>
+                    <td><button @click="loadTestData(t)">Load with {{ t.profile }} </button></td>
                   </tr>
                 </table>
+              <!-- <details>
+                <summary>Test Data</summary>
+
               </details> -->
 
 
@@ -104,6 +108,8 @@
 
 
                     </li>
+
+
 
                   </ul>
 
@@ -237,10 +243,13 @@
         return pixles/window.innerHeight*100
       },
 
-      loadTestData: function(filename){
-        this.urlToLoad = '/bfe2/quartz/test_files/' + filename
+      loadTestData: function(meta){
+        console.log(meta)
+
+        let href = window.location.href.split("/")
+        this.urlToLoad = `/${href[3]}/${href[4]}/test_files/${meta.lccn}.xml`
         this.urlToLoadIsHttp=true
-        // this.loadUrl()
+        this.loadUrl(meta.profileId)
       },
 
       loadYourRecord: async function(){
@@ -438,7 +447,27 @@
 </script>
 
 <style scoped>  
+#test-data-table{
+  width:100%;
+}
 
+
+.test-data:nth-child(odd) {
+
+  background-color: whitesmoke;
+}
+
+.test-data a{
+  color:inherit!important;
+  text-decoration: none;
+  
+}
+.test-data a:hover{
+  text-decoration: underline;
+}
+.test-data button{
+  width: 100%;
+}
 .saved-records-empty{
   margin-top: 2em;
   margin-left: 1em;
@@ -466,6 +495,8 @@ label{
     margin-top: 1em;
     padding-left: 0.1em;
     list-style: none;
+    height: 85vh;
+    overflow-y: auto;
 
   }
 
@@ -480,7 +511,7 @@ label{
 
   }
 
-  .continue-record-list li:nth-of-type(1n+15) {
+  .continue-record-list li:nth-of-type(1n+100) {
     display: none;
   } 
 
