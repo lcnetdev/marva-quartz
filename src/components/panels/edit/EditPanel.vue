@@ -26,7 +26,6 @@
 
             <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false"> 
 
-
               <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
               <Main       
                 :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
@@ -50,35 +49,38 @@
 
               <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
-                <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
+                <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
+                 
+                  <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
 
 
 
-                  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false ">
-                    <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
-                  </template>
+                    <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false ">
+                      <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+                    </template>
 
-                  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
-                    <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
-                    <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
-                    <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
-                    
-                    
-                  </template>
-
-                  <Main       
-                    :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
-                    :level="0"
-                    :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-                    :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
-
-                      <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
-                        <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />  
-                      </template>
+                    <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
+                      <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
+                      <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
+                      <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
                       
-                  </div>
-                </template>
+                      
+                    </template>
 
+                    
+                    <Main       
+                      :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
+                      :level="0"
+                      :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+                      :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
+
+                        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
+                          <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />  
+                        </template>
+                        
+                    </div>
+                  </template>
+                </template>
               </template>
 
             </template>

@@ -117,23 +117,23 @@
                             @end="drag=false" 
                             item-key="id">
                             <template #item="{element}">
-                              
-                              <li @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-li sidebar-property-li-empty">
-
-                                <a href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-ul-alink">
-                                    <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
-                                    {{activeProfile.rt[profileName].pt[element].propertyLabel}}
-                                </a>
-                                <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-show-types')">
-                                  <template v-if="activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs.length>1">
-                                      <ul class="sidebar-property-ul sidebar-property-ul-sub-ul">
-                                          <li class="sidebar-property-li sidebar-property-li-sub-li" :key="t" v-for="t in returnTemplateTypes(activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs)">
-                                            <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}</a>
-                                          </li>
-                                      </ul>
-                                  </template>              
-                                </template>                               
-                              </li>
+                              <template v-if="!activeProfile.rt[profileName].pt[element].deleted">
+                                <li @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-li sidebar-property-li-empty">
+                                  <a href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-ul-alink">
+                                      <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
+                                      {{activeProfile.rt[profileName].pt[element].propertyLabel}}
+                                  </a>
+                                  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-show-types')">
+                                    <template v-if="activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs.length>1">
+                                        <ul class="sidebar-property-ul sidebar-property-ul-sub-ul">
+                                            <li class="sidebar-property-li sidebar-property-li-sub-li" :key="t" v-for="t in returnTemplateTypes(activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs)">
+                                              <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}</a>
+                                            </li>
+                                        </ul>
+                                    </template>              
+                                  </template>                               
+                                </li>
+                              </template>
                              </template>
                           </draggable>
 

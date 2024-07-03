@@ -2537,6 +2537,213 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+    /**
+    * Delete existing component
+    * 
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @return {void}
+    */    
+    deleteComponent: async function(componentGuid){  
+
+      console.log(componentGuid)
+
+      // locate the correct pt to work on in the activeProfile
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      if (pt !== false){
+        console.log(this.activeProfile)
+
+        // first see how many these properties exist in the resource
+        let propertyCount = 0
+        for (let k in this.activeProfile.rt[pt.parentId].pt){
+          if (this.activeProfile.rt[pt.parentId].pt[k].propertyURI == pt.propertyURI && !this.activeProfile.rt[pt.parentId].pt[k].deleted){
+
+            propertyCount++
+          }
+        }
+
+        // if the propertyCount is 1 then we are about to delete the only property
+        // so instead just blank out the user value so it still exists if they need to add a value
+
+        if (propertyCount>1){
+
+          console.log("deleting")
+          console.log(this.activeProfile.rt[pt.parentId].pt[pt.id]) 
+          // delete this.activeProfile.rt[pt.parentId].pt[pt.id]
+
+          this.activeProfile.rt[pt.parentId].pt[pt.id].deleted = true 
+
+        }else{
+          
+          for (let key in this.activeProfile.rt[pt.parentId].pt[pt.id].userValue){
+            if (!key.startsWith('@')){
+               delete this.activeProfile.rt[pt.parentId].pt[pt.id].userValue[key]
+            }
+        }
+
+
+        }
+
+        // if the 
+
+        // let profile
+        // let propertyPosition
+        // for (let r of this.activeProfile.rtOrder){
+        //   propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
+        //   if (propertyPosition != -1){
+        //     profile = r
+        //     break
+        //   }
+        // }
+
+        // let key = pt.propertyURI.replace('http://','').replace('https://','').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"_") + '__' + ((pt.propertyLabel) ? pt.propertyLabel.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g,'_').toLowerCase() : "plabel")
+        // let newPropertyId = key + '_'+ (+ new Date())
+
+
+        // let newPt = JSON.parse(JSON.stringify(pt))
+        // newPt.id = newPropertyId
+        // newPt['@guid'] = short.generate()
+
+
+        // console.log("Lookign at this PT", pt)
+        // console.log(this.activeProfile)
+        // console.log(propertyPosition)
+        // console.log(key,newPropertyId)
+        // if (createEmpty){
+
+          
+        //   // store.state.activeUndoLog.push(`Added another property ${exportXML.namespaceUri(activeProfile.rt[profile].pt[id].propertyURI)}`)
+
+        //   // console.log(activeProfile.rt[profile].pt[newPropertyId])
+        //   // console.log(profile,newPropertyId)
+        //   newPt.userValue = {
+        //       '@guid': short.generate(),
+        //       '@root' : newPt.propertyURIhihi
+
+        //   }
+
+        //   // we also want to add any default values in if it is just a empty new property and not duping
+
+        //   let idPropertyId = newPt.propertyURI  
+
+        //   let baseURI = newPt.propertyURI
+
+
+        //   // let defaults = null
+        //   let defaultsProperty
+
+
+        //   let useProfile = profile
+        //   // if the profile is a multiple, like lc:RT:bf2:Monograph:Item-0 split off the -0 for it to find it in the RT lookup
+        //   if (!this.rtLookup[useProfile]){
+        //       if (useProfile.includes('-')){
+        //           useProfile = useProfile.split('-')[0]
+        //       }
+        //   }
+        //   // first check the top level
+        //   if (this.rtLookup[useProfile]){
+        //       defaultsProperty = this.rtLookup[useProfile].propertyTemplates.filter((x)=>{ return (x.propertyURI === idPropertyId) ? true : false})
+        //       if (defaultsProperty.length>0){
+        //           defaultsProperty=defaultsProperty[0]
+
+        //       }
+        //   }
+
+
+
+        //   if (defaultsProperty && defaultsProperty.valueConstraint.defaults.length>0){              
+        //       // make sure the base URI exists in the uservalue
+        //       if (!newPt.userValue[baseURI]){
+        //           newPt.userValue[baseURI] = [{}]
+        //       }
+        //       let userValue = newPt.userValue[baseURI][0]
+
+        //       // there are defauts at this level
+        //       // its not a nested component just add it in the first level                
+        //       if (defaultsProperty.valueConstraint.defaults[0].defaultLiteral){
+        //           // console.log(newPt)
+        //           userValue['http://www.w3.org/2000/01/rdf-schema#label'] = [{
+        //               '@guid': short.generate(),
+        //               'http://www.w3.org/2000/01/rdf-schema#label':defaultsProperty.valueConstraint.defaults[0].defaultLiteral
+        //           }]
+        //       }
+        //       if (defaultsProperty.valueConstraint.defaults[0].defaultURI){
+        //           userValue['@id'] = defaultsProperty.valueConstraint.defaults[0].defaultURI
+        //       }                  
+
+
+        //   }else if (defaultsProperty && defaultsProperty.valueConstraint.valueTemplateRefs.length>0){
+
+        //       if (!newPt.userValue[baseURI]){
+        //           newPt.userValue[baseURI] = [{}]
+        //       }
+        //       let userValue = newPt.userValue[baseURI][0]
+
+
+        //       // it doesn't exist at the top level, see if it has at least one reference template, if so use the first one and look up if that one has defualt values
+        //       // the first one since it is the default for the referencetemplace componment
+        //       let useRef = defaultsProperty.valueConstraint.valueTemplateRefs[0]
+
+        //       // look through all of them and add in any default
+        //       for (let refPt of this.rtLookup[useRef].propertyTemplates){
+        //           if (refPt.valueConstraint.defaults.length>0){
+        //               let defaults = refPt.valueConstraint.defaults[0]
+        //               if (defaults.defaultLiteral){
+        //                   userValue[refPt.propertyURI]= [{
+        //                       '@guid': short.generate(),
+        //                       'http://www.w3.org/2000/01/rdf-schema#label': [
+        //                           {
+        //                               'http://www.w3.org/2000/01/rdf-schema#label':defaults.defaultLiteral,
+        //                               '@guid': short.generate(),
+        //                           }
+        //                       ]                              
+        //                   }]
+        //               }
+        //               if (defaults.defaultURI){
+        //                   if (userValue[refPt.propertyURI][0]){
+        //                       userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI    
+        //                       if (refPt.valueConstraint.valueDataType && refPt.valueConstraint.valueDataType.dataTypeURI){
+        //                           userValue[refPt.propertyURI][0]['@type'] = refPt.valueConstraint.valueDataType.dataTypeURI
+        //                       }
+        //                   }                          
+        //               } 
+        //           }
+        //       }
+        //   }
+
+
+        //   // make sure we didnt make an empty propery array [{}]
+        //   if (newPt.userValue[baseURI]){
+        //       if (newPt.userValue[baseURI][0]){
+        //           if (Object.keys(newPt.userValue[baseURI][0]).length === 0){
+        //               delete newPt.userValue[baseURI]
+        //           }
+        //       }
+        //   }
+
+
+
+
+        // }else{
+
+
+
+        // }
+
+        // console.log(JSON.stringify(newPt,null,2))
+        // this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
+        // this.activeProfile.rt[profile].ptOrder.splice(propertyPosition+1, 0, newPropertyId);
+        // console.log(this.activeProfile.rt[profile].ptOrder)
+        // // they changed something
+        // this.activeProfileSaved = false
+
+      }else{
+        console.error('deleteComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
+        console.log(JSON.stringify(this.activeProfile))
+      }
+
+
+    },
 
     
 

@@ -60,10 +60,13 @@
       <button style="width:100%" class="" @click="showDebug()">
         Debug
       </button>
+     
       <button style="width:100%" class="" @click="duplicateComponent()">
         Add Component
       </button>
-
+      <button style="width:100%" class="" @click="deleteComponent()">
+        Delete Component
+      </button> 
 
 
 
@@ -148,12 +151,14 @@
       },
 
       duplicateComponent: function(){
-        
         this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
-
-
-
       },
+      deleteComponent: function(){
+        this.profileStore.deleteComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
+      },
+    
+      
+
       addComponent: function(){
 
       },

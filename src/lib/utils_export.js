@@ -416,6 +416,9 @@ const utilsExport = {
 
         // extract the pt, this is the individual component like a <mainTitle>
 				let ptObj = profile.rt[rt].pt[pt]
+				if (ptObj.deleted){
+					continue
+				}
 
 				xmlLog.push(`Working on: ${pt}`)
 				// console.log('ptObj.userValue',ptObj.userValue)

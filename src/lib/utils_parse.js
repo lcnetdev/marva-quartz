@@ -1158,6 +1158,7 @@ const utilsParse = {
               let newKey = `${k}_${counter}`
               let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
               profile.rt[pkey].ptOrder.splice(currentpos+1, 0, newKey);
+              populateData.id = newKey
               pt[newKey] = populateData
 
 
