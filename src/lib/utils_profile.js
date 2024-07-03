@@ -259,9 +259,14 @@ const utilsProfile = {
           pointer = pointer[p][0]
 
         }else{
+          // console.log("dont need to create this level", p, pointer[p])
           // if we don't need to create this level, so just link to it
           if (pointer[p][0]){
-            console.log("Linink to",pointer[p][0])
+            // make sure it has a guid
+            if (!pointer[p][0]['@guid']){
+              pointer[p][0]['@guid'] = short.generate()
+            }
+            // console.log("Linink to",pointer[p][0])
             pointer = pointer[p][0]
           }else{
             console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)  
@@ -272,7 +277,7 @@ const utilsProfile = {
         
 
       }
-
+      // console.log("pointer is",pointer)
       if (!pointer || !pointer['@guid']){
         console.error("There was an unknown error trying to create a blank node in", propertyPath, ' in ', pt)
       }

@@ -299,6 +299,7 @@ export default {
       activeSelect: '', 
       activeKeyword: false,           
       uri: this.structure.valueConstraint.useValuesFrom[0],
+      useValuesFrom: this.structure.valueConstraint.useValuesFrom,
       debounceTimeout: null,
 
       doubleDelete: false,
@@ -322,16 +323,12 @@ export default {
     }
   },
 
-  watch: {
-
-    // // watch when the undoindex changes, means they are undoing redoing, so refresh the
-    // // value in the acutal input box
-    // undoCounter: function(){
-    //   this.refreshInputDisplay()
-    // }
-
-
-  },
+  // watch: {
+  //     // if this flips from false to true it means they are landing on this page so ask for the record from the backend
+  //     useValuesFrom(newUseValuesFrom, oldUseValuesFrom) {
+  //       console.log(newUseValuesFrom)
+  //     }
+  // },
 
 
 
@@ -467,7 +464,7 @@ export default {
       }else{
         this.showActionButton=false
       }
-
+      this.uri = this.structure.valueConstraint.useValuesFrom[0]
       utilsNetwork.loadSimpleLookup(this.uri)
 
 

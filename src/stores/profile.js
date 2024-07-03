@@ -921,67 +921,67 @@ export const useProfileStore = defineStore('profile', {
         // also check to see if there are default values in the orignal profile that we might need to over write with if they are switching 
 
         
-        for (let ptIdx of this.rtLookup[nextRef.id].propertyTemplates){
-            if (ptIdx.valueConstraint.defaults && ptIdx.valueConstraint.defaults.length>0){
-                // console.log("These fdautls:",ptIdx.valueConstraint.defaults && ptIdx.valueConstraint.defaults[0])
-                // console.log(ptIdx.propertyURI)
-                // if there is already this property in the uservalue remove it
-                if (userValue[ptIdx.propertyURI]){
-                    userValue[ptIdx.propertyURI] = []
-                }
+        // for (let ptIdx of this.rtLookup[nextRef.id].propertyTemplates){
+        //     if (ptIdx.valueConstraint.defaults && ptIdx.valueConstraint.defaults.length>0){
+        //         // console.log("These fdautls:",ptIdx.valueConstraint.defaults && ptIdx.valueConstraint.defaults[0])
+        //         // console.log(ptIdx.propertyURI)
+        //         // if there is already this property in the uservalue remove it
+        //         if (userValue[ptIdx.propertyURI]){
+        //             userValue[ptIdx.propertyURI] = []
+        //         }
 
-                // popualte with the default
+        //         // popualte with the default
 
-                if (ptIdx.valueConstraint.defaults[0].defaultLiteral){
+        //         if (ptIdx.valueConstraint.defaults[0].defaultLiteral){
 
 
 
-                    // if the default is for a label property, don't double nest it
-                    if (ptIdx.propertyURI === 'http://www.w3.org/2000/01/rdf-schema#label'){
+        //             // if the default is for a label property, don't double nest it
+        //             if (ptIdx.propertyURI === 'http://www.w3.org/2000/01/rdf-schema#label'){
 
-                        userValue[ptIdx.propertyURI]= [
-                            {
-                                'http://www.w3.org/2000/01/rdf-schema#label':ptIdx.valueConstraint.defaults[0].defaultLiteral,
-                                '@guid': short.generate(),
-                            }                              
-                        ]
+        //                 userValue[ptIdx.propertyURI]= [
+        //                     {
+        //                         'http://www.w3.org/2000/01/rdf-schema#label':ptIdx.valueConstraint.defaults[0].defaultLiteral,
+        //                         '@guid': short.generate(),
+        //                     }                              
+        //                 ]
 
-                    }else{
-                        userValue[ptIdx.propertyURI]= [{
-                            '@guid': short.generate(),
-                            'http://www.w3.org/2000/01/rdf-schema#label': [
-                                {
-                                    'http://www.w3.org/2000/01/rdf-schema#label':ptIdx.valueConstraint.defaults[0].defaultLiteral,
-                                    '@guid': short.generate(),
-                                }
-                            ]
+        //             }else{
+        //                 userValue[ptIdx.propertyURI]= [{
+        //                     '@guid': short.generate(),
+        //                     'http://www.w3.org/2000/01/rdf-schema#label': [
+        //                         {
+        //                             'http://www.w3.org/2000/01/rdf-schema#label':ptIdx.valueConstraint.defaults[0].defaultLiteral,
+        //                             '@guid': short.generate(),
+        //                         }
+        //                     ]
                             
-                        }]
+        //                 }]
 
-                    }
-
-
-
-                }
-
-                if (ptIdx.valueConstraint.defaults[0].defaultURI && ptIdx.valueConstraint.defaults[0].defaultURI.trim() != ""){
-
-
-                    userValue[ptIdx.propertyURI][0]['@id'] = ptIdx.valueConstraint.defaults[0].defaultURI
-
-                    if (ptIdx.valueConstraint.valueDataType && ptIdx.valueConstraint.valueDataType.dataTypeURI){
-                        userValue[ptIdx.propertyURI][0]['@type'] = ptIdx.valueConstraint.valueDataType.dataTypeURI
-                    }
+        //             }
 
 
 
-                }      
+        //         }
+
+        //         if (ptIdx.valueConstraint.defaults[0].defaultURI && ptIdx.valueConstraint.defaults[0].defaultURI.trim() != ""){
+
+
+        //             userValue[ptIdx.propertyURI][0]['@id'] = ptIdx.valueConstraint.defaults[0].defaultURI
+
+        //             if (ptIdx.valueConstraint.valueDataType && ptIdx.valueConstraint.valueDataType.dataTypeURI){
+        //                 userValue[ptIdx.propertyURI][0]['@type'] = ptIdx.valueConstraint.valueDataType.dataTypeURI
+        //             }
+
+
+
+        //         }      
 
 
 
 
-            }
-        }
+        //     }
+        // }
 
         // they changed something
         this.activeProfileSaved = false
@@ -1198,7 +1198,8 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
-
+          this.activeProfileSaved = false
+          return true
           
         }
 
@@ -1210,7 +1211,7 @@ export const useProfileStore = defineStore('profile', {
 
         let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
 
-        // console.log("Found em:",JSON.stringify(parent,null,2))
+        console.log("Found em:",JSON.stringify(parent,null,2))
 
         // just look through all of the properties, if its an array filter it
         for (let p in parent){
@@ -1223,8 +1224,30 @@ export const useProfileStore = defineStore('profile', {
                 return true
               }
             })
+          }if (['object'].includes(typeof parent[p]) && parent[p] !== null){
+
+            // check the parent if there are only two keys this is a top level 
+            // simple lookup, blank out the non-root key and that should clear this value
+            // if (Object.keys(pt.userValue).length==2){
+            //   for (let k in pt.userValue){
+            //     if (k != '@root'){
+            //       pt.userValue[k] = []
+            //     }
+            //   }
+            // }
+
+            // // not an array just remove the values
+            // for (let key in parent[p]){
+            //   if (key !='@guid'){
+            //     delete parent[p][key]
+            //   }
+            // }
+
+
           }
         }
+
+
 
         // check to make sure that we didn't make an empty property
         // remove the property key if so
@@ -1234,6 +1257,39 @@ export const useProfileStore = defineStore('profile', {
               delete parent[p]
             }
           }
+        }
+
+        // see if we removed it from those actions
+        parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
+      
+        console.log("parent is now:",parent)
+        if (parent !== false){
+
+          for (let p in parent){
+            if (['object'].includes(typeof parent[p]) && parent[p] !== null){
+  
+              // check the parent if there are only two keys this is a top level 
+              // simple lookup, blank out the non-root key and that should clear this value
+              if (Object.keys(pt.userValue).length==2){
+                for (let k in pt.userValue){
+                  if (k != '@root'){
+                    delete pt.userValue[k]
+                  }
+                }
+              }
+  
+              // // not an array just remove the values
+              // for (let key in parent[p]){
+              //   if (key !='@guid'){
+              //     delete parent[p][key]
+              //   }
+              // }
+  
+  
+            }
+          }
+
+
         }
 
         // they changed something
