@@ -15,7 +15,7 @@
 
           <div class="load-columns">
             
-            <div>
+            <div class="load-test-data-column">
               <h1>
                 <span style="font-size: 1.15em; vertical-align: bottom; margin-right: 5px;" class="material-icons">cloud_download</span>
                 <span>Load</span></h1>
@@ -576,11 +576,16 @@ label{
   summary{
     cursor: pointer;
   }
-
+  .load-test-data-column{
+    height: 95vh;
+    overflow-y: auto;
+    padding-bottom: 5em;
+  }
   .header{
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-background-color')") !important;
     
   }
+  
 
 
 

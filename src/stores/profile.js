@@ -10,6 +10,9 @@ import utilsExport from '@/lib/utils_export';
 
 import utilsProfile from '../lib/utils_profile'
 
+import {escape, unescape} from 'html-escaper';
+
+
 import short from 'short-uuid'
 const translator = short();
 const decimalTranslator = short("0123456789");
@@ -1446,7 +1449,7 @@ export const useProfileStore = defineStore('profile', {
           if (v[deepestLevelURI]){
             values.push({
               '@guid':v['@guid'],
-              value: v[deepestLevelURI],
+              value: unescape(v[deepestLevelURI]),
               '@lang' : (v['@lang']) ? v['@lang'] : null,
             })
           }else{

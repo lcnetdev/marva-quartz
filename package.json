@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "floating-vue": "^2.0.0-beta.20",
+    "html-escaper": "^3.0.3",
     "javascript-time-ago": "^2.5.10",
     "object-scan": "^18.5.1",
     "pinia": "^2.1.3",
