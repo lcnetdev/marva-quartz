@@ -2103,11 +2103,13 @@ export const useProfileStore = defineStore('profile', {
     * @return {obj} - response from posting action
     */    
     publishRecord: async function(eid, profile){
-      let xml = await utilsExport.buildXML(this.activeProfile)     
+      let xml = await utilsExport.buildXML(this.activeProfile)         
       let pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
       pubResuts.resourceLinks=[]
       // if it was accepted by the system send it to the marva backend to store as posted
       console.log("pubResuts.status",pubResuts.status)
+      
+
       if (pubResuts.status){
         this.activeProfile.status = 'published'
         await this.saveRecord()
@@ -2120,6 +2122,13 @@ export const useProfileStore = defineStore('profile', {
           let type = rt.split(':').slice(-1)[0]
           let url = config.convertToRegionUrl(this.activeProfile.rt[rt].URI)
           let env = config.returnUrls.env
+
+          // populate the title
+          if (type=='Instance'){
+            let bibId =  this.activeProfile.rt[rt].URI.split("/")[this.activeProfile.rt[rt].URI.split('/').length - 1]
+            document.title = `Marva | ${bibId}`;
+          }
+
           pubResuts.resourceLinks.push({
             'type':type,
             'url': url,
