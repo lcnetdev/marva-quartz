@@ -390,7 +390,7 @@ const utilsParse = {
             // some special checks here first
             // differentiate between creator and contributor
             if (ptk.propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution'){
-              console.log("Found contributor")
+              // console.log("Found contributor")
               let isPrimaryContribXML = false
 
 
@@ -416,15 +416,21 @@ const utilsParse = {
                 if (typeEl.attributes['rdf:resource'] && typeEl.attributes['rdf:resource'].value == 'http://id.loc.gov/ontologies/bflc/PrimaryContribution'){
                   isPrimaryContribXML = true
                 }
+                if (typeEl.attributes['rdf:resource'] && typeEl.attributes['rdf:resource'].value == 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution'){
+                  isPrimaryContribXML = true
+                }                
               }
 
               // or is using the <bflc:PrimaryContribution> element
               if (e.getElementsByTagName('bflc:PrimaryContribution').length>0){
                 isPrimaryContribXML = true
               }
+              if (e.getElementsByTagName('bf:PrimaryContribution').length>0){
+                isPrimaryContribXML = true
+              }
+              // console.log("isPrimaryContribXML",isPrimaryContribXML)
 
-
-              if (ptk.valueConstraint.valueDataType.dataTypeURI && ptk.valueConstraint.valueDataType.dataTypeURI == "http://id.loc.gov/ontologies/bflc/PrimaryContribution"){
+              if (ptk.valueConstraint.valueDataType.dataTypeURI && (ptk.valueConstraint.valueDataType.dataTypeURI == "http://id.loc.gov/ontologies/bflc/PrimaryContribution" || ptk.valueConstraint.valueDataType.dataTypeURI == "http://id.loc.gov/ontologies/bibframe/PrimaryContribution")){
                 // the ptk says yes, if the xml doesn't jump to next
                 if (!isPrimaryContribXML){
                   console.log("Skipping the ptk says yes, if the xml doesn't jump to next")
@@ -438,7 +444,6 @@ const utilsParse = {
                 }
               }
             }
-
 
             // start populating the data
             let populateData = null
