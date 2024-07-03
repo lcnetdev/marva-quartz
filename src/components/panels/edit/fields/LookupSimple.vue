@@ -130,8 +130,8 @@
     <div v-if="displayAutocomplete==true" ref="selectlist" class="autocomplete-container">
       <ul>
         <li v-for="(item, idx) in displayList" :data-idx="idx" v-bind:key="idx" @click="clickAdd(item)">
-            <span v-if="item==activeSelect" :data-idx="idx" class="selected">{{item}}</span>
-            <span v-else :data-idx="idx">{{item}}</span>
+            <span v-if="item==activeSelect"  :data-idx="idx" class="selected">{{item}}</span>
+            <span v-else  :data-idx="idx">{{item}}</span>
         </li>
       </ul>
     </div>
@@ -447,7 +447,12 @@ export default {
 
     blur: function(){
 
-      this.displayAutocomplete = false
+      // when we blur they may be clicking a value in the list
+      // so wait a bit before we close to register the click event
+      window.setTimeout(()=>{
+        this.displayAutocomplete = false
+      },250)
+      
     },
 
     focused: function(){
@@ -880,6 +885,13 @@ export default {
 
     },
 
+    mouseSelectValue: function(val){
+
+      console.log(val)
+
+
+    },
+
     removeValue: function(idx){
 
         
@@ -1230,7 +1242,6 @@ export default {
 
 
     clickAdd: function(item){
-
       this.displayAutocomplete=false
       console.log(item)
       this.activeSelect = item

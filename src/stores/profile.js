@@ -10,7 +10,7 @@ import utilsExport from '@/lib/utils_export';
 
 import utilsProfile from '../lib/utils_profile'
 
-import {escape, unescape} from 'html-escaper';
+import {unescape} from 'html-escaper';
 
 
 import short from 'short-uuid'

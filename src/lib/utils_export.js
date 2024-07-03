@@ -5,6 +5,7 @@ import {useProfileStore} from "../stores/profile";
 import utilsRDF from './utils_rdf';
 import utilsMisc from './utils_misc';
 
+
 const formatXML = function(xml, tab = '\t', nl = '\n') {
 	if (!xml){
 		return 'No XML'
