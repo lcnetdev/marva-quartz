@@ -1488,7 +1488,6 @@ const utilsParse = {
       }
     }
 
-    console.log(workUri,instanceUris)
 
     // we now know the uris
     for (let k of Object.keys(useProfile.rt)){
