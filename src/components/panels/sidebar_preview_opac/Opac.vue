@@ -188,8 +188,9 @@
       </div>
 
       <ul class="sidebar-opac-ul" role="list">
-          <template  v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
-              <li v-if="activeProfile.rt[profileName].pt[profileCompoent].hasData && !activeProfile.rt[profileName].pt[profileCompoent].deleted"  @click.stop="activeComponent = activeProfile.rt[profileName].pt[profileCompoent]"  class="sidebar-opac-li sidebar-opac-li-empty" >
+          <template  v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" >
+
+            <li v-if="activeProfile.rt[profileName].pt[profileCompoent].hasData && !activeProfile.rt[profileName].pt[profileCompoent].deleted"  @click.stop="activeComponent = activeProfile.rt[profileName].pt[profileCompoent]"  class="sidebar-opac-li sidebar-opac-li-empty" >
                     <a style="font-size:0.95em" href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[profileCompoent]" class="sidebar-property-ul-alink">
                         {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                     </a>

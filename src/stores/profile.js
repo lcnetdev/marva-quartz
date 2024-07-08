@@ -1878,7 +1878,8 @@ export const useProfileStore = defineStore('profile', {
                 currentUserValuePos = currentUserValuePos[p.propertyURI][0]
             } 
 
-
+            pt.hasData = true
+            
             if (pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"] &&
@@ -1962,6 +1963,30 @@ export const useProfileStore = defineStore('profile', {
 
 
                 }
+            }
+
+            // did they add a LCSH heading, if so add that automatically as a source
+            for (let h of subjectComponents){
+              if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/subjects') >-1){
+
+                if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
+
+                  currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] =  [
+                    {
+                            "@guid": short.generate(),
+                            "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                            "@id": "http://id.loc.gov/vocabulary/subjectSchemes/lcsh",
+                            "http://www.w3.org/2000/01/rdf-schema#label": [
+                                {
+                                    "@guid": short.generate(),
+                                    "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress subject headings"
+                                }
+                            ]
+                        }
+                    ]
+                }
+                break 
+              }
             }
 
 

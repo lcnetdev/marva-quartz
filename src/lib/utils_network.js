@@ -2331,19 +2331,19 @@ const utilsNetwork = {
 
 
 
-      const rawResponse = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({rdfxml:xml})
-      });
-      const content = await rawResponse.json();
+      // const rawResponse = await fetch(url, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'application/json'
+      //   },
+      //   body: JSON.stringify({rdfxml:xml})
+      // });
+      // const content = await rawResponse.json();
 
-      console.log(content);
+      // console.log(content);
 
-      return content
+      // return content
       
     },        
 
