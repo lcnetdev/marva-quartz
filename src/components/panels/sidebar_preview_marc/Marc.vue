@@ -23,16 +23,18 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(useProfileStore, ['activeProfile']),
+      ...mapState(useProfileStore, ['activeProfile','dataChangedTimestamp']),
       ...mapState(usePreferenceStore, ['styleDefault']),
 
       ...mapWritableState(useProfileStore, ['activeComponent']),
 
 
     },
-    watch: {    
-
-      
+    watch: {
+      // if this flips from false to true it means they are landing on this page so ask for the record from the backend
+      dataChangedTimestamp(newDataChangedTimestamp, oldDataChangedTimestamp) {
+        this.refreshMarc()
+      }
     },
 
     methods: {

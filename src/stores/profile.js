@@ -27,6 +27,8 @@ const LABEL_PREDICATES = [
 
 let cachePt = {}
 let cacheGuid = {}
+let dataChangedTimeout = null
+
 
 export const useProfileStore = defineStore('profile', {
   state: () => ({
@@ -57,6 +59,8 @@ export const useProfileStore = defineStore('profile', {
     // bf:mainTitle for example, value will be the the structure object for this field
     // main thing we can use it for is to see which field is currently active in the interface via the @guid
     activeField: { '@guid' : null },
+
+    dataChangedTimestamp: Date.now(),
 
 
 
@@ -984,7 +988,7 @@ export const useProfileStore = defineStore('profile', {
         // }
 
         // they changed something
-        this.activeProfileSaved = false
+        this.dataChanged()
 
 
         
@@ -1076,7 +1080,7 @@ export const useProfileStore = defineStore('profile', {
 
         }
         // they changed something
-        this.activeProfileSaved = false
+        this.dataChanged()
 
       }else{
         console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -1146,7 +1150,7 @@ export const useProfileStore = defineStore('profile', {
         pt.userValue = utilsProfile.pruneUserValue(pt.userValue)
 
         // they changed something
-        this.activeProfileSaved = false
+        this.dataChanged()
 
       }else{
         console.error('removeValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -1198,7 +1202,7 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
-          this.activeProfileSaved = false
+          this.dataChanged()
           return true
           
         }
@@ -1293,7 +1297,7 @@ export const useProfileStore = defineStore('profile', {
         }
 
         // they changed something
-        this.activeProfileSaved = false
+        this.dataChanged()
 
         // console.log("psot filter em:",parent)
 
@@ -1464,7 +1468,7 @@ export const useProfileStore = defineStore('profile', {
 
 
         // they changed something
-        this.activeProfileSaved = false
+        this.dataChanged()
 
       }else{
         console.error('setValueLiteral: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -1787,7 +1791,7 @@ export const useProfileStore = defineStore('profile', {
 
         }
         // they changed something
-        this.activeProfileSaved = false
+        this.dataChanged()
 
       }else{
         console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -1992,7 +1996,7 @@ export const useProfileStore = defineStore('profile', {
 
 
             // they changed something
-            this.activeProfileSaved = false
+            this.dataChanged()
 
             console.log("USERVALUE IS",userValue)
             pt.userValue = userValue
@@ -2618,7 +2622,7 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.rt[profile].ptOrder.splice(propertyPosition+1, 0, newPropertyId);
         console.log(this.activeProfile.rt[profile].ptOrder)
         // they changed something
-        this.activeProfileSaved = false
+        this.dataChanged()
 
       }else{
         console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -2826,7 +2830,7 @@ export const useProfileStore = defineStore('profile', {
         // this.activeProfile.rt[profile].ptOrder.splice(propertyPosition+1, 0, newPropertyId);
         // console.log(this.activeProfile.rt[profile].ptOrder)
         // // they changed something
-        // this.activeProfileSaved = false
+        // this.dataChanged()
 
       }else{
         console.error('deleteComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -2836,6 +2840,22 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+    /**
+    * When they change something run this function to update things like autosave ect
+    * 
+    * @return {void}
+    */    
+    dataChanged:  function(){  
+
+      this.activeProfileSaved = false
+
+      window.clearTimeout(dataChangedTimeout)
+      dataChangedTimeout = window.setTimeout(()=>{
+        this.dataChangedTimestamp = Date.now()
+        // console.log("CHANGED 1!!!")
+      },500)
+
+    }
     
 
 
