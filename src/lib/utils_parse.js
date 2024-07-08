@@ -1454,6 +1454,91 @@ const utilsParse = {
 
 
 
+  /**
+  * Will take a profile obj and make sure the Works have a hasInstance and the Instances have instanceOf 
+  * 
+  * @param {object} profile - profile object
+  * @return {object} - the updated profile
+  */
+
+  linkInstancesWorks: function(useProfile){
+
+    let workUri = null
+    let instanceUris = []
+
+    let instanceCount = 0
+    for (let k of Object.keys(useProfile.rt)){
+      if (k.indexOf(':Instance')>-1){
+        if (useProfile.rt[k].URI){
+          instanceUris.push(useProfile.rt[k].URI)
+        }else{
+
+          let iLabel = (instanceCount==0) ? `${useProfile.eId}` : `${useProfile.eId}-${instanceCount}`
+          instanceUris.push(`http://id.loc.gov/resources/instances/${iLabel}`)
+          useProfile.rt[k].URI = `http://id.loc.gov/resources/instances/${iLabel}`
+        }
+        instanceCount++
+      }else if (k.indexOf(':Work')>-1){
+        if (useProfile.rt[k].URI){
+          workUri = useProfile.rt[k].URI
+        }else{
+          workUri = `http://id.loc.gov/resources/works/${useProfile.eId}`
+          useProfile.rt[k].URI = workUri
+        }
+      }
+    }
+
+    console.log(workUri,instanceUris)
+
+    // we now know the uris
+    for (let k of Object.keys(useProfile.rt)){
+      if (k.indexOf(':Instance')>-1){
+
+        for (let pk in useProfile.rt[k].pt){
+          console.log(useProfile.rt[k])
+          if (useProfile.rt[k].pt[pk].propertyURI == 'http://id.loc.gov/ontologies/bibframe/instanceOf'){
+            if (!useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/instanceOf']){
+              useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/instanceOf'] = []
+            }            
+            useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/instanceOf'].push(
+              {
+                "@guid": short.generate(),
+                "@id": workUri
+              })           
+          }
+        }     
+      
+      }else if (k.indexOf(':Work')>-1){
+
+        for (let pk in useProfile.rt[k].pt){
+
+          if (useProfile.rt[k].pt[pk].propertyURI == 'http://id.loc.gov/ontologies/bibframe/hasInstance'){
+            if (!useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/hasInstance']){
+              useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/hasInstance'] = []
+            }       
+            for (let i of instanceUris){
+
+            
+            useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/hasInstance'].push(
+              {
+                "@guid": short.generate(),
+                "@id": i
+              })           
+            }
+          }
+        }
+
+      
+      }
+    }
+
+
+
+    return useProfile
+
+  },
+
+
 
 
 

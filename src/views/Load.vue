@@ -386,11 +386,17 @@
           useProfile.status = 'unposted'
         }
 
+        
+
 
         if (this.urlToLoad.trim() !== ''){
           let profileDataMerge  = await utilsParse.transformRts(useProfile)
           this.activeProfile = profileDataMerge
         }else{
+
+          // if there is not url they are making it from scratch, so we need to link the instances and work together
+          useProfile = utilsParse.linkInstancesWorks(useProfile)
+
           this.activeProfile = useProfile
         }
         
