@@ -230,7 +230,7 @@ const utilsParse = {
       // select the right part of the profile
       let pt = profile.rt[pkey].pt
       let xml = this.activeDom.getElementsByTagName(tle)
-
+      console.log("profile.rt[pkey]",profile.rt[pkey])
       // store this here for easy access to the error report
       profile.xmlSource = this.xmlSource
       
@@ -314,13 +314,58 @@ const utilsParse = {
         }
       }
 
+      // is there admin metdata in the data? If so we need to insert that profile template into the pt
+      
+      let adminMetadataCount = xml.getElementsByTagName('bf:adminMetadata').length
+
+      if (adminMetadataCount>0){
+
+        let parent
+        let parentId
+        // find a sibling and grab their parent id so we can use it for this new property
+        for (let k of Object.keys(pt)){
+          if (pt[k].parent){
+            parent = pt[k].parent
+            parentId = pt[k].parentId
+            break
+          }
+        }
+          
+        
+        // adminMetadataCount
+        pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
+          "mandatory": false,
+          "parent": parent,
+          "parentId": parentId,
+          "id": 'id_loc_gov_ontologies_bibframe_adminmetadata',
+          "propertyLabel": "Admin Metadata",
+          "propertyURI": "http://id.loc.gov/ontologies/bibframe/adminMetadata",
+          "repeatable": true,
+          "resourceTemplates": [],
+          '@guid': short.generate(),
+          "type": "resource",
+          "userValue": {"@root":"http://id.loc.gov/ontologies/bibframe/adminMetadata"},
+          "valueConstraint": {
+              "defaults": [],
+              "useValuesFrom": [],
+              "valueDataType": {},
+            "valueTemplateRefs": ['lc:RT:bf2:AdminMetadata:BFDB']
+            }
+        }
+
+        profile.rt[pkey].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
+
+      }
+
+
       let sucessfulProperties  = []
       let sucessfulElements  = []
 
       // at this point we have the main piece of the xml tree that has all our data
       // loop through properties we are looking for and build out the the profile
       for (let k in pt){
-
+        
+        
         let ptk = JSON.parse(JSON.stringify(pt[k]))
         // make sure each new one has a unique guid
         ptk['@guid'] = short.generate()
@@ -411,7 +456,6 @@ const utilsParse = {
               // does it have a rdf type of that 
               for (let typeEl of e.getElementsByTagName('rdf:type')){
                 if (typeEl.attributes['rdf:resource']){
-                  console.log(typeEl.attributes['rdf:resource'])
                 }
                 if (typeEl.attributes['rdf:resource'] && typeEl.attributes['rdf:resource'].value == 'http://id.loc.gov/ontologies/bflc/PrimaryContribution'){
                   isPrimaryContribXML = true
@@ -481,7 +525,7 @@ const utilsParse = {
               let eProperty = this.UriNamespace(e.tagName)
 
               // could be a first level bnode with no children
-              console.log(e.tagName,this.isClass(e.tagName))
+              
               if (this.isClass(e.tagName)){
                 
                 userValue['@type'] = this.UriNamespace(e.tagName)
@@ -1151,8 +1195,8 @@ const utilsParse = {
             // need to make a new one and add it to the resource template list
             // since each piece of data in the property is its own resource template
 
-            if (counter === 0){
-              pt[k] = populateData
+            if (counter === 0){              
+              pt[k] = populateData              
             }else{
 
               let newKey = `${k}_${counter}`
@@ -1160,7 +1204,6 @@ const utilsParse = {
               profile.rt[pkey].ptOrder.splice(currentpos+1, 0, newKey);
               populateData.id = newKey
               pt[newKey] = populateData
-
 
             }
 
@@ -1191,6 +1234,8 @@ const utilsParse = {
       }
 
       // store the unused xml
+      
+      
       profile.rt[pkey].unusedXml = xml.outerHTML;
       if (xml.children.length == 0){
         profile.rt[pkey].unusedXml = false

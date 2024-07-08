@@ -237,7 +237,6 @@ const utilsProfile = {
           // we may or maynot need to create a @type for this level, depending on what type of property it is,
           // so test first the property info in the profile
           let type = utilsRDF.suggestTypeProfile(p,pt)
-          console.log("suggestTypeProfile is type",type)
           if (type === false){
             // did not find it in the profile, look to the network
             type = await utilsRDF.suggestTypeNetwork(p)
@@ -474,7 +473,7 @@ const utilsProfile = {
     useProfile.user = meta.user
     useProfile.status = meta.status
 
-
+    console.log('useProfileuseProfileuseProfileuseProfile',useProfile)
     
     let transformResults  = await utilsParse.transformRts(useProfile)
 
