@@ -130,11 +130,11 @@
             <h1>Hello! Before you start...</h1>
 
             <div>Please enter a name to associate records with you, this is internal to Marva.</div>            
-            <input placeholder="User Name" v-model="catInitals" ref="catInitals" type="text">
+            <input placeholder="User Name" v-model="catInitals" @keyup.enter="done" ref="catInitals" type="text">
 
             <div>Please enter your unique cataloging code which will appear in distributed records .</div>            
 
-            <input placeholder="Cataloging Code" v-model="catCode" ref="catCode"  type="text">
+            <input placeholder="Cataloging Code" @keyup.enter="done" v-model="catCode" ref="catCode"  type="text">
             <div style="margin-top: 0.4em; font-size: 0.9em;"><a href="#" @click="(event)=>{  iDontHaveACode=true; event.preventDefault() }">I don't have a code</a></div>
             <div style="margin-top: 0;" v-if="iDontHaveACode">If you don't have a Voyager ID and just want to test you can use your email username or makeup a unqiue identifier.</div>
 
