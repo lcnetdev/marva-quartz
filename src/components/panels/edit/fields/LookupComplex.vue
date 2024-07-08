@@ -899,6 +899,7 @@ export default {
         this.searchValue = ""
         return false
       }
+      // console.log("this.structure.propertyURI",this.structure.propertyURI)
       if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
         this.displaySubjectModal=true
         this.$nextTick(() => {

@@ -179,7 +179,8 @@ export const useConfigStore = defineStore('config', {
   // use the subject editor not the complex lookup modal when it has this propertyURI value
   useSubjectEditor: [
     'http://www.loc.gov/mads/rdf/v1#Topic',
-    'http://www.loc.gov/mads/rdf/v1#componentList'
+    'http://www.loc.gov/mads/rdf/v1#componentList',
+    'http://www.loc.gov/mads/rdf/v1#Geographic'
   ],
 
   // xml files stored in the static file directory

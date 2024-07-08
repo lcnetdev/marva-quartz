@@ -1618,6 +1618,7 @@ export const useProfileStore = defineStore('profile', {
       // TODOL reconcile this in the profiles (!!!)
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.loc.gov/mads/rdf/v1#componentList')  })
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.loc.gov/mads/rdf/v1#Topic')  })
+      propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.loc.gov/mads/rdf/v1#Geographic')  })
 
 
       // console.log("propertyPath=",propertyPath)
@@ -1879,7 +1880,7 @@ export const useProfileStore = defineStore('profile', {
             } 
 
             pt.hasData = true
-            
+
             if (pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"] &&

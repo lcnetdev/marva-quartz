@@ -61,6 +61,8 @@ export default {
         if (type == 'ComplexSubject') return iconSubjectComplex
         if (type == 'Topic') return iconSubjectTopic
 
+        if (type == 'Authority') return iconSubjectComplex
+
 
         if (type == 'http://id.loc.gov/ontologies/bibframe/Person') return iconPersonal
         if (type == 'http://id.loc.gov/ontologies/bibframe/Place') return iconGeographic
@@ -79,7 +81,7 @@ export default {
 
       }
 
-
+      // console.log("no icon slected", this.type )
       return []
 
     }, 
