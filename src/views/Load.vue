@@ -9,7 +9,51 @@
     <pane> 
 
       <splitpanes>
-        <pane class="load">
+
+
+        
+        <pane class="load" v-if="displayAllRecords">
+          <button @click="displayAllRecords=false;displayDashboard=true">Close</button>
+          <div id="all-records-table">
+            <DataTable  :loading="isLoadingAllRecords" :rows="allRecords" striped hoverable>
+
+              <!-- { "Id": "e1078432", "RTs": [ "lc:RT:bf2:Monograph:Work" ], "Type": "Monograph", "Status": "unposted", "Urls": [ "http://id.loc.gov/resources/works/e1078432", "http://id.loc.gov/resources/instances/e1078432" ], "Time": "2024-07-10:17:11:53", "User": "asdf (asdf)" } -->
+
+              <template #tbody="{row}">
+
+                
+                <td>
+                  <router-link :to="{ name: 'Edit', params: { recordId: row.Id }}">
+                    {{ row.Id }}
+                  </router-link>
+                </td>
+
+                <td v-text="row.RTs.join(', ')"/>
+                <td v-text="row.Type"/>
+                <td v-text="row.Status"/>
+                <td>
+                  <div v-for="u in row.Urls">
+                    <a v-if="u.indexOf('/works/') >-1" :href="u" target="_blank">Work</a> 
+                    <a v-else-if="u.indexOf('/instances/') >-1" :href="u" target="_blank">Instance</a> 
+                    <a v-else :href="u" target="_blank">{{ u }}</a> 
+
+                  </div>
+
+                </td>
+                <td v-text="row.Time"/>
+                <td v-text="row.User"/>
+
+              </template>
+
+            </DataTable>
+            
+          </div>
+
+          
+
+        </pane>
+
+        <pane class="load" v-if="displayDashboard">
           
           
 
@@ -89,9 +133,11 @@
             </div>
 
             <div>
+              
               <h1>
                 <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_note</span>
-                <span>Your Records</span></h1>                
+                <span>Your Records</span></h1>     
+                <a href="#" @click="loadAllRecords" style="color: inherit;">Show All Records</a>                         
                 <div>
 
                   <div class="saved-records-empty" v-if="continueRecords.length==0">
@@ -174,6 +220,11 @@
   import TimeAgo from 'javascript-time-ago'
   import en from 'javascript-time-ago/locale/en'
 
+
+  import { DataTable } from "@jobinsjp/vue3-datatable"
+  import "@jobinsjp/vue3-datatable/dist/style.css"
+
+
   TimeAgo.addDefaultLocale(en)
   const timeAgo = new TimeAgo('en-US')
 
@@ -182,7 +233,7 @@
 
 
   export default {
-    components: { Splitpanes, Pane, Nav },
+    components: { Splitpanes, Pane, Nav, DataTable },
     data() {
       return {
 
@@ -196,6 +247,15 @@
         lccnToSearchTimeout: null,
 
         lccnLoadSelected:false,
+
+
+        displayDashboard:true,
+        displayAllRecords: false,
+        isLoadingAllRecords:false,
+
+        allRecords: []
+
+
       }
     },    
     computed: {
@@ -234,10 +294,52 @@
 
     methods: {
 
+      allRecordsRowClick: function(row){
+
+        console.log(row)
+
+      },  
+
+      loadAllRecords: async function(event){
+        event.preventDefault()
+
+        this.displayDashboard = false
+        this.displayAllRecords = true
+        this.isLoadingAllRecords=true
+
+        let allRecordsRaw = await utilsNetwork.searchSavedRecords()
+        console.log(allRecordsRaw)
+        this.allRecords = []
+        for (let r of allRecordsRaw){
+
+          let obj = {
+            'Id': r.eid,
+
+            'RTs': r.rstused,
+            'Type': r.typeid,
+            'Status': r.status,
+            'Urls': r.externalid,
+            'Time': r.time,
+            'User': r.user,
+
+
+
+          }
+          this.allRecords.push(obj)
+
+
+        }
+        // let lccnLookup = {}
+
+
+        this.isLoadingAllRecords=false
+      },  
+
       returnTimeAgo: function(timestamp){
         console.log(timestamp, timestamp*1000,Date.now())
         return timeAgo.format(timestamp*1000)
       },
+      
 
       returnPixleAsPercent: function(pixles){
         return pixles/window.innerHeight*100
@@ -457,7 +559,12 @@
   width:100%;
 }
 
+#all-records-table{
 
+  height: 90vh;
+  overflow-y: auto;
+
+}
 .test-data:nth-child(odd) {
 
   background-color: whitesmoke;
