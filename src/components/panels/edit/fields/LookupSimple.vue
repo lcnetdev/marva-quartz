@@ -80,7 +80,7 @@
                   </div>
                 </div>
                 <div class="lookup-fake-input-text" style="display: inline-block;">
-                  <input v-model="activeValue" class="can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
+                  <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
                 </div>   
 
               </div>
@@ -100,7 +100,7 @@
               </div>
             </div>
             <div class="lookup-fake-input-text">
-              <input v-model="activeValue" class="can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
+              <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" />
             </div>     
 
 
@@ -1373,17 +1373,36 @@ export default {
 
 
 <style scoped>
+
+
+
+
+
 .inline-lookup-input{
   outline: none;
   border: none;
+  
 
 }
 .inline-lookup-input:focus-within{
-  background-color: #dfe5f1;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
 }
 .inline-lookup-input:hover{
-  background-color: #dfe5f1;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
 }
+.lookup-fake-input:hover{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
+}
+.lookup-fake-input:hover input{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
+}
+.lookup-fake-input:focus-within{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
+}
+.lookup-fake-input:focus-within input{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
+}
+
 .inline-icon{
   display: inline-block;
   height: 15px;

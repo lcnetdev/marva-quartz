@@ -2112,6 +2112,10 @@ export default {
 .input-inline-mode:focus-within {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
 }
+.input-inline-mode:hover {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
+}
+
 
 .bfcode-display-mode-holder{
   display: flex;
@@ -2157,9 +2161,13 @@ export default {
 }
 
 .lookup-fake-input:focus-within{
-/*  background-color: #f2f6f6;*/
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
-
+}
+.lookup-fake-input:hover{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
+}
+.lookup-fake-input:hover input{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
 }
 
 .lookup-fake-input-entities{
