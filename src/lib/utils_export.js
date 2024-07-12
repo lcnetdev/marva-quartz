@@ -948,7 +948,54 @@ const utilsExport = {
 			tleLookup[rootElName][orginalProfile.rt[rt].URI] = rootEl
 		}
 
-    let parser = returnDOMParser()
+		console.log("tleLookup --- tleLookup")
+		console.log(tleLookup)
+
+
+		// Add in a adminMetadata to the resources with this user id
+		// console.log(profile)
+		let catCode = profile.user.split(" (")
+		catCode = catCode[catCode.length-1]
+		catCode=catCode.split(")")[0]
+		
+		let bf_adminMetadata = this.createElByBestNS("bf:adminMetadata")
+		let bf_AdminMetadtat = this.createElByBestNS("bf:AdminMetadata")
+		let bf_status = this.createElByBestNS("bf:status")
+		let bf_Status = this.createElByBestNS("bf:Status")
+		bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/c')
+		let bf_StatusLabel = this.createElByBestNS("rdfs:label")
+		bf_StatusLabel.innerHTML="changed"
+
+		let bf_catalogerId = this.createElByBestNS("bflc:catalogerId")
+		bf_catalogerId.innerHTML = catCode
+
+		let bf_date = this.createElByBestNS("bf:date")
+		bf_date.innerHTML = new Date().toISOString()
+
+		bf_AdminMetadtat.appendChild(bf_date)
+		bf_AdminMetadtat.appendChild(bf_catalogerId)
+		
+		bf_Status.appendChild(bf_StatusLabel)
+		bf_status.appendChild(bf_Status)
+		bf_AdminMetadtat.appendChild(bf_status)
+		bf_adminMetadata.appendChild(bf_AdminMetadtat)
+
+
+		let adminMetadataText = (new XMLSerializer()).serializeToString(bf_adminMetadata)
+
+
+    	let parser = returnDOMParser()
+
+		
+		for (let URI in tleLookup['Work']){
+			tleLookup['Work'][URI].appendChild(parser.parseFromString(adminMetadataText, "text/xml").children[0])		
+		}
+		for (let URI in tleLookup['Instance']){
+			tleLookup['Instance'][URI].appendChild(parser.parseFromString(adminMetadataText, "text/xml").children[0])		
+		}
+
+
+
 
 		// also just build a basic version tosave	
 		for (let URI in tleLookup['Work']){
@@ -1074,15 +1121,6 @@ const utilsExport = {
 			rdf = theHub
 		}
 
-
-
-
-
-
-		
-		
-		
-	
 		if (rdfBasic.getElementsByTagName("bf:mainTitle").length>0){
 			xmlVoidDataTitle = rdfBasic.getElementsByTagName("bf:mainTitle")[0].innerHTML
 
