@@ -1230,12 +1230,12 @@ const utilsParse = {
 
 
 
+        
+
 
       }
 
-      // store the unused xml
-      
-      
+      // store the unused xml     
       profile.rt[pkey].unusedXml = xml.outerHTML;
       if (xml.children.length == 0){
         profile.rt[pkey].unusedXml = false
@@ -1243,6 +1243,7 @@ const utilsParse = {
 
 
       for (let key in profile.rt[pkey].pt){
+
 
         // populate the admin data
         if (profile.rt[pkey].pt[key].propertyURI == 'http://id.loc.gov/ontologies/bibframe/adminMetadata'){
@@ -1252,23 +1253,37 @@ const utilsParse = {
           }         
           let userValue = profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'][0]
 
-          // if it doesnt already have a cataloger id use ours
-          if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
-            userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
-              {
-                "@guid": short.generate(),
-                "http://id.loc.gov/ontologies/bflc/catalogerId": useProfileStore().catInitials
-              }
-            ]
+          // // if it doesnt already have a cataloger id use ours
+          // if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
+          //   userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
+          //     {
+          //       "@guid": short.generate(),
+          //       "http://id.loc.gov/ontologies/bflc/catalogerId": useProfileStore().catInitials
+          //     }
+          //   ]
+          // }
+
+          // // we need to set the procInfo, so use whatever we have in the profile
+          // userValue['http://id.loc.gov/ontologies/bflc/procInfo'] = [
+          //   {
+          //     "@guid": short.generate(),
+          //     "http://id.loc.gov/ontologies/bflc/procInfo": profile.procInfo
+          //   }
+          // ]
+
+          // using MARC2BF rules 2.6+ we need to find the admin metadata that does not have a status
+          // that will be our primary adminMetadat that they edit
+          console.log("userValueuserValueuserValueuserValue",userValue)
+          if (userValue){
+            if (!userValue['http://id.loc.gov/ontologies/bibframe/status']){
+              profile.rt[pkey].pt[key].adminMetadataType = 'primary'
+            }else{
+              profile.rt[pkey].pt[key].adminMetadataType = 'secondary'
+            }
           }
 
-          // we need to set the procInfo, so use whatever we have in the profile
-          userValue['http://id.loc.gov/ontologies/bflc/procInfo'] = [
-            {
-              "@guid": short.generate(),
-              "http://id.loc.gov/ontologies/bflc/procInfo": profile.procInfo
-            }
-          ]
+
+
 
         }
 
