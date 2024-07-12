@@ -33,8 +33,7 @@
 
   <template v-else>
 
-    <div class="lookup-fake-input" >
-
+    <div class="lookup-fake-input" v-if="showField" >
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues">
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
         <div class="literal-field">
@@ -266,8 +265,8 @@ export default {
 
         this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,transValue.output,null,true)
 
-        console.log()
 
+        
       }
 
 
@@ -303,6 +302,21 @@ export default {
           '@lang': null,
           '@guid': short.generate()
         }]
+      }
+
+      if (values.length == 0){
+        this.hasNoData=true
+        if (this.readOnly){
+          this.showField=false
+        }
+
+      }else if(values.length > 0 && values.filter((v) => { return (v.value.length>0) }).length == 0 ){
+        this.hasNoData=true
+        if (this.readOnly){
+          this.showField=false
+        }        
+      }else{
+        this.hasNoData=false
       }
 
 
@@ -345,7 +359,11 @@ export default {
     return {  
 
       // used as toggle to show the button when field is focused
-      showActionButton: false,      
+      showActionButton: false,    
+
+      hasNoData: false,
+      showField: true,
+      
     }
   },
 

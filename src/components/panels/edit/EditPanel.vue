@@ -59,7 +59,9 @@
 
                     <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false ">
                       <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
-                        <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY)</span>
+                        <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
+                        
+                        
                       </div>
                     </template>
 
@@ -114,7 +116,7 @@
 
   import { usePreferenceStore } from '@/stores/preference'
   import { useProfileStore } from '@/stores/profile'
-  import { mapStores, mapState } from 'pinia'
+  import { mapStores, mapState, mapWritableState } from 'pinia'
 
   import InlineModeAddField from "@/components/panels/edit/fields/helpers/InlineModeAddField.vue";
 
@@ -154,6 +156,7 @@
       // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent']),
+      ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
 
       activeResourceName(){
 
@@ -171,6 +174,18 @@
     },
 
     methods: {
+
+
+        showDebug: function(event,data){
+
+          
+          this.debugModalData= this.profileStore.returnStructureByComponentGuid(data['@guid']); 
+          this.showDebugModal=true
+
+          event.preventDefault()
+          return false
+
+        },
 
         isReadOnly: function(component){
 

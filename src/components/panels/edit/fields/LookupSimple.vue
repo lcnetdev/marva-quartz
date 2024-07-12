@@ -56,7 +56,9 @@
 
       <form autocomplete="off" @submit.prevent="null" >
 
-        <div class="lookup-fake-input" @click="focusClick()">
+        <div class="lookup-fake-input" @click="focusClick()" v-if="showField">
+          
+          
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && simpleLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
@@ -305,6 +307,8 @@ export default {
 
       doubleDelete: false,
 
+      showField: true,
+
       // activeLookupValue: [],
 
       // stores the guid to the place to add more if there is already a value
@@ -353,6 +357,9 @@ export default {
 
       // profileStore.setActiveField()
       let values = this.profileStore.returnSimpleLookupValueFromProfile(this.guid,this.propertyPath)
+      if (this.readOnly && values.length==0){
+        this.showField=false
+      }
       return values
 
     }, 
@@ -888,6 +895,10 @@ export default {
     },
 
     removeValue: function(idx){
+
+        if (this.readOnly){
+          return false
+        }
 
         
         if (idx===-1){
