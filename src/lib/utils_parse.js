@@ -1242,9 +1242,9 @@ const utilsParse = {
       }
 
 
+      let adminMedtataPrimary = null
+      let adminMedtataSecondary = []
       for (let key in profile.rt[pkey].pt){
-
-
         // populate the admin data
         if (profile.rt[pkey].pt[key].propertyURI == 'http://id.loc.gov/ontologies/bibframe/adminMetadata'){
 
@@ -1277,15 +1277,59 @@ const utilsParse = {
           if (userValue){
             if (!userValue['http://id.loc.gov/ontologies/bibframe/status']){
               profile.rt[pkey].pt[key].adminMetadataType = 'primary'
+              adminMedtataPrimary = key
             }else{
               profile.rt[pkey].pt[key].adminMetadataType = 'secondary'
+              console.log(userValue)
+              let useDate = "00000000"
+              if (userValue['http://id.loc.gov/ontologies/bibframe/date'] && userValue['http://id.loc.gov/ontologies/bibframe/date'][0]){
+                if (userValue['http://id.loc.gov/ontologies/bibframe/date'][0]['http://id.loc.gov/ontologies/bibframe/date']){
+                  useDate = userValue['http://id.loc.gov/ontologies/bibframe/date'][0]['http://id.loc.gov/ontologies/bibframe/date']
+                  // drop time part of the value if there
+                  useDate = useDate.split('T')[0]
+
+
+                }
+
+              }
+
+
+              try{
+                useDate = parseInt(useDate.match(/\d|\./g).join(''))
+              }catch{
+                console.warn('Cant parse date',useDate)
+                useDate = 0
+              }
+              
+              adminMedtataSecondary.push({key:key,date:useDate})
+              
+              
+              
+              
+              
+
+              
             }
           }
+        }
+        
+        // if we have multiple types of adminMetadata we want to reorder them
+        if (adminMedtataPrimary && adminMedtataSecondary.length>0){
+          // first remove all of them from the order
+          profile.rt[pkey].ptOrder = profile.rt[pkey].ptOrder.filter((x) => { return ( x.indexOf('bibframe_adminmetadata') === -1 ) })
+          // add in the primary first
+          profile.rt[pkey].ptOrder.push(adminMedtataPrimary)
 
-
-
+          // sort and add
+          const naturalCollator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+          adminMedtataSecondary.sort((a, b) => naturalCollator.compare(a.date, b.date)).reverse();
+          adminMedtataSecondary.forEach((v)=>{
+            profile.rt[pkey].ptOrder.push(v.key)
+          })
 
         }
+
+        console.log()
 
 
         // we can potentailly prevent some xml errors from propagating further here
