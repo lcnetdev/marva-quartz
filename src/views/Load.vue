@@ -547,6 +547,31 @@
 
       }
       
+      let inerval = window.setInterval(()=>{
+
+          if (this.$route && this.$route.query && this.$route.query.url){
+
+            this.urlToLoad = this.$route.query.url
+            this.urlToLoadIsHttp=true
+            window.clearInterval(inerval)
+
+          }
+
+
+          
+          // if (this.$router.currentRoute && this.$router.currentRoute.query && this.$router.currentRoute.query.url){
+          //   let url = this.$router.currentRoute.query.url
+          //   if (this.$router.currentRoute && this.$router.currentRoute.query && this.$router.currentRoute.query.action && this.$router.currentRoute.query.action == 'loadwork'){
+          //     url = url.replace('.jsonld','.rdf')
+          //   }
+          //   if (this.$router.currentRoute && this.$router.currentRoute.query && this.$router.currentRoute.query.action && this.$router.currentRoute.query.action == 'loadibc'){
+          //     url = url.replace('.jsonld','.xml')
+          //   }
+          //   this.instanceEditorLink = url
+          //   this.testInstance()
+          //   window.clearInterval(inerval)
+          // }
+        },500)
 
       
     }
