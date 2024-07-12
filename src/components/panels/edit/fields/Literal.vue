@@ -34,6 +34,7 @@
   <template v-else>
 
     <div class="lookup-fake-input" >
+
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues">
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
         <div class="literal-field">
@@ -60,6 +61,7 @@
                     @keyup="navKey"         
                     :ref="'input_' + lValue['@guid']"
                     :data-guid="lValue['@guid']"
+                    :disabled="readOnly"
                     ></textarea>
 
 
@@ -81,6 +83,7 @@
                 @keyup="navKey"           
                 :ref="'input_' + lValue['@guid']"
                 :data-guid="lValue['@guid']"
+                :disabled="readOnly"
                 ></textarea>
 
             </template>
@@ -135,7 +138,7 @@ export default {
     propertyPath: Array,
     level: Number,
     structure: Object,
-
+    readOnly: Boolean
   },
 
   methods: {

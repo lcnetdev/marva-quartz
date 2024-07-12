@@ -27,11 +27,13 @@
             <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false"> 
 
               <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+              
               <Main       
                 :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
                 :level="0"
                 :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-                :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
+                :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
+                :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"/>   
 
             </template>
 
@@ -51,12 +53,14 @@
 
                 <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
                  
-                  <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
+                  <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
 
 
 
                     <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false ">
-                      <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+                      <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
+                        <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY)</span>
+                      </div>
                     </template>
 
                     <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
@@ -67,12 +71,15 @@
                       
                     </template>
 
-                    
+
                     <Main       
                       :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
                       :level="0"
                       :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-                      :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"/>   
+                      :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
+                      :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"/>   
+
+                
 
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
                           <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />  
@@ -165,6 +172,16 @@
 
     methods: {
 
+        isReadOnly: function(component){
+
+          if (component.adminMetadataType && component.adminMetadataType == 'secondary'){
+            return true
+          }
+
+          return false
+
+        },
+
         inlineRowButtonMouseEnter: function(event){
           console.log(event)
 
@@ -230,6 +247,10 @@
 </script>
 <style scoped>
 
+
+.read-only{
+  padding-left: 2em;
+}
 .edit-panel-scroll-x-parent{
   overflow-x: scroll;
 }

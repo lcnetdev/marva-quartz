@@ -27,7 +27,8 @@
     :propertyPath="propertyPath"
     :nested="true"
     :guid="guid"
-    :inheritedStructure="thisRtTemplate.propertyTemplates[idx]"/>
+    :inheritedStructure="thisRtTemplate.propertyTemplates[idx]"
+    :readOnly="readOnly"/>
 
 
   <!-- 
@@ -179,6 +180,7 @@ export default {
     propertyPath: Array,
     level: Number,
     guid:String,
+    readOnly: Boolean
 
     // parentStructure: Array,
     // parentStructureObj: Object,

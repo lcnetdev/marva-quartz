@@ -2,7 +2,7 @@
 
 
   <div v-if="componentType != 'META'" :class="[{'component': (level == 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode'))}]" :id="`edit_${parentId}_${id}`">
-
+    
     <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} id: {{id}} -->
     <Ref
       v-if="componentType === 'REF'"
@@ -10,6 +10,7 @@
       :level="level+1"
       :structure="structure"
       :guid="guid"
+      :readOnly="readOnly"
     />
     <LookupComplex
       v-if="componentType === 'COMPLEX'"
@@ -17,6 +18,7 @@
       :level="level+1"
       :structure="structure"
       :guid="guid"
+      :readOnly="readOnly"
     />
     <LookupSimple
       v-if="componentType === 'SIMPLE'"
@@ -24,6 +26,7 @@
       :level="level+1"
       :structure="structure"
       :guid="guid"
+      :readOnly="readOnly"
     />
     <Literal
       v-if="componentType === 'LITERAL'"
@@ -31,6 +34,7 @@
       :level="level+1"
       :structure="structure"
       :guid="guid"
+      :readOnly="readOnly"
     />
 
     <!-- {{structure}} -->
@@ -340,6 +344,7 @@ export default {
     nested: Boolean,
     id: String,
     parentId: String,
+    readOnly: Boolean,
 
     // structure: Object,
     // parentStructure: Array,
