@@ -1537,15 +1537,30 @@ export const useProfileStore = defineStore('profile', {
     */    
     returnSimpleLookupValueFromProfile: function(componentGuid, propertyPath){
 
-
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
-
-
+      
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
-      let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
+      // let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
+
+      if (!valueLocation){
+        // if we did not find it at that level then try removing any issues inthe property path
+        propertyPath = propertyPath.filter((v)=> { 
+          // remove any classnames
+          // like http://id.loc.gov/ontologies/bibframe/PlaybackCharacteristic
+          if (!v.propertyURI.match(/http:\/\/id\.loc\.gov\/ontologies\/bibframe\/[A-Z][a-z]+/)){
+            return true
+          }else{
+            return false
+          }
+        })
+        if (propertyPath.length>0){
+          valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
+        }
+      }
+
       if (valueLocation){
 
         let values = []
