@@ -1275,11 +1275,36 @@ export const useProfileStore = defineStore('profile', {
               // check the parent if there are only two keys this is a top level 
               // simple lookup, blank out the non-root key and that should clear this value
               if (Object.keys(pt.userValue).length==2){
+
+                // if they have a @type keep it around for later so it remains that type when the clear the value
+                // so they dont need to change interface back to that reference component
+                let oldType = null
+                let oldTypeParent = null
+
+                for (let k in pt.userValue){
+                 if (pt.userValue[k] && pt.userValue[k][0] && pt.userValue[k][0]['@type']){
+                  oldType = pt.userValue[k][0]['@type']
+                  oldTypeParent = k
+                 }                  
+                }
+                console.log("oldType",oldType)
                 for (let k in pt.userValue){
                   if (k != '@root'){
+                    console.log("Deleting",k)
                     delete pt.userValue[k]
                   }
                 }
+
+                // set the old type back so it doesn't change the reference select in the user interface
+                if (oldType && oldTypeParent){
+                  pt.userValue[oldTypeParent] = [
+                    {
+                      '@type': oldType
+                    }
+                  ]
+
+                }
+
               }
   
               // // not an array just remove the values
