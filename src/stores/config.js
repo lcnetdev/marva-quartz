@@ -41,7 +41,8 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter: 'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
-        bfdb : 'https://preprod-8210.id.loc.gov/',
+        // bfdb : 'https://preprod-8210.id.loc.gov/',
+        bfdb : 'https://preprod-8230.id.loc.gov/',
         profiles : '/bfe2/util/profiles/profile/stage',
         // profiles: 'https://preprod-3001.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
         starting : '/bfe2/util/profiles/starting/stage',
@@ -190,10 +191,10 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2016627557',label:"Wallflower", idUrl:'https://id.loc.gov/resources/instances/2016627557.html', profile:'Audio CD',profileId:'lc:RT:bf2:SoundRecording:Instance'},
 
     {lccn:'2023602524',label:"Bones and all", idUrl:'https://id.loc.gov/resources/instances/23150570.html', profile:'Moving Image: BluRay DVD',profileId:'lc:RT:bf2:MIBluRayDVD:Instance'},
+    {lccn:'2005264032',label:"Business week", idUrl:'https://id.loc.gov/resources/instances/11138862.html', profile:'Serial',profileId:'lc:RT:bf2:Serial:Instance'},
 
     
 
-    
 
   ],
 
