@@ -217,6 +217,9 @@ const utilsNetwork = {
       try{
         let response = await fetch(url,options);
         let data = null
+        if (response.status == 404){
+          return false
+        }
 
         if (url.includes('.rdf') || url.includes('.xml')){
           data =  await response.text()
@@ -2168,6 +2171,8 @@ const utilsNetwork = {
       return []
 
   },
+
+  
   /**
   * Send the record 
   * @async

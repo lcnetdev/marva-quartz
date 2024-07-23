@@ -400,6 +400,11 @@
         if (this.urlToLoad.trim() !== ''){
 
           let xml = await utilsNetwork.fetchBfdbXML(this.urlToLoad)
+          if (!xml){
+            alert("There was an error retrieving that URL. Are you sure it is correct: " + this.urlToLoad)
+            return false
+          }
+          // if (xml.indexOf('<rdf:RDF'))
           console.log(xml)
 
           // check for XML problems here ?
@@ -546,7 +551,7 @@
         }
 
       }
-      
+
       let inerval = window.setInterval(()=>{
 
           if (this.$route && this.$route.query && this.$route.query.url){
