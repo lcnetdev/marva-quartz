@@ -215,11 +215,11 @@ const utilsProfile = {
   * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
   * @return {array} - will return an array with the pt as 0 and the new @guid of the blanknode as 1
   */    
-  buildBlanknode: async function(pt,propertyPath){
+  buildBlanknode: function(pt,propertyPath){
       
       // link to the base userValue
       let pointer = pt.userValue
-
+      console.log(propertyPath.length)
       for (let p of propertyPath){
 
         // the property path has two parts 
@@ -233,27 +233,6 @@ const utilsProfile = {
             // always create a guid for it
             '@guid' : short.generate()
           }]
-
-          // we may or maynot need to create a @type for this level, depending on what type of property it is,
-          // so test first the property info in the profile
-          let type = utilsRDF.suggestTypeProfile(p,pt)
-          if (type === false){
-            // did not find it in the profile, look to the network
-            type = await utilsRDF.suggestTypeNetwork(p)
-
-          } 
-
-          if (type !== false){
-            // first we test to see if the type is a literal, if so then we 
-            // don't need to set the type, as its not a blank node, just a nested property
-            if (utilsRDF.isUriALiteral(type) === false){
-              pointer[p][0]['@type'] = type  
-            }else{
-              // nothing to do, its a literal
-            }
-          }else{
-            console.error("Could not find type for this property", p, 'of', propertyPath, 'in', pt)  
-          }
 
           // relink to the first blank node
           pointer = pointer[p][0]
@@ -273,16 +252,69 @@ const utilsProfile = {
           }
         }
 
-
-        
-
       }
       // console.log("pointer is",pointer)
       if (!pointer || !pointer['@guid']){
         console.error("There was an unknown error trying to create a blank node in", propertyPath, ' in ', pt)
       }
       
+      this.setTypesForBlankNode(pt,propertyPath)
+      console.log("Return pointer to blank node now")
       return [pt, pointer['@guid']]
+  },
+
+
+  setTypesForBlankNode: async function(pt, propertyPath){
+    let pointer = pt.userValue
+
+    for (let p of propertyPath){
+
+      p = p.propertyURI
+
+      if (pointer[p][0]){
+
+
+
+        console.log("pointer ->",pointer)
+        
+
+        // we may or maynot need to create a @type for this level, depending on what type of property it is,
+        // so test first the property info in the profile
+        let type = utilsRDF.suggestTypeProfile(p,pt)
+        if (type === false){
+          // did not find it in the profile, look to the network
+          type = await utilsRDF.suggestTypeNetwork(p)
+
+        } 
+
+        if (type !== false){
+          // first we test to see if the type is a literal, if so then we 
+          // don't need to set the type, as its not a blank node, just a nested property
+          if (utilsRDF.isUriALiteral(type) === false){
+            pointer[p][0]['@type'] = type  
+          }else{
+            // nothing to do, its a literal
+          }
+        }else{
+          console.error("Could not find type for this property", p, 'of', propertyPath, 'in', pt)  
+        }
+
+        pointer = pointer[p][0]
+
+      }else{
+        console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)  
+      }
+
+    }
+
+
+    console.log("Finished typing blank node")
+    console.log(pt)
+
+
+
+
+
   },
 
 
@@ -473,7 +505,6 @@ const utilsProfile = {
     useProfile.user = meta.user
     useProfile.status = meta.status
 
-    console.log('useProfileuseProfileuseProfileuseProfile',useProfile)
     
     let transformResults  = await utilsParse.transformRts(useProfile)
 

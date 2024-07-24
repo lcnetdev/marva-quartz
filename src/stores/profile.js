@@ -1352,7 +1352,7 @@ export const useProfileStore = defineStore('profile', {
     * @param {string} lang - the ISO rdf language value like 'en' to append to the literal 'xxxxx@en'
     * @return {void}
     */    
-    setValueLiteral: async function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){  
+    setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){  
       let lastProperty = propertyPath.at(-1).propertyURI 
       // locate the correct pt to work on in the activeProfile
       let pt
@@ -1387,15 +1387,15 @@ export const useProfileStore = defineStore('profile', {
           if (currentValueCount === 0){
 
             // this is the first value, we need to construct the hierarchy to the bnode
-            buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
+            buildBlankNodeResult = utilsProfile.buildBlanknode(pt,propertyPath, true)
           
-            console.log("buildBlankNodeResult",JSON.stringify(buildBlankNodeResult,null,2))
+            // console.log("buildBlankNodeResult",JSON.stringify(buildBlankNodeResult,null,2))
             pt = buildBlankNodeResult[0]
 
             // now we can make a link to the parent of where the literal value should live
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
             
-            console.log("blankNode",JSON.stringify(blankNode,null,2))
+            // console.log("blankNode",JSON.stringify(blankNode,null,2))
             // this is a new node, so we want to overwrite the guid created in the build process
             // with the one that was already created in the userinterface
             blankNode['@guid'] = fieldGuid 
@@ -1436,7 +1436,7 @@ export const useProfileStore = defineStore('profile', {
 
           }
 
-          console.log("currentValueCount",currentValueCount)
+          // console.log("currentValueCount",currentValueCount)
 
 
 
@@ -1456,7 +1456,7 @@ export const useProfileStore = defineStore('profile', {
 
           let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
 
-          console.log('PARENT is',parent)
+          // console.log('PARENT is',parent)
           if (parent && parent[lastProperty]){
             let keep = []
 
