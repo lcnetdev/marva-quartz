@@ -2031,6 +2031,25 @@ export const useProfileStore = defineStore('profile', {
                     ]
                 }
                 break 
+              }else if  (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/names') >-1){
+
+                if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
+
+                  currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] =  [
+                    {
+                            "@guid": short.generate(),
+                            "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                            "@id": "http://id.loc.gov/vocabulary/subjectSchemes/naf",
+                            "http://www.w3.org/2000/01/rdf-schema#label": [
+                                {
+                                    "@guid": short.generate(),
+                                    "http://www.w3.org/2000/01/rdf-schema#label": "NACO authority file"
+                                }
+                            ]
+                        }
+                    ]
+                }
+                break 
               }
             }
 
