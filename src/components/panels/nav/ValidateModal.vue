@@ -20,11 +20,8 @@
         height: 0,
         top: 100,
         left: 0,
-
-        postResults: {},
+        validationResults: {},
         validating: false,
-
-
         initalHeight: 400,
         initalLeft: (window.innerWidth /2 ) - 450,
 
@@ -58,7 +55,18 @@
 
 
         post: async function(){
+          console.log("** validating **")
+          const config = useConfigStore()
 
+          this.$refs.errorHolder.style.height = this.initalHeight + 'px'
+          this.validating = true
+          console.log("Validating: ", this.validating)
+          this.validationResults = {}
+          this.validationResults = await this.profileStore.validateRecord()
+
+          this.validating = false
+          console.log("Validating: ", this.validating)
+          console.log(this.validationResults)
         },
 
         onSelectElement (event) {
@@ -69,7 +77,7 @@
         },
 
         copyErrorToClipboard: function(){
-          var text = this.cleanUpErrorResponse(this.postResults.msg)
+          var text = this.cleanUpErrorResponse(this.validationResults.msg)
           navigator.clipboard.writeText(text).then(function() {
             console.log('Async: Copying to clipboard was successful!');
           }, function(err) {
@@ -88,11 +96,7 @@
         },
     },
 
-    mounted() {
-
-
-
-    }
+    mounted() {}
   }
 
 
@@ -121,17 +125,16 @@
           :stickSize="22"
         >
           <div id="error-holder" ref="errorHolder" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
+            <h1 v-if="validating == true">Validating please wait...</h1>
 
-            <h1 v-if="validating">Validating please wait...</h1>
+            <div v-if="validating == false && Object.keys(validationResults).length != 0">
+              The record was validated:
+            </div>
 
             <button @click="done">Close</button>
           </div>
         </VueDragResize>
     </VueFinalModal>
-
-
-
-
 </template>
 
 <style scoped>

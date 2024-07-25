@@ -20,7 +20,7 @@ const utilsNetwork = {
 
     /**
     * processes the data returned from id vocabularies
-    * 
+    *
     * @async
     * @param {array} uris - the id vocabulary to query
     * @return {object} - returns the results processing
@@ -41,8 +41,8 @@ const utilsNetwork = {
           if (!this.lookupLibrary[uri]){
               let data = await this.fetchSimpleLookup(url)
               data = this.simpleLookupProcess(data,uri)
-              this.lookupLibrary[uri] = data          
-              return data 
+              this.lookupLibrary[uri] = data
+              return data
           }else{
               return this.lookupLibrary[uri]
           }
@@ -53,7 +53,7 @@ const utilsNetwork = {
 
     /**
     * processes the data returned
-    * 
+    *
     * @async
     * @param {array} data - the results from the vocabulary data endpoint
     * @param {boolean} parentURI - the URI to look for in extacting the values
@@ -71,10 +71,10 @@ const utilsNetwork = {
             }
 
         }
-        
+
         if (Array.isArray(data)){
             // basic ID simple Lookup response
-            // assume anything in this array is a possible value except 
+            // assume anything in this array is a possible value except
             // something that has the parent URI
 
             data.forEach((d)=>{
@@ -100,13 +100,13 @@ const utilsNetwork = {
 
                                 metadata.label.push(l.trim())
                                 metadata.code.push(d['@id'].split('/').pop())
-                                
-                            })                          
+
+                            })
                             labelData = metadata
                             label = labelWithCode
                         }
                     })
-                }else if (d['http://id.loc.gov/ontologies/RecordInfo#recordStatus']){ 
+                }else if (d['http://id.loc.gov/ontologies/RecordInfo#recordStatus']){
                     // this is just a record info blank node, skip it
                     return false
                 }else{
@@ -137,7 +137,7 @@ const utilsNetwork = {
 
     /**
     * Does a suggest2 lookup against ID provided the vocabulary to look into
-    * 
+    *
     * @async
     * @param {string} uris - the uri(s) to the ID vocabulary to search
     * @param {boolean} keyword - the query term
@@ -173,7 +173,7 @@ const utilsNetwork = {
 
         }
 
-        
+
         if (r.hits && r.hits.length>0){
           for (let hit of r.hits){
             results.metadata.values[hit.uri] = {uri:hit.uri, label: [hit.suggestLabel], authLabel:hit.aLabel, code: [], displayLabel: [hit.suggestLabel] }
@@ -189,10 +189,10 @@ const utilsNetwork = {
       return results
     },
 
-  
+
     /**
     * The lower level function used by a lot of other fuctions to make fetch calls to pull in data
-    * 
+    *
     * fetches the profile data from supplied URL or from the config URL if empty
     * @async
     * @param {string} url - the URL to ask for, if left blank it just pulls in the profiles
@@ -210,7 +210,7 @@ const utilsNetwork = {
 
       let options = {}
       if (json){
-        options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors"}        
+        options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors"}
       }
       // console.log("url:",url)
       // console.log('options:',options)
@@ -239,7 +239,7 @@ const utilsNetwork = {
     // returns the literal value based on the jsonld structure
     returnValue: function(input){
         let value = []
-        if (Array.isArray(input)){ 
+        if (Array.isArray(input)){
             input.forEach((v)=>{
                 if (typeof v === 'object'){
                     if (v['@value']){
@@ -264,7 +264,7 @@ const utilsNetwork = {
     * @typedef {searchPayload} searchPayload
     * @property {string} processor - flag to tell how to process the results, can be "lcAuthorities" or "wikidataAPI"
     * @property {string} searchValue - the search value being searched for
-    * @property {array} url - array of urls to use 
+    * @property {array} url - array of urls to use
     */
 
     /**
@@ -298,9 +298,9 @@ const utilsNetwork = {
             urlTemplate=[urlTemplate]
         }
 
-        
+
         // if we're in lc authortities mode then check if we are doing a keyword search
-        // searchtype=keyword 
+        // searchtype=keyword
 
         if (searchPayload.processor == 'lcAuthorities'){
           for (let idx in urlTemplate){
@@ -309,9 +309,9 @@ const utilsNetwork = {
               urlTemplate[idx] = urlTemplate[idx].replace('q=?','q=')+'&searchtype=keyword'
             }
           }
-          
+
         }
-        
+
 
         let results = []
         for (let url of urlTemplate) {
@@ -326,7 +326,7 @@ const utilsNetwork = {
             }
 
 
-            url = url + "&blastdacache=" + Date.now() 
+            url = url + "&blastdacache=" + Date.now()
 
             // don't allow a ? in the keyword if it is already marked as keyword search
             if (url.includes('searchtype=keyword') && url.includes('q=?')){
@@ -342,7 +342,7 @@ const utilsNetwork = {
                 for (let hit of r.hits){
 
 
-                  let hitAdd = { 
+                  let hitAdd = {
                     label: hit.aLabel,
                     vlabel: hit.vLabel,
                     suggestLabel: hit.suggestLabel,
@@ -387,8 +387,8 @@ const utilsNetwork = {
                     uri: hit.concepturi,
                     literal:false,
                     extra: ''
-                  })       
-                }     
+                  })
+                }
             }
 
         }
@@ -402,7 +402,7 @@ const utilsNetwork = {
             uri: null,
             literal:true,
             extra: ''
-          }) 
+          })
         }
 
         // console.log(results,"<results")
@@ -414,7 +414,7 @@ const utilsNetwork = {
 
 
     /**
-    * What is returned from the context request 
+    * What is returned from the context request
     * @typedef {contextResult} contextResult
     * @property {boolean} contextValue - xxxxxxxxx
     * @property {array} source - xxxxxxxxx
@@ -431,8 +431,8 @@ const utilsNetwork = {
     */
 
     /**
-    * Kicks off the main process to return details about a URI, this is used in the 
-    * complex lookup modal 
+    * Kicks off the main process to return details about a URI, this is used in the
+    * complex lookup modal
     * @param {string} uri - The URI to use, probably a id.loc.gov link
     * @return {array} - An array of {@link contextResult} results
     */
@@ -446,9 +446,9 @@ const utilsNetwork = {
         if (uri.includes('resources/works/') || uri.includes('resources/hubs/')){
           results = await this.extractContextDataWorksHubs(d)
         }else{
-          results =  this.extractContextData(d)  
+          results =  this.extractContextData(d)
         }
-        
+
         return results
 
     },
@@ -474,9 +474,9 @@ const utilsNetwork = {
 
             jsonuri = uri + '.bibframe.json';
 
-          }else if (uri.includes('http://www.wikidata.org/entity/')){ 
+          }else if (uri.includes('http://www.wikidata.org/entity/')){
             jsonuri = uri.replace('http://www.wikidata.org/entity/','https://www.wikidata.org/wiki/Special:EntityData/')
-            jsonuri = jsonuri + '.json';            
+            jsonuri = jsonuri + '.json';
           } else {
             jsonuri = uri + '.jsonld';
           }
@@ -487,7 +487,7 @@ const utilsNetwork = {
           if (returnUrls.env == 'production' || returnUrls.env == 'staging'){
             jsonuri = jsonuri.replace('http://id.', 'https://preprod-8080.id.')
             jsonuri = jsonuri.replace('https://id.', 'https://preprod-8080.id.')
-            
+
           }
 
 
@@ -524,16 +524,16 @@ const utilsNetwork = {
           }
 
 
-    },   
+    },
 
 
     /**
-    * Extract data from the data for hubs     
+    * Extract data from the data for hubs
     * @param {object} data - The URI to use, probably a id.loc.gov link
     * @return {array} - An array of {@link contextResult} results
     */
     extractContextDataWorksHubs: async function(data){
-      
+
       let returnUrls = useConfigStore().returnUrls
 
 
@@ -547,7 +547,7 @@ const utilsNetwork = {
         results.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
       }
 
-      
+
 
 
       // let nodeLookup = {}
@@ -565,11 +565,11 @@ const utilsNetwork = {
 
         if (val['@id']){
 
-          
+
 
           if (val['@id'] == data.uri){
             // this is the main graph
-            
+
             for (let k in val){
               //find the title
               if (k == 'http://www.w3.org/2000/01/rdf-schema#label'){
@@ -580,11 +580,11 @@ const utilsNetwork = {
                 results.aap = val[k][0]['@value']
               }
 
-              
+
 
               if (k == 'http://id.loc.gov/ontologies/bibframe/hasInstance'){
 
-                
+
                 let counter = 1
                 for (let i of val['http://id.loc.gov/ontologies/bibframe/hasInstance']){
 
@@ -629,20 +629,20 @@ const utilsNetwork = {
                   let instanceText = ""
                   for (let line of text.split('\n')){
 
-                    
+
                     if (line.includes(`<${i["@id"]}> <http://www.w3.org/2000/01/rdf-schema#label>`)){
                       let t = line.split('>')[2]
                       t= t.split('@')[0]
                       t = t.replaceAll('"','')
                       t= t.replace(' .','')
-                      instanceText = instanceText + t                      
+                      instanceText = instanceText + t
                     }
                     if (line.includes(`<${i["@id"]}> <http://id.loc.gov/ontologies/bibframe/provisionActivityStatement>`)){
                       let t = line.split('>')[2]
                       t= t.split('@')[0]
                       t = t.replaceAll('"','')
                       t= t.replace(' .','')
-                      instanceText = instanceText + t                      
+                      instanceText = instanceText + t
                     }
 
 
@@ -651,7 +651,7 @@ const utilsNetwork = {
                   instances.push(instanceText)
 
 
-                  
+
                   // https://id.loc.gov/resources/instances/18109312.nt
 
                 }
@@ -703,17 +703,17 @@ const utilsNetwork = {
     },
 
     /**
-    * Extract data from the data not hubs   
+    * Extract data from the data not hubs
     * @param {object} data - The URI to use, probably a id.loc.gov link
     * @return {array} - An array of {@link contextResult} results
     */
     extractContextData: function(data){
           var results = { contextValue: true, source: [], type: null, typeFull: null, variant : [], uri: data.uri, title: null, contributor:[], date:null, genreForm: null, nodeMap:{}};
-          
+
 
           if (data.uri.includes('wikidata.org')){
 
-            
+
             if (data.entities){
               let qid = Object.keys(data.entities)[0]
 
@@ -736,18 +736,18 @@ const utilsNetwork = {
               // just hardcode it for now
               results.type = 'http://www.loc.gov/mads/rdf/v1#PersonalName'
               results.typeFull = 'http://www.loc.gov/mads/rdf/v1#PersonalName'
-              
+
               // get the P31 instanceOf
               if (data.entities[qid].claims.P31){
 
 
                 if (data.entities[qid].claims.P31[0].mainsnak){
                   if (data.entities[qid].claims.P31[0].mainsnak.datavalue){
-                    if (data.entities[qid].claims.P31[0].mainsnak.datavalue.value){                      
-                      
+                    if (data.entities[qid].claims.P31[0].mainsnak.datavalue.value){
+
                       results.type = this.rdfType(data.entities[qid].claims.P31[0].mainsnak.datavalue.value.id)
-                    } 
-                  }                  
+                    }
+                  }
                 }
               }
 
@@ -755,8 +755,8 @@ const utilsNetwork = {
 
 
 
-              
-              
+
+
             }
 
 
@@ -773,11 +773,11 @@ const utilsNetwork = {
             for (let g of data){
 
               if (g && g['@id'] && (g['@id'].endsWith(`/works/${uriIdPart}`) || g['@id'].endsWith(`/instances/${uriIdPart}`) || g['@id'].endsWith(`/hubs/${uriIdPart}`)) ){
-                
+
 
                 if (
-                  (g['@id'].endsWith(`/works/${uriIdPart}`) && data.uri.includes('id.loc.gov/resources/works/')) || 
-                  (g['@id'].endsWith(`/instances/${uriIdPart}`) && data.uri.includes('id.loc.gov/resources/instances/')) || 
+                  (g['@id'].endsWith(`/works/${uriIdPart}`) && data.uri.includes('id.loc.gov/resources/works/')) ||
+                  (g['@id'].endsWith(`/instances/${uriIdPart}`) && data.uri.includes('id.loc.gov/resources/instances/')) ||
                   (g['@id'].endsWith(`/hubs/${uriIdPart}`) && data.uri.includes('id.loc.gov/resources/hubs/'))
                   ){
 
@@ -790,15 +790,15 @@ const utilsNetwork = {
 
                   }
 
-                  
+
 
                   if (g['@type'] && g['@type'][0]){
                     results.type = this.rdfType(g['@type'][0])
                     results.typeFull = g['@type'][0]
                   }
 
-                    
-                  
+
+
 
                 }
 
@@ -824,50 +824,50 @@ const utilsNetwork = {
 
 
             var nodeMap = {};
-            
+
             data.forEach(function(n){
               if (n['http://www.loc.gov/mads/rdf/v1#birthDate']){
                 nodeMap['Birth Date'] = n['http://www.loc.gov/mads/rdf/v1#birthDate'].map(function(d){ return d['@value']})
-              }        
+              }
               if (n['http://www.loc.gov/mads/rdf/v1#birthPlace']){
                 nodeMap['Birth Place'] = n['http://www.loc.gov/mads/rdf/v1#birthPlace'].map(function(d){ return d['@id']})
-              }  
+              }
 
               if (n['http://www.loc.gov/mads/rdf/v1#associatedLocale']){
                 nodeMap['Associated Locale'] = n['http://www.loc.gov/mads/rdf/v1#associatedLocale'].map(function(d){ return d['@id']})
-              } 
+              }
               if (n['http://www.loc.gov/mads/rdf/v1#fieldOfActivity']){
                 nodeMap['Field of Activity'] = n['http://www.loc.gov/mads/rdf/v1#fieldOfActivity'].map(function(d){ return d['@id']})
-              } 
+              }
               if (n['http://www.loc.gov/mads/rdf/v1#gender']){
                 nodeMap['Gender'] = n['http://www.loc.gov/mads/rdf/v1#gender'].map(function(d){ return d['@id']})
-              } 
+              }
               if (n['http://www.loc.gov/mads/rdf/v1#occupation']){
                 nodeMap['Occupation'] = n['http://www.loc.gov/mads/rdf/v1#occupation'].map(function(d){ return d['@id']})
-              } 
+              }
               if (n['http://www.loc.gov/mads/rdf/v1#associatedLanguage']){
                 nodeMap['Associated Language'] = n['http://www.loc.gov/mads/rdf/v1#associatedLanguage'].map(function(d){ return d['@id']})
-              } 
+              }
               if (n['http://www.loc.gov/mads/rdf/v1#deathDate']){
                 nodeMap['Death Date'] = n['http://www.loc.gov/mads/rdf/v1#deathDate'].map(function(d){ return d['@value']})
-              } 
+              }
               if (n['http://www.loc.gov/mads/rdf/v1#hasBroaderAuthority']){
                 nodeMap['Has Broader Authority'] = n['http://www.loc.gov/mads/rdf/v1#hasBroaderAuthority'].map(function(d){ return d['@id']})
-              } 
+              }
               if (n['http://www.loc.gov/mads/rdf/v1#hasNarrowerAuthority']){
                 nodeMap['Has Narrower Authority'] = n['http://www.loc.gov/mads/rdf/v1#hasNarrowerAuthority'].map(function(d){ return d['@id']})
-              } 
+              }
               if (n['http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection']){
                 nodeMap['MADS Collection'] = n['http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection'].map(function(d){ return d['@id']})
-              } 
-              
+              }
+
               if (n['http://www.loc.gov/mads/rdf/v1#code'] && n['http://www.loc.gov/mads/rdf/v1#code'][0]['@type'] == 'http://id.loc.gov/datatypes/codes/gac') {
-                nodeMap['GAC(s)'] = n['http://www.loc.gov/mads/rdf/v1#code'].map(function(d){ 
-                        if (d['@type'] == 'http://id.loc.gov/datatypes/codes/gac') { 
-                            return d['@value'] 
+                nodeMap['GAC(s)'] = n['http://www.loc.gov/mads/rdf/v1#code'].map(function(d){
+                        if (d['@type'] == 'http://id.loc.gov/datatypes/codes/gac') {
+                            return d['@value']
                         }
                     })
-              } 
+              }
 
 
               if ( n['@type'].includes('http://id.loc.gov/ontologies/lcc#ClassNumber') !== false ){
@@ -889,7 +889,7 @@ const utilsNetwork = {
               if (n['http://www.loc.gov/mads/rdf/v1#classification']){
                 nodeMap['Classification'] = n['http://www.loc.gov/mads/rdf/v1#classification'].map(function(d){ return d['@value']})
                 nodeMap['Classification'] = nodeMap['Classification'].filter((v)=>{(v)})
-              } 
+              }
 
 
 
@@ -912,27 +912,27 @@ const utilsNetwork = {
                   }else if (k == 'Classification'){
                     if (nodeMap[k].length>0){
                       results.nodeMap[k]=nodeMap[k]
-                    }    
+                    }
                   }else if (k == 'LC Classification'){
                     if (nodeMap[k].length>0){
                       results.nodeMap[k]=nodeMap[k]
-                    }   
+                    }
 
                   } else if (k == 'GAC(s)'){
                     if (nodeMap[k].length>0){
                       results.nodeMap[k]=nodeMap[k]
-                    }   
+                    }
 
                   } else if (n['@id'] && n['@id'] == uri){
-                   
+
                     if (n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
-                      n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].forEach(function(val){ 
+                      n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].forEach(function(val){
                         if (val['@value']){
                           results.nodeMap[k].push(val['@value']);
                         }
-                      })                    
+                      })
                     }else if (n['http://www.w3.org/2000/01/rdf-schema#label']){
-                      n['http://www.w3.org/2000/01/rdf-schema#label'].forEach(function(val){ 
+                      n['http://www.w3.org/2000/01/rdf-schema#label'].forEach(function(val){
                         if (val['@value']){
                           results.nodeMap[k].push(val['@value']);
                         }
@@ -949,12 +949,12 @@ const utilsNetwork = {
                     if (results.nodeMap[k].indexOf(slug)==-1){
                       results.nodeMap[k].push(slug)
                     }
-                    
+
 
                   }
 
 
-                })        
+                })
               })
 
 
@@ -964,7 +964,7 @@ const utilsNetwork = {
 
 
             data.forEach((n)=>{
-              
+
               var citation = '';
               var variant = '';
               // var seeAlso = '';
@@ -999,14 +999,14 @@ const utilsNetwork = {
               //   seeAlso = seeAlso + n['http://www.w3.org/2000/01/rdf-schema#seeAlso'].map(function (v) { return v['@value'] + ' '; })
               // }
 
-              
-              
 
-              if (n['@id'] && n['@id'] == data.uri && n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){            
+
+
+              if (n['@id'] && n['@id'] == data.uri && n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
                 title = title + n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].map(function (v) { return v['@value'] + ' '; })
               }
 
-              if (n['@id'] && n['@id'] == data.uri && n['@type']){       
+              if (n['@id'] && n['@id'] == data.uri && n['@type']){
 
                   n['@type'].forEach((t)=>{
                       if (results.type===null){
@@ -1017,20 +1017,20 @@ const utilsNetwork = {
 
                   if (n['@type'].includes("http://www.loc.gov/mads/rdf/v1#DeprecatedAuthority")){
                     results.depreciated = true
-                  
+
                   }
-                
+
               }
-              
+
 
               citation = citation.trim()
               variant = variant.trim()
               title = title.trim()
-              
+
               if (variant != ''){ results.variant.push(variant)}
               if (citation != ''){ results.source.push(citation)}
               if (title != ''){ results.title = title }
-              
+
               if (n['@type'] && n['@type'] == 'http://id.loc.gov/ontologies/bibframe/Title'){
                 if (n['bibframe:mainTitle']){
                   results.title = n['bibframe:mainTitle']
@@ -1043,13 +1043,13 @@ const utilsNetwork = {
               }
               if (n['bibframe:creationDate'] && n['bibframe:creationDate']['@value']){
                 results.date = n['bibframe:creationDate']['@value'];
-              }       
+              }
               if (n['@type'] && n['@type'] == 'http://id.loc.gov/ontologies/bibframe/GenreForm'){
                 if (n['bibframe:mainTitle']){
                   results.genreForm = n['rdf-schema:label'];
                 }
               }
-            });    
+            });
 
 
           }
@@ -1062,7 +1062,7 @@ const utilsNetwork = {
           })
 
 
-          
+
           return results;
         },
 
@@ -1082,7 +1082,7 @@ const utilsNetwork = {
       } else if (type == 'http://www.loc.gov/mads/rdf/v1#Place' || type == 'http://id.loc.gov/ontologies/bibframe/Place' || type == 'http://www.loc.gov/mads/rdf/v1#Geographic') {
         rdftype = 'Geographic';
       } else if (type == 'http://www.loc.gov/mads/rdf/v1#Temporal'){
-        rdftype= 'Temporal'; 
+        rdftype= 'Temporal';
       } else if (type == 'http://www.loc.gov/mads/rdf/v1#Organization' || type == 'http://www.loc.gov/mads/rdf/v1#CorporateName' || type == 'http://id.loc.gov/ontologies/bibframe/Organization') {
         rdftype = 'CorporateName';
       } else if (type == 'http://www.loc.gov/mads/rdf/v1#Family' || type == 'http://id.loc.gov/ontologies/bibframe/Family') {
@@ -1115,7 +1115,7 @@ const utilsNetwork = {
 
 
 
-      
+
 
 
 
@@ -1150,15 +1150,15 @@ const utilsNetwork = {
 
 
     /**
-    * 
+    *
     * @typedef {subjectLinkModeResolveLCSHResult} subjectLinkModeResolveLCSHResult
     * @property {string} lccn - the lccn searched
     */
 
     /**
-    * 
+    *
     * @async
-    * @param {string} lcsh - the LCSH string MARC encoded 
+    * @param {string} lcsh - the LCSH string MARC encoded
     * @return {subjectLinkModeResolveLCSHResult} - A {@link subjectLinkModeResolveLCSHResult} result
     */
 
@@ -1184,13 +1184,13 @@ const utilsNetwork = {
       lcsh=lcsh.replace(/\$c/g,'').replace(/\$d/g,'').replace(/‡c/g,'').replace(/‡d/g,'').replace(/\s{2,}/g, ' ')
 
       // if it doesn't have a $a or ‡a in the start of the string add it
-      // often times copying from a system they dont include the $a 
+      // often times copying from a system they dont include the $a
       if (lcsh.substring(0,2) != '$a' && lcsh.substring(0,2) != '‡a'){
         lcsh = '$a' + lcsh
       }
-      
 
-      // check to see if there are two geographic headings in a row, if there is then 
+
+      // check to see if there are two geographic headings in a row, if there is then
       // it is likely a indirect geographic so collapse the $zABCD$zXYZ into $zABCD--XYZ
       if (lcsh.match(/[$‡]z.*([$‡]z.*)/) && lcsh.match(/[$‡]z.*([$‡]z.*)/).length === 2){
         let secondDollarZ = lcsh.match(/[$‡]z.*([$‡]z.*)/)[1]
@@ -1200,7 +1200,7 @@ const utilsNetwork = {
         }else{
           collapsedDollarZ = secondDollarZ.replace('‡z','--')
         }
-        
+
         lcsh = lcsh.replace(secondDollarZ,collapsedDollarZ)
 
       }
@@ -1228,21 +1228,21 @@ const utilsNetwork = {
           regexResults = lcsh.match(/([$‡][avxyz].*)([$‡][avxyz].*)([$‡][avxyz].*)([$‡][avxyz].*)([$‡][avxyz].*)([$‡][avxyz].*)([$‡][avxyz].*)([$‡][avxyz].*)/)
         }else{
           result.resultType = 'ERROR'
-          result.msg = 'REGEX Error: That value doesn\'t look like a valid MARC encoded LCSH string (too long? invalid format?)'        
+          result.msg = 'REGEX Error: That value doesn\'t look like a valid MARC encoded LCSH string (too long? invalid format?)'
         }
 
         try{
           regexResults = regexResults.slice(1,regexResults.length)
           for (let r of regexResults){
-            if (r.slice(0,2).toLowerCase() != '$v' && 
-                r.slice(0,2).toLowerCase() != '$a' && 
-                r.slice(0,2).toLowerCase() != '$x' && 
-                r.slice(0,2).toLowerCase() != '$y' && 
+            if (r.slice(0,2).toLowerCase() != '$v' &&
+                r.slice(0,2).toLowerCase() != '$a' &&
+                r.slice(0,2).toLowerCase() != '$x' &&
+                r.slice(0,2).toLowerCase() != '$y' &&
                 r.slice(0,2).toLowerCase() != '$z' &&
-                r.slice(0,2).toLowerCase() != '‡v' && 
-                r.slice(0,2).toLowerCase() != '‡a' && 
-                r.slice(0,2).toLowerCase() != '‡x' && 
-                r.slice(0,2).toLowerCase() != '‡y' && 
+                r.slice(0,2).toLowerCase() != '‡v' &&
+                r.slice(0,2).toLowerCase() != '‡a' &&
+                r.slice(0,2).toLowerCase() != '‡x' &&
+                r.slice(0,2).toLowerCase() != '‡y' &&
                 r.slice(0,2).toLowerCase() != '‡z'){
               // console.log(r.slice(0,2).toLowerCase())
               result.resultType = 'ERROR'
@@ -1300,7 +1300,7 @@ const utilsNetwork = {
       }
 
       // the complex heading is just xyz--abc--mnl used to see if the full heading is already authorized
-      let complexHeading = headings.map((r)=>{ return r.label }).join('--')    
+      let complexHeading = headings.map((r)=>{ return r.label }).join('--')
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexHeading).replace('&count=25','&count=5')+'&rdftype=ComplexType'
       let searchPayloadSubjectsComplex = {
         processor: 'lcAuthorities',
@@ -1312,7 +1312,7 @@ const utilsNetwork = {
 
         let foundHeading = false
         // console.log("---------------------\n",heading,"\n------------------------\n")
-        
+
         // if after the first loop looking at the piramry if it hits a full authorized complex stop looping
         if (result && result.resultType && result.resultType=='COMPLEX'){
           break
@@ -1334,8 +1334,8 @@ const utilsNetwork = {
         let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
         let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
 
-        let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')            
-        let subjectUrlHierarchicalGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+ '&rdftype=HierarchicalGeographic'         
+        let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
+        let subjectUrlHierarchicalGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+ '&rdftype=HierarchicalGeographic'
 
         let subjectUrlGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
         let subjectUrlGeographicLCNAF = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
@@ -1356,27 +1356,27 @@ const utilsNetwork = {
           processor: 'lcAuthorities',
           url: [subjectUrlSimple],
           searchValue: searchVal
-        }  
+        }
         let searchPayloadSubjectsSimpleSubdivision = {
           processor: 'lcAuthorities',
           url: [subjectUrlSimpleSubdivison],
           searchValue: searchVal
-        }  
+        }
         let searchPayloadTemporal = {
           processor: 'lcAuthorities',
           url: [subjectUrlTemporal],
           searchValue: searchVal
-        }  
+        }
 
         let searchPayloadGenre = {
           processor: 'lcAuthorities',
           url: [subjectUrlGenre],
           searchValue: searchVal
-        }  
+        }
 
 
 
-           
+
         let searchPayloadHierarchicalGeographic = {
           processor: 'lcAuthorities',
           url: [subjectUrlHierarchicalGeographic],
@@ -1443,11 +1443,11 @@ const utilsNetwork = {
               this.searchComplex(searchPayloadHierarchicalGeographic),
               this.searchComplex(searchPayloadHierarchicalGeographicLCSH),
               this.searchComplex(searchPayloadWorksAnchored),
-              this.searchComplex(searchPayloadHubsAnchored)              
+              this.searchComplex(searchPayloadHubsAnchored)
           ]);
 
           // console.log("searchPayloadSubjectsSimpleSubdivision",searchPayloadSubjectsSimpleSubdivision)
-          // console.log("resultsPayloadSubjectsSimpleSubdivision",resultsPayloadSubjectsSimpleSubdivision) 
+          // console.log("resultsPayloadSubjectsSimpleSubdivision",resultsPayloadSubjectsSimpleSubdivision)
 
 
           // take out the literal values that are automatically added
@@ -1462,13 +1462,13 @@ const utilsNetwork = {
           resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
 
           // console.log("Yeeth")
-          // console.log("resultsNames",resultsNames) 
-          // console.log("resultsSubjectsSimple",resultsSubjectsSimple) 
-          // console.log("resultsPayloadSubjectsSimpleSubdivision",resultsPayloadSubjectsSimpleSubdivision) 
-          // console.log("resultsSubjectsComplex",resultsSubjectsComplex) 
-          // console.log("resultsHierarchicalGeographic",resultsHierarchicalGeographic) 
-          // console.log("resultsWorksAnchored",resultsWorksAnchored) 
-          // console.log("resultsHubsAnchored",resultsHubsAnchored) 
+          // console.log("resultsNames",resultsNames)
+          // console.log("resultsSubjectsSimple",resultsSubjectsSimple)
+          // console.log("resultsPayloadSubjectsSimpleSubdivision",resultsPayloadSubjectsSimpleSubdivision)
+          // console.log("resultsSubjectsComplex",resultsSubjectsComplex)
+          // console.log("resultsHierarchicalGeographic",resultsHierarchicalGeographic)
+          // console.log("resultsWorksAnchored",resultsWorksAnchored)
+          // console.log("resultsHubsAnchored",resultsHubsAnchored)
 
           // first see if we matched the whole thing
           // console.log("resultsSubjectsComplex",resultsSubjectsComplex)
@@ -1488,7 +1488,7 @@ const utilsNetwork = {
             if (foundHeading){ break }
           }
 
-          
+
           // // if not see if we matched a LCNAF for the first part
           // if (resultsNames.length>0){
           //   for (let r of resultsNames){
@@ -1504,11 +1504,11 @@ const utilsNetwork = {
           // remove any sub divisions from the main one
           let subdivisionUris = resultsPayloadSubjectsSimpleSubdivision.map(  (r) => { return r.uri } )
           resultsSubjectsSimple = resultsSubjectsSimple.filter((r) => { return subdivisionUris.indexOf(r.uri) } )
-          
+
           // do the same for names
           subdivisionUris = resultsNamesSubdivision.map(  (r) => { return r.uri } )
           resultsNames = resultsNames.filter((r) => { return subdivisionUris.indexOf(r.uri) } )
-          
+
           // console.log("resultsSubjectsSimple",resultsSubjectsSimple)
 
           // if not see if we matched a simple subject that is not a subdivison
@@ -1519,7 +1519,7 @@ const utilsNetwork = {
                 result.resultType = 'PRECOORD-LCSH'
                 if (!result.hit){ result.hit = [] }
                 r.heading = heading
-                result.hit.push(r)                
+                result.hit.push(r)
                 foundHeading = true
                 break
               }
@@ -1534,7 +1534,7 @@ const utilsNetwork = {
               if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                 result.resultType = 'PRECOORD-NAF'
                 if (!result.hit){ result.hit = [] }
-                r.heading = heading                
+                r.heading = heading
                 result.hit.push(r)
                 foundHeading = true
                 break
@@ -1550,7 +1550,7 @@ const utilsNetwork = {
               if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                 result.resultType = 'PRECOORD-WORK'
                 if (!result.hit){ result.hit = [] }
-                r.heading = heading              
+                r.heading = heading
                 result.hit.push(r)
                 foundHeading = true
                 break
@@ -1566,7 +1566,7 @@ const utilsNetwork = {
               if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                 result.resultType = 'PRECOORD-HUB'
                 if (!result.hit){ result.hit = [] }
-                r.heading = heading              
+                r.heading = heading
                 result.hit.push(r)
                 foundHeading = true
                 break
@@ -1594,11 +1594,11 @@ const utilsNetwork = {
         }else{ // is not primary
 
 
-          // since it is not the primary it is going to be a subdivision 
+          // since it is not the primary it is going to be a subdivision
           // and we have some options that cannot happen like names/works/hubs
           // next we narrow it down furtrher to the type of subdivision
-          // 
-          // 
+          //
+          //
 
           if (heading.type === 'z'){ // geographic
 
@@ -1608,7 +1608,7 @@ const utilsNetwork = {
                 this.searchComplex(searchPayloadHierarchicalGeographicLCSH),
                 this.searchComplex(searchPayloadGeographicLCNAF),
                 this.searchComplex(searchPayloadGeographicLCSH)
-                
+
             ]);
 
             resultsHierarchicalGeographic = resultsHierarchicalGeographic.filter((r)=>{ return (!r.literal) })
@@ -1622,7 +1622,7 @@ const utilsNetwork = {
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
                   result.hit.push(r)
-                  
+
                   foundHeading = true
                 }
               }
@@ -1634,7 +1634,7 @@ const utilsNetwork = {
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
                   result.hit.push(r)
-                  
+
                   foundHeading = true
                 }
               }
@@ -1649,7 +1649,7 @@ const utilsNetwork = {
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
                   result.hit.push(r)
-                                    
+
 
                   foundHeading = true
                 }
@@ -1662,7 +1662,7 @@ const utilsNetwork = {
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
                   result.hit.push(r)
-                                    
+
 
                   foundHeading = true
                 }
@@ -1687,7 +1687,7 @@ const utilsNetwork = {
           } else if (heading.type === 'x' || heading.type === 'a'){ // general topical subdivision
 
             [resultsPayloadSubjectsSimpleSubdivision] = await Promise.all([
-                this.searchComplex(searchPayloadSubjectsSimpleSubdivision)            
+                this.searchComplex(searchPayloadSubjectsSimpleSubdivision)
             ]);
 
             // take out the literal values that are automatically added
@@ -1698,7 +1698,7 @@ const utilsNetwork = {
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
                   result.hit.push(r)
-                                    
+
 
                   foundHeading = true
                 }
@@ -1724,7 +1724,7 @@ const utilsNetwork = {
           } else if (heading.type === 'y'){ // Temporal
 
             [resultsPayloadSubjectsTemporal] = await Promise.all([
-                this.searchComplex(searchPayloadTemporal)            
+                this.searchComplex(searchPayloadTemporal)
             ]);
 
             // take out the literal values that are automatically added
@@ -1735,7 +1735,7 @@ const utilsNetwork = {
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
                   result.hit.push(r)
-                                    
+
 
                   foundHeading = true
                 }
@@ -1761,7 +1761,7 @@ const utilsNetwork = {
           } else if (heading.type === 'v'){ // Genre
 
             [resultsGenre] = await Promise.all([
-                this.searchComplex(searchPayloadGenre)            
+                this.searchComplex(searchPayloadGenre)
             ]);
 
             // take out the literal values that are automatically added
@@ -1772,7 +1772,7 @@ const utilsNetwork = {
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
                   result.hit.push(r)
-                                    
+
 
                   foundHeading = true
                 }
@@ -1800,10 +1800,10 @@ const utilsNetwork = {
       }
 
 
-      // we want to double check the rdfType heading to make sure if we need to ask id to get more clarity about the rdfType  
+      // we want to double check the rdfType heading to make sure if we need to ask id to get more clarity about the rdfType
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
-        for (let r of result.hit){      
+        for (let r of result.hit){
           if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/')){
             let responseUri = await this.returnRDFType(r.uri)
             if (responseUri){
@@ -1814,7 +1814,7 @@ const utilsNetwork = {
       }
       // console.log("result",result)
       return result
-    },    
+    },
 
     /**
     * Send the URI it returns the URI to the MADS RDF type, mostly used for authoirties/names uris from id.loc.gov
@@ -1860,7 +1860,7 @@ const utilsNetwork = {
 
                 // for now we are looking for spefic mads types
                 if (type == 'http://www.loc.gov/mads/rdf/v1#Temporal'){ return 'http://www.loc.gov/mads/rdf/v1#Temporal'}
-                else if(type == 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){ return 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'}  
+                else if(type == 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){ return 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'}
                 else if(type == 'http://www.loc.gov/mads/rdf/v1#ConferenceName'){ return 'http://www.loc.gov/mads/rdf/v1#ConferenceName'}
                 else if(type == 'http://www.loc.gov/mads/rdf/v1#CorporateName'){ return 'http://www.loc.gov/mads/rdf/v1#CorporateName'}
                 else if(type == 'http://www.loc.gov/mads/rdf/v1#FamilyName'){ return 'http://www.loc.gov/mads/rdf/v1#FamilyName'}
@@ -1887,15 +1887,15 @@ const utilsNetwork = {
 
 
     /**
-    * 
+    *
     * @async
     * @param {string} searchVal - the value to search lcsh for
     * @param {string} complexVal - The orginal full string
     * @param {string} mode - the search mode LCSHNAF GEO WORKS HUBS
-    * @return {} - 
+    * @return {} -
     */
     subjectSearch: async function(searchVal,complexVal,mode){
-      
+
       console.log(useConfigStore().lookupConfig)
 
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4')
@@ -1966,7 +1966,7 @@ const utilsNetwork = {
         url: [hubsUrlAnchored],
         searchValue: searchVal
       }
-      
+
       let searchPayloadHubsKeyword = {
         processor: 'lcAuthorities',
         url: [hubsUrlKeyword],
@@ -2082,20 +2082,20 @@ const utilsNetwork = {
     * @async
     * @param {string} xml - the XML from the export process
     * @param {string} eId - the editor id
-    * @return {void} - 
+    * @return {void} -
     */
 
     saveRecord: async function(xml, eId){
       const putMethod = {
         method: 'PUT', // Method itself
         headers: {
-          'Content-type': 'application/xml', // Indicates the content 
+          'Content-type': 'application/xml', // Indicates the content
         },
         body: xml // We send data in JSON format
       }
       console.log(putMethod)
       let url = useConfigStore().returnUrls.ldpjs +'ldp/' + eId
-      
+
       await fetch(url, putMethod)
       .then(response => console.log(response.text))
       .then((responseText)=>{
@@ -2107,34 +2107,34 @@ const utilsNetwork = {
        alert("Error: Could not save the record!", err)
       }) // Do something with the error
      },
- 
+
     /**
     * Retrive the UNPOSTED record from the back end
     * @async
     * @param {string} xml - the XML from the export process
     * @param {string} eId - the editor id
-    * @return {void} - 
+    * @return {void} -
     */
     loadSavedRecord: async function(id) {
-      
+
        let url = useConfigStore().returnUrls.ldpjs +'ldp/' + id
 
        // let options = {}
        // if (json){
-       //   options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors"}        
+       //   options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors"}
        // }
        // console.log('options:',options)
        try{
          let response = await fetch(url);
- 
+
          let data =  await response.text()
-         
+
          return  data;
- 
+
        }catch(err){
          //alert("There was an error retriving the record from:",url)
          console.error(err);
- 
+
          // Handle errors here
        }
      },
@@ -2163,7 +2163,7 @@ const utilsNetwork = {
         rSorted.sort(function(a, b) {
             return b.timestamp - a.timestamp ;
         });
-        
+
         return rSorted
 
       }
@@ -2172,9 +2172,31 @@ const utilsNetwork = {
 
   },
 
-  
   /**
-  * Send the record 
+   * Validate a record
+   */
+  validate: async function(xml){
+    let url = useConfigStore().returnUrls.validate
+
+    console.log("Send: ", xml)
+    console.log("Sending to : ", url)
+
+
+    const rawResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({rdfxml: xml})
+    });
+    const content = await rawResponse.json();
+
+    return content
+  },
+
+  /**
+  * Send the record
   * @async
   * @param {string} xml - The xml string
   * @param {string} eid - the e12345678 number
@@ -2220,7 +2242,7 @@ const utilsNetwork = {
       // alert("Did not post, please report this error--" + JSON.stringify(content.publish,null,2))
       return {status:false, msg: JSON.stringify(content.publish,null,2)}
     }
-  },        
+  },
 
 
   /**
@@ -2245,8 +2267,8 @@ const utilsNetwork = {
     const content = await rawResponse.json();
 
     return content
-    
-  },        
+
+  },
 
 
     /**
@@ -2323,7 +2345,7 @@ const utilsNetwork = {
           capitalize:capitalize,
           t_dir:t_dir
         })
-        
+
       })
 
       let results =  await r.text()
@@ -2349,8 +2371,8 @@ const utilsNetwork = {
       // console.log(content);
 
       // return content
-      
-    },        
+
+    },
 
 
 

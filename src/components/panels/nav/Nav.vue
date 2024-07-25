@@ -197,7 +197,7 @@
               click: () => {
                 this.showValidateModal = true;
                 this.$nextTick(()=>{
-                  this.$refs.showValidateModal.post()
+                  this.$refs.validatemodal.post()
                 })
               }
             }
