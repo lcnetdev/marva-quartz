@@ -430,6 +430,8 @@
 
         if (this.urlToLoad.trim() !== ''){
 
+
+          
           // we might need to load in a item
           if (utilsParse.hasItem>0){ 
             // loop the number of ITEMS there are in the XML
