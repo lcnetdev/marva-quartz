@@ -2039,11 +2039,14 @@ export const useProfileStore = defineStore('profile', {
                     {
                             "@guid": short.generate(),
                             "@type": "http://id.loc.gov/ontologies/bibframe/Source",
-                            "@id": "http://id.loc.gov/vocabulary/subjectSchemes/naf",
+                            // "@id": "http://id.loc.gov/vocabulary/subjectSchemes/naf",
+                            "@id": "http://id.loc.gov/vocabulary/subjectSchemes/lcsh",
                             "http://www.w3.org/2000/01/rdf-schema#label": [
                                 {
                                     "@guid": short.generate(),
-                                    "http://www.w3.org/2000/01/rdf-schema#label": "NACO authority file"
+                                    // "http://www.w3.org/2000/01/rdf-schema#label": "NACO authority file"
+                                    "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress subject headings"
+
                                 }
                             ]
                         }
