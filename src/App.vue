@@ -60,13 +60,10 @@ export default {
     }
   },
 
-  async mounted() {
-    console.log(`The initial count is `)
-    console.log(this.configStore.versionMajor)
-    console.log(useConfigStore().returnUrls.ldpjs +'ldp/')
+  async mounted() {    
+    console.log(this.configStore.versionMajor)    
 //     const configStore = useConfigStore()
-// const profileStore = useProfileStore()
-    console.log(this.profilesLoaded)
+// const profileStore = useProfileStore()   
 
     this.preferenceStore.initalize()
     // this.profileStore.buildProfiles()
