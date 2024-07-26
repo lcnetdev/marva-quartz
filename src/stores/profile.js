@@ -32,7 +32,7 @@ let dataChangedTimeout = null
 
 export const useProfileStore = defineStore('profile', {
   state: () => ({
-   
+
     // flag if the profiles have been loaded and processed
     profilesLoaded: false,
 
@@ -51,6 +51,7 @@ export const useProfileStore = defineStore('profile', {
     activeProfileSaved: true,
 
     showPostModal: false,
+    showValidateModal: false,
 
     // bf:title component/predicate for example, value will be the structure object for this component
 
@@ -72,7 +73,7 @@ export const useProfileStore = defineStore('profile', {
     * It doesn't care what profile it is in it will loop through all of them to find the unique GUID
     * @param {string} guid - the guid of the component
     * @return {object}
-    */    
+    */
     returnStructureByGUID: (state) => {
       return (guid) => {
         for (let rt in state.activeProfile.rt){
@@ -94,7 +95,7 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * The main first process that takes the raw profiles and processes them for use
-    * 
+    *
     * @return {void}
     */
     async buildProfiles() {
@@ -109,7 +110,7 @@ export const useProfileStore = defineStore('profile', {
         profileData =  await response.json()
       }catch(err){
         alert('Could not download the profiles, unable to continue.')
-        console.error(err);        
+        console.error(err);
       }
 
 
@@ -121,13 +122,13 @@ export const useProfileStore = defineStore('profile', {
         startingPointData =  await response.json()
       }catch(err){
         alert('Could not download the starting points, unable to continue.')
-        console.error(err);        
+        console.error(err);
       }
 
 
 
 
-      
+
       // FLAG: NEEDS_PROFILE_ALIGNMENT
       // TEMP HACK ADD IN HUBS
 
@@ -144,7 +145,7 @@ export const useProfileStore = defineStore('profile', {
                           "useResourceTemplates": [
                               "lc:RT:bf2:Hub:Hub"
                           ]
-                      }                    
+                      }
                   ]
               }
           )
@@ -161,17 +162,17 @@ export const useProfileStore = defineStore('profile', {
                           "useResourceTemplates": [
                               "lc:RT:bf2:Hub:Hub"
                           ]
-                      }                    
+                      }
                   ]
               }
           )
       }
-      
+
 
       // FLAG: NEEDS_PROFILE_ALIGNMENT
       // TEMP HACK, striping RDA fields for some things for the new editor
       for (let p of profileData){
-          
+
           if (p.json.Profile.id == 'lc:profile:bf2:Agents:Attributes'){
 
               for (let rt of p.json.Profile.resourceTemplates){
@@ -181,7 +182,7 @@ export const useProfileStore = defineStore('profile', {
               }
 
           }
-          
+
           // remove certin properties from the RTs
           p.json.Profile.resourceTemplates = p.json.Profile.resourceTemplates.filter((rt)=>{
               rt.propertyTemplates = rt.propertyTemplates.filter((pt)=>{
@@ -219,20 +220,20 @@ export const useProfileStore = defineStore('profile', {
                   for (let pt of rt.propertyTemplates){
                       pt.valueConstraint.valueTemplateRefs = pt.valueConstraint.valueTemplateRefs.filter((ref)=>{if (ref == 'lc:RT:bf2:Topic:madsTopic'){ return true}})
                   }
-              }        
-              if (rt.id == 'lc:RT:bf2:Topic:Place:Components'){                    
+              }
+              if (rt.id == 'lc:RT:bf2:Topic:Place:Components'){
                   for (let pt of rt.propertyTemplates){
                       pt.valueConstraint.valueTemplateRefs = pt.valueConstraint.valueTemplateRefs.filter((ref)=>{if (ref == 'lc:RT:bf2:Topic:madsGeogHeading'){ return true}})
                   }
-              }   
-              if (rt.id == 'lc:RT:bf2:Topic:Childrens:Components'){                    
+              }
+              if (rt.id == 'lc:RT:bf2:Topic:Childrens:Components'){
                   for (let pt of rt.propertyTemplates){
                       pt.valueConstraint.valueTemplateRefs = pt.valueConstraint.valueTemplateRefs.filter((ref)=>{if (ref == 'lc:RT:bf2:Topic:Childrens:Topic'){ return true}})
                   }
-              }   
+              }
 
 
-              if (rt.id == 'lc:RT:bf2:Brief:Work'){                    
+              if (rt.id == 'lc:RT:bf2:Brief:Work'){
                   rt.propertyTemplates = [
                           {
                               "mandatory": "false",
@@ -253,9 +254,9 @@ export const useProfileStore = defineStore('profile', {
                               }
                           }]
 
-              }   
+              }
 
-              if (rt.id == 'lc:RT:bf2:GPORelWorkBrief'){                    
+              if (rt.id == 'lc:RT:bf2:GPORelWorkBrief'){
                   rt.propertyTemplates = [
                           {
                               "mandatory": "false",
@@ -276,9 +277,9 @@ export const useProfileStore = defineStore('profile', {
                               }
                           }]
 
-              } 
+              }
 
-              if (rt.id == 'lc:RT:bf2:Brief:Instance'){                    
+              if (rt.id == 'lc:RT:bf2:Brief:Instance'){
                   rt.propertyTemplates = [
                           {
                               "mandatory": "false",
@@ -299,7 +300,7 @@ export const useProfileStore = defineStore('profile', {
                               }
                           }]
 
-              }   
+              }
 
               // add wikidata into any NAF lookup pt
               if (rt.id.includes(':Agent')){
@@ -309,8 +310,8 @@ export const useProfileStore = defineStore('profile', {
                               pt.valueConstraint.useValuesFrom.push('https://www.wikidata.org/w/api.php')
                           }
                       }
-                  }                   
-              }          
+                  }
+              }
 
 
               for (let pt of rt.propertyTemplates){
@@ -385,10 +386,10 @@ export const useProfileStore = defineStore('profile', {
 
 
       // -------- end HACKKCKCKCKCK
-      
+
       profileData.forEach((p)=>{
 
-          
+
           // build the first level profiles
           if (p.json && p.json.Profile){
 
@@ -405,14 +406,14 @@ export const useProfileStore = defineStore('profile', {
                       this.profiles[p.json.Profile.id].rtOrder.push(rt.id)
                       this.profiles[p.json.Profile.id].rt[rt.id] = {ptOrder:[],pt:{}}
                       if (rt.propertyTemplates){
-                          rt.propertyTemplates.forEach((pt)=>{                                
+                          rt.propertyTemplates.forEach((pt)=>{
                               pt.parent = p.json.Profile.id + rt.id + p.id
                               pt.parentId = rt.id
                               pt.userValue =  {'@root':pt.propertyURI}
                               pt.valueConstraint.valueTemplateRefs = pt.valueConstraint.valueTemplateRefs.filter((v)=>{return (v.length>0)})
                               pt['@guid'] = short.generate()
                               pt.canBeHidden = true
-                              
+
                               if (pt.type === 'literal-lang'){
                                   this.profiles[p.json.Profile.id].rt[rt.id].hasLiteralLangFields = true
                               }
@@ -443,7 +444,7 @@ export const useProfileStore = defineStore('profile', {
       //this.profiles = JSON.parse(JSON.stringify(this.profiles))
 
 
-      
+
 
 
       // make a lookup for just the profiles rts
@@ -460,7 +461,7 @@ export const useProfileStore = defineStore('profile', {
           startingPointData = startingPointData[0]
       }
 
-      
+
 
       // HACKHACKHACKHACK
       if (config.returnUrls.env != 'production'){
@@ -517,24 +518,24 @@ export const useProfileStore = defineStore('profile', {
 
           this.startingPoints[sp.menuGroup] = {name:sp.menuGroup, work: null, instance: null, item: null }
           sp.menuItems.forEach((mi)=>{
-              
+
               if (mi.type.indexOf('http://id.loc.gov/ontologies/bibframe/Instance')>-1){
-                  
+
                   this.startingPoints[sp.menuGroup].instance = mi.useResourceTemplates[0]
               }
               if (mi.type.indexOf('http://id.loc.gov/ontologies/bibframe/Work')>-1){
-                  
+
                   this.startingPoints[sp.menuGroup].work = mi.useResourceTemplates[0]
               }
               if (mi.type.indexOf('http://id.loc.gov/ontologies/bibframe/Item')>-1){
-                  
+
                   this.startingPoints[sp.menuGroup].item = mi.useResourceTemplates[0]
               }
               if (mi.type.indexOf('http://id.loc.gov/ontologies/bibframe/Hub')>-1){
-                  
+
                   this.startingPoints[sp.menuGroup].hub = mi.useResourceTemplates[0]
               }
-              
+
 
           })
 
@@ -577,7 +578,7 @@ export const useProfileStore = defineStore('profile', {
           for (let rt in this.profiles[p].rt){
               if (this.profiles[p].rt[rt]){
                   this.profiles[p].hashRts[rt] = this.hashRt(this.profiles[p].rt[rt])
-              }   
+              }
 
               if (this.profiles[p].rt[rt] && this.profiles[p].rt[rt].pt){
                   for (let pt in this.profiles[p].rt[rt].pt){
@@ -585,7 +586,7 @@ export const useProfileStore = defineStore('profile', {
                       let id = rt + '|' + this.profiles[p].rt[rt].pt[pt].propertyURI
                       if (this.profiles[p].rt[rt].pt[pt].valueConstraint && this.profiles[p].rt[rt].pt[pt].valueConstraint.valueDataType && this.profiles[p].rt[rt].pt[pt].valueConstraint.valueDataType.dataTypeURI && this.profiles[p].rt[rt].pt[pt].valueConstraint.valueDataType.dataTypeURI.trim() != ''){
                           id = id + '|' + this.profiles[p].rt[rt].pt[pt].valueConstraint.valueDataType.dataTypeURI
-                      }                        
+                      }
                       // builds an id like this: lc:RT:bf2:35mmFeatureFilm:Work|http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bflc/PrimaryContribution
                       let ptVal = JSON.parse(JSON.stringify(this.profiles[p].rt[rt].pt[pt]))
                       delete ptVal['@guid']
@@ -606,7 +607,7 @@ export const useProfileStore = defineStore('profile', {
     /**
     * Takes a resource template from the profile and creates a hash of the json-fied version of it to use as a fingerprint, to see if it changes later
     * For use in "template" functionality, to know if a resource template has changed since a template has used it
-    * 
+    *
     * @param {object} rt - the rt from the profile
     * @return {number} The fingerprint hash
     */
@@ -623,31 +624,31 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * does all the work to setup a new profile read to be edited and posted as new resource
-    * 
+    *
     * @param {string} useStartingPoint - the name of the starting point to use to as the profile
     * @param {string} addAdmin - the caloger user id to use in the admin metadata, if undefined it will not add a adminMetadata
     * @param {object} userTemplateSupplied - a specific profile is being asked to be prepared, so don't look it up in the starting points, just use this one
     * @return {object} useProfile - the profile modified ready to bet set in the state and edited
-    */    
+    */
     loadNewTemplate(useStartingPoint,addAdmin,userTemplateSupplied){
-      
+
       const config = useConfigStore()
 
       // should be the catinitals to insert into admin if being passed
       if (typeof addAdmin === 'undefined'){
         addAdmin=false
-      } 
+      }
 
       let useProfile
 
       if (userTemplateSupplied){
         useProfile = userTemplateSupplied
       }else{
-        useProfile = JSON.parse(JSON.stringify(this.profiles[useStartingPoint]))  
+        useProfile = JSON.parse(JSON.stringify(this.profiles[useStartingPoint]))
       }
 
       // some profiles have nested components at the root level used in that component
-      // so if it doesn't end with one of the main type of resources we want to edit 
+      // so if it doesn't end with one of the main type of resources we want to edit
       // then we don't want to render it, since it is probably being used in the main RT somewhere
       let toRemove = []
       let toKeep = []
@@ -659,7 +660,7 @@ export const useProfileStore = defineStore('profile', {
             hasTLS = true
           }
         }
-        
+
         if (hasTLS === false){
           toRemove.push(rt)
         }else{
@@ -684,7 +685,7 @@ export const useProfileStore = defineStore('profile', {
       // also give it an ID for storage
       if (!useProfile.eId){
       let uuid = 'e' + decimalTranslator.new()
-      uuid = uuid.substring(0,8)        
+      uuid = uuid.substring(0,8)
       useProfile.eId= uuid
 
       }
@@ -708,18 +709,18 @@ export const useProfileStore = defineStore('profile', {
           uri = config.baseURIWork + workUriId
           workUri = uri
         }else if (rt.endsWith(config.validTopLevelInstance)){
-       
+
           // when making a new instance from scratch use the work URI Id peice as the instance ID piece
           uri = config.baseURIInstance + workUriId
 
-        }else if (rt.endsWith(config.validTopLevelItem)){  
-          uri = config.baseURIItem + translator.toUUID(translator.new())   
-        }else if (rt.endsWith(config.validTopLevelHub)){  
-          uri = config.baseURIHub + translator.toUUID(translator.new())   
+        }else if (rt.endsWith(config.validTopLevelItem)){
+          uri = config.baseURIItem + translator.toUUID(translator.new())
+        }else if (rt.endsWith(config.validTopLevelHub)){
+          uri = config.baseURIHub + translator.toUUID(translator.new())
         }else{
           // dunno what this is give it a random uri
-          uri = 'http://id.loc.gov/resources/unknown/' + translator.toUUID(translator.new())       
-        }        
+          uri = 'http://id.loc.gov/resources/unknown/' + translator.toUUID(translator.new())
+        }
 
         useProfile.rt[rt].URI = uri
 
@@ -742,11 +743,11 @@ export const useProfileStore = defineStore('profile', {
         if (rt.includes(config.validTopLevelWork)){
           // something
         }else if (rt.includes(config.validTopLevelInstance)){
-          //something          
+          //something
           useProfile.rt[rt].instanceOf = workUri
-        }else if (rt.includes(config.validTopLevelItem)){  
-          //something        
-        }  
+        }else if (rt.includes(config.validTopLevelItem)){
+          //something
+        }
       }
 
       // console.log('------useProfile-------')
@@ -805,7 +806,7 @@ export const useProfileStore = defineStore('profile', {
             useProfile.rt[rt].ptOrder.push(adminMetadataPropertyLabel)
             useProfile.rt[rt].pt[adminMetadataPropertyLabel] = JSON.parse(JSON.stringify(adminMetadataProperty))
           }
-      
+
         }
       }
 
@@ -824,19 +825,19 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * Keeps track of what field and component the user interface is currently working in
-    * 
-    * @param {object} structure - the profile structure the field is being built with 
+    *
+    * @param {object} structure - the profile structure the field is being built with
     * @return {void}
-    */    
+    */
     setActiveField: function(structure){
 
-      
+
 
 
     },
 
 
-    
+
     /**
     * Prepares the data in the component for switch the ref template, for example going
     * from main title to variant title, it needs to change the userValue mostly
@@ -846,10 +847,10 @@ export const useProfileStore = defineStore('profile', {
     * @param {object} thisRef - the template object representing the template we currently on
 
     * @return {void}
-    */    
+    */
 
-    changeRefTemplate: function(componentGuid, propertyPath, nextRef, thisRef){  
-      // let lastProperty = propertyPath.at(-1).propertyURI 
+    changeRefTemplate: function(componentGuid, propertyPath, nextRef, thisRef){
+      // let lastProperty = propertyPath.at(-1).propertyURI
       // // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
@@ -895,7 +896,7 @@ export const useProfileStore = defineStore('profile', {
         for (let key in userValue){
             if (!key.startsWith('@')){
                 if (possibleProperties.indexOf(key)==-1){
-                    // 
+                    //
                     // this property has no place in the ref template we are about to switch to
                     // so store them over in the refTemplateUserValue for later if needed
                     pt.refTemplateUserValue[key] =JSON.parse(JSON.stringify(userValue[key]))
@@ -904,7 +905,7 @@ export const useProfileStore = defineStore('profile', {
             }
         }
 
-        // see if there are any properties stored in refTemplateUserValue that 
+        // see if there are any properties stored in refTemplateUserValue that
         // can be filled into this template
 
         for (let pp of possibleProperties){
@@ -922,9 +923,9 @@ export const useProfileStore = defineStore('profile', {
         }
 
 
-        // also check to see if there are default values in the orignal profile that we might need to over write with if they are switching 
+        // also check to see if there are default values in the orignal profile that we might need to over write with if they are switching
 
-        
+
         // for (let ptIdx of this.rtLookup[nextRef.id].propertyTemplates){
         //     if (ptIdx.valueConstraint.defaults && ptIdx.valueConstraint.defaults.length>0){
         //         // console.log("These fdautls:",ptIdx.valueConstraint.defaults && ptIdx.valueConstraint.defaults[0])
@@ -947,7 +948,7 @@ export const useProfileStore = defineStore('profile', {
         //                     {
         //                         'http://www.w3.org/2000/01/rdf-schema#label':ptIdx.valueConstraint.defaults[0].defaultLiteral,
         //                         '@guid': short.generate(),
-        //                     }                              
+        //                     }
         //                 ]
 
         //             }else{
@@ -959,7 +960,7 @@ export const useProfileStore = defineStore('profile', {
         //                             '@guid': short.generate(),
         //                         }
         //                     ]
-                            
+
         //                 }]
 
         //             }
@@ -979,7 +980,7 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-        //         }      
+        //         }
 
 
 
@@ -991,7 +992,7 @@ export const useProfileStore = defineStore('profile', {
         this.dataChanged()
 
 
-        
+
       }else{
         console.error('changeRefTemplate: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
@@ -1013,20 +1014,20 @@ export const useProfileStore = defineStore('profile', {
     * @param {string} label - the label to use
 
     * @return {void}
-    */    
-    setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){  
+    */
+    setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
 
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
 
-      let lastProperty = propertyPath.at(-1).propertyURI 
+      let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt !== false){
 
         pt.hasData = true
-        
+
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
         console.log("blankNode === ",blankNode, fieldGuid)
@@ -1092,13 +1093,13 @@ export const useProfileStore = defineStore('profile', {
 
 
     /**
-    * This removes the values of a complex lookup field    
-    * 
+    * This removes the values of a complex lookup field
+    *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @param {string} fieldGuid - the guid of the field
     * @return {void}
-    */    
-    removeValueComplex: async function(componentGuid, fieldGuid){  
+    */
+    removeValueComplex: async function(componentGuid, fieldGuid){
 
 
 
@@ -1106,10 +1107,10 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt !== false){
-          
+
         console.log("pt ==",pt)
         console.log('fieldGuid ==',fieldGuid)
-        
+
         // find the correct blank node to edit if possible,
 
         let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
@@ -1145,7 +1146,7 @@ export const useProfileStore = defineStore('profile', {
 
         // console.log("post filter:",parent)
         // console.log("The PT",pt)
- 
+
         // make sure we don't leave any blank blank nodes behind
         pt.userValue = utilsProfile.pruneUserValue(pt.userValue)
 
@@ -1163,13 +1164,13 @@ export const useProfileStore = defineStore('profile', {
 
 
     /**
-    * This removes the values of a simple lookup field    
-    * 
+    * This removes the values of a simple lookup field
+    *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @param {string} fieldGuid - the guid of the field
     * @return {void}
-    */    
-    removeValueSimple: async function(componentGuid, fieldGuid){  
+    */
+    removeValueSimple: async function(componentGuid, fieldGuid){
 
 
       // locate the correct pt to work on in the activeProfile
@@ -1185,7 +1186,7 @@ export const useProfileStore = defineStore('profile', {
           for (let key in pt.userValue){
 
             if (Array.isArray(pt.userValue[key])){
-              pt.userValue[key] = pt.userValue[key].filter((v) => {                     
+              pt.userValue[key] = pt.userValue[key].filter((v) => {
                 if (v && v['@guid'] && v['@guid'] === fieldGuid){
                   return false
                 }else{
@@ -1204,11 +1205,11 @@ export const useProfileStore = defineStore('profile', {
 
           this.dataChanged()
           return true
-          
+
         }
 
 
-        
+
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         // console.log(pt)
         // console.log("fieldGuid",fieldGuid)
@@ -1220,8 +1221,8 @@ export const useProfileStore = defineStore('profile', {
         // just look through all of the properties, if its an array filter it
         for (let p in parent){
           if (Array.isArray(parent[p])){
-            parent[p] = parent[p].filter((v) => {       
-            console.log(v)       
+            parent[p] = parent[p].filter((v) => {
+            console.log(v)
               if (v && v['@guid'] && v['@guid'] === fieldGuid){
                 return false
               }else{
@@ -1230,7 +1231,7 @@ export const useProfileStore = defineStore('profile', {
             })
           }if (['object'].includes(typeof parent[p]) && parent[p] !== null){
 
-            // check the parent if there are only two keys this is a top level 
+            // check the parent if there are only two keys this is a top level
             // simple lookup, blank out the non-root key and that should clear this value
             // if (Object.keys(pt.userValue).length==2){
             //   for (let k in pt.userValue){
@@ -1265,14 +1266,14 @@ export const useProfileStore = defineStore('profile', {
 
         // see if we removed it from those actions
         parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
-      
+
         console.log("parent is now:",parent)
         if (parent !== false){
 
           for (let p in parent){
             if (['object'].includes(typeof parent[p]) && parent[p] !== null){
-  
-              // check the parent if there are only two keys this is a top level 
+
+              // check the parent if there are only two keys this is a top level
               // simple lookup, blank out the non-root key and that should clear this value
               if (Object.keys(pt.userValue).length==2){
 
@@ -1285,7 +1286,7 @@ export const useProfileStore = defineStore('profile', {
                  if (pt.userValue[k] && pt.userValue[k][0] && pt.userValue[k][0]['@type']){
                   oldType = pt.userValue[k][0]['@type']
                   oldTypeParent = k
-                 }                  
+                 }
                 }
                 console.log("oldType",oldType)
                 for (let k in pt.userValue){
@@ -1306,15 +1307,15 @@ export const useProfileStore = defineStore('profile', {
                 }
 
               }
-  
+
               // // not an array just remove the values
               // for (let key in parent[p]){
               //   if (key !='@guid'){
               //     delete parent[p][key]
               //   }
               // }
-  
-  
+
+
             }
           }
 
@@ -1345,15 +1346,15 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * Sets a literal value of field
-    * 
+    *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @param {string} fieldGuid - the guid of the field
     * @param {array} propertyPath - array of strings mapping the predicates to the blanknode for the value
     * @param {string} lang - the ISO rdf language value like 'en' to append to the literal 'xxxxx@en'
     * @return {void}
-    */    
-    setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){  
-      let lastProperty = propertyPath.at(-1).propertyURI 
+    */
+    setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
+      let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt
       if (cachePt[componentGuid]){
@@ -1367,11 +1368,11 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
 
         pt.hasData = true
-        
+
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode
         if (cacheGuid[fieldGuid]){
-          blankNode = cacheGuid[fieldGuid]          
+          blankNode = cacheGuid[fieldGuid]
         }else{
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
           cacheGuid[fieldGuid] = blankNode
@@ -1388,17 +1389,17 @@ export const useProfileStore = defineStore('profile', {
 
             // this is the first value, we need to construct the hierarchy to the bnode
             buildBlankNodeResult = utilsProfile.buildBlanknode(pt,propertyPath, true)
-          
+
             // console.log("buildBlankNodeResult",JSON.stringify(buildBlankNodeResult,null,2))
             pt = buildBlankNodeResult[0]
 
             // now we can make a link to the parent of where the literal value should live
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
-            
+
             // console.log("blankNode",JSON.stringify(blankNode,null,2))
             // this is a new node, so we want to overwrite the guid created in the build process
             // with the one that was already created in the userinterface
-            blankNode['@guid'] = fieldGuid 
+            blankNode['@guid'] = fieldGuid
             // set a temp value that will be over written below
             blankNode[lastProperty] = true
 
@@ -1442,13 +1443,13 @@ export const useProfileStore = defineStore('profile', {
 
         }
 
-        
+
         if (!blankNode[lastProperty]){
           console.error('Trying to find the value of this literal, unable to:',componentGuid, fieldGuid, propertyPath, value, lang, pt)
         }
 
         // and now add in the literal value into the correct property
-        blankNode[lastProperty] = value   
+        blankNode[lastProperty] = value
 
         // if we just set an empty value, remove the value property, and if there are no other values, remvoe the entire property
         if (value.trim() === ''){
@@ -1475,7 +1476,7 @@ export const useProfileStore = defineStore('profile', {
               delete parent[lastProperty]
             }
 
-            
+
 
 
           }
@@ -1505,16 +1506,16 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * returns a literal value of field
-    * 
+    *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @param {array} propertyPath - array of strings mapping the predicates to the blanknode for the value
     * @return {array} - an array of objs representing the literals
-    */    
+    */
     returnLiteralValueFromProfile: function(componentGuid, propertyPath){
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
-      
+
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
 
       // console.log(propertyPath[0], deepestLevelURI)
@@ -1525,12 +1526,12 @@ export const useProfileStore = defineStore('profile', {
 
         let values = []
 
-        
+
 
         for (let v of valueLocation){
 
           // console.log('v->',v)
-          
+
           if (v[deepestLevelURI]){
             values.push({
               '@guid':v['@guid'],
@@ -1550,29 +1551,29 @@ export const useProfileStore = defineStore('profile', {
       // will return false if here
       return valueLocation
 
-      
+
     },
 
     /**
     * returns a simple lookup value of field
-    * 
+    *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @param {array} propertyPath - array of strings mapping the predicates to the blanknode for the value
     * @return {array} - an array of objs representing the simple lookup values
-    */    
+    */
     returnSimpleLookupValueFromProfile: function(componentGuid, propertyPath){
 
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
-      
+
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       // let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
 
       if (!valueLocation){
         // if we did not find it at that level then try removing any issues inthe property path
-        propertyPath = propertyPath.filter((v)=> { 
+        propertyPath = propertyPath.filter((v)=> {
           // remove any classnames
           // like http://id.loc.gov/ontologies/bibframe/PlaybackCharacteristic
           if (!v.propertyURI.match(/http:\/\/id\.loc\.gov\/ontologies\/bibframe\/[A-Z][a-z]+/)){
@@ -1632,27 +1633,27 @@ export const useProfileStore = defineStore('profile', {
               needsDereference: false,
               isLiteral: true,
             })
-          }         
-          
+          }
+
         }
 
         return values
 
       }
 
-      // if valueLocation is false then it did not find anytihng meaning its empty, return empty array 
+      // if valueLocation is false then it did not find anytihng meaning its empty, return empty array
       return []
 
-      
+
     },
 
     /**
     * returns a complex lookup value of field
-    * 
+    *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @param {array} propertyPath - array of strings mapping the predicates to the blanknode for the value
     * @return {array} - an array of objs representing the simple lookup values
-    */    
+    */
     returnComplexLookupValueFromProfile: function(componentGuid, propertyPath){
 
       // TODO: reconcile this to how the profiles are built, or dont..
@@ -1721,18 +1722,18 @@ export const useProfileStore = defineStore('profile', {
               isLiteral: true,
               type:v['@type']
             })
-          }         
-          
+          }
+
         }
 
         return values
 
       }
 
-      // if valueLocation is false then it did not find anytihng meaning its empty, return empty array 
+      // if valueLocation is false then it did not find anytihng meaning its empty, return empty array
       return []
 
-      
+
     },
 
 
@@ -1748,8 +1749,8 @@ export const useProfileStore = defineStore('profile', {
     * @param {string} type - the URI of the type to use, like http://www.loc.gov/mads/rdf/v1#CorporateName
 
     * @return {void}
-    */    
-    setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type){  
+    */
+    setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type){
 
 
       // TODO: reconcile this to how the profiles are built, or dont..
@@ -1757,7 +1758,7 @@ export const useProfileStore = defineStore('profile', {
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
       // console.log("propertyPath=",propertyPath)
 
-      let lastProperty = propertyPath.at(-1).propertyURI 
+      let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
@@ -1771,7 +1772,7 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
 
         pt.hasData = true
-        
+
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
         console.log("blankNode === ",blankNode, fieldGuid)
@@ -1848,13 +1849,13 @@ export const useProfileStore = defineStore('profile', {
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @param {array} subjectComponents - objects with the data to represent the component parts of subject heading
     * @param {array} propertyPath - the path of uris to get to this level
-    * @return {void} - 
-    */    
+    * @return {void} -
+    */
     setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
 
         // we're just going to overwrite the whole userValue with the constructed headings
 
-        
+
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
         console.log('-----')
@@ -1887,7 +1888,7 @@ export const useProfileStore = defineStore('profile', {
 
             for (let p of propertyPath){
 
-                // if the property is owl:sameAs it is the last field 
+                // if the property is owl:sameAs it is the last field
                 // of where we are building the entitiy, so we don't  want
                 // bf:Agent -> owl:sameAs we just want the bf:Agent with values filed in there
                 if (p.propertyURI=='http://www.w3.org/2002/07/owl#sameAs'){
@@ -1909,7 +1910,7 @@ export const useProfileStore = defineStore('profile', {
                 if (thisLevelType === false){
                   // did not find it in the profile, look to the network
                   thisLevelType = await utilsRDF.suggestTypeNetwork(p.propertyURI)
-                } 
+                }
 
 
                 let thisLevel = {'@guid':short.generate()}
@@ -1921,7 +1922,7 @@ export const useProfileStore = defineStore('profile', {
                 }
                 // currentUserValuePosParent = currentUserValuePos[p.propertyURI]
                 currentUserValuePos = currentUserValuePos[p.propertyURI][0]
-            } 
+            }
 
             pt.hasData = true
 
@@ -1931,7 +1932,7 @@ export const useProfileStore = defineStore('profile', {
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"][0]){
 
                 userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"] = JSON.parse(JSON.stringify(pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"]))
-            }               
+            }
 
             if (pt.userValue['@root']){
                 userValue['@root'] = JSON.parse(JSON.stringify(pt.userValue['@root']))
@@ -1962,7 +1963,7 @@ export const useProfileStore = defineStore('profile', {
                     "@guid": short.generate(),
                     "http://www.w3.org/2000/01/rdf-schema#label": subjectComponents[0].label
                 }]
-                
+
                 // store.state.activeUndoLog.push(`Added subject heading ${subjectComponents[0].label}`)
 
 
@@ -1970,7 +1971,7 @@ export const useProfileStore = defineStore('profile', {
 
                 //userValue
 
-                
+
                 let fullLabel = subjectComponents.map((c)=>{return c.label}).join('--')
 
                 // store.state.activeUndoLog.push(`Added subject heading ${fullLabel}`)
@@ -2030,7 +2031,7 @@ export const useProfileStore = defineStore('profile', {
                         }
                     ]
                 }
-                break 
+                break
               }else if  (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/names') >-1){
 
                 if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
@@ -2052,7 +2053,7 @@ export const useProfileStore = defineStore('profile', {
                         }
                     ]
                 }
-                break 
+                break
               }
             }
 
@@ -2081,10 +2082,10 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * returns the structure of the component, used in the debug modal
-    * 
+    *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @return {array} - an array of objs representing the simple lookup values
-    */    
+    */
     returnStructureByComponentGuid: function(componentGuid){
 
 
@@ -2098,20 +2099,20 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * return the XML of the active editing record
-    * 
+    *
 
     * @return {string} - the XML string of output
-    */    
+    */
     buildExportXML: function(){
       return utilsExport.buildXML(this.activeProfile)
     },
 
     /**
     * return the MARC transformation from the back end
-    * 
+    *
 
     * @return {string} - the MARC string of output
-    */    
+    */
     marcPreview: async function(){
       let xml = await utilsExport.buildXML(this.activeProfile)
       let preview = await utilsNetwork.marcPreview(xml.bf2Marc)
@@ -2123,8 +2124,8 @@ export const useProfileStore = defineStore('profile', {
 
       let newResults = []
       let selectedDefault = false
-      
-      
+
+
       for (let v of versions){
         let toAdd = preview.filter((p) => { return (p.version == v) })[0]
         if (toAdd.results && toAdd.results.stdout && selectedDefault == false){
@@ -2157,17 +2158,17 @@ export const useProfileStore = defineStore('profile', {
         versions: newResults
       })
 
-      
+
     },
 
 
 
     /**
     * Save the record to the Marva scratch-pad backend
-    * 
+    *
 
     * @return {boolean} - did it save
-    */    
+    */
     saveRecord: async function(){
       let xml = await utilsExport.buildXML(this.activeProfile)
       utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
@@ -2176,10 +2177,10 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * Ask for a record and parse it to load it into the editor
-    * 
+    *
 
     * @return {boolean} - did it save
-    */    
+    */
     loadRecord: async function(eid, profile){
       let xml = await utilsExport.buildXML(this.activeProfile)
       console.log("*****")
@@ -2188,26 +2189,37 @@ export const useProfileStore = defineStore('profile', {
       this.activeProfileSaved = true
     },
 
+  /**
+   * Validate the reocrd
+  */
+  validateRecord: async function(eid, profile){
+    console.log("Profile store: Validating")
+    let xml = await utilsExport.buildXML(this.activeProfile)
+    let response = await utilsNetwork.validate(xml.xlmStringBasic)
+
+    return response
+  },
+
     /**
     * Publish record to backend
-    * 
+    *
 
     * @return {obj} - response from posting action
-    */    
+    */
     publishRecord: async function(eid, profile){
-      let xml = await utilsExport.buildXML(this.activeProfile)         
+      let xml = await utilsExport.buildXML(this.activeProfile)
       let pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
       pubResuts.resourceLinks=[]
       // if it was accepted by the system send it to the marva backend to store as posted
       console.log("pubResuts.status",pubResuts.status)
-      
+
 
       if (pubResuts.status){
         this.activeProfile.status = 'published'
         await this.saveRecord()
 
 
-        
+
         const config = useConfigStore()
 
         for (let rt in this.activeProfile.rt){
@@ -2232,7 +2244,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       return pubResuts
-      
+
     },
 
 
@@ -2242,10 +2254,10 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * returns the label to use in bf code mode
-    * 
+    *
     * @param {object} structure - the structure value from the profile
     * @return {string} - the label
-    */    
+    */
     returnBfCodeLabel: function(structure){
 
       let code = utilsParse.namespaceUri(structure.propertyURI)
@@ -2273,12 +2285,12 @@ export const useProfileStore = defineStore('profile', {
       // console.log("code=",code)
       let justProperty = code.split(':')[1]
 
-      let numUpper = justProperty.length - justProperty.replace(/[A-Z]/g, '').length;  
+      let numUpper = justProperty.length - justProperty.replace(/[A-Z]/g, '').length;
 
       if (numUpper == 2){
         code = code.split(':')[0] + ':' + justProperty.charAt(0) + justProperty.replace(/[a-z]/g, '')
       }else if (numUpper == 1){
-        code = code.split(':')[0] + ':' + justProperty.charAt(0) + justProperty.charAt(1) + justProperty.replace(/[a-z]/g, '')        
+        code = code.split(':')[0] + ':' + justProperty.charAt(0) + justProperty.charAt(1) + justProperty.replace(/[a-z]/g, '')
       }else if (numUpper == 0){
         code = code.split(':')[0] + ':' + justProperty.charAt(0) + justProperty.charAt(1) + justProperty.charAt(2)
       }
@@ -2315,21 +2327,21 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * returns if the request property is the "main" property of that component
-    * 
+    *
     * @param {string} componentGuid - the guid of the component
     * @param {array} propertyPath - the property path of the property in question
-    * @return {boolean} - 
-    */    
-    inlineIsMainProperty: function(componentGuid, fieldStructure, propertyPath){    
+    * @return {boolean} -
+    */
+    inlineIsMainProperty: function(componentGuid, fieldStructure, propertyPath){
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       // let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       // some hard coded hacks
 
-      if (fieldStructure.propertyURI === 'http://id.loc.gov/ontologies/bflc/nonSortNum'){ 
+      if (fieldStructure.propertyURI === 'http://id.loc.gov/ontologies/bflc/nonSortNum'){
         return false
       }
-      if (fieldStructure.propertyURI === 'http://id.loc.gov/ontologies/bibframe/mainTitle'){ 
+      if (fieldStructure.propertyURI === 'http://id.loc.gov/ontologies/bibframe/mainTitle'){
         return true
       }
 
@@ -2353,12 +2365,12 @@ export const useProfileStore = defineStore('profile', {
     },
     /**
     * returns if the request property has a value in it
-    * 
+    *
     * @param {string} componentGuid - the guid of the component
     * @param {array} propertyPath - the property path of the property in question
-    * @return {boolean} - 
-    */    
-    inlinePropertyHasValue: function(componentGuid, fieldStructure, propertyPath){    
+    * @return {boolean} -
+    */
+    inlinePropertyHasValue: function(componentGuid, fieldStructure, propertyPath){
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
@@ -2370,13 +2382,13 @@ export const useProfileStore = defineStore('profile', {
     },
     /**
     * returns possible fields in that can be displayed in the component
-    * 
+    *
     * @return {array} - array of the fields
-    */    
-    returnPossibleFieldsInComponent: function(componentGuid){    
+    */
+    returnPossibleFieldsInComponent: function(componentGuid){
       console.log("returnPossibleFieldsInComponent")
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-      
+
       if (pt.valueConstraint.valueTemplateRefs.length==0){
         console.log('n o valueTemplateRefs')
         return []
@@ -2416,13 +2428,13 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
-    
+
     /**
-    * 
-    * 
+    *
+    *
     * @return {array} - array of the fields
-    */    
-    setInlineDisplay: function(componentGuid, label){   
+    */
+    setInlineDisplay: function(componentGuid, label){
       console.log("YEAH")
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       if (!pt.inlineModeDisplay){
@@ -2434,11 +2446,11 @@ export const useProfileStore = defineStore('profile', {
     },
 
     /**
-    * 
-    * 
+    *
+    *
     * @return {array} - array of the fields
-    */    
-    inlineFieldIsToggledForDisplay: function(componentGuid, structure){   
+    */
+    inlineFieldIsToggledForDisplay: function(componentGuid, structure){
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       if (!pt.inlineModeDisplay){
@@ -2450,15 +2462,15 @@ export const useProfileStore = defineStore('profile', {
         return true
       }
 
-      
+
     },
 
     /**
-    * 
-    * 
+    *
+    *
     * @return {boolean} - true or false if the pt passed will have a ref component drop down selection
-    */    
-    ptHasRefComponent: function(pt){   
+    */
+    ptHasRefComponent: function(pt){
 
       if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length > 1){
         return true
@@ -2487,9 +2499,9 @@ export const useProfileStore = defineStore('profile', {
     /**
     * Flips the canBeHidden flag on a property and reordereds it to the the end of the property list
     * In adhoc mode this makes it look like its being added to the profile
-    * @return {void} - 
-    */    
-    setPropertyVisible: function(profile,component){   
+    * @return {void} -
+    */
+    setPropertyVisible: function(profile,component){
       console.log(profile,component)
       this.activeProfile.rt[profile].pt[component].canBeHidden = false
 
@@ -2503,27 +2515,27 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * Loads the record from marva backend by E id
-    * 
-    * @return {void} - 
-    */    
-    loadRecordFromBackend: async function(eid){  
+    *
+    * @return {void} -
+    */
+    loadRecordFromBackend: async function(eid){
       console.log("Loading", eid)
       this.activeProfile = await utilsProfile.loadRecordFromBackend(eid)
 
     },
 
-    
+
 
 
 
     /**
     * Duplicate / create new component
-    * 
+    *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @param {boolean} createEmpty - if true make the component have no pre-populated data, if false "duplicate" the data from the source component
     * @return {void}
-    */    
-    duplicateComponent: async function(componentGuid, createEmpty){  
+    */
+    duplicateComponent: async function(componentGuid, createEmpty){
 
       console.log(componentGuid)
 
@@ -2560,7 +2572,7 @@ export const useProfileStore = defineStore('profile', {
         console.log(key,newPropertyId)
         if (createEmpty){
 
-          
+
           // store.state.activeUndoLog.push(`Added another property ${exportXML.namespaceUri(activeProfile.rt[profile].pt[id].propertyURI)}`)
 
           // console.log(activeProfile.rt[profile].pt[newPropertyId])
@@ -2573,7 +2585,7 @@ export const useProfileStore = defineStore('profile', {
 
           // we also want to add any default values in if it is just a empty new property and not duping
 
-          let idPropertyId = newPt.propertyURI  
+          let idPropertyId = newPt.propertyURI
 
           let baseURI = newPt.propertyURI
 
@@ -2600,8 +2612,8 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-          if (defaultsProperty && defaultsProperty.valueConstraint.defaults.length>0){      
-             console.log(JSON.stringify(newPt,null,2))        
+          if (defaultsProperty && defaultsProperty.valueConstraint.defaults.length>0){
+             console.log(JSON.stringify(newPt,null,2))
               // make sure the base URI exists in the uservalue
               if (!newPt.userValue[baseURI]){
                   newPt.userValue[baseURI] = [{}]
@@ -2609,7 +2621,7 @@ export const useProfileStore = defineStore('profile', {
               let userValue = newPt.userValue[baseURI][0]
 
               // there are defauts at this level
-              // its not a nested component just add it in the first level                
+              // its not a nested component just add it in the first level
               if (defaultsProperty.valueConstraint.defaults[0].defaultLiteral){
                   // console.log(newPt)
                   userValue['http://www.w3.org/2000/01/rdf-schema#label'] = [{
@@ -2619,18 +2631,18 @@ export const useProfileStore = defineStore('profile', {
               }
               if (defaultsProperty.valueConstraint.defaults[0].defaultURI){
                   userValue['@id'] = defaultsProperty.valueConstraint.defaults[0].defaultURI
-              }                  
+              }
 
 
           }else if (defaultsProperty && defaultsProperty.valueConstraint.valueTemplateRefs.length>0){
 
-              // console.log(JSON.stringify(newPt,null,2))        
+              // console.log(JSON.stringify(newPt,null,2))
               // if (!newPt.userValue[baseURI]){
               //     newPt.userValue[baseURI] = [{}]
               // }
               // let userValue = newPt.userValue[baseURI][0]
 
-              // console.log(JSON.stringify(newPt,null,2))        
+              // console.log(JSON.stringify(newPt,null,2))
 
               // // it doesn't exist at the top level, see if it has at least one reference template, if so use the first one and look up if that one has defualt values
               // // the first one since it is the default for the referencetemplace componment
@@ -2648,17 +2660,17 @@ export const useProfileStore = defineStore('profile', {
               //                         'http://www.w3.org/2000/01/rdf-schema#label':defaults.defaultLiteral,
               //                         '@guid': short.generate(),
               //                     }
-              //                 ]                              
+              //                 ]
               //             }]
               //         }
               //         if (defaults.defaultURI){
               //             if (userValue[refPt.propertyURI][0]){
-              //                 userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI    
+              //                 userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI
               //                 if (refPt.valueConstraint.valueDataType && refPt.valueConstraint.valueDataType.dataTypeURI){
               //                     userValue[refPt.propertyURI][0]['@type'] = refPt.valueConstraint.valueDataType.dataTypeURI
               //                 }
-              //             }                          
-              //         } 
+              //             }
+              //         }
               //     }
               // }
 
@@ -2700,11 +2712,11 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * Delete existing component
-    * 
+    *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @return {void}
-    */    
-    deleteComponent: async function(componentGuid){  
+    */
+    deleteComponent: async function(componentGuid){
 
       console.log(componentGuid)
 
@@ -2729,13 +2741,13 @@ export const useProfileStore = defineStore('profile', {
         if (propertyCount>1){
 
           console.log("deleting")
-          console.log(this.activeProfile.rt[pt.parentId].pt[pt.id]) 
+          console.log(this.activeProfile.rt[pt.parentId].pt[pt.id])
           // delete this.activeProfile.rt[pt.parentId].pt[pt.id]
 
-          this.activeProfile.rt[pt.parentId].pt[pt.id].deleted = true 
+          this.activeProfile.rt[pt.parentId].pt[pt.id].deleted = true
 
         }else{
-          
+
           for (let key in this.activeProfile.rt[pt.parentId].pt[pt.id].userValue){
             if (!key.startsWith('@')){
                delete this.activeProfile.rt[pt.parentId].pt[pt.id].userValue[key]
@@ -2745,7 +2757,7 @@ export const useProfileStore = defineStore('profile', {
 
         }
 
-        // if the 
+        // if the
 
         // let profile
         // let propertyPosition
@@ -2772,7 +2784,7 @@ export const useProfileStore = defineStore('profile', {
         // console.log(key,newPropertyId)
         // if (createEmpty){
 
-          
+
         //   // store.state.activeUndoLog.push(`Added another property ${exportXML.namespaceUri(activeProfile.rt[profile].pt[id].propertyURI)}`)
 
         //   // console.log(activeProfile.rt[profile].pt[newPropertyId])
@@ -2785,7 +2797,7 @@ export const useProfileStore = defineStore('profile', {
 
         //   // we also want to add any default values in if it is just a empty new property and not duping
 
-        //   let idPropertyId = newPt.propertyURI  
+        //   let idPropertyId = newPt.propertyURI
 
         //   let baseURI = newPt.propertyURI
 
@@ -2812,7 +2824,7 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-        //   if (defaultsProperty && defaultsProperty.valueConstraint.defaults.length>0){              
+        //   if (defaultsProperty && defaultsProperty.valueConstraint.defaults.length>0){
         //       // make sure the base URI exists in the uservalue
         //       if (!newPt.userValue[baseURI]){
         //           newPt.userValue[baseURI] = [{}]
@@ -2820,7 +2832,7 @@ export const useProfileStore = defineStore('profile', {
         //       let userValue = newPt.userValue[baseURI][0]
 
         //       // there are defauts at this level
-        //       // its not a nested component just add it in the first level                
+        //       // its not a nested component just add it in the first level
         //       if (defaultsProperty.valueConstraint.defaults[0].defaultLiteral){
         //           // console.log(newPt)
         //           userValue['http://www.w3.org/2000/01/rdf-schema#label'] = [{
@@ -2830,7 +2842,7 @@ export const useProfileStore = defineStore('profile', {
         //       }
         //       if (defaultsProperty.valueConstraint.defaults[0].defaultURI){
         //           userValue['@id'] = defaultsProperty.valueConstraint.defaults[0].defaultURI
-        //       }                  
+        //       }
 
 
         //   }else if (defaultsProperty && defaultsProperty.valueConstraint.valueTemplateRefs.length>0){
@@ -2857,17 +2869,17 @@ export const useProfileStore = defineStore('profile', {
         //                               'http://www.w3.org/2000/01/rdf-schema#label':defaults.defaultLiteral,
         //                               '@guid': short.generate(),
         //                           }
-        //                       ]                              
+        //                       ]
         //                   }]
         //               }
         //               if (defaults.defaultURI){
         //                   if (userValue[refPt.propertyURI][0]){
-        //                       userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI    
+        //                       userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI
         //                       if (refPt.valueConstraint.valueDataType && refPt.valueConstraint.valueDataType.dataTypeURI){
         //                           userValue[refPt.propertyURI][0]['@type'] = refPt.valueConstraint.valueDataType.dataTypeURI
         //                       }
-        //                   }                          
-        //               } 
+        //                   }
+        //               }
         //           }
         //       }
         //   }
@@ -2908,10 +2920,10 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * When they change something run this function to update things like autosave ect
-    * 
+    *
     * @return {void}
-    */    
-    dataChanged:  function(){  
+    */
+    dataChanged:  function(){
 
       this.activeProfileSaved = false
 
@@ -2922,7 +2934,7 @@ export const useProfileStore = defineStore('profile', {
       },500)
 
     }
-    
+
 
 
   }
