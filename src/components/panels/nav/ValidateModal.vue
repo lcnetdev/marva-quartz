@@ -62,37 +62,21 @@
           this.validating = true
           console.log("Validating: ", this.validating)
           this.validationResults = {}
-          this.validationResults = await this.profileStore.validateRecord()
+          try{
+            this.validationResults = await this.profileStore.validateRecord()
+          } catch(err) {
+            this.validationResults = {"error": err}
+          }
 
           this.validating = false
-          console.log("Validating: ", this.validating)
-          console.log(this.validationResults)
-        },
 
-        onSelectElement (event) {
-          const tagName = event.target.tagName
-          if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
-            event.stopPropagation()
+          if (this.validationResults.error) {
+            this.status = "Error"
+            this.results = null
+          } else {
+            this.status = Object.values(this.validationResults.status)[0]
+            this.results = Object.values(this.validationResults.validation)
           }
-        },
-
-        copyErrorToClipboard: function(){
-          var text = this.cleanUpErrorResponse(this.validationResults.msg)
-          navigator.clipboard.writeText(text).then(function() {
-            console.log('Async: Copying to clipboard was successful!');
-          }, function(err) {
-            console.error('Async: Could not copy text: ', err);
-          });
-        },
-
-        /**
-        * Helper to make the XML preview display nicer
-        * @return {string} - the cleaned up string
-        */
-        cleanUpErrorResponse: function(msg){
-            msg = JSON.stringify(msg,null,2)
-            msg = msg.replace(/\\n|\\t/g, '').replace(/\\"/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
-            return msg
         },
     },
 
@@ -127,8 +111,17 @@
           <div id="error-holder" ref="errorHolder" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
             <h1 v-if="validating == true">Validating please wait...</h1>
 
-            <div v-if="validating == false && Object.keys(validationResults).length != 0">
-              The record was validated:
+            <div v-if="validating == false">
+              <span v-if="!Object.keys(validationResults).includes('error')" >
+                <span v-if="status === 'validated'">Validation found the following:</span>
+                  <ul v-for="({level, message}) in results">
+                    <li :class="'level-' + level">{{ level }}: {{ message }}</li>
+                  </ul>
+              </span>
+              <span v-else>
+                The validation failed.
+                "{{ this.validationResults.error.message }}"
+              </span>
             </div>
 
             <button @click="done">Close</button>
@@ -199,5 +192,23 @@
   }
   button{
     font-size: 1.5em;
+  }
+
+  .level-WARNING,
+  .level-ERROR{
+    list-style: none;
+    width: fit-content;
+    margin-bottom: 5px;
+    padding: .75rem 1.25rem;
+  }
+  .level-WARNING {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+  }
+  .level-ERROR {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
   }
 </style>

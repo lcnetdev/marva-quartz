@@ -2173,14 +2173,10 @@ const utilsNetwork = {
   },
 
   /**
-   * Validate a record
+   * Validate a record send to backend
    */
   validate: async function(xml){
     let url = useConfigStore().returnUrls.validate
-
-    console.log("Send: ", xml)
-    console.log("Sending to : ", url)
-
 
     const rawResponse = await fetch(url, {
       method: 'POST',
@@ -2188,11 +2184,14 @@ const utilsNetwork = {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
+      //signal: AbortSignal.timeout(5000),
       body: JSON.stringify({rdfxml: xml})
     });
+
     const content = await rawResponse.json();
 
     return content
+
   },
 
   /**
