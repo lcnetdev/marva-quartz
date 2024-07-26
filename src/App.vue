@@ -37,6 +37,7 @@ export default {
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
     ...mapState(useProfileStore, ['profilesLoaded', 'showPostModal']),
+    ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal']),
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal']),
 
@@ -46,11 +47,11 @@ export default {
         return this.showPrefModal
       },
       set() {
-        this.preferenceStore.togglePrefModal()     
+        this.preferenceStore.togglePrefModal()
       }
     }
 
-    
+
   },
 
 
@@ -78,7 +79,7 @@ export default {
     await this.profileStore.buildProfiles()
       //let profile =  this.profileStore.loadNewTemplate('Monograph','mattmatt')
       //this.profileStore.activeProfile = profile
-      
+
       // console.log('profile',profile)
 
       // window.setInterval(()=>{
@@ -116,7 +117,7 @@ export default {
       </nav>
     </div>
   </header> -->
-  
+
   <RouterView />
   <LoadingModal/>
 
@@ -131,7 +132,7 @@ export default {
     <ScriptshifterConfigModal v-model="showScriptshifterConfigModal" />
   </template>
 
-  
+
 
 
 </template>

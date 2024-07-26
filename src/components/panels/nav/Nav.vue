@@ -1,14 +1,17 @@
 <template>
-  <div> 
+  <div>
 
     <Teleport to="body">
       <div id="nav-holder">
         <vue-file-toolbar-menu :content="my_menu" />
       </div>
+      <template v-if="showValidateModal==true">
+        <ValidateModal ref="validatemodal" v-model="showValidateModal" />
+      </template>
       <template v-if="showPostModal==true">
         <PostModal ref="postmodal" v-model="showPostModal" />
       </template>
-  
+
 
     </Teleport>
 
@@ -22,10 +25,11 @@
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import VueFileToolbarMenu from 'vue-file-toolbar-menu'
   import PostModal from "@/components/panels/nav/PostModal.vue";
+  import ValidateModal from "@/components/panels/nav/ValidateModal.vue";
 
 
   export default {
-    components: { VueFileToolbarMenu, PostModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal },
     data() {
       return {
          happy: false,
@@ -47,9 +51,10 @@
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal']),
       ...mapWritableState(useProfileStore, ['showPostModal']),
+      ...mapWritableState(useProfileStore, ['showValidateModal']),
 
 
-      
+
 
       panelTitleProperties(){
         return (this.panelDisplay.properties) ? 'done' : ''
@@ -75,11 +80,11 @@
         }else{
           ""
         }
-        
+
       },
 
 
-   
+
 
 
       my_menu () {
@@ -97,10 +102,10 @@
               //       <path d="m24.102 18.898-2.5 69.301 8.0977 7.8008 20.102-63z"/>
               //      </g>
               //     </svg>
-              //     `,         
+              //     `,
               // html: `
               //     <span style="font-size:2em; font-weight:bold; position: absolute; width: 100px; left:0;">M</span>
-              //     `,                
+              //     `,
           })
         }
 
@@ -108,7 +113,7 @@
           menu.push(
           { text: "Menu",  menu: [
             { text: "Load Resource", click: () => this.$router.push('/load'), icon:"💾" },
-            
+
 
           ] }
           )
@@ -117,7 +122,7 @@
 
         if (!this.disable.includes('View')){
           menu.push(
-            { text: "View",  menu: [    
+            { text: "View",  menu: [
 
               { text: 'Properties', click: () => this.preferenceStore.togglePanel('properties'), icon: this.panelTitleProperties },
               { text: 'Dual Edit', click: () => this.preferenceStore.togglePanel('dualEdit'), icon: this.panelTitleDualEdit },
@@ -137,7 +142,7 @@
 
         if (!this.disable.includes('Preferences')){
           menu.push(
-            { text: "Preferences",  menu: [    
+            { text: "Preferences",  menu: [
 
               { text: 'Scriptshifter', click: () => this.showScriptshifterConfigModal = true, icon: 'translate' },
 
@@ -160,7 +165,7 @@
               { text: 'Reset Prefs', click: () => this.preferenceStore.resetPreferences(), icon: 'restart_alt' },
 
 
-              
+
 
             ] }
           )
@@ -173,7 +178,7 @@
 
 
         if (this.$route.path.startsWith('/edit/')){
-          menu.push(          
+          menu.push(
           {
             text: (this.activeProfileSaved) ? "Saved" : "Save",
             disabled: (this.activeProfileSaved) ? true : false,
@@ -181,23 +186,36 @@
             icon: (this.activeProfileSaved) ? "turned_in" : "turned_in_not",
             class: (this.activeProfileSaved) ? "save-saved" : "save-not-saved",
 
-            
+
             click: () => { this.profileStore.saveRecord() }
           }
-          )        
+          )
+          menu.push(
+            {
+              text: "Validate",
+              icon: "check",
+              click: () => {
+                this.showValidateModal = true;
+                this.$nextTick(()=>{
+                  this.$refs.validatemodal.post()
+                })
+              }
+            }
+          )
           menu.push(
             {
               text: "Post",
               icon: "sailing",
-              click: () => { 
-                this.showPostModal = true; 
+              click: () => {
+                this.showPostModal = true;
                 this.$nextTick(()=>{
                   this.$refs.postmodal.post()
-                })                
+                })
               }
             }
           )
-            
+
+
 
         }
 
@@ -210,15 +228,15 @@
             // active: this.happy,
             icon: "account_circle",
             class: "login-menu",
-            click: () => { this.showLoginModal = true }           
+            click: () => { this.showLoginModal = true }
         }
         )
 
-        
 
 
 
-       
+
+
         return menu
 
 
@@ -252,7 +270,7 @@
     },
 
     created() {
-     
+
 
 
 
@@ -343,16 +361,16 @@
 <style scoped>
 
   #nav-holder{
-    position: absolute; 
-    top: 0; 
+    position: absolute;
+    top: 0;
     left: 0;
     width: 100vw;
     height: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-height',true) - 1 + 'px'");
   }
-  
 
 
-    
+
+
 
 
 
