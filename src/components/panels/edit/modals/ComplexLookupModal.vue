@@ -263,8 +263,9 @@
         }
 
         if (uri.includes('/resources/hubs/') || uri.includes('/resources/works/') || uri.includes('/resources/instances/') || uri.includes('/resources/items/')){
-          uri = uri.replace('https://id.loc.gov/', config.returnUrls().bfdb )
-          uri = uri.replace('http://id.loc.gov/', config.returnUrls().bfdb )
+          let returnUrls = useConfigStore().returnUrls
+          uri = uri.replace('https://id.loc.gov/', returnUrls.bfdb )
+          uri = uri.replace('http://id.loc.gov/', returnUrls.bfdb )
         }
 
 
@@ -376,7 +377,7 @@
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
-                  <div v-if="(activeComplexSearch[0].total % 25 ) > 0" class="complex-lookup-paging">
+                  <div v-if="(activeComplexSearch && activeComplexSearch[0] && activeComplexSearch[0].total % 25 ) > 0" class="complex-lookup-paging">
                     <span>
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
                         <span class="material-icons pagination">keyboard_double_arrow_left</span>
@@ -384,7 +385,7 @@
                       <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
                         <span class="material-icons pagination">chevron_left</span>
                       </a>
-                      <span> Page {{ this.currentPage }} of {{ Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) }} </span>
+                      <span class="pagination-label"> Page {{ this.currentPage }} of {{ Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) }} </span>
                       <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
                         <span class="material-icons pagination">chevron_right</span>
                       </a>
@@ -510,6 +511,10 @@
 </template>
 
 <style>
+
+.pagination-label{
+  vertical-align: super;
+}
 
 .complex-lookup-modal-container{
   margin-left: auto;
