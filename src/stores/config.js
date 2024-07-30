@@ -188,6 +188,16 @@ export const useConfigStore = defineStore('config', {
     'http://www.loc.gov/mads/rdf/v1#Geographic'
   ],
 
+  // Do not enable deepHierarchy flags on these properties regardless of how complicated
+  // deepHierarchy flag prevents editing extreamly nested structures since the editor is not designed 
+  // to allow editing of nested works for example
+  exludeDeepHierarchy: [
+    'http://id.loc.gov/ontologies/bibframe/adminMetadata',
+    'http://id.loc.gov/ontologies/bibframe/subject'
+    
+  ],
+
+
   // xml files stored in the static file directory
   testData:[
     {lccn:'2001059208',label:"The knitter's handy book of patterns: basic designs in multiple sizes & gauges", idUrl:'https://id.loc.gov/resources/instances/12618072.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},

@@ -310,6 +310,7 @@ const utilsExport = {
   */
   buildXML: async function(profile){
 
+	
     // console.log(profile)
 
     // keep track of the proces for later
@@ -321,8 +322,11 @@ const utilsExport = {
     
     // keep a copy of the org profile around
     let orginalProfile = profile
-		// cut the ref to the orginal
-		profile = JSON.parse(JSON.stringify(profile))
+	// cut the ref to the orginal
+	profile = JSON.parse(JSON.stringify(profile))
+
+	let xmlParser = returnDOMParser()					
+
 
     // these will store the top level elements
     let tleWork = []
@@ -414,10 +418,20 @@ const utilsExport = {
 
 			for (let pt of profile.rt[rt].ptOrder){
 
-        // extract the pt, this is the individual component like a <mainTitle>
+        		// extract the pt, this is the individual component like a <mainTitle>
 				let ptObj = profile.rt[rt].pt[pt]
 				if (ptObj.deleted){
 					continue
+				}
+				
+				if (ptObj.deepHierarchy){
+
+					// just take our existing XML and plop it into the root element
+					let orgNode = xmlParser.parseFromString(ptObj.xmlSource, "text/xml").children[0]
+					rootEl.appendChild(orgNode)
+					continue
+
+
 				}
 
 				xmlLog.push(`Working on: ${pt}`)
@@ -425,7 +439,7 @@ const utilsExport = {
 
 				let userValue
 
-        // the uservalue could be stored in a few places depending on the nesting
+        		// the uservalue could be stored in a few places depending on the nesting
 				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){
 					userValue = ptObj.userValue[ptObj.propertyURI][0] 				
 				}else if (ptObj.userValue[ptObj.propertyURI]){
@@ -573,11 +587,45 @@ const utilsExport = {
 												pLvl3.appendChild(bnodeLvl3)
 												bnodeLvl2.appendChild(pLvl3)
 												xmlLog.push(`Creating lvl 3 bnode: ${bnodeLvl3.tagName} for ${key2}`)
+
 												for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
+													let pLvl4 = this.createElByBestNS(key2)
 													for (let value3 of value2[key3]){
 														if (this.isBnode(value3)){
-															console.error("Max hierarchy depth reached, but there are more levels left:", key3, 'in', userValue )
-															xmlLog.push(`Max hierarchy depth reached, but there are more levels left for ${key3}`)
+															// one more level
+															let bnodeLvl4 = this.createBnode(value3,key3)
+															pLvl4.appendChild(bnodeLvl4)
+															bnodeLvl3.appendChild(pLvl4)
+															xmlLog.push(`Creating lvl 4 bnode: ${bnodeLvl4.tagName} for ${key3}`)
+
+															
+															for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
+																for (let value4 of value3[key4]){
+																	if (this.isBnode(value4)){
+																		console.error("Max hierarchy depth reached, but there are more levels left:", key4, 'in', userValue )
+																		xmlLog.push(`Max hierarchy depth reached, but there are more levels left for ${key4}`)
+			
+																	}else{
+
+																		for (let key5 of Object.keys(value4).filter(k => (!k.includes('@') ? true : false ) )){
+																			if (typeof value4[key5] == 'string' || typeof value4[key5] == 'number'){
+																				// its a label or some other literal
+																				let p5 = this.createLiteral(key5, value4)
+																				if (p5!==false) bnodeLvl4.appendChild(p5);
+																				xmlLog.push(`Added literal ${p5} for ${key5}`)
+																			}else{
+																				console.error('key5', key5, value4[key5], 'not a literal, should not happen')
+																				xmlLog.push(`Error not a literal but I thought it was at ${key5}`)
+																			}
+																		}
+
+																	}
+
+																}
+
+															}
+
+														
 														}else{
 															for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
 																if (typeof value3[key4] == 'string' || typeof value3[key4] == 'number'){
@@ -705,8 +753,8 @@ const utilsExport = {
 						// but it might be a bnode, but with only a URI
 						for (let userValue of userValueArray){
 
-              // 2024 - Still needed?
-              if (userValue['@flags'] && userValue['@flags'].indexOf('simpleLookupTopLevelMulti') > -1){
+							// 2024 - Still needed?
+							if (userValue['@flags'] && userValue['@flags'].indexOf('simpleLookupTopLevelMulti') > -1){
 
 								// xmlLog.push(`Found special flag rule for ${ptObj.propertyURI}`)
 								// // an edge case here where we wanted to allow multiple simple lookups in root level fields
@@ -928,8 +976,8 @@ const utilsExport = {
       
 
 			if (orginalProfile.rt[rt].unusedXml){			
-        let parser = returnDOMParser()					
-				let unusedXmlNode = parser.parseFromString(orginalProfile.rt[rt].unusedXml, "text/xml")
+
+				let unusedXmlNode = xmlParser.parseFromString(orginalProfile.rt[rt].unusedXml, "text/xml")
 				unusedXmlNode = unusedXmlNode.children[0]
 				for (let el of unusedXmlNode.children){					
 					// console.log("Looking at",el.tagName)
@@ -937,7 +985,7 @@ const utilsExport = {
 						// there is some strange behavior adding the element directly
 						// so make a copy of it and insert the copy parsed from the string xml
 						let newEl = (new XMLSerializer()).serializeToString(el)
-						newEl = parser.parseFromString(newEl, "text/xml")
+						newEl = xmlParser.parseFromString(newEl, "text/xml")
 						newEl = newEl.children[0]
 						rootEl.appendChild(newEl)
 					}
@@ -948,8 +996,8 @@ const utilsExport = {
 			tleLookup[rootElName][orginalProfile.rt[rt].URI] = rootEl
 		}
 
-		console.log("tleLookup --- tleLookup")
-		console.log(tleLookup)
+		// console.log("tleLookup --- tleLookup")
+		// console.log(tleLookup)
 
 
 		// Add in a adminMetadata to the resources with this user id
@@ -984,14 +1032,14 @@ const utilsExport = {
 		let adminMetadataText = (new XMLSerializer()).serializeToString(bf_adminMetadata)
 
 
-    	let parser = returnDOMParser()
 
 		
+		
 		for (let URI in tleLookup['Work']){
-			tleLookup['Work'][URI].appendChild(parser.parseFromString(adminMetadataText, "text/xml").children[0])		
+			tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])		
 		}
 		for (let URI in tleLookup['Instance']){
-			tleLookup['Instance'][URI].appendChild(parser.parseFromString(adminMetadataText, "text/xml").children[0])		
+			tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])		
 		}
 
 
@@ -1001,14 +1049,14 @@ const utilsExport = {
 		for (let URI in tleLookup['Work']){
 			let theWork = (new XMLSerializer()).serializeToString(tleLookup['Work'][URI])
 			// theWork = theWork.replace(/\sxmlns:[a-z]+="http.*?"/g,'')
-			theWork = parser.parseFromString(theWork, "text/xml").children[0];
+			theWork = xmlParser.parseFromString(theWork, "text/xml").children[0];
 			rdfBasic.appendChild(theWork)
 		}
 
 		for (let URI in tleLookup['Hub']){
 			let theHub = (new XMLSerializer()).serializeToString(tleLookup['Hub'][URI])
 			// theHub = theHub.replace(/\sxmlns:[a-z]+="http.*?"/g,'')
-			theHub = parser.parseFromString(theHub, "text/xml").children[0];
+			theHub = xmlParser.parseFromString(theHub, "text/xml").children[0];
 			rdfBasic.appendChild(theHub)
 		}
 
@@ -1016,7 +1064,7 @@ const utilsExport = {
 			// let instance = tleLookup['Instance'][URI].cloneNode( true )
 			let instance = (new XMLSerializer()).serializeToString(tleLookup['Instance'][URI])
 			// instance = instance.replace(/\sxmlns:[a-z]+="http.*?"/g,'')
-			instance = parser.parseFromString(instance, "text/xml").children[0];
+			instance = xmlParser.parseFromString(instance, "text/xml").children[0];
 			let items = this.returnHasItem(URI,orginalProfile,tleLookup)
 			// alert(items.length)s
 			for (let item of items){
@@ -1045,7 +1093,7 @@ const utilsExport = {
 			// rdfBasic.appendChild(tleLookup['Item'][URI].cloneNode( true ))
 			let item = (new XMLSerializer()).serializeToString(tleLookup['Item'][URI])
 			// item = item.replace(/\sxmlns:[a-z]+="http.*?"/g,'')
-			item = parser.parseFromString(item, "text/xml").children[0];
+			item = xmlParser.parseFromString(item, "text/xml").children[0];
 			rdfBasic.appendChild(item)
 		}
 
@@ -1055,7 +1103,7 @@ const utilsExport = {
 				for (let URI in tleLookup['Instance']){
 					// let instance = tleLookup['Instance'][URI].cloneNode( true )
 					let instance = (new XMLSerializer()).serializeToString(tleLookup['Instance'][URI])
-					instance = parser.parseFromString(instance, "text/xml").children[0];
+					instance = xmlParser.parseFromString(instance, "text/xml").children[0];
 					let items = this.returnHasItem(URI,orginalProfile,tleLookup)
 					if (items.length > 0){
 						for (let item of items){
@@ -1089,7 +1137,7 @@ const utilsExport = {
 			for (let URI in tleLookup['Instance']){
 			// let instance = tleLookup['Instance'][URI].cloneNode( true )
 				let instance = (new XMLSerializer()).serializeToString(tleLookup['Instance'][URI])
-				instance = parser.parseFromString(instance, "text/xml").children[0];
+				instance = xmlParser.parseFromString(instance, "text/xml").children[0];
 				let items = this.returnHasItem(URI,orginalProfile,tleLookup)
 				if (items.length > 0){			
 					for (let item of items){
@@ -1238,7 +1286,7 @@ const utilsExport = {
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:lccn')
 		el.innerHTML = xmlVoidDataLccn
 		datasetDescriptionEl.appendChild(el)
-    console.log("SETTING the user", profile)
+    	
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:user')
 		el.innerHTML = profile.user
 		datasetDescriptionEl.appendChild(el)
@@ -1340,6 +1388,7 @@ const utilsExport = {
     // console.log(strXmlFormatted)
     // console.log("------")
     // console.log(strXmlBasic)
+		console.log(xmlLog)
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,

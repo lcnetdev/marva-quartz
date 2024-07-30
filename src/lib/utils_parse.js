@@ -29,24 +29,30 @@ const utilsParse = {
   * @return {boolean}
   */
   isClass: function(uri){
-
+    
     // just testing a few name spaces here
     if (uri.match(/bf:[A-Z]/)){
+      console.log('T',uri)
       return true
     }
     if (uri.match(/bflc:[A-Z]/)){
+      console.log('T',uri)
       return true
     }
     if (uri.match(/madsrdf:[A-Z]/)){
+      console.log('T',uri)
       return true
     }
     if (uri.match(/rdfs:[A-Z]/)){
+      console.log('T',uri)
       return true
     }
     if (uri.match(/rdf:[A-Z]/)){
+      console.log('T',uri)
       return true
     }
     if (uri.match(/lclocal:[A-Z]/)){
+      console.log('T',uri)
       return true
     }
 
@@ -60,6 +66,7 @@ const utilsParse = {
     //  }
 
     // }
+    console.log('F',uri)
     return false
 
   },
@@ -235,7 +242,7 @@ const utilsParse = {
       }
     }
 
-    console.log("need this many:",this.hasInstance - totalInstanceRts);
+    
     [...Array(this.hasInstance - totalInstanceRts)].forEach((_, i) => {
       profile.rt[useInstanceRtName + '_'+(i+1)] = JSON.parse(JSON.stringify(useInstanceRt))
       profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
@@ -261,14 +268,14 @@ const utilsParse = {
       // select the right part of the profile
       let pt = profile.rt[pkey].pt
       let xml = this.activeDom.getElementsByTagName(tle)
-      console.log("profile.rt[pkey]",profile.rt[pkey])
+      
       // store this here for easy access to the error report
       profile.xmlSource = this.xmlSource
       
       
       // only return the top level, no nested related things
       xml = this.returnOneWhereParentIs(xml, "rdf:RDF")
-      console.log('selecting to process:',xml)
+      
 
       if (xml === false && tle == 'bf:Hub'){
         tle = "bf:Work"
@@ -279,7 +286,7 @@ const utilsParse = {
           xml = this.activeDom.getElementsByTagName(tle)
         }
         xml = this.returnOneWhereParentIs(xml, "rdf:RDF")
-        console.log('selecting to process:',xml)
+        
       }
       if (xml===false){
         console.warn(tle,'was not processed because it failed the top level test, must be a nested resource?')
@@ -458,6 +465,7 @@ const utilsParse = {
 
           ptk.hasData = true
           ptk.canBeHidden = false
+          ptk.deepHierarchy = false
           
           // loop through all of them
           let counter = 0
@@ -854,7 +862,6 @@ const utilsParse = {
 
 
 
-
                         gChildData['@type'] = this.UriNamespace(ggChild.tagName)
 
                         // check for URI
@@ -870,8 +877,6 @@ const utilsParse = {
 
                         // now loop through these ggchildren, they are properties of this bnode
                         for (let gggChild of ggChild.children){
-
-
 
                           // not a bnode, just a one liner property of the bnode      
                           if (this.UriNamespace(gggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
@@ -951,9 +956,10 @@ const utilsParse = {
 
                             for (let ggggChild of gggChild.children){
 
-
                               if (this.isClass(ggggChild.tagName)){
 
+                                // we will flag this as having a deep hiearcy to review later if we should let them be able to edit it
+                                ptk.deepHierarchy = true
 
                                 // <bf:genreForm xmlns:bf="http://id.loc.gov/ontologies/bibframe/">
                                 //   <bf:GenreForm xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="https://id.loc.gov/authorities/genreForms/gf2014026639">
@@ -978,9 +984,7 @@ const utilsParse = {
                                 //   </bf:GenreForm>
                                 // </bf:genreForm>
 
-
                                 gggData['@type'] = this.UriNamespace(ggggChild.tagName)
-
 
                                 // check for URI
                                 if (ggggChild.attributes && ggggChild.attributes['rdf:about']){
@@ -992,14 +996,10 @@ const utilsParse = {
                                 }
 
 
-
-
-                                // now loop through this bnodes decendents, this is the limit tho
-
+                                // now loop through this bnodes descendants
                                 for (let gggggChild of ggggChild.children){
 
-
-                                  let gggggChildProperty = this.UriNamespace(gggggChild.tagName)
+                                  
 
                                   if (this.UriNamespace(gggggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
@@ -1018,7 +1018,7 @@ const utilsParse = {
 
                                   }else if (gggggChild.children.length ==0){
 
-
+                                      let gggggChildProperty = this.UriNamespace(gggggChild.tagName)
 
                                       if (!gggData[gggggChildProperty]){
                                         gggData[gggggChildProperty] = []
@@ -1058,235 +1058,160 @@ const utilsParse = {
                                       gggData[gggggChildProperty].push(ggggChildData)
 
 
-
                                   }else{
 
+                                    let g5ChildProperty = this.UriNamespace(gggggChild.tagName)
+                                    // console.log("g5ChildProperty",g5ChildProperty)
 
+                                    let g5ChildData = {'@guid': short.generate()}
 
-                                    // <bf:supplement>
-                                    //     <bf:Work>
-                                    //         <bflc:aap>BusinessWeek SmallBiz</bflc:aap>
-                                    //         <bflc:aap-normalized>businessweeksmallbiz</bflc:aap-normalized>
-                                    //         <bf:title>
-                                    //             <bf:Title>
-                                    //                 <bf:mainTitle>BusinessWeek SmallBiz</bf:mainTitle>
-                                    //             </bf:Title>
-                                    //         </bf:title>
-                                    //         <bf:hasInstance>
-                                    //             <bf:Instance>
-                                    //                 <bf:title>
-                                    //                     <bf:Title>
-                                    //                         <bf:mainTitle>BusinessWeek SmallBiz</bf:mainTitle>
-                                    //                     </bf:Title>
-                                    //                 </bf:title>
-                                    //                 <bf:identifiedBy>
-                                    //                     <bf:Lccn>
-                                    //                         <rdf:value>  2005264032</rdf:value>
-                                    //                         <bf:assigner>
-                                    //                             <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
-                                    //                                 <rdfs:label>United States, Library of Congress</rdfs:label>
-                                    //                             </bf:Organization>
-                                    //                         </bf:assigner>
-                                    //                     </bf:Lccn>
-                                    //                 </bf:identifiedBy>
-                                    //                 <bf:identifiedBy>
-                                    //                     <bf:Identifier>
-                                    //                         <rdf:value>62510605</rdf:value>
-                                    //                         <bf:assigner>
-                                    //                             <bf:Agent>
-                                    //                                 <bf:code>OCoLC</bf:code>
-                                    //                             </bf:Agent>
-                                    //                         </bf:assigner>
-                                    //                     </bf:Identifier>
-                                    //                 </bf:identifiedBy>
-                                    //             </bf:Instance>
-                                    //         </bf:hasInstance>
-                                    //     </bf:Work>
-                                    // </bf:supplement>
-
-// ---------------
-
-                                    // if it has children then it means it is a predicate to another nested
-                                    // bnode
-
-                                    // so create a new obj and load it into the structure
-                                    let ggggChildProperty = this.UriNamespace(ggggChild.tagName)
-
-
-                                    if (!gChildData[ggggChildProperty]){
-                                      gChildData[ggggChildProperty] = []
+                                    if (!gggData[g5ChildProperty]){
+                                      gggData[g5ChildProperty] = []
                                     }
 
-                                    // new obj
-                                    let ggggData = {'@guid': short.generate()}
+                                    ptk.deepHierarchy = true
 
 
-                                    for (let gggggChild of ggggChild.children){
+                                    for (let g6Child of gggggChild.children){
+                                      // console.log("Doing",g6Child.tagName)
+                                      
 
+                                      if (this.isClass(g6Child.tagName)){
 
-                                      if (this.isClass(gggggChild.tagName)){
+                                        // console.log("Build resource for", g6Child.tagName)
 
-
-                                        // <bf:genreForm xmlns:bf="http://id.loc.gov/ontologies/bibframe/">
-                                        //   <bf:GenreForm xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="https://id.loc.gov/authorities/genreForms/gf2014026639">
-                                        //     <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Topic"/>
-                                        //     <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Art music.</rdfs:label>
-                                        //     <madsrdf:authoritativeLabel xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">Art music.</madsrdf:authoritativeLabel>
-                                        //     <bf:source>
-                                        //       <bf:Source rdf:about="http://id.loc.gov/vocabulary/genreFormSchemes/fast">
-                                        //         <bf:code>fast</bf:code>
-                                        //       </bf:Source>
-                                        //     </bf:source>
-                                        //     <bf:identifiedBy>
-                                        //       <bf:Identifier>
-                                        //         <rdf:value>fst01920007</rdf:value>
-                                        //         <bf:source>
-                                        //           <bf:Source> ~~~~~~~~~~~~~YOU ARE HERE ~~~~~~~~~~~~
-                                        //             <bf:code>OCoLC</bf:code>
-                                        //           </bf:Source>
-                                        //         </bf:source>
-                                        //       </bf:Identifier>
-                                        //     </bf:identifiedBy>
-                                        //   </bf:GenreForm>
-                                        // </bf:genreForm>
-
-
-                                        ggggData['@type'] = this.UriNamespace(gggggChild.tagName)
-
+                                        g5ChildData['@type'] = this.UriNamespace(g6Child.tagName)
 
                                         // check for URI
-                                        if (gggggChild.attributes && gggggChild.attributes['rdf:about']){
-                                          ggggData['@id'] = this.extractURI(gggggChild.attributes['rdf:about'].value)
-                                        }else if (gggggChild.attributes && gggggChild.attributes['rdf:resource']){
-                                          ggggData['@id'] = this.extractURI(gggggChild.attributes['rdf:resource'].value)
+                                        if (g6Child.attributes && g6Child.attributes['rdf:about']){
+                                          g5ChildData['@id'] = this.extractURI(g6Child.attributes['rdf:about'].value)
+                                        }else if (g6Child.attributes && g6Child.attributes['rdf:resource']){
+                                          g5ChildData['@id'] = this.extractURI(g6Child.attributes['rdf:resource'].value)
                                         }else{
                                           // console.log('No URI for this child property')
                                         }
 
+                                        // now loop through this bnodes descendants
+                                        for (let g7Child of g6Child.children){
+
+                                          if (this.UriNamespace(g7Child.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
 
-
-                                        // now loop through this bnodes decendents, this is the limit tho
-
-                                        for (let ggggggChild of gggggChild.children){
-
-
-                                          let ggggggChildProperty = this.UriNamespace(ggggggChild.tagName)
-
-                                          if (this.UriNamespace(ggggggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
-
-
-                                            if (ggggggChild.attributes && ggggggChild.attributes['rdf:about']){
-                                              ggggData['@type'] = ggggggChild.attributes['rdf:about'].value
-                                            }else if (ggggggChild.attributes && ggggggChild.attributes['rdf:resource']){
-                                              ggggData['@type'] = ggggggChild.attributes['rdf:resource'].value
+                                            if (g7Child.attributes && g7Child.attributes['rdf:about']){
+                                              g5ChildData['@type'] = g7Child.attributes['rdf:about'].value
+                                            }else if (g7Child.attributes && g7Child.attributes['rdf:resource']){
+                                              g5ChildData['@type'] = g7Child.attributes['rdf:resource'].value
                                             }else{
                                               console.warn('---------------------------------------------')
                                               console.warn('There was a gggChild RDF Type node but could not extract the type')
-                                              console.warn(ggggggChild)
+                                              console.warn(g7Child)
                                               console.warn('---------------------------------------------')
                                             }
 
 
-                                          }else if (ggggggChild.children.length ==0){
+                                          }else if (g7Child.children.length ==0){
 
+                                            // console.log("Build literal for:",g7Child)
+                                            ptk.deepHierarchy = true
 
+                                            let g7ChildProperty = this.UriNamespace(g7Child.tagName)
+                                            // console.log(g7ChildProperty)
 
-                                              if (!ggggData[ggggggChildProperty]){
-                                                ggggData[ggggggChildProperty] = []
+                                            if (!g5ChildData[g7ChildProperty]){
+                                              g5ChildData[g7ChildProperty] = []
+                                            }
+      
+                                            // it doesn't have any children, so it will be a literal or something like that
+                                            let g6ChildData = {'@guid': short.generate()}
+      
+                                            if (g7Child.attributes && g7Child.attributes['rdf:about']){
+                                              g6ChildData['@id'] = this.extractURI(g7Child.attributes['rdf:about'].value)
+                                            }else if (g6ChildData.attributes && g7Child.attributes['rdf:resource']){
+                                              g6ChildData['@id'] = this.extractURI(g7Child.attributes['rdf:resource'].value)
+                                            }else{
+                                              // console.log('No URI for this child property')
+                                            }
+      
+                                            if (g7Child.innerHTML != null && g7Child.innerHTML.trim() != ''){
+                                              g6ChildData[g7ChildProperty] = g7Child.innerHTML
+                                              
+                                              // does it have a data type or lang                 
+                                              if (g7Child.attributes && g7Child.attributes['rdf:datatype']){
+                                                g6ChildData['@datatype'] = g7Child.attributes['rdf:datatype'].value
                                               }
-
-                                              // it doesn't have any children, so it will be a literal or something like that
-                                              let gggggChildData = {'@guid': short.generate()}
-
-                                              if (ggggggChild.attributes && ggggggChild.attributes['rdf:about']){
-                                                ggggData['@id'] = this.extractURI(ggggggChild.attributes['rdf:about'].value)
-                                              }else if (ggggggChild.attributes && ggggggChild.attributes['rdf:resource']){
-                                                ggggData['@id'] = this.extractURI(gggggChild.attributes['rdf:resource'].value)
-                                              }else{
-                                                // console.log('No URI for this child property')
+                                              if (g7Child.attributes && g7Child.attributes['http://www.w3.org/1999/02/22-rdf-syntax-ns#datatype']){
+                                                g6ChildData['@datatype'] = g7Child.attributes['http://www.w3.org/1999/02/22-rdf-syntax-ns#datatype'].value
                                               }
-
-                                              if (ggggggChild.innerHTML != null && ggggggChild.innerHTML.trim() != ''){
-                                                gggggChildData[ggggggChildProperty] = ggggggChild.innerHTML
-                                                
-                                                // does it have a data type or lang                 
-                                                if (ggggggChild.attributes && ggggggChild.attributes['rdf:datatype']){
-                                                  gggggChildData['@datatype'] = gggggChild.attributes['rdf:datatype'].value
-                                                }
-                                                if (ggggggChild.attributes && ggggggChild.attributes['http://www.w3.org/1999/02/22-rdf-syntax-ns#datatype']){
-                                                  gggggChildData['@datatype'] = ggggggChild.attributes['http://www.w3.org/1999/02/22-rdf-syntax-ns#datatype'].value
-                                                }
-                                                if (ggggggChild.attributes && ggggggChild.attributes['xml:lang']){
-                                                  gggggChildData['@language'] = ggggggChild.attributes['xml:lang'].value
-                                                }
-                                                if (ggggggChild.attributes && ggggggChild.attributes['rdf:parseType']){
-                                                  gggggChildData['@parseType'] = ggggggChild.attributes['rdf:parseType'].value
-                                                } 
-
-
+                                              if (g7Child.attributes && g7Child.attributes['xml:lang']){
+                                                g6ChildData['@language'] = g7Child.attributes['xml:lang'].value
                                               }
+                                              if (g7Child.attributes && g7Child.attributes['rdf:parseType']){
+                                                g6ChildData['@parseType'] = g7Child.attributes['rdf:parseType'].value
+                                              } 
+      
+      
+                                            }
+      
+                                            g5ChildData[g7ChildProperty].push(g6ChildData)
 
-                                              ggggData[ggggggChildProperty].push(gggggChildData)
 
 
 
                                           }else{
 
+                                           // leaving the scaffloding to go deeper, but this is not designed to edit such deeply nested structures
+                                           // make sure the component is flagged as un-editable ptk.deepHierarchy = true and just reuse the XML on export
+                                           ptk.deepHierarchy = true
 
 
-                                            // <bf:supplement>
-                                            //     <bf:Work>
-                                            //         <bflc:aap>BusinessWeek SmallBiz</bflc:aap>
-                                            //         <bflc:aap-normalized>businessweeksmallbiz</bflc:aap-normalized>
-                                            //         <bf:title>
-                                            //             <bf:Title>
-                                            //                 <bf:mainTitle>BusinessWeek SmallBiz</bf:mainTitle>
-                                            //             </bf:Title>
-                                            //         </bf:title>
-                                            //         <bf:hasInstance>
-                                            //             <bf:Instance>
-                                            //                 <bf:title>
-                                            //                     <bf:Title>
-                                            //                         <bf:mainTitle>BusinessWeek SmallBiz</bf:mainTitle>
-                                            //                     </bf:Title>
-                                            //                 </bf:title>
-                                            //                 <bf:identifiedBy>
-                                            //                     <bf:Lccn>
-                                            //                         <rdf:value>  2005264032</rdf:value>
-                                            //                         <bf:assigner>
-                                            //                             <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
-                                            //                                 <rdfs:label>United States, Library of Congress</rdfs:label>
-                                            //                             </bf:Organization>
-                                            //                         </bf:assigner>
-                                            //                     </bf:Lccn>
-                                            //                 </bf:identifiedBy>
-                                            //                 <bf:identifiedBy>
-                                            //                     <bf:Identifier>
-                                            //                         <rdf:value>62510605</rdf:value>
-                                            //                         <bf:assigner>
-                                            //                             <bf:Agent>
-                                            //                                 <bf:code>OCoLC</bf:code>
-                                            //                             </bf:Agent>
-                                            //                         </bf:assigner>
-                                            //                     </bf:Identifier>
-                                            //                 </bf:identifiedBy>
-                                            //             </bf:Instance>
-                                            //         </bf:hasInstance>
-                                            //     </bf:Work>
-                                            // </bf:supplement>
+                                            // another level down
+                                            // so create a new obj and load it into the structure
+                                            let g7ChildProperty = this.UriNamespace(g7Child.tagName)
+                                            if (!g5ChildData[g7ChildProperty]){
+                                              g5ChildData[g7ChildProperty] = []
+                                            }
+                                            
+                                            if (g7Child.children.length>0){
+
+                                              // now loop through this bnodes descendants
+                                              for (let g8Child of g7Child.children){
+
+                                                // console.log("Looking at",g8Child)
+
+                                                if (this.isClass(g8Child.tagName)){
+                                                  // its a class build a blank node                                             
+                                                }else{
+
+                                                }
+
+
+                                              }                                              
+
+                                            }else{
+
+                                              alert('Parsing issue, please report bug')
+
+
+                                            }
+                                            
+
+
+                                            
 
 
 
+                                            // if (!gChildData[gggChildProperty]){
+                                            //   gChildData[gggChildProperty] = []
+                                            // }
+
+                                            // // new obj
+                                            // let gggData = {'@guid': short.generate()}
 
 
+                                            // for (let ggggChild of gggChild.children){
+                                            
 
-                                              console.warn('---------------------------------------------')
-                                              console.warn('Reached the max depth for hiearchy, cannot read the properties nested below')
-                                              console.warn(ggggggChild)
-                                              console.warn(gggggChild)
-                                              console.warn('---------------------------------------------')
-                                              alert("This resource's nested XML structure is too deep to represent in this editor, you will loose data if you edit this record.")
+
                                           }
 
 
@@ -1294,82 +1219,27 @@ const utilsParse = {
 
 
                                         }
-
 
 
                                       }else{
 
-
-                                        let gggggChildProperty = this.UriNamespace(gggggChild.tagName)
-
-                                        if (!ggggData[gggggChildProperty]){
-                                          ggggData[gggggChildProperty] = []
-                                        }
-
-                                        // it doesn't have any children, so it will be a literal or something like that
-
-                                        if (gggggChild.attributes && gggggChild.attributes['rdf:about']){
-                                          ggggData['@id'] = this.extractURI(gggggChild.attributes['rdf:about'].value)
-                                        }else if (gggggChild.attributes && gggggChild.attributes['rdf:resource']){
-                                          ggggData['@id'] = this.extractURI(gggggChild.attributes['rdf:resource'].value)
-                                        }else{
-                                          // console.log('No URI for this child property')
-                                        }
-                                        
-                                        let gggggChildData = {'@guid': short.generate()}
-
-                                        if (gggggChild.innerHTML != null && gggggChild.innerHTML.trim() != ''){
-                                          gggggChildData[ggggChildProperty] = gggggChild.innerHTML
-
-                                          // does it have a data type or lang                 
-                                          if (gggggChild.attributes && gggggChild.attributes['rdf:datatype']){
-                                            gggggChildData['@datatype'] = gggggChild.attributes['rdf:datatype'].value
-                                          }
-                                          if (gggggChild.attributes && gggggChild.attributes['http://www.w3.org/1999/02/22-rdf-syntax-ns#datatype']){
-                                            gggggChildData['@datatype'] = gggggChild.attributes['http://www.w3.org/1999/02/22-rdf-syntax-ns#datatype'].value
-                                          }
-                                          if (gggggChild.attributes && gggggChild.attributes['xml:lang']){
-                                            gggggChildData['@language'] = gggggChild.attributes['xml:lang'].value
-                                          }
-                                          if (gggggChild.attributes && gggggChild.attributes['rdf:parseType']){
-                                            gggggChildData['@parseType'] = gggggChild.attributes['rdf:parseType'].value
-                                          } 
-
-
-                                        }
-
-                                        ggggData[gggggChildProperty].push(gggggChildData)
+                                        // console.log("Build literal for", g6Child.tagName)
+                                        alert("Error in processing nested literal please report bug")
 
                                       }
 
+
+
                                     }
 
-                                    // last thing is add it to the lat structure
-                                    gChildData[ggggChildProperty].push(ggggData)
-
-// --------------
-
                                     
-
-                                    
-
+                                    gggData[g5ChildProperty].push(g5ChildData)
 
 
-
-                                      // console.warn('---------------------------------------------')
-                                      // console.warn('Reached the max depth for hiearchy, cannot read the properties nested below')
-                                      // console.warn(gggggChild)
-                                      // console.warn(ggggChild)
-                                      // console.warn('---------------------------------------------')
                                   }
 
-
-
-
-
-                                }
-
-
+                                }                              
+                                
 
                               }else{
 
@@ -1538,7 +1408,6 @@ const utilsParse = {
 
           }
 
-
         }        
         
         // we did something with it, so remove it from the xml
@@ -1554,6 +1423,9 @@ const utilsParse = {
             }
           }
         }
+
+
+
 
 
 
@@ -1600,14 +1472,14 @@ const utilsParse = {
 
           // using MARC2BF rules 2.6+ we need to find the admin metadata that does not have a status
           // that will be our primary adminMetadat that they edit
-          console.log("userValueuserValueuserValueuserValue",userValue)
+          
           if (userValue){
             if (!userValue['http://id.loc.gov/ontologies/bibframe/status']){
               profile.rt[pkey].pt[key].adminMetadataType = 'primary'
               adminMedtataPrimary = key
             }else{
               profile.rt[pkey].pt[key].adminMetadataType = 'secondary'
-              console.log(userValue)
+              
               let useDate = "00000000"
               if (userValue['http://id.loc.gov/ontologies/bibframe/date'] && userValue['http://id.loc.gov/ontologies/bibframe/date'][0]){
                 if (userValue['http://id.loc.gov/ontologies/bibframe/date'][0]['http://id.loc.gov/ontologies/bibframe/date']){
@@ -1656,7 +1528,7 @@ const utilsParse = {
 
         }
 
-        console.log()
+        
 
 
         // we can potentailly prevent some xml errors from propagating further here
@@ -1802,6 +1674,13 @@ const utilsParse = {
           }
 
         }
+
+        // if we set any deepHiearchy then make sure that feature is allowed on that property
+        if (profile.rt[pkey].pt[key].deepHierarchy){
+          if (useConfigStore().exludeDeepHierarchy.indexOf(profile.rt[pkey].pt[key].propertyURI) >-1){
+            profile.rt[pkey].pt[key].deepHierarchy=false
+          }
+        }
       }
 
       
@@ -1880,7 +1759,7 @@ const utilsParse = {
       if (k.indexOf(':Instance')>-1){
 
         for (let pk in useProfile.rt[k].pt){
-          console.log(useProfile.rt[k])
+          
           if (useProfile.rt[k].pt[pk].propertyURI == 'http://id.loc.gov/ontologies/bibframe/instanceOf'){
             if (!useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/instanceOf']){
               useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/instanceOf'] = []
