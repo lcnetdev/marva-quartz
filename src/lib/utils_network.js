@@ -294,6 +294,10 @@ const utilsNetwork = {
         let returnUrls = useConfigStore().returnUrls
 
         let urlTemplate = searchPayload.url
+
+        console.log("######################################")
+        console.log("url ", urlTemplate)
+
         if (!Array.isArray(urlTemplate)){
             urlTemplate=[urlTemplate]
         }
@@ -335,6 +339,15 @@ const utilsNetwork = {
 
 
             let r = await this.fetchSimpleLookup(url)
+
+            //Config only allows 25 results, this will add something to the results
+            // to let the user know there are more names.
+            let overflow = 0
+            if (r.hits.length < r.count){
+              // It looks like the count is 1 more than the number of hits, why?
+              overflow = (r.count - r.hits.length)
+            }
+
             if (searchPayload.processor == 'lcAuthorities'){
                 // process the results as a LC suggest service
                 // console.log("URL",url)
@@ -349,7 +362,8 @@ const utilsNetwork = {
                     uri: hit.uri,
                     literal:false,
                     depreciated: false,
-                    extra: ''
+                    extra: '',
+                    total: r.count
                   }
 
                   if (hitAdd.label=='' && hitAdd.suggestLabel.includes('DEPRECATED')){

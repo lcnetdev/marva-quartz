@@ -36,6 +36,11 @@
 
         initalSearchState: true,
 
+        // These help paging the results when needed
+        offsetStart: 0,
+        offsetStep: 25,
+        currentPage: 1,
+        maxPage: 0,
 
         activeContext: null
 
@@ -58,7 +63,7 @@
 
 
 
-      
+
 
       modalSelectOptions(){
         let options = []
@@ -66,7 +71,7 @@
         //options.push({label: 'All', urls:null, processor:null})
         this.structure.valueConstraint.useValuesFrom.forEach((l)=>{
           if (this.lookupConfig[l]){
-            this.lookupConfig[l].modes.forEach((mode)=>{              
+            this.lookupConfig[l].modes.forEach((mode)=>{
               Object.keys(mode).forEach((k)=>{
                 options.push({label: k, urls:mode[k].url, processor:this.lookupConfig[l].processor, minCharBeforeSearch: (this.lookupConfig[l].minCharBeforeSearch ? this.lookupConfig[l].minCharBeforeSearch : false), all:mode[k].all })
                 // mark the first All one we find as the first one
@@ -76,7 +81,7 @@
               })
             })
           }
-        })        
+        })
         return options
       },
       modalSelectOptionsLabels(){
@@ -103,7 +108,7 @@
     },
 
     methods: {
-      
+
 
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
@@ -115,7 +120,7 @@
         }
 
         if (this.searchValueLocal.length<3){
-          // if it is non-latin 
+          // if it is non-latin
           if (this.searchValueLocal.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/)){
             // if it is a CJK language don't impose that limit
           }else{
@@ -135,6 +140,11 @@
         }
         window.clearTimeout(this.searchTimeout)
 
+        let offset = this.offsetStart
+        if (this.activeComplexSearch != []) {
+          offset = this.offsetStep * (this.currentPage - 1)
+        }
+
         let searchPayload = {
           processor: null,
           url: [],
@@ -142,31 +152,33 @@
         }
         // if (this.modeSelect == 'All'){
         //   this.modalSelectOptions.forEach((a)=>{
-        //     // use the ones in the config marked as "all" 
+        //     // use the ones in the config marked as "all"
         //     if(a.all===true){
         //       searchPayload.processor=a.processor
         //       searchPayload.url.push(a.urls.replace('<QUERY>',this.searchValue))
         //     }
         //   })
-          
+
         // }else{
           this.modalSelectOptions.forEach((a)=>{
             if (a.label==this.modeSelect){
               searchPayload.processor=a.processor
-              searchPayload.url.push(a.urls.replace('<QUERY>',this.searchValueLocal))            
+              searchPayload.url.push(
+                a.urls
+                  .replace('<QUERY>', this.searchValueLocal)
+                  .replace('<OFFSET>', offset)
+              )
             }
           })
 
 
         this.searchTimeout = window.setTimeout(async ()=>{
-          this.activeComplexSearchInProgress = true    
-          this.activeComplexSearch = []      
+          this.activeComplexSearchInProgress = true
+          this.activeComplexSearch = []
           this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
           this.activeComplexSearchInProgress = false
           this.initalSearchState =false;
         }, 400)
-        
-
       },
 
 
@@ -190,17 +202,17 @@
                 window.setTimeout(()=> {
                   // put the cursor at the end
                   this.$refs.inputLookup.setSelectionRange(1000,1000);
-                },10);             
+                },10);
               });
             }
-          }          
+          }
         }
         if (event.key==='Enter' && event.shiftKey){
           console.log("emitComplexValue",this.activeContext)
           this.$emit('emitComplexValue', this.activeContext)
         }
 
-      },    
+      },
 
       selectChange: async function(){
 
@@ -210,7 +222,7 @@
         console.log(toLoad)
 
         this.activeContext = {
-            "contextValue": true,                  
+            "contextValue": true,
             "source": [],
             "type": (toLoad.literal) ? "Literal Value" : null,
             "variant": [],
@@ -224,7 +236,7 @@
             "literal": true,
             "loading":true,
           }
-       
+
         let results = await utilsNetwork.returnContext(toLoad.uri)
         results.loading = false
 
@@ -237,8 +249,8 @@
 
         this.activeContext = results
 
-       
-      },  
+
+      },
 
       rewriteURI: function(uri){
 
@@ -252,7 +264,7 @@
 
         if (uri.includes('/resources/hubs/') || uri.includes('/resources/works/') || uri.includes('/resources/instances/') || uri.includes('/resources/items/')){
           uri = uri.replace('https://id.loc.gov/', config.returnUrls().bfdb )
-          uri = uri.replace('http://id.loc.gov/', config.returnUrls().bfdb )      
+          uri = uri.replace('http://id.loc.gov/', config.returnUrls().bfdb )
         }
 
 
@@ -260,10 +272,41 @@
       },
 
 
+      firstPage: function(){
+        // if not the first page allow
+        if (this.currentPage !== 1){
+          this.currentPage = 1
+          this.doSearch()
+        }
+      },
+      prevPage: function(){
+        // if not the first page allow
+        if (this.currentPage !== 1){
+          this.currentPage--
+          this.doSearch()
+        }
+      },
 
+      nextPage: function(){
+        let max = Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)
 
+        if (max > this.currentPage){
+          this.currentPage++
+          this.doSearch()
+        }
+      },
+      lastPage: function(){
+        let max = Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)
+
+        if (max > this.currentPage){
+          this.currentPage = max
+          this.doSearch()
+        }
+      },
 
     },
+
+
 
     updated: function(){
 
@@ -279,10 +322,10 @@
             let selectHeight =  modalStopsAt - this.$refs.selectOptions.getBoundingClientRect().y
             this.$refs.selectOptions.style.height = selectHeight - 1 + 'px'
 
-            
+
             this.$refs.complexLookupModalDisplay.style.height = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + 'px'
           }
-        })       
+        })
       })
     },
 
@@ -320,20 +363,38 @@
       :background="'non-interactive'"
       :lock-scroll="true"
       class="complex-lookup-modal"
-      content-class="complex-lookup-modal-content"      
+      content-class="complex-lookup-modal-content"
       >
 
         <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
 
           <div class="complex-lookup-modal-container-parts">
 
-            <div class="complex-lookup-modal-search"> 
+            <div class="complex-lookup-modal-search">
 
 
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
+                  <div v-if="(activeComplexSearch[0].total % 25 ) > 0" class="complex-lookup-paging">
+                    <span>
+                      <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
+                        <span class="material-icons pagination">keyboard_double_arrow_left</span>
+                      </a>
+                      <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
+                        <span class="material-icons pagination">chevron_left</span>
+                      </a>
+                      <span> Page {{ this.currentPage }} of {{ Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) }} </span>
+                      <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
+                        <span class="material-icons pagination">chevron_right</span>
+                      </a>
+                      <a href="#" title="last page" class="last" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="lastPage()">
+                        <span class="material-icons pagination">keyboard_double_arrow_right</span>
+                      </a>
+                    </span>
+                  </div>
                 </div>
+
               </template>
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === true">
                 <select v-model="modeSelect">
@@ -346,7 +407,7 @@
 
 
                   <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)">
-                    
+
                     <option v-if="activeComplexSearch.length == 0 && activeComplexSearchInProgress == false && initalSearchState != true">
                       No results found.
                     </option>
@@ -360,7 +421,7 @@
 
                     <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + r.label + ((r.literal) ? ' [Literal]' : '')">
                     </option>
-                  </select>              
+                  </select>
 
 
               </div>
@@ -371,7 +432,7 @@
 
 
             <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display">
-              
+
               <template v-if="activeContext !== null">
 
                   <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.type"><AuthTypeIcon v-if="activeContext.type" :type="activeContext.type"></AuthTypeIcon></span>{{activeContext.title}}</h3>
@@ -387,7 +448,7 @@
 
                     </div>
                     <div class="complex-lookup-modal-display-buttons">
-                      
+
                       <button @click="$emit('emitComplexValue', activeContext)">Add [Shift+Enter]</button>
                       <button @click="$emit('hideComplexModal')">Cancel [ESC]</button>
 
@@ -430,7 +491,7 @@
               <div>
 <!--                 <div class="load-wraper" style="height: 100px; width: 100px;">
                     <div class="activity" ></div>
-                </div>      -->           
+                </div>      -->
 
               </div>
             </div>
@@ -439,8 +500,8 @@
 
         </div>
 
-      
-          
+
+
     </VueFinalModal>
 
 
@@ -459,7 +520,7 @@
 }
 
 .complex-lookup-modal-content{
-  
+
 }
 
 
@@ -478,7 +539,7 @@
 
 <style scoped>
 
-  .complex-lookup-modal-display-buttons{                      
+  .complex-lookup-modal-display-buttons{
     align-items: center;
     justify-content: center;
   }
@@ -496,7 +557,7 @@
   }
   .modal-context-data-title{
     font-weight: bold;
-    
+
   }
   .modal-context-data-title-add-gap{
     margin-top: 1em;
@@ -530,7 +591,7 @@
   }
   .complex-lookup-results{
     padding: 0 1em 0 1em;
-    height: 73%; 
+    height: 73%;
     margin-top: 1.25em;
 
   }
@@ -623,5 +684,27 @@
     border: solid 1px blue !important;
   }
 
+  .complex-lookup-paging {
+    display: unset;
+    float: right;
+    width: auto !important;
+  }
+
+  .material-icons.pagination{
+    width: auto;
+  }
+
+  .off {
+    color: #666;
+    text-decoration: none;
+    cursor: text;
+  }
+
+  .icon-chevron-left:before {
+    content: "\f053";
+  }
+  .icon-chevron-right:before {
+    content: "\f054";
+  }
 
 </style>
