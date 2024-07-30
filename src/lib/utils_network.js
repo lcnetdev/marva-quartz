@@ -345,13 +345,8 @@ const utilsNetwork = {
             let overflow = 0
             if (r.hits.length < r.count){
               // It looks like the count is 1 more than the number of hits, why?
-              overflow = (r.count - r.hits.length) - 1
+              overflow = (r.count - r.hits.length)
             }
-
-            console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-            console.log(overflow)
-            console.log("Count: ", r.count)
-            console.log("Hits: ", r.hits.length)
 
             if (searchPayload.processor == 'lcAuthorities'){
                 // process the results as a LC suggest service
