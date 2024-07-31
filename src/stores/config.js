@@ -17,7 +17,7 @@ export const useConfigStore = defineStore('config', {
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
-        validate: 'http://localhost:5200/util/validate',
+        validate: 'http://localhost:5200/validate',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
         starting: 'http://localhost:9401/util/profiles/starting/prod',
@@ -189,12 +189,12 @@ export const useConfigStore = defineStore('config', {
   ],
 
   // Do not enable deepHierarchy flags on these properties regardless of how complicated
-  // deepHierarchy flag prevents editing extreamly nested structures since the editor is not designed 
+  // deepHierarchy flag prevents editing extreamly nested structures since the editor is not designed
   // to allow editing of nested works for example
   exludeDeepHierarchy: [
     'http://id.loc.gov/ontologies/bibframe/adminMetadata',
     'http://id.loc.gov/ontologies/bibframe/subject'
-    
+
   ],
 
 
@@ -348,7 +348,7 @@ export const useConfigStore = defineStore('config', {
       }
     ]},
 
-    
+
 
 
     "https://preprod-8295.id.loc.gov/resources/works" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[

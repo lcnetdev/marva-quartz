@@ -2190,6 +2190,8 @@ const utilsNetwork = {
    * Validate a record send to backend
    */
   validate: async function(xml){
+    //console.log(">> Validating", xml)
+
     let url = useConfigStore().returnUrls.validate
 
     const rawResponse = await fetch(url, {

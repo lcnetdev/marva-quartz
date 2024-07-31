@@ -2193,7 +2193,7 @@ export const useProfileStore = defineStore('profile', {
    * Validate the reocrd
   */
   validateRecord: async function(eid, profile){
-    console.log("Profile store: Validating")
+    //console.log("Profile store: Validating?")
     let xml = await utilsExport.buildXML(this.activeProfile)
     let response = await utilsNetwork.validate(xml.xlmStringBasic)
 
