@@ -17,7 +17,7 @@ export const useConfigStore = defineStore('config', {
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
-        validate: 'http://localhost:5200/validate',
+        validate: 'http://localhost:5200/util/validate',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
         starting: 'http://localhost:9401/util/profiles/starting/prod',
