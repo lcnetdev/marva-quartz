@@ -118,7 +118,7 @@ export const useConfigStore = defineStore('config', {
   procInfoNewWorkInstance: "create work",
 
 
-
+  scriptshifterLanguages: {},
 
 
   profileHacks: {
@@ -594,7 +594,25 @@ export const useConfigStore = defineStore('config', {
         url = url.replace('http://id.loc.gov/',urls.bfdb)
       }
       return url
-    }
+    },
+
+    /**
+    * Ask the scriptshifter endpoint for supported langauges
+    * 
+    * @return {void} - 
+    */
+    async getScriptShifterLanguages() {
+
+      let req = await fetch(this.returnUrls.scriptshifter + 'languages')
+      return await req.json()
+
+
+      
+      
+
+    },
+
+
 
 
   },
