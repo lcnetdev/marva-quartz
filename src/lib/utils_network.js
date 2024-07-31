@@ -2300,11 +2300,20 @@ const utilsNetwork = {
     * @return {array} - An array of {@link lccnSearchResult} results
     */
     searchInstanceByLCCN: async function(lccn){
-
       lccn = lccn.replaceAll(' ','')
+
+      // ID needs the lccn to have a space between letters and the numbers
+      // If there isn't one, make the adjustment
+      const re = /^[a-z]{2}/g          // not sure if it's only every 2 characters
+      const found = lccn.match(re)
+      if (found != null){
+        lccn = lccn.slice(0,2) + " " + lccn.slice(2)
+      }
+
       try{
         let req = await fetch(useConfigStore().returnUrls.id + `resources/instances/suggest2?q=${lccn}&searchtype=keyword` )
         let results = await req.json()
+
         let returnVal = []
 
         for (let r of results.hits){
