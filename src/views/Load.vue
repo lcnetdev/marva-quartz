@@ -90,7 +90,7 @@
                                 <label :for="'lccnsearch'+idx">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" checked="true" />
                               </span>
                               <spane v-else>
-                                <label :for="'lccnsearch'+idx">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" />
+                                <label :for="'lccnsearch'+idx" style="font-weight:bold;">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" />
                               </spane>
                             </div>
 
@@ -433,7 +433,7 @@
         }
 
         if (useProfile===null){
-          alert('Cannot find profile.')
+          alert('No profile selected. Make sure to select a profile under "Load with profile."')
           return false
         }
 
