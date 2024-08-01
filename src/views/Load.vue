@@ -387,7 +387,7 @@
 
           // If there's only one result, load it so the user doesn't have to do any clicking
           if (this.searchByLccnResults.length == 1) {
-            this.lccnLoadSelected = true
+            this.lccnLoadSelected = this.searchByLccnResults[0]
           }
 
         },500)
@@ -396,7 +396,6 @@
       },
 
       loadUrl: async function(useInstanceProfile,multiTestFlag){
-
 
         if (this.lccnLoadSelected){
           console.log(this.lccnLoadSelected.bfdbPackageURL)
