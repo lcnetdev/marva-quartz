@@ -432,7 +432,7 @@
         }
 
         if (useProfile===null){
-          alert('No profile selected. Make sure to select a profile under "Load with profile."')
+          alert('No profile selected. Select a profile under "Load with profile."')
           return false
         }
 
