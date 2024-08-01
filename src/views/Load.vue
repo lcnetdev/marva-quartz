@@ -108,7 +108,7 @@
 
                   </ol>
                 <div v-if="(!urlToLoadIsHttp && !lccnLoadSelected)" style="font-weight: bold; margin-bottom: 1em;">
-                  First Enter the URL or identifer for a resource above, then select a profile.
+                  First Enter the URL or identifier for a resource above, then select a profile.
                 </div>
 
               <h3>Load with profile:</h3>
