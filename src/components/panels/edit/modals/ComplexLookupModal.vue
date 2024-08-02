@@ -20,13 +20,18 @@
       // structure of the field that owns this modal
       structure: Object,
       // the inital search value starting the search
-      searchValue: String
+      searchValue: String,
+
+      // If this is populate, we want to pull up the authority record
+      // without the user doing anything
+      authorityLookup: String
     },
     data() {
       return {
 
         modeSelect: null,
         searchValueLocal: null,
+        authorityLookupLocal: null,
 
 
         searchTimeout: null,
@@ -112,7 +117,7 @@
 
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
-
+        console.log("SEARCHING")
         if (!this.searchValueLocal){ return false}
 
         if (this.searchValueLocal.trim()==''){
@@ -215,11 +220,23 @@
       },
 
       selectChange: async function(){
+        let toLoad = null
+        if (this.authorityLookupLocal == null){
+          toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
+        } else {
+          for (const idx in this.activeComplexSearch){
+            let label = this.activeComplexSearch[idx].label
+            if (label == this.authorityLookupLocal){
+              console.log("label: ", label)
+              console.log("authorityLookupLocal: ", this.authorityLookupLocal)
+              toLoad = this.activeComplexSearch[idx]
+              this.$refs.selectOptions.selectedIndex = idx
+            }
+          }
+          this.authorityLookupLocal = null // zero this out
+        }
 
-
-        let toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
-
-        console.log(toLoad)
+        console.log("toLoad: ", toLoad)
 
         this.activeContext = {
             "contextValue": true,
@@ -310,14 +327,29 @@
 
 
     updated: function(){
+      console.log("updated")
+      console.log(this.authorityLookup)
 
       this.$nextTick(() => {
         this.$nextTick(() => {
           if (this.$refs.inputLookup){
             this.$refs.inputLookup.focus()
           }
+          console.log("prop authority: ", this.authorityLookup)
+          this.authorityLookupLocal = this.authorityLookup
+          if (this.authorityLookupLocal != null){
+            this.searchValueLocal = this.authorityLookupLocal
+            this.doSearch()
 
-          this.searchValueLocal = this.searchValue
+            // search needs to complete, so selectChange has something to loop through
+            setTimeout(() => {
+              this.selectChange()
+            }, (2 * 1000)
+            )
+          } else {
+            this.searchValueLocal = this.searchValue
+          }
+
           if (this.$refs.complexLookupModalContainer){
             let modalStopsAt = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + this.$refs.complexLookupModalContainer.getBoundingClientRect().top
             let selectHeight =  modalStopsAt - this.$refs.selectOptions.getBoundingClientRect().y
@@ -331,8 +363,7 @@
     },
 
     mounted() {
-      // console.log("mounted yeah")
-
+      //console.log("mounted yeah")
 
       if (this.modeSelect === null){
         this.modeSelect = this.modalSelectOptions[0].label
