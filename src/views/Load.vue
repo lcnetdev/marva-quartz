@@ -6,12 +6,12 @@
       <Nav/>
     </pane>
 
-    <pane> 
+    <pane>
 
       <splitpanes>
 
 
-        
+
         <pane class="load" v-if="displayAllRecords">
           <button @click="displayAllRecords=false;displayDashboard=true">Close</button>
           <div id="all-records-table">
@@ -21,7 +21,7 @@
 
               <template #tbody="{row}">
 
-                
+
                 <td>
                   <router-link :to="{ name: 'Edit', params: { recordId: row.Id }}">
                     {{ row.Id }}
@@ -33,9 +33,9 @@
                 <td v-text="row.Status"/>
                 <td>
                   <div v-for="u in row.Urls">
-                    <a v-if="u.indexOf('/works/') >-1" :href="u" target="_blank">Work</a> 
-                    <a v-else-if="u.indexOf('/instances/') >-1" :href="u" target="_blank">Instance</a> 
-                    <a v-else :href="u" target="_blank">{{ u }}</a> 
+                    <a v-if="u.indexOf('/works/') >-1" :href="u" target="_blank">Work</a>
+                    <a v-else-if="u.indexOf('/instances/') >-1" :href="u" target="_blank">Instance</a>
+                    <a v-else :href="u" target="_blank">{{ u }}</a>
 
                   </div>
 
@@ -46,26 +46,26 @@
               </template>
 
             </DataTable>
-            
+
           </div>
 
-          
+
 
         </pane>
 
         <pane class="load" v-if="displayDashboard">
-          
-          
+
+
 
           <div class="load-columns">
-            
+
             <div class="load-test-data-column">
               <h1>
                 <span style="font-size: 1.15em; vertical-align: bottom; margin-right: 5px;" class="material-icons">cloud_download</span>
                 <span>Load</span></h1>
 
               <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
-                <input placeholder="URL to resource or LCCN to search" class="url-to-load" type="text" @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
+                <input placeholder="URL to resource or identifier to search" class="url-to-load" type="text" @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
               </form>
 
 
@@ -82,41 +82,46 @@
 
                     <li v-for="(r,idx) in searchByLccnResults" :key="r.idURL">
                         <div style="display:flex">
-                          
+
                             <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.label}}</span></div>
                             <div style="flex:1">
                               <a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">View on BFDB</a>
-                              <label :for="'lccnsearch'+idx">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx"/>
+                              <span v-if="searchByLccnResults.length == 1" style="display:none;">
+                                <label :for="'lccnsearch'+idx">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" checked="true" />
+                              </span>
+                              <spane v-else>
+                                <label :for="'lccnsearch'+idx" style="font-weight:bold;">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" />
+                              </spane>
                             </div>
-                            
+
                           <!-- <div style="flex:1"><a href="#" target="_blank" @click.prevent="instanceEditorLink = r.bfdbPackageURL; testInstance()">Retrieve</a></div> -->
 
                         </div>
-                      </li>   
+                      </li>
 
-        
-                      
-                    
-                    
+
+
+
+
                   </template>
 
 
                   </ol>
                 <div v-if="(!urlToLoadIsHttp && !lccnLoadSelected)" style="font-weight: bold; margin-bottom: 1em;">
-                  First Enter URL to resource or search for LCCN above to select profile.
+                  First Enter the URL or identifier for a resource above, then select a profile.
                 </div>
 
               <h3>Load with profile:</h3>
 
-              <div class="load-buttons"> 
+              <div class="load-buttons">
                 <button class="load-button" @click="loadUrl(s.instance)" :disabled="(urlToLoadIsHttp || lccnLoadSelected ) ? false : true"  v-for="s in startingPointsFiltered">{{s.name}}</button>
 
-                
+
               </div>
               <hr>
 
 
-              
+
               <h2>Test Data:</h2>
               <table id="test-data-table">
                   <tr class="test-data" v-for="t in testData">
@@ -133,11 +138,11 @@
             </div>
 
             <div>
-              
+
               <h1>
                 <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_note</span>
-                <span>Your Records</span></h1>     
-                <a href="#" @click="loadAllRecords" style="color: inherit;">Show All Records</a>                         
+                <span>Your Records</span></h1>
+                <a href="#" @click="loadAllRecords" style="color: inherit;">Show All Records</a>
                 <div>
 
                   <div class="saved-records-empty" v-if="continueRecords.length==0">
@@ -171,12 +176,12 @@
 
               <h1 style="margin-bottom: 10px;">
                 <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_document</span>
-                <span>Create Blank Record</span></h1>                
+                <span>Create Blank Record</span></h1>
                 <div>
-                  <div class="load-buttons"> 
+                  <div class="load-buttons">
                     <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>
 
-                    
+
                   </div>
                 </div>
 
@@ -184,12 +189,12 @@
 
             </div>
 
-          </div> 
-          
+          </div>
+
 
 
         </pane>
-     
+
 
 
       </splitpanes>
@@ -242,7 +247,7 @@
         continueRecords: [],
 
         urlToLoadIsHttp: false,
-        
+
         searchByLccnResults: null,
         lccnToSearchTimeout: null,
 
@@ -257,7 +262,7 @@
 
 
       }
-    },    
+    },
     computed: {
       // other computed properties
       // ...
@@ -298,7 +303,7 @@
 
         console.log(row)
 
-      },  
+      },
 
       loadAllRecords: async function(event){
         event.preventDefault()
@@ -333,13 +338,13 @@
 
 
         this.isLoadingAllRecords=false
-      },  
+      },
 
       returnTimeAgo: function(timestamp){
         console.log(timestamp, timestamp*1000,Date.now())
         return timeAgo.format(timestamp*1000)
       },
-      
+
 
       returnPixleAsPercent: function(pixles){
         return pixles/window.innerHeight*100
@@ -379,7 +384,11 @@
           this.lccnToSearchTimeout = window.setTimeout(async ()=>{
 
           this.searchByLccnResults = await utilsNetwork.searchInstanceByLCCN(this.urlToLoad)
-          console.log(this.searchByLccnResults)
+
+          // If there's only one result, load it so the user doesn't have to do any clicking
+          if (this.searchByLccnResults.length == 1) {
+            this.lccnLoadSelected = this.searchByLccnResults[0]
+          }
 
         },500)
 
@@ -387,7 +396,6 @@
       },
 
       loadUrl: async function(useInstanceProfile,multiTestFlag){
-
 
         if (this.lccnLoadSelected){
           console.log(this.lccnLoadSelected.bfdbPackageURL)
@@ -421,19 +429,19 @@
           if (this.profiles[key].rtOrder.indexOf(useInstanceProfile)>-1){
             useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
           }
-        }       
-        
+        }
+
         if (useProfile===null){
-          alert('Cannot find profile.')
+          alert('No profile selected. Select a profile under "Load with profile."')
           return false
         }
 
         if (this.urlToLoad.trim() !== ''){
 
 
-          
+
           // we might need to load in a item
-          if (utilsParse.hasItem>0){ 
+          if (utilsParse.hasItem>0){
             // loop the number of ITEMS there are in the XML
             Array.from(Array(utilsParse.hasItem)).map((_,i) => {
               let useItemRtLabel
@@ -444,7 +452,7 @@
               for (let pkey in this.profiles){
                 for (let rtkey in this.profiles[pkey].rt){
                   if (rtkey == useItemRtLabel){
-                    let useRtLabel =  useItemRtLabel + '-' + (i+1) 
+                    let useRtLabel =  useItemRtLabel + '-' + (i+1)
                     let useItem = JSON.parse(JSON.stringify(this.profiles[pkey].rt[rtkey]))
 
                     // make the guids for all the properties unique
@@ -456,8 +464,8 @@
                     // console.log('using',this.profiles[pkey].rt[rtkey])
                     foundCorrectItemProfile = true
                     useProfile.rtOrder.push(useRtLabel)
-                    useProfile.rt[useRtLabel] = useItem     
-                    // console.log(JSON.parse(JSON.stringify(useProfile)))           
+                    useProfile.rt[useRtLabel] = useItem
+                    // console.log(JSON.parse(JSON.stringify(useProfile)))
                   }
                 }
               }
@@ -482,7 +490,7 @@
         // also give it an ID for storage
         if (!useProfile.eId){
           let uuid = 'e' + decimalTranslator.new()
-          uuid = uuid.substring(0,8)        
+          uuid = uuid.substring(0,8)
           useProfile.eId= uuid
         }
 
@@ -495,7 +503,7 @@
           useProfile.status = 'unposted'
         }
 
-        
+
 
 
         if (this.urlToLoad.trim() !== ''){
@@ -508,18 +516,18 @@
 
           this.activeProfile = useProfile
         }
-        
+
         console.log("this.activeProfile",this.activeProfile)
 
         if (multiTestFlag){
-          this.$router.push(`/multiedit/`)          
+          this.$router.push(`/multiedit/`)
           return true
         }
 
         this.$router.push(`/edit/${useProfile.eId}`)
 
 
-        
+
       },
 
 
@@ -532,8 +540,8 @@
 
     },
     created: async function(){
-      
-      
+
+
 
       let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
       console.log(records)
@@ -565,7 +573,7 @@
           }
 
 
-          
+
           // if (this.$router.currentRoute && this.$router.currentRoute.query && this.$router.currentRoute.query.url){
           //   let url = this.$router.currentRoute.query.url
           //   if (this.$router.currentRoute && this.$router.currentRoute.query && this.$router.currentRoute.query.action && this.$router.currentRoute.query.action == 'loadwork'){
@@ -580,13 +588,13 @@
           // }
         },500)
 
-      
+
     }
   }
 
 </script>
 
-<style scoped>  
+<style scoped>
 #test-data-table{
   width:100%;
 }
@@ -605,7 +613,7 @@
 .test-data a{
   color:inherit!important;
   text-decoration: none;
-  
+
 }
 .test-data a:hover{
   text-decoration: underline;
@@ -658,7 +666,7 @@ label{
 
   .continue-record-list li:nth-of-type(1n+100) {
     display: none;
-  } 
+  }
 
   .continue-record-title{
     font-style: italic;
@@ -728,9 +736,9 @@ label{
   }
   .header{
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-background-color')") !important;
-    
+
   }
-  
+
 
 
 
