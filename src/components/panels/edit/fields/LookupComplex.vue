@@ -144,7 +144,7 @@
   </template>
 
   <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false" :structure="structure" v-model="displayModal"/>
-  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
+  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
 
 </template>
 
@@ -905,14 +905,18 @@ export default {
 
     textInputEvent: function(event){
       console.log("Text input")
-      console.log(this.structure.propertyURI)
-      console.log(this.configStore.useSubjectEditor.includes(this.structure.propertyURI))
+      // remove the existing value if it was deleted
+      if (this.$refs.lookupInput.innerHTML.trim() == ""){
+        this.authorityLookup = null
+        this.searchValue = ""
+      }
+
       // if there is already a value abort
       if (this.complexLookupValues.length > 0){
         this.searchValue = ""
         return false
       }
-      // console.log("this.structure.propertyURI",this.structure.propertyURI)
+
       if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
         this.displaySubjectModal=true
         this.$nextTick(() => {
@@ -972,9 +976,6 @@ export default {
 
     // Open the authority `panel` for an given authority
     openAuthority: function() {
-      console.log("opening authority")
-      console.log(this)
-
       let label = this.$refs.el[0].innerHTML
 
       /* This only gets populated when it's loaded from a record
@@ -989,10 +990,11 @@ export default {
       // store the label to pass as a prop
       this.authorityLookup = label
 
-      //Decide which modal to open
+      //Decide which modal to open/ don't support subject
       if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
         this.displayModal = true
       }
+      //this.displaySubjectModal = true
 
 
       // TODO: how to get the ID to `complexLookupModal` >> `selectChange`?

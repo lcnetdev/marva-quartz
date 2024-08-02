@@ -71,7 +71,6 @@
 
 
       modalSelectOptions(){
-        console.log("@!@@@@@@@@@@@@@@@@@@@@@@")
         let options = []
         // add in the the defaul search ALL of everything possible
         //options.push({label: 'All', urls:null, processor:null})
@@ -118,7 +117,6 @@
 
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
-        console.log("SEARCHING")
         if (!this.searchValueLocal){ return false}
 
         if (this.searchValueLocal.trim()==''){
@@ -222,16 +220,18 @@
 
       selectChange: async function(){
         let toLoad = null
-        if (this.authorityLookupLocal == null){
+        if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
           toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
         } else {
           for (const idx in this.activeComplexSearch){
             let label = this.activeComplexSearch[idx].label
             if (label == this.authorityLookupLocal){
-              console.log("label: ", label)
-              console.log("authorityLookupLocal: ", this.authorityLookupLocal)
               toLoad = this.activeComplexSearch[idx]
-              this.$refs.selectOptions.selectedIndex = idx
+              try{
+                this.$refs.selectOptions.selectedIndex = idx
+              } catch(err) {
+                console.log("")
+              }
             }
           }
           this.authorityLookupLocal = null // zero this out
@@ -260,8 +260,12 @@
 
         // if this happens it means they selected something else very quickly
         // so don't go on and set it to this context, because its no longer the one they have selected
-        if (toLoad.uri != this.activeComplexSearch[this.$refs.selectOptions.selectedIndex].uri){
-          return false
+        try{
+          if (toLoad.uri != this.activeComplexSearch[this.$refs.selectOptions.selectedIndex].uri){
+            return false
+          }
+        } catch(err){
+          console.log("")
         }
 
 
@@ -328,15 +332,16 @@
 
 
     updated: function(){
-      console.log("updated")
-      console.log(this.authorityLookup)
+      if (this.authorityLookup == null){
+        //Reset this so the input field isn't loaded with the old data
+        this.activeComplexSearch = []
+      }
 
       this.$nextTick(() => {
         this.$nextTick(() => {
           if (this.$refs.inputLookup){
             this.$refs.inputLookup.focus()
           }
-          console.log("prop authority: ", this.authorityLookup)
           this.authorityLookupLocal = this.authorityLookup
           if (this.authorityLookupLocal != null){
             this.searchValueLocal = this.authorityLookupLocal
