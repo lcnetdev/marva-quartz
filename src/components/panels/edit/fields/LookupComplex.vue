@@ -108,7 +108,8 @@
                 <div class="selected-value-container-title">
                   <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
                   <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">
-                    <a href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
+                    <a v-if="!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)" href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
+                    <span v-else>{{avl.label}}</span>
                     <span class="uncontrolled" v-if="avl.isLiteral">
                       (uncontrolled)
                     </span>
@@ -971,9 +972,10 @@ export default {
 
     // Open the authority `panel` for an given authority
     openAuthority: function() {
+      console.log("opening authority")
+      console.log(this)
+
       let label = this.$refs.el[0].innerHTML
-
-
 
       /* This only gets populated when it's loaded from a record
       so it can't be used becasuse it won't work with an empty record
@@ -987,8 +989,11 @@ export default {
       // store the label to pass as a prop
       this.authorityLookup = label
 
-      //open the modal
-      this.displayModal = true
+      //Decide which modal to open
+      if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
+        this.displayModal = true
+      }
+
 
       // TODO: how to get the ID to `complexLookupModal` >> `selectChange`?
 

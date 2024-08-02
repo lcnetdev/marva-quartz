@@ -12,7 +12,7 @@
       :background="'non-interactive'"
       :lock-scroll="true"
       class="complex-lookup-modal"
-      content-class="complex-lookup-modal-content"      
+      content-class="complex-lookup-modal-content"
       >
 
       <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
@@ -49,7 +49,7 @@
                 </svg>
 
                 <span :class="[{ 'subjectEditorModeTextEnabled': (subjectEditorMode==='build') }]">Build Mode</span>
-              </button>  
+              </button>
               <button @click="editorModeSwitch('link')" data-tooltip="Build LCSH headings by entering a MARC encoded string" class="subjectEditorModeButtons simptip-position-left" style="background-color: black; height: 2em; display: inline-flex;">
 
                 <svg fill="#F2F2F2" width="20px" height="20px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -67,17 +67,17 @@
                 <span :class="[{ 'subjectEditorModeTextEnabled': (subjectEditorMode==='link') }]">Link Mode</span>
 
 
-              </button>  
+              </button>
 
 
             </div>
-            
+
 
             <template v-if="subjectEditorMode=='build'">
 
 
               <div :class="['subject-editor-container', {'subject-editor-container-lowres':lowResMode}]">
-                
+
 
                 <div :class="['subject-editor-container-left', {'subject-editor-container-left-lowres':lowResMode}]">
 
@@ -130,7 +130,7 @@
                     <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                     <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
 
-                      
+
                       <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + contextData.type"><AuthTypeIcon v-if="contextData.type" :type="contextData.type"></AuthTypeIcon></span>{{contextData.title}}</h3>
 
                       <div class="modal-context-data-title">{{contextData.type}}</div>
@@ -164,7 +164,7 @@
 
 
 
-                    </div>  
+                    </div>
 
 
 
@@ -174,7 +174,7 @@
 
 
                   </div>
-                  
+
 
                 </div>
 
@@ -185,17 +185,17 @@
                     <div class="component-container-fake-input">
                       <div  style="display: flex;">
                         <div  style="flex:1; position: relative;">
-                          <form autocomplete="off" style="height: 3em;">            
-                            <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"  class="input-single-subject subject-input">            
+                          <form autocomplete="off" style="height: 3em;">
+                            <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"  class="input-single-subject subject-input">
                           </form>
 
                           <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx" >
                             {{c.label}}
                           </div>
                         </div>
-                      </div>          
+                      </div>
                     </div>
-                    <div ref="toolbar" style="display: flex;">          
+                    <div ref="toolbar" style="display: flex;">
                       <div style="flex:2">
                         <ol v-if="showTypes" :class="['type-list-ol',{'type-list-ol-lowres':lowResMode}]">
                           <li :class="['type-item', {'type-item-selected':(type.selected)}]" v-for="type in activeTypes" :key="type.value" @click="setTypeClick($event,type.value)">{{type.label}}</li>
@@ -208,8 +208,8 @@
                         <button v-else-if="okayToAdd==false && subjectString.length==0" disabled style="float: right;margin: 0.6em; display: none;" :class="[{'add-button-lowres':lowResMode}]">Can't Add</button>
                         <button v-else-if="okayToAdd==false" disabled style="float: right;margin: 0.6em;" :class="[{'add-button-lowres':lowResMode}]">Can't Add</button>
 
-                        
-                        
+
+
                       </div>
                     </div>
 
@@ -218,12 +218,12 @@
 
                 </div>
 
-               
+
 
               </div>
             </template>
             <template v-else>
-                
+
                 <div style="padding: 5px;">
 
 
@@ -231,8 +231,8 @@
                     <div class="component-container-fake-input" style="margin-top:2em">
                       <div  style="display: flex;">
                         <div  style="flex:1; position: relative;">
-                          <form autocomplete="off" style="height: 3em;">   
-                            <input v-on:keydown.enter.prevent="linkModeTextChange" placeholder="Enter MARC encoded LCSH value"   autocomplete="off" type="text" v-model="linkModeString" ref="subjectInput" class="input-single-subject subject-input">            
+                          <form autocomplete="off" style="height: 3em;">
+                            <input v-on:keydown.enter.prevent="linkModeTextChange" placeholder="Enter MARC encoded LCSH value"   autocomplete="off" type="text" v-model="linkModeString" ref="subjectInput" class="input-single-subject subject-input">
                           </form>
                         </div>
                       </div>
@@ -244,11 +244,11 @@
 
 
 
-                    <ol v-if="!linkModeSearching">           
+                    <ol v-if="!linkModeSearching">
                       <template v-if="linkModeResults!==false">
 
                         <template v-if="linkModeResults.resultType && linkModeResults.resultType == 'COMPLEX'">
-                          
+
                           <li>
 
                             <span :class="{ 'link-mode-good-heading': (linkModeResults.hit.uri), 'link-mode-bad-heading': (!linkModeResults.hit.uri) }">
@@ -270,9 +270,9 @@
                             </span>
                             <span v-if="hit.heading && hit.heading.subdivision" class="link-mode-subdivision">(subdivision)</span>
                             <a class="link-mode-good-heading-alink" target="_blank" v-if="hit.uri" :href="hit.uri">{{hit.uri.split('/')[hit.uri.split('/').length-1]}}</a>
-                          </li> 
+                          </li>
                         </template>
-                        
+
                       </template>
                     </ol>
 
@@ -294,7 +294,7 @@
 
                       </div>
                     </div>
-                  
+
                 </div>
 
             </template>
@@ -324,7 +324,7 @@
 
 
 <style type="text/css" scoped>
-    
+
     .subject-lookup-modal-container{
       margin-left: auto;
       margin-right: auto;
@@ -340,9 +340,9 @@
     }
 
     .subject-editor-container{
-      width: 99%; 
-      margin-left: auto; 
-      margin-right: auto; 
+      width: 99%;
+      margin-left: auto;
+      margin-right: auto;
       height: 470px;
     }
 
@@ -356,7 +356,7 @@
     }
 
     .subject-editor-container-left{
-      display: flex; 
+      display: flex;
       height: 468px;
       position: relative;
       overflow-y: hidden;
@@ -366,7 +366,7 @@
       /*font-size: 1em;*/
     }
 
-    
+
 
     .subject-editor-container-left-lowres{
 
@@ -379,8 +379,8 @@
 
 
     .subject-editor-container-right{
-      flex:1; 
-      align-self: flex-start; 
+      flex:1;
+      align-self: flex-start;
       padding: 2em;
       height: 503px;
       overflow-y: scroll;
@@ -410,16 +410,16 @@
       position: absolute;
       padding-top: 0.3em;
 
-      pointer-events: none;    
+      pointer-events: none;
       border-style: solid;
       border-width: 3px;
       border-color: rgb(255 132 132 / 52%);
       border-radius: 0.25em;
       color: transparent;
-      
+
       background-color: rgb(255 132 132 / 25%);
       /*letter-spacing: -0.04em;*/
-      
+
       height: 1.5em;
       font-family: sans-serif;
 
@@ -452,7 +452,7 @@
     .fake-option{
       font-size: 1.25em;
       cursor: pointer;
-    } 
+    }
 
     .fake-option:hover{
       background-color: whitesmoke;
@@ -478,7 +478,7 @@
       font-weight: bold;
     }
 
-    .picked::before{      
+    .picked::before{
       content: "✓ " !important;
       transition-property: all;
       transition-duration: 500ms;
@@ -548,9 +548,9 @@
     border:none;
     font-size: 1.5em;
     min-height: 1.5em;
-    max-height: 1.5em;  
+    max-height: 1.5em;
     background:none;
-    
+
     background-color: #fff;
     border: 1px solid #9aa4a4;
     border-top-right-radius: 0.5em;
@@ -666,7 +666,7 @@ export default {
   components: {
     VueFinalModal,
     AuthTypeIcon,
-    
+
   },
   props: {
     structure: Object,
@@ -680,7 +680,7 @@ export default {
     // // watch when the undoindex changes, means they are undoing redoing, so refresh the
     // // value in the acutal input box
     searchValue: function(){
-        this.subjectString = this.searchValue 
+        this.subjectString = this.searchValue
         this.linkModeString = this.searchValue
     }
 
@@ -704,7 +704,7 @@ export default {
       lookup: {},
       searchResults: null,
       activeSearch: false,
-      
+
       pickPostion: 0,
       pickLookup: {},
       activeComponent: null,
@@ -740,7 +740,7 @@ export default {
 
   computed: {
 
-      
+
 
   },
   methods: {
@@ -752,9 +752,9 @@ export default {
     * @return {void}
     */
     linkModeTextChange: async function(event){
-        
 
-      
+
+
       this.$refs.subjectInput.focus()
 
       if (event.key==='Enter' && event.shiftKey===false){
@@ -771,7 +771,7 @@ export default {
 
       }
 
-      
+
 
       if (event.preventDefault) {event.preventDefault()}
       return false
@@ -799,23 +799,23 @@ export default {
       // this.$store.dispatch("subjectEditorMode", { self: this, mode: mode})
 
       if (mode == 'build'){
-        this.subjectString = this.linkModeString     
-        this.subjectStringChanged()    
+        this.subjectString = this.linkModeString
+        this.subjectStringChanged()
       }else{
         this.linkModeString = this.subjectString
       }
- 
+
       this.$nextTick(() => {
         this.$refs.subjectInput.focus()
       })
-      
+
     },
 
 
 
     searchModeSwitch: function(mode){
-      this.searchMode = mode      
-      if (this.activeComponent && this.activeComponent.label){        
+      this.searchMode = mode
+      if (this.activeComponent && this.activeComponent.label){
         this.searchApis(this.activeComponent.label,this.subjectString,this)
       }
       this.$refs.subjectInput.focus()
@@ -824,7 +824,7 @@ export default {
 
     // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
     searchApis: debounce(async (searchString,searchStringFull,that) => {
-      
+
       that.searchResults=null
       that.x = 'Seaching...'
       that.pickPostion=0
@@ -834,7 +834,7 @@ export default {
 
       // make the "searching..." text grow
       let ti = window.setInterval(()=>{ that.activeSearch = ((!that.activeSearch) ? '' : that.activeSearch) + '.'},100)
-      
+
       // a backup here just in case the search times out or takes forever
       let tiBackup = window.setTimeout(()=>{
         window.clearInterval(ti)
@@ -847,10 +847,10 @@ export default {
       searchString=searchString.replaceAll('‑','-')
       searchStringFull=searchStringFull.replaceAll('‑','-')
 
-      
 
-      
-      that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode) 
+
+
+      that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
 
 
       // if they clicked around while it was doing this lookup bail out
@@ -862,7 +862,7 @@ export default {
       //   window.clearTimeout(tiBackup)
       //   that.activeSearch = false
       //   that.activeSearchInterrupted = false
-          
+
       //   console.log("that.activeSearchInterrupted",that.activeSearchInterrupted)
 
       //   return false
@@ -931,11 +931,11 @@ export default {
       }
 
 
-      
+
       that.pickLookup = {}
 
       that.pickPostion = that.searchResults.subjectsSimple.length + that.searchResults.subjectsComplex.length -1
-      
+
 
 
 
@@ -948,14 +948,14 @@ export default {
       }
 
 
-      
 
-      
+
+
 
       for (let x in that.searchResults.names){
         that.pickLookup[(that.searchResults.names.length - x)*-1] = that.searchResults.names[x]
       }
-      
+
       for (let k in that.pickLookup){
 
         that.pickLookup[k].picked = false
@@ -966,13 +966,13 @@ export default {
             if (that.activeComponent.uri == that.pickLookup[k].uri){
               console.log('that.activeComponent',that.activeComponent)
               that.pickPostion=k
-              that.pickLookup[k].picked=true          
+              that.pickLookup[k].picked=true
               that.selectContext()
 
             }
 
           }else{
-            
+
 
             // if they started typing the next word already then stop this
             if (that.subjectString.replaceAll('‑','-')!=searchStringFull.replaceAll('‑','-')){
@@ -986,10 +986,10 @@ export default {
               break
 
             }
-            
+
 
             that.pickPostion=k
-            that.pickLookup[k].picked=true          
+            that.pickLookup[k].picked=true
             that.selectContext()
 
           }
@@ -1000,12 +1000,12 @@ export default {
 
         }
       }
-      
+
       // that.contextData.dispatch("clearContext", { self: that})
 
       if (that.pickLookup[that.pickPostion] && !that.pickLookup[that.pickPostion].literal){
         that.contextRequestInProgress = true
-        
+
         that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
 
         // keep a local copy of it for looking up subject type
@@ -1015,7 +1015,7 @@ export default {
 
       }
 
- 
+
 
 
       window.clearInterval(ti)
@@ -1057,7 +1057,7 @@ export default {
 
 
         // },100)
-        
+
 
 
 
@@ -1088,12 +1088,12 @@ export default {
         if (!event.target){
           event = {target:this.$refs.subjectInput}
         }
-        
-        
+
+
         for (let c of this.components){
           if (event.target.selectionStart >= c.posStart && event.target.selectionStart <= c.posEnd+1){
             this.activeComponent = c
-            this.activeComponentIndex = c.id        
+            this.activeComponentIndex = c.id
             break
           }
         }
@@ -1139,11 +1139,11 @@ export default {
         this.contextRequestInProgress = false
 
         // this.$store.dispatch("fetchContext", { self: this, searchPayload: this.pickLookup[this.pickPostion].uri }).then(() => {
-          
+
         //   // keep a local copy of it for looking up subject type
 
 
-        // })  
+        // })
 
 
 
@@ -1208,7 +1208,7 @@ export default {
       }
 
 
-      
+
     },
 
 
@@ -1224,11 +1224,11 @@ export default {
         event.preventDefault()
         return false
       }else if (event.key == 'ArrowDown'){
-        
+
         if (parseInt(this.pickPostion) >= this.searchResults.subjectsSimple.length - 1 + this.searchResults.subjectsComplex.length){
           return false
         }
-     
+
 
         this.loadContext(parseInt(this.pickPostion) + 1 )
         event.preventDefault()
@@ -1283,11 +1283,11 @@ export default {
         let start = event.target.selectionStart
         let end = event.target.selectionEnd
         console.log(this.subjectString.substring(0,start),'|',this.subjectString.substring(end,this.subjectString.length))
-        
+
         this.subjectString = this.subjectString.substring(0,start) + '‑' + this.subjectString.substring(end,this.subjectString.length)
         this.subjectString=this.subjectString.trim()
 
-        
+
         this.$nextTick(() => {
 
             console.log(start,end)
@@ -1303,7 +1303,7 @@ export default {
 
       }
 
-          
+
 
     },
 
@@ -1339,15 +1339,15 @@ export default {
         this.$nextTick(() => {
           // loop through the current components
           let activeLeft=0
-          for (let com of this.components){       
-            // set the left 
+          for (let com of this.components){
+            // set the left
             if (this.$refs['cBackground'+com.id] && this.$refs['cBackground'+com.id][0]){
               this.$refs['cBackground'+com.id][0].style.left = `${activeLeft}px`
               // add the width of all the existing components to the var
               // add 12 to accomodate the "--" seperator
               activeLeft = activeLeft + this.$refs['cBackground'+com.id][0].offsetWidth + 11
             }
-          }          
+          }
         })
 
     },
@@ -1416,14 +1416,14 @@ export default {
         // its a normal keystroke not after '$' but check to see if it was a keyboard event
         // if not then event will be null and was just evoked from code, if its a event then they are typeing in a search value, clear out the old
         if (event){
-          this.searchResults=null  
-        }        
+          this.searchResults=null
+        }
       }
 
 
 
       this.showTypes=true
-      
+
       // if they erase everything remove the components
       if (this.subjectString.length==0){
         this.activeComponent = null
@@ -1437,7 +1437,7 @@ export default {
 
       // clear the current
       this.components = []
-      let id = 0      
+      let id = 0
 
       let activePosStart = 0
 
@@ -1459,8 +1459,8 @@ export default {
           type = this.typeLookup[id]
         }
 
-        
-        
+
+
 
         this.components.push({
 
@@ -1486,7 +1486,7 @@ export default {
         id++
       }
 
-      
+
 
 
 
@@ -1501,7 +1501,7 @@ export default {
             // it dose not end with "-" so it the '--' typing doesn't trigger
             if (c.label.trim() != '' && !c.label.endsWith('-')){
               this.searchApis(c.label,event.target.value,this)
-            
+
             // BUT if it ends with a number and - then it is a name with open life dates
             // so do look that one up
             }else if (/[0-9]{4}\??-/.test(c.label)){
@@ -1517,7 +1517,7 @@ export default {
             }
 
 
-            //            // BUT if it starts with 
+            //            // BUT if it starts with
 
             break
           }
@@ -1529,7 +1529,7 @@ export default {
         // which would likely be the type if not a keyboard event
 
         this.activeComponent = this.components[this.activeComponentIndex]
-        
+
 
       }
 
@@ -1573,7 +1573,7 @@ export default {
                 x.type = 'madsrdf:Topic'
               }
 
-            }  
+            }
 
           }
 
@@ -1583,7 +1583,7 @@ export default {
           this.updateAvctiveTypeSelected()
           this.validateOkayToAdd()
         },100)
-        
+
       })
 
 
@@ -1707,8 +1707,8 @@ export default {
         c.label = c.label.replaceAll('‑','-')
 
         // we have the full mads type from the build process, check if the component is a id name authortiy
-        // if so over write the user defined type with the full type from the authority file so that 
-        // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic 
+        // if so over write the user defined type with the full type from the authority file so that
+        // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
         if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]){
           c.type = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
         }
@@ -1716,7 +1716,7 @@ export default {
       console.log(this.localContextCache)
       console.log(this.components)
       this.$emit('subjectAdded', this.components)
-  
+
 
     },
 
@@ -1732,11 +1732,11 @@ export default {
       // also check to see if the toolbar is off the screen,
       // in very very low res setups sometimes this area gets clipped
       if (this.$refs.toolbar && this.$refs.toolbar.getBoundingClientRect().bottom > window.innerHeight){
-        this.lowResMode=true  
+        this.lowResMode=true
         this.$emit('lowResModeActivate', true)
       }
 
-      
+
     },
 
 
@@ -1770,7 +1770,7 @@ export default {
 
       if (typeof userValue == "string"){
 
-        
+
         // they sometimes come in with '.' at the end of the authorized form
         if (userValue.slice(-1)=='.'){
           userValue=userValue.slice(0,-1)
@@ -1778,7 +1778,7 @@ export default {
         this.subjectString=userValue
         this.linkModeString=userValue
         this.$nextTick(() => {
-          this.navString({key:'ArrowRight'})        
+          this.navString({key:'ArrowRight'})
         })
 
 
@@ -1805,7 +1805,7 @@ export default {
         if (userValue['http://www.loc.gov/mads/rdf/v1#componentList']){
 
           let authLabels = []
-          
+
           let componentLabelParts = []
 
           // if there is a complex heading string use that as a backup for labels if needed
@@ -1842,7 +1842,7 @@ export default {
             if (component['@id']){
               uri = component['@id']
             }else{
-              
+
               // we can't assume it is a literal, it might just be a label without no uri
               // they need to check it
               // literal = true
@@ -1880,13 +1880,13 @@ export default {
               if (component['@type']=='http://www.loc.gov/mads/rdf/v1#Temporal'){
                 type = 'madsrdf:Temporal'
                 marcType = 'y'
-              }                            
+              }
 
             }
 
 
             if (label == '' && authLabels[id]){
-              
+
               label = authLabels[id]
             }
 
@@ -1927,12 +1927,12 @@ export default {
 
 
 
-          
+
           completeLabel = componentLabelParts.join('--')
 
 
 
-          
+
 
         }else{
 
@@ -1943,7 +1943,7 @@ export default {
           }
 
 
-          // if it has a trailing '.' in the auth heading drop that for search 
+          // if it has a trailing '.' in the auth heading drop that for search
           if (completeLabel.slice(-1)=='.'){
             completeLabel=completeLabel.slice(0,-1)
           }
@@ -1968,7 +1968,7 @@ export default {
 
         // wait for the ui to render and then pretend keydonw to trigger update of things
         this.$nextTick(() => {
-          this.navString({key:'ArrowRight'})  
+          this.navString({key:'ArrowRight'})
 
         })
 
@@ -1990,8 +1990,8 @@ export default {
 
 
   before: function () {
-    
-    
+
+
 
   }
 };

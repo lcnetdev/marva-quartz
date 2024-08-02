@@ -71,6 +71,7 @@
 
 
       modalSelectOptions(){
+        console.log("@!@@@@@@@@@@@@@@@@@@@@@@")
         let options = []
         // add in the the defaul search ALL of everything possible
         //options.push({label: 'All', urls:null, processor:null})
