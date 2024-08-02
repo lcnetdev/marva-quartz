@@ -189,12 +189,12 @@ export const useConfigStore = defineStore('config', {
   ],
 
   // Do not enable deepHierarchy flags on these properties regardless of how complicated
-  // deepHierarchy flag prevents editing extreamly nested structures since the editor is not designed 
+  // deepHierarchy flag prevents editing extreamly nested structures since the editor is not designed
   // to allow editing of nested works for example
   exludeDeepHierarchy: [
     'http://id.loc.gov/ontologies/bibframe/adminMetadata',
     'http://id.loc.gov/ontologies/bibframe/subject'
-    
+
   ],
 
 
@@ -348,7 +348,7 @@ export const useConfigStore = defineStore('config', {
       }
     ]},
 
-    
+
 
 
     "https://preprod-8295.id.loc.gov/resources/works" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
