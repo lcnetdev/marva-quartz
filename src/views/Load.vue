@@ -296,7 +296,7 @@
 
       allRecordsRowClick: function(row){
 
-        console.log(row)
+        
 
       },  
 
@@ -308,7 +308,7 @@
         this.isLoadingAllRecords=true
 
         let allRecordsRaw = await utilsNetwork.searchSavedRecords()
-        console.log(allRecordsRaw)
+        
         this.allRecords = []
         for (let r of allRecordsRaw){
 
@@ -335,8 +335,7 @@
         this.isLoadingAllRecords=false
       },  
 
-      returnTimeAgo: function(timestamp){
-        console.log(timestamp, timestamp*1000,Date.now())
+      returnTimeAgo: function(timestamp){        
         return timeAgo.format(timestamp*1000)
       },
       
@@ -536,7 +535,7 @@
       
 
       let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
-      console.log(records)
+      
       let lccnLookup = {}
 
       // in this view we want to remove any records that are repeats, so only show the latest LCCN being edited

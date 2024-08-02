@@ -84,6 +84,11 @@
     <Debug v-model="showDebugModal" />
   </template>
 
+  <template v-if="literalLangShow!==false">
+    <LiteralLang v-model="literalLangShow" />
+  </template>
+  
+
   </splitpanes>
 
 
@@ -110,11 +115,12 @@
   import Debug from "@/components/panels/edit/modals/DebugModal.vue";
   import Xml from "@/components/panels/sidebar_preview_xml/Xml.vue";
   import Marc from "@/components/panels/sidebar_preview_marc/Marc.vue";
+  import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
 
-
+  
 
   export default {
-    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc },
+    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc, LiteralLang },
     data() {
       return {
 
@@ -133,6 +139,7 @@
       
       ...mapWritableState(usePreferenceStore, ['showDebugModal', 'activeProfile']),
 
+      ...mapWritableState(useProfileStore, ['literalLangGuid','literalLangShow']),
 
       // // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
@@ -171,11 +178,12 @@
 
 
       
-      if (this.profilesLoaded){
-        this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
-      }else{
-        // console.error("Somehow profiles are not loaded at this point")
-      }
+      // if (this.profilesLoaded){
+      //   console.log('this.activeProfile', this.activeProfile)
+      //   this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
+      // }else{
+      //   // console.error("Somehow profiles are not loaded at this point")
+      // }
 
 
 
