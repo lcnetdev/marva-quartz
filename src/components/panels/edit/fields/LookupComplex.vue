@@ -869,7 +869,7 @@ export default {
     setComplexValue: function(contextValue){
       delete contextValue.typeFull
       this.profileStore.setValueComplex(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
-      this.searchValue=''
+      //this.searchValue=''
       this.displayModal=false
 
       this.$nextTick(() => {
@@ -908,7 +908,6 @@ export default {
       // remove the existing value if it was deleted
       if (this.$refs.lookupInput.innerHTML.trim() == ""){
         this.authorityLookup = null
-        this.searchValue = ""
       }
 
       // if there is already a value abort
