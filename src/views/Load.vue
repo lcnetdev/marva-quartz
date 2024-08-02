@@ -366,7 +366,6 @@
       },
 
       loadSearch: function(){
-
         this.lccnLoadSelected = null
 
         if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")){
