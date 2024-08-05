@@ -34,7 +34,7 @@
 
     mounted() {
      
-     console.log(this.$t("--c-edit-main-splitpane-properties-background-color--desc"),'<-------')
+    //  console.log(this.$t("--c-edit-main-splitpane-properties-background-color--desc"),'<-------')
 
     }
   }

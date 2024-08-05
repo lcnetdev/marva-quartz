@@ -66,7 +66,7 @@ const utilsParse = {
     //  }
 
     // }
-    console.log('F',uri)
+
     return false
 
   },

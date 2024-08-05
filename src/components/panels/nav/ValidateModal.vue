@@ -55,12 +55,12 @@
 
 
         post: async function(){
-          console.log("** validating **")
+          //console.log("** validating **")
           const config = useConfigStore()
 
           this.$refs.errorHolder.style.height = this.initalHeight + 'px'
           this.validating = true
-          console.log("Validating: ", this.validating)
+          //console.log("Validating: ", this.validating)
           this.validationResults = {}
           try{
             this.validationResults = await this.profileStore.validateRecord()
@@ -194,6 +194,7 @@
     font-size: 1.5em;
   }
 
+  .level-SUCCESS,
   .level-WARNING,
   .level-ERROR{
     list-style: none;
@@ -210,5 +211,11 @@
     color: #721c24;
     background-color: #f8d7da;
     border-color: #f5c6cb;
+  }
+
+  .level-SUCCESS {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
   }
 </style>

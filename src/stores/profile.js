@@ -63,6 +63,11 @@ export const useProfileStore = defineStore('profile', {
 
     dataChangedTimestamp: Date.now(),
 
+    // the active guid of the literal field being assinged a @lang value
+    // if it === false it hides the modal
+    literalLangInfo: null,
+    literalLangShow: false,
+
 
 
   }),
@@ -1378,7 +1383,7 @@ export const useProfileStore = defineStore('profile', {
           cacheGuid[fieldGuid] = blankNode
         }
         // let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
-        console.log("blankNode -->",blankNode)
+        // console.log("blankNode -->",blankNode)
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult
@@ -1446,6 +1451,14 @@ export const useProfileStore = defineStore('profile', {
 
         if (!blankNode[lastProperty]){
           console.error('Trying to find the value of this literal, unable to:',componentGuid, fieldGuid, propertyPath, value, lang, pt)
+        }
+        if (lang == "REMOVE_COMMAND"){
+          delete blankNode['@language']
+          lang=null
+        }
+
+        if (lang){
+          blankNode['@language'] = lang
         }
 
         // and now add in the literal value into the correct property
@@ -1536,7 +1549,7 @@ export const useProfileStore = defineStore('profile', {
             values.push({
               '@guid':v['@guid'],
               value: unescape(v[deepestLevelURI]),
-              '@lang' : (v['@lang']) ? v['@lang'] : null,
+              '@language' : (v['@language']) ? v['@language'] : null,
             })
           }else{
             return false
@@ -2193,7 +2206,7 @@ export const useProfileStore = defineStore('profile', {
    * Validate the reocrd
   */
   validateRecord: async function(eid, profile){
-    console.log("Profile store: Validating")
+    //console.log("Profile store: Validating?")
     let xml = await utilsExport.buildXML(this.activeProfile)
     let response = await utilsNetwork.validate(xml.xlmStringBasic)
 

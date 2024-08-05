@@ -24,13 +24,15 @@ const router = createRouter({
     {
       path: "/edit/:recordId",
       name: "Edit",
-      component: Edit
+      component: Edit,
+      props: true
 
     },
     {
       path: "/multiedit/:recordId",
       name: "MultiEdit",
-      component: EditMulti
+      component: EditMulti,
+      props: true
 
     },
 

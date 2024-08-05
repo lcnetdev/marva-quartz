@@ -21,7 +21,7 @@
       </template>
 
       <Transition name="action">
-        <div class="literal-action-inline-mode" v-if="showActionButton && myGuid == activeField">
+        <div class="literal-action-inline-mode" v-if="showActionButton && myGuid == activeField">          
           <action-button :clickmode="true"  :small="true" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
       </div>
     </Transition>
@@ -93,10 +93,12 @@
 
           </form>
         </div>
+        <span class="lang-display" v-if="lValue['@language'] !== null">{{ lValue['@language'] }}</span>
+
           <Transition name="action">
             <div class="literal-action" v-if="showActionButton && myGuid == activeField">
               <action-button :type="'literal'" :fieldGuid="lValue['@guid']"  :guid="guid"  @action-button-command="actionButtonCommand" />
-          </div>
+            </div>
         </Transition>
       </div>
     </div>
@@ -113,6 +115,7 @@ import short from 'short-uuid'
 
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
+import { useConfigStore } from '@/stores/config'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
 
@@ -256,17 +259,42 @@ export default {
         // this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,"new value",null,true)
 
         let fieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] == options.fieldGuid) })
-        console.log(options,fieldValue[0].value)
-
-
+        console.log(options,fieldValue)
 
         let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
         transValue = JSON.parse(transValue)
+        
+        let toLang = null
+        let fromLang = null
+        if (this.scriptShifterLangCodes[options.lang]){
+          fromLang = this.scriptShifterLangCodes[options.lang].code
+          toLang = this.scriptShifterLangCodes[options.lang].code.split("-")[0] + "-Latn"
+        }
 
-        this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,transValue.output,null,true)
+        // add the new string
+        this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,transValue.output,toLang,true)
 
+        // but also make sure the old string has the language tag
+        this.profileStore.setValueLiteral(this.guid,fieldValue[0]['@guid'],this.propertyPath,fieldValue[0]['value'],fromLang)
 
         
+        
+        
+      }
+
+      if (cmd == 'setLiteralLang'){
+
+        console.log("YTESH")
+        this.literalLangInfo={
+          propertyPath: this.propertyPath,
+          componentGuid: this.guid,
+          values: this.profileStore.returnLiteralValueFromProfile(this.guid,this.propertyPath)
+        }
+
+        
+        this.literalLangShow=true
+
+
       }
 
 
@@ -286,7 +314,9 @@ export default {
     ...mapStores(useProfileStore),
     ...mapStores(usePreferenceStore),
 
-    ...mapWritableState(useProfileStore, ['activeField','activeProfile']),
+    ...mapState(useConfigStore, ['scriptShifterLangCodes']),
+
+    ...mapWritableState(useProfileStore, ['activeField','activeProfile', 'literalLangShow', 'literalLangInfo']),
 
 
     myGuid(){
@@ -387,6 +417,13 @@ export default {
 </script>
 
 <style scoped>
+
+
+.lang-display{
+  background-color: aliceblue;
+  border-radius: 1em;
+  padding: 2px;
+}
 
 .inline-mode-editable-span-input{
   display: inline;

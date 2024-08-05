@@ -16,60 +16,64 @@
 
     <template #popper>
 
-      <template v-if="type=='literal'">
+      <div style="width: 250px;">
 
-          <template v-for="lang in Object.keys(scriptShifterOptions)">
-            <button  v-if="scriptShifterOptions[lang].s2r"  style="width:100%" class="" @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'s2r', fieldGuid: fieldGuid} )">
-              <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} S2R</span>
-            </button>
-            <button v-if="scriptShifterOptions[lang].r2s"  style="width:100%" class="" @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'r2s', fieldGuid: fieldGuid} )">
-              <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} R2S</span>
-            </button>
+        <template v-if="type=='literal'">
 
-          </template>
+            <template v-for="lang in Object.keys(scriptShifterOptions)">
+              <button  v-if="scriptShifterOptions[lang].s2r"  style="width:100%" class="" @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'s2r', fieldGuid: fieldGuid} )">
+                <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} S2R</span>
+              </button>
+              <button v-if="scriptShifterOptions[lang].r2s"  style="width:100%" class="" @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'r2s', fieldGuid: fieldGuid} )">
+                <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} R2S</span>
+              </button>
+
+            </template>
 
 
 
-          <button style="width:100%" class="" @click="$emit('actionButtonCommand', 'addField')">
-            Additonal Literal
-          </button><br>
+            <button style="width:100%" class="" @click="$emit('actionButtonCommand', 'addField')">
+              Additonal Literal
+            </button><br>
+
+            <button style="width:100%" class="" @click="$emit('actionButtonCommand', 'setLiteralLang')">
+              Set Language
+            </button><br>
+    
+            
+
+
+        </template>
+
+
+        <template v-if="type=='lookupSimple'">
 
           
-   
-          
+        </template>
+
+        <template v-if="type=='lookupComplex'">
 
 
-      </template>
+        </template>
 
 
-      <template v-if="type=='lookupSimple'">
-
-        
-      </template>
-
-      <template v-if="type=='lookupComplex'">
-
-
-      </template>
-
-
-      <hr>
+        <hr>
 
 
 
-      <button style="width:100%" class="" @click="showDebug()">
-        Debug
-      </button>
-     
-      <button style="width:100%" class="" @click="duplicateComponent()">
-        Add Component
-      </button>
-      <button style="width:100%" class="" @click="deleteComponent()">
-        Delete Component
-      </button> 
+        <button style="width:100%" class="" @click="showDebug()">
+          Debug
+        </button>
+      
+        <button style="width:100%" class="" @click="duplicateComponent()">
+          Add Component
+        </button>
+        <button style="width:100%" class="" @click="deleteComponent()">
+          Delete Component
+        </button> 
 
 
-
+      </div>
       <!-- 
         <VDropdown
           v-for="n in 5"

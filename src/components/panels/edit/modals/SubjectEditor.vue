@@ -159,6 +159,12 @@
                         </ul>
                       </div>
 
+                      <div v-if="this.pickCurrent != null">
+                        <div class="clear-selected">
+                          <button class="clear-selected-button" @click="clearSelected()" title="Clear selection & re-enable update on hover">Remove selected</button>
+                        </div>
+                      </div>
+
 
 
 
@@ -621,6 +627,10 @@
     font-size: x-large;
 }
 
+.clear-selected-button {
+  margin-top: 10px;
+}
+
 /*
 .left-menu-list-item-has-data::before {
     content: "✓ " !important;
@@ -707,6 +717,7 @@ export default {
 
       pickPostion: 0,
       pickLookup: {},
+      pickCurrent: null,
       activeComponent: null,
       oldActiveComponent: null,
       activeComponentIndex:0,
@@ -824,6 +835,7 @@ export default {
 
     // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
     searchApis: debounce(async (searchString,searchStringFull,that) => {
+      that.pickCurrent = null //reset the current selection when the search changes
 
       that.searchResults=null
       that.x = 'Seaching...'
@@ -1116,27 +1128,38 @@ export default {
 
     },
 
+    getContext: async function(){
+      if (this.pickLookup[this.pickPostion].literal){
+        this.contextData = this.pickLookup[this.pickPostion]
+        return false
+      }
+
+      this.contextRequestInProgress = true
+      this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
+      this.contextRequestInProgress = false
+    },
+
+    /** Clear the current selection so that hovering will update the preview again */
+    clearSelected: function(){
+      this.pickLookup[this.pickCurrent].picked = false
+      this.pickCurrent = null
+    },
+
     loadContext: async function(pickPostion){
-
-
-        this.pickPostion = pickPostion
-
-
-        // this.$store.dispatch("clearContext", { self: this})
+        if (this.pickCurrent == null) {
+          this.pickPostion = pickPostion
+        } else {
+          return null
+        }
 
         if (this.pickLookup[this.pickPostion].literal){
           return false
         }
 
-        this.contextRequestInProgress = true
-
-        this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
-
+        this.getContext()
         if (this.contextData){
           this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
         }
-
-        this.contextRequestInProgress = false
 
         // this.$store.dispatch("fetchContext", { self: this, searchPayload: this.pickLookup[this.pickPostion].uri }).then(() => {
 
@@ -1149,11 +1172,11 @@ export default {
 
     },
 
-    selectContext: function(pickPostion){
-
-
-      if (pickPostion){
+    selectContext: async function(pickPostion){
+      if (pickPostion != null){
         this.pickPostion=pickPostion
+        this.pickCurrent=pickPostion
+        this.getContext()
       }
 
       if (this.pickLookup[this.pickPostion].complex){
