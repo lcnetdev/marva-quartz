@@ -220,10 +220,7 @@
 
       activeComponent(newVal){
 
-        console.log(newVal)
-
-        console.log(document.getElementById('edit_' + newVal.id))
-
+        
 
             this.$nextTick(() => {
               window.setTimeout(()=> {

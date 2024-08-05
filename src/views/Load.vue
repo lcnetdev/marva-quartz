@@ -150,7 +150,7 @@
                   </div>
                   <ul class="continue-record-list">
                     <li class="continue-record" v-for="record in continueRecords" >
-                      <router-link :to="{ name: 'Edit', params: { recordId: record.eid }}">
+                      <router-link :to="{ name: 'Edit', params: { recordId: record.eid}}">
                         <div><span class="continue-record-title">{{record.title}}</span><span v-if="record.contributor"> by {{record.contributor}}</span><span> ({{record.lccn}})</span></div>
                         <div class="continue-record-lastedit"><span v-if="record.status=='posted'">Posted</span><span v-if="record.status=='unposted'">last edited</span> <span>{{ returnTimeAgo(record.timestamp) }}</span></div>
                       </router-link>
@@ -490,6 +490,7 @@
           let uuid = 'e' + decimalTranslator.new()
           uuid = uuid.substring(0,8)
           useProfile.eId= uuid
+          useProfile.neweId = true
         }
 
 

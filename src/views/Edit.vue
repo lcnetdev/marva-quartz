@@ -121,10 +121,13 @@
 
   export default {
     components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc, LiteralLang },
+
+    
     data() {
       return {
 
-        test: 1
+        test: 1,
+        profileLoadedTimer: null,
         
       }
     },
@@ -137,9 +140,9 @@
       ...mapState(useProfileStore, ['profilesLoaded','activeProfileSaved']),
 
       
-      ...mapWritableState(usePreferenceStore, ['showDebugModal', 'activeProfile']),
+      ...mapWritableState(usePreferenceStore, ['showDebugModal']),
 
-      ...mapWritableState(useProfileStore, ['literalLangGuid','literalLangShow']),
+      ...mapWritableState(useProfileStore, ['literalLangGuid','literalLangShow','activeProfile']),
 
       // // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
@@ -177,6 +180,33 @@
     mounted: function(){
 
 
+      if (this.profilesLoaded && this.activeProfile){
+
+        if (this.activeProfile.neweId){
+          console.log("New record just created.")
+          // if they just created a new record then we should save the record to back end first thing so it is recorded
+          this.profileStore.saveRecord()
+
+        }else{
+          // otherwise they just got kicked over to the edit screen with an existing record id, load it from the back end to edit
+          this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
+        }
+        
+      }
+
+
+
+      // this.profileLoadedTimer = window.setInterval(()=>{
+
+      //   if (this.activeProfile){
+      //     window.clearInterval(this.profileLoadedTimer)
+      //     if (this.activeProfile.neweId){
+      //       console.log("New record just created.")
+      //     }
+      //   }
+
+
+      // },100)
       
       // if (this.profilesLoaded){
       //   console.log('this.activeProfile', this.activeProfile)
@@ -203,9 +233,6 @@
 
 
       // }, { detached: true })
-
-      
-      
 
 
 
