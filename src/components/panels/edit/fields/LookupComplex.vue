@@ -982,6 +982,8 @@ export default {
       let sibling = this.$refs.el[0].parentNode.childNodes[2]
       if (sibling.className == "uncontrolled") {
         this.isLiteral = true
+      } else {
+        this.isLiteral = false
       }
 
       /* This only gets populated when it's loaded from a record

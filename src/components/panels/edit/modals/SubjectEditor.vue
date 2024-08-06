@@ -1076,6 +1076,7 @@ export default {
     }, 500),
 
     navStringClick: function(event){
+      console.log("Click")
       // when clicked send it over to the navString func with fake key property to trigger if statement
       event.key='ArrowLeft'
       this.navString(event)
@@ -1167,7 +1168,8 @@ export default {
 
     },
 
-    selectContext: async function(pickPostion){
+    selectContext: async function(pickPostion, update=true){
+      console.log("Selecting")
       if (pickPostion != null){
         this.pickPostion=pickPostion
         this.pickCurrent=pickPostion
@@ -1177,6 +1179,7 @@ export default {
       if (this.pickLookup[this.pickPostion].complex){
         // if it is a complex authorized heading then just replace the whole things with it
         this.subjectString = this.pickLookup[this.pickPostion].label
+        console.log(this.subjectString)
         this.activeComponentIndex = 0
 
         this.componetLookup = {}
@@ -1191,7 +1194,7 @@ export default {
 
         //This check is needed to prevent falling into recursive loop when loading
         // existing data.
-        if (this.searchResults.subjectsComplex.length == 0) {
+        if (update == true) {
           this.subjectStringChanged()
         }
         try {
@@ -1230,7 +1233,7 @@ export default {
 
         console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
         //Need something to prevent recursion
-        if (this.searchResults.subjectsSimple.length == 0){
+        if (update == true){
           this.subjectStringChanged()
         }
 
@@ -1405,11 +1408,14 @@ export default {
     },
 
     subjectStringChanged: async function(event){
+      console.log("changed: ", event)
+
       if (
         this.authorityLookupLocal != null
           && (this.searchResults != null
           && (this.searchResults.subjectsComplex.length > 0 || this.searchResults.subjectsSimple.length > 0))
       ) {
+        console.log("seeing this?")
         // decide which list to search ing
         let list = null
         if (this.isLiteral) {
@@ -1421,6 +1427,9 @@ export default {
         //Select the context that matches the incoming value
         for (const pos in list){
             let label = list[pos].label
+            console.log("label: ", label)
+            console.log("incoming: ", this.authorityLookupLocal)
+            console.log("pick: ", this.pickLookup[this.pickCurrent])
             if (label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
               try{
                 let idx = 0
@@ -1429,7 +1438,7 @@ export default {
                 } else {
                   idx = pos
                 }
-                this.selectContext(idx)
+                this.selectContext(idx, false)
                 this.validateOkayToAdd()
               } catch(err) {
                 console.error(err)
@@ -2070,7 +2079,7 @@ export default {
                     } else {
                       idx = pos
                     }
-                    this.selectContext(idx)
+                    this.selectContext(idx, false)
                     this.validateOkayToAdd()
                   } catch(err) {
                     console.error(err)
@@ -2079,24 +2088,6 @@ export default {
                 }
               }
 
-
-              // if (this.searchResults != null){
-              //   for (const idx in this.searchResults.subjectsComplex){
-              //     let label = this.searchResults.subjectsComplex[idx].label
-              //     console.log("label: ", label)
-              //     if (label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
-              //       console.log("Match: ", label, " = ", this.authorityLookupLocal)
-              //       try{
-              //         console.log("??? -- ", idx)
-              //         this.selectContext(idx)
-              //         console.log("Validate2")
-              //         this.validateOkayToAdd()
-              //       } catch(err) {
-              //         console.log("")
-              //       }
-              //     }
-              //   }
-              // }
             }, (2 * 1000)
         )
       this.searching = false
