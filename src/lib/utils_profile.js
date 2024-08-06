@@ -219,7 +219,7 @@ const utilsProfile = {
       
       // link to the base userValue
       let pointer = pt.userValue
-      console.log(propertyPath.length)
+
       for (let p of propertyPath){
 
         // the property path has two parts 
@@ -264,57 +264,49 @@ const utilsProfile = {
   },
 
 
+  /**
+  * Called from buildBlanknode to build the @types for a userValue it is a seperate function to allow it to run 
+  * without blocking the creation of the blanknode which lags data input if we had to wait around why deciding the @types for the node
+  * @async
+  * @param {object} pt - the pt field for that component
+  * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
+  * @return {void} - doesn't return anything it works on the reference to the pt.userValue updating the orginal
+  */    
   setTypesForBlankNode: async function(pt, propertyPath){
     let pointer = pt.userValue
-
     for (let p of propertyPath){
 
       p = p.propertyURI
 
       if (pointer[p][0]){
-
-
-
-        console.log("pointer ->",pointer)
-        
-
         // we may or maynot need to create a @type for this level, depending on what type of property it is,
         // so test first the property info in the profile
         let type = utilsRDF.suggestTypeProfile(p,pt)
+
+
         if (type === false){
           // did not find it in the profile, look to the network
           type = await utilsRDF.suggestTypeNetwork(p)
-
         } 
-
         if (type !== false){
           // first we test to see if the type is a literal, if so then we 
           // don't need to set the type, as its not a blank node, just a nested property
           if (utilsRDF.isUriALiteral(type) === false){
-            pointer[p][0]['@type'] = type  
+            // if it doesn't yet have a type then go ahead and set it
+            if (!pointer[p][0]['@type']){
+              pointer[p][0]['@type'] = type  
+            }
           }else{
             // nothing to do, its a literal
           }
         }else{
           console.error("Could not find type for this property", p, 'of', propertyPath, 'in', pt)  
         }
-
         pointer = pointer[p][0]
-
       }else{
         console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)  
       }
-
     }
-
-
-    console.log("Finished typing blank node")
-    console.log(pt)
-
-
-
-
-
   },
 
 

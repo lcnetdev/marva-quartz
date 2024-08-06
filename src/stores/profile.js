@@ -6,6 +6,8 @@ import utilsNetwork from '@/lib/utils_network';
 import utilsParse from '@/lib/utils_parse';
 import utilsRDF from '@/lib/utils_rdf';
 import utilsExport from '@/lib/utils_export';
+// import utilsMisc from '@/lib/utils_misc';
+
 
 
 import utilsProfile from '../lib/utils_profile'
@@ -52,6 +54,15 @@ export const useProfileStore = defineStore('profile', {
 
     showPostModal: false,
     showValidateModal: false,
+    showShelfListingModal: false,
+    activeShelfListData:{
+      class:null,
+      cutter:null,
+      classGuid:null,
+      cuterGuid: null,
+      componentGuid: null
+    },
+    
 
     // bf:title component/predicate for example, value will be the structure object for this component
 
@@ -1368,6 +1379,8 @@ export const useProfileStore = defineStore('profile', {
         pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
         cachePt[componentGuid] = pt
       }
+      console.log("--------pt 1------------")
+      console.log(JSON.stringify(pt,null,2))
       // let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       console.log(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral)
       if (pt !== false){
@@ -1382,8 +1395,11 @@ export const useProfileStore = defineStore('profile', {
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
           cacheGuid[fieldGuid] = blankNode
         }
+        console.log("--------pt 2------------")
+        console.log(JSON.stringify(pt,null,2))
+
         // let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
-        // console.log("blankNode -->",blankNode)
+        console.log("blankNode -->",blankNode)
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult
@@ -1407,7 +1423,8 @@ export const useProfileStore = defineStore('profile', {
             blankNode['@guid'] = fieldGuid
             // set a temp value that will be over written below
             blankNode[lastProperty] = true
-
+            console.log("--------pt 3------------")
+            console.log(JSON.stringify(pt,null,2))
 
           }else{
 
@@ -1437,7 +1454,8 @@ export const useProfileStore = defineStore('profile', {
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
             // set a temp value that will be over written below
             blankNode[lastProperty] = true
-
+            console.log("--------pt 4------------")
+            console.log(JSON.stringify(pt,null,2))
 
 
           }
@@ -1489,7 +1507,8 @@ export const useProfileStore = defineStore('profile', {
               delete parent[lastProperty]
             }
 
-
+            console.log("--------pt 5------------")
+            console.log(JSON.stringify(pt,null,2))
 
 
           }
@@ -2537,6 +2556,202 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+
+    /**
+    * If it is a LCC component info about the LCC numbers
+    * used in the interface rendering
+    * @return {boolean} 
+    */
+    returnLccInfo: function(componentGuid, structure){
+
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      let classNumber = null
+      let classGuid = null
+
+      let cutterNumber = null
+      let cutterGuid = null
+
+      let work = null
+      let title = null
+      let titleNonSort = null
+      let firstSubject = null
+      let contributors = []
+
+      // find the work and pull out stuff
+      for (let rtId in this.activeProfile.rt){
+
+        if (rtId.indexOf(":Work") > -1){
+          for (let ptId in this.activeProfile.rt[rtId].pt){
+            if (this.activeProfile.rt[rtId].pt[ptId]['@guid'] == componentGuid){
+              work = this.activeProfile.rt[rtId]
+              break
+            }
+          }
+          if (work){ break }
+        }
+      }
+
+      if (work){
+
+        for (let ptId in work.pt){
+
+          let pt = work.pt[ptId]
+
+          if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/title'){
+            let titleUserValue = pt.userValue
+            if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'] && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'].length>0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]){
+              titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
+              if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle']){
+                if (titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'][0] && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
+                  title = titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                }
+              }
+              if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum']){
+                if (titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum'].length > 0 && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum'][0] && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum'][0]['http://id.loc.gov/ontologies/bflc/nonSortNum']){
+                  titleNonSort = titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum'][0]['http://id.loc.gov/ontologies/bflc/nonSortNum']
+                }
+              }
+            }
+          }
+          
+          
+          if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/contribution'){
+            let contributorUserValue = pt.userValue
+            let type="normal"
+
+            if (contributorUserValue && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'] && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'].length > 0 && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['@type']){
+              if (contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['@type'] === 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution'){
+                type="PrimaryContribution"
+              }
+              
+              if (contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]){
+                let agent = contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
+                if (agent && agent['http://www.w3.org/2000/01/rdf-schema#label'] && agent['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && agent['http://www.w3.org/2000/01/rdf-schema#label'][0] && agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+                  contributors.push({type:type,label:agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']})
+                }
+              }
+
+
+
+            }
+
+          }
+
+          if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/subject' && firstSubject === null){
+            let subjectUserValue = pt.userValue
+
+            if (subjectUserValue && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'].length > 0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+              if (subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+                
+                firstSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+
+
+              }
+              
+            }
+
+          }
+
+
+
+        }
+      }
+
+
+
+      
+      if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
+        let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
+
+        
+        if (uv && uv['@type'] && uv['@type'] == 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
+
+        // this is a LCC field then
+
+          // we need to gather info from the component and the rest of the work to build links/suggestions
+
+
+          
+
+          if (uv['http://id.loc.gov/ontologies/bibframe/classificationPortion'] && uv['http://id.loc.gov/ontologies/bibframe/classificationPortion'].length>0 && uv['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] && uv['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
+            classNumber = uv['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+            classGuid = uv['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['@guid']
+
+          }
+          if (uv['http://id.loc.gov/ontologies/bibframe/itemPortion'] && uv['http://id.loc.gov/ontologies/bibframe/itemPortion'].length>0 && uv['http://id.loc.gov/ontologies/bibframe/itemPortion'][0] && uv['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']){
+            cutterNumber = uv['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
+            cutterGuid = uv['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['@guid']
+
+          }
+
+
+
+
+
+          if (titleNonSort && titleNonSort.trim().length >0){
+            if (isNaN(parseInt(titleNonSort)) == false ){
+              titleNonSort = parseInt(titleNonSort)
+              title = title.substr(titleNonSort).trim()
+            }
+          }
+
+          // console.log('classNumber',classNumber)
+          // console.log('cutterNumber',cutterNumber)
+          // console.log('work',work)
+          // console.log('title',title)
+          // console.log('titleNonSort',titleNonSort)
+          // console.log("contributors",contributors)
+
+
+          
+
+          return {
+            title: title,
+            classNumber:classNumber,
+            cutterNumber:cutterNumber,
+            titleNonSort:titleNonSort,
+            contributors:contributors,
+            firstSubject:firstSubject,
+            cutterGuid:cutterGuid,
+            classGuid:classGuid
+          }
+
+        }
+
+
+      }else{
+
+
+        if (pt && pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' && Object.keys(pt.userValue).length == 1){
+
+          // it is a new record, so there is no info but the LCC classification is by default so populate the other stuff
+          return {
+            title: title,
+            classNumber:null,
+            cutterNumber:null,
+            titleNonSort:titleNonSort,
+            contributors:contributors,
+            firstSubject:firstSubject,
+            cutterGuid:null,
+            classGuid:null
+          }
+
+
+        }
+
+
+
+
+
+      }
+
+      
+      //ClassificationLcc
+      return false
+
+    },
 
 
 

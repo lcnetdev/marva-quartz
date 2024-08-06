@@ -42,7 +42,7 @@
             <pane 
               :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}" 
               :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
-              {{ (this.activeProfile) ? Object.keys(this.activeProfile).length : "" }}
+
               <EditPanel :key="test" :instanceMode="false"/>
             </pane>
 
@@ -183,7 +183,7 @@
       if (this.profilesLoaded && this.activeProfile){
 
         if (this.activeProfile.neweId){
-          console.log("New record just created.")
+
           // if they just created a new record then we should save the record to back end first thing so it is recorded
           this.profileStore.saveRecord()
 

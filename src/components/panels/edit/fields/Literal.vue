@@ -66,6 +66,7 @@
 
                 </div>
               </div>
+              
 
 
             </template>
@@ -102,6 +103,72 @@
         </Transition>
       </div>
     </div>
+
+    <div class="lcc-action-zone" v-if="lccFeatureData !== false">
+      <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/classificationPortion'">
+        
+        <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://classweb.org/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan='+lccFeatureData.classNumber+'&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'" target="_blank">ClassWeb Search: {{ lccFeatureData.classNumber }}</a><br/>
+        <a style="color:black" v-if="lccFeatureData.firstSubject" :href="'https://classweb.org/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a>
+
+        
+      </div>
+      <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/itemPortion'">
+        <!-- { "title": "knitter's handy book of patterns", "classNumber": "TT820", "cutterNumber": ".B877 2002", "titleNonSort": 4, "contributors": [ { "type": "PrimaryContribution", "label": "Budd, Ann, 1956-" } ], "firstSubject": "Knitting--Patterns" } -->
+        <div style="display: flex;">
+          <div style="flex:1">
+          <fieldset v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length>0) || lccFeatureData.title" >
+            <legend>Cutter Calculator</legend>
+            
+            <template v-if="lccFeatureData.contributors">
+
+              <template v-if="lccFeatureData.contributors[0]">
+                <div>
+                  <span style="font-weight: bold;">{{lccFeatureData.contributors[0].label.substring(0,parseInt(cutterCalcLength))}}</span>
+                  <span>{{lccFeatureData.contributors[0].label.substring(parseInt(cutterCalcLength))}}</span>
+                  <input type="text" :value="'.' + calculateCutter(lccFeatureData.contributors[0].label,cutterCalcLength).substring(0,cutterCalcLength)">
+                  <a style="font-size: 0.85em; padding-left: 0.5em;" @click.prevent="setLccInfo(lccFeatureData.cutterGuid,calculateCutter(lccFeatureData.contributors[0].label,cutterCalcLength).substring(0,cutterCalcLength))" href="#">Use</a>
+                </div>
+              </template>
+              <template v-if="lccFeatureData.contributors[1]">
+                <div>
+                  <span style="font-weight: bold;">{{lccFeatureData.contributors[1].label.substring(0,cutterCalcLength)}}</span>
+                  <span>{{lccFeatureData.contributors[1].label.substring(parseInt(cutterCalcLength))}}</span>
+                  <input type="text" :value="'.' + calculateCutter(lccFeatureData.contributors[1].label,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength))">
+                  <a style="font-size: 0.85em; padding-left: 0.5em;" @click.prevent="setLccInfo(lccFeatureData.cutterGuid,calculateCutter(lccFeatureData.contributors[1].label,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength)))" href="#">Use</a>
+                </div>
+              </template>            
+              <template v-if="lccFeatureData.title">
+                <div>                  
+                  <span style="font-weight: bold;">{{lccFeatureData.title.substring(0,parseInt(cutterCalcLength))}}</span>
+                  <span>{{lccFeatureData.title.substring(parseInt(cutterCalcLength),parseInt(cutterCalcLength)+12)}}</span>
+                  <input type="text" :value="'.' + calculateCutter(lccFeatureData.title,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength))">
+                  <a style="font-size: 0.85em; padding-left: 0.5em;" @click.prevent="setLccInfo(lccFeatureData.cutterGuid,calculateCutter(lccFeatureData.title,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength)))" href="#">Use</a>
+                </div>
+              </template>    
+
+              
+            </template>
+
+            <div>
+              <input type="range" v-model="cutterCalcLength" name="cutterCalcLength" min="0" max="6" step="1" />
+              <label for="cutterCalcLength" style="font-size: 0.8em; vertical-align: text-top;">Calc Length ({{ cutterCalcLength }})</label>
+            </div>
+
+            
+          </fieldset>
+          </div>
+          <div style="flex:1;     display: flex;justify-content: center;align-items: center;">
+              <button @click="openShelfListSearch">Shelf List Search</button>
+          </div>
+
+        </div>
+        
+      </div>
+
+
+    </div>
+
+
   </template>
 
 
@@ -144,6 +211,40 @@ export default {
   },
 
   methods: {
+
+    
+
+    openShelfListSearch(){
+
+      this.activeShelfListData = {
+        class: this.lccFeatureData.classNumber,
+        cutter:this.lccFeatureData.cutterNumber,
+        classGuid:this.lccFeatureData.classGuid,
+        cuterGuid: this.lccFeatureData.cutterGuid,
+        componentGuid: this.guid
+      }
+      this.showShelfListingModal = true
+
+    },
+
+
+    async setLccInfo(fieldGuid,lccVal){
+
+      this.lccFeatureDataCounter++
+      if (fieldGuid == null){
+        fieldGuid = short.generate()
+      }
+      lccVal = `.${lccVal}`
+      await this.profileStore.setValueLiteral(this.guid,fieldGuid,this.propertyPath,lccVal,null)
+
+
+      console.log(fieldGuid,lccVal)
+
+    },
+
+    calculateCutter(toCut,howLong){
+      return utilsMisc.calculateCutter(toCut,howLong)
+    },
 
     inlineEmptyFocus: function(event){
       if (event.target.innerText.trim() === ''){
@@ -314,9 +415,9 @@ export default {
     ...mapStores(useProfileStore),
     ...mapStores(usePreferenceStore),
 
-    ...mapState(useConfigStore, ['scriptShifterLangCodes']),
+    ...mapState(useConfigStore, ['scriptShifterLangCodes', 'lccFeatureProperties']),
 
-    ...mapWritableState(useProfileStore, ['activeField','activeProfile', 'literalLangShow', 'literalLangInfo']),
+    ...mapWritableState(useProfileStore, ['showShelfListingModal','activeField','activeProfile', 'literalLangShow', 'literalLangInfo','dataChangedTimestamp','activeShelfListData']),
 
 
     myGuid(){
@@ -331,7 +432,7 @@ export default {
           value: '',
           '@lang': null,
           '@guid': short.generate()
-        }]
+        }]        
       }
 
       if (values.length == 0){
@@ -354,6 +455,15 @@ export default {
 
     }, 
 
+    lccFeatureData(){
+      this.lccFeatureDataCounter      
+      if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length-1].propertyURI)>-1){
+        return this.profileStore.returnLccInfo(this.guid, this.structure)
+      }
+      return false
+    },
+
+    
     inlineModeShouldDisplay(){
 
 
@@ -381,18 +491,37 @@ export default {
 
   watch: {
 
+    
+    // literalValues(newliteralValues, oldliteralValues) {      
+    //   console.log(newliteralValues, this.guid, this.structure)
+    //   if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length-1].propertyURI)>-1){
+    //     this.lccFeatureData = this.profileStore.returnLccInfo(this.guid, this.structure)
+    //   }
+    // }
+    dataChangedTimestamp(newVal, oldVal) {      
+      this.lccFeatureDataCounter++
+    }
+    
 
-
+    
   },
 
   data: function() {
     return {  
 
+      activeGuid: this.guid,
+
       // used as toggle to show the button when field is focused
       showActionButton: false,    
+      
+      lccFeatureDataCounter: 0,
 
       hasNoData: false,
       showField: true,
+
+      cutterCalcLength: 2,
+
+      
       
     }
   },
@@ -401,13 +530,18 @@ export default {
     this.$nextTick().then(() => {
       this.expandHeightToContent()
     })
+    if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length-1].propertyURI)>-1){
+      this.lccFeatureData = this.profileStore.returnLccInfo(this.guid, this.structure)
+    }
+
+
   },
   created: function(){
 
     this.$nextTick().then(() => {
       this.expandHeightToContent()
     })
-
+    console.log("activeGuid",this.activeGuid)
 
 
 
@@ -418,7 +552,17 @@ export default {
 
 <style scoped>
 
+fieldset{
+  border: solid 1px rgb(133, 133, 133);
+}
 
+.lcc-action-zone{
+  background-color: whitesmoke;
+  padding: 0.55em;
+  border-left: solid 1px rgb(133, 133, 133);
+  border-right: solid 1px rgb(133, 133, 133);
+
+}
 .lang-display{
   background-color: aliceblue;
   border-radius: 1em;

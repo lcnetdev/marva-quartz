@@ -5,6 +5,7 @@ import LoadingModal from "@/components/general/LoadingModal.vue";
 import PreferenceModal from "@/components/general/PreferenceModal.vue";
 import LoginModal from "@/components/panels/nav/LoginModal.vue";
 import ScriptshifterConfigModal from "@/components/panels/edit/modals/ScriptshifterConfigModal.vue";
+import ShelfListingModal from "@/components/panels/edit/modals/ShelfListing.vue";
 
 
 
@@ -24,6 +25,7 @@ export default {
     PreferenceModal,
     LoginModal,
     ScriptshifterConfigModal,
+    ShelfListingModal
   },
   data() {
     return {
@@ -36,8 +38,7 @@ export default {
     // gives access to this.counterStore and this.userStore
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
-    ...mapState(useProfileStore, ['profilesLoaded', 'showPostModal']),
-    ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal']),
+    ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal','showShelfListingModal']),
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal']),
 
@@ -129,6 +130,9 @@ export default {
     <ScriptshifterConfigModal v-model="showScriptshifterConfigModal" />
   </template>
 
+  <template v-if="showShelfListingModal==true">
+    <ShelfListingModal v-model="showShelfListingModal" />
+  </template>
 
 
 

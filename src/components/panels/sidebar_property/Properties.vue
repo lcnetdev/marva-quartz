@@ -101,8 +101,8 @@
                               <template v-if="activeProfile.rt[profileName]['@type'] && activeProfile.rt[profileName]['@type'] == 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'">Secondary</template>
                               {{$t("message.wordInstance")}}
                             </span>
-                            <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Item'">{{$t("message.wordItem")}}</span>
-                            <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Hub'">{{$t("message.wordHub")}}</span>
+                            <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0].indexOf('Item')>-1">{{$t("message.wordItem")}}</span>
+                            <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0].indexOf('Hub')>-1">{{$t("message.wordHub")}}</span>
                     </div>
 
                   </template>
