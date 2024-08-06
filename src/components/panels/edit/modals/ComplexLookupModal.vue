@@ -223,6 +223,8 @@
         if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
           toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
         } else {
+          // We're loading existing data and want to preselect the search result
+          // that matches that value
           for (const idx in this.activeComplexSearch){
             let label = this.activeComplexSearch[idx].label
             if (label == this.authorityLookupLocal){
@@ -344,6 +346,8 @@
             this.$refs.inputLookup.focus()
           }
           this.authorityLookupLocal = this.authorityLookup
+
+          // We're loading existing data
           if (this.authorityLookupLocal != null){
             this.searchValueLocal = this.authorityLookupLocal
             this.doSearch()

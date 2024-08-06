@@ -97,7 +97,7 @@
 
                     <div v-if="activeSearch!==false">{{activeSearch}}</div>
                     <div v-if="searchResults !== null">
-                      <div v-if="searchResults.names.length>0">
+                      <div v-if="searchResults.names.length>0 && !this.searching">
 
                         <div v-for="(name,idx) in searchResults.names" @click="selectContext((searchResults.names.length - idx)*-1)" @mouseover="loadContext((searchResults.names.length - idx)*-1)" :data-id="(searchResults.names.length - idx)*-1" :key="name.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1 ),'picked': (pickLookup[(searchResults.names.length - idx)*-1] && pickLookup[(searchResults.names.length - idx)*-1].picked)}]">
                             <span v-if="name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
@@ -144,11 +144,14 @@
 
                       </div>
 
-                      <div v-for="key in Object.keys(contextData.nodeMap)" :key="key">
-                        <div class="modal-context-data-title">{{key}}:</div>
-                          <ul>
-                            <li class="modal-context-data-li" v-for="v in contextData.nodeMap[key]" v-bind:key="v">{{v}}</li>
-                          </ul>
+                      <!-- Literals won't have `nodeMap` -->
+                      <div v-if="contextData.literal != true">
+                        <div v-for="key in Object.keys(contextData.nodeMap)" :key="key">
+                          <div class="modal-context-data-title">{{key}}:</div>
+                            <ul>
+                              <li class="modal-context-data-li" v-for="v in contextData.nodeMap[key]" v-bind:key="v">{{v}}</li>
+                            </ul>
+                        </div>
                       </div>
 
 
@@ -654,6 +657,7 @@ import { VueFinalModal } from 'vue-final-modal'
 import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
 
 import utilsNetwork from '@/lib/utils_network';
+import { isModalSlotOptions } from 'vue-final-modal/dist/useApi';
 
 
 
@@ -681,12 +685,13 @@ export default {
   props: {
     structure: Object,
     searchValue: String,
+    authorityLookup: String,
+    isLiteral: Boolean
 
   },
 
 
   watch: {
-
     // // watch when the undoindex changes, means they are undoing redoing, so refresh the
     // // value in the acutal input box
     searchValue: function(){
@@ -699,15 +704,12 @@ export default {
 
   data: function() {
     return {
-
+      searching: false,
 
       subjectEditorMode: 'subjectEditorMode',
 
       contextData: {nodeMap:{}},
-
-
-
-
+      authorityLookupLocal: null,
 
       subjectString: '',
       components: [],
@@ -763,10 +765,13 @@ export default {
     * @return {void}
     */
     linkModeTextChange: async function(event){
+      console.log("Link Mode Text Change")
 
-
-
-      this.$refs.subjectInput.focus()
+      try{
+        this.$refs.subjectInput.focus()
+      } catch(err) {
+        console.log("Loading from existing data")
+      }
 
       if (event.key==='Enter' && event.shiftKey===false){
         console.log("Starting search")
@@ -774,7 +779,7 @@ export default {
         this.linkModeSearching=true
         this.linkModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.linkModeString)
         this.linkModeSearching=false
-        console.log(this.linkModeResults)
+        console.log("LinkMode results: ", this.linkModeResults)
 
       }else if (event.key==='Enter' && event.shiftKey===true){
 
@@ -789,6 +794,7 @@ export default {
     },
 
     focusInput: function(){
+      console.log("focusInput")
       this.$nextTick(() => {
 
         let timeoutFocus = window.setTimeout(()=>{
@@ -825,6 +831,7 @@ export default {
 
 
     searchModeSwitch: function(mode){
+      console.log("Mode: ", mode)
       this.searchMode = mode
       if (this.activeComponent && this.activeComponent.label){
         this.searchApis(this.activeComponent.label,this.subjectString,this)
@@ -834,7 +841,8 @@ export default {
 
 
     // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
-    searchApis: debounce(async (searchString,searchStringFull,that) => {
+    searchApis: debounce(async (searchString, searchStringFull, that) => {
+      console.log("searchApis")
       that.pickCurrent = null //reset the current selection when the search changes
 
       that.searchResults=null
@@ -1080,13 +1088,14 @@ export default {
     }, 500),
 
     navStringClick: function(event){
+      console.log("navStringClick")
       // when clicked send it over to the navString func with fake key property to trigger if statement
       event.key='ArrowLeft'
       this.navString(event)
     },
 
     navString: function(event){
-
+      console.log("navString")
       if (event.key == 'ArrowLeft' || event.key == 'ArrowRight' ){
 
 
@@ -1129,13 +1138,19 @@ export default {
     },
 
     getContext: async function(){
+      console.log("getContext", this.pickPostion, " == ", this.pickLookup[this.pickPostion])
+      console.log(this.pickLookup)
+
       if (this.pickLookup[this.pickPostion].literal){
+        console.log("Literal")
         this.contextData = this.pickLookup[this.pickPostion]
+        console.log("Context: ", this.contextData)
         return false
       }
 
       this.contextRequestInProgress = true
       this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
+      console.log("controlled: ", this.contextData)
       this.contextRequestInProgress = false
     },
 
@@ -1146,33 +1161,35 @@ export default {
     },
 
     loadContext: async function(pickPostion){
-        if (this.pickCurrent == null) {
-          this.pickPostion = pickPostion
-        } else {
-          return null
-        }
+      if (this.pickCurrent == null) {
+        this.pickPostion = pickPostion
+      } else {
+        return null
+      }
 
-        if (this.pickLookup[this.pickPostion].literal){
-          return false
-        }
+      if (this.pickLookup[this.pickPostion].literal){
+        return false
+      }
 
-        this.getContext()
-        if (this.contextData){
-          this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
-        }
+      this.getContext()
+      if (this.contextData){
+        console.log("Context Exists, load it.")
+        this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
+      }
 
-        // this.$store.dispatch("fetchContext", { self: this, searchPayload: this.pickLookup[this.pickPostion].uri }).then(() => {
+      // this.$store.dispatch("fetchContext", { self: this, searchPayload: this.pickLookup[this.pickPostion].uri }).then(() => {
 
-        //   // keep a local copy of it for looking up subject type
+      //   // keep a local copy of it for looking up subject type
 
 
-        // })
+      // })
 
 
 
     },
 
     selectContext: async function(pickPostion){
+      console.log("Select Context: ", pickPostion)
       if (pickPostion != null){
         this.pickPostion=pickPostion
         this.pickCurrent=pickPostion
@@ -1193,7 +1210,12 @@ export default {
         // complex headings are all topics (...probably)
         this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
         this.pickLookup[this.pickPostion].picked=true
-        this.subjectStringChanged()
+
+        //This check is needed to prevent falling into recursive loop when loading
+        // existing data.
+        if (this.searchResults.subjectsComplex.length == 0) {
+          this.subjectStringChanged()
+        }
         this.$refs.subjectInput.focus()
 
       }else{
@@ -1236,7 +1258,7 @@ export default {
 
 
     navInput: function(event){
-
+      console.log("navInput")
 
 
       if (event.key == 'ArrowUp'){
@@ -1331,7 +1353,6 @@ export default {
     },
 
     updateAvctiveTypeSelected: function(){
-
       //set them all false
       for (let k in this.activeTypes){
         this.activeTypes[k].selected=false
@@ -1376,13 +1397,11 @@ export default {
     },
 
     validateOkayToAdd: function(){
-
       this.okayToAdd = false
       let allHaveURI = true
       let allHaveType = true
 
       for (let c of this.components){
-
         if (!c.uri && !c.literal){
           allHaveURI = false
         }
@@ -1404,6 +1423,43 @@ export default {
     },
 
     subjectStringChanged: async function(event){
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+      console.log(this.isLiteral)
+
+      if (
+          this.searchResults != null
+          && this.authorityLookupLocal != null
+          && this.searchResults.subjectsComplex.length > 0
+      ) {
+        console.log(this.searchResults)
+        console.log(this.authorityLookupLocal)
+        console.log(this.searchResults.subjectsComplex.length)
+
+        console.log("Matching on existing => ")
+
+        let list = this.isLiteral ? this.searchResults.subjectsSimple : this.searchResults.subjectsComplex
+        console.log("looking in ", list)
+
+        for (const idx in list){
+            let label = list[idx].label
+            if (label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
+              console.log("Match: ", label, " = ", this.authorityLookupLocal)
+              // if (this.isLiteral == true){
+              //   idx = this.searchResults.subjectsComplex.length + pos
+              // } else {
+              //   idx = pos
+              // }
+              try{
+                console.log("??? -- ", idx)
+                this.selectContext(idx)
+                console.log("Validate")
+                this.validateOkayToAdd()
+              } catch(err) {
+                console.log("")
+              }
+            }
+          }
+      }
 
       // they are setting the type, next key inputed is important
       if (event && event.data === '$'){
@@ -1413,7 +1469,6 @@ export default {
 
       // if the event coming in is the keystroke after a '$' then check to change the type
       if (event && this.nextInputIsTypeSelection){
-
         if (event.data.toLowerCase()==='a' || event.data.toLowerCase()==='x'){
           this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
           this.subjectString=this.subjectString.replace('$'+event.data,'')
@@ -1435,15 +1490,12 @@ export default {
         this.subjectStringChanged()
 
       }else{
-
         // its a normal keystroke not after '$' but check to see if it was a keyboard event
         // if not then event will be null and was just evoked from code, if its a event then they are typeing in a search value, clear out the old
         if (event){
           this.searchResults=null
         }
       }
-
-
 
       this.showTypes=true
 
@@ -1456,7 +1508,6 @@ export default {
       }
 
       let subjectStringSplit = this.subjectString.split('--')
-
 
       // clear the current
       this.components = []
@@ -1482,9 +1533,6 @@ export default {
           type = this.typeLookup[id]
         }
 
-
-
-
         this.components.push({
 
           label: ss,
@@ -1497,14 +1545,10 @@ export default {
           posEnd: activePosStart + ss.length - 1,
         })
 
-
         // increase the start length by the length of the string and also add 2 for the "--"
         activePosStart = activePosStart + ss.length + 2
 
-
-
         this.renderHintBoxes()
-
 
         id++
       }
@@ -1764,6 +1808,7 @@ export default {
 
 
     loadUserValue: function(userValue){
+      console.log("loadUserValue")
 
       // reset things if they might be opening this again for some reason
       this.components= []
@@ -2006,16 +2051,65 @@ export default {
 
 
   created: function () {
-
     this.loadUserValue()
 
   },
 
 
   before: function () {
+  },
 
+  updated: function() {
+    // this supports loading existing information into the forms
+    console.log("Updated!!")
+    console.log(this.authorityLookup)
+    console.log(this)
+    console.log(this.activeComponent)
 
+    if (this.authorityLookup != null) {
+      this.authorityLookupLocal = this.authorityLookup
+      this.subjectInput = this.authorityLookupLocal
+      this.linkModeString = this.authorityLookupLocal
+      try {
+        //Performs the search for linkmode
+        this.linkModeTextChange({key:'Enter',shiftKey:false})
 
+        //Do the search for build mode
+        console.log("Update searching: ", this.subjectInput)
+        this.searchResults = this.searchApis(this.authorityLookupLocal, this.authorityLookupLocal, this)
+
+        //Wait for the search results
+        this.searching = true
+        setTimeout(() => {
+              //Make sure the search result that matches the
+
+              if (this.searchResults != null){
+                for (const idx in this.searchResults.subjectsComplex){
+                  let label = this.searchResults.subjectsComplex[idx].label
+                  console.log("label: ", label)
+                  if (label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
+                    console.log("Match: ", label, " = ", this.authorityLookupLocal)
+                    try{
+                      console.log("??? -- ", idx)
+                      this.selectContext(idx)
+                      console.log("Validate")
+                      this.validateOkayToAdd()
+                    } catch(err) {
+                      console.log("")
+                    }
+                  }
+                }
+              }
+            }, (2 * 1000)
+        )
+      this.searching = false
+      } catch(err){
+        console.log("Error: ", err)
+      }
+
+      //this.subjectStringChanged()
+      //this.validateOkayToAdd()
+    }
   }
 };
 </script>

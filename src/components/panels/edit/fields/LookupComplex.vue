@@ -108,8 +108,9 @@
                 <div class="selected-value-container-title">
                   <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
                   <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">
-                    <a v-if="!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)" href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
-                    <span v-else>{{avl.label}}</span>
+                    <!-- <a v-if="!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)" href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
+                    <span v-else>{{avl.label}}</span> -->
+                    <a href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
                     <span class="uncontrolled" v-if="avl.isLiteral">
                       (uncontrolled)
                     </span>
@@ -144,7 +145,7 @@
   </template>
 
   <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false" :structure="structure" v-model="displayModal"/>
-  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
+  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
 
 </template>
 
@@ -612,6 +613,7 @@ export default {
 
       searchValue: null,
       authorityLookup: null,
+      isLiteral: null,
 
 
       // lookups: this.structure.valueConstraint.useValuesFrom,
@@ -977,6 +979,11 @@ export default {
     openAuthority: function() {
       let label = this.$refs.el[0].innerHTML
 
+      let sibling = this.$refs.el[0].parentNode.childNodes[2]
+      if (sibling.className == "uncontrolled") {
+        this.isLiteral = true
+      }
+
       /* This only gets populated when it's loaded from a record
       so it can't be used becasuse it won't work with an empty record
       and if the the value is changed, this underlying data will
@@ -992,8 +999,9 @@ export default {
       //Decide which modal to open/ don't support subject
       if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
         this.displayModal = true
+      } else {
+        this.displaySubjectModal = true
       }
-      //this.displaySubjectModal = true
 
 
       // TODO: how to get the ID to `complexLookupModal` >> `selectChange`?
