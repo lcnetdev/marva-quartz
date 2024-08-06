@@ -124,24 +124,16 @@
 
 
                   <div :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
-
-
-
                     <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                     <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
-
-
                       <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + contextData.type"><AuthTypeIcon v-if="contextData.type" :type="contextData.type"></AuthTypeIcon></span>{{contextData.title}}</h3>
-
                       <div class="modal-context-data-title">{{contextData.type}}</div>
-                      <a style="color:#2c3e50" :href="contextData.uri" target="_blank">view on id.loc.gov</a>
+                      <a style="color:#2c3e50" :href="contextData.uri" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
                       <div v-if="contextData.variant && contextData.variant.length>0">
                         <div class="modal-context-data-title">Variants:</div>
                         <ul>
                           <li class="modal-context-data-li" v-for="(v,idx) in contextData.variant" v-bind:key="'var' + idx">{{v}}</li>
                         </ul>
-
-
                       </div>
 
                       <!-- Literals won't have `nodeMap` -->
@@ -152,6 +144,9 @@
                               <li class="modal-context-data-li" v-for="v in contextData.nodeMap[key]" v-bind:key="v">{{v}}</li>
                             </ul>
                         </div>
+                      </div>
+                      <div v-else>
+                        <div class="modal-context-data-title">{{ contextData.label }} [Literal]</div>
                       </div>
 
 
@@ -657,7 +652,6 @@ import { VueFinalModal } from 'vue-final-modal'
 import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
 
 import utilsNetwork from '@/lib/utils_network';
-import { isModalSlotOptions } from 'vue-final-modal/dist/useApi';
 
 
 
@@ -695,6 +689,7 @@ export default {
     // // watch when the undoindex changes, means they are undoing redoing, so refresh the
     // // value in the acutal input box
     searchValue: function(){
+        console.log("searchValue")
         this.subjectString = this.searchValue
         this.linkModeString = this.searchValue
     }
@@ -779,7 +774,6 @@ export default {
         this.linkModeSearching=true
         this.linkModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.linkModeString)
         this.linkModeSearching=false
-        console.log("LinkMode results: ", this.linkModeResults)
 
       }else if (event.key==='Enter' && event.shiftKey===true){
 
@@ -1140,6 +1134,7 @@ export default {
     getContext: async function(){
       console.log("getContext", this.pickPostion, " == ", this.pickLookup[this.pickPostion])
       console.log(this.pickLookup)
+      console.log(this.pickLookup[5])
 
       if (this.pickLookup[this.pickPostion].literal){
         console.log("Literal")
@@ -1216,7 +1211,11 @@ export default {
         if (this.searchResults.subjectsComplex.length == 0) {
           this.subjectStringChanged()
         }
-        this.$refs.subjectInput.focus()
+        try {
+          this.$refs.subjectInput.focus()
+        } catch(err) {
+          console.log("working with existing data: $refs")
+        }
 
       }else{
 
@@ -1247,7 +1246,10 @@ export default {
 
 
         console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
-        this.subjectStringChanged()
+        //Need something to prevent recursion
+        if (this.searchResults.subjectsSimple.length == 0){
+          this.subjectStringChanged()
+        }
 
 
       }
@@ -1423,40 +1425,36 @@ export default {
     },
 
     subjectStringChanged: async function(event){
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-      console.log(this.isLiteral)
-
       if (
-          this.searchResults != null
-          && this.authorityLookupLocal != null
-          && this.searchResults.subjectsComplex.length > 0
+        this.authorityLookupLocal != null
+          && (this.searchResults != null
+          && (this.searchResults.subjectsComplex.length > 0 || this.searchResults.subjectsSimple.length > 0))
       ) {
-        console.log(this.searchResults)
-        console.log(this.authorityLookupLocal)
-        console.log(this.searchResults.subjectsComplex.length)
+        // decide which list to search ing
+        let list = null
+        if (this.isLiteral) {
+          list = this.searchResults.subjectsSimple
+        } else {
+          list = this.searchResults.subjectsComplex
+        }
 
-        console.log("Matching on existing => ")
-
-        let list = this.isLiteral ? this.searchResults.subjectsSimple : this.searchResults.subjectsComplex
-        console.log("looking in ", list)
-
-        for (const idx in list){
-            let label = list[idx].label
+        //Select the context that matches the incoming value
+        for (const pos in list){
+            let label = list[pos].label
             if (label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
-              console.log("Match: ", label, " = ", this.authorityLookupLocal)
-              // if (this.isLiteral == true){
-              //   idx = this.searchResults.subjectsComplex.length + pos
-              // } else {
-              //   idx = pos
-              // }
               try{
-                console.log("??? -- ", idx)
+                let idx = 0
+                if (this.isLiteral == true) {
+                  idx = this.searchResults.subjectsComplex.length + Number(pos)
+                } else {
+                  idx = pos
+                }
                 this.selectContext(idx)
-                console.log("Validate")
                 this.validateOkayToAdd()
               } catch(err) {
-                console.log("")
+                console.error(err)
               }
+              break
             }
           }
       }
@@ -1516,8 +1514,6 @@ export default {
       let activePosStart = 0
 
       for (let ss of subjectStringSplit){
-
-
         // check the lookup to see if we have the data for this label
 
         let uri = null
@@ -1606,7 +1602,6 @@ export default {
         this.showTypes=false
 
       }
-
 
       this.validateOkayToAdd()
 
@@ -2081,25 +2076,52 @@ export default {
         //Wait for the search results
         this.searching = true
         setTimeout(() => {
-              //Make sure the search result that matches the
+              //Make sure the search result that matche
+              let list = null
+              if (this.isLiteral) {
+                list = this.searchResults.subjectsSimple
+              } else {
+                list = this.searchResults.subjectsComplex
+              }
 
-              if (this.searchResults != null){
-                for (const idx in this.searchResults.subjectsComplex){
-                  let label = this.searchResults.subjectsComplex[idx].label
-                  console.log("label: ", label)
-                  if (label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
-                    console.log("Match: ", label, " = ", this.authorityLookupLocal)
-                    try{
-                      console.log("??? -- ", idx)
-                      this.selectContext(idx)
-                      console.log("Validate")
-                      this.validateOkayToAdd()
-                    } catch(err) {
-                      console.log("")
+              //Select the context that matches the incoming value
+              for (const pos in list){
+                let label = list[pos].label
+                if (label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
+                  try{
+                    let idx = 0
+                    if (this.isLiteral == true) {
+                      idx = this.searchResults.subjectsComplex.length + Number(pos)
+                    } else {
+                      idx = pos
                     }
+                    this.selectContext(idx)
+                    this.validateOkayToAdd()
+                  } catch(err) {
+                    console.error(err)
                   }
+                  break
                 }
               }
+
+
+              // if (this.searchResults != null){
+              //   for (const idx in this.searchResults.subjectsComplex){
+              //     let label = this.searchResults.subjectsComplex[idx].label
+              //     console.log("label: ", label)
+              //     if (label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
+              //       console.log("Match: ", label, " = ", this.authorityLookupLocal)
+              //       try{
+              //         console.log("??? -- ", idx)
+              //         this.selectContext(idx)
+              //         console.log("Validate2")
+              //         this.validateOkayToAdd()
+              //       } catch(err) {
+              //         console.log("")
+              //       }
+              //     }
+              //   }
+              // }
             }, (2 * 1000)
         )
       this.searching = false
