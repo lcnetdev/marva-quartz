@@ -689,7 +689,6 @@ export default {
     // // watch when the undoindex changes, means they are undoing redoing, so refresh the
     // // value in the acutal input box
     searchValue: function(){
-        console.log("searchValue")
         this.subjectString = this.searchValue
         this.linkModeString = this.searchValue
     }
@@ -760,7 +759,6 @@ export default {
     * @return {void}
     */
     linkModeTextChange: async function(event){
-      console.log("Link Mode Text Change")
 
       try{
         this.$refs.subjectInput.focus()
@@ -769,7 +767,6 @@ export default {
       }
 
       if (event.key==='Enter' && event.shiftKey===false){
-        console.log("Starting search")
         this.linkModeResults=false
         this.linkModeSearching=true
         this.linkModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.linkModeString)
@@ -788,7 +785,6 @@ export default {
     },
 
     focusInput: function(){
-      console.log("focusInput")
       this.$nextTick(() => {
 
         let timeoutFocus = window.setTimeout(()=>{
@@ -825,7 +821,6 @@ export default {
 
 
     searchModeSwitch: function(mode){
-      console.log("Mode: ", mode)
       this.searchMode = mode
       if (this.activeComponent && this.activeComponent.label){
         this.searchApis(this.activeComponent.label,this.subjectString,this)
@@ -836,7 +831,6 @@ export default {
 
     // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
     searchApis: debounce(async (searchString, searchStringFull, that) => {
-      console.log("searchApis")
       that.pickCurrent = null //reset the current selection when the search changes
 
       that.searchResults=null
@@ -1082,14 +1076,12 @@ export default {
     }, 500),
 
     navStringClick: function(event){
-      console.log("navStringClick")
       // when clicked send it over to the navString func with fake key property to trigger if statement
       event.key='ArrowLeft'
       this.navString(event)
     },
 
     navString: function(event){
-      console.log("navString")
       if (event.key == 'ArrowLeft' || event.key == 'ArrowRight' ){
 
 
@@ -1132,20 +1124,13 @@ export default {
     },
 
     getContext: async function(){
-      console.log("getContext", this.pickPostion, " == ", this.pickLookup[this.pickPostion])
-      console.log(this.pickLookup)
-      console.log(this.pickLookup[5])
-
       if (this.pickLookup[this.pickPostion].literal){
-        console.log("Literal")
         this.contextData = this.pickLookup[this.pickPostion]
-        console.log("Context: ", this.contextData)
         return false
       }
 
       this.contextRequestInProgress = true
       this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
-      console.log("controlled: ", this.contextData)
       this.contextRequestInProgress = false
     },
 
@@ -1168,7 +1153,6 @@ export default {
 
       this.getContext()
       if (this.contextData){
-        console.log("Context Exists, load it.")
         this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
       }
 
@@ -1184,7 +1168,6 @@ export default {
     },
 
     selectContext: async function(pickPostion){
-      console.log("Select Context: ", pickPostion)
       if (pickPostion != null){
         this.pickPostion=pickPostion
         this.pickCurrent=pickPostion
@@ -1260,9 +1243,6 @@ export default {
 
 
     navInput: function(event){
-      console.log("navInput")
-
-
       if (event.key == 'ArrowUp'){
         if (parseInt(this.pickPostion) <= this.searchResults.names.length*-1){
           return false
@@ -2056,11 +2036,6 @@ export default {
 
   updated: function() {
     // this supports loading existing information into the forms
-    console.log("Updated!!")
-    console.log(this.authorityLookup)
-    console.log(this)
-    console.log(this.activeComponent)
-
     if (this.authorityLookup != null) {
       this.authorityLookupLocal = this.authorityLookup
       this.subjectInput = this.authorityLookupLocal
