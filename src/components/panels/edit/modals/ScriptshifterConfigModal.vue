@@ -68,30 +68,36 @@
         },
 
 
-         async getLangs(){
+         getLangs(){
 
 
           // async function doAsync () {
             
-          await this.configStore.getScriptShifterLanguages()
+          window.setTimeout(async ()=>{
+            await this.configStore.getScriptShifterLanguages()
 
 
-          // }
+              // }
 
-          // doAsync(this);
+              // doAsync(this);
 
 
 
-          for (let k in this.scriptshifterLanguages){
-            if (this.scriptShifterOptions[k]){
-              if (this.scriptShifterOptions[k].s2r){
-                this.scriptshifterLanguages[k].s2r = true
+              for (let k in this.scriptshifterLanguages){
+                if (this.scriptShifterOptions[k]){
+                  if (this.scriptShifterOptions[k].s2r){
+                    this.scriptshifterLanguages[k].s2r = true
+                  }
+                  if (this.scriptShifterOptions[k].r2s){
+                    this.scriptshifterLanguages[k].r2s = true
+                  }              
+                }
               }
-              if (this.scriptShifterOptions[k].r2s){
-                this.scriptshifterLanguages[k].r2s = true
-              }              
-            }
-          }
+
+
+
+
+          },500)
 
 
 
