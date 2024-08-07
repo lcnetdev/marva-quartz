@@ -68,8 +68,8 @@
         },
 
 
-        async getLangs(){
-          this.allLanguages = await this.configStore.getScriptShifterLanguages()
+        getLangs(){
+          this.allLanguages = this.configStore.getScriptShifterLanguages()
 
             for (let k in this.allLanguages){
               if (this.scriptShifterOptions[k]){
