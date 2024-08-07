@@ -221,7 +221,7 @@
           :stickSize="22"
         >
           <div id="shelf-listing-content" ref="shelfListingContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
-            {{ activeShelfListData }}
+
             
             <div class="menu-buttons">
               <button class="close-button"   @pointerup="showShelfListingModal=false">X</button>
