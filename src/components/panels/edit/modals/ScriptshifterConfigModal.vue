@@ -72,32 +72,28 @@
 
 
           // async function doAsync () {
+          this.configStore.getScriptShifterLanguages()
+          let to
+
+          to = window.setInterval(()=>{
             
-          window.setTimeout(async ()=>{
-            await this.configStore.getScriptShifterLanguages()
-
-
-              // }
-
-              // doAsync(this);
-
-
-
+            if (Object.keys(this.scriptshifterLanguages).length > 0 ){
+              window.clearInterval(to)
               for (let k in this.scriptshifterLanguages){
-                if (this.scriptShifterOptions[k]){
-                  if (this.scriptShifterOptions[k].s2r){
-                    this.scriptshifterLanguages[k].s2r = true
+                  if (this.scriptShifterOptions[k]){
+                    if (this.scriptShifterOptions[k].s2r){
+                      this.scriptshifterLanguages[k].s2r = true
+                    }
+                    if (this.scriptShifterOptions[k].r2s){
+                      this.scriptshifterLanguages[k].r2s = true
+                    }              
                   }
-                  if (this.scriptShifterOptions[k].r2s){
-                    this.scriptshifterLanguages[k].r2s = true
-                  }              
                 }
               }
+            
 
 
-
-
-          },500)
+          },100)
 
 
 
