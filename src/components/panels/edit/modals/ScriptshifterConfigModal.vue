@@ -68,6 +68,25 @@
         },
 
 
+        async getLangs(){
+          this.allLanguages = await this.configStore.getScriptShifterLanguages()
+
+            for (let k in this.allLanguages){
+              if (this.scriptShifterOptions[k]){
+                if (this.scriptShifterOptions[k].s2r){
+                  this.allLanguages[k].s2r = true
+                }
+                if (this.scriptShifterOptions[k].r2s){
+                  this.allLanguages[k].r2s = true
+                }              
+              }
+            }
+
+
+
+        },
+
+
         onSelectElement (event) {
           const tagName = event.target.tagName
 
@@ -127,18 +146,7 @@
       //   }
 
       // }
-      this.allLanguages = await this.configStore.getScriptShifterLanguages()
-
-      for (let k in this.allLanguages){
-        if (this.scriptShifterOptions[k]){
-          if (this.scriptShifterOptions[k].s2r){
-            this.allLanguages[k].s2r = true
-          }
-          if (this.scriptShifterOptions[k].r2s){
-            this.allLanguages[k].r2s = true
-          }              
-        }
-      }
+      this.getLangs()
 
     },
 
