@@ -68,23 +68,32 @@
         },
 
 
-        async getLangs(){
+        getLangs(){
 
 
-
-
-          this.allLanguages = await this.configStore.getScriptShifterLanguages()
-
-            for (let k in this.allLanguages){
-              if (this.scriptShifterOptions[k]){
-                if (this.scriptShifterOptions[k].s2r){
-                  this.allLanguages[k].s2r = true
-                }
-                if (this.scriptShifterOptions[k].r2s){
-                  this.allLanguages[k].r2s = true
-                }              
+          
+          async function doAsync (that) {
+            
+            that.allLanguages = await that.configStore.getScriptShifterLanguages()
+            
+            for (let k in that.allLanguages){
+            if (that.scriptShifterOptions[k]){
+              if (that.scriptShifterOptions[k].s2r){
+                that.allLanguages[k].s2r = true
               }
+              if (that.scriptShifterOptions[k].r2s){
+                that.allLanguages[k].r2s = true
+              }              
             }
+          }
+
+          }
+
+          doAsync(this);
+
+
+
+
 
 
 
