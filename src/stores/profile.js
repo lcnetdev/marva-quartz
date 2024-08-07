@@ -1033,6 +1033,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
+      console.info("Setting vale")
 
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
@@ -1885,7 +1886,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
-
         // we're just going to overwrite the whole userValue with the constructed headings
 
 
@@ -1900,8 +1900,6 @@ export const useProfileStore = defineStore('profile', {
 
         // find it
         if (pt){
-
-
             // build out the hiearchy
             let userValue = {}
 
@@ -2047,7 +2045,6 @@ export const useProfileStore = defineStore('profile', {
             // did they add a LCSH heading, if so add that automatically as a source
             for (let h of subjectComponents){
               if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/subjects') >-1){
-
                 if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
 
                   currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] =  [
@@ -2065,8 +2062,7 @@ export const useProfileStore = defineStore('profile', {
                     ]
                 }
                 break
-              }else if  (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/names') >-1){
-
+              } else if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/names') >-1){
                 if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
 
                   currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] =  [
@@ -2087,6 +2083,9 @@ export const useProfileStore = defineStore('profile', {
                     ]
                 }
                 break
+              } else if (h['uri'] == null){
+                // set this to zero incase the user has changed the subject and it's now a literal
+                currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] = []
               }
             }
 

@@ -20,13 +20,18 @@
       // structure of the field that owns this modal
       structure: Object,
       // the inital search value starting the search
-      searchValue: String
+      searchValue: String,
+
+      // If this is populate, we want to pull up the authority record
+      // without the user doing anything
+      authorityLookup: String
     },
     data() {
       return {
 
         modeSelect: null,
         searchValueLocal: null,
+        authorityLookupLocal: null,
 
 
         searchTimeout: null,
@@ -112,7 +117,6 @@
 
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
-
         if (!this.searchValueLocal){ return false}
 
         if (this.searchValueLocal.trim()==''){
@@ -215,16 +219,32 @@
       },
 
       selectChange: async function(){
+        let toLoad = null
+        if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
+          toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
+        } else {
+          // We're loading existing data and want to preselect the search result
+          // that matches that value
+          for (const idx in this.activeComplexSearch){
+            let label = this.activeComplexSearch[idx].label
+            if (label == this.authorityLookupLocal){
+              toLoad = this.activeComplexSearch[idx]
+              try{
+                this.$refs.selectOptions.selectedIndex = idx
+              } catch(err) {
+                console.log("")
+              }
+            }
+          }
+          this.authorityLookupLocal = null // zero this out
+        }
 
-
-        let toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
-
-        console.log(toLoad)
+        console.log("toLoad: ", toLoad)
 
         this.activeContext = {
             "contextValue": true,
             "source": [],
-            "type": (toLoad.literal) ? "Literal Value" : null,
+            "type": (toLoad != null && toLoad.literal) ? "Literal Value" : null,
             "variant": [],
             "uri": (toLoad.literal) ? null : toLoad.uri,
             "title": toLoad.label,
@@ -242,8 +262,12 @@
 
         // if this happens it means they selected something else very quickly
         // so don't go on and set it to this context, because its no longer the one they have selected
-        if (toLoad.uri != this.activeComplexSearch[this.$refs.selectOptions.selectedIndex].uri){
-          return false
+        try{
+          if (toLoad.uri != this.activeComplexSearch[this.$refs.selectOptions.selectedIndex].uri){
+            return false
+          }
+        } catch(err){
+          console.log("")
         }
 
 
@@ -310,14 +334,33 @@
 
 
     updated: function(){
+      console.info("incoming: ", this.searchValueLocal)
+      if (this.authorityLookup == null){
+        //Reset this so the input field isn't loaded with the old data
+        this.activeComplexSearch = []
+      }
 
       this.$nextTick(() => {
         this.$nextTick(() => {
           if (this.$refs.inputLookup){
             this.$refs.inputLookup.focus()
           }
+          this.authorityLookupLocal = this.authorityLookup
 
-          this.searchValueLocal = this.searchValue
+          // We're loading existing data
+          if (this.authorityLookupLocal != null){
+            this.searchValueLocal = this.authorityLookupLocal
+            this.doSearch()
+
+            // search needs to complete, so selectChange has something to loop through
+            setTimeout(() => {
+              this.selectChange()
+            }, (2 * 1000)
+            )
+          } else {
+            this.searchValueLocal = this.searchValue
+          }
+
           if (this.$refs.complexLookupModalContainer){
             let modalStopsAt = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + this.$refs.complexLookupModalContainer.getBoundingClientRect().top
             let selectHeight =  modalStopsAt - this.$refs.selectOptions.getBoundingClientRect().y
@@ -331,8 +374,7 @@
     },
 
     mounted() {
-      // console.log("mounted yeah")
-
+      //console.log("mounted yeah")
 
       if (this.modeSelect === null){
         this.modeSelect = this.modalSelectOptions[0].label

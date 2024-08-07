@@ -3,9 +3,9 @@
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
 
     <template v-if="inlineModeShouldDisplay">
-      
+
       <template v-if="complexLookupValues.length===0">
-          
+
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
           <input class="input-inline-mode can-select" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
 
@@ -40,10 +40,10 @@
         </template>
         <input class="input-inline-mode can-select" style="width: 20px;" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
 
-<!-- 
+<!--
         <template v-for="lValue in literalValues">
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <span contenteditable="true" class="inline-mode-editable-span" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>        
+          <span contenteditable="true" class="inline-mode-editable-span" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>
         </template>
  -->
 
@@ -92,8 +92,8 @@
                     <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
                   </div>
                 </div>
-            </div>  
-          </template> 
+            </div>
+          </template>
 
 
 
@@ -107,20 +107,29 @@
                 </div>
                 <div class="selected-value-container-title">
                   <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
-                  <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
+                  <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">
+                    <!-- <a v-if="!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)" href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
+                    <span v-else>{{avl.label}}</span> -->
+                    <a href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
+                    <span class="uncontrolled" v-if="avl.isLiteral">
+                      (uncontrolled)
+                    </span>
+                    <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style="">
+                    </span>
+                  </span>
                   <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
                 </div>
                 <div class="selected-value-container-action">
                   <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
                 </div>
               </div>
-            </div>            
+            </div>
 
-            <div class="lookup-fake-input-text">              
+            <div class="lookup-fake-input-text">
                 <input   v-on:keydown.enter.prevent="submitField" @keyup="navKey" class="can-select" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
                 <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
-            </div>  
-          </template> 
+            </div>
+          </template>
 
           <Transition name="action">
             <div class="lookup-action" v-if="showActionButton && myGuid == activeField">
@@ -135,8 +144,8 @@
 
   </template>
 
-  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false" :structure="structure" v-model="displayModal"/>
-  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
+  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false" :structure="structure" v-model="displayModal"/>
+  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
 
 </template>
 
@@ -149,7 +158,7 @@
 
 
   <div >
-    
+
     <Keypress key-event="keydown" :key-code="27" @success="closeModal" />
     <Keypress key-event="keydown" :multiple-keys="[{keyCode: 66, modifiers: ['ctrlKey', 'shiftKey'],preventDefault: true}]" @success="togglePreCoordinated" />
 
@@ -161,7 +170,7 @@
     <div class="component-container-input-container">
 
 
-      <div ref="fakeInputContainer" style="position: relative;" v-bind:class="['component-container-fake-input temp-icon-search']">       
+      <div ref="fakeInputContainer" style="position: relative;" v-bind:class="['component-container-fake-input temp-icon-search']">
           <div class="component-nested-container-title" style="top: 0; width: 100%">{{structure.propertyLabel}}</div>
 
           <!-- if there is userdata for this type of componet then it is a lookedup entity, make the entity, dont display the inputfield -->
@@ -186,14 +195,14 @@
               </div>
 
               <!-- This is the detail drop down that can be click to show context of the entitiy -->
-              
+
               <div v-if="displaySelectedDetails==true" class="selected-value-details">
-                
+
                 <button class="selected-value-details-close" @click="toggleSelectedDetails">Close</button>
                 <button class="selected-value-details-edit" @click="openEditor">Change</button>
 
                 <a v-if="rewriteURI(displayContext.uri)" style="color:white; text-decoration: none;" target="_blank"  :href="rewriteURI(displayContext.uri)">View Entity</a>
-                
+
 
                 <div class="modal-context-data-title">{{userData['@type']}}</div>
 
@@ -222,10 +231,10 @@
                     </ul>
 
 
-                  </div>    
-                </div>            
+                  </div>
+                </div>
 
-                
+
               </div>
           </div>
 
@@ -246,8 +255,8 @@
 
 
 
-      
-      <div ref="fakeInputContainer" style="position: relative;" v-bind:class="['component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border temp-icon-search']">              
+
+      <div ref="fakeInputContainer" style="position: relative;" v-bind:class="['component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border temp-icon-search']">
           <div class="component-nested-container-title" style="top: 0; width: 100%">
             <span v-if="parentStructureObj && (structure.propertyLabel == 'Lookup' || settingsDisplayMode=='compact')">{{parentStructureObj.propertyLabel}} -- </span>
             <span>{{structure.propertyLabel}}</span>
@@ -277,10 +286,10 @@
               <button v-if="useSubjectEditor()" tabindex="-1" class="temp-icon-search fake-real-button simptip-position-top" style="position:absolute;right: -2px;top:-26px" @click="openEditor" :id="returnGuid()+'_subjectButton'" :data-tooltip="'Edit this Subject Heading [CTRL-ALT-SHIFT-E]'"></button>
 
               <!-- This is the detail drop down that can be click to show context of the entitiy -->
-              
+
               <div v-if="displaySelectedDetails==true" class="selected-value-details">
-                  
-                <div style="min-height: 50px;">                
+
+                <div style="min-height: 50px;">
                   <button class="selected-value-details-close" @click="toggleSelectedDetails">Close</button>
                   <button class="selected-value-details-edit" @click="openEditor">Change</button>
                   <a v-if="rewriteURI(displayContext.uri)" style="color:white; text-decoration: none;" target="_blank" :href="rewriteURI(displayContext.uri)">View Entity</a>
@@ -316,10 +325,10 @@
                     </ul>
 
 
-                  </div>    
-                </div>            
+                  </div>
+                </div>
 
-                
+
               </div>
           </div>
 
@@ -345,7 +354,7 @@
           <div v-if="!lowResMode" class="modal-title">
             <span v-if="parentStructureObj && structure.propertyLabel == 'Lookup'">{{parentStructureObj.propertyLabel}} -- </span>
             <span>{{structure.propertyLabel}}</span>
-            
+
           </div>
 
           <div class="modal-content">
@@ -361,16 +370,16 @@
             <div v-else v-bind:class="['modal-content-flex-container',{'modal-content-flex-container-complex':(canBuildComplex()==true && displayPreCoordinated == true), 'modal-content-flex-container-complex-prompt': displayPreCoordinated==false, 'modal-content-flex-container-complex-hide' : (canBuildComplex()==false) }]">
 
 
-              
+
               <div class="modal-content-left">
 
                 <div style="height: 13%;">
-                  <div class="modal-switch-values-container component-container-fake-input no-lower-right-border-radius" style="flex:4; border-top-left-radius: 0.5em; ">          
+                  <div class="modal-switch-values-container component-container-fake-input no-lower-right-border-radius" style="flex:4; border-top-left-radius: 0.5em; ">
                     <div style="display: flex">
                       <div style="flex:1">
                         <form autocomplete="off">
                           <input class="no-lower-right-border-radius" :id="assignedId+'switch'" bfeType=""  v-on:focus="focused" autocomplete="off" v-bind:value="modeSelect" @keydown="switchTypes($event)" type="text" style="width: 95%; border:none; height: 90%; font-size: 1.5em; padding: 0.1em; background: none">
-                        </form>              
+                        </form>
                       </div>
                       <button class="temp-icon-switch fake-real-button simptip-position-top" :data-tooltip="'Select subset of the vocabulary to use [Left] or [Right Arrow]'" @click="switchTypes($event, true)">
                       </button>
@@ -399,7 +408,7 @@
                     </option>
                   </select>
 
-             
+
 
 
                 </div>
@@ -409,8 +418,8 @@
               <div class="modal-content-right" style="position: relative;" >
                 <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                 <div class="modal-context" :style="{ 'height' : (displayPreCoordinated) ? '50%' : '75%' }" v-if="Object.keys(contextData).length>0">
-                  
-                  
+
+
                   <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + contextData.type" v-html="returnAuthIcon(contextData.type)"></span>{{contextData.title}}</h3>
 
                   <div class="modal-context-data-title">{{contextData.type}}</div>
@@ -449,18 +458,18 @@
                   </div>
 
 
-                </div>    
+                </div>
 
                 <div class="modal-context-add-menu" v-if="Object.keys(contextData).length != 0">
-                  
+
 
 
 
 
                   <button v-if="displayPreCoordinated==false && structure.valueConstraint.useValuesFrom && structure.valueConstraint.useValuesFrom.indexOf('http://id.loc.gov/authorities/subjects')>-1" @click="togglePreCoordinated" style="width:75%; margin-bottom: 5px;" class="">Build subject string [CTRL+SHIFT+B]</button>
-                  <div v-if="displayPreCoordinated==true" class="modal-context-build-manual"> 
+                  <div v-if="displayPreCoordinated==true" class="modal-context-build-manual">
 
-                    <div class="modal-context-build-manual-buttons"> 
+                    <div class="modal-context-build-manual-buttons">
                       <div>Build manual pre-coordinated: Add selected as a subdivision: </div>
                       <button style="width: 12em;" @click="precoordinatedAddSubdivision('Topic')">Heading or Topical
                         [CRTL+SHIFT+1]
@@ -474,13 +483,13 @@
                       </button>
                       <button style="width: 10em;" @click="precoordinatedAddSubdivision('GenreForm')">Form
                         [CRTL+SHIFT+4]
-                      </button>                
+                      </button>
                       <button style="width: 10em;" @click="precoordinatedRemoveLast()">Remove Last
                         [CRTL+SHIFT+5]
-                      </button>  
+                      </button>
                     </div>
 
-                    <div class="modal-context-build-manual-precoordinted-display" > 
+                    <div class="modal-context-build-manual-precoordinted-display" >
                       <span v-if="precoordinated.length == 0">Your pre-coordinated heading will display here when you add subdivisions</span>
 
                       <span> {{precoordinated.map((p)=>{return p.label}).join("--") }} </span>
@@ -491,22 +500,22 @@
 
                   <!-- Don't allow adding only a literal value -->
                   <button v-if="precoordinated.length == 0" @click="add" style="width: 75%" class="">Add Selected [SHIFT+Enter]</button>
-                  
+
                   <button v-else-if="precoordinated.length > 0" @click="add" class="simptip-position-left" style="width: 75%;"  :data-tooltip="''">Add Pre-Coordinated [SHIFT+Enter]</button>
-                 
+
                 </div>
                 <button v-if="allowHubCreation" @click="showMiniHubEdit" style=" width: 75%; position: absolute;    top: 85%;    left: 12%;    background-color: white;    border-color: rgb(42, 42, 42);    border: 3px solid rgb(42, 42, 42);    color: rgb(42, 42, 42);" class="">
-                  
+
                   <div style="display:flex; width:150px; height: 25px; margin-left:auto; margin-right:auto">
                     <div style="flex:0; width:50px;">
                       <svg width="25px" height="25px"  version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                       <path fill="royalblue" d="m62.113 24.66 1.9023-15.238 18.875 32.691-7.5469 20.004 15.238 1.9023-32.691 18.875-20.004-7.5469-1.9023 15.238-18.875-32.691 7.5469-20.004-15.238-1.9023 32.691-18.875zm-17.684 15.695-4.0781 15.215 15.215 4.0781 4.0781-15.215z" fill-rule="evenodd"/>
-                      </svg>                      
+                      </svg>
 
                     </div>
                     <div style="flex:1; text-align:left;">Build New Hub</div>
                   </div>
-   
+
               </button>
 
               </div>
@@ -518,13 +527,13 @@
 
 
           </div> <!--- end modal-content --->
-          
+
 
         </div>
       </div>
     </div>
 
-  </div>    
+  </div>
 
 
 */
@@ -562,7 +571,7 @@ import utilsMisc from '@/lib/utils_misc'
 
 export default {
   name: "LookupComplex",
-  components: {    
+  components: {
     ComplexLookupModal,
     SubjectEditor,
     LabelDereference,
@@ -574,7 +583,7 @@ export default {
     // // EditLabelRemark,
     // EditLabelDereference
 
-  },  
+  },
   props: {
     structure: Object,
     // parentStructure: Array,
@@ -603,6 +612,8 @@ export default {
 
 
       searchValue: null,
+      authorityLookup: null,
+      isLiteral: null,
 
 
       // lookups: this.structure.valueConstraint.useValuesFrom,
@@ -674,7 +685,7 @@ export default {
       let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
       return values
 
-    }, 
+    },
 
     myGuid(){
       return `${this.structure['@guid']}--${this.guid}`
@@ -693,7 +704,7 @@ export default {
         if (this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath)){
           return true
         }
-      } 
+      }
 
       return false
 
@@ -707,11 +718,11 @@ export default {
   created: function(){
 
     // this.checkForUserData()
-    
+
 
 
     // if (this.structure.propertyURI==='http://id.loc.gov/ontologies/bibframe/Work' || this.structure.propertyURI==='http://id.loc.gov/ontologies/bibframe/expressionOf'){
-    //   this.allowHubCreation=true  
+    //   this.allowHubCreation=true
     // }
 
 
@@ -720,7 +731,7 @@ export default {
 
   //   lookupLibrary: 'lookupLibrary',
   //   activeInput: 'activeInput',
-  //   activeProfile: 'activeProfile', 
+  //   activeProfile: 'activeProfile',
   //   activeProfileMini: 'activeProfileMini',
   //   workingOnMiniProfile: 'workingOnMiniProfile',
   //   settingsDisplayMode: 'settingsDisplayMode',
@@ -753,7 +764,7 @@ export default {
   //     this.structure.valueConstraint.useValuesFrom.forEach((l)=>{
   //       if (this.lookupConfig[l]){
   //         this.lookupConfig[l].modes.forEach((mode)=>{
-            
+
   //           Object.keys(mode).forEach((k)=>{
   //             options.push({label: k, urls:mode[k].url, processor:this.lookupConfig[l].processor, minCharBeforeSearch: (this.lookupConfig[l].minCharBeforeSearch ? this.lookupConfig[l].minCharBeforeSearch : false), all:mode[k].all })
   //             // mark the first All one we find as the first one
@@ -765,7 +776,7 @@ export default {
   //         })
   //       }
   //     })
-      
+
   //     return options
   //   },
 
@@ -783,11 +794,11 @@ export default {
 
   //     // let returnVal = []
   //     // Object.keys(state.lookupLibrary).forEach((s)=>{
-  //     //   
+  //     //
   //     // })
-  //     // 
+  //     //
   //     // if (state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]){
-  //     //   
+  //     //
   //     //   return state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]
   //     // }else{
   //     //   return []
@@ -795,10 +806,10 @@ export default {
 
   //     return state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]
 
-      
+
   //   }
   // }),
-    
+
 
   methods:{
 
@@ -828,7 +839,7 @@ export default {
     //   }else{
     //     this.displayModal=true
     //   }
-      
+
     // },
 
     actionButtonCommand: function(cmd){
@@ -838,7 +849,7 @@ export default {
 
     focused: function(){
 
-      // set the state active field 
+      // set the state active field
       this.activeField = this.myGuid
 
       // if enabled show the action button
@@ -856,7 +867,7 @@ export default {
     /**
     * emited from the modal to set the value
     * @return {object} profile
-    */    
+    */
     setComplexValue: function(contextValue){
       delete contextValue.typeFull
       this.profileStore.setValueComplex(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
@@ -874,7 +885,7 @@ export default {
     // /**
     // * emited from the modal to set the value
     // * @return {object} profile
-    // */    
+    // */
     // setComplexSubjectValue: function(contextValue){
     //   delete contextValue.typeFull
     //   this.profileStore.setComplexSubjectValue(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
@@ -887,7 +898,7 @@ export default {
     //     },10)
     //   })
     // },
-    
+
 
 
     removeValue: function(){
@@ -895,12 +906,18 @@ export default {
     },
 
     textInputEvent: function(event){
+      console.log("Text input")
+      // remove the existing value if it was deleted
+      if (this.$refs.lookupInput.innerHTML.trim() == ""){
+        this.authorityLookup = null
+      }
+
       // if there is already a value abort
       if (this.complexLookupValues.length > 0){
         this.searchValue = ""
         return false
       }
-      // console.log("this.structure.propertyURI",this.structure.propertyURI)
+
       if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
         this.displaySubjectModal=true
         this.$nextTick(() => {
@@ -911,7 +928,7 @@ export default {
         this.displayModal=true
       }
 
-      
+
     },
 
 
@@ -929,7 +946,7 @@ export default {
     },
 
 
-    subjectAdded: function(components){      
+    subjectAdded: function(components){
 
       this.profileStore.setValueSubject(this.guid,components,this.propertyPath)
       this.hideSubjectModal()
@@ -954,7 +971,42 @@ export default {
 
       //   this.$store.dispatch("setSubjectList")
 
-      // }) 
+      // })
+
+    },
+
+    // Open the authority `panel` for an given authority
+    openAuthority: function() {
+      let label = this.$refs.el[0].innerHTML
+
+      let sibling = this.$refs.el[0].parentNode.childNodes[2]
+      if (sibling.className == "uncontrolled") {
+        this.isLiteral = true
+      } else {
+        this.isLiteral = false
+      }
+
+      /* This only gets populated when it's loaded from a record
+      so it can't be used becasuse it won't work with an empty record
+      and if the the value is changed, this underlying data will
+      remain.
+
+      console.log("guid: ", this.guid)
+      console.log(this.profileStore.returnStructureByGUID(this.guid))
+      console.log(this.profileStore.returnStructureByGUID(this.guid).xmlSource)*/
+
+      // store the label to pass as a prop
+      this.authorityLookup = label
+
+      //Decide which modal to open/ don't support subject
+      if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
+        this.displayModal = true
+      } else {
+        this.displaySubjectModal = true
+      }
+
+
+      // TODO: how to get the ID to `complexLookupModal` >> `selectChange`?
 
     },
 
@@ -999,7 +1051,7 @@ export default {
     //       component: this
     //     }
 
-        
+
     //     this.$emit('showMiniEditorEdit',payload);
     //     this.$parent.$emit('showMiniEditorEdit',payload);
     //     this.$parent.$parent.$emit('showMiniEditorEdit',payload);
@@ -1027,21 +1079,21 @@ export default {
     // formatDisplayLabel: function(){
 
 
-    //   // if the display label is a URI it means there is no RDFLabel in the data because that property is just deisgned to be a rdf:resource link with a @id 
+    //   // if the display label is a URI it means there is no RDFLabel in the data because that property is just deisgned to be a rdf:resource link with a @id
     //   // not a full bnode with label data. So two options here request the label or if they just added it there might be a @context we can use
     //   let useTitle = false
 
     //   if (this.displayLabel.startsWith('http:')){
 
     //     let userData = parseProfile.returnUserValues(this.returnCorrectActiveProfile(), this.profileName, this.profileCompoent, this.structure.propertyURI, this.propertyPath)
-        
+
 
     //     // look for a @context in any of the properties
     //     for (let key in userData){
     //       if (key == this.parentStructureObj.propertyURI){
     //         for (let d of userData[key]){
     //           for (let subKey in d){
-    //             if (subKey == '@context'){                
+    //             if (subKey == '@context'){
     //               if (d[subKey].title){
     //                 useTitle = d[subKey].title
     //               }
@@ -1103,22 +1155,22 @@ export default {
     //       //   this.$nextTick(() => {
     //       //     if (this.$refs.fakeInputContainer.clientWidth - this.$refs.displayLabel.clientWidth < 100){
     //       //       this.$refs.displayLabelSpan.innerHTML = useTitle.substring(0,50) + '....'
-    //       //     }              
-    //       //   })            
+    //       //     }
+    //       //   })
     //       // })
 
 
 
-        
+
 
     //     return useTitle
 
 
     //   }else{
-    //     return this.displayLabel  
+    //     return this.displayLabel
     //   }
 
-      
+
 
 
     // },
@@ -1182,8 +1234,8 @@ export default {
 
     //     // dont validate some ID lookups until we can get reource lookups working correctly
     //     if (
-    //       this.structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/Work' || 
-    //       this.structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/Instance' || 
+    //       this.structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/Work' ||
+    //       this.structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/Instance' ||
     //       this.structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/Item' ||
     //       // also don't validate relation properties
     //       this.structure.propertyURI == 'http://id.loc.gov/ontologies/bflc/relation'
@@ -1208,7 +1260,7 @@ export default {
     //           userData.hintUri = this.parentStructureObj.propertyURI
     //         }
 
-            
+
     //         if (userData !== false) {
     //             validationUtil.validateHeading(userData)
     //             .then((validationStatus) => {
@@ -1219,7 +1271,7 @@ export default {
     //               // console.log("USERDATA 3",JSON.parse(JSON.stringify(userData)))
     //               this.validated = validationStatus;
     //               this.validationMessage = validationUtil.getValidationMessage(validationStatus);
-                  
+
     //               if (userData["http://id.loc.gov/ontologies/bibframe/agent"] !== undefined) {
     //                   // We have a contribution resource.
     //                   // What we need is the agent.
@@ -1238,13 +1290,13 @@ export default {
     //               if (userData["@id"] !== this.displayContext.uri) {
     //                   this.displayContext.uri = userData["@id"];
     //               }
-                  
+
     //               // Do we need to set the display labels because the userData label changed?
     //               var label = validationUtil.getLabel(userData);
     //               if (this.displayLabel != label) {
     //                   this.displayLabel = label;
     //               }
-                  
+
 
 
     //               if (this.displayContext.title != label) {
@@ -1255,26 +1307,26 @@ export default {
     //               // console.log('orignalUserData is ',orignalUserData, 'for ', label)
 
 
-    //               // if it is a name then when we validate also make sure that the 
+    //               // if it is a name then when we validate also make sure that the
     //               // uservalue is populated with the right stuff
     //               // sometimes a record will come in without a URI but it has a valid label
     //               if (!orignalUserData['@id']){
     //                 console.log("userData",userData)
     //                 console.log("userData",userData)
     //                 if (userData["@id"].includes('id.loc.gov/authorities/names/')){
-    //                   this.$store.dispatch("fetchContext", { self: this, searchPayload: userData["@id"] }).then(() => {                      
+    //                   this.$store.dispatch("fetchContext", { self: this, searchPayload: userData["@id"] }).then(() => {
     //                     // console.log("SETTING THE VALUE ON",this.profileName)
     //                     // console.log("USER VALUE WAS:",userData)
     //                     this.$store.dispatch("setValueComplex", { self: this, profileComponet: this.profileCompoent, template:this.profileName, structure: this.structure, parentStructure: this.parentStructureObj, propertyPath: this.propertyPath }).then(() => {
     //                       this.componentKey++
-    //                     })  
-    //                   })    
+    //                     })
+    //                   })
     //                 }
     //               }
 
 
 
-                    
+
     //             });
     //         }
     //     }
@@ -1307,7 +1359,7 @@ export default {
 
     //   if (uri.includes('/resources/hubs/') || uri.includes('/resources/works/') || uri.includes('/resources/instances/') || uri.includes('/resources/items/')){
     //     uri = uri.replace('https://id.loc.gov/', config.returnUrls().bfdb )
-    //     uri = uri.replace('http://id.loc.gov/', config.returnUrls().bfdb )      
+    //     uri = uri.replace('http://id.loc.gov/', config.returnUrls().bfdb )
     //   }
 
 
@@ -1345,7 +1397,7 @@ export default {
 
     //   // console.log(type)
     //   // if (contextType != type){
-      
+
     //   //   return false
     //   // }
     //   // console.log({uri:uri,label:label,type:contextType,typeFull:this.contextData.typeFull})
@@ -1362,13 +1414,13 @@ export default {
     //   if (this.precoordinated.length>0){
     //     this.precoordinated.splice(-1,1)
     //   }
-      
+
 
     // },
 
 
     // canBuildComplex: function(){
-      
+
     //   if (this.structure.valueConstraint.useValuesFrom.indexOf('http://id.loc.gov/authorities/subjects')>-1) return true
 
     //   return false
@@ -1380,17 +1432,17 @@ export default {
     //   if (this.displayPreCoordinated == false && this.displayModal == true){
 
     //     this.displayPreCoordinated = true
-        
+
     //     if(event && event.event){
     //       event.event.preventDefault()
     //       return false
     //     }
     //   }else{
-    //     this.displayPreCoordinated = false  
+    //     this.displayPreCoordinated = false
     //     if(event && event.event){
     //       event.event.preventDefault()
     //       return false
-    //     }        
+    //     }
     //   }
 
 
@@ -1400,14 +1452,14 @@ export default {
     // doubleDeleteCheck: function(event){
 
 
-    //   if (event && event.key && event.key==='Backspace'){ 
+    //   if (event && event.key && event.key==='Backspace'){
 
     //     if (this.doubleDelete){
 
     //       this.removeValue()
 
     //     }else{
-    //       this.doubleDelete = true        
+    //       this.doubleDelete = true
     //     }
     //   }else if(event.key!='ArrowUp' && event.key!='ArrowDown' && event.key!='Tab'){
 
@@ -1441,36 +1493,36 @@ export default {
     //   this.displayType = null
     //   this.displayGuid = null
 
-    //   let userValue 
+    //   let userValue
     //   // let rootPropertyURI
 
 
 
     //   // if (this.isMini){
     //   //   userValue = parseProfile.returnUserValues(this.activeProfileMini, this.profileName, this.profileCompoent,this.structure.propertyURI)
-    //   //   rootPropertyURI = parseProfile.returnRootPropertyURI(this.activeProfileMini, this.profileCompoent,this.structure.propertyURI)        
+    //   //   rootPropertyURI = parseProfile.returnRootPropertyURI(this.activeProfileMini, this.profileCompoent,this.structure.propertyURI)
     //   // }else{
     //     userValue = parseProfile.returnUserValues(this.returnCorrectActiveProfile(), this.profileName, this.profileCompoent,this.structure.propertyURI, this.propertyPath)
-    //     // rootPropertyURI = parseProfile.returnRootPropertyURI(this.returnCorrectActiveProfile(), this.profileCompoent,this.structure.propertyURI)        
+    //     // rootPropertyURI = parseProfile.returnRootPropertyURI(this.returnCorrectActiveProfile(), this.profileCompoent,this.structure.propertyURI)
     //   // }
-      
 
 
-      
-      
+
+
+
     //   if (userValue['http://www.w3.org/2000/01/rdf-schema#label'] || userValue['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'] || userValue['http://id.loc.gov/ontologies/bibframe/code']){
 
     //     if (userValue['http://www.w3.org/2000/01/rdf-schema#label']){
     //       this.displayLabel = userValue['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'] || userValue['http://www.w3.org/2000/01/rdf-schema#label']
-          
+
 
     //     }else if (userValue['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
     //       this.displayLabel = userValue['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'] || userValue['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
-          
+
 
     //     }else if (userValue['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']){
     //       this.displayLabel = userValue['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'] || userValue['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
-          
+
 
     //     }else if (userValue['http://id.loc.gov/ontologies/bibframe/code']){
     //       this.displayLabel = userValue['http://id.loc.gov/ontologies/bibframe/code'][0]['http://id.loc.gov/ontologies/bibframe/code'] || userValue['http://id.loc.gov/ontologies/bibframe/code']
@@ -1484,11 +1536,11 @@ export default {
     //       console.log(this.parentStructure)
     //     }
 
-        
+
 
     //     if (userValue['@type']){
     //       this.displayType = userValue['@type']
-    //     }    
+    //     }
 
     //     if (userValue['@context']){
     //       this.displayContext = userValue['@context']
@@ -1537,7 +1589,7 @@ export default {
 
     //   // this skips activating the modal if they are simply navigating through the main field list
     //   if (event.key==='ArrowDown' || event.key==='ArrowUp' || event.key==='ArrowRight' || event.key==='ArrowLeft' || event.key==='PageUp' || event.key==='PageDown' || event.key==='Tab' || event.key==='Control' || event.key==='Meta' || event.key==='Alt' || event.key==='Shift' || event.key==='CapsLock' || event.key==='=' || event.key ==='Backspace' || event.key ==='Home'){
-    //     // the = key is for adding new 
+    //     // the = key is for adding new
     //     // if (!this.searchValue || (this.searchValue && this.searchValue.trim() == '')){
     //       return false
     //     // }
@@ -1553,9 +1605,9 @@ export default {
     //   // turn on the modal
     //   this.displayModal = true
     //   this.initalSearchState = true
-      
+
     //   // console.log('here',this.displayModal)
-      
+
     //   this.searchValue = event.target.value
 
     //   this.$store.dispatch("clearContext", { self: this})
@@ -1567,7 +1619,7 @@ export default {
     //     if (this.searchValue != ''){
     //       this.search()
     //     }
-    //   })    
+    //   })
 
     //   event.preventDefault()
     //   // set the last input, but do it after the modal has been displaed
@@ -1598,7 +1650,7 @@ export default {
     //   return false
     // },
 
-    // focused: function(event){     
+    // focused: function(event){
 
     //   this.$store.dispatch("setActiveInput", { self: this, id: event.target.id, profileCompoent: this.profileCompoent, profileName: this.profileName }).then(()=>{
     //             console.log("event.target.id",event.target.id)
@@ -1615,7 +1667,7 @@ export default {
 
     //   if (event && event.target && event.target.classList.contains('close')){
     //     this.displayModal = false
-        
+
     //   }
 
 
@@ -1628,15 +1680,15 @@ export default {
     //   this.$store.dispatch("enableMacroNav", { self: this})
     //   this.lowResMode =false
     //   this.displayModal = false
-      
+
     //   this.displayPreCoordinated = false
     //   this.precoordinated = []
     //   this.prec
-      
+
     //   if (event && event.event) event.event.preventDefault()
 
     //   this.focusCurrentInput()
-      
+
     // },
 
 
@@ -1644,7 +1696,7 @@ export default {
 
 
     //   // close the little details pane if open
-    //   this.displaySelectedDetails = false      
+    //   this.displaySelectedDetails = false
 
 
     //   this.$store.dispatch("setActiveInput", { self: this, id: this.assignedId, profileCompoent: this.profileCompoent, profileName: this.profileName }).then(()=>{
@@ -1676,7 +1728,7 @@ export default {
     //     }else{
     //       this.searchValue = this.displayLabel
     //     }
-        
+
     //     this.initalSearchState = true
     //     this.search()
     //     this.$nextTick(() => {
@@ -1693,7 +1745,7 @@ export default {
 
     // // the modal content is telling this modal that things dont fit
     // lowResModeActivate: function() {
-      
+
 
     //   this.lowResMode=true
 
@@ -1722,12 +1774,12 @@ export default {
     //       if (o.selected){
 
     //         // remove the context because we're about to get a new one
-    //         this.$store.dispatch("clearContext", { self: this})            
+    //         this.$store.dispatch("clearContext", { self: this})
 
     //         // if they are on the literal value
     //         if (!o.value){
     //           let tempContext = {
-    //               "contextValue": true,                  
+    //               "contextValue": true,
     //               "source": [],
     //               "type": "Literal Value",
     //               "variant": [],
@@ -1739,7 +1791,7 @@ export default {
     //               "nodeMap": {},
     //               "precoordinated" : false,
     //               "literal": true
-    //           }        
+    //           }
     //           this.$store.dispatch("setContextManually", { self: this, context: tempContext, })
     //           return false
     //         }
@@ -1748,14 +1800,14 @@ export default {
     //         this.contextRequestInProgress = true
     //         this.$store.dispatch("fetchContext", { self: this, searchPayload: o.value }).then(() => {
     //           this.contextRequestInProgress = false
-    //         })    
+    //         })
     //       }
-    //     })            
+    //     })
 
 
     //   },300)
-      
-      
+
+
 
     // },
 
@@ -1767,7 +1819,7 @@ export default {
     //     if (event.key==='ArrowUp'){
     //       document.getElementById(this.assignedId+'search').focus()
     //       event.preventDefault();
-    //       return false  
+    //       return false
     //     }
 
     //   }
@@ -1775,45 +1827,45 @@ export default {
     //   if (event.target.selectedIndex == event.target.options.length -1){
     //     if (event.key==='ArrowDown'){
     //       event.preventDefault();
-    //       return false  
-    //     }        
+    //       return false
+    //     }
     //   }
 
     //   // console.log(event.key)
 
     //   if ((event.key === '1' || event.key === '!') && this.displayPreCoordinated == true && event.ctrlKey === true && event.shiftKey == true){
-        
+
     //     this.precoordinatedAddSubdivision('Topic')
 
     //     event.preventDefault();
-    //     return false 
+    //     return false
 
     //   }
     //   if ((event.key === '2' || event.key === '@') && this.displayPreCoordinated == true && event.ctrlKey === true && event.shiftKey == true){
-        
+
     //     this.precoordinatedAddSubdivision('Geographic')
 
     //     event.preventDefault();
-    //     return false 
+    //     return false
 
     //   }
     //   if ((event.key === '3' || event.key === '#') && this.displayPreCoordinated == true && event.ctrlKey === true && event.shiftKey == true){
-        
+
     //     this.precoordinatedAddSubdivision('Temporal')
 
     //     event.preventDefault();
-    //     return false 
+    //     return false
 
     //   }
-    //   if ((event.key === '4' || event.key === '$') && this.displayPreCoordinated == true && event.ctrlKey === true && event.shiftKey == true){        
+    //   if ((event.key === '4' || event.key === '$') && this.displayPreCoordinated == true && event.ctrlKey === true && event.shiftKey == true){
     //     this.precoordinatedAddSubdivision('GenreForm')
     //     event.preventDefault();
-    //     return false 
+    //     return false
     //   }
-    //   if ((event.key === '5' || event.key === '%') && this.displayPreCoordinated == true && event.ctrlKey === true && event.shiftKey == true){        
+    //   if ((event.key === '5' || event.key === '%') && this.displayPreCoordinated == true && event.ctrlKey === true && event.shiftKey == true){
     //     this.precoordinatedRemoveLast()
     //     event.preventDefault();
-    //     return false 
+    //     return false
     //   }
 
 
@@ -1821,13 +1873,13 @@ export default {
     //     if (event.shiftKey){
     //       this.add()
     //     }
-    //   }       
+    //   }
 
 
-    //   // if (event.key === 'b' && event.ctrlKey === true && event.shiftKey == true && this.displayPreCoordinated == false){        
+    //   // if (event.key === 'b' && event.ctrlKey === true && event.shiftKey == true && this.displayPreCoordinated == false){
     //   //   this.togglePreCoordinated()
     //   //   event.preventDefault();
-    //   //   return false 
+    //   //   return false
     //   // }
 
 
@@ -1861,8 +1913,8 @@ export default {
     //     this.modeSelect  = this.modalSelectOptionsLabels[currPos+1]
     //     // update the results
     //     this.search()
-        
-      
+
+
     //   }else if (event.key==='ArrowLeft'){
     //     let currPos = this.modalSelectOptionsLabels.indexOf(this.modeSelect)
     //     if (currPos == 0){
@@ -1874,26 +1926,26 @@ export default {
 
     //   }else if (event.key==='ArrowDown'){
     //     document.getElementById(this.assignedId+'search').focus()
-        
+
     //     event.preventDefault();
-    //     return false    
+    //     return false
 
     //   }else{
     //     event.preventDefault();
-    //     return false        
+    //     return false
     //   }
     // },
 
     // // two different methods for keyup and keydown is for the navigation between fields and the keyup is for invoking the search
     // searchNav: function(event){
 
-    //   if (event.key==='ArrowUp'){  
+    //   if (event.key==='ArrowUp'){
     //     document.getElementById(this.assignedId+'switch').focus()
     //     event.preventDefault();
-    //     return false              
+    //     return false
     //   }
     //   // move focus to the select group
-    //   if (event.key==='ArrowDown'){        
+    //   if (event.key==='ArrowDown'){
     //     if (document.getElementById(this.assignedId+'select').firstChild){
 
     //       document.getElementById(this.assignedId+'select').focus()
@@ -1902,24 +1954,24 @@ export default {
     //       this.selectChange()
     //     }
     //     event.preventDefault();
-    //     return false              
+    //     return false
     //   }
 
 
     // },
 
 
-    // search: function(event){     
+    // search: function(event){
 
     //   if (event){
     //     this.searchValue = event.target.value
 
     //     // handled above do nothign
-    //     if (event.key==='ArrowUp'){  
-    //       return false              
+    //     if (event.key==='ArrowUp'){
+    //       return false
     //     }
-    //     if (event.key==='ArrowDown'){        
-    //       return false              
+    //     if (event.key==='ArrowDown'){
+    //       return false
     //     }
     //   }
 
@@ -1929,11 +1981,11 @@ export default {
 
     //   if (this.searchValue.length<3){
 
-    //     // if it is non-latin 
+    //     // if it is non-latin
     //     if (this.searchValue.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/)){
 
     //       // if it is a CJK language don't impose that limit
-          
+
     //     }else{
 
     //       // check the config, some vocabs have very short codes, like the marc geo
@@ -1966,18 +2018,18 @@ export default {
     //   }
     //   // if (this.modeSelect == 'All'){
     //   //   this.modalSelectOptions.forEach((a)=>{
-    //   //     // use the ones in the config marked as "all" 
+    //   //     // use the ones in the config marked as "all"
     //   //     if(a.all===true){
     //   //       searchPayload.processor=a.processor
     //   //       searchPayload.url.push(a.urls.replace('<QUERY>',this.searchValue))
     //   //     }
     //   //   })
-        
+
     //   // }else{
     //     this.modalSelectOptions.forEach((a)=>{
     //       if (a.label==this.modeSelect){
     //         searchPayload.processor=a.processor
-    //         searchPayload.url.push(a.urls.replace('<QUERY>',this.searchValue))            
+    //         searchPayload.url.push(a.urls.replace('<QUERY>',this.searchValue))
     //       }
     //     })
 
@@ -1987,12 +2039,12 @@ export default {
 
 
     //   this.searchTimeout = window.setTimeout(()=>{
-    //     // console.log('searching',searchPayload)    
+    //     // console.log('searching',searchPayload)
     //     this.$store.dispatch("fetchLookupValuesComplex", { self: this, searchPayload: searchPayload }).then(() => {
     //       this.initalSearchState =false;
-    //     })    
+    //     })
     //   }, 400)
-      
+
 
 
     // },
@@ -2000,16 +2052,16 @@ export default {
     // // add this entity to the data for this component
     // add: function(){
 
-      
-      
-      
+
+
+
 
     //   // are we adding a URI or building a pre-coordinated thing
     //   if (this.precoordinated.length > 0){
 
     //     // okay it is precoordinated
-    //     // becase of how we are storing things in state and adding things to the profile in state we 
-    //     // need to put our hand made pre-coordinated data into the context state and then trigger the 
+    //     // becase of how we are storing things in state and adding things to the profile in state we
+    //     // need to put our hand made pre-coordinated data into the context state and then trigger the
     //     // add value state change
 
     //     // build the new context
@@ -2028,10 +2080,10 @@ export default {
     //         "genreForm": null,
     //         "nodeMap": {},
     //         "precoordinated" : this.precoordinated
-    //     }        
+    //     }
 
 
-        
+
     //     // set it and then set the vlue when done
     //     this.$store.dispatch("setContextManually", { self: this, context: tempContext, }).then(() => {
     //       this.$store.dispatch("setValueComplex", { self: this, profileComponet: this.profileCompoent, template:this.activeTemplate, structure: this.structure, parentStructure: this.parentStructureObj, propertyPath: this.propertyPath }).then(() => {
@@ -2047,10 +2099,10 @@ export default {
     //         setTimeout(()=>{
     //           document.getElementById(this.assignedId).focus()
     //         },0)
-    //       })  
+    //       })
 
 
-    //     })  
+    //     })
 
 
 
@@ -2076,7 +2128,7 @@ export default {
     //       this.validated = false
     //       this.validateHeading()
     //       this.$store.dispatch("enableMacroNav", { self: this})
-          
+
     //       // change the key on this element so it rerenderes
     //       this.editLabelDereferenceKey = Date.now()
 
@@ -2084,14 +2136,14 @@ export default {
     //       setTimeout(()=>{
     //         document.getElementById(this.assignedId).focus()
     //       },0)
-    //     })   
+    //     })
 
 
     //   }
 
 
 
-      
+
 
 
 
@@ -2191,7 +2243,7 @@ export default {
 
 
 .selected-value-container{
- 
+
   border: solid 1px;
   border-radius: 0.5em;
   padding: 0.35em;
@@ -2220,9 +2272,9 @@ export default {
 .selected-value-icon{
 /*  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;*/
   padding-right: 0.3em;
-  margin-left: 5px; 
-  border-left: 1px solid black; 
-  padding: 0px 7px; 
+  margin-left: 5px;
+  border-left: 1px solid black;
+  padding: 0px 7px;
   font-size: 1em;
 }
 
@@ -2239,7 +2291,7 @@ export default {
 }
 
 .complex-lookup-inline-mode{
-  
+
   position: relative;
   padding-left: 2px;
   display: inline-block;
@@ -2304,7 +2356,7 @@ input{
   color: white;
   background-color: #2c3e50;
   font-size: 1.25em;
-   padding: 0.3em;  
+   padding: 0.3em;
 }
 
 .modal-context-build-manual-buttons button{
@@ -2374,16 +2426,16 @@ input{
   float: right;
   border: none;
   border-radius: 0.5em;
-  color: white; 
+  color: white;
   background-color: #2c3e50 ;
   font-size: 1.25em;
-   padding: 0.3em;    
+   padding: 0.3em;
 }
 .selected-value-details-close{
   color: #2c3e50 !important;
   border: none !important;
   background: white !important;
-  border: solid 2px #2c3e50 !important; 
+  border: solid 2px #2c3e50 !important;
   margin-left: 0.75em;
 }
 
@@ -2391,7 +2443,7 @@ input{
   color: #2c3e50 !important;
   border: none !important;
   background: white !important;
-  border: solid 2px #2c3e50 !important; 
+  border: solid 2px #2c3e50 !important;
   margin-left: 0.75em;
 
 }
@@ -2409,14 +2461,14 @@ input{
 -webkit-box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
 -moz-box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
 box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
-  padding: 0.5em;    
+  padding: 0.5em;
 }
 .input-single{
   width: 95%;
   border:none;
   font-size: 1.5em;
   min-height: 2em;
-  max-height: 2em;  
+  max-height: 2em;
   background:none;
 }
 .input-nested{
@@ -2430,7 +2482,7 @@ box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
 
 .complex-lookup-results{
   padding: 0 1em 0 1em;
-  height: 73%; 
+  height: 73%;
   margin-top: 1.25em;
 
 }
@@ -2440,7 +2492,7 @@ box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
   cursor: pointer;
 }
 .complex-lookup-results-complex{
-  height: 75%; 
+  height: 75%;
 }
 
 .modal-entity-select option[value=""]{
@@ -2456,7 +2508,7 @@ box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
   background-color: transparent;
   border: none;
   outline: none;
-  margin: 0.15em;  
+  margin: 0.15em;
 }
 
 .modal-switch-values-container{
@@ -2466,7 +2518,7 @@ box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
 .component-container-fake-input:focus-within {
   border: solid 1px #a6acb7;
   background-color: #dfe5f1;
-  
+
 }
 .selected-value-container{
   margin: 0.65em;
@@ -2488,7 +2540,7 @@ box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
   border-radius: 15px;
   -webkit-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
   -moz-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-  box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);  
+  box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
 }
 h3 {
   margin: 40px 0 0;

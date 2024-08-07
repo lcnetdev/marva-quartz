@@ -3,9 +3,9 @@
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
 
     <template v-if="inlineModeShouldDisplay">
-      
+
       <template v-if="simpleLookupValues.length===0">
-          
+
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
           <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
 
@@ -18,14 +18,14 @@
               <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
 
 
-              
-              
+
+
               <span v-if="!avl.needsDereference" style="">
                 <!-- <span class="material-icons icon inline-icon">playlist_add_check</span> -->
                 {{avl.label}}
                 <span class="uncontrolled" v-if="avl.isLiteral"> (uncontrolled)</span></span>
               <!-- <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span> -->
-              
+
               <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
 
               <a href="#" class="inline-remove-x" @click="removeValue(idx)" style="">x</a>
@@ -38,9 +38,9 @@
     </template>
 
 
-        <!-- 
+        <!--
     <template v-if="inlineModeShouldDisplay">
-      
+
       {{structure}}
       {{guid}}
 
@@ -57,8 +57,8 @@
       <form autocomplete="off" @submit.prevent="null" >
 
         <div class="lookup-fake-input" @click="focusClick()" v-if="showField">
-          
-          
+
+
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && simpleLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
@@ -71,11 +71,11 @@
             <div class="bfcode-display-mode-holder">
               <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
               <div class="bfcode-display-mode-holder-value">
-                  
+
                 <div class="lookup-fake-input-entities" style="display:inline-block;">
                   <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
                       <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span>
-                      
+
                       <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
 
                       <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
@@ -83,7 +83,7 @@
                 </div>
                 <div class="lookup-fake-input-text" style="display: inline-block;">
                   <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
-                </div>   
+                </div>
 
               </div>
             </div>
@@ -91,19 +91,17 @@
           </template>
 
           <template v-else>
-          
+
             <div class="lookup-fake-input-entities">
               <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
                   <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span>
-                  
                   <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
-
                   <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
               </div>
             </div>
             <div class="lookup-fake-input-text">
               <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
-            </div>     
+            </div>
 
 
           </template>
@@ -122,7 +120,7 @@
 
 
 
-          
+
 
         </div>
 
@@ -155,19 +153,19 @@
 
 
 
-        <div class="component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border temp-icon-search">          
+        <div class="component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border temp-icon-search">
           <form autocomplete="off" v-on:submit.prevent>
 
                 <div style="position: absolute; left: 13px;" v-if="settingsDisplayMode=='compact'" class="component-nested-container-title">
-                  <span>{{structure.propertyLabel}}<EditLabelRemark :remark="structure.remark" /></span>                  
+                  <span>{{structure.propertyLabel}}<EditLabelRemark :remark="structure.remark" /></span>
                 </div>
 
 
             <div style=" display: flex; height: 100%">
             <!-- <input autocomplete="off" v-bind:value="activeSelect"  type="text" disabled style="width: 95%; border:none; height: 90%; font-size: 1.5em; padding: 0.1em; position: relative; background: none; color: lightgray"> -->
-              
+
               <div v-for="(avl,idx) in activeLookupValue" ref="added-value" :key="idx" class="selected-value-container">
-                  
+
                   <span v-if="!avl['http://www.w3.org/2000/01/rdf-schema#label'].startsWith('http')" style="padding-right: 0.3em; font-weight: bold">{{avl['http://www.w3.org/2000/01/rdf-schema#label']}}<span class="uncontrolled" v-if="!avl.uri">(uncontrolled)</span><span v-if="avl.uri" title="Controlled Term" class="selected-value-icon" style="margin-left: 5px; border-left: 1px solid black; padding: 0px 5px; font-size: 1em;"></span></span>
                   <span v-else style="padding-right: 0.3em; font-weight: bold"><EditLabelDereference :URI="avl['http://www.w3.org/2000/01/rdf-schema#label']"/><span v-if="avl.uri" title="Controlled Term" class="selected-value-icon" style="margin-left: 5px; border-left: 1px solid black; padding: 0px 5px; font-size: 1em;"></span></span>
 
@@ -194,7 +192,7 @@
   <div v-else style="position: relative;">
 
 
-      <div  v-bind:class="['component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border temp-icon-search']" :style="{'background-color': (structure.dynamic) ? 'auto' : 'auto' }">          
+      <div  v-bind:class="['component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border temp-icon-search']" :style="{'background-color': (structure.dynamic) ? 'auto' : 'auto' }">
         <form autocomplete="off" v-on:submit.prevent style="">
           <div style="">
           <!-- <input autocomplete="off" v-bind:value="activeSelect"  type="text" disabled style="width: 95%; border:none; height: 90%; font-size: 1.5em; padding: 0.1em; position: relative; background: none; color: lightgray"> -->
@@ -203,12 +201,12 @@
 
               <span>{{structure.propertyLabel}}</span>
 
-            </div>            
+            </div>
 
 
             <div style="display: flex">
               <div v-for="(avl,idx) in activeLookupValue" ref="added-value" :key="idx" class="selected-value-container-nested">
-                  
+
 
 
                   <span v-if="!avl['http://www.w3.org/2000/01/rdf-schema#label'].startsWith('http')" style="padding-right: 0.3em; font-weight: bold">{{avl['http://www.w3.org/2000/01/rdf-schema#label']}}<span class="uncontrolled" v-if="!avl.uri">(uncontrolled)</span><span v-if="avl.uri" title="Controlled Term" class="selected-value-icon" style="margin-left: 5px; border-left: 1px solid black; padding: 0px 5px; font-size: 1em;"></span></span>
@@ -224,10 +222,10 @@
 
 
               <input bfeType="EditSimpleLookupComponent-nested" ref="lookupInput"  :id="assignedId" autocomplete="off" v-on:blur="blur" v-bind:value="activeValue"  type="text" @focus="autoFocus($event)" @keydown="keyDownEvent($event)"  @keyup="keyUpEvent($event)"  :class="['input-nested', {'selectable-input': (isMini==false), 'selectable-input-mini':(isMini==true)}]">
-            </div>              
+            </div>
 
           </div>
-          
+
 
         </form>
       </div>
@@ -283,11 +281,11 @@ export default {
     // bnodeProperty: String,
 
   },
-  components: {    
+  components: {
     ActionButton,
     LabelDereference,
     // EditLabelRemark
-  }, 
+  },
 
 
 
@@ -295,12 +293,12 @@ export default {
     return {
 
       showActionButton: false,
-      
+
       // helps populate the autocomplete list
       displayAutocomplete: false,
       displayList: [],
-      activeSelect: '', 
-      activeKeyword: false,           
+      activeSelect: '',
+      activeKeyword: false,
       uri: this.structure.valueConstraint.useValuesFrom[0],
       useValuesFrom: this.structure.valueConstraint.useValuesFrom,
       debounceTimeout: null,
@@ -312,17 +310,17 @@ export default {
       // activeLookupValue: [],
 
       // stores the guid to the place to add more if there is already a value
-      
+
 
       // displayAutocomplete: false,
-      // 
-      // 
+      //
+      //
       // activeFilter: '',
-      // 
+      //
       activeValue: '',
 
 
-      // 
+      //
       // internalAssignID:false,
 
     }
@@ -336,8 +334,8 @@ export default {
 
   created: function(){
 
-   
-    // this.refreshInputDisplay()    
+
+    // this.refreshInputDisplay()
 
     // console.log("this.structure.valueConstraint.useValuesFrom[0]",this.structure.valueConstraint.useValuesFrom[0])
 
@@ -352,17 +350,17 @@ export default {
     ...mapStores(usePreferenceStore),
 
     ...mapWritableState(useProfileStore, ['activeField','activeProfile']),
-   
-    simpleLookupValues(){
 
+    simpleLookupValues(){
       // profileStore.setActiveField()
       let values = this.profileStore.returnSimpleLookupValueFromProfile(this.guid,this.propertyPath)
       if (this.readOnly && values.length==0){
         this.showField=false
       }
+
       return values
 
-    }, 
+    },
 
     // if there is already a value we just need one of them so we can find its parent to put new ones into
     existingGuid(){
@@ -390,7 +388,7 @@ export default {
         if (this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath)){
           return true
         }
-      } 
+      }
 
       return false
 
@@ -417,29 +415,29 @@ export default {
   //     }else{
   //       this.internalAssignID = uiUtils.assignID(this.structure,this.parentStructure)
   //       return this.internalAssignID
-  //     }     
+  //     }
 
-  //   },  
+  //   },
   //   // to access local state with `this`, a normal function must be used
   //   lookupVocab (state) {
   //     // let uri = this.structure.valueConstraint.useValuesFrom[0]
 
   //     // let returnVal = []
   //     // Object.keys(state.lookupLibrary).forEach((s)=>{
-      
+
   //     // })
-      
+
   //     // if (state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]){
-      
+
   //     //   return state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]
   //     // }else{
   //     //   return []
   //     // }
   //     return state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]
 
-      
+
   //   }
-  // }),  
+  // }),
   methods:{
 
     focusClick: function(){
@@ -454,12 +452,12 @@ export default {
       window.setTimeout(()=>{
         this.displayAutocomplete = false
       },250)
-      
+
     },
 
     focused: function(){
 
-      // set the state active field 
+      // set the state active field
       this.activeField = this.myGuid
 
       // if enabled show the action button
@@ -481,14 +479,14 @@ export default {
     },
 
     // Takes the list of values from this lookup uri and filters it based on the input
-  
+
     filter: async function(recursive){
 
       this.displayList = []
       this.activeSelect = ''
       this.activeKeyword = false
       // console.log("this.activeFilter",this.activeFilter)
-      
+
       let addKeyword = ''
       if (recursive){
         addKeyword = 'KEYWORD'
@@ -499,11 +497,11 @@ export default {
       console.log(utilsNetwork.lookupLibrary)
       console.log(utilsNetwork.lookupLibrary[this.uri+addKeyword])
 
-      
+
 
       if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
         this.displayList.push("Loading Data.")
-        // if the data isn't loaded yet we will wait a few times 
+        // if the data isn't loaded yet we will wait a few times
         await new Promise(r => setTimeout(r, 1000));
         this.displayList=[]
         console.log(utilsNetwork.lookupLibrary,this.uri+addKeyword)
@@ -526,14 +524,14 @@ export default {
               if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
                 this.activeValue="🙀ERROR WITH LOOKUP"
 
-                
+
               }
 
             }
           }
 
         }
-        
+
       }
       Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]).forEach((v)=>{
         console.log(v)
@@ -545,27 +543,27 @@ export default {
 
             // if (this.displayList.length<=25){
               if (this.displayList.indexOf(x)==-1){
-                this.displayList.push(x)  
+                this.displayList.push(x)
               }
             // }
-          })          
+          })
         }else{
 
           // loop through each one, each is a array, so each element of array
           utilsNetwork.lookupLibrary[this.uri+addKeyword][v].forEach((x)=>{
-            
+
             // simple includes value check
             if (x.toLowerCase().startsWith(this.activeFilter.toLowerCase())){
                 if (this.displayList.indexOf(x)==-1){
-                  this.displayList.push(x)    
+                  this.displayList.push(x)
                 }
-            }       
+            }
 
             if (x.toLowerCase().includes(' (' +this.activeFilter.toLowerCase())){
                 if (this.displayList.indexOf(x)==-1){
-                  this.displayList.push(x)    
+                  this.displayList.push(x)
                 }
-            }  
+            }
 
 
 
@@ -582,14 +580,14 @@ export default {
 
       this.displayList.sort()
 
-      
+
       // take the first hit and make it the autocomplete text
       if (this.displayList.length>0 && this.activeFilter.length>0){
         this.activeSelect = this.displayList[0]
         this.displayAutocomplete = true
       }
       if (this.displayList.length==0){
-        
+
 
         if (!recursive){
 
@@ -609,20 +607,20 @@ export default {
               },500)
             }else{
               this.displayList.push('No local match, enter more of the search term')
-            }            
+            }
           }
 
         }else{
           this.displayList.push('No Match - Press [Enter] to add uncontrolled value')
         }
-                
+
         this.displayAutocomplete = true
       }
       if (this.activeFilter.length==0){
         this.displayAutocomplete = true
       }
       console.log(this.displayAutocomplete)
-      if (this.displayAutocomplete){        
+      if (this.displayAutocomplete){
         // this.$store.dispatch("disableMacroNav")
       }else{
         // this.$store.dispatch("enableMacroNav")
@@ -669,17 +667,17 @@ export default {
 
       }else if (event && event.key && event.key==='Backspace'){
 
-        if (!this.doubleDelete && this.activeValue === ''){          
-          this.doubleDelete = true          
+        if (!this.doubleDelete && this.activeValue === ''){
+          this.doubleDelete = true
           return false
         }
         if (this.activeValue == '' && this.doubleDelete){
           this.doubleDelete = false
-          // were gonna delete the last one          
-          if (this.simpleLookupValues.length>0){                       
+          // were gonna delete the last one
+          if (this.simpleLookupValues.length>0){
             this.removeValue(-1)
           }
-          
+
           this.doubleDelete = false
           this.displayAutocomplete = false
         }else if (this.activeValue == ''){
@@ -708,9 +706,9 @@ export default {
 
 
 
-    },    
+    },
     keyDownEvent: function(event, reposLeft){
-      
+
       if (reposLeft){
 
         this.findSelectListTime = window.setInterval(()=>{
@@ -784,7 +782,7 @@ export default {
         this.activeFilter = ''
         this.activeValue = ''
         this.displayAutocomplete = false
-      
+
 
 
       }else if (event && event.key && event.key==='Enter'){
@@ -793,7 +791,7 @@ export default {
         let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
 
         if (this.activeKeyword){
-          metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values          
+          metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values
         }
 
 
@@ -813,8 +811,8 @@ export default {
             this.activeValue = ''
             this.activeSelect = ''
             this.displayAutocomplete=false
-            event.target.value = ''     
-            // let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null 
+            event.target.value = ''
+            // let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null
             let useLabel = (metadata[key].authLabel) ? metadata[key].authLabel : metadata[key].label[idx]
 
             // this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, propertyPath: this.propertyPath, valueURI: metadata[key].uri, valueLabel:useLabel}).then((resultData) => {
@@ -825,7 +823,7 @@ export default {
 
           }
           // let data = utilsNetwork.lookupLibrary[this.uri].metadata[v]
-          
+
           // let idx = data.defaultsisplayLabel.indexOf(this.activeSelect)
           // if (idx > -1){
           //   this.structure.valueConstraint.defaults.push({defaultLiteral:data.label[idx],defaultURI:data.uri[idx]})
@@ -839,21 +837,21 @@ export default {
 
         // if there is a value still that means the value did not match a item in the list
         // so add the value as a uncontrolled value
-        if (event.target.value !== ''){  
-          
+        if (event.target.value !== ''){
+
           this.activeFilter = ''
           this.activeValue = ''
           this.activeSelect = ''
           this.displayAutocomplete=false
 
 
-          // let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null 
+          // let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null
 
           // this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, propertyPath: this.propertyPath, valueURI: null, valueLabel:event.target.value}).then((resultData) => {
           //   this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':resultData.valueLabel, uriGuid: resultData.guid, labelGuid:resultData.guid})
           // })
           this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,null,event.target.value)
-  
+
 
           // this.submitField()
 
@@ -876,7 +874,7 @@ export default {
       }
 
 
-      if (this.displayAutocomplete){        
+      if (this.displayAutocomplete){
         // this.$store.dispatch("disableMacroNav")
       }else{
         // this.$store.dispatch("enableMacroNav")
@@ -895,31 +893,29 @@ export default {
     },
 
     removeValue: function(idx){
-
         if (this.readOnly){
           return false
         }
 
-        
+
         if (idx===-1){
-          
+
           idx = this.simpleLookupValues.length - 1
         }
 
         let removeGuid = this.simpleLookupValues[idx]['@guid']
 
-
         console.log(removeGuid)
 
-        this.profileStore.removeValueSimple(this.guid,removeGuid)
+        this.profileStore.removeValueSimple(this.guid, removeGuid)
 
-        // No clue what this is refering to about hasSeries...        
-        // // TODO unhack this, put it in the tempalte or put it in the config :(        
+        // No clue what this is refering to about hasSeries...
+        // // TODO unhack this, put it in the tempalte or put it in the config :(
         // if (this.structure.valueConstraint && this.structure.valueConstraint.defaults && this.structure.valueConstraint.defaults[0] && this.structure.valueConstraint.defaults[0].defaultURI && this.structure.valueConstraint.defaults[0].defaultURI === 'http://id.loc.gov/ontologies/bibframe/hasSeries'){
         //   this.refreshInputDisplay()
         //   return false
         // }
-      },  
+      },
 
 
 
@@ -934,16 +930,16 @@ export default {
     //   if (this.isMini){
     //     userValue = this.activeProfileMini.rt[this.profileName].pt[this.profileCompoent].userValue
     //   }else{
-    //     userValue = this.activeProfile.rt[this.profileName].pt[this.profileCompoent].userValue  
+    //     userValue = this.activeProfile.rt[this.profileName].pt[this.profileCompoent].userValue
     //   }
-      
+
     //   // get the length of the properties, for our case we can filter out sameAs properties
     //   // as in simple lookups they are place holders and don't really need to be accounted for in the hierearchy of the properties
-    //   let propertyPathLength = this.propertyPath.filter((p)=>{ return (p.propertyURI != 'http://www.w3.org/2002/07/owl#sameAs') ? true : false }).length     
+    //   let propertyPathLength = this.propertyPath.filter((p)=>{ return (p.propertyURI != 'http://www.w3.org/2002/07/owl#sameAs') ? true : false }).length
 
 
     //   let possibleLiteralProperties = ['http://www.w3.org/1999/02/22-rdf-syntax-ns#value', 'http://www.w3.org/2000/01/rdf-schema#label', 'http://id.loc.gov/ontologies/bibframe/code','http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
-      
+
 
     //   // filter out any bnodes with that guid starting from the bottom of the hiearchy
     //   // then go through and check if we left an empty bnode hiearchy and if so delete it
@@ -954,10 +950,10 @@ export default {
     //       let L3URI = this.propertyPath[3].propertyURI
     //       if (userValue[L0URI] && userValue[L0URI][0] && userValue[L0URI][0][L1URI] && userValue[L0URI][0][L1URI][0] && userValue[L0URI][0][L1URI][0][L2URI] && userValue[L0URI][0][L1URI][0][L2URI][0] && userValue[L0URI][0][L1URI][0][L2URI][0][L3URI]){
     //         for (let v of userValue[L0URI][0][L1URI][0][L2URI][0][L3URI]){
-    //           let label = null 
+    //           let label = null
     //           let labelGuid = null
     //           let uri = null
-    //           let uriGuid = null 
+    //           let uriGuid = null
 
     //           for (let aKey in v){
 
@@ -1008,10 +1004,10 @@ export default {
 
     //       if (userValue[L0URI] && userValue[L0URI][0] && userValue[L0URI][0][L1URI] && userValue[L0URI][0][L1URI][0] && userValue[L0URI][0][L1URI][0][L2URI]){
     //         for (let v of userValue[L0URI][0][L1URI][0][L2URI]){
-    //           let label = null 
+    //           let label = null
     //           let labelGuid = null
     //           let uri = null
-    //           let uriGuid = null 
+    //           let uriGuid = null
 
     //           for (let aKey in v){
 
@@ -1058,10 +1054,10 @@ export default {
     //       let L1URI = this.propertyPath[1].propertyURI
     //       if (userValue[L0URI] && userValue[L0URI][0] && userValue[L0URI][0][L1URI]){
     //         for (let v of userValue[L0URI][0][L1URI]){
-    //           let label = null 
+    //           let label = null
     //           let labelGuid = null
     //           let uri = null
-    //           let uriGuid = null 
+    //           let uriGuid = null
 
     //           for (let aKey in v){
 
@@ -1099,7 +1095,7 @@ export default {
     //             uriGuid: uriGuid,
     //             labelGuid: labelGuid
     //           })
-              
+
     //         }
     //       }
     //   }
@@ -1110,10 +1106,10 @@ export default {
 
     //       if (userValue[L0URI]){
     //         for (let v of userValue[L0URI]){
-    //           let label = null 
+    //           let label = null
     //           let labelGuid = null
     //           let uri = null
-    //           let uriGuid = null 
+    //           let uriGuid = null
 
     //           for (let aKey in v){
 
@@ -1157,7 +1153,7 @@ export default {
     //   }
 
 
-      
+
 
 
 
@@ -1168,7 +1164,7 @@ export default {
 
     // fakeContainerFocus: function(event){
 
-    //     // 
+    //     //
 
     //     return event
     // },
@@ -1187,11 +1183,11 @@ export default {
     //   }
 
     //   this.$store.dispatch("removeValueSimple", { self: this, ptGuid: this.ptGuid, idGuid: toRemove.uriGuid, labelGuid: toRemove.labelGuid, propertyPath: this.propertyPath }).then(() => {
-        
+
     //     this.$refs.lookupInput.focus()
 
 
-    //   })  
+    //   })
 
 
 
@@ -1201,7 +1197,7 @@ export default {
     //   //   this.activeLookupValue = []
     //   // }
 
-    // },  
+    // },
 
 
     // autoFocus: function(event){
@@ -1221,16 +1217,16 @@ export default {
     //   this.activeFilter = event.target.value;
     //   // tell the store to load this specific lookup table into memory
     //   this.$store.dispatch("fetchLookupValues", { self: this, url: this.structure.valueConstraint.useValuesFrom[0] }).then(() => {
-        
+
     //     this.uri = this.structure.valueConstraint.useValuesFrom[0]
     //     // if there is already a value don't open up the full list, they can type ahead but dont open everything
     //     // if (this.activeLookupValue.length==0){
     //       // this.filter()
     //     // }
-    //   })    
-      
-      
-      
+    //   })
+
+
+
 
     // },
 
@@ -1238,9 +1234,9 @@ export default {
 
     //  // we want to hide the menu on deblur but not if they just click an item in the list
 
-    //  this.$store.dispatch("enableMacroNav") 
-    //  setTimeout(()=>{ 
-    //   this.displayAutocomplete=false 
+    //  this.$store.dispatch("enableMacroNav")
+    //  setTimeout(()=>{
+    //   this.displayAutocomplete=false
     // },500)
 
 
@@ -1255,18 +1251,18 @@ export default {
       let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
 
       if (this.activeKeyword){
-        metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values          
+        metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values
       }
       console.log(metadata)
       // find the active selected in the data
       Object.keys(metadata).forEach((key)=>{
         let idx = metadata[key].displayLabel.indexOf(this.activeSelect)
-        if (idx >-1){          
+        if (idx >-1){
           this.activeFilter = ''
           this.activeValue = ''
           this.activeSelect = ''
           this.displayAutocomplete=false
-          event.target.value = ''     
+          event.target.value = ''
           let useLabel = (metadata[key].authLabel) ? metadata[key].authLabel : metadata[key].label[idx]
           this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,metadata[key].uri,useLabel)
 
@@ -1291,7 +1287,7 @@ export default {
     //   let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
 
     //   if (this.activeKeyword){
-    //     metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values          
+    //     metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values
     //   }
     //   // find the active selected in the data
     //   Object.keys(metadata).forEach((key)=>{
@@ -1302,8 +1298,8 @@ export default {
     //       this.activeValue = ''
     //       this.activeSelect = ''
     //       this.displayAutocomplete=false
-    //       event.target.value = ''     
-    //       // let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null 
+    //       event.target.value = ''
+    //       // let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null
     //       let useLabel = (metadata[key].authLabel) ? metadata[key].authLabel : metadata[key].label[idx]
 
     //       this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, propertyPath: this.propertyPath, valueURI: metadata[key].uri, valueLabel:useLabel}).then((resultData) => {
@@ -1311,7 +1307,7 @@ export default {
     //       })
     //     }
     //     // let data = utilsNetwork.lookupLibrary[this.uri].metadata[v]
-        
+
     //     // let idx = data.defaultsisplayLabel.indexOf(this.activeSelect)
     //     // if (idx > -1){
     //     //   this.structure.valueConstraint.defaults.push({defaultLiteral:data.label[idx],defaultURI:data.uri[idx]})
@@ -1334,8 +1330,8 @@ export default {
     //   //     // this.activeSelect = ''
     //   //     // this.displayAutocomplete=false
     //   //     // // this.$store.dispatch("addValueLiteral", { self: this, profileComponet: this.profileCompoent, structure: this.structure, template:this.activeTemplate, value:this.activeLookupValue }).then(() => {
-           
-    //   //     // // })        
+
+    //   //     // // })
 
     //   //     // this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, parentURI: this.parentStructureObj.propertyURI, URI: this.structure.propertyURI, valueURI: metadata[key].uri, valueLabel:metadata[key].label[idx]}).then((resultData) => {
     //   //     //   this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':resultData.valueLabel, uri: resultData.valueURI, uriGuid: resultData.guid, labelGuid:resultData.guid})
@@ -1349,9 +1345,9 @@ export default {
     //   //     this.displayAutocomplete=false
     //   //     event.target.value = ''
     //   //     // this.$store.dispatch("addValueLiteral", { self: this, profileComponet: this.profileCompoent, structure: this.structure, template:this.activeTemplate, value:this.activeLookupValue }).then(() => {
-           
-    //   //     // })               
-    //   //     let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null 
+
+    //   //     // })
+    //   //     let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null
 
 
     //   //     this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, parentURI: parentURI, URI: this.structure.propertyURI, valueURI: metadata[key].uri, valueLabel:metadata[key].label[idx]}).then((resultData) => {
@@ -1360,7 +1356,7 @@ export default {
 
 
 
-    //   //     this.$store.dispatch("enableMacroNav")    
+    //   //     this.$store.dispatch("enableMacroNav")
 
 
 
@@ -1376,7 +1372,7 @@ export default {
 
     // },
 
-    // submitField: uiUtils.globalMoveDown  
+    // submitField: uiUtils.globalMoveDown
 
 
   }
@@ -1393,7 +1389,7 @@ export default {
 .inline-lookup-input{
   outline: none;
   border: none;
-  
+
 
 }
 .inline-lookup-input:focus-within{
@@ -1453,7 +1449,7 @@ export default {
   position: absolute;
   display: inline-block;
   left: 1px;
-  font-weight: bold;  
+  font-weight: bold;
 }
 
 .lookup-fake-input{
@@ -1496,7 +1492,7 @@ export default {
 
 
 .selected-value-container{
- 
+
   border: solid 1px;
   border-radius: 0.5em;
   padding: 0.35em;
@@ -1530,7 +1526,7 @@ export default {
   border-radius: 15px;
   -webkit-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
   -moz-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-  box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);  
+  box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
 }
 .autocomplete-container li{
   cursor: pointer;
@@ -1540,9 +1536,9 @@ export default {
 .selected-value-icon{
 /*  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;*/
   padding-right: 0.3em;
-  margin-left: 5px; 
-  border-left: 1px solid black; 
-  padding: 0px 7px; 
+  margin-left: 5px;
+  border-left: 1px solid black;
+  padding: 0px 7px;
   font-size: 1em;
 }
 
@@ -1554,7 +1550,7 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
-  box-shadow: none;  
+  box-shadow: none;
   resize: none;
   width: 100%;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
@@ -1573,7 +1569,7 @@ export default {
   border:none;
   font-size: 1.5em;
   min-height: 2em;
-  max-height: 2em;  
+  max-height: 2em;
   background:none;
 }
 .input-nested{
@@ -1609,7 +1605,7 @@ input{
   border: solid 1px #a6acb7;
   background-color: #dfe5f1;
 
-  
+
 }
 .selected-value-container{
   margin: 0.95em;
@@ -1645,7 +1641,7 @@ input{
   border-radius: 15px;
   -webkit-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
   -moz-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-  box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);  
+  box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
 }
 .autocomplete-container li{
   cursor: pointer;
