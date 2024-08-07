@@ -190,7 +190,7 @@
                       <div  style="display: flex;">
                         <div  style="flex:1; position: relative;">
                           <form autocomplete="off" style="height: 3em;">
-                            <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"  class="input-single-subject subject-input" v-el:searchInput>
+                            <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"  class="input-single-subject subject-input">
                           </form>
 
                           <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx" >
@@ -689,9 +689,8 @@ export default {
     // // watch when the undoindex changes, means they are undoing redoing, so refresh the
     // // value in the acutal input box
     searchValue: function(){
-      console.log("Search value change: ", this.searchValue)
-        this.subjectString = this.searchValue
-        this.linkModeString = this.searchValue
+      this.subjectString = this.searchValue
+      this.linkModeString = this.searchValue
     }
 
 
@@ -772,7 +771,6 @@ export default {
       if (event.key==='Enter' && event.shiftKey===false){
         this.linkModeResults=false
         this.linkModeSearching=true
-        console.log("Linkmodetextchange")
         this.linkModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.linkModeString)
         this.linkModeSearching=false
 
@@ -806,16 +804,13 @@ export default {
     * @return {array} - An array of the pts, but only occuring once
     */
     editorModeSwitch: function(mode){
-      console.log("Mode Switch")
       this.subjectEditorMode = mode
       // this.$store.dispatch("subjectEditorMode", { self: this, mode: mode})
 
       if (mode == 'build'){
         this.subjectString = this.linkModeString
-        console.log("build: ", this.subjectString)
         this.subjectStringChanged()
       }else{
-        console.log("link: ", this.subjectString)
         this.linkModeString = this.subjectString
       }
 
@@ -978,14 +973,9 @@ export default {
           // if the labels are the same for the current one selected don't overide it
           if (that.pickLookup[k].label.replaceAll('‑','-') == that.activeComponent.label.replaceAll('‑','-') && that.activeComponent.uri){
             if (that.activeComponent.uri == that.pickLookup[k].uri){
-              console.log('that.activeComponent',that.activeComponent)
               that.pickPostion=k
               that.pickLookup[k].picked=true
-              console.log("this one?")
-              console.log(k)
-              console.log(that.pickLookup[k])
               that.selectContext()
-
             }
 
           }else{
@@ -1007,7 +997,6 @@ export default {
 
             that.pickPostion=k
             that.pickLookup[k].picked=true
-            console.log("this one2?")
             that.selectContext()
 
           }
@@ -1024,7 +1013,6 @@ export default {
       if (that.pickLookup[that.pickPostion] && !that.pickLookup[that.pickPostion].literal){
         that.contextRequestInProgress = true
 
-        console.log("Search APIs 1")
         that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
 
         // keep a local copy of it for looking up subject type
@@ -1087,14 +1075,12 @@ export default {
     }, 500),
 
     navStringClick: function(event){
-      console.log("Click")
       // when clicked send it over to the navString func with fake key property to trigger if statement
       event.key='ArrowLeft'
       this.navString(event)
     },
 
     navString: function(event){
-      console.log("navString: ", event)
       if (event.key == 'ArrowLeft' || event.key == 'ArrowRight' ){
         // don't let them leave a trailing -- when they are clicking around like wild
         // if (this.subjectString.endsWith('--')){
@@ -1114,12 +1100,10 @@ export default {
 
         // keep track of where we were so that we don't do unessary refreshes
         if (this.oldActiveComponentIndex != this.activeComponentIndex){
-          console.log("!!!")
           this.updateAvctiveTypeSelected()
           this.subjectStringChanged(event)
           this.oldActiveComponentIndex = this.activeComponentIndex
         }else if (this.activeComponent.uri === null){
-          console.log("###")
           this.updateAvctiveTypeSelected()
           this.subjectStringChanged(event)
         }
@@ -1171,19 +1155,15 @@ export default {
     },
 
     selectContext: async function(pickPostion, update=true){
-      console.log("Selecting")
       if (pickPostion != null){
         this.pickPostion=pickPostion
         this.pickCurrent=pickPostion
         this.getContext()
       }
 
-      console.log(this.pickLookup[this.pickPostion])
-
       if (this.pickLookup[this.pickPostion].complex){
         // if it is a complex authorized heading then just replace the whole things with it
         this.subjectString = this.pickLookup[this.pickPostion].label
-        console.log(this.subjectString)
         this.activeComponentIndex = 0
 
         this.componetLookup = {}
@@ -1198,7 +1178,6 @@ export default {
 
         //This check is needed to prevent falling into recursive loop when loading
         // existing data.
-        console.log("update: ", update)
         if (update == true) {
           this.subjectStringChanged()
         }
@@ -1240,7 +1219,6 @@ export default {
         console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
         //Need something to prevent recursion
         if (update == true){
-          console.log("here?")
           this.subjectStringChanged()
         }
 
@@ -1281,7 +1259,6 @@ export default {
 
 
 
-        console.log("this one3?")
         this.selectContext()
 
       }else if (event.ctrlKey && event.key == "1"){
@@ -1389,7 +1366,6 @@ export default {
     },
 
     validateOkayToAdd: function(){
-      console.log("validating: ", this.components)
       this.okayToAdd = false
       let allHaveURI = true
       let allHaveType = true
@@ -1421,13 +1397,10 @@ export default {
 
       //fake the "click" so the results panel populates
       if (this.initialLoad == true) {
-        console.log("fake click: ", event)
         let pieces = this.$refs.subjectInput.value.split("--")
         let lastPiece = pieces.at(-1)
         this.searchApis(lastPiece, this.$refs.subjectInput.value, this)
         this.initialLoad = false
-      } else {
-        console.log("normal event: ", event)
       }
 
       // they are setting the type, next key inputed is important
@@ -1456,7 +1429,6 @@ export default {
         }
 
         this.nextInputIsTypeSelection = false
-        console.log("loop")
         this.subjectStringChanged()
 
       } else {
@@ -1734,6 +1706,9 @@ export default {
 
 
     add: function(){
+      //remove any existing thesaurus label, so it has the most current
+      //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
+
       console.log('this.components',this.components)
       // remove our werid hyphens before we send it back
       for (let c of this.components){
@@ -1749,8 +1724,6 @@ export default {
       console.log(this.localContextCache)
       console.log(this.components)
       this.$emit('subjectAdded', this.components)
-
-
     },
 
 
@@ -2034,9 +2007,6 @@ export default {
         this.linkModeTextChange({key:'Enter',shiftKey:false})
 
         //Do the search for build mode
-        console.log("Update searching?: ", this.subjectInput)
-        console.log("Authority: ", this.authorityLookup)
-        console.log("AuthorityLocal: ", this.authorityLookupLocal)
         this.searchResults = this.searchApis(this.authorityLookupLocal, this.authorityLookupLocal, this)
 
         //Wait for the search results
