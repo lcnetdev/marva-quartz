@@ -24,10 +24,6 @@
         initalHeight: 800,
         initalLeft: 400,
 
-        allLanguages: {
-         
-        }
-
 
       }
     },
@@ -41,8 +37,12 @@
       
       
       ...mapWritableState(usePreferenceStore, ['showScriptshifterConfigModal','scriptShifterOptions']),
+      ...mapWritableState(useConfigStore, ['scriptshifterLanguages']),
 
 
+
+      
+      
     },
 
     watch: {
@@ -68,12 +68,12 @@
         },
 
 
-        async getLangs(){
+         async getLangs(){
 
 
           // async function doAsync () {
             
-          this.allLanguages = await this.configStore.getScriptShifterLanguages()
+          await this.configStore.getScriptShifterLanguages()
 
 
           // }
@@ -82,13 +82,13 @@
 
 
 
-          for (let k in this.allLanguages){
+          for (let k in this.scriptshifterLanguages){
             if (this.scriptShifterOptions[k]){
               if (this.scriptShifterOptions[k].s2r){
-                this.allLanguages[k].s2r = true
+                this.scriptshifterLanguages[k].s2r = true
               }
               if (this.scriptShifterOptions[k].r2s){
-                this.allLanguages[k].r2s = true
+                this.scriptshifterLanguages[k].r2s = true
               }              
             }
           }
@@ -108,7 +108,7 @@
 
         updateLocalStorage(event){
 
-          console.log(this.allLanguages)
+          console.log(this.scriptshifterLanguages)
 
 
           let current = window.localStorage.getItem('marva-scriptShifterOptions')
@@ -119,9 +119,9 @@
             current = {}
           }
 
-          for (let x in this.allLanguages){
-            if (this.allLanguages[x].s2r || this.allLanguages[x].r2s ){
-              current[x] = this.allLanguages[x]
+          for (let x in this.scriptshifterLanguages){
+            if (this.scriptshifterLanguages[x].s2r || this.scriptshifterLanguages[x].r2s ){
+              current[x] = this.scriptshifterLanguages[x]
             }else{
               if (current[x]){
                 delete current[x]
@@ -190,7 +190,7 @@
 
       // }
 
-      // this.allLanguages = json
+      // this.scriptshifterLanguages = json
 
       // this.$nextTick(()=>{
 
@@ -216,7 +216,7 @@
 
       //     }
           
-      //     this.allLanguages = json
+      //     this.scriptshifterLanguages = json
 
           
           
@@ -273,7 +273,7 @@
                 <th>Roman to Script</th>
               </thead>
             
-              <tr  v-for="l in allLanguages">
+              <tr  v-for="l in scriptshifterLanguages">
                 <td style="width: 66%;">
                   {{ l.name }}
                   <template v-if="l.description">

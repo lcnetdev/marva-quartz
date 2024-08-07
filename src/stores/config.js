@@ -892,10 +892,9 @@ export const useConfigStore = defineStore('config', {
     async getScriptShifterLanguages() {
 
       let req = await fetch(this.returnUrls.scriptshifter + 'languages')
-      return await req.json()
+      this.scriptshifterLanguages = await req.json()
 
-
-      
+         
       
 
     },
