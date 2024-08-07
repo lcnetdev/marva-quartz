@@ -9,6 +9,8 @@
 
   import utilsNetwork from '@/lib/utils_network';
 
+  import short from 'short-uuid'
+
 
   export default {
     components: {
@@ -26,6 +28,8 @@
 
         initalHeight: 550,
         initalLeft: 500,
+
+        searching: false,
 
         classNumber: null,
         cutterNumber:null,
@@ -92,15 +96,54 @@
           }
         },
 
+        async save(){
+
+
+          // using the 
+
+          if (this.classNumber && this.classNumber.trim() != ''){
+            if (!this.activeShelfListData.classGuid){
+              this.activeShelfListData.classGuid = short.generate()
+            } 
+
+            // the open button lives in the item portion of the number so we don't have the class portion, but they will always be siblings so just modify the path 
+            // so it matches to where the class property path is
+            let classPropertyPath = JSON.parse(JSON.stringify(this.activeShelfListData.componentPropertyPath))
+            console.log(classPropertyPath)
+            classPropertyPath = classPropertyPath.map((v) => {
+              v.propertyURI = v.propertyURI.replace("itemPortion",'classificationPortion')
+              return v
+            })
+
+
+
+            await this.profileStore.setValueLiteral(this.activeShelfListData.componentGuid,this.activeShelfListData.classGuid,classPropertyPath,this.classNumber)
+          }
+
+          if (this.cutterNumber && this.cutterNumber.trim() != ''){
+            if (!this.activeShelfListData.cutterGuid){
+              this.activeShelfListData.cutterGuid = short.generate()
+            }
+            await this.profileStore.setValueLiteral(this.activeShelfListData.componentGuid,this.activeShelfListData.cutterGuid,this.activeShelfListData.componentPropertyPath,this.cutterNumber)
+          }
+
+          
+
+          this.showShelfListingModal=false
+
+
+        },
+
 
         async search(){
 
-
-          
+          if (!this.classNumber){this.classNumber=''}
+          if (!this.cutterNumber){this.cutterNumber=''}
           this.results = []
-
+          this.searching=true
           this.results =  await utilsNetwork.searchShelfList(this.classNumber.trim() + ' ' + this.cutterNumber.trim())
-          console.log("this.results",this.results)
+
+          this.searching=false
 
           //       altsubject
           // : 
@@ -145,11 +188,14 @@
 
       this.classNumber = this.activeShelfListData.class
       this.cutterNumber = this.activeShelfListData.cutter
-      this.search()
+      if ((this.classNumber && this.classNumber != '') || (this.cutterNumber && this.cutterNumber != '')){
+        this.search()
+      }
+      
     }
   }
 
-
+  
 
 </script>
 
@@ -175,62 +221,70 @@
           :stickSize="22"
         >
           <div id="shelf-listing-content" ref="shelfListingContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
-
+            {{ activeShelfListData }}
+            
             <div class="menu-buttons">
-              <button class="close-button" @pointerup="showShelfListingModal=false">X</button>
+              <button class="close-button"   @pointerup="showShelfListingModal=false">X</button>
             </div>
 
             <div class="shelf-listing-work-area">
-              <input v-model="classNumber" @keyup="search" type="text" />
-              <input v-model="cutterNumber" @keyup="search" type="text" />
-              <button>Save</button>
-              <table>
-                <thead>
-                  <tr>
-                    <td>Number</td>
-                    <td>Title</td>
-                    <td>Date</td>
-                    <td> </td>
+              <input v-model="classNumber" class="number-input" placeholder="Class" @keyup="search" type="text" />
+              <input v-model="cutterNumber" class="number-input" @keyup="search" placeholder="Cutter" type="text" />
+              <button class="number-input" @click="save" :disabled="(!activeShelfListData.componentGuid)">Save</button>
 
-                  </tr>
-                </thead>
-                <tbody>
+              <div class="serach-results-container">
+                <h2 v-if="searching == true"><span class="material-icons icon">search</span>Searching...</h2>
 
-                  <template v-for="r in results">
-                    <template  v-if="r.title != 'Would Appear Here'">
-                      <tr>
-                        <td>{{ r.term }}</td>
-                        <td>{{ r.title }}</td>
-                        <td>{{ r.pubdate }}</td>
-                        <td><a style="color: inherit; text-decoration: none;" target="_blank" :href="r.lookup">view</a></td>
-                      </tr>
-                    </template>
+                <h3 v-if="searching==false && results.length==0">No Results</h3>
 
-                    <template  v-if="r.title == 'Would Appear Here'">
-                      <tr style="background-color: yellow;">
-                        <td>{{ r.term }}</td>
-                        <td>{{ r.title }}</td>
-                        <td>{{ r.pubdate }}</td>
-                        <td></td>
-                      </tr>
-                    </template>
+                <table v-if="searching==false">
+                  <thead v-if="results.length>0">
+                    <tr>
+                      <td>Number</td>
+                      <td>Title</td>
+                      <td>Date</td>
+                      <td> </td>
 
-                 
-                                  
+                    </tr>
+                  </thead>
+                  <tbody>
 
+                    <template v-for="r in results">
+                      <template  v-if="r.title != 'Would Appear Here'">
+                        <tr>
+                          <td>{{ r.term }}</td>
+                          <td>{{ r.title }}</td>
+                          <td>{{ r.pubdate }}</td>
+                          <td><a style="color: inherit; text-decoration: none;" target="_blank" :href="r.lookup">view</a></td>
+                        </tr>
+                      </template>
 
-                  </template>
-
+                      <template  v-if="r.title == 'Would Appear Here'">
+                        <tr style="background-color: yellow;">
+                          <td>{{ r.term }}</td>
+                          <td>{{ r.title }}</td>
+                          <td>{{ r.pubdate }}</td>
+                          <td></td>
+                        </tr>
+                      </template>
 
                   
+                                    
+
+
+                    </template>
+
+
+                    
 
 
 
 
-                </tbody>
+                  </tbody>
 
 
-              </table>
+                </table>
+              </div>
               
 
             </div>
@@ -253,6 +307,13 @@
 
 <style scoped>
 
+  .serach-results-container{
+    margin-top: 1em;
+  }
+
+  .number-input{
+    font-size: 1.5em;
+  }
 
   iframe{
     display: block;
@@ -291,6 +352,7 @@
 
   }
   #shelf-listing-content{
+    padding: 1em;
     background-color: white;
     overflow-y: scroll;
   }

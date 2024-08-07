@@ -38,7 +38,9 @@ export default {
     // gives access to this.counterStore and this.userStore
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
-    ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal','showShelfListingModal']),
+    ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal']),
+    ...mapWritableState(useProfileStore, ['showShelfListingModal']),
+
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal']),
 
@@ -97,25 +99,6 @@ export default {
 </script>
 
 <template>
- <!--  <header>
-    <img
-      alt="Vue logo"
-      class="logo"
-      src="@/assets/logo.svg"
-      width="125"
-      height="125"
-    />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header> -->
-
   <RouterView />
   <LoadingModal/>
 
@@ -131,7 +114,7 @@ export default {
   </template>
 
   <template v-if="showShelfListingModal==true">
-    <ShelfListingModal v-model="showShelfListingModal" />
+    <ShelfListingModal v-model="showShelfListingModal"  />
   </template>
 
 

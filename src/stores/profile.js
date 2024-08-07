@@ -59,8 +59,9 @@ export const useProfileStore = defineStore('profile', {
       class:null,
       cutter:null,
       classGuid:null,
-      cuterGuid: null,
-      componentGuid: null
+      cutterGuid: null,
+      componentGuid: null,
+      componentPropertyPath:null
     },
     
 

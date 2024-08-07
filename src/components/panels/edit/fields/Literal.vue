@@ -150,7 +150,7 @@
             </template>
 
             <div>
-              <input type="range" v-model="cutterCalcLength" name="cutterCalcLength" min="0" max="6" step="1" />
+              <input type="range" v-model="cutterCalcLength" id="cutterCalcLength" name="cutterCalcLength" min="0" max="6" step="1" />
               <label for="cutterCalcLength" style="font-size: 0.8em; vertical-align: text-top;">Calc Length ({{ cutterCalcLength }})</label>
             </div>
 
@@ -220,11 +220,13 @@ export default {
         class: this.lccFeatureData.classNumber,
         cutter:this.lccFeatureData.cutterNumber,
         classGuid:this.lccFeatureData.classGuid,
-        cuterGuid: this.lccFeatureData.cutterGuid,
+        cutterGuid: this.lccFeatureData.cutterGuid,
+        componentPropertyPath: this.propertyPath,
         componentGuid: this.guid
       }
       this.showShelfListingModal = true
 
+      
     },
 
 
@@ -530,9 +532,7 @@ export default {
     this.$nextTick().then(() => {
       this.expandHeightToContent()
     })
-    if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length-1].propertyURI)>-1){
-      this.lccFeatureData = this.profileStore.returnLccInfo(this.guid, this.structure)
-    }
+
 
 
   },
