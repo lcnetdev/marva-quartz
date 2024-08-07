@@ -190,7 +190,7 @@
                       <div  style="display: flex;">
                         <div  style="flex:1; position: relative;">
                           <form autocomplete="off" style="height: 3em;">
-                            <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"  class="input-single-subject subject-input">
+                            <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"  class="input-single-subject subject-input" v-el:searchInput>
                           </form>
 
                           <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx" >
@@ -689,6 +689,7 @@ export default {
     // // watch when the undoindex changes, means they are undoing redoing, so refresh the
     // // value in the acutal input box
     searchValue: function(){
+      console.log("Search value change: ", this.searchValue)
         this.subjectString = this.searchValue
         this.linkModeString = this.searchValue
     }
@@ -734,6 +735,8 @@ export default {
 
       showTypes: false,
 
+      initialLoad: true, // when this load the first time
+
       activeTypes: {
         'madsrdf:Topic': {label:'Topic / Heading ($a $x)', value:'madsrdf:Topic',selected:false},
         'madsrdf:GenreForm': {label:'Genre ($v)', value:'madsrdf:GenreForm',selected:false},
@@ -769,6 +772,7 @@ export default {
       if (event.key==='Enter' && event.shiftKey===false){
         this.linkModeResults=false
         this.linkModeSearching=true
+        console.log("Linkmodetextchange")
         this.linkModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.linkModeString)
         this.linkModeSearching=false
 
@@ -802,13 +806,16 @@ export default {
     * @return {array} - An array of the pts, but only occuring once
     */
     editorModeSwitch: function(mode){
+      console.log("Mode Switch")
       this.subjectEditorMode = mode
       // this.$store.dispatch("subjectEditorMode", { self: this, mode: mode})
 
       if (mode == 'build'){
         this.subjectString = this.linkModeString
+        console.log("build: ", this.subjectString)
         this.subjectStringChanged()
       }else{
+        console.log("link: ", this.subjectString)
         this.linkModeString = this.subjectString
       }
 
@@ -854,7 +861,6 @@ export default {
 
       searchString=searchString.replaceAll('‑','-')
       searchStringFull=searchStringFull.replaceAll('‑','-')
-
 
 
 
@@ -975,6 +981,9 @@ export default {
               console.log('that.activeComponent',that.activeComponent)
               that.pickPostion=k
               that.pickLookup[k].picked=true
+              console.log("this one?")
+              console.log(k)
+              console.log(that.pickLookup[k])
               that.selectContext()
 
             }
@@ -998,6 +1007,7 @@ export default {
 
             that.pickPostion=k
             that.pickLookup[k].picked=true
+            console.log("this one2?")
             that.selectContext()
 
           }
@@ -1014,6 +1024,7 @@ export default {
       if (that.pickLookup[that.pickPostion] && !that.pickLookup[that.pickPostion].literal){
         that.contextRequestInProgress = true
 
+        console.log("Search APIs 1")
         that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
 
         // keep a local copy of it for looking up subject type
@@ -1083,20 +1094,15 @@ export default {
     },
 
     navString: function(event){
+      console.log("navString: ", event)
       if (event.key == 'ArrowLeft' || event.key == 'ArrowRight' ){
-
-
-
         // don't let them leave a trailing -- when they are clicking around like wild
         // if (this.subjectString.endsWith('--')){
         //   this.subjectString = this.subjectString.slice(0,this.subjectString.length-2)
         // }
-
-
         if (!event.target){
           event = {target:this.$refs.subjectInput}
         }
-
 
         for (let c of this.components){
           if (event.target.selectionStart >= c.posStart && event.target.selectionStart <= c.posEnd+1){
@@ -1106,22 +1112,18 @@ export default {
           }
         }
 
-
         // keep track of where we were so that we don't do unessary refreshes
         if (this.oldActiveComponentIndex != this.activeComponentIndex){
+          console.log("!!!")
           this.updateAvctiveTypeSelected()
           this.subjectStringChanged(event)
           this.oldActiveComponentIndex = this.activeComponentIndex
         }else if (this.activeComponent.uri === null){
-
+          console.log("###")
           this.updateAvctiveTypeSelected()
           this.subjectStringChanged(event)
         }
-
-
       }
-
-
     },
 
     getContext: async function(){
@@ -1176,6 +1178,8 @@ export default {
         this.getContext()
       }
 
+      console.log(this.pickLookup[this.pickPostion])
+
       if (this.pickLookup[this.pickPostion].complex){
         // if it is a complex authorized heading then just replace the whole things with it
         this.subjectString = this.pickLookup[this.pickPostion].label
@@ -1194,9 +1198,11 @@ export default {
 
         //This check is needed to prevent falling into recursive loop when loading
         // existing data.
+        console.log("update: ", update)
         if (update == true) {
           this.subjectStringChanged()
         }
+
         try {
           this.$refs.subjectInput.focus()
         } catch(err) {
@@ -1234,6 +1240,7 @@ export default {
         console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
         //Need something to prevent recursion
         if (update == true){
+          console.log("here?")
           this.subjectStringChanged()
         }
 
@@ -1274,7 +1281,7 @@ export default {
 
 
 
-
+        console.log("this one3?")
         this.selectContext()
 
       }else if (event.ctrlKey && event.key == "1"){
@@ -1382,6 +1389,7 @@ export default {
     },
 
     validateOkayToAdd: function(){
+      console.log("validating: ", this.components)
       this.okayToAdd = false
       let allHaveURI = true
       let allHaveType = true
@@ -1407,45 +1415,19 @@ export default {
 
     },
 
+    //TODO: if it's a literal, there shouldn't be a thesaurus
     subjectStringChanged: async function(event){
-      console.log("changed: ", event)
+      this.validateOkayToAdd()
 
-      if (
-        this.authorityLookupLocal != null
-          && (this.searchResults != null
-          && (this.searchResults.subjectsComplex.length > 0 || this.searchResults.subjectsSimple.length > 0))
-      ) {
-        console.log("seeing this?")
-        // decide which list to search ing
-        let list = null
-        if (this.isLiteral) {
-          list = this.searchResults.subjectsSimple
-        } else {
-          list = this.searchResults.subjectsComplex
-        }
-
-        //Select the context that matches the incoming value
-        for (const pos in list){
-            let label = list[pos].label
-            console.log("label: ", label)
-            console.log("incoming: ", this.authorityLookupLocal)
-            console.log("pick: ", this.pickLookup[this.pickCurrent])
-            if (label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
-              try{
-                let idx = 0
-                if (this.isLiteral == true) {
-                  idx = this.searchResults.subjectsComplex.length + Number(pos)
-                } else {
-                  idx = pos
-                }
-                this.selectContext(idx, false)
-                this.validateOkayToAdd()
-              } catch(err) {
-                console.error(err)
-              }
-              break
-            }
-          }
+      //fake the "click" so the results panel populates
+      if (this.initialLoad == true) {
+        console.log("fake click: ", event)
+        let pieces = this.$refs.subjectInput.value.split("--")
+        let lastPiece = pieces.at(-1)
+        this.searchApis(lastPiece, this.$refs.subjectInput.value, this)
+        this.initialLoad = false
+      } else {
+        console.log("normal event: ", event)
       }
 
       // they are setting the type, next key inputed is important
@@ -1474,9 +1456,10 @@ export default {
         }
 
         this.nextInputIsTypeSelection = false
+        console.log("loop")
         this.subjectStringChanged()
 
-      }else{
+      } else {
         // its a normal keystroke not after '$' but check to see if it was a keyboard event
         // if not then event will be null and was just evoked from code, if its a event then they are typeing in a search value, clear out the old
         if (event){
@@ -1519,7 +1502,6 @@ export default {
         }
 
         this.components.push({
-
           label: ss,
           uri: uri,
           id: id,
@@ -1773,9 +1755,9 @@ export default {
 
 
     closeEditor: function(){
-
+      //after closing always open in `link` mode for consistency
+      this.subjectEditorMode = "link"
       this.$emit('hideSubjectModal', true)
-
     },
 
     checkToolBarHeight: function(){
@@ -1792,8 +1774,6 @@ export default {
 
 
     loadUserValue: function(userValue){
-      console.log("loadUserValue")
-
       // reset things if they might be opening this again for some reason
       this.components= []
       this.lookup= {}
@@ -2054,7 +2034,9 @@ export default {
         this.linkModeTextChange({key:'Enter',shiftKey:false})
 
         //Do the search for build mode
-        console.log("Update searching: ", this.subjectInput)
+        console.log("Update searching?: ", this.subjectInput)
+        console.log("Authority: ", this.authorityLookup)
+        console.log("AuthorityLocal: ", this.authorityLookupLocal)
         this.searchResults = this.searchApis(this.authorityLookupLocal, this.authorityLookupLocal, this)
 
         //Wait for the search results
@@ -2062,10 +2044,12 @@ export default {
         setTimeout(() => {
               //Make sure the search result that matche
               let list = null
-              if (this.isLiteral) {
-                list = this.searchResults.subjectsSimple
-              } else {
-                list = this.searchResults.subjectsComplex
+              if (this.searchResults != null){
+                if (this.isLiteral) {
+                  list = this.searchResults.subjectsSimple
+                } else {
+                  list = this.searchResults.subjectsComplex
+                }
               }
 
               //Select the context that matches the incoming value

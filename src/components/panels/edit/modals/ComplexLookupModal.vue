@@ -244,7 +244,7 @@
         this.activeContext = {
             "contextValue": true,
             "source": [],
-            "type": (toLoad.literal) ? "Literal Value" : null,
+            "type": (toLoad != null && toLoad.literal) ? "Literal Value" : null,
             "variant": [],
             "uri": (toLoad.literal) ? null : toLoad.uri,
             "title": toLoad.label,
