@@ -1315,7 +1315,7 @@ const utilsNetwork = {
 
       // the complex heading is just xyz--abc--mnl used to see if the full heading is already authorized
       let complexHeading = headings.map((r)=>{ return r.label }).join('--')
-      let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexHeading).replace('&count=25','&count=5')+'&rdftype=ComplexType'
+      let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexHeading).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
       let searchPayloadSubjectsComplex = {
         processor: 'lcAuthorities',
         url: [subjectUrlComplex],
@@ -1337,22 +1337,22 @@ const utilsNetwork = {
 
         // we'll define all this for each one but not nessisarly use all of them
 
-        let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
-        let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+        let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
+        let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
-        let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=SimpleType'
-        let subjectUrlSimpleSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
-        let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
-        let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=GenreForm'
+        let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=SimpleType'
+        let subjectUrlSimpleSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+        let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
+        let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
 
-        let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
-        let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
+        let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
+        let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
 
-        let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
-        let subjectUrlHierarchicalGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+ '&rdftype=HierarchicalGeographic'
+        let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
+        let subjectUrlHierarchicalGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+ '&rdftype=HierarchicalGeographic'
 
-        let subjectUrlGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
-        let subjectUrlGeographicLCNAF = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+        let subjectUrlGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+        let subjectUrlGeographicLCNAF = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
         // console.log('subjectUrlSimpleSubdivison',subjectUrlSimpleSubdivison)
         let searchPayloadNames = {
@@ -1912,27 +1912,27 @@ const utilsNetwork = {
 
       console.log(useConfigStore().lookupConfig)
 
-      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4')
-      let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5')+'&rdftype=ComplexType'
-      let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4')+'&rdftype=SimpleType'
+      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
+      let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
+      let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=SimpleType'
 
-      let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
-      let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
+      let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
+      let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
 
 
-      let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
-      let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5')
+      let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
+      let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
 
 
 
       let searchValHierarchicalGeographic = searchVal.replaceAll('‑','-') //.split(' ').join('--')
 
 
-      let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count=4')
+      let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count=4').replace("<OFFSET>", "1")
 
 
       if (mode == 'GEO'){
-        subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12')
+        subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
       }
 
 
@@ -2117,7 +2117,7 @@ const utilsNetwork = {
       })
       // .then(data => console.log(data)) // Manipulate the data retrieved back, if we want to do something with it
       .catch((err) => {
-       console.log(err)
+       console.log(err, " => ", url)
        alert("Error: Could not save the record!", err)
       }) // Do something with the error
      },
@@ -2401,7 +2401,7 @@ const utilsNetwork = {
 
     /**
     * Do Shelflisting search against BFDB
-    * 
+    *
     * @param {string} search - the call number to search for
     * @param {string} dir - asc or desc
     * @return {array} - results from API
@@ -2421,10 +2421,10 @@ const utilsNetwork = {
         this.num_letter_groupings = /(\d{1,})([A-Z]{1,})/ig;
         this.v_dot = /(v\s)(\d{1,})/ig;
         this.no_dot = /(no\s)(\d{1,})/ig;
-        
+
         //define and cache the padding lengths (max pad length is 9)
         this.cache = ['', ' ', '  ', '   ', '    ', '     ', '      ', '       ', '        ', '         '];
-        
+
         // alias the function name for returnNormLcCall
         this.normalize = this.returnNormLcCall;
       }
@@ -2436,7 +2436,7 @@ const utilsNetwork = {
         // this is our eventual return value
         var local_norm = '',
           test = [];
-        
+
         //~ TODO
         //~ get cataloging to fix issues with non-normalizing call numbers
         //~ so we don't have to use this hack.
@@ -2453,21 +2453,21 @@ const utilsNetwork = {
             test = [];
             return this.returnNormLcCall(new_callnumber_string);
           }
-              
+
         }
         catch (e){
           // console.log('undefined call number ' + e);
         }
         //~ /TODO
-        
+
         try{
           test = this.lc.exec(callnumber_string.toLowerCase());
         }
         catch (e){
           console.log('undefined call number ' + e);
         }
-        
-        // if input is not LC, return lower case, trimmed input string, 
+
+        // if input is not LC, return lower case, trimmed input string,
         // with certain characters removed
         if (test === null){
           console.log("\"" + callnumber_string + "\"" + " not lc");
@@ -2476,29 +2476,29 @@ const utilsNetwork = {
             .trim()
             .replace(/\/{1,}|-{1,}/gi, " "); //replaces "/" and "-" with spaces
         }
-        
-        // TODO : 
-        // remove try block?	
+
+        // TODO :
+        // remove try block?
         try {
           if(typeof test[1] !== "undefined"){
             local_norm = test[1];
           }
-          
+
           local_norm += this.leftPad(test[2],7-test[1].length);
-          
+
           // append the decimal, if there is one
           if(typeof test[3] !== "undefined"){
             local_norm += test[3];
           }
-          
+
           // remove any leading or trailing whitespace
           local_norm = local_norm.trim();
 
           // normalize the rest of the call number
           var call_number_remainder = "";
-          if (typeof test[4] !== 'undefined'){	
+          if (typeof test[4] !== 'undefined'){
             // step 4. i. convert any punctuation to spaces
-            // append letter+number groups with spaces 
+            // append letter+number groups with spaces
             // step 4. remove instances of multiple spaces, leaving only one
             // remove any trailing (or starting) whitespace
             call_number_remainder += test[4]
@@ -2506,63 +2506,63 @@ const utilsNetwork = {
               .replace(this.lett_num_group, "$1 ") //append spaces to letter+number groups
               .replace(this.num_letter_groupings, "$1 $2") //place space between numbers and letters occuring next to eachother
               .replace(/\s{2,}/g," "); //instances of 2 or more consecutive spaces are replaced by one
-            
-            
+
+
             // TODO :
             // consider removing the lastIndex for the following?
-            
+
             // pad out numbers occuring after "v." and "no."
             // note: this calls the helper function for replace "vol_pad()"
             call_number_remainder = call_number_remainder.replace(this.v_dot, this.vol_pad.bind(this));
             this.v_dot.lastIndex = 0;
-            
+
             call_number_remainder = call_number_remainder.replace(this.no_dot, this.vol_pad.bind(this));
             this.no_dot.lastIndex = 0;
-            
+
             // reset the lastIndex so the next regex exec doesn't fail on next try
             this.punctuation.lastIndex = 0;
-            
+
           }
-          
+
           // add a single space to the front of the call_number_remainder
           call_number_remainder = call_number_remainder.trim();
           call_number_remainder = " " + call_number_remainder;
-          
+
           //append the begining of the callnumber to the remainder of the call number
           local_norm += call_number_remainder;
-          
+
           //trim spaces from the end, or the begining of the string
           local_norm = local_norm.trim();
-          
+
         } //end try
-        
+
         catch (e){
           console.log(' no test ');
         }
-          
+
         // reset the lastIndex so the next regex exec doesn't fail on next try
         this.lc.lastIndex = 0;
-        
+
         return local_norm;
-        
-        
+
+
       } //end returnNormLcCall
 
 
       // locCallClass.localeCompare(b,a)
-      // replicates functionality of the normal compare function 
+      // replicates functionality of the normal compare function
       // so that it may be used in external sorting operations:
-      // 
-      // A negative number if the reference string (a) occurs before the 
-      // given string (b); 
-      // positive if the reference string (a) occurs after 
-      // the compare string (b); 
+      //
+      // A negative number if the reference string (a) occurs before the
+      // given string (b);
+      // positive if the reference string (a) occurs after
+      // the compare string (b);
       // 0 if they are equivalent.
       locCallClass.prototype.localeCompare = function (a, b) {
         try {
           var a_norm = this.returnNormLcCall(a),
             b_norm = this.returnNormLcCall(b);
-                  
+
             return ( a_norm < b_norm ? -1 : (a_norm > b_norm ? 1 : 0) );
         }
         catch (err) {
@@ -2571,7 +2571,7 @@ const utilsNetwork = {
       }
 
       // locCallClass.sortCallNumbers()
-      // takes an array of call numbers and returns a sorted array of call 
+      // takes an array of call numbers and returns a sorted array of call
       // numbers in their original format.
       // Using something like the following works to sort as well:
       // var loc = new locCallClass();
@@ -2582,14 +2582,14 @@ const utilsNetwork = {
         var sorted = callnumbers.sort(function (a,b) {
           return this.localeCompare(a,b);
         }.bind(this));
-        
+
         return sorted;
       }
 
       // locCallClass.isBetween(a,b,c)
       // returns true if a <= c <= b
       locCallClass.prototype.isBetween = function (a,b,c) {
-        //this.localeCompare(a, b) <= 0 if in sort order	
+        //this.localeCompare(a, b) <= 0 if in sort order
         return ( (this.localeCompare(a,c) <= 0 && this.localeCompare(c,b) <=0) ? true : false );
       }
 
@@ -2599,10 +2599,10 @@ const utilsNetwork = {
         string = string + '';
         pad_length = pad_length - string.length;
         // nothing to pad
-        if (pad_length <= 0) { 
+        if (pad_length <= 0) {
           return string;
         }
-        
+
         return this.cache[pad_length] + string;
       } // end leftPad
 
@@ -2649,7 +2649,7 @@ const utilsNetwork = {
           return loc.localeCompare(a,b)
         });
         console.log('toSort after',toSort);
-        
+
         let previousL = null
         for (let l of toSort){
           if (l == search){
@@ -2666,7 +2666,7 @@ const utilsNetwork = {
           if (r.term == previousL){
             break
           }
-          
+
         }
         console.log('index',index)
 
