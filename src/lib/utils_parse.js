@@ -32,27 +32,21 @@ const utilsParse = {
     
     // just testing a few name spaces here
     if (uri.match(/bf:[A-Z]/)){
-      console.log('T',uri)
       return true
     }
     if (uri.match(/bflc:[A-Z]/)){
-      console.log('T',uri)
       return true
     }
     if (uri.match(/madsrdf:[A-Z]/)){
-      console.log('T',uri)
       return true
     }
     if (uri.match(/rdfs:[A-Z]/)){
-      console.log('T',uri)
       return true
     }
     if (uri.match(/rdf:[A-Z]/)){
-      console.log('T',uri)
       return true
     }
     if (uri.match(/lclocal:[A-Z]/)){
-      console.log('T',uri)
       return true
     }
 
