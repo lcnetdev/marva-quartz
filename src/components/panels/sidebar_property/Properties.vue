@@ -11,7 +11,12 @@
   export default {
     data() {
       return {
-        
+        hideProps:[
+          //'http://id.loc.gov/ontologies/bibframe/hasInstance',
+          //'http://id.loc.gov/ontologies/bibframe/instanceOf',
+          'http://id.loc.gov/ontologies/bibframe/hasItem'
+        ]
+
       }
     },
     components: {
@@ -47,7 +52,7 @@
                   titles.push(this.rtLookup[t].resourceLabel)
               }
           }
-          
+
           return titles
 
 
@@ -58,7 +63,7 @@
     },
 
     mounted() {
-     
+
 
 
     }
@@ -71,7 +76,7 @@
 <template>
 
   <template  v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-accordion') == true">
-    
+
 
     <AccordionList  :open-multiple-items="false">
 
@@ -82,7 +87,7 @@
         <template v-if="activeProfile.rt[profileName].noData != true">
                 <AccordionItem style="color: white;" :id="'accordion_'+profileName" default-closed>
                   <template #summary>
-                            
+
                     <div :class="{'container-type-icon': true }">
                             <svg v-if="profileName.split(':').slice(-1)[0] == 'Work'" width="1.5em" height="1.1em" version="1.1" xmlns="http://www.w3.org/2000/svg">
                               <circle :fill="preferenceStore.returnValue('--c-general-icon-work-color')" cx="0.55em" cy="0.6em" r="0.45em"/>
@@ -95,7 +100,7 @@
                             </svg>
                             <svg  v-if="profileName.endsWith(':Hub')" version="1.1" viewBox="0 -20 100 100" xmlns="http://www.w3.org/2000/svg">
                               <path fill="royalblue" d="m62.113 24.66 1.9023-15.238 18.875 32.691-7.5469 20.004 15.238 1.9023-32.691 18.875-20.004-7.5469-1.9023 15.238-18.875-32.691 7.5469-20.004-15.238-1.9023 32.691-18.875zm-17.684 15.695-4.0781 15.215 15.215 4.0781 4.0781-15.215z" fill-rule="evenodd"/>
-                            </svg>                        
+                            </svg>
                             <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Work'">{{$t("message.wordWork")}}</span>
                             <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0].indexOf('Instance') > -1">
                               <template v-if="activeProfile.rt[profileName]['@type'] && activeProfile.rt[profileName]['@type'] == 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'">Secondary</template>
@@ -113,14 +118,14 @@
 
 
 
-                          <draggable 
-                            v-model="activeProfile.rt[profileName].ptOrder" 
-                            group="people" 
-                            @start="drag=true" 
-                            @end="drag=false" 
+                          <draggable
+                            v-model="activeProfile.rt[profileName].ptOrder"
+                            group="people"
+                            @start="drag=true"
+                            @end="drag=false"
                             item-key="id">
                             <template #item="{element}">
-                              <template v-if="!activeProfile.rt[profileName].pt[element].deleted">
+                              <template v-if="!activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI)">
                                 <li @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-li sidebar-property-li-empty">
                                   <a href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
@@ -133,8 +138,8 @@
                                               <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}</a>
                                             </li>
                                         </ul>
-                                    </template>              
-                                  </template>                               
+                                    </template>
+                                  </template>
                                 </li>
                               </template>
                              </template>
@@ -144,7 +149,7 @@
 
 
 
-<!-- 
+<!--
 
                           <li v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" @click.stop="activeComponent = activeProfile.rt[profileName].pt[profileCompoent]" :key="profileCompoent" class="sidebar-property-li sidebar-property-li-empty" >
                                 <a href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[profileCompoent]" class="sidebar-property-ul-alink">
@@ -158,7 +163,7 @@
                                             <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}</a>
                                           </li>
                                       </ul>
-                                  </template>              
+                                  </template>
                                 </template>
                         </li> -->
 
@@ -167,7 +172,7 @@
                     </ul>
 
 
-                  
+
                 </AccordionItem>
 
 
@@ -184,7 +189,7 @@
 
   </template>
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-accordion') == false">
-      
+
     <div v-for="profileName in activeProfile.rtOrder" class="sidebar" :key="profileName">
 
       <div v-if="activeProfile.rt[profileName].noData != true">
@@ -200,7 +205,7 @@
                   </svg>
                   <svg  v-if="profileName.endsWith(':Hub')" version="1.1" viewBox="0 -20 100 100" xmlns="http://www.w3.org/2000/svg">
                     <path fill="royalblue" d="m62.113 24.66 1.9023-15.238 18.875 32.691-7.5469 20.004 15.238 1.9023-32.691 18.875-20.004-7.5469-1.9023 15.238-18.875-32.691 7.5469-20.004-15.238-1.9023 32.691-18.875zm-17.684 15.695-4.0781 15.215 15.215 4.0781 4.0781-15.215z" fill-rule="evenodd"/>
-                  </svg>                        
+                  </svg>
                   <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Work'">{{$t("message.wordWork")}}</span>
                   <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Instance'">{{$t("message.wordInstance")}}</span>
                   <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Item'">{{$t("message.wordItem")}}</span>
@@ -209,14 +214,14 @@
 
           <ul class="sidebar-property-ul" role="list">
 
-                          <draggable 
-                            v-model="activeProfile.rt[profileName].ptOrder" 
-                            group="people" 
-                            @start="drag=true" 
-                            @end="drag=false" 
+                          <draggable
+                            v-model="activeProfile.rt[profileName].ptOrder"
+                            group="people"
+                            @start="drag=true"
+                            @end="drag=false"
                             item-key="id">
                             <template #item="{element}">
-                              
+
                               <li @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-li sidebar-property-li-empty">
 
                                 <a href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-ul-alink">
@@ -230,8 +235,8 @@
                                             <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}</a>
                                           </li>
                                       </ul>
-                                  </template>              
-                                </template>                               
+                                  </template>
+                                </template>
                               </li>
                              </template>
                           </draggable>
@@ -252,7 +257,7 @@
                                 <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}</a>
                               </li>
                           </ul>
-                      </template>              
+                      </template>
                     </template>
             </li>
  -->
@@ -304,7 +309,7 @@
     justify-content: space-between;
     align-items: center;
 
-    
+
     line-height: 24px;
     transition: color 300ms ease-in-out;
 
@@ -356,14 +361,14 @@
 
 
 .container-type-icon{
-  color: #ffffff; 
-  width: inherit; 
-  text-align: left;  
+  color: #ffffff;
+  width: inherit;
+  text-align: left;
   display: flex;
 }
 
 
-.sidebar-header-text{  
+.sidebar-header-text{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-properties-font-size', true) + 0.25  + 'em'");
   font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-font-family')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-font-color')") !important;

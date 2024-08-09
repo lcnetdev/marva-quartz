@@ -1,7 +1,7 @@
 <template>
 
-  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true"> 
-      
+  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true">
+
       <div style="text-align: right;">
         <button @click="userActiveResourceName = profileName" v-for="profileName in this.activeProfile.rtOrder" :class="{'activeResourceButton': (activeResourceName === profileName)}">
           {{profileName.split(':').slice(-1)[0]}}
@@ -10,8 +10,8 @@
 
   </template>
 
-  <div 
-    v-for="profileName in this.activeProfile.rtOrder" 
+  <div
+    v-for="profileName in this.activeProfile.rtOrder"
     :key="profileName"
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
 
@@ -20,20 +20,20 @@
 
         <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
-          <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" 
+          <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
               :key="profileCompoent">
 
 
-            <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false"> 
+            <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
               <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
-              
-              <Main       
-                :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
+
+              <Main
+                :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
                 :level="0"
                 :id="activeProfile.rt[profileName].pt[profileCompoent].id"
                 :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
-                :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"/>   
+                :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"/>
 
             </template>
 
@@ -42,18 +42,18 @@
 
       </template>
       <template v-if="instanceMode == false">
-        
+
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
 
           <template v-if="!hideProps.includes(activeProfile.rt[profileName].pt[profileCompoent].propertyURI)">
-          
-            <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false"> 
+
+            <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
               <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
                 <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
 
-                 
+
                   <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
 
 
@@ -61,8 +61,8 @@
                     <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false ">
                       <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                         <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
-                        
-                        
+
+
                       </div>
                     </template>
 
@@ -70,24 +70,24 @@
                       <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
                       <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
                       <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
-                      
-                      
+
+
                     </template>
 
 
-                    <Main       
-                      :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" 
+                    <Main
+                      :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
                       :level="0"
                       :id="activeProfile.rt[profileName].pt[profileCompoent].id"
                       :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
-                      :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"/>   
+                      :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"/>
 
-                
+
 
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
-                          <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />  
+                          <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                         </template>
-                        
+
                     </div>
                   </template>
                 </template>
@@ -142,9 +142,9 @@
           'http://id.loc.gov/ontologies/bibframe/instanceOf',
           'http://id.loc.gov/ontologies/bibframe/hasItem'
         ]
-        
+
       }
-    },    
+    },
     computed: {
       // other computed properties
       // ...
@@ -153,7 +153,7 @@
 
 
       ...mapState(usePreferenceStore, ['styleDefault']),
-      
+
       // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent']),
@@ -179,8 +179,8 @@
 
         showDebug: function(event,data){
 
-          
-          this.debugModalData= this.profileStore.returnStructureByComponentGuid(data['@guid']); 
+
+          this.debugModalData= this.profileStore.returnStructureByComponentGuid(data['@guid']);
           this.showDebugModal=true
 
           event.preventDefault()
@@ -220,7 +220,7 @@
 
       activeComponent(newVal){
 
-        
+
 
             this.$nextTick(() => {
               window.setTimeout(()=> {
@@ -240,7 +240,7 @@
                 },500);
 
 
-              },10);             
+              },10);
             });
 
 
