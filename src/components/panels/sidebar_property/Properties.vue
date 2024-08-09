@@ -12,8 +12,8 @@
     data() {
       return {
         hideProps:[
-          'http://id.loc.gov/ontologies/bibframe/hasInstance',
-          'http://id.loc.gov/ontologies/bibframe/instanceOf',
+          //'http://id.loc.gov/ontologies/bibframe/hasInstance',
+          //'http://id.loc.gov/ontologies/bibframe/instanceOf',
           'http://id.loc.gov/ontologies/bibframe/hasItem'
         ]
 
