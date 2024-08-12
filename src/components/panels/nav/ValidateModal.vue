@@ -194,6 +194,7 @@
     font-size: 1.5em;
   }
 
+  .level-INFO,
   .level-SUCCESS,
   .level-WARNING,
   .level-ERROR{
@@ -217,5 +218,11 @@
     color: #155724;
     background-color: #d4edda;
     border-color: #c3e6cb;
+  }
+
+  .level-INFO {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
   }
 </style>
