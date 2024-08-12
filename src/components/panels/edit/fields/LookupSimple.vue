@@ -595,7 +595,7 @@ export default {
 
           if (this.uri.includes('id.loc.gov/vocabulary/')){
 
-            if (this.activeFilter.length>3){
+            if (this.activeFilter.length>2){
 
               this.displayList.push('Searching...')
 
