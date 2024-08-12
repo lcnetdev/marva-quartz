@@ -70,8 +70,16 @@
                       <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
                     </template>
 
-
+                    <!-- index == -1 means it's the work, so just add the work -->
                     <Main v-if="profileName.indexOf(':Instance') == -1"
+                      :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
+                      :level="0"
+                      :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+                      :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
+                      :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
+
+                    <!-- If it's not in dual mode add the instances too -->
+                    <Main v-if="this.dualEdit == false && profileName.indexOf(':Instance') > -1"
                       :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
                       :level="0"
                       :id="activeProfile.rt[profileName].pt[profileCompoent].id"
@@ -128,6 +136,7 @@
     props: {
 
       instanceMode: Boolean,
+      dualEdit: Boolean,
 
     },
     data() {
@@ -248,6 +257,7 @@
 
 
     mounted: function(){
+      console.info("mounted: ", this.instanceMode)
     }
 
   }

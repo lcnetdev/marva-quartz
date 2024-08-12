@@ -24,13 +24,13 @@
           <pane
             :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}"
             :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
-            <EditPanel :instanceMode="false"/>
+            <EditPanel :instanceMode="false" :dualEdit="true" />
           </pane>
 
           <pane
             :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}"
             :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
-            <EditPanel :instanceMode="true"/>
+            <EditPanel :instanceMode="true" :dualEdit="true"/>
           </pane>
 
 
@@ -43,7 +43,7 @@
               :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}"
               :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
 
-              <EditPanel :key="test" :instanceMode="false"/>
+              <EditPanel :key="test" :instanceMode="false" :dualEdit="false"/>
             </pane>
 
 
