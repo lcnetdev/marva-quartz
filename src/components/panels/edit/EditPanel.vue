@@ -13,7 +13,7 @@
   <div
     v-for="profileName in this.activeProfile.rtOrder"
     :key="profileName"
-    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
+    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
 
 
       <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
@@ -311,6 +311,10 @@
 
 .edit-panel-work{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')") !important;
+}
+
+.edit-panel-instance{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')") !important;
 }
 
 .component-label{

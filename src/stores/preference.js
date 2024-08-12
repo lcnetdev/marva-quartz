@@ -27,7 +27,7 @@ export const usePreferenceStore = defineStore('preference', {
     showLoginModal: false,
 
     fontFamilies: ['Avenir, Helvetica, Arial, sans-serif','serif','sans-serif','monospace','cursive','fantasy','system-ui','ui-serif','ui-sans-serif','ui-monospace','ui-rounded'],
-   
+
 
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
@@ -235,7 +235,7 @@ export const usePreferenceStore = defineStore('preference', {
           type: 'color',
           group: 'Sidebars - OPAC',
           range: null
-      },      
+      },
       '--b-edit-main-splitpane-opac-no-scrollbar' : {
           desc: 'Do not display a scroll bar in the opac preview side panel.',
           descShort: 'No Scrollbar',
@@ -248,7 +248,7 @@ export const usePreferenceStore = defineStore('preference', {
 
 
 
-      
+
       // the edit panel
 
       '--n-edit-main-splitpane-edit-width' : {
@@ -601,8 +601,8 @@ export const usePreferenceStore = defineStore('preference', {
           range: null
       },
       '--c-general-icon-work-color' : {
-          desc: 'The color of the instance icon.',
-          descShort: 'Instance icon color',
+          desc: 'The color of the work icon.',
+          descShort: 'Work icon color',
           value: '#7badad',
           type: 'color',
           unit: null,
@@ -633,15 +633,15 @@ export const usePreferenceStore = defineStore('preference', {
 
   getters: {
 
-    
+
     returnUserNameForSaving: function(){
       return `${this.catInitals} (${this.catCode})`
     },
     returnUserNameForPosting: function(){
       return this.catCode
     },
-    
-   
+
+
 
 
   },
@@ -649,8 +649,8 @@ export const usePreferenceStore = defineStore('preference', {
 
     /**
     * Setup the preference store, access settings stored in localstorage, etc.
-    * @return {void} - 
-    */ 
+    * @return {void} -
+    */
     initalize: function(){
 
       // check to see if we have the settings locally we can populate
@@ -659,21 +659,21 @@ export const usePreferenceStore = defineStore('preference', {
       }
       if (window.localStorage.getItem('marva-catCode')){
         this.catCode = window.localStorage.getItem('marva-catCode')
-      }    
+      }
       if (window.localStorage.getItem('marva-scriptShifterOptions')){
         this.scriptShifterOptions = JSON.parse(window.localStorage.getItem('marva-scriptShifterOptions'))
-      }    
+      }
 
       this.styleDefaultOrginal = JSON.parse(JSON.stringify(this.styleDefault))
       this.panelDisplayOrginal = JSON.parse(JSON.stringify(this.panelDisplay))
       this.loadPreferences()
-      
-        // fetch(this.configStore.returnUrls.scriptshifter + 'languages', { 
+
+        // fetch(this.configStore.returnUrls.scriptshifter + 'languages', {
         //   method: 'GET'
         // })
         // .then((response) => { return response.json(); })
         // .then((json) => {
-          
+
         //   for (let k in json){
 
         //     json[k].s2r = false
@@ -685,15 +685,15 @@ export const usePreferenceStore = defineStore('preference', {
         //       }
         //       if (this.scriptShifterOptions[k].r2s){
         //         json[k].r2s = true
-        //       }              
+        //       }
         //     }
 
         //   }
-          
+
         //   this.allScriptShifterOptions = json
 
-          
-          
+
+
 
         // });
 
@@ -705,32 +705,32 @@ export const usePreferenceStore = defineStore('preference', {
     },
     /**
     * Saves the current settings to be reused later
-    * @return {void} 
-    */  
+    * @return {void}
+    */
     savePreferences: function(){
       let bfPrefs = {
         styleDefault: this.styleDefault,
         panelDisplay: this.panelDisplay
       }
       let prefs = JSON.stringify(bfPrefs)
-      window.localStorage.setItem('marva-preferences',prefs)  
+      window.localStorage.setItem('marva-preferences',prefs)
     },
     /**
     * Loads the saved preferences into the current preferences
-    * @return {void} 
-    */  
-    loadPreferences: function(){      
+    * @return {void}
+    */
+    loadPreferences: function(){
       if (window.localStorage.getItem('marva-preferences')){
         let prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
         this.styleDefault = prefs.styleDefault
         this.panelDisplay = prefs.panelDisplay
-      }  
+      }
     },
     /**
     * Changes the preferences back to the default values
-    * @return {void} 
-    */  
-    resetPreferences: function(){      
+    * @return {void}
+    */
+    resetPreferences: function(){
       this.styleDefault = this.styleDefaultOrginal
       this.panelDisplay = this.panelDisplayOrginal
       this.savePreferences()
@@ -742,7 +742,7 @@ export const usePreferenceStore = defineStore('preference', {
     * @param {string} propertyName - the name of the styleDefault to send
     * @param {boolean} excludeUnitType - if true do not include the unit in the reply if present
     * @return {string|number} - The value of the property
-    */  
+    */
     returnValue: function(propertyName,excludeUnitType){
       if (!this.styleDefault[propertyName]){
         console.warn("Trying to return", propertyName, ' but does not exist.')
@@ -754,7 +754,7 @@ export const usePreferenceStore = defineStore('preference', {
       }else if (this.styleDefault[propertyName].unit){
         return this.styleDefault[propertyName].value + this.styleDefault[propertyName].unit
       }else{
-        return this.styleDefault[propertyName].value      
+        return this.styleDefault[propertyName].value
       }
     },
 
@@ -764,7 +764,7 @@ export const usePreferenceStore = defineStore('preference', {
     * @param {string} propertyName - the name of the styleDefault to send
     * @param {string|number} value - the value to use
     * @return {boolean} - Did it work
-    */  
+    */
     setValue: function(propertyName,value){
       if (!this.styleDefault[propertyName]){
         console.warn("Trying to return", propertyName, ' but does not exist.')
@@ -779,39 +779,39 @@ export const usePreferenceStore = defineStore('preference', {
     /**
     * Dispalys the debug modal
     * @return {void}
-    */  
+    */
     togglePrefModal: function(){
       if (this.showDebugModal){
         this.showDebugModal = false
       }else{
-        
-        this.showDebugModal = true    
+
+        this.showDebugModal = true
       }
     },
 
     /**
     * Dispalys the preference modal
-    * @param {string} group - the name of option group to dispay in the preference modal    
+    * @param {string} group - the name of option group to dispay in the preference modal
     * @return {void}
-    */  
+    */
     togglePrefModal: function(group){
       if (this.showPrefModal){
         this.showPrefModal = false
       }else{
-        
+
         if (group){
-          this.showPrefModalGroup = group    
+          this.showPrefModalGroup = group
         }
-        this.showPrefModal = true    
+        this.showPrefModal = true
       }
 
     },
 
     /**
     * Set showPrefModalGroup
-    * @param {string} group - the name of option group to dispay in the preference modal    
+    * @param {string} group - the name of option group to dispay in the preference modal
     * @return {void}
-    */  
+    */
     setShowPrefModalGroup: function(group){
       this.showPrefModalGroup = group
     },
@@ -820,12 +820,12 @@ export const usePreferenceStore = defineStore('preference', {
     * Truns a panel on or off
     * @param {string} panel - the name of the panel to toggle
     * @return {void}
-    */  
+    */
     togglePanel: function(panel){
       if (this.panelDisplay[panel]){
         this.panelDisplay[panel] = false
       }else{
-        this.panelDisplay[panel] = true    
+        this.panelDisplay[panel] = true
       }
       console.log(this.panelDisplay)
       console.log(this.panelDisplay.properties)
@@ -840,20 +840,20 @@ export const usePreferenceStore = defineStore('preference', {
     * Take a url and rewrites it to match the url pattern of the current enviornment
     * @param {string} url - the url to modfidfy
     * @return {string} - the url modified to the match the env
-    */   
+    */
     // convertToRegionUrl(url) {
     //   let urls = this.returnUrls
     //   if ((url.includes('/works/') || url.includes('/instances/') || url.includes('/items/') || url.includes('/hubs/') ) && url.includes('http://id.loc.gov') ){
     //     url = url.replace('http://id.loc.gov/',urls.bfdb)
-    //   }    
+    //   }
     //   return url
     // }
 
 
   },
 
-  
-  
+
+
 
 
 })
