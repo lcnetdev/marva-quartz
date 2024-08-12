@@ -257,7 +257,6 @@
 
 
     mounted: function(){
-      console.info("mounted: ", this.instanceMode)
     }
 
   }
