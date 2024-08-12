@@ -58,11 +58,9 @@
 
 
 
-                    <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false ">
+                    <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && profileName.indexOf(':Instance') == -1">
                       <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                         <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
-
-
                       </div>
                     </template>
 
@@ -70,17 +68,23 @@
                       <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
                       <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
                       <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
-
-
                     </template>
 
-
-                    <Main
+                    <!-- index == -1 means it's the work, so just add the work -->
+                    <Main v-if="profileName.indexOf(':Instance') == -1"
                       :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
                       :level="0"
                       :id="activeProfile.rt[profileName].pt[profileCompoent].id"
                       :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
-                      :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"/>
+                      :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
+
+                    <!-- If it's not in dual mode add the instances too -->
+                    <Main v-if="this.dualEdit == false && profileName.indexOf(':Instance') > -1"
+                      :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
+                      :level="0"
+                      :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+                      :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
+                      :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
 
 
 
@@ -132,6 +136,7 @@
     props: {
 
       instanceMode: Boolean,
+      dualEdit: Boolean,
 
     },
     data() {
@@ -252,7 +257,6 @@
 
 
     mounted: function(){
-
     }
 
   }
