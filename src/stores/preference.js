@@ -795,6 +795,7 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {void}
     */
     togglePrefModal: function(group){
+      console.info("toggle prefModal: ", group)
       if (this.showPrefModal){
         this.showPrefModal = false
       }else{
