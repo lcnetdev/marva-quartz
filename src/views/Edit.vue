@@ -7,28 +7,28 @@
     </pane>
 
 
-    <pane> 
+    <pane>
 
       <splitpanes>
         <pane  v-if="panelDisplay.properties"
-          :class="{'edit-main-splitpane-properties': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-properties-no-scrollbar')}" 
-          :size="preferenceStore.returnValue('--n-edit-main-splitpane-properties-width')" 
+          :class="{'edit-main-splitpane-properties': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-properties-no-scrollbar')}"
+          :size="preferenceStore.returnValue('--n-edit-main-splitpane-properties-width')"
           min-size="5">
           <Properties/>
-          
+
         </pane>
-     
+
 
         <template v-if="panelDisplay.dualEdit">
 
-          <pane 
-            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}" 
+          <pane
+            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}"
             :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
             <EditPanel :instanceMode="false"/>
           </pane>
-       
-          <pane 
-            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}" 
+
+          <pane
+            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}"
             :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
             <EditPanel :instanceMode="true"/>
           </pane>
@@ -38,9 +38,9 @@
 
         </template>
         <template v-else>
-          
-            <pane 
-              :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}" 
+
+            <pane
+              :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}"
               :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
 
               <EditPanel :key="test" :instanceMode="false"/>
@@ -51,28 +51,28 @@
 
 
         <pane v-if="panelDisplay.opac"
-          :class="{'edit-main-splitpane-opac': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}" 
-          :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')" 
+          :class="{'edit-main-splitpane-opac': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}"
+          :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')"
         >
           <Opac/>
         </pane>
 
         <pane v-if="panelDisplay.xml"
-          :class="{'edit-main-splitpane-xml': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}" 
-          :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')" 
+          :class="{'edit-main-splitpane-xml': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}"
+          :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')"
         >
           <Xml/>
 
         </pane>
         <pane v-if="panelDisplay.marc"
-          :class="{'edit-main-splitpane-marc': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}" 
-          :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')" 
+          :class="{'edit-main-splitpane-marc': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}"
+          :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')"
         >
           <Marc/>
 
         </pane>
 
-        
+
 
 
       </splitpanes>
@@ -87,7 +87,7 @@
   <template v-if="literalLangShow!==false">
     <LiteralLang v-model="literalLangShow" />
   </template>
-  
+
 
   </splitpanes>
 
@@ -102,7 +102,7 @@
   import { usePreferenceStore } from '@/stores/preference'
   import { useProfileStore } from '@/stores/profile'
 
-  
+
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
   import utilsProfile from '@/lib/utils_profile';
@@ -117,18 +117,18 @@
   import Marc from "@/components/panels/sidebar_preview_marc/Marc.vue";
   import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
 
-  
+
 
   export default {
     components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc, LiteralLang },
 
-    
+
     data() {
       return {
 
         test: 1,
         profileLoadedTimer: null,
-        
+
       }
     },
     computed: {
@@ -139,7 +139,7 @@
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
       ...mapState(useProfileStore, ['profilesLoaded','activeProfileSaved']),
 
-      
+
       ...mapWritableState(usePreferenceStore, ['showDebugModal']),
 
       ...mapWritableState(useProfileStore, ['literalLangGuid','literalLangShow','activeProfile']),
@@ -169,8 +169,8 @@
           event.preventDefault()
           return false
         }
-        
-      }      
+
+      }
 
 
 
@@ -191,7 +191,7 @@
           // otherwise they just got kicked over to the edit screen with an existing record id, load it from the back end to edit
           this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
         }
-        
+
       }
 
 
@@ -207,7 +207,7 @@
 
 
       // },100)
-      
+
       // if (this.profilesLoaded){
       //   console.log('this.activeProfile', this.activeProfile)
       //   this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
@@ -224,7 +224,7 @@
       // this.profileStore.$subscribe(async (mutation, state)=>{
       //   console.log(state.profilesLoaded, Object.keys(state.activeProfile).length)
 
-      //   if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){  
+      //   if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){
       //     // the profilesLoaded flipped and there is no active profile, so load the data
       //     this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
       //   }else{
@@ -238,8 +238,8 @@
 
       window.addEventListener('beforeunload', this.confirmLeaving)
 
-      
-      
+
+
 
     },
 
@@ -252,7 +252,7 @@
         } else {
           next(false)
         }
-        
+
       }else{
         next()
       }
@@ -266,7 +266,7 @@
 .splitpanes--horizontal > .splitpanes__splitter {
   min-height: 2px;
   max-height: 2px;
-  height: 2px; 
+  height: 2px;
   background-color: black !important;
 
 }
@@ -285,7 +285,7 @@
 
 .header{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-background-color')") !important;
-  
+
 }
 
 .edit-main-splitpane-properties{
@@ -297,19 +297,19 @@
 .edit-main-splitpane-opac{
     height: 100%;
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')") !important;
-    
+
     overflow-y: scroll;
 }
 .edit-main-splitpane-xml{
     height: 100%;
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')") !important;
-    
+
     overflow-y: scroll;
 }
 .edit-main-splitpane-marc{
     height: 100%;
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')") !important;
-    
+
     overflow-y: scroll;
 }
 
