@@ -214,6 +214,31 @@ const utilsParse = {
     }
   },
 
+  /**
+  * Takes the XML marks any bf:relation properties with hints to use in the parsing of it
+  * 
+  * @param {Node} xml - the XML payload
+  * @return {Node}
+  */
+  sniffWorkRelationType(xml){
+    for (let child of xml.children){ 
+      if (child.tagName == 'bf:relation'){
+       if (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+       } else if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')        
+       } else if (child.innerHTML.indexOf("bf:Hub")>-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
+       } else if (child.innerHTML.indexOf("bf:Work")>-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+       }else{
+          // leave blank? 
+        }
+      }
+    }
+    return xml
+  },  
+
 
   specialTransforms: {
     // not currently used
@@ -390,9 +415,18 @@ const utilsParse = {
       }
 
 
+      // some more optional xml enrichment here to help the process
+      // first try to give hints to which PT to use based on some rules we are using at LC
+      if (tle == "bf:Work"){
+        xml = this.sniffWorkRelationType(xml)
+      }
+      
+
+
+
+
       let sucessfulProperties  = []
       let sucessfulElements  = []
-
       // at this point we have the main piece of the xml tree that has all our data
       // loop through properties we are looking for and build out the the profile
       for (let k in pt){
@@ -409,11 +443,49 @@ const utilsParse = {
         let propertyURI = ptk.propertyURI
         let prefixURI = this.namespaceUri(propertyURI)
 
-        // we only want top level elements, not nested things like dupe notes etc.
+        // we only want top level elements, not nested things like dupe notes etc.                
         let el = []
         for (let e of xml.children){
           if (this.UriNamespace(e.tagName) == propertyURI){
-            el.push(e)
+
+            // if it has a hint then we need to check if we can find the right pt for it
+            if (e.attributes['local:pthint'] && e.attributes['local:pthint'].value){              
+              // check to see if this pt has that hint value in the valueConstraint  valueTemplateRefs
+              if (ptk.valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
+                // it matches, so use this one for sure
+                el.push(e)
+              }else{
+                // if it doesn't match that might mean there is a better match further in the pts or it could mean it will never match
+                // so look ahead and see, if there is a better match don't add it now and leave this el for that future pt
+                let foundPtToUse = false
+                for (let kCheck in pt){                  
+                  if (pt[kCheck].valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
+                    // console.log("found a place for you in the future :)")
+                    // console.log("here",pt[kCheck])
+                    foundPtToUse = true
+                  }
+                }
+
+                if (foundPtToUse){
+                  // jump to the next el this one will get grabbed by the one it is suppose to use
+                  continue
+                }else{
+                  // we did not find a place to put this el, so we need to add it here 
+                  el.push(e)                                    
+                }
+
+              }
+              
+              
+
+
+            }else{
+              // just add it normally
+              el.push(e)
+
+            }
+
+
           }
         }
         

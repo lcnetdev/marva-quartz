@@ -2107,11 +2107,11 @@ const utilsNetwork = {
         },
         body: xml // We send data in JSON format
       }
-      console.log(putMethod)
+      // console.log(putMethod)
       let url = useConfigStore().returnUrls.ldpjs +'ldp/' + eId
 
       await fetch(url, putMethod)
-      .then(response => console.log(response.text))
+      .then(response => response.text())
       .then((responseText)=>{
         // console.log(responseText)
       })

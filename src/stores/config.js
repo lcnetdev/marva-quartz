@@ -23,8 +23,8 @@ export const useConfigStore = defineStore('config', {
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
         starting: 'http://localhost:9401/util/profiles/starting/prod',
 
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
 
 
 
@@ -212,7 +212,7 @@ export const useConfigStore = defineStore('config', {
   testData:[
     {lccn:'2001059208',label:"The knitter's handy book of patterns: basic designs in multiple sizes & gauges", idUrl:'https://id.loc.gov/resources/instances/12618072.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
     {lccn:'2021375840',label:"Schooling under control", idUrl:'https://id.loc.gov/resources/instances/21910923.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
-
+    
     {lccn:'2024591512',label:"The Berkshires, Massachusetts discovery map 2022-2023", idUrl:'https://id.loc.gov/resources/instances/23486403.html', profile:'Cartographic',profileId:'lc:RT:bf2:Cartographic:Instance'},
     {lccn:'2016627557',label:"Wallflower", idUrl:'https://id.loc.gov/resources/instances/2016627557.html', profile:'Audio CD',profileId:'lc:RT:bf2:SoundRecording:Instance'},
 
@@ -278,20 +278,9 @@ export const useConfigStore = defineStore('config', {
           'NAF Conference Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=25&offset=<OFFSET>"}
         }
       ]
-    },
 
-    "http://id.loc.gov/authorities/geographics" : {
-			"name":"geographics",
-			"type":"complex",
-			"processor" : 'lcAuthorities',
-			"modes":[
-				{
-					'LCNAF Geographic':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&count=25"},
-					'LCSH Geographic':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&count=25"},
-					'GACS':{"url":"https://id.loc.gov/vocabulary/geographicAreas/suggest2/?q=<QUERY>&rdftype=Geographic&count=25"},
-				}
-			]
-		},
+
+    },
 
 
     "http://id.loc.gov/authorities/performanceMediums" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
