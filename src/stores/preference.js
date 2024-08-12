@@ -210,7 +210,7 @@ export const usePreferenceStore = defineStore('preference', {
       },
 
       '--n-edit-main-splitpane-opac-font-size' : {
-          desc: 'The fontsize of the text in the property list side bar.',
+          desc: 'The fontsize of the text in the opac view side bar.',
           descShort: 'Font Size',
           value: 1,
           step: 0.01,
@@ -221,7 +221,7 @@ export const usePreferenceStore = defineStore('preference', {
       },
       '--c-edit-main-splitpane-opac-font-family' : {
           value:'Avenir, Helvetica, Arial, sans-serif',
-          desc: 'The font of the text in the property list.',
+          desc: 'The font of the text in the opac view.',
           descShort: 'Font',
           type: 'font',
           group: 'Sidebars - OPAC',
@@ -230,7 +230,7 @@ export const usePreferenceStore = defineStore('preference', {
 
       '--c-edit-main-splitpane-opac-font-color' : {
           value:'#202124',
-          desc: 'The font color of the text in the property list.',
+          desc: 'The font color of the text in the opac view.',
           descShort: 'Text Color',
           type: 'color',
           group: 'Sidebars - OPAC',
@@ -766,6 +766,8 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {boolean} - Did it work
     */
     setValue: function(propertyName,value){
+      console.info("twice?")
+      console.info("Setting the value of ", propertyName, " to ", value)
       if (!this.styleDefault[propertyName]){
         console.warn("Trying to return", propertyName, ' but does not exist.')
         return false
