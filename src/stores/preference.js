@@ -766,10 +766,7 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {boolean} - Did it work
     */
     setValue: function(propertyName,value){
-      console.info("twice?")
-      console.info("Setting the value of ", propertyName, " to ", value)
       if (!this.styleDefault[propertyName]){
-        console.warn("Trying to return", propertyName, ' but does not exist.')
         return false
       }
 
@@ -797,7 +794,6 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {void}
     */
     togglePrefModal: function(group){
-      console.info("toggle prefModal: ", group)
       if (this.showPrefModal){
         this.showPrefModal = false
       }else{

@@ -95,7 +95,11 @@
 
 
         loadPrefGroup: function(event){
-          console.info("################################################ ", event)
+          // properties for the OPAC and properties panel where interacting with each other
+          // Clear the values s
+          this.rangeValue = {}
+          this.fontValue = {}
+          this.booleanValue = {}
 
           if (event){
             this.preferenceStore.setShowPrefModalGroup(event.target.value)
@@ -111,8 +115,7 @@
             if (this.styleDefault[k].group == this.showPrefModalGroup){
               let o = Object.assign({},this.styleDefault[k])
               o.id = k
-              console.info(o.id)
-              console.info(o.value)
+
               if (o.type == 'number'){
                 this.rangeValue[o.id] = o.value
               }else if (o.type == 'font'){
@@ -120,10 +123,6 @@
               }else if (o.type == 'boolean'){
                 this.booleanValue[o.id] = o.value
               }
-
-
-
-
               this.renderProperties.push(o)
             }
           }
@@ -148,9 +147,7 @@
           }
         },
         fontValueChange: function(event){
-          console.info(event.target, " ", this.fontValue)
           for (let id in this.fontValue){
-            console.info("This is firing off twice?! -- ", id, " " , this.fontValue)
             this.preferenceStore.setValue(id,event.target.value)
           }
           this.fontValue = {}
@@ -210,8 +207,7 @@
         >
           <div id="preference-content" ref="preferenceContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
 
-            <!-- <h3>Preferences -   <select @change="loadPrefGroup($event)"><option v-for="group in possilbleGroups" :selected="showPrefModalGroup==group">{{group}}</option></select></h3> -->
-            <h3>Preferences -   <select><option v-for="group in possilbleGroups" :selected="showPrefModalGroup==group">{{group}}</option></select></h3>
+            <h3>Preferences -   <select @change="loadPrefGroup($event)"><option v-for="group in possilbleGroups" :selected="showPrefModalGroup==group">{{group}}</option></select></h3>
             <button class="close-button" @pointerup="preferenceStore.togglePrefModal()">X</button>
 
 

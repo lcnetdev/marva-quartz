@@ -334,7 +334,6 @@
 
 
     updated: function(){
-      console.info("incoming: ", this.searchValueLocal)
       if (this.authorityLookup == null){
         //Reset this so the input field isn't loaded with the old data
         this.activeComplexSearch = []
