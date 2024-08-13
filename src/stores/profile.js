@@ -2862,43 +2862,51 @@ export const useProfileStore = defineStore('profile', {
 
           }else if (defaultsProperty && defaultsProperty.valueConstraint.valueTemplateRefs.length>0){
 
-              // console.log(JSON.stringify(newPt,null,2))
-              // if (!newPt.userValue[baseURI]){
-              //     newPt.userValue[baseURI] = [{}]
-              // }
-              // let userValue = newPt.userValue[baseURI][0]
+              console.log(JSON.stringify(newPt,null,2))
+              if (!newPt.userValue[baseURI]){
+                  newPt.userValue[baseURI] = [{}]
+              }
+              let userValue = newPt.userValue[baseURI][0]
 
-              // console.log(JSON.stringify(newPt,null,2))
+              console.log(JSON.stringify(newPt,null,2))
 
-              // // it doesn't exist at the top level, see if it has at least one reference template, if so use the first one and look up if that one has defualt values
-              // // the first one since it is the default for the referencetemplace componment
-              // let useRef = defaultsProperty.valueConstraint.valueTemplateRefs[0]
+              // it doesn't exist at the top level, see if it has at least one reference template, if so use the first one and look up if that one has defualt values
+              // the first one since it is the default for the referencetemplace componment
+              let useRef = defaultsProperty.valueConstraint.valueTemplateRefs[0]
 
-              // // look through all of them and add in any default
-              // for (let refPt of this.rtLookup[useRef].propertyTemplates){
-              //     if (refPt.valueConstraint.defaults.length>0){
-              //         let defaults = refPt.valueConstraint.defaults[0]
-              //         if (defaults.defaultLiteral){
-              //             userValue[refPt.propertyURI]= [{
-              //                 '@guid': short.generate(),
-              //                 'http://www.w3.org/2000/01/rdf-schema#label': [
-              //                     {
-              //                         'http://www.w3.org/2000/01/rdf-schema#label':defaults.defaultLiteral,
-              //                         '@guid': short.generate(),
-              //                     }
-              //                 ]
-              //             }]
-              //         }
-              //         if (defaults.defaultURI){
-              //             if (userValue[refPt.propertyURI][0]){
-              //                 userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI
-              //                 if (refPt.valueConstraint.valueDataType && refPt.valueConstraint.valueDataType.dataTypeURI){
-              //                     userValue[refPt.propertyURI][0]['@type'] = refPt.valueConstraint.valueDataType.dataTypeURI
-              //                 }
-              //             }
-              //         }
-              //     }
-              // }
+              // look through all of them and add in any default
+              for (let refPt of this.rtLookup[useRef].propertyTemplates){
+                  if (refPt.valueConstraint.defaults.length>0){
+                      let defaults = refPt.valueConstraint.defaults[0]
+                      if (defaults.defaultLiteral){
+                          userValue[refPt.propertyURI]= [{
+                              '@guid': short.generate(),
+                              'http://www.w3.org/2000/01/rdf-schema#label': [
+                                  {
+                                      'http://www.w3.org/2000/01/rdf-schema#label':defaults.defaultLiteral,
+                                      '@guid': short.generate(),
+                                  }
+                              ]
+                          }]
+                      }
+                      if (defaults.defaultURI){
+                          if (userValue[refPt.propertyURI][0]){
+                              userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI
+                              if (refPt.valueConstraint.valueDataType && refPt.valueConstraint.valueDataType.dataTypeURI){
+                                  userValue[refPt.propertyURI][0]['@type'] = refPt.valueConstraint.valueDataType.dataTypeURI
+                              }
+                          }
+                      }
+                  }
+              }
+
+          }
+
+          // did the old one have a type? if so set the type for the new one
+          if (pt && pt.userValue && pt.userValue[baseURI] && pt.userValue[baseURI][0] && pt.userValue[baseURI][0]['@type']){
+            if (newPt.userValue[baseURI] && newPt.userValue[baseURI][0]){
+              newPt.userValue[baseURI][0]['@type'] = pt.userValue[baseURI][0]['@type']
+            }
 
           }
 

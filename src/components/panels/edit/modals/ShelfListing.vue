@@ -27,7 +27,7 @@
         left: 0,
 
         initalHeight: 550,
-        initalLeft: 500,
+        initalLeft: 100,
 
         searching: false,
 
@@ -211,7 +211,7 @@
     >
         <VueDragResize
           :is-active="true"
-          :w="900"
+          :w="950"
           :h="initalHeight"
           :x="initalLeft"
           class="shelf-listing-modal"
@@ -241,6 +241,7 @@
                   <thead v-if="results.length>0">
                     <tr>
                       <td>Number</td>
+                      <td>Contributor</td>
                       <td>Title</td>
                       <td>Date</td>
                       <td> </td>
@@ -253,6 +254,7 @@
                       <template  v-if="r.title != 'Would Appear Here'">
                         <tr>
                           <td>{{ r.term }}</td>
+                          <td>{{ r.creator }}</td>
                           <td>{{ r.title }}</td>
                           <td>{{ r.pubdate }}</td>
                           <td><a style="color: inherit; text-decoration: none;" target="_blank" :href="r.lookup">view</a></td>
@@ -262,6 +264,8 @@
                       <template  v-if="r.title == 'Would Appear Here'">
                         <tr style="background-color: yellow;">
                           <td>{{ r.term }}</td>
+                          <td>{{ r.creator }}</td>
+
                           <td>{{ r.title }}</td>
                           <td>{{ r.pubdate }}</td>
                           <td></td>

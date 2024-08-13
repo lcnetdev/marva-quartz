@@ -2107,11 +2107,11 @@ const utilsNetwork = {
         },
         body: xml // We send data in JSON format
       }
-      console.log(putMethod)
+      // console.log(putMethod)
       let url = useConfigStore().returnUrls.ldpjs +'ldp/' + eId
 
       await fetch(url, putMethod)
-      .then(response => console.log(response.text))
+      .then(response => response.text())
       .then((responseText)=>{
         // console.log(responseText)
       })
@@ -2408,219 +2408,6 @@ const utilsNetwork = {
     */
     searchShelfList: async function(search,dir){
 
-      // js-loc-callnumbers
-      // A javascript class to normalize and perform various sorting options on
-      // Library of Congress Call Numbers within a library institution.
-
-      // constructor
-      function locCallClass() {
-        //define the regular expressions used in the normalization
-        this.lc = /([A-Z]{1,3})\s*(\d{1,4})(\.\d+)*(.+)*/ig;
-        this.punctuation  = /[.,\/#!$%\^&\*;:{}=\-_`~()]/ig;
-        this.lett_num_group = /([A-Z]{1,}\d{1,})/ig;
-        this.num_letter_groupings = /(\d{1,})([A-Z]{1,})/ig;
-        this.v_dot = /(v\s)(\d{1,})/ig;
-        this.no_dot = /(no\s)(\d{1,})/ig;
-
-        //define and cache the padding lengths (max pad length is 9)
-        this.cache = ['', ' ', '  ', '   ', '    ', '     ', '      ', '       ', '        ', '         '];
-
-        // alias the function name for returnNormLcCall
-        this.normalize = this.returnNormLcCall;
-      }
-
-
-      // locCallClass.returnNormLcCall(call_number)
-      // returns a "normalized" call number
-      locCallClass.prototype.returnNormLcCall = function(callnumber_string) {
-        // this is our eventual return value
-        var local_norm = '',
-          test = [];
-
-        //~ TODO
-        //~ get cataloging to fix issues with non-normalizing call numbers
-        //~ so we don't have to use this hack.
-        //~ Call numbers like this "KBG .A1" should normalize to "kbg   0 a2"
-        try{
-          const exception = /(KBG)(\s*\.)(.+)*/i;
-          test = exception.exec(callnumber_string);
-          if (test != null) {
-            //debugger;
-            var new_callnumber_string = "";
-            if( typeof test[1] !== "undefined" ) new_callnumber_string += test[1] + "0";
-            if( typeof test[2] !== "undefined" ) new_callnumber_string += test[2];
-            if( typeof test[3] !== "undefined" ) new_callnumber_string += test[3];
-            test = [];
-            return this.returnNormLcCall(new_callnumber_string);
-          }
-
-        }
-        catch (e){
-          // console.log('undefined call number ' + e);
-        }
-        //~ /TODO
-
-        try{
-          test = this.lc.exec(callnumber_string.toLowerCase());
-        }
-        catch (e){
-          console.log('undefined call number ' + e);
-        }
-
-        // if input is not LC, return lower case, trimmed input string,
-        // with certain characters removed
-        if (test === null){
-          console.log("\"" + callnumber_string + "\"" + " not lc");
-          return callnumber_string
-            .toLowerCase()
-            .trim()
-            .replace(/\/{1,}|-{1,}/gi, " "); //replaces "/" and "-" with spaces
-        }
-
-        // TODO :
-        // remove try block?
-        try {
-          if(typeof test[1] !== "undefined"){
-            local_norm = test[1];
-          }
-
-          local_norm += this.leftPad(test[2],7-test[1].length);
-
-          // append the decimal, if there is one
-          if(typeof test[3] !== "undefined"){
-            local_norm += test[3];
-          }
-
-          // remove any leading or trailing whitespace
-          local_norm = local_norm.trim();
-
-          // normalize the rest of the call number
-          var call_number_remainder = "";
-          if (typeof test[4] !== 'undefined'){
-            // step 4. i. convert any punctuation to spaces
-            // append letter+number groups with spaces
-            // step 4. remove instances of multiple spaces, leaving only one
-            // remove any trailing (or starting) whitespace
-            call_number_remainder += test[4]
-              .replace(this.punctuation, " ")	//repalce punctuation with spaces
-              .replace(this.lett_num_group, "$1 ") //append spaces to letter+number groups
-              .replace(this.num_letter_groupings, "$1 $2") //place space between numbers and letters occuring next to eachother
-              .replace(/\s{2,}/g," "); //instances of 2 or more consecutive spaces are replaced by one
-
-
-            // TODO :
-            // consider removing the lastIndex for the following?
-
-            // pad out numbers occuring after "v." and "no."
-            // note: this calls the helper function for replace "vol_pad()"
-            call_number_remainder = call_number_remainder.replace(this.v_dot, this.vol_pad.bind(this));
-            this.v_dot.lastIndex = 0;
-
-            call_number_remainder = call_number_remainder.replace(this.no_dot, this.vol_pad.bind(this));
-            this.no_dot.lastIndex = 0;
-
-            // reset the lastIndex so the next regex exec doesn't fail on next try
-            this.punctuation.lastIndex = 0;
-
-          }
-
-          // add a single space to the front of the call_number_remainder
-          call_number_remainder = call_number_remainder.trim();
-          call_number_remainder = " " + call_number_remainder;
-
-          //append the begining of the callnumber to the remainder of the call number
-          local_norm += call_number_remainder;
-
-          //trim spaces from the end, or the begining of the string
-          local_norm = local_norm.trim();
-
-        } //end try
-
-        catch (e){
-          console.log(' no test ');
-        }
-
-        // reset the lastIndex so the next regex exec doesn't fail on next try
-        this.lc.lastIndex = 0;
-
-        return local_norm;
-
-
-      } //end returnNormLcCall
-
-
-      // locCallClass.localeCompare(b,a)
-      // replicates functionality of the normal compare function
-      // so that it may be used in external sorting operations:
-      //
-      // A negative number if the reference string (a) occurs before the
-      // given string (b);
-      // positive if the reference string (a) occurs after
-      // the compare string (b);
-      // 0 if they are equivalent.
-      locCallClass.prototype.localeCompare = function (a, b) {
-        try {
-          var a_norm = this.returnNormLcCall(a),
-            b_norm = this.returnNormLcCall(b);
-
-            return ( a_norm < b_norm ? -1 : (a_norm > b_norm ? 1 : 0) );
-        }
-        catch (err) {
-          // console.log("error")
-        }
-      }
-
-      // locCallClass.sortCallNumbers()
-      // takes an array of call numbers and returns a sorted array of call
-      // numbers in their original format.
-      // Using something like the following works to sort as well:
-      // var loc = new locCallClass();
-      // var sorted_array = loc.unsorted_callnumber_array.sort(function(a,b) {return loc.localeCompare(a,b)});
-      locCallClass.prototype.sortCallNumbers = function (callnumbers) {
-        // also bind the scope of this to the sort function to be able to call
-        // this.localeCompare
-        var sorted = callnumbers.sort(function (a,b) {
-          return this.localeCompare(a,b);
-        }.bind(this));
-
-        return sorted;
-      }
-
-      // locCallClass.isBetween(a,b,c)
-      // returns true if a <= c <= b
-      locCallClass.prototype.isBetween = function (a,b,c) {
-        //this.localeCompare(a, b) <= 0 if in sort order
-        return ( (this.localeCompare(a,c) <= 0 && this.localeCompare(c,b) <=0) ? true : false );
-      }
-
-      // pad the string
-      locCallClass.prototype.leftPad = function (string, pad_length) {
-        // make sure that we're treating the string like a string
-        string = string + '';
-        pad_length = pad_length - string.length;
-        // nothing to pad
-        if (pad_length <= 0) {
-          return string;
-        }
-
-        return this.cache[pad_length] + string;
-      } // end leftPad
-
-      //helper function for volume padding
-      locCallClass.prototype.vol_pad = function (match, vol_string, num_string, offset, string) {
-        // padding out number portion to 5 places
-        return vol_string.trim() + this.leftPad(num_string, 5);
-      }
-
-
-
-
-
-
-
-
-
-
 
       if (!dir){
         dir ='asc'
@@ -2633,79 +2420,33 @@ const utilsNetwork = {
 
         // let results = [{"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20C66%202016", "term":"TF148 C66 2016", "frequency":"", "creator":"", "title":"Trains", "pubdate":"2016", "subject":"Railroad trains--Juvenile literature", "altsubject":"Railroad trains"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.A46%202021", "term":"TF148 .A46 2021", "frequency":"", "creator":"", "title":"Listen up!", "pubdate":"2021", "subject":"Railroad trains--Juvenile literature", "altsubject":"Trains--Ouvrages pour la jeunesse"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.A47%201983", "term":"TF148 .A47 1983", "frequency":"", "creator":"", "title":"Going on a train", "pubdate":"1983", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.A5%201993", "term":"TF148 .A5 1993", "frequency":"", "creator":"", "title":"Trains at work", "pubdate":"1993", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B24%201999", "term":"TF148 .B24 1999", "frequency":"", "creator":"", "title":"The best book of trains", "pubdate":"1999", "subject":"Railroad trains--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B26%201998", "term":"TF148 .B26 1998", "frequency":"", "creator":"", "title":"Amazing trains", "pubdate":"1998", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B27%201986", "term":"TF148 .B27 1986", "frequency":"", "creator":"", "title":"Trains", "pubdate":"1986", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B3%201949", "term":"TF148 .B3 1949", "frequency":"", "creator":"", "title":"A book of trains", "pubdate":"1949", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B45%201984", "term":"TF148 .B45 1984", "frequency":"", "creator":"", "title":"Amazing trains of the world", "pubdate":"1984", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B4594%202018", "term":"TF148 .B4594 2018", "frequency":"", "creator":"", "title":"Trains", "pubdate":"2017", "subject":"Railroad trains--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B48%201990", "term":"TF148 .B48 1990", "frequency":"", "creator":"", "title":"The train book", "pubdate":"1990", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B49%201998", "term":"TF148 .B49 1998", "frequency":"", "creator":"", "title":"Big book of trains", "pubdate":"1998", "subject":"Railroad trains--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B49%202016", "term":"TF148 .B49 2016", "frequency":"", "creator":"", "title":"The big book of trains", "pubdate":"2016", "subject":"Locomotives--Juvenile literature", "altsubject":"Railroad trains--Juvenile literature"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B55", "term":"TF148 .B55", "frequency":"", "creator":"", "title":"Great trains of the world", "pubdate":"1953", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B69%201995", "term":"TF148 .B69 1995", "frequency":"", "creator":"", "title":"Trains", "pubdate":"1995", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B692%202017", "term":"TF148 .B692 2017", "frequency":"", "creator":"", "title":"Trains", "pubdate":"2017", "subject":"Railroad trains--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B693%202003", "term":"TF148 .B693 2003", "frequency":"", "creator":"", "title":"Railroading", "pubdate":"2003", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B696%201996", "term":"TF148 .B696 1996", "frequency":"", "creator":"", "title":"Freight trains", "pubdate":"1996", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B7", "term":"TF148 .B7", "frequency":"", "creator":"", "title":"Richard learns about railroading", "pubdate":"1969", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B717%202016", "term":"TF148 .B717 2016", "frequency":"", "creator":"", "title":"Rolling down the Avenue", "pubdate":"2016", "subject":"Street-railroads--Juvenile literature", "altsubject":""}]
         // results = [{"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20H316%202005", "term":"TT820 H316 2005", "frequency":"", "creator":"", "title":"Decorative knitting", "pubdate":"2005", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20H813145%202008", "term":"TT820 H813145 2008", "frequency":"", "creator":"", "title":"Knit aid", "pubdate":"2008", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A115%201991", "term":"TT820 .A115 1991", "frequency":"", "creator":"", "title":"42 favorite crochet motifs", "pubdate":"1992", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1155%202023", "term":"TT820 .A1155 2023", "frequency":"", "creator":"", "title":"60 quick crochet projects for beginners", "pubdate":"2023", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1156%202024", "term":"TT820 .A1156 2024", "frequency":"", "creator":"", "title":"60 quick granny squares", "pubdate":"2024", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1158%202012", "term":"TT820 .A1158 2012", "frequency":"", "creator":"", "title":"101 crochet stitch patterns & edgings", "pubdate":"2012", "subject":"Crocheting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A116%202002", "term":"TT820 .A116 2002", "frequency":"", "creator":"", "title":"101 double-ended hook stitches", "pubdate":"2002", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A117%201996", "term":"TT820 .A117 1996", "frequency":"", "creator":"", "title":"101 fun-to-crochet projects", "pubdate":"1996", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A119%201995", "term":"TT820 .A119 1995", "frequency":"", "creator":"", "title":"150 favorite crochet designs", "pubdate":"1995", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A11912%202017", "term":"TT820 .A11912 2017", "frequency":"", "creator":"", "title":"200 fun things to crochet", "pubdate":"2017", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A11913%202017", "term":"TT820 .A11913 2017", "frequency":"", "creator":"", "title":"200 fun things to knit", "pubdate":"2017", "subject":"Knitting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1194%202015", "term":"TT820 .A1194 2015", "frequency":"", "creator":"", "title":"500 crochet stitches", "pubdate":"2015", "subject":"Crocheting--Technique", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1196%202008", "term":"TT820 .A1196 2008", "frequency":"", "creator":"", "title":"A to Z of crochet", "pubdate":"2008", "subject":"Crocheting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A11968%202009", "term":"TT820 .A11968 2009", "frequency":"", "creator":"", "title":"A to Z of knitting", "pubdate":"2009", "subject":"Knitting--Handbooks, manuals, etc.", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1197%202020", "term":"TT820 .A1197 2020", "frequency":"", "creator":"", "title":"A-Z of knitting", "pubdate":"2020", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A19", "term":"TT820 .A19", "frequency":"", "creator":"", "title":"The complete book of knitting", "pubdate":"1971", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A33%202019", "term":"TT820 .A33 2019", "frequency":"", "creator":"", "title":"Fair Isle mittens", "pubdate":"2019", "subject":"Crocheting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A42%202007", "term":"TT820 .A42 2007", "frequency":"", "creator":"", "title":"The natural knitter", "pubdate":"2007", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A48", "term":"TT820 .A48", "frequency":"", "creator":"", "title":"Le Tricot", "pubdate":"1977", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A5149%202020", "term":"TT820 .A5149 2020", "frequency":"", "creator":"", "title":"Knitting & crocheting all-in-one", "pubdate":"2020", "subject":"Knitting--Patterns", "altsubject":""}]
+        // let results = [{"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%201998%20.U5", "term":"G3762.B495 1998 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley National Heritage Corridor, Massachusetts/Rhode Island", "pubdate":"1998", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass. and R.I.)--Maps", "altsubject":"", "bibid":"5568980"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%201999%20.U5", "term":"G3762.B495 1999 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley National Heritage Corridor, Massachusetts/Rhode Island", "pubdate":"1999", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass. and R.I.)--Maps", "altsubject":"", "bibid":"11797321"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%202000%20.U5", "term":"G3762.B495 2000 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley National Heritage Corridor, Massachusetts, Rhode Island", "pubdate":"2000", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass. and R.I.)--Maps", "altsubject":"", "bibid":"19660525"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%202003%20.U5", "term":"G3762.B495 2003 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley", "pubdate":"2003", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass. and R.I.)--Maps", "altsubject":"", "bibid":"19664821"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%202004%20.U5", "term":"G3762.B495 2004 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley National Heritage Corridor, Massachusetts, Rhode Island", "pubdate":"2004", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass and R.I.)--Maps", "altsubject":"", "bibid":"19658722"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%202006%20.U5", "term":"G3762.B495 2006 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley National Heritage Corridor, Massachusetts, Rhode Island", "pubdate":"2006", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass and R.I.)--Maps", "altsubject":"", "bibid":"19658918"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B49P2%202004%20.A7", "term":"G3762.B49P2 2004 .A7", "frequency":"", "creator":"", "title":"Blackstone Valley, Massachusetts, street map", "pubdate":"2004", "subject":"Roads--Blackstone River Valley (Mass. and R.I.)--Maps", "altsubject":"", "bibid":"14274188"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4A5%201990%20.C3", "term":"G3762.B4A5 1990 .C3", "frequency":"", "creator":"", "title":"The Berkshires", "pubdate":"1990", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"12770913"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E63%201997%20.R8", "term":"G3762.B4E63 1997 .R8", "frequency":"", "creator":"", "title":"Western Massachusetts bicycle and road map, bed & breakfast guide", "pubdate":"1997", "subject":"Bicycle trails--Massachusetts--Berkshire Hills--Maps", "altsubject":"", "bibid":"5569084"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E63%202004%20.R8", "term":"G3762.B4E63 2004 .R8", "frequency":"", "creator":"", "title":"Western Massachusetts road and bicycle map, bed & breakfast guide", "pubdate":"2004", "subject":"Bicycle trails--Massachusetts--Berkshire Hills--Maps", "altsubject":"", "bibid":"14637168"}, {"selected":"selected", "lookup":"", "term":"G3762.B4E635 1975 .G7", "frequency":"", "creator":"", "title":"The Berkshires", "pubdate":"1975", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"5428687"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%201978%20.G7", "term":"G3762.B4E635 1978 .G7", "frequency":"", "creator":"", "title":"Circle tours, the Berkshires", "pubdate":"1978", "subject":"Berkshire Hills, Mass.--Maps.", "altsubject":"", "bibid":"5445127"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%201981%20.G7", "term":"G3762.B4E635 1981 .G7", "frequency":"", "creator":"", "title":"The Berkshires", "pubdate":"1981", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"5463162"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202001%20.R4", "term":"G3762.B4E635 2001 .R4", "frequency":"", "creator":"", "title":"The best of Berkshires, Massachusetts, north County featuring Adams, North Adams, Pittsfield,...", "pubdate":"2000", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"13816560"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202002%20.R4", "term":"G3762.B4E635 2002 .R4", "frequency":"", "creator":"", "title":"The best of Berkshires, Massachusetts, 2002", "pubdate":"2001", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"13816576"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202004%20.R4", "term":"G3762.B4E635 2004 .R4", "frequency":"", "creator":"", "title":"The best of the Berkshires, Massachusetts, 2004", "pubdate":"2003", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"13816614"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202005%20.R4", "term":"G3762.B4E635 2005 .R4", "frequency":"", "creator":"", "title":"The best of the Berkshires, Massachusetts, 2005", "pubdate":"2004", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"13900397"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202006%20.R4", "term":"G3762.B4E635 2006 .R4", "frequency":"", "creator":"", "title":"The best of the Berkshires, Massachusetts, 2006", "pubdate":"2005", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"14527448"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202007%20.R4", "term":"G3762.B4E635 2007 .R4", "frequency":"", "creator":"", "title":"The best of the Berkshires, Massachusetts, 2007", "pubdate":"2006", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"15065556"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202009%20.R4", "term":"G3762.B4E635 2009 .R4", "frequency":"", "creator":"", "title":"The best of the Berkshires, Massachusetts, 2009", "pubdate":"2008", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"15684452"}]
 
-        let toSort = []
-
+        let selectedIndex = -1
+        let c = 0
         for (let r of results){
           r['lookup'] = useConfigStore().returnUrls.shelfListing.slice(0, -1) + r['lookup']
-          toSort.push(r.term)
-        }
-        console.log("search",search)
-        toSort.push(search)
-        console.log("toSort",JSON.parse(JSON.stringify(toSort)))
-
-        var loc = new locCallClass
-        toSort.sort(function(a,b){
-          return loc.localeCompare(a,b)
-        });
-        console.log('toSort after',toSort);
-
-        let previousL = null
-        for (let l of toSort){
-          if (l == search){
-            break
+          if (r.selected){
+            selectedIndex = c
           }
-
-          previousL = l
+          c++
         }
-        console.log("previousL ==",previousL)
-
-        let index = -1
-        for (let r of results){
-          index++
-          if (r.term == previousL){
-            break
-          }
-
+        // selectedIndex = selectedIndex - 1
+        if (selectedIndex > -1){
+          results.splice(selectedIndex, 0, {
+            term:'-----',
+            title:'Would Appear Here',
+            creator:'',
+            pubdate:"------",
+            lookup:'#'
+          })
         }
-        console.log('index',index)
 
-        results.splice(index, 0, {
-          term:'-----',
-          title:'Would Appear Here',
-          pubdate:"------",
-          lookup:'#'
-        })
+
+
 
 
         return results
-        // let returnVal = []
-
-        // for (let r of results.hits){
-
-        //   let bfdbPackageURL = useConfigStore().returnUrls.bfdb + r.uri.split('id.loc.gov/')[1] + '.convertedit-pkg.xml'
-
-        //   if (useConfigStore().returnUrls.publicEndpoints){
-        //     bfdbPackageURL = useConfigStore().returnUrls.id + r.uri.split('id.loc.gov/')[1] + '.cbd.rdf'
-        //   }
-
-        //   returnVal.push({
-        //     lccn: lccn,
-        //     label: r.aLabel,
-        //     bfdbURL: useConfigStore().returnUrls.bfdb + r.uri.split('id.loc.gov/')[1],
-        //     idURL: useConfigStore().returnUrls.id + r.uri.split('id.loc.gov/')[1],
-        //     bfdbPackageURL: bfdbPackageURL
-        //   })
-
-        // }
-
-
-        // return returnVal
-
-
-      // }catch{
-      //   return ["Error searching Shelflist"]
-      // }
 
     },
 

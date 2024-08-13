@@ -350,7 +350,7 @@
       },
 
       loadTestData: function(meta){
-        console.log(meta)
+        
 
         let href = window.location.href.split("/")
         this.urlToLoad = `/${href[3]}/${href[4]}/test_files/${meta.lccn}.xml`
@@ -396,12 +396,12 @@
       loadUrl: async function(useInstanceProfile,multiTestFlag){
 
         if (this.lccnLoadSelected){
-          console.log(this.lccnLoadSelected.bfdbPackageURL)
+          
           this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
 
         }
 
-        console.log(this.urlToLoad)
+        
 
         if (this.urlToLoad.trim() !== ''){
 
@@ -411,13 +411,13 @@
             return false
           }
           // if (xml.indexOf('<rdf:RDF'))
-          console.log(xml)
+          
 
           // check for XML problems here ?
 
           utilsParse.parseXml(xml)
 
-          console.log(utilsParse.hasItem)
+          
 
         }
 
@@ -516,7 +516,6 @@
           this.activeProfile = useProfile
         }
 
-        console.log("this.activeProfile",this.activeProfile)
 
         if (multiTestFlag){
           this.$router.push(`/multiedit/`)

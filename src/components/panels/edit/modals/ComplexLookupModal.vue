@@ -376,8 +376,7 @@
       //console.log("mounted yeah")
 
       if (this.modeSelect === null){
-        console.log(this.modalSelectOptions)
-        console.log(this.structure)
+
         this.modeSelect = this.modalSelectOptions[0].label
       }
       // this.$nextTick(()=>{

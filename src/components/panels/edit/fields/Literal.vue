@@ -541,7 +541,7 @@ export default {
     this.$nextTick().then(() => {
       this.expandHeightToContent()
     })
-    console.log("activeGuid",this.activeGuid)
+    
 
 
 

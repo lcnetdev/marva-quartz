@@ -50,7 +50,7 @@
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal']),
-      ...mapWritableState(useProfileStore, ['showPostModal']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData']),
       ...mapWritableState(useProfileStore, ['showValidateModal']),
 
 
@@ -118,6 +118,22 @@
           ] }
           )
         }
+
+        if (!this.disable.includes('Tools')){
+          menu.push(
+          { text: "Tools",  menu: [
+            { text: "Shelf Listing Browser", click: () => {
+              this.activeShelfListData = {}
+              this.showShelfListingModal = true
+
+
+            }, icon:"🗄️" },
+
+
+          ] }
+          )
+        }
+
 
 
         if (!this.disable.includes('View')){
