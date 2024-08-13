@@ -290,10 +290,10 @@ const utilsNetwork = {
       // console.log("searchPayload",searchPayload)
 
 
-
         let returnUrls = useConfigStore().returnUrls
 
         let urlTemplate = searchPayload.url
+        let searchValue = searchPayload.searchValue
 
         console.log("######################################")
         console.log("url ", urlTemplate)
@@ -337,8 +337,34 @@ const utilsNetwork = {
               url = url.replace('q=?','q=')
             }
 
+            //break up complex (contains "--") heads to search against the whole term, and the last -- section of it
+            let r = null
+            let partial = null
+            let all = null
+            try{
+              if (searchValue.includes("--")) {
+                let pieces = searchValue.split("--")
+                if (pieces.length > 2){
+                  let last = pieces[pieces.length-1]
+                  let pen = pieces[pieces.length-2]
+                  let value = pen + "--" + last
+                  partial = await this.fetchSimpleLookup(url.replace(searchValue, value))
+                }
+                all = await this.fetchSimpleLookup(url)
 
-            let r = await this.fetchSimpleLookup(url)
+                if (partial != null){
+                  all.count += partial.count
+                  all.hits = all.hits.concat(partial.hits)
+                }
+                r = all
+
+              } else {
+                r = await this.fetchSimpleLookup(url)
+              }
+            } catch(error) {
+              console.info("error: ", error)
+            }
+            //r = await this.fetchSimpleLookup(url)
 
             //Config only allows 25 results, this will add something to the results
             // to let the user know there are more names.
@@ -1444,7 +1470,7 @@ const utilsNetwork = {
 
         let resultsGenre=[]
 
-
+        console.info("searching: ", heading)
         // if it is a primary heading then we need to search LCNAF, HUBS, WORKS, and simple subjects, and do the whole thing with complex subjects
         if (heading.primary){
           // resultsNames = await this.searchComplex(searchPayloadNames)
@@ -1474,6 +1500,8 @@ const utilsNetwork = {
           resultsWorksAnchored = resultsWorksAnchored.filter((r)=>{ return (!r.literal) })
           resultsHubsAnchored = resultsHubsAnchored.filter((r)=>{ return (!r.literal) })
           resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
+
+          console.info("resultsNamesSubdivision: ", resultsNamesSubdivision)
 
           // console.log("Yeeth")
           // console.log("resultsNames",resultsNames)
@@ -1913,6 +1941,7 @@ const utilsNetwork = {
       console.log(useConfigStore().lookupConfig)
 
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
+      let namesUrlComplex = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
       let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=SimpleType'
 
@@ -1942,6 +1971,12 @@ const utilsNetwork = {
         processor: 'lcAuthorities',
         url: [namesUrl],
         searchValue: searchVal
+      }
+
+      let searchPayloadNamesComplex = {
+        processor: 'lcAuthorities',
+        url: [namesUrlComplex],
+        searchValue: complexVal
       }
 
       let searchPayloadSubjectsSimple = {
@@ -1990,6 +2025,7 @@ const utilsNetwork = {
 
 
       let resultsNames =[]
+      let resultsNamesComplex =[]
       let resultsSubjectsSimple=[]
       let resultsSubjectsComplex=[]
       let resultsHierarchicalGeographic=[]
@@ -1999,12 +2035,15 @@ const utilsNetwork = {
       let resultsHubsKeyword=[]
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
+        [resultsNames, resultsNamesComplex, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
             this.searchComplex(searchPayloadNames),
+            this.searchComplex(searchPayloadNamesComplex),
             this.searchComplex(searchPayloadSubjectsSimple),
             this.searchComplex(searchPayloadSubjectsComplex),
             this.searchComplex(searchPayloadHierarchicalGeographic)
         ]);
+
+      console.info("resultsNamesComplex: ", resultsNamesComplex)
 
       }else if (mode == "GEO"){
 
@@ -2034,6 +2073,9 @@ const utilsNetwork = {
       // drop the litearl value from names and complex
       if (resultsNames.length>0){
         resultsNames.pop()
+      }
+      if (resultsNamesComplex.length > 0){
+        resultsNamesComplex.pop()
       }
       if (resultsSubjectsComplex.length>0){
         resultsSubjectsComplex.pop()
@@ -2079,14 +2121,15 @@ const utilsNetwork = {
         resultsSubjectsSimple = resultsHubsAnchored
         resultsSubjectsComplex = resultsHubsKeyword
       }
+
       let results = {
         'subjectsSimple': resultsSubjectsSimple,
         'subjectsComplex': resultsSubjectsComplex,
-        'names':resultsNames,
+        'names':resultsNames.concat(resultsNamesComplex),
         'hierarchicalGeographic': resultsHierarchicalGeographic
       }
 
-
+      console.info("results: ", results)
       return results
 
     },

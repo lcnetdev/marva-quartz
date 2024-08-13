@@ -108,7 +108,7 @@
                       </div>
 
                       <div v-if="searchResults.subjectsComplex.length>0">
-                        <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">{{subjectC.suggestLabel}}<span></span></div>
+                        <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(searchResults.namesComplex.length +idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">{{subjectC.suggestLabel}}<span></span></div>
                         <hr>
                       </div>
 
@@ -861,6 +861,8 @@ export default {
 
       that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
 
+      console.info("that.searchResults", that.searchResults)
+
 
       // if they clicked around while it was doing this lookup bail out
       // if (that.activeSearchInterrupted){
@@ -885,7 +887,6 @@ export default {
         s.labelOrginal = s.label
         s.label = s.label.replaceAll('-','‑')
       }
-
 
       for (let s of that.searchResults.subjectsComplex){
         s.labelOrginal = s.label
@@ -1123,6 +1124,7 @@ export default {
 
     /** Clear the current selection so that hovering will update the preview again */
     clearSelected: function(){
+      console.info("pickLookup: ", this.pickLookup)
       this.pickLookup[this.pickCurrent].picked = false
       this.pickCurrent = null
     },
