@@ -117,8 +117,16 @@
                       </div>
 
                       <!-- Geo subdivisions -->
+                      <hr>
                       <div v-if="searchResults.hierarchicalGeographicAll.length>0">
-                        <div v-for="(subject,idx) in searchResults.hierarchicalGeographicAll" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.hierarchicalGeographicAll.length + idx)" :data-id="searchResults.hierarchicalGeographicAll.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">{{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span></div>
+                        <div v-for="(subject,idx) in searchResults.hierarchicalGeographicAll"
+                          @click="selectContext(searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx)"
+                          @mouseover="loadContext(searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx)"
+                          :data-id="searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx"
+                          :key="subject.uri"
+                          :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx] && pickLookup[searchResults.subjectsComplex.length + searchResults.subjectsSimple.length+ idx].picked), 'literal-option':(subject.literal)}]"
+                        >{{subject.suggestLabel}}
+                        <span  v-if="subject.literal">{{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span></div>
                       </div>
 
 
@@ -966,7 +974,9 @@ export default {
       }
 
 
-
+      for (let x in that.searchResults.hierarchicalGeographicAll){
+        that.pickLookup[parseInt(x)+parseInt(that.searchResults.subjectsComplex.length)+parseInt(that.searchResults.subjectsSimple.length)] = that.searchResults.hierarchicalGeographicAll[x]
+      }
 
 
 
@@ -1165,11 +1175,13 @@ export default {
 
     selectContext: async function(pickPostion, update=true){
       if (pickPostion != null){
+        console.info("incoming position: ", pickPostion)
         this.pickPostion=pickPostion
         this.pickCurrent=pickPostion
         this.getContext()
       }
 
+      console.info("lookup: ", this.pickLookup)
       if (this.pickLookup[this.pickPostion].complex){
         console.info("HERE ", this.pickLookup[this.pickPostion])
         this.activeComponentIndex = 0
