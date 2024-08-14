@@ -337,20 +337,28 @@ const utilsNetwork = {
               url = url.replace('q=?','q=')
             }
 
-            //break up complex (contains "--") heads to search against the whole term, and the last -- section of it
+            //break up complex (contains "--") headings to search against the whole term, and the last -- section of it
+            // this is for headings like "New York (State)--New York" where the second "New York" doesn't exist
+            // as a heading by itself
             let r = null
             let partial = null
             let all = null
             try{
               if (searchValue.includes("--")) {
                 let pieces = searchValue.split("--")
+                console.info("pieces: ", pieces)
                 if (pieces.length > 2){
                   let last = pieces[pieces.length-1]
                   let pen = pieces[pieces.length-2]
                   let value = pen + "--" + last
                   partial = await this.fetchSimpleLookup(url.replace(searchValue, value))
                 }
+                console.info("searchValue: ", searchValue)
                 all = await this.fetchSimpleLookup(url)
+
+                console.info("Url: ", url)
+                console.info("partial: ", partial)
+                console.info("all: ", all)
 
                 if (partial != null){
                   all.count += partial.count
@@ -369,6 +377,7 @@ const utilsNetwork = {
             //Config only allows 25 results, this will add something to the results
             // to let the user know there are more names.
             let overflow = 0
+            console.info("r: ", r)
             if (r.hits.length < r.count){
               // It looks like the count is 1 more than the number of hits, why?
               overflow = (r.count - r.hits.length)
@@ -1938,7 +1947,8 @@ const utilsNetwork = {
       console.log(useConfigStore().lookupConfig)
 
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
-      let namesUrlComplex = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
+      let namesUrlComplex = "" // useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
+
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
       let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=SimpleType'
 
@@ -1955,6 +1965,10 @@ const utilsNetwork = {
 
 
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count=4').replace("<OFFSET>", "1")
+      let HierarchicalGeographicAll = useConfigStore().lookupConfig['HierarchicalGeographicAll'].modes[0]['All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
+
+      console.info("config: ", useConfigStore().lookupConfig['HierarchicalGeographicAll'])
+      console.info("URL:: ", HierarchicalGeographicAll)
 
 
       if (mode == 'GEO'){
@@ -1994,6 +2008,14 @@ const utilsNetwork = {
         searchValue: searchValHierarchicalGeographic
       }
 
+      let searchPayloadHierarchicalGeographicAll = {
+        processor: 'lcAuthorities',
+        url: [HierarchicalGeographicAll],
+        searchValue: complexVal
+      }
+
+      console.info("payload: ", searchPayloadHierarchicalGeographicAll)
+
 
       let searchPayloadWorksAnchored = {
         processor: 'lcAuthorities',
@@ -2026,18 +2048,20 @@ const utilsNetwork = {
       let resultsSubjectsSimple=[]
       let resultsSubjectsComplex=[]
       let resultsHierarchicalGeographic=[]
+      let resultsHierarchicalGeographicAll=[]
       let resultsWorksAnchored=[]
       let resultsWorksKeyword=[]
       let resultsHubsAnchored=[]
       let resultsHubsKeyword=[]
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsNamesComplex, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
+        [resultsNames, resultsNamesComplex, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsHierarchicalGeographicAll] = await Promise.all([
             this.searchComplex(searchPayloadNames),
-            this.searchComplex(searchPayloadNamesComplex),
+            [], //this.searchComplex(searchPayloadNamesComplex),
             this.searchComplex(searchPayloadSubjectsSimple),
             this.searchComplex(searchPayloadSubjectsComplex),
-            this.searchComplex(searchPayloadHierarchicalGeographic)
+            this.searchComplex(searchPayloadHierarchicalGeographic),
+            this.searchComplex(searchPayloadHierarchicalGeographicAll)
         ]);
 
       }else if (mode == "GEO"){
@@ -2071,6 +2095,9 @@ const utilsNetwork = {
       }
       if (resultsNamesComplex.length > 0){
         resultsNamesComplex.pop()
+      }
+      if (resultsHierarchicalGeographicAll.length > 0){
+        resultsHierarchicalGeographicAll.pop()
       }
       if (resultsSubjectsComplex.length>0){
         resultsSubjectsComplex.pop()
@@ -2120,9 +2147,12 @@ const utilsNetwork = {
       let results = {
         'subjectsSimple': resultsSubjectsSimple,
         'subjectsComplex': resultsSubjectsComplex,
-        'names':resultsNames.concat(resultsNamesComplex),
-        'hierarchicalGeographic': resultsHierarchicalGeographic
+        'names':resultsNames, //.concat(resultsNamesComplex),
+        'hierarchicalGeographic': resultsHierarchicalGeographic,
+        'hierarchicalGeographicAll': resultsHierarchicalGeographicAll
       }
+
+      console.info("results: ", results)
 
       return results
 

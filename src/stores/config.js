@@ -327,6 +327,18 @@ export const useConfigStore = defineStore('config', {
       ]
     },
 
+    // this will search across names and subjects, the above only searches names
+    "HierarchicalGeographicAll": {
+      "name":"names",
+      "type":"simple",
+      "processor" : 'lcAuthorities',
+      "modes":[
+        {
+          'All':{"url":"https://preprod-8288.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+        }
+      ]
+    },
+
 
     "http://id.loc.gov/entities/providers" : {"name":"providers", "type":"complex", "modes":[]},
     "http://id.loc.gov/entities/relationships" : {"name":"relationships", "processor" : 'lcAuthorities', "type":"complex", "modes":[

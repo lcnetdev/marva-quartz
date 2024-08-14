@@ -116,6 +116,11 @@
                         <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">{{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span></div>
                       </div>
 
+                      <!-- Geo subdivisions -->
+                      <div v-if="searchResults.hierarchicalGeographicAll.length>0">
+                        <div v-for="(subject,idx) in searchResults.hierarchicalGeographicAll" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.hierarchicalGeographicAll.length + idx)" :data-id="searchResults.hierarchicalGeographicAll.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">{{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span></div>
+                      </div>
+
 
 
 
@@ -883,9 +888,6 @@ export default {
       for (let s of that.searchResults.names){
         s.labelOrginal = s.label
         s.label = s.label.replaceAll('-','‑')
-        // if (s.label.includes("‑")){
-        //   s.complex=true
-        // }
       }
 
       for (let s of that.searchResults.subjectsComplex){
@@ -930,6 +932,12 @@ export default {
 
 
       for (let s of that.searchResults.hierarchicalGeographic){
+        s.labelOrginal = s.label
+        s.hierarchicalGeographic=true
+        s.label = s.label.replaceAll('-','‑')
+      }
+
+      for (let s of that.searchResults.hierarchicalGeographicAll){
         s.labelOrginal = s.label
         s.hierarchicalGeographic=true
         s.label = s.label.replaceAll('-','‑')
@@ -1163,11 +1171,13 @@ export default {
       }
 
       if (this.pickLookup[this.pickPostion].complex){
-        // if it is a complex authorized heading then just replace the whole things with it
-        this.subjectString = this.pickLookup[this.pickPostion].label
+        console.info("HERE ", this.pickLookup[this.pickPostion])
         this.activeComponentIndex = 0
-
         this.componetLookup = {}
+
+        // if it is a complex authorized heading and there's nothing else then just replace the whole things with it
+        this.subjectString = this.pickLookup[this.pickPostion].label
+
         this.componetLookup[this.activeComponentIndex] = {}
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
         for (let k in this.pickLookup){
