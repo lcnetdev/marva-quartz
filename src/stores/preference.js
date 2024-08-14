@@ -279,7 +279,7 @@ export const usePreferenceStore = defineStore('preference', {
           range: null
         },
       '--c-edit-main-splitpane-edit-background-color-instance' : {
-          value:'#8b588ba3',
+          value:'#ffe2ff96',
           desc: 'The background color of the instance on edit screen panel.',
           descShort: 'Instance Background Color',
           type: 'color',
