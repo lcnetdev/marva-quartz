@@ -362,7 +362,7 @@ const utilsNetwork = {
                 r = await this.fetchSimpleLookup(url)
               }
             } catch(error) {
-              console.info("error: ", error)
+              console.log("error: ", error)
             }
             //r = await this.fetchSimpleLookup(url)
 
@@ -1470,7 +1470,6 @@ const utilsNetwork = {
 
         let resultsGenre=[]
 
-        console.info("searching: ", heading)
         // if it is a primary heading then we need to search LCNAF, HUBS, WORKS, and simple subjects, and do the whole thing with complex subjects
         if (heading.primary){
           // resultsNames = await this.searchComplex(searchPayloadNames)
@@ -1500,8 +1499,6 @@ const utilsNetwork = {
           resultsWorksAnchored = resultsWorksAnchored.filter((r)=>{ return (!r.literal) })
           resultsHubsAnchored = resultsHubsAnchored.filter((r)=>{ return (!r.literal) })
           resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
-
-          console.info("resultsNamesSubdivision: ", resultsNamesSubdivision)
 
           // console.log("Yeeth")
           // console.log("resultsNames",resultsNames)
@@ -2043,8 +2040,6 @@ const utilsNetwork = {
             this.searchComplex(searchPayloadHierarchicalGeographic)
         ]);
 
-      console.info("resultsNamesComplex: ", resultsNamesComplex)
-
       }else if (mode == "GEO"){
 
         [resultsHierarchicalGeographic] = await Promise.all([
@@ -2129,7 +2124,6 @@ const utilsNetwork = {
         'hierarchicalGeographic': resultsHierarchicalGeographic
       }
 
-      console.info("results: ", results)
       return results
 
     },

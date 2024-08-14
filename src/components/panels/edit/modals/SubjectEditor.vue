@@ -861,9 +861,6 @@ export default {
 
       that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
 
-      console.info("that.searchResults", that.searchResults)
-
-
       // if they clicked around while it was doing this lookup bail out
       // if (that.activeSearchInterrupted){
 
@@ -886,6 +883,9 @@ export default {
       for (let s of that.searchResults.names){
         s.labelOrginal = s.label
         s.label = s.label.replaceAll('-','‑')
+        // if (s.label.includes("‑")){
+        //   s.complex=true
+        // }
       }
 
       for (let s of that.searchResults.subjectsComplex){
@@ -1124,7 +1124,6 @@ export default {
 
     /** Clear the current selection so that hovering will update the preview again */
     clearSelected: function(){
-      console.info("pickLookup: ", this.pickLookup)
       this.pickLookup[this.pickCurrent].picked = false
       this.pickCurrent = null
     },
@@ -1198,8 +1197,21 @@ export default {
         let splitString = this.subjectString.split('--')
 
         // replace the string with what we selected
-
         splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
+        // if the incoming term is complex, pop the elements from split string that are part of it
+        /*
+          Without this searching `New York (State)--new yor` and selecting `New York (State)--New York`
+          will result in the string being `New York (State)--New York (State)--New York`
+        */
+        if (this.pickLookup[this.pickPostion].label.includes("‑‑")){
+          // without this it's possible to keep selecting a term and delete parts of the heading that should remain
+          if (this.pickLookup[this.pickPostion].label.split("‑‑").length < splitString.length){
+            let numPieces = this.pickLookup[this.pickPostion].label.split("‑‑").length-1 // how many things need to be removed minus the 1 to keep
+            let removalStart = splitString.length-1-numPieces
+            let updated = splitString.splice(removalStart, numPieces)
+            this.activeComponentIndex = this.activeComponentIndex - numPieces // update the activeComponentIndex
+          }
+        }
 
         this.subjectString = splitString.join('--')
 
@@ -1207,7 +1219,6 @@ export default {
         if (!this.componetLookup[this.activeComponentIndex]){
           this.componetLookup[this.activeComponentIndex]= {}
         }
-
 
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-','‑')] = this.pickLookup[this.pickPostion]
 
@@ -1294,7 +1305,6 @@ export default {
           }
 
         }
-
 
         let start = event.target.selectionStart
         let end = event.target.selectionEnd
@@ -1393,7 +1403,6 @@ export default {
 
     },
 
-    //TODO: if it's a literal, there shouldn't be a thesaurus
     subjectStringChanged: async function(event){
       this.validateOkayToAdd()
 
@@ -1461,7 +1470,6 @@ export default {
 
       for (let ss of subjectStringSplit){
         // check the lookup to see if we have the data for this label
-
         let uri = null
         let type = null
         let literal = null
@@ -1776,8 +1784,6 @@ export default {
 
 
       if (typeof userValue == "string"){
-
-
         // they sometimes come in with '.' at the end of the authorized form
         if (userValue.slice(-1)=='.'){
           userValue=userValue.slice(0,-1)

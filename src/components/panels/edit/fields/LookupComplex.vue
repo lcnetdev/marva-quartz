@@ -977,7 +977,6 @@ export default {
 
     // Open the authority `panel` for an given authority
     openAuthority: function() {
-      console.info("Authority lookup")
       let label = this.$refs.el[0].innerHTML
 
       let sibling = this.$refs.el[0].parentNode.childNodes[2]
