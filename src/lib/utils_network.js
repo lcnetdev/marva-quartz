@@ -2144,12 +2144,17 @@ const utilsNetwork = {
         resultsSubjectsComplex = resultsHubsKeyword
       }
 
+      // hierarchicalGeographicAll can sometimes have results found in subjectsComplex
+      // Remove the dupes
+      const subjectURIs = resultsSubjectsComplex.map((item) => item.uri)
+      const resultsHierarchicalGeographicAllFiltered = resultsHierarchicalGeographicAll.filter((subj) => !subjectURIs.includes(subj.uri))
+
       let results = {
         'subjectsSimple': resultsSubjectsSimple,
         'subjectsComplex': resultsSubjectsComplex,
-        'names':resultsNames, //.concat(resultsNamesComplex),
+        'names':resultsNames,
         'hierarchicalGeographic': resultsHierarchicalGeographic,
-        'hierarchicalGeographicAll': resultsHierarchicalGeographicAll
+        'hierarchicalGeographicAll': resultsHierarchicalGeographicAllFiltered
       }
 
       console.info("results: ", results)

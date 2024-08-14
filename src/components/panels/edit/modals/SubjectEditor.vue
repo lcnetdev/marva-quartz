@@ -1232,6 +1232,9 @@ export default {
             let removalStart = splitString.length-1-numPieces
             let updated = splitString.splice(removalStart, numPieces)
             this.activeComponentIndex = this.activeComponentIndex - numPieces // update the activeComponentIndex
+          } else if (true){
+            console.info(splitString)
+            console.info(this.pickLookup[this.pickPostion].label)
           }
         }
 
