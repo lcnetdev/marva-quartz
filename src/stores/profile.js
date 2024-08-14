@@ -63,7 +63,7 @@ export const useProfileStore = defineStore('profile', {
       componentGuid: null,
       componentPropertyPath:null
     },
-    
+
 
     // bf:title component/predicate for example, value will be the structure object for this component
 
@@ -1033,8 +1033,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
-      console.info("Setting vale")
-
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
 
@@ -2560,7 +2558,7 @@ export const useProfileStore = defineStore('profile', {
     /**
     * If it is a LCC component info about the LCC numbers
     * used in the interface rendering
-    * @return {boolean} 
+    * @return {boolean}
     */
     returnLccInfo: function(componentGuid, structure){
 
@@ -2615,8 +2613,8 @@ export const useProfileStore = defineStore('profile', {
               }
             }
           }
-          
-          
+
+
           if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/contribution'){
             let contributorUserValue = pt.userValue
             let type="normal"
@@ -2625,7 +2623,7 @@ export const useProfileStore = defineStore('profile', {
               if (contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['@type'] === 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution'){
                 type="PrimaryContribution"
               }
-              
+
               if (contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]){
                 let agent = contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
                 if (agent && agent['http://www.w3.org/2000/01/rdf-schema#label'] && agent['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && agent['http://www.w3.org/2000/01/rdf-schema#label'][0] && agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
@@ -2644,12 +2642,12 @@ export const useProfileStore = defineStore('profile', {
 
             if (subjectUserValue && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'].length > 0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
               if (subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-                
+
                 firstSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
 
 
               }
-              
+
             }
 
           }
@@ -2661,11 +2659,11 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-      
+
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
         let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
 
-        
+
         if (uv && uv['@type'] && uv['@type'] == 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
 
         // this is a LCC field then
@@ -2673,7 +2671,7 @@ export const useProfileStore = defineStore('profile', {
           // we need to gather info from the component and the rest of the work to build links/suggestions
 
 
-          
+
 
           if (uv['http://id.loc.gov/ontologies/bibframe/classificationPortion'] && uv['http://id.loc.gov/ontologies/bibframe/classificationPortion'].length>0 && uv['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] && uv['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']){
             classNumber = uv['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
@@ -2705,7 +2703,7 @@ export const useProfileStore = defineStore('profile', {
           // console.log("contributors",contributors)
 
 
-          
+
 
           return {
             title: title,
@@ -2747,7 +2745,7 @@ export const useProfileStore = defineStore('profile', {
 
       }
 
-      
+
       //ClassificationLcc
       return false
 

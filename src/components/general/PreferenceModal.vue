@@ -6,7 +6,7 @@
   import VueDragResize from 'vue3-drag-resize'
   import { ColorPicker } from "vue3-colorpicker";
   import "vue3-colorpicker/style.css";
-  
+
 
 
   export default {
@@ -42,12 +42,12 @@
       ...mapState(usePreferenceStore, ['showPrefModal','showPrefModalGroup','styleDefault', 'showPrefModalGroup', 'fontFamilies']),
 
       // array of the pssobile groups from the stlyes
-      possilbleGroups() { 
+      possilbleGroups() {
         // console.log([...new Set(Object.keys(this.styleDefault).map((v)=>{return this.styleDefault[v].group}))])
         return [...new Set(Object.keys(this.styleDefault).map((v)=>{return this.styleDefault[v].group}))]
       },
 
-      
+
 
 
 
@@ -56,7 +56,7 @@
     watch: {
       // whenever question changes, this function will run
       showPrefModal(newVal, oldVal) {
-        
+
         console.log(newVal,oldVal)
         // if (newVal === true){
         //   this.loadPrefGroup()
@@ -65,7 +65,7 @@
     },
 
     methods: {
-        
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -94,7 +94,12 @@
         },
 
 
-        loadPrefGroup: function(event){    
+        loadPrefGroup: function(event){
+          // properties for the OPAC and properties panel where interacting with each other
+          // Clear the values s
+          this.rangeValue = {}
+          this.fontValue = {}
+          this.booleanValue = {}
 
           if (event){
             this.preferenceStore.setShowPrefModalGroup(event.target.value)
@@ -110,6 +115,7 @@
             if (this.styleDefault[k].group == this.showPrefModalGroup){
               let o = Object.assign({},this.styleDefault[k])
               o.id = k
+
               if (o.type == 'number'){
                 this.rangeValue[o.id] = o.value
               }else if (o.type == 'font'){
@@ -117,10 +123,6 @@
               }else if (o.type == 'boolean'){
                 this.booleanValue[o.id] = o.value
               }
-
-
-
-
               this.renderProperties.push(o)
             }
           }
@@ -141,25 +143,26 @@
 
         rangeValueChange: function(){
           for (let id in this.rangeValue){
-            this.preferenceStore.setValue(id,parseFloat(this.rangeValue[id]))  
-          }        
+            this.preferenceStore.setValue(id,parseFloat(this.rangeValue[id]))
+          }
         },
         fontValueChange: function(event){
           for (let id in this.fontValue){
-            this.preferenceStore.setValue(id,event.target.value)  
-          }        
+            this.preferenceStore.setValue(id,event.target.value)
+          }
+          this.fontValue = {}
         },
         booleanValueChange: function(){
           for (let id in this.booleanValue){
             console.log(id,this.booleanValue[id])
-            this.preferenceStore.setValue(id,this.booleanValue[id])  
-          }        
+            this.preferenceStore.setValue(id,this.booleanValue[id])
+          }
         },
 
-        
 
 
-        
+
+
 
 
 
@@ -189,7 +192,7 @@
       display-directive="show"
       :hide-overlay="true"
       :overlay-transition="'vfm-fade'"
-      
+
     >
         <VueDragResize
           :is-active="true"
@@ -216,7 +219,7 @@
                   <div class="option-title-desc">{{option.desc}}</div>
                 </div>
                 <div class="option-control">
-                    
+
                     <template v-if="option.type==='color'">
 
                         <color-picker :pureColor="option.value" :format="'hex8'" @update:pureColor="changeColor($event,option.id)" />
@@ -239,7 +242,7 @@
 
                     </template>
 
-                    
+
 
 
 
@@ -249,11 +252,11 @@
 
 
             </div>
-<!-- 
+<!--
 
               <input type="range" max="100" min="0.5" step="0.1" >
            -->
-              
+
 
 
           </div>
@@ -306,7 +309,7 @@
   }
   .preference-modal{
     background-color: white;
-    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27); 
+    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27);
     box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27);
     border-radius: 1em;
     padding:1em;
