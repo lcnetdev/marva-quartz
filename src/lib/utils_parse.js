@@ -447,7 +447,6 @@ const utilsParse = {
         let el = []
         for (let e of xml.children){
           if (this.UriNamespace(e.tagName) == propertyURI){
-
             // if it has a hint then we need to check if we can find the right pt for it
             if (e.attributes['local:pthint'] && e.attributes['local:pthint'].value){              
               // check to see if this pt has that hint value in the valueConstraint  valueTemplateRefs
@@ -465,7 +464,6 @@ const utilsParse = {
                     foundPtToUse = true
                   }
                 }
-
                 if (foundPtToUse){
                   // jump to the next el this one will get grabbed by the one it is suppose to use
                   continue
@@ -473,19 +471,11 @@ const utilsParse = {
                   // we did not find a place to put this el, so we need to add it here 
                   el.push(e)                                    
                 }
-
               }
-              
-              
-
-
             }else{
               // just add it normally
               el.push(e)
-
             }
-
-
           }
         }
         
@@ -1470,6 +1460,13 @@ const utilsParse = {
 
             }
 
+
+            
+            // do a little sanity check here, loop through and 
+            userValue = this.removeEmptyBnodes(userValue)
+            
+
+
             counter++
 
           }
@@ -1490,12 +1487,6 @@ const utilsParse = {
           }
         }
 
-
-
-
-
-
-        
 
 
       }
@@ -1869,9 +1860,47 @@ const utilsParse = {
   },
 
 
+  removeEmptyBnodes: function(userValue){
+
+    for (let key in userValue){
+      if (Array.isArray(userValue[key])){
+        let newArray = []
+        for (let arrayObj of userValue[key]){
+          if (typeof arrayObj === 'object' && !Array.isArray(arrayObj) && arrayObj !== null){            
+            if (Object.keys(arrayObj).length==1){
+              console.log("Bad obj->",arrayObj)
+            }else{
+              newArray.push(arrayObj)
+            }
+            // console.log("Is arrayObj object ===>",arrayObj)
+          }
+        }      
+        userValue[key] = newArray  
+      }
+    }
+
+    let removeKeys = []
+    for (let key in userValue){
+      if (Array.isArray(userValue[key])){
+        if (userValue[key].length==0){
+          removeKeys.push(key)
+        }
+      }
+    }
+    if (removeKeys.length>0){
+      for (let k of removeKeys){
+        delete userValue[k]
+      }
+    }
+
+    return  userValue
+
+  }
 
 
 
+
+  
 
 }
 

@@ -1399,7 +1399,7 @@ export const useProfileStore = defineStore('profile', {
         // console.log(JSON.stringify(pt,null,2))
 
         // let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
-        console.log("blankNode -->",blankNode)
+        
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult

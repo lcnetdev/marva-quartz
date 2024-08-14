@@ -724,7 +724,12 @@ const utilsExport = {
 										
 									}else{
 
-										console.error('Unhadled literal situtation')
+										console.warn('Unhadled literal situtation')
+										console.log("value1", value1, 'key1',key1)
+										// just set it to an empty value
+										value1[key1] = ""
+										
+
 									}
 
 									
