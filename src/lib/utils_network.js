@@ -1947,7 +1947,6 @@ const utilsNetwork = {
       console.log(useConfigStore().lookupConfig)
 
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
-      let namesUrlComplex = "" // useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
 
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
       let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=SimpleType'
@@ -1982,12 +1981,6 @@ const utilsNetwork = {
         processor: 'lcAuthorities',
         url: [namesUrl],
         searchValue: searchVal
-      }
-
-      let searchPayloadNamesComplex = {
-        processor: 'lcAuthorities',
-        url: [namesUrlComplex],
-        searchValue: complexVal
       }
 
       let searchPayloadSubjectsSimple = {
@@ -2044,7 +2037,6 @@ const utilsNetwork = {
 
 
       let resultsNames =[]
-      let resultsNamesComplex =[]
       let resultsSubjectsSimple=[]
       let resultsSubjectsComplex=[]
       let resultsHierarchicalGeographic=[]
@@ -2055,9 +2047,8 @@ const utilsNetwork = {
       let resultsHubsKeyword=[]
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsNamesComplex, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsHierarchicalGeographicAll] = await Promise.all([
+        [resultsNames, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsHierarchicalGeographicAll] = await Promise.all([
             this.searchComplex(searchPayloadNames),
-            [], //this.searchComplex(searchPayloadNamesComplex),
             this.searchComplex(searchPayloadSubjectsSimple),
             this.searchComplex(searchPayloadSubjectsComplex),
             this.searchComplex(searchPayloadHierarchicalGeographic),
@@ -2092,9 +2083,6 @@ const utilsNetwork = {
       // drop the litearl value from names and complex
       if (resultsNames.length>0){
         resultsNames.pop()
-      }
-      if (resultsNamesComplex.length > 0){
-        resultsNamesComplex.pop()
       }
       if (resultsHierarchicalGeographicAll.length > 0){
         resultsHierarchicalGeographicAll.pop()
