@@ -172,8 +172,8 @@
               { text: 'Complex Lookup', click: () => this.preferenceStore.togglePrefModal('Complex Lookup')},
               { text: 'Action Button', click: () => this.preferenceStore.togglePrefModal('Action Button')},
               { text: 'Nav Bar', click: () => this.preferenceStore.togglePrefModal('Nav Bar')},
-              { text: 'Sidebars - OPAC', click: () => this.preferenceStore.togglePrefModal('General')},
-              { text: 'Sidebars - Property', click: () => this.preferenceStore.togglePrefModal('General')},
+              { text: 'Sidebars - OPAC', click: () => this.preferenceStore.togglePrefModal('Sidebars - OPAC')},
+              { text: 'Sidebars - Property', click: () => this.preferenceStore.togglePrefModal('Sidebars - Property')},
 
 
               { is: 'separator'},
