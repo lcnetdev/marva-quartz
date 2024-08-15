@@ -66,6 +66,7 @@
 
               <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
                 <input placeholder="URL to resource or identifier to search" class="url-to-load" type="text" @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
+                <p>Need to search title or author? Use <a href="https://preprod-8230.id.loc.gov/lds/index.xqy" target="_blank">BFDB</a>.</p>
               </form>
 
 
@@ -301,7 +302,7 @@
 
       allRecordsRowClick: function(row){
 
-        
+
 
       },
 
@@ -313,7 +314,7 @@
         this.isLoadingAllRecords=true
 
         let allRecordsRaw = await utilsNetwork.searchSavedRecords()
-        
+
         this.allRecords = []
         for (let r of allRecordsRaw){
 
@@ -340,7 +341,7 @@
         this.isLoadingAllRecords=false
       },
 
-      returnTimeAgo: function(timestamp){        
+      returnTimeAgo: function(timestamp){
         return timeAgo.format(timestamp*1000)
       },
 
@@ -350,7 +351,7 @@
       },
 
       loadTestData: function(meta){
-        
+
 
         let href = window.location.href.split("/")
         this.urlToLoad = `/${href[3]}/${href[4]}/test_files/${meta.lccn}.xml`
@@ -396,12 +397,12 @@
       loadUrl: async function(useInstanceProfile,multiTestFlag){
 
         if (this.lccnLoadSelected){
-          
+
           this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
 
         }
 
-        
+
 
         if (this.urlToLoad.trim() !== ''){
 
@@ -411,13 +412,13 @@
             return false
           }
           // if (xml.indexOf('<rdf:RDF'))
-          
+
 
           // check for XML problems here ?
 
           utilsParse.parseXml(xml)
 
-          
+
 
         }
 
@@ -542,7 +543,7 @@
 
 
       let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
-      
+
       let lccnLookup = {}
 
       // in this view we want to remove any records that are repeats, so only show the latest LCCN being edited
