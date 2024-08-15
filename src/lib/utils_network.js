@@ -2141,10 +2141,6 @@ const utilsNetwork = {
       const subjectURIs = subjectComplexURIs.concat(subjectSimpleURIs).concat(hierarchicalGeographicURIs)
       const resultsHierarchicalGeographicAllFiltered = resultsHierarchicalGeographicAll.filter((subj) => !subjectURIs.includes(subj.uri))
 
-      console.info("resultsHierarchicalGeographic: ", resultsHierarchicalGeographic)
-      console.info("resultsHierarchicalGeographicAll: ", resultsHierarchicalGeographicAll)
-      console.info("resultsHierarchicalGeographicAllFiltered: ", resultsHierarchicalGeographicAllFiltered)
-
       let results = {
         'subjectsSimple': resultsSubjectsSimple,
         'subjectsComplex': resultsSubjectsComplex,
@@ -2152,8 +2148,6 @@ const utilsNetwork = {
         'hierarchicalGeographic': resultsHierarchicalGeographic,
         'hierarchicalGeographicAll': resultsHierarchicalGeographicAllFiltered
       }
-
-      console.info("results: ", results)
 
       return results
 
