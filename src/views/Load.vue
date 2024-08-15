@@ -301,7 +301,7 @@
 
       allRecordsRowClick: function(row){
 
-        
+
 
       },
 
@@ -313,7 +313,7 @@
         this.isLoadingAllRecords=true
 
         let allRecordsRaw = await utilsNetwork.searchSavedRecords()
-        
+
         this.allRecords = []
         for (let r of allRecordsRaw){
 
@@ -340,7 +340,7 @@
         this.isLoadingAllRecords=false
       },
 
-      returnTimeAgo: function(timestamp){        
+      returnTimeAgo: function(timestamp){
         return timeAgo.format(timestamp*1000)
       },
 
@@ -350,7 +350,7 @@
       },
 
       loadTestData: function(meta){
-        
+
 
         let href = window.location.href.split("/")
         this.urlToLoad = `/${href[3]}/${href[4]}/test_files/${meta.lccn}.xml`
@@ -366,6 +366,8 @@
 
       loadSearch: function(){
         this.lccnLoadSelected = null
+
+        console.info("Load: ", this.urlToLoad)
 
         if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")){
           this.urlToLoadIsHttp = true
@@ -394,14 +396,20 @@
       },
 
       loadUrl: async function(useInstanceProfile,multiTestFlag){
+        console.info("Loading: ", this.urlToLoad)
+
+        if (this.urlToLoad == ""){
+          alert("Please enter the URL or Identifier of the record you want to load.")
+          return false
+        }
 
         if (this.lccnLoadSelected){
-          
+
           this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
 
         }
 
-        
+
 
         if (this.urlToLoad.trim() !== ''){
 
@@ -411,13 +419,13 @@
             return false
           }
           // if (xml.indexOf('<rdf:RDF'))
-          
+
 
           // check for XML problems here ?
 
           utilsParse.parseXml(xml)
 
-          
+
 
         }
 
@@ -542,7 +550,7 @@
 
 
       let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
-      
+
       let lccnLookup = {}
 
       // in this view we want to remove any records that are repeats, so only show the latest LCCN being edited
