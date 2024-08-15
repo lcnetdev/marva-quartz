@@ -7,7 +7,7 @@
   export default {
     data() {
       return {
-        
+
       }
     },
     computed: {
@@ -35,7 +35,7 @@
                   titles.push(this.rtLookup[t].resourceLabel)
               }
           }
-          
+
           return titles
 
 
@@ -101,8 +101,8 @@
                         for (let labelUri of ['http://www.w3.org/2000/01/rdf-schema#label','http://www.loc.gov/mads/rdf/v1#authoritativeLabel', 'http://id.loc.gov/ontologies/bibframe/code']){
                           if (value2[labelUri]){
                             for (let vl of value2[labelUri]){
-                              toAdd.label.push(vl[labelUri])  
-                            }                            
+                              toAdd.label.push(vl[labelUri])
+                            }
                           }
                         }
                         results.push(toAdd)
@@ -110,7 +110,7 @@
                           uri: null,
                           label: [],
                           children:[]
-                        }                        
+                        }
 
 
 
@@ -150,7 +150,7 @@
     },
 
     mounted() {
-     
+
 
 
     }
@@ -178,7 +178,7 @@
                   </svg>
                   <svg  v-if="profileName.endsWith(':Hub')" version="1.1" viewBox="0 -20 100 100" xmlns="http://www.w3.org/2000/svg">
                     <path fill="royalblue" d="m62.113 24.66 1.9023-15.238 18.875 32.691-7.5469 20.004 15.238 1.9023-32.691 18.875-20.004-7.5469-1.9023 15.238-18.875-32.691 7.5469-20.004-15.238-1.9023 32.691-18.875zm-17.684 15.695-4.0781 15.215 15.215 4.0781 4.0781-15.215z" fill-rule="evenodd"/>
-                  </svg>                        
+                  </svg>
                   <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Work'">{{$t("message.wordWork")}}</span>
                   <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Instance'">{{$t("message.wordInstance")}}</span>
                   <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Item'">{{$t("message.wordItem")}}</span>
@@ -195,7 +195,7 @@
                         {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                     </a>
                     <div style="" class="sidebar-opac-li-value" v-for="value in buildDisplayObjects(activeProfile.rt[profileName].pt[profileCompoent].userValue)">
-                        
+
                         <template v-if="value.uri !== null">
                           <a :href="value.uri" target="_blank">
                             <div class="sidebar-opac-li-value-text" v-for="l in value.label">{{l}}</div>
@@ -212,7 +212,7 @@
         </ul>
 
 
-  <!-- 
+  <!--
       <div v-if="activeProfile.rt[profileName].noData != true">
           <div :class="{'container-type-icon': true, 'sidebar-spacer': (profileName.split(':').slice(-1)[0] == 'Instance' || profileName.split(':').slice(-1)[0] == 'Item')}">
                   <svg v-if="profileName.split(':').slice(-1)[0] == 'Work'" width="1.5em" height="1.1em" version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -226,14 +226,14 @@
                   </svg>
                   <svg  v-if="profileName.endsWith(':Hub')" version="1.1" viewBox="0 -20 100 100" xmlns="http://www.w3.org/2000/svg">
                     <path fill="royalblue" d="m62.113 24.66 1.9023-15.238 18.875 32.691-7.5469 20.004 15.238 1.9023-32.691 18.875-20.004-7.5469-1.9023 15.238-18.875-32.691 7.5469-20.004-15.238-1.9023 32.691-18.875zm-17.684 15.695-4.0781 15.215 15.215 4.0781 4.0781-15.215z" fill-rule="evenodd"/>
-                  </svg>                        
+                  </svg>
                   <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Work'">{{$t("message.wordWork")}}</span>
                   <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Instance'">{{$t("message.wordInstance")}}</span>
                   <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Item'">{{$t("message.wordItem")}}</span>
                   <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Hub'">{{$t("message.wordHub")}}</span>
           </div>
 
-         
+
 
 
       </div> -->
@@ -250,14 +250,14 @@
 
 
 .container-type-icon{
-  color: #ffffff; 
-  width: inherit; 
-  text-align: left;  
+  color: #ffffff;
+  width: inherit;
+  text-align: left;
   display: flex;
 }
 
 
-.sidebar-header-text{  
+.sidebar-header-text{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size', true) + 0.25  + 'em'");
   font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
@@ -278,8 +278,8 @@
 }
 
 .sidebar-opac-li-value{
-  padding-left:0.4em; 
-  font-size:0.85em; 
+  padding-left:0.4em;
+  font-size:0.85em;
   margin-bottom:0.5em;
 }
 

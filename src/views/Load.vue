@@ -28,7 +28,7 @@
                   </router-link>
                 </td>
 
-                <td v-text="row.RTs.join(', ')"/>
+                <td v-text="(row.RTs) ? row.RTs.join(', ') : row.RTs"/>
                 <td v-text="row.Type"/>
                 <td v-text="row.Status"/>
                 <td>

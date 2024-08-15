@@ -1379,10 +1379,10 @@ export const useProfileStore = defineStore('profile', {
         pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
         cachePt[componentGuid] = pt
       }
-      console.log("--------pt 1------------")
-      console.log(JSON.stringify(pt,null,2))
+      // console.log("--------pt 1------------")
+      // console.log(JSON.stringify(pt,null,2))
       // let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-      console.log(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral)
+      // console.log(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral)
       if (pt !== false){
 
         pt.hasData = true
@@ -1395,11 +1395,11 @@ export const useProfileStore = defineStore('profile', {
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
           cacheGuid[fieldGuid] = blankNode
         }
-        console.log("--------pt 2------------")
-        console.log(JSON.stringify(pt,null,2))
+        // console.log("--------pt 2------------")
+        // console.log(JSON.stringify(pt,null,2))
 
         // let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
-        console.log("blankNode -->",blankNode)
+        
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult
@@ -1423,8 +1423,8 @@ export const useProfileStore = defineStore('profile', {
             blankNode['@guid'] = fieldGuid
             // set a temp value that will be over written below
             blankNode[lastProperty] = true
-            console.log("--------pt 3------------")
-            console.log(JSON.stringify(pt,null,2))
+            // console.log("--------pt 3------------")
+            // console.log(JSON.stringify(pt,null,2))
 
           }else{
 
@@ -1454,8 +1454,8 @@ export const useProfileStore = defineStore('profile', {
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
             // set a temp value that will be over written below
             blankNode[lastProperty] = true
-            console.log("--------pt 4------------")
-            console.log(JSON.stringify(pt,null,2))
+            // console.log("--------pt 4------------")
+            // console.log(JSON.stringify(pt,null,2))
 
 
           }
@@ -1507,8 +1507,8 @@ export const useProfileStore = defineStore('profile', {
               delete parent[lastProperty]
             }
 
-            console.log("--------pt 5------------")
-            console.log(JSON.stringify(pt,null,2))
+            // console.log("--------pt 5------------")
+            // console.log(JSON.stringify(pt,null,2))
 
 
           }

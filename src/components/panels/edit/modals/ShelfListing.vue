@@ -141,7 +141,7 @@
           if (!this.cutterNumber){this.cutterNumber=''}
           this.results = []
           this.searching=true
-          this.results =  await utilsNetwork.searchShelfList(this.classNumber.trim() + ' ' + this.cutterNumber.trim())
+          this.results =  await utilsNetwork.searchShelfList(this.classNumber.trim() + '' + this.cutterNumber.trim())
 
           this.searching=false
 

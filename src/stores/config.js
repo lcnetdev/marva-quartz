@@ -19,7 +19,7 @@ export const useConfigStore = defineStore('config', {
         publish : 'http://localhost:9401/util/publish/staging',
         validate: 'http://localhost:5200/util/validate',
         bfdb : 'https://preprod-8230.id.loc.gov/',
-        shelfListing: 'https://preprod-8231.id.loc.gov/',
+        shelfListing: 'https://preprod-8230.id.loc.gov/',
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
         starting: 'http://localhost:9401/util/profiles/starting/prod',
 
@@ -44,7 +44,7 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
         validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
-        shelfListing: 'https://preprod-8231.id.loc.gov/',
+        shelfListing: 'https://preprod-8230.id.loc.gov/',
         // bfdb : 'https://preprod-8210.id.loc.gov/',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         profiles : '/bfe2/util/profiles/profile/stage',
@@ -63,7 +63,7 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter  :  'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://editor.id.loc.gov/bfe2/util/publish/production',
-        shelfListing: 'https://preprod-8231.id.loc.gov/',
+        shelfListing: 'https://preprod-8230.id.loc.gov/',
         validate: 'https://editor.id.loc.gov/bfe2/util/validate',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         bfdbGPO : 'https://preprod-8210.id.loc.gov/',
@@ -212,6 +212,7 @@ export const useConfigStore = defineStore('config', {
   testData:[
     {lccn:'2001059208',label:"The knitter's handy book of patterns: basic designs in multiple sizes & gauges", idUrl:'https://id.loc.gov/resources/instances/12618072.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
     {lccn:'2021375840',label:"Schooling under control", idUrl:'https://id.loc.gov/resources/instances/21910923.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+    {lccn:'2023920086',label:"The Serby saga (IBC)", idUrl:'https://id.loc.gov/resources/instances/23354934.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
     {lccn:'2024591512',label:"The Berkshires, Massachusetts discovery map 2022-2023", idUrl:'https://id.loc.gov/resources/instances/23486403.html', profile:'Cartographic',profileId:'lc:RT:bf2:Cartographic:Instance'},
     {lccn:'2016627557',label:"Wallflower", idUrl:'https://id.loc.gov/resources/instances/2016627557.html', profile:'Audio CD',profileId:'lc:RT:bf2:SoundRecording:Instance'},
