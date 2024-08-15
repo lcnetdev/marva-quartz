@@ -86,9 +86,9 @@
 
 
                     <button @click="searchModeSwitch('LCSHNAF')" :data-tooltip="'Shortcut: CTRL+ALT+1'" :class="['simptip-position-bottom',{'active':(searchMode==='LCSHNAF')}]">LCSH/NAF</button>
-                    <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button>
-                    <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button>
-                    <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
+                    <!-- button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button -->
+                    <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button>
+                    <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
 
                   </div>
 
@@ -1146,12 +1146,23 @@ export default {
 
     /** Clear the current selection so that hovering will update the preview again */
     clearSelected: function(){
+      console.info("@@@ clear selected")
       this.pickLookup[this.pickCurrent].picked = false
       this.pickCurrent = null
+
+      this.$refs.subjectInput.focus()
     },
 
     loadContext: async function(pickPostion){
-      if (this.pickCurrent == null) {
+      console.info("pickPostion: ", pickPostion)
+      console.info("this.pickCurrent: ", this.pickCurrent)
+      console.info("pickLookup: ", this.pickLookup)
+      try {
+        console.info("picked? ", this.pickLookup[this.pickCurrent].picked)
+      } catch(error){
+        console.info("nope: ", error)
+      }
+      if (this.pickCurrent == null || this.pickLookup[this.pickCurrent].picked == true) {
         this.pickPostion = pickPostion
       } else {
         return null
@@ -1166,6 +1177,7 @@ export default {
         this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
       }
 
+
       // this.$store.dispatch("fetchContext", { self: this, searchPayload: this.pickLookup[this.pickPostion].uri }).then(() => {
 
       //   // keep a local copy of it for looking up subject type
@@ -1178,11 +1190,19 @@ export default {
     },
 
     selectContext: async function(pickPostion, update=true){
+      console.info(">>>selectContext")
       if (pickPostion != null){
         this.pickPostion=pickPostion
         this.pickCurrent=pickPostion
         this.getContext()
       }
+
+      // if (this.pickLookup[this.pickCurrent].picked = true){
+      //   return true
+      // }
+
+      // lock in the selected position
+      this.pickCurrent = this.pickPostion
 
       if (this.pickLookup[this.pickPostion].complex){
         this.activeComponentIndex = 0
@@ -1264,9 +1284,9 @@ export default {
         if (update == true){
           this.subjectStringChanged()
         }
-
-
       }
+
+    this.$refs.subjectInput.focus()
 
 
 
@@ -1274,10 +1294,19 @@ export default {
 
 
     navInput: function(event){
+      console.info("navInput")
+      try {
+        console.info("picked? ", this.pickLookup[this.pickCurrent].picked)
+      } catch(error){
+        console.info("")
+      }
+
       if (event.key == 'ArrowUp'){
         if (parseInt(this.pickPostion) <= this.searchResults.names.length*-1){
           return false
         }
+
+        this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) - 1 )
         event.preventDefault()
         return false
@@ -1287,20 +1316,15 @@ export default {
           return false
         }
 
-
+        this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) + 1 )
         event.preventDefault()
         return false
       }else if (event.key == 'Enter'){
-
-
-
         if (event.shiftKey){
           this.add()
           return
         }
-
-
 
         this.selectContext()
 
