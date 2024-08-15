@@ -1220,10 +1220,10 @@ export default {
 
         // replace the string with what we selected
         splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
-        // if the incoming term is complex, pop the elements from split string that are part of it
+        // if the incoming term is complex, pop the elements from splitstring that are part of it
         /*
           Without this searching `New York (State)--new yor` and selecting `New York (State)--New York`
-          will result in the string being `New York (State)--New York (State)--New York`
+          will result in `New York (State)--New York (State)--New York`
         */
         if (this.pickLookup[this.pickPostion].label.includes("‑‑")){
           // without this it's possible to keep selecting a term and delete parts of the heading that should remain
@@ -1232,14 +1232,18 @@ export default {
             let removalStart = splitString.length-1-numPieces
             let updated = splitString.splice(removalStart, numPieces)
             this.activeComponentIndex = this.activeComponentIndex - numPieces // update the activeComponentIndex
-          } else if (true){
-            console.info(splitString)
-            console.info(this.pickLookup[this.pickPostion].label)
+          } else if (this.pickLookup[this.pickPostion].label.split("‑‑").length == splitString.length){
+            //if the selection has as many pieces as the input, replace the whole thing
+            splitString = this.pickLookup[this.pickPostion].label
+            this.activeComponentIndex = 0
           }
         }
 
-        this.subjectString = splitString.join('--')
-
+        try{
+          this.subjectString = splitString.join('--')
+        } catch(err){
+          this.subjectString = splitString
+        }
 
         if (!this.componetLookup[this.activeComponentIndex]){
           this.componetLookup[this.activeComponentIndex]= {}
