@@ -368,6 +368,8 @@
       loadSearch: function(){
         this.lccnLoadSelected = null
 
+        console.info("Load: ", this.urlToLoad)
+
         if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")){
           this.urlToLoadIsHttp = true
           return false
@@ -395,6 +397,12 @@
       },
 
       loadUrl: async function(useInstanceProfile,multiTestFlag){
+        console.info("Loading: ", this.urlToLoad)
+
+        if (this.urlToLoad == ""){
+          alert("Please enter the URL or Identifier of the record you want to load.")
+          return false
+        }
 
         if (this.lccnLoadSelected){
 
