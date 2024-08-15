@@ -1179,15 +1179,12 @@ export default {
 
     selectContext: async function(pickPostion, update=true){
       if (pickPostion != null){
-        console.info("incoming position: ", pickPostion)
         this.pickPostion=pickPostion
         this.pickCurrent=pickPostion
         this.getContext()
       }
 
-      console.info("lookup: ", this.pickLookup)
       if (this.pickLookup[this.pickPostion].complex){
-        console.info("HERE ", this.pickLookup[this.pickPostion])
         this.activeComponentIndex = 0
         this.componetLookup = {}
 

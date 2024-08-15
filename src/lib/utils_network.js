@@ -346,19 +346,13 @@ const utilsNetwork = {
             try{
               if (searchValue.includes("--")) {
                 let pieces = searchValue.split("--")
-                console.info("pieces: ", pieces)
                 if (pieces.length > 2){
                   let last = pieces[pieces.length-1]
                   let pen = pieces[pieces.length-2]
                   let value = pen + "--" + last
                   partial = await this.fetchSimpleLookup(url.replace(searchValue, value))
                 }
-                console.info("searchValue: ", searchValue)
                 all = await this.fetchSimpleLookup(url)
-
-                console.info("Url: ", url)
-                console.info("partial: ", partial)
-                console.info("all: ", all)
 
                 if (partial != null){
                   all.count += partial.count
@@ -377,7 +371,6 @@ const utilsNetwork = {
             //Config only allows 25 results, this will add something to the results
             // to let the user know there are more names.
             let overflow = 0
-            console.info("r: ", r)
             if (r.hits.length < r.count){
               // It looks like the count is 1 more than the number of hits, why?
               overflow = (r.count - r.hits.length)
@@ -1966,10 +1959,6 @@ const utilsNetwork = {
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count=4').replace("<OFFSET>", "1")
       let HierarchicalGeographicAll = useConfigStore().lookupConfig['HierarchicalGeographicAll'].modes[0]['All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
 
-      console.info("config: ", useConfigStore().lookupConfig['HierarchicalGeographicAll'])
-      console.info("URL:: ", HierarchicalGeographicAll)
-
-
       if (mode == 'GEO'){
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
       }
@@ -2006,9 +1995,6 @@ const utilsNetwork = {
         url: [HierarchicalGeographicAll],
         searchValue: complexVal
       }
-
-      console.info("payload: ", searchPayloadHierarchicalGeographicAll)
-
 
       let searchPayloadWorksAnchored = {
         processor: 'lcAuthorities',
