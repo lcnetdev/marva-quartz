@@ -2366,7 +2366,7 @@ const utilsNetwork = {
         let results = await req.json()
 
         if (req && req.status && req.status == 500){
-
+          alert("Error talking to the Search API")
           return ["Error searching LCCN"]
         }
 
