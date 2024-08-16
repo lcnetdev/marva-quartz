@@ -1317,11 +1317,11 @@ export default {
 
         this.searchModeSwitch("LCSHNAF")
 
-      }else if (event.ctrlKey && event.key == "2"){
-
-        this.searchModeSwitch("GEO")
-
-      }else if (event.ctrlKey && event.key == "3"){
+      }
+      // else if (event.ctrlKey && event.key == "2"){
+      //   this.searchModeSwitch("GEO")
+      // }
+      else if (event.ctrlKey && event.key == "2"){
 
         this.searchModeSwitch("WORKS")
 
