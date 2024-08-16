@@ -86,9 +86,9 @@
 
 
                     <button @click="searchModeSwitch('LCSHNAF')" :data-tooltip="'Shortcut: CTRL+ALT+1'" :class="['simptip-position-bottom',{'active':(searchMode==='LCSHNAF')}]">LCSH/NAF</button>
-                    <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button>
-                    <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button>
-                    <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
+                    <!-- button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button -->
+                    <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button>
+                    <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
 
                   </div>
 
@@ -98,7 +98,7 @@
                     <div v-if="activeSearch!==false">{{activeSearch}}</div>
                     <div v-if="searchResults !== null">
                       <div v-if="searchResults.names.length>0 && !this.searching">
-
+                        <span>Names</span>
                         <div v-for="(name,idx) in searchResults.names" @click="selectContext((searchResults.names.length - idx)*-1)" @mouseover="loadContext((searchResults.names.length - idx)*-1)" :data-id="(searchResults.names.length - idx)*-1" :key="name.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1 ),'picked': (pickLookup[(searchResults.names.length - idx)*-1] && pickLookup[(searchResults.names.length - idx)*-1].picked)}]">
                             <span v-if="name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
                             <span v-else>{{name.suggestLabel}}</span>
@@ -107,13 +107,30 @@
                         <hr>
                       </div>
 
+
                       <div v-if="searchResults.subjectsComplex.length>0">
+                        <span>Subjects (Complex)</span>
                         <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">{{subjectC.suggestLabel}}<span></span></div>
                         <hr>
                       </div>
 
                       <div v-if="searchResults.subjectsSimple.length>0">
+                        <span>Subjects (Simple)</span>
                         <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">{{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span></div>
+                      </div>
+
+                      <!-- Geo subdivisions -->
+                      <hr>
+                      <div v-if="searchResults.hierarchicalGeographicAll.length>0">
+                        <span>Geo SubDivisions</span>
+                        <div v-for="(subject,idx) in searchResults.hierarchicalGeographicAll"
+                          @click="selectContext(searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx)"
+                          @mouseover="loadContext(searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx)"
+                          :data-id="searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx"
+                          :key="subject.uri"
+                          :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + searchResults.subjectsSimple.length + idx] && pickLookup[searchResults.subjectsComplex.length + searchResults.subjectsSimple.length+ idx].picked), 'literal-option':(subject.literal)}]"
+                        >{{subject.suggestLabel}}
+                        <span  v-if="subject.literal">{{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span></div>
                       </div>
 
 
@@ -861,7 +878,6 @@ export default {
 
       that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
 
-
       // if they clicked around while it was doing this lookup bail out
       // if (that.activeSearchInterrupted){
 
@@ -885,7 +901,6 @@ export default {
         s.labelOrginal = s.label
         s.label = s.label.replaceAll('-','‑')
       }
-
 
       for (let s of that.searchResults.subjectsComplex){
         s.labelOrginal = s.label
@@ -934,6 +949,12 @@ export default {
         s.label = s.label.replaceAll('-','‑')
       }
 
+      for (let s of that.searchResults.hierarchicalGeographicAll){
+        s.labelOrginal = s.label
+        s.hierarchicalGeographic=true
+        s.label = s.label.replaceAll('-','‑')
+      }
+
 
       if (that.searchResults.hierarchicalGeographic.length>0 && that.searchResults.subjectsComplex.length==0){
         that.searchResults.subjectsComplex = that.searchResults.hierarchicalGeographic
@@ -957,7 +978,9 @@ export default {
       }
 
 
-
+      for (let x in that.searchResults.hierarchicalGeographicAll){
+        that.pickLookup[parseInt(x)+parseInt(that.searchResults.subjectsComplex.length)+parseInt(that.searchResults.subjectsSimple.length)] = that.searchResults.hierarchicalGeographicAll[x]
+      }
 
 
 
@@ -1125,6 +1148,8 @@ export default {
     clearSelected: function(){
       this.pickLookup[this.pickCurrent].picked = false
       this.pickCurrent = null
+
+      this.$refs.subjectInput.focus()
     },
 
     loadContext: async function(pickPostion){
@@ -1142,6 +1167,7 @@ export default {
       if (this.contextData){
         this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
       }
+
 
       // this.$store.dispatch("fetchContext", { self: this, searchPayload: this.pickLookup[this.pickPostion].uri }).then(() => {
 
@@ -1161,12 +1187,20 @@ export default {
         this.getContext()
       }
 
-      if (this.pickLookup[this.pickPostion].complex){
-        // if it is a complex authorized heading then just replace the whole things with it
-        this.subjectString = this.pickLookup[this.pickPostion].label
-        this.activeComponentIndex = 0
+      // if (this.pickLookup[this.pickCurrent].picked = true){
+      //   return true
+      // }
 
+      // lock in the selected position
+      this.pickCurrent = this.pickPostion
+
+      if (this.pickLookup[this.pickPostion].complex){
+        this.activeComponentIndex = 0
         this.componetLookup = {}
+
+        // if it is a complex authorized heading and there's nothing else then just replace the whole things with it
+        this.subjectString = this.pickLookup[this.pickPostion].label
+
         this.componetLookup[this.activeComponentIndex] = {}
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
         for (let k in this.pickLookup){
@@ -1196,16 +1230,35 @@ export default {
         let splitString = this.subjectString.split('--')
 
         // replace the string with what we selected
-
         splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
+        // if the incoming term is complex, pop the elements from splitstring that are part of it
+        /*
+          Without this searching `New York (State)--new yor` and selecting `New York (State)--New York`
+          will result in `New York (State)--New York (State)--New York`
+        */
+        if (this.pickLookup[this.pickPostion].label.includes("‑‑")){
+          // without this it's possible to keep selecting a term and delete parts of the heading that should remain
+          if (this.pickLookup[this.pickPostion].label.split("‑‑").length < splitString.length){
+            let numPieces = this.pickLookup[this.pickPostion].label.split("‑‑").length-1 // how many things need to be removed minus the 1 to keep
+            let removalStart = splitString.length-1-numPieces
+            let updated = splitString.splice(removalStart, numPieces)
+            this.activeComponentIndex = this.activeComponentIndex - numPieces // update the activeComponentIndex
+          } else if (this.pickLookup[this.pickPostion].label.split("‑‑").length == splitString.length){
+            //if the selection has as many pieces as the input, replace the whole thing
+            splitString = this.pickLookup[this.pickPostion].label
+            this.activeComponentIndex = 0
+          }
+        }
 
-        this.subjectString = splitString.join('--')
-
+        try{
+          this.subjectString = splitString.join('--')
+        } catch(err){
+          this.subjectString = splitString
+        }
 
         if (!this.componetLookup[this.activeComponentIndex]){
           this.componetLookup[this.activeComponentIndex]= {}
         }
-
 
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-','‑')] = this.pickLookup[this.pickPostion]
 
@@ -1221,9 +1274,9 @@ export default {
         if (update == true){
           this.subjectStringChanged()
         }
-
-
       }
+
+    this.$refs.subjectInput.focus()
 
 
 
@@ -1235,7 +1288,10 @@ export default {
         if (parseInt(this.pickPostion) <= this.searchResults.names.length*-1){
           return false
         }
+
+        this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) - 1 )
+        this.pickCurrent = parseInt(this.pickPostion)
         event.preventDefault()
         return false
       }else if (event.key == 'ArrowDown'){
@@ -1244,20 +1300,16 @@ export default {
           return false
         }
 
-
+        this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) + 1 )
+        this.pickCurrent = parseInt(this.pickPostion)
         event.preventDefault()
         return false
       }else if (event.key == 'Enter'){
-
-
-
         if (event.shiftKey){
           this.add()
           return
         }
-
-
 
         this.selectContext()
 
@@ -1265,11 +1317,11 @@ export default {
 
         this.searchModeSwitch("LCSHNAF")
 
-      }else if (event.ctrlKey && event.key == "2"){
-
-        this.searchModeSwitch("GEO")
-
-      }else if (event.ctrlKey && event.key == "3"){
+      }
+      // else if (event.ctrlKey && event.key == "2"){
+      //   this.searchModeSwitch("GEO")
+      // }
+      else if (event.ctrlKey && event.key == "2"){
 
         this.searchModeSwitch("WORKS")
 
@@ -1292,7 +1344,6 @@ export default {
           }
 
         }
-
 
         let start = event.target.selectionStart
         let end = event.target.selectionEnd
@@ -1391,7 +1442,6 @@ export default {
 
     },
 
-    //TODO: if it's a literal, there shouldn't be a thesaurus
     subjectStringChanged: async function(event){
       this.validateOkayToAdd()
 
@@ -1459,7 +1509,6 @@ export default {
 
       for (let ss of subjectStringSplit){
         // check the lookup to see if we have the data for this label
-
         let uri = null
         let type = null
         let literal = null
@@ -1774,8 +1823,6 @@ export default {
 
 
       if (typeof userValue == "string"){
-
-
         // they sometimes come in with '.' at the end of the authorized form
         if (userValue.slice(-1)=='.'){
           userValue=userValue.slice(0,-1)

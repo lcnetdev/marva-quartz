@@ -1399,7 +1399,7 @@ export const useProfileStore = defineStore('profile', {
         // console.log(JSON.stringify(pt,null,2))
 
         // let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
-        
+
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult
@@ -2981,7 +2981,11 @@ export const useProfileStore = defineStore('profile', {
           this.activeProfile.rt[pt.parentId].pt[pt.id].deleted = true
 
         }else{
-
+          console.info("this.activeProfile: ", this.activeProfile)
+          console.info("this.activeProfile.rt: ", this.activeProfile.rt)
+          console.info("this.activeProfile.rt[pt.parentId]: ", this.activeProfile.rt[pt.parentId])
+          console.info("pt.id: ", pt.id)
+          console.info("Trying to delete: ", this.activeProfile.rt[pt.parentId].pt[pt.id].userValue)
           for (let key in this.activeProfile.rt[pt.parentId].pt[pt.id].userValue){
             if (!key.startsWith('@')){
                delete this.activeProfile.rt[pt.parentId].pt[pt.id].userValue[key]

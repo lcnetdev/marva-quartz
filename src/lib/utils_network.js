@@ -290,10 +290,10 @@ const utilsNetwork = {
       // console.log("searchPayload",searchPayload)
 
 
-
         let returnUrls = useConfigStore().returnUrls
 
         let urlTemplate = searchPayload.url
+        let searchValue = searchPayload.searchValue
 
         console.log("######################################")
         console.log("url ", urlTemplate)
@@ -337,8 +337,36 @@ const utilsNetwork = {
               url = url.replace('q=?','q=')
             }
 
+            //break up complex (contains "--") headings to search against the whole term, and the last -- section of it
+            // this is for headings like "New York (State)--New York" where the second "New York" doesn't exist
+            // as a heading by itself
+            let r = null
+            let partial = null
+            let all = null
+            try{
+              if (searchValue.includes("--")) {
+                let pieces = searchValue.split("--")
+                if (pieces.length > 2){
+                  let last = pieces[pieces.length-1]
+                  let pen = pieces[pieces.length-2]
+                  let value = pen + "--" + last
+                  partial = await this.fetchSimpleLookup(url.replace(searchValue, value))
+                }
+                all = await this.fetchSimpleLookup(url)
 
-            let r = await this.fetchSimpleLookup(url)
+                if (partial != null){
+                  all.count += partial.count
+                  all.hits = all.hits.concat(partial.hits)
+                }
+                r = all
+
+              } else {
+                r = await this.fetchSimpleLookup(url)
+              }
+            } catch(error) {
+              console.log("error: ", error)
+            }
+            //r = await this.fetchSimpleLookup(url)
 
             //Config only allows 25 results, this will add something to the results
             // to let the user know there are more names.
@@ -1444,7 +1472,6 @@ const utilsNetwork = {
 
         let resultsGenre=[]
 
-
         // if it is a primary heading then we need to search LCNAF, HUBS, WORKS, and simple subjects, and do the whole thing with complex subjects
         if (heading.primary){
           // resultsNames = await this.searchComplex(searchPayloadNames)
@@ -1913,6 +1940,7 @@ const utilsNetwork = {
       console.log(useConfigStore().lookupConfig)
 
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
+
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
       let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=SimpleType'
 
@@ -1929,7 +1957,7 @@ const utilsNetwork = {
 
 
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count=4').replace("<OFFSET>", "1")
-
+      let HierarchicalGeographicAll = useConfigStore().lookupConfig['HierarchicalGeographicAll'].modes[0]['All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
 
       if (mode == 'GEO'){
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
@@ -1962,6 +1990,11 @@ const utilsNetwork = {
         searchValue: searchValHierarchicalGeographic
       }
 
+      let searchPayloadHierarchicalGeographicAll = {
+        processor: 'lcAuthorities',
+        url: [HierarchicalGeographicAll],
+        searchValue: complexVal
+      }
 
       let searchPayloadWorksAnchored = {
         processor: 'lcAuthorities',
@@ -1993,17 +2026,19 @@ const utilsNetwork = {
       let resultsSubjectsSimple=[]
       let resultsSubjectsComplex=[]
       let resultsHierarchicalGeographic=[]
+      let resultsHierarchicalGeographicAll=[]
       let resultsWorksAnchored=[]
       let resultsWorksKeyword=[]
       let resultsHubsAnchored=[]
       let resultsHubsKeyword=[]
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
+        [resultsNames, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsHierarchicalGeographicAll] = await Promise.all([
             this.searchComplex(searchPayloadNames),
             this.searchComplex(searchPayloadSubjectsSimple),
             this.searchComplex(searchPayloadSubjectsComplex),
-            this.searchComplex(searchPayloadHierarchicalGeographic)
+            this.searchComplex(searchPayloadHierarchicalGeographic),
+            this.searchComplex(searchPayloadHierarchicalGeographicAll)
         ]);
 
       }else if (mode == "GEO"){
@@ -2034,6 +2069,9 @@ const utilsNetwork = {
       // drop the litearl value from names and complex
       if (resultsNames.length>0){
         resultsNames.pop()
+      }
+      if (resultsHierarchicalGeographicAll.length > 0){
+        resultsHierarchicalGeographicAll.pop()
       }
       if (resultsSubjectsComplex.length>0){
         resultsSubjectsComplex.pop()
@@ -2079,13 +2117,23 @@ const utilsNetwork = {
         resultsSubjectsSimple = resultsHubsAnchored
         resultsSubjectsComplex = resultsHubsKeyword
       }
+
+      // hierarchicalGeographicAll can sometimes have results found in subjectsComplex
+      // Remove the dupes
+      const hierarchicalGeographicURIs = resultsHierarchicalGeographic.map((item) => item.uri)
+      const subjectSimpleURIs = resultsSubjectsSimple.map((item) => item.uri)
+      const subjectComplexURIs = resultsSubjectsComplex.map((item) => item.uri)
+
+      const subjectURIs = subjectComplexURIs.concat(subjectSimpleURIs).concat(hierarchicalGeographicURIs)
+      const resultsHierarchicalGeographicAllFiltered = resultsHierarchicalGeographicAll.filter((subj) => !subjectURIs.includes(subj.uri))
+
       let results = {
         'subjectsSimple': resultsSubjectsSimple,
         'subjectsComplex': resultsSubjectsComplex,
         'names':resultsNames,
-        'hierarchicalGeographic': resultsHierarchicalGeographic
+        'hierarchicalGeographic': resultsHierarchicalGeographic,
+        'hierarchicalGeographicAll': resultsHierarchicalGeographicAllFiltered
       }
-
 
       return results
 
