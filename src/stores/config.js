@@ -315,6 +315,19 @@ export const useConfigStore = defineStore('config', {
       ]
     },
 
+    "http://id.loc.gov/authorities/geographics" : {
+			"name":"geographics",
+			"type":"complex",
+			"processor" : 'lcAuthorities',
+			"modes":[
+				{
+					'LCNAF Geographic':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&count=25"},
+					'LCSH Geographic':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&count=25"},
+					'GACS':{"url":"https://id.loc.gov/vocabulary/geographicAreas/suggest2/?q=<QUERY>&rdftype=Geographic&count=25"},
+				}
+			]
+		},
+
 
     "HierarchicalGeographic": {
       "name":"names",
@@ -324,6 +337,18 @@ export const useConfigStore = defineStore('config', {
       "modes":[
         {
           'All':{"url":"https://preprod-8288.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+        }
+      ]
+    },
+
+    // this will search across names and subjects, the above only searches names
+    "HierarchicalGeographicAll": {
+      "name":"names",
+      "type":"simple",
+      "processor" : 'lcAuthorities',
+      "modes":[
+        {
+          'All':{"url":"https://preprod-8288.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
         }
       ]
     },
