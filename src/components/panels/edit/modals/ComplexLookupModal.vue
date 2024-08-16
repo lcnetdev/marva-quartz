@@ -152,7 +152,7 @@
         let searchPayload = {
           processor: null,
           url: [],
-          searchValueLocal: this.searchValueLocal
+          searchValue: this.searchValueLocal   //This changed from searchValueLocal, to match what is expected in `utils_network.js`
         }
         // if (this.modeSelect == 'All'){
         //   this.modalSelectOptions.forEach((a)=>{

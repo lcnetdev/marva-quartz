@@ -321,9 +321,9 @@ export const useConfigStore = defineStore('config', {
 			"processor" : 'lcAuthorities',
 			"modes":[
 				{
-					'LCNAF Geographic':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&count=25"},
-					'LCSH Geographic':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&count=25"},
-					'GACS':{"url":"https://id.loc.gov/vocabulary/geographicAreas/suggest2/?q=<QUERY>&rdftype=Geographic&count=25"},
+					'LCNAF Geographic':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&count=25&offset=<OFFSET>"},
+					'LCSH Geographic':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&count=25&offset=<OFFSET>"},
+					'GACS':{"url":"https://id.loc.gov/vocabulary/geographicAreas/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>"},
 				}
 			]
 		},

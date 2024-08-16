@@ -364,7 +364,7 @@ const utilsNetwork = {
                 r = await this.fetchSimpleLookup(url)
               }
             } catch(error) {
-              console.log("error: ", error)
+              console.log("error: ")
             }
             if (r === null){
               r = await this.fetchSimpleLookup(url)
@@ -434,8 +434,7 @@ const utilsNetwork = {
                   })
                 }
             }
-
-        }
+          }
 
         // always add in the literal they searched for at the end
         // if it is not a hub or work
