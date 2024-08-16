@@ -215,7 +215,7 @@
   import { useProfileStore } from '@/stores/profile'
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
-  
+
   import Nav from "@/components/panels/nav/Nav.vue";
 
   import utilsProfile from '@/lib/utils_profile';
@@ -275,7 +275,7 @@
       ...mapWritableState(useProfileStore, ['activeProfile']),
 
 
-      
+
 
 
       // // gives read access to this.count and this.double
@@ -305,12 +305,12 @@
 
 
         this.profileStore.prepareForNewRecord()
-        
+
         this.$router.push({ name: 'Edit', params: { recordId: eId } })
 
 
       },
-      
+
 
 
 
@@ -413,13 +413,6 @@
       },
 
       loadUrl: async function(useInstanceProfile,multiTestFlag){
-        console.info("Loading: ", this.urlToLoad)
-
-        if (this.urlToLoad == ""){
-          alert("Please enter the URL or Identifier of the record you want to load.")
-          return false
-        }
-
         if (this.lccnLoadSelected){
 
           this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
@@ -452,6 +445,12 @@
           if (this.profiles[key].rtOrder.indexOf(useInstanceProfile)>-1){
             useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
           }
+        }
+
+        // check if the input field is empty
+        if (this.urlToLoad == "" && useProfile===null){
+          alert("Please enter the URL or Identifier of the record you want to load.")
+          return false
         }
 
         if (useProfile===null){
