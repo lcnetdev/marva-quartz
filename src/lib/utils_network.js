@@ -2365,6 +2365,12 @@ const utilsNetwork = {
         let req = await fetch(useConfigStore().returnUrls.id + `resources/instances/suggest2?q=${lccn}&searchtype=keyword` )
         let results = await req.json()
 
+        if (req && req.status && req.status == 500){
+
+          return ["Error searching LCCN"]
+        }
+
+
         let returnVal = []
 
         for (let r of results.hits){
