@@ -364,9 +364,11 @@ const utilsNetwork = {
                 r = await this.fetchSimpleLookup(url)
               }
             } catch(error) {
-              console.log("error: ", error)
+              console.log("error: ")
             }
-            //r = await this.fetchSimpleLookup(url)
+            if (r === null){
+              r = await this.fetchSimpleLookup(url)
+            }
 
             //Config only allows 25 results, this will add something to the results
             // to let the user know there are more names.
@@ -432,8 +434,7 @@ const utilsNetwork = {
                   })
                 }
             }
-
-        }
+          }
 
         // always add in the literal they searched for at the end
         // if it is not a hub or work
