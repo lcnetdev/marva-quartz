@@ -1146,7 +1146,6 @@ export default {
 
     /** Clear the current selection so that hovering will update the preview again */
     clearSelected: function(){
-      console.info("@@@ clear selected")
       this.pickLookup[this.pickCurrent].picked = false
       this.pickCurrent = null
 
@@ -1154,15 +1153,7 @@ export default {
     },
 
     loadContext: async function(pickPostion){
-      console.info("pickPostion: ", pickPostion)
-      console.info("this.pickCurrent: ", this.pickCurrent)
-      console.info("pickLookup: ", this.pickLookup)
-      try {
-        console.info("picked? ", this.pickLookup[this.pickCurrent].picked)
-      } catch(error){
-        console.info("nope: ", error)
-      }
-      if (this.pickCurrent == null || this.pickLookup[this.pickCurrent].picked == true) {
+      if (this.pickCurrent == null) {
         this.pickPostion = pickPostion
       } else {
         return null
@@ -1190,7 +1181,6 @@ export default {
     },
 
     selectContext: async function(pickPostion, update=true){
-      console.info(">>>selectContext")
       if (pickPostion != null){
         this.pickPostion=pickPostion
         this.pickCurrent=pickPostion
@@ -1294,13 +1284,6 @@ export default {
 
 
     navInput: function(event){
-      console.info("navInput")
-      try {
-        console.info("picked? ", this.pickLookup[this.pickCurrent].picked)
-      } catch(error){
-        console.info("")
-      }
-
       if (event.key == 'ArrowUp'){
         if (parseInt(this.pickPostion) <= this.searchResults.names.length*-1){
           return false
@@ -1308,6 +1291,7 @@ export default {
 
         this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) - 1 )
+        this.pickCurrent = parseInt(this.pickPostion) - 1
         event.preventDefault()
         return false
       }else if (event.key == 'ArrowDown'){
@@ -1318,6 +1302,7 @@ export default {
 
         this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) + 1 )
+        this.pickCurrent = parseInt(this.pickPostion) + 1
         event.preventDefault()
         return false
       }else if (event.key == 'Enter'){
