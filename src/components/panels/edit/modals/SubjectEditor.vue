@@ -1291,7 +1291,7 @@ export default {
 
         this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) - 1 )
-        this.pickCurrent = parseInt(this.pickPostion) - 1
+        this.pickCurrent = parseInt(this.pickPostion)
         event.preventDefault()
         return false
       }else if (event.key == 'ArrowDown'){
@@ -1302,7 +1302,7 @@ export default {
 
         this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) + 1 )
-        this.pickCurrent = parseInt(this.pickPostion) + 1
+        this.pickCurrent = parseInt(this.pickPostion)
         event.preventDefault()
         return false
       }else if (event.key == 'Enter'){
