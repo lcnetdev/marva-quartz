@@ -413,9 +413,6 @@
       },
 
       loadUrl: async function(useInstanceProfile,multiTestFlag){
-        console.info("Loading: ", this.urlToLoad)
-        console.info("profile: ", this.useProfile)
-
         if (this.lccnLoadSelected){
 
           this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
