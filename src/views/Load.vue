@@ -21,15 +21,14 @@
 
               <template #tbody="{row}">
 
-
                 <td>
-                  <router-link :to="{ name: 'Edit', params: { recordId: row.Id }}">
-                    {{ row.Id }}
-                  </router-link>
+                  <a href="#" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
+
                 </td>
 
                 <td v-text="(row.RTs) ? row.RTs.join(', ') : row.RTs"/>
                 <td v-text="row.Type"/>
+                <td v-text="row.Title"/>
                 <td v-text="row.Status"/>
                 <td>
                   <div v-for="u in row.Urls">
@@ -216,7 +215,7 @@
   import { useProfileStore } from '@/stores/profile'
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
-
+  
   import Nav from "@/components/panels/nav/Nav.vue";
 
   import utilsProfile from '@/lib/utils_profile';
@@ -269,13 +268,14 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore),
+      ...mapStores(useProfileStore),
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
       ...mapState(useConfigStore, ['testData']),
       ...mapState(useProfileStore, ['startingPoints','profiles']),
       ...mapWritableState(useProfileStore, ['activeProfile']),
 
 
-
+      
 
 
       // // gives read access to this.count and this.double
@@ -300,6 +300,21 @@
 
     methods: {
 
+
+      loadFromAllRecord: function(eId){
+
+
+        this.profileStore.prepareForNewRecord()
+        
+        this.$router.push({ name: 'Edit', params: { recordId: eId } })
+
+
+      },
+      
+
+
+
+
       allRecordsRowClick: function(row){
 
 
@@ -323,6 +338,7 @@
 
             'RTs': r.rstused,
             'Type': r.typeid,
+            'Title': r.title,
             'Status': r.status,
             'Urls': r.externalid,
             'Time': r.time,

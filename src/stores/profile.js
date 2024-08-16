@@ -3171,9 +3171,19 @@ export const useProfileStore = defineStore('profile', {
         // console.log("CHANGED 1!!!")
       },500)
 
+    },
+
+
+    /**
+    * A helper that can be run before loading a new record to do any maintenance needed
+    *
+    * @return {void}
+    */
+    prepareForNewRecord:  function(){
+      
+      this.activeProfile = {}
+
     }
-
-
 
   }
 })
