@@ -251,7 +251,7 @@
                   <tbody>
 
                     <template v-for="r in results">
-                      <template  v-if="r.title != 'Would Appear Here'">
+                      <template  v-if="r.title.trim() != 'Class would appear here.'">
                         <tr>
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
@@ -261,7 +261,7 @@
                         </tr>
                       </template>
 
-                      <template  v-if="r.title == 'Would Appear Here'">
+                      <template  v-if="r.title.trim() == 'Class would appear here.'">
                         <tr style="background-color: yellow;">
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
