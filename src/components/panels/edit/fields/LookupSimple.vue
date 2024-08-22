@@ -1,5 +1,6 @@
 <template>
 
+
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
 
     <template v-if="inlineModeShouldDisplay">
@@ -82,7 +83,7 @@
                   </div>
                 </div>
                 <div class="lookup-fake-input-text" style="display: inline-block;">
-                  <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
+                  <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" />
                 </div>
 
               </div>
@@ -100,7 +101,7 @@
               </div>
             </div>
             <div class="lookup-fake-input-text">
-              <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
+              <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" :data-guid="structure['@guid']" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
             </div>
 
 
@@ -114,7 +115,8 @@
 
           <Transition name="action">
             <div class="lookup-action" v-if="showActionButton && myGuid == activeField">
-              <action-button :type="'lookupSimple'" :guid="guid" @action-button-command="actionButtonCommand" />
+
+              <action-button :type="'lookupSimple'" :structure="structure" :guid="guid" wtf="wft" :id="`action-button-${structure['@guid']}`" @action-button-command="actionButtonCommand" />
             </div>
           </Transition>
 
@@ -475,7 +477,7 @@ export default {
 
     actionButtonCommand: function(cmd){
       this.$refs.input.focus()
-      console.log(this.$refs.input)
+      
     },
 
     // Takes the list of values from this lookup uri and filters it based on the input
@@ -492,10 +494,10 @@ export default {
         addKeyword = 'KEYWORD'
         this.activeKeyword = true
       }
-      console.log(`"${addKeyword}"`)
-      console.log(this.uri)
-      console.log(utilsNetwork.lookupLibrary)
-      console.log(utilsNetwork.lookupLibrary[this.uri+addKeyword])
+      // console.log(`"${addKeyword}"`)
+      // console.log(this.uri)
+      // console.log(utilsNetwork.lookupLibrary)
+      // console.log(utilsNetwork.lookupLibrary[this.uri+addKeyword])
 
 
 
@@ -504,23 +506,23 @@ export default {
         // if the data isn't loaded yet we will wait a few times
         await new Promise(r => setTimeout(r, 1000));
         this.displayList=[]
-        console.log(utilsNetwork.lookupLibrary,this.uri+addKeyword)
+
         if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
           this.displayList.push("Loading Data..")
           await new Promise(r => setTimeout(r, 1000));
           this.displayList=[]
 
-          console.log(utilsNetwork.lookupLibrary,this.uri+addKeyword)
+
           if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
             this.displayList.push("Loading Data...")
             await new Promise(r => setTimeout(r, 1000));
             this.displayList=[]
-            console.log(utilsNetwork.lookupLibrary,this.uri+addKeyword)
+
             if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
               this.displayList.push("Loading Data....")
               await new Promise(r => setTimeout(r, 1000));
               this.displayList=[]
-              console.log(utilsNetwork.lookupLibrary,this.uri+addKeyword)
+
               if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
                 this.activeValue="🙀ERROR WITH LOOKUP"
 
@@ -534,7 +536,7 @@ export default {
 
       }
       Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]).forEach((v)=>{
-        console.log(v)
+        
         // the list has a special key metdata that contains more info
         if (v==='metadata'){return false}
         // no filter yet show first 25
@@ -572,11 +574,11 @@ export default {
 
 
       })
-      console.log("this.activeFilter",this.activeFilter)
+      
       // sometimes you'll find code hacks circumvents ontology
       this.displayList = this.displayList.filter((v)=>{ return (v === 'Englisch (eng)') ? false : true})
 
-      console.log("this.displayList",this.displayList)
+      
 
       this.displayList.sort()
 
@@ -619,7 +621,7 @@ export default {
       if (this.activeFilter.length==0){
         this.displayAutocomplete = true
       }
-      console.log(this.displayAutocomplete)
+      
       if (this.displayAutocomplete){
         // this.$store.dispatch("disableMacroNav")
       }else{
@@ -709,15 +711,26 @@ export default {
     },
     keyDownEvent: function(event, reposLeft){
 
+
+      if (event && event.keyCode == 220 && event.ctrlKey == true){
+        let id = `action-button-${event.target.dataset.guid}`
+        document.getElementById(id).click()
+        // the acutal clickable button might be inside the popper interface at this point
+        if (document.getElementById(id).children && document.getElementById(id).children[0]){
+          document.getElementById(id).children[0].click()
+        }
+        return false
+      }
+
+
+
       if (reposLeft){
 
         this.findSelectListTime = window.setInterval(()=>{
 
           if (this.$refs.selectlist && this.$refs.selectlist.style){
-            window.clearTimeout(this.findSelectListTime)
-            console.log(this.$refs.selectlist)
-            var rect = event.target.getBoundingClientRect();
-            console.log(rect.top, rect.right, rect.bottom, rect.left);
+            window.clearTimeout(this.findSelectListTime)            
+            var rect = event.target.getBoundingClientRect();            
             this.$refs.selectlist.style.left = rect.left + 'px'
 
           }
@@ -887,7 +900,7 @@ export default {
 
     mouseSelectValue: function(val){
 
-      console.log(val)
+      
 
 
     },
@@ -902,13 +915,9 @@ export default {
 
           idx = this.simpleLookupValues.length - 1
         }
-
+        
         let removeGuid = this.simpleLookupValues[idx]['@guid']
-
-        console.log(removeGuid)
-
         this.profileStore.removeValueSimple(this.guid, removeGuid)
-
         // No clue what this is refering to about hasSeries...
         // // TODO unhack this, put it in the tempalte or put it in the config :(
         // if (this.structure.valueConstraint && this.structure.valueConstraint.defaults && this.structure.valueConstraint.defaults[0] && this.structure.valueConstraint.defaults[0].defaultURI && this.structure.valueConstraint.defaults[0].defaultURI === 'http://id.loc.gov/ontologies/bibframe/hasSeries'){
@@ -1245,7 +1254,7 @@ export default {
 
     clickAdd: function(item){
       this.displayAutocomplete=false
-      console.log(item)
+      
       this.activeSelect = item
 
       let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
@@ -1253,7 +1262,7 @@ export default {
       if (this.activeKeyword){
         metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values
       }
-      console.log(metadata)
+      
       // find the active selected in the data
       Object.keys(metadata).forEach((key)=>{
         let idx = metadata[key].displayLabel.indexOf(this.activeSelect)

@@ -32,8 +32,7 @@
     components: { VueFileToolbarMenu, PostModal, ValidateModal },
     data() {
       return {
-         happy: false,
-         test:'testsss'
+
       }
     },
     props:{
@@ -91,28 +90,41 @@
 
         let menu =  []
 
-        if (!this.disable.includes('logo')){
-          menu.push({
-              // html: `
-              //     <svg width="25px" height="25px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              //      <g class="nav-icon-color" >
-              //       <path d="m55.5 34.398-20.199 63.102 11.898-1.1992 31.199-63.801z"/>
-              //       <path d="m59.898 4.5-3.1992 23.898 21.199-1.6992z"/>
-              //       <path d="m54.301 2.5-26.699 11.699 23.398 12.801z"/>
-              //       <path d="m24.102 18.898-2.5 69.301 8.0977 7.8008 20.102-63z"/>
-              //      </g>
-              //     </svg>
-              //     `,
-              // html: `
-              //     <span style="font-size:2em; font-weight:bold; position: absolute; width: 100px; left:0;">M</span>
-              //     `,
-          })
-        }
+        // if (!this.disable.includes('logo')){
+        //   menu.push({
+        //       // html: `
+        //       //     <svg width="25px" height="25px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        //       //      <g class="nav-icon-color" >
+        //       //       <path d="m55.5 34.398-20.199 63.102 11.898-1.1992 31.199-63.801z"/>
+        //       //       <path d="m59.898 4.5-3.1992 23.898 21.199-1.6992z"/>
+        //       //       <path d="m54.301 2.5-26.699 11.699 23.398 12.801z"/>
+        //       //       <path d="m24.102 18.898-2.5 69.301 8.0977 7.8008 20.102-63z"/>
+        //       //      </g>
+        //       //     </svg>
+        //       //     `,
+        //       // html: `
+        //       //     <span style="font-size:2em; font-weight:bold; position: absolute; width: 100px; left:0;">M</span>
+        //       //     `,
+        //   })
+        // }
 
         if (!this.disable.includes('Menu')){
           menu.push(
           { text: "Menu",  menu: [
-            { text: "Load Resource", click: () => this.$router.push('/load'), icon:"💾" },
+            { text: "Load Resource", click: () => {
+
+              try{
+
+                this.$nextTick(()=>{
+                  this.$router.push('/load')
+                })
+
+              }catch{
+                // expected error :(
+              }
+
+
+            }, icon:"💾" },
 
 
           ] }

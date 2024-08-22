@@ -7,7 +7,7 @@
       <template v-if="complexLookupValues.length===0">
 
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <input class="input-inline-mode can-select" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
+          <input class="input-inline-mode can-select" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" />
 
 
       </template>
@@ -38,7 +38,7 @@
         <a href="#" @click="removeValue(idx)" style="padding: 0 0 0 2.5px; text-decoration: none; font-size: 1em; cursor: pointer; color: gray;">x</a>
 
         </template>
-        <input class="input-inline-mode can-select" style="width: 20px;" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
+        <input class="input-inline-mode can-select" style="width: 20px;" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" :data-guid="structure['@guid']" @input="textInputEvent($event)" :disabled="readOnly" />
 
 <!--
         <template v-for="lValue in literalValues">
@@ -88,7 +88,7 @@
                       </div>
                     </div>
 
-                    <input style="width:auto" @keyup="navKey" class="can-select" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
+                    <input style="width:auto" @keyup="navKey" class="can-select" :data-guid="structure['@guid']" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
                     <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
                   </div>
                 </div>
@@ -126,14 +126,14 @@
             </div>
 
             <div class="lookup-fake-input-text">
-                <input   v-on:keydown.enter.prevent="submitField" @keyup="navKey" class="can-select" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
+                <input   v-on:keydown.enter.prevent="submitField" @keyup="navKey" class="can-select" :data-guid="structure['@guid']" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
                 <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
             </div>
           </template>
 
           <Transition name="action">
             <div class="lookup-action" v-if="showActionButton && myGuid == activeField">
-              <action-button :type="'lookupComplex'" :guid="guid" @action-button-command="actionButtonCommand" />
+              <action-button :type="'lookupComplex'" :id="`action-button-${structure['@guid']}`" :structure="structure" :guid="guid" @action-button-command="actionButtonCommand" />
             </div>
           </Transition>
 
@@ -820,7 +820,18 @@ export default {
     },
 
     navKey: function(event){
-      console.log(event)
+
+      
+      if (event && event.keyCode == 220 && event.ctrlKey == true){
+        let id = `action-button-${event.target.dataset.guid}`
+        document.getElementById(id).click()
+        // the acutal clickable button might be inside the popper interface at this point
+        if (document.getElementById(id).children && document.getElementById(id).children[0]){
+          document.getElementById(id).children[0].click()
+        }
+        return false
+      }
+
 
       if (event && event.code === 'ArrowUp'){
         utilsMisc.globalNav('up',event.target)
@@ -844,7 +855,7 @@ export default {
 
     actionButtonCommand: function(cmd){
       this.$refs.lookupInput.focus()
-      console.log(this.$refs.lookupInput)
+      
     },
 
     focused: function(){
@@ -906,7 +917,7 @@ export default {
     },
 
     textInputEvent: function(event){
-      console.log("Text input")
+
       // remove the existing value if it was deleted
       if (this.$refs.lookupInput.innerHTML.trim() == ""){
         this.authorityLookup = null

@@ -11,37 +11,70 @@
   </div>
  -->
 
-  <VMenu :triggers="useOpenModes" @hide="menuClosed">
-    <button tabindex="-1" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
+  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
+    <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
     <template #popper>
 
       <div style="width: 250px;">
 
+        <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-1`" @click="duplicateComponent()">
+          <span class="button-shortcut-label">1</span>
+          Add Another Component
+        </button>     
+        <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="insertDefaultValues()">
+          <span class="button-shortcut-label">2</span>
+          Insert Default Values
+        </button>     
+
+        <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-3`" @click="deleteComponent()">
+          <span class="button-shortcut-label">3</span>
+          Delete Component
+        </button> 
+
+        <hr>
+
         <template v-if="type=='literal'">
 
-            <template v-for="lang in Object.keys(scriptShifterOptions)">
-              <button  v-if="scriptShifterOptions[lang].s2r"  style="width:100%" class="" @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'s2r', fieldGuid: fieldGuid} )">
+          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-5`" @click="$emit('actionButtonCommand', 'addField')">
+              <span class="button-shortcut-label">5</span>
+              
+              Additional Literal
+            </button><br>
+
+            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-6`" @click="$emit('actionButtonCommand', 'setLiteralLang')">
+              <span class="button-shortcut-label">6</span>
+              Set Language
+            </button><br>
+
+
+            <template v-for="(lang,index) in scriptShifterOptionsForMenu">
+
+                <button   style="width:100%"   class="" :id="`action-button-command-${fieldGuid}-${index + 7}`"  @click="$emit('actionButtonCommand', 'trans', {lang:lang.lang,dir:lang.dir, fieldGuid: fieldGuid} )">
+                  <span v-if="index<3" class="button-shortcut-label">{{index + 7}}</span>
+                  <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{ lang.name }}</span>
+                  
+                </button>
+
+                
+
+<!--                 
+              <button  v-if="scriptShifterOptions[lang].s2r"  style="width:100%"   class=""  @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'s2r', fieldGuid: fieldGuid} )">
+
                 <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} S2R</span>
               </button>
-              <button v-if="scriptShifterOptions[lang].r2s"  style="width:100%" class="" @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'r2s', fieldGuid: fieldGuid} )">
+              <button v-if="scriptShifterOptions[lang].r2s"  style="width:100%" class=""  @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'r2s', fieldGuid: fieldGuid} )">
                 <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} R2S</span>
-              </button>
+              </button> -->
 
             </template>
 
 
 
-            <button style="width:100%" class="" @click="$emit('actionButtonCommand', 'addField')">
-              Additonal Literal
-            </button><br>
 
-            <button style="width:100%" class="" @click="$emit('actionButtonCommand', 'setLiteralLang')">
-              Set Language
-            </button><br>
     
             
-
+            <hr>
 
         </template>
 
@@ -57,21 +90,12 @@
         </template>
 
 
-        <hr>
-
-
+        
 
         <button style="width:100%" class="" @click="showDebug()">
+          <span class="button-shortcut-label">0</span>
           Debug
-        </button>
-      
-        <button style="width:100%" class="" @click="duplicateComponent()">
-          Add Component
-        </button>
-        <button style="width:100%" class="" @click="deleteComponent()">
-          Delete Component
-        </button> 
-
+        </button>        
 
       </div>
       <!-- 
@@ -109,13 +133,20 @@
       guid: String,
       clickmode: Boolean,
       small: Boolean,
-      fieldGuid: String
+      fieldGuid: String,
+      structure: Object
 
     },
     data () {
       return {
         showActionButtonMenu: false,
         showActionButtonMenuTimer: null,
+
+        popperKeyboardShortcutEvent: null,
+        popperKeyboardShortcutElement: null,
+
+        isMenuShown:false,
+
       }
     },
     computed: {
@@ -124,6 +155,34 @@
       ...mapState(usePreferenceStore, ['scriptShifterOptions']),
 
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
+
+      scriptShifterOptionsForMenu(){
+
+
+        let menuOptions = []
+        for (let lang in this.scriptShifterOptions){
+
+          if (this.scriptShifterOptions[lang].s2r){
+            menuOptions.push({
+              dir:'s2r',
+              lang: lang,
+              name:this.scriptShifterOptions[lang].name + ' S2R'
+            })
+          }
+          if (this.scriptShifterOptions[lang].r2s){
+            menuOptions.push({
+              dir:'r2s',
+              lang: lang,
+              name:this.scriptShifterOptions[lang].name + ' R2S'
+
+            })
+          }
+
+        }
+
+        return menuOptions
+
+      },
 
       useOpenModes(){
 
@@ -140,10 +199,54 @@
 
     methods: {
 
+      shortCutPressed: function(){
+        
+        
+        // start fishing for the popup div
+        let popoverDetectTimeout
+        popoverDetectTimeout = window.setInterval(()=>{
+          if (document.activeElement && document.activeElement.getAttribute('id') && document.activeElement.getAttribute('id').indexOf('popper_')>-1){
+            window.clearInterval(popoverDetectTimeout)
+            this.popperKeyboardShortcutElement = document.activeElement
+            this.popperKeyboardShortcutEvent = this.popperKeyboardShortcutElement.addEventListener('keyup',this.processShortcutKeypress)
+          }
+        },50)        
+      },
+
+      processShortcutKeypress(event){
+        
+        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9'].indexOf(event.key) > -1){
+
+          let buttonToClick = document.getElementById(`action-button-command-${this.fieldGuid}-${event.key}`)
+          if (buttonToClick){
+            buttonToClick.click()
+            this.isMenuShown=false
+            this.sendFocusHome()
 
 
-      menuClosed: function(){
-        //console.log("CLOSED")
+
+          }
+
+        }
+      },
+
+      sendFocusHome(){
+        // send the focus back to where it came from
+        if (document.querySelector(`[data-guid='${this.structure["@guid"]}']`)){
+          document.querySelector(`[data-guid='${this.structure["@guid"]}']`).focus()
+        }else if (document.querySelector(`[data-guid='${this.fieldGuid}']`)){
+          document.querySelector(`[data-guid='${this.fieldGuid}']`).focus()
+
+        }
+      },
+
+
+      menuClosed: function(){        
+        if (this.popperKeyboardShortcutElement){
+          this.popperKeyboardShortcutElement.removeEventListener('keyup',this.processShortcutKeypress)
+        }
+
+        
       },
 
       showDebug: function() {
@@ -151,14 +254,24 @@
 
         this.debugModalData= this.profileStore.returnStructureByComponentGuid(this.guid); 
         this.showDebugModal = true
+        this.sendFocusHome()
 
       },
 
       duplicateComponent: function(){
         this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
+        this.sendFocusHome()
       },
+
+      insertDefaultValues: function(){
+        this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
+        this.sendFocusHome()
+        
+      },
+
       deleteComponent: function(){
         this.profileStore.deleteComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
+        
       },
     
       
@@ -205,7 +318,27 @@
 <style scoped>
   button{
     margin-bottom: 5px;
+    position: relative;
 
+  }
+
+  hr{
+    margin-top: 0px;
+    margin-bottom: 4px;
+    height: 1px;
+    border: none;
+    background-color: white ;
+
+  }
+
+  .button-shortcut-label{
+    position: absolute;
+    left: 0;
+    font-family: monospace;
+    background-color:lightgoldenrodyellow;
+    border: solid 1px lightslategray;
+    padding-left: 2px;
+    padding-right: 2px;
   }
 
   .action-button-icon{

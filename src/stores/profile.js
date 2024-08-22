@@ -2750,7 +2750,235 @@ export const useProfileStore = defineStore('profile', {
       return false
 
     },
+    /**
+    * Duplicate / create new component
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {boolean} createEmpty - if true make the component have no pre-populated data, if false "duplicate" the data from the source component
+    * @return {void}
+    */
 
+    insertDefaultValuesComponent: async function(componentGuid, structure){
+
+      console.log(componentGuid)
+      console.log("structure",structure)
+
+      // locate the correct pt to work on in the activeProfile
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      if (pt !== false){
+
+        let baseURI = pt.propertyURI
+        if (!pt.userValue[baseURI]){
+          pt.userValue[baseURI] = [{}]
+        }
+        let userValue = pt.userValue[baseURI][0]
+
+        // find the default values for this template if they exist
+        if (structure){
+
+          if (structure.parentId){
+
+            let defaultsProperty = false
+            if (this.rtLookup[structure.parentId]){
+                console.log(this.rtLookup[structure.parentId])
+                // defaultsProperty = this.rtLookup[structure.parentId].propertyTemplates.filter((x)=>{ return (x.propertyURI === idPropertyId) ? true : false})
+                // if (defaultsProperty.length>0){
+                //     defaultsProperty=defaultsProperty[0]
+                // }
+
+                for (let p of this.rtLookup[structure.parentId].propertyTemplates){
+                  // dose it have a default value?
+                  if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
+
+                    // overwrite it if there is anything there already
+                    userValue[p.propertyURI] = []
+                    for (let d of p.valueConstraint.defaults){
+
+                      let value = {
+                        '@guid': short.generate()
+                      }
+
+                      if (d.defaultLiteral){
+                          // console.log(newPt)
+                          value['http://www.w3.org/2000/01/rdf-schema#label'] = [{
+                              '@guid': short.generate(),
+                              'http://www.w3.org/2000/01/rdf-schema#label':d.defaultLiteral
+                          }]
+                      }
+                      if (d.defaultURI){
+                        value['@id'] = d.defaultURI
+                      }
+
+
+
+                      userValue[p.propertyURI].push(value)
+
+
+                    }
+
+
+                  }
+
+
+                }
+            }
+
+            
+
+
+          }else{
+            console.warn("No structure.parentId found")
+          }
+
+
+
+
+        }else{
+
+          
+          alert("Error: no structure found")
+
+        }
+
+
+
+        // let profile
+        // let propertyPosition
+        // for (let r of this.activeProfile.rtOrder){
+        //   propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
+        //   if (propertyPosition != -1){
+        //     profile = r
+        //     break
+        //   }
+        // }
+
+
+        // console.log("Lookign at this PT", pt)
+        // let newPt = JSON.parse(JSON.stringify(pt))
+        // newPt.userValue = {
+        //     '@guid': short.generate(),
+        //     '@root' : newPt.propertyURIhihi
+
+        // }
+        // // we also want to add any default values in if it is just a empty new property and not duping
+        // let idPropertyId = pt.propertyURI
+        // let baseURI = newPt.propertyURI
+
+        // // let defaults = null
+        // let defaultsProperty
+
+        // let useProfile = profile
+        // // if the profile is a multiple, like lc:RT:bf2:Monograph:Item-0 split off the -0 for it to find it in the RT lookup
+        // if (!this.rtLookup[useProfile]){
+        //     if (useProfile.includes('-')){
+        //         useProfile = useProfile.split('-')[0]
+        //     }
+        // }
+        // // first check the top level
+        // if (this.rtLookup[useProfile]){
+        //     defaultsProperty = this.rtLookup[useProfile].propertyTemplates.filter((x)=>{ return (x.propertyURI === idPropertyId) ? true : false})
+        //     if (defaultsProperty.length>0){
+        //         defaultsProperty=defaultsProperty[0]
+
+        //     }
+        // }
+
+
+        // if (defaultsProperty && defaultsProperty.valueConstraint.defaults.length>0){
+        //     // make sure the base URI exists in the uservalue
+        //     if (!newPt.userValue[baseURI]){
+        //         newPt.userValue[baseURI] = [{}]
+        //     }
+        //     let userValue = newPt.userValue[baseURI][0]
+
+        //     // there are defauts at this level
+        //     // its not a nested component just add it in the first level
+        //     if (defaultsProperty.valueConstraint.defaults[0].defaultLiteral){
+        //         // console.log(newPt)
+        //         userValue['http://www.w3.org/2000/01/rdf-schema#label'] = [{
+        //             '@guid': short.generate(),
+        //             'http://www.w3.org/2000/01/rdf-schema#label':defaultsProperty.valueConstraint.defaults[0].defaultLiteral
+        //         }]
+        //     }
+        //     if (defaultsProperty.valueConstraint.defaults[0].defaultURI){
+        //         userValue['@id'] = defaultsProperty.valueConstraint.defaults[0].defaultURI
+        //     }
+
+
+        // }else if (defaultsProperty && defaultsProperty.valueConstraint.valueTemplateRefs.length>0){
+
+        //     if (!newPt.userValue[baseURI]){
+        //         newPt.userValue[baseURI] = [{}]
+        //     }
+        //     let userValue = newPt.userValue[baseURI][0]
+
+
+            
+        //     // it doesn't exist at the top level, see if it has at least one reference template, if so use the first one and look up if that one has defualt values
+        //     // the first one since it is the default for the referencetemplace componment
+        //     let useRef = defaultsProperty.valueConstraint.valueTemplateRefs[0]
+
+        //     // look through all of them and add in any default
+        //     for (let refPt of this.rtLookup[useRef].propertyTemplates){
+        //         if (refPt.valueConstraint.defaults.length>0){
+        //             let defaults = refPt.valueConstraint.defaults[0]
+        //             if (defaults.defaultLiteral){
+        //                 userValue[refPt.propertyURI]= [{
+        //                     '@guid': short.generate(),
+        //                     'http://www.w3.org/2000/01/rdf-schema#label': [
+        //                         {
+        //                             'http://www.w3.org/2000/01/rdf-schema#label':defaults.defaultLiteral,
+        //                             '@guid': short.generate(),
+        //                         }
+        //                     ]
+        //                 }]
+        //             }
+        //             if (defaults.defaultURI){
+        //                 if (userValue[refPt.propertyURI][0]){
+        //                     userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI
+        //                     if (refPt.valueConstraint.valueDataType && refPt.valueConstraint.valueDataType.dataTypeURI){
+        //                         userValue[refPt.propertyURI][0]['@type'] = refPt.valueConstraint.valueDataType.dataTypeURI
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+
+        // }
+        // // did the old one have a type? if so set the type for the new one
+        // if (pt && pt.userValue && pt.userValue[baseURI] && pt.userValue[baseURI][0] && pt.userValue[baseURI][0]['@type']){
+        //   if (newPt.userValue[baseURI] && newPt.userValue[baseURI][0]){
+        //     newPt.userValue[baseURI][0]['@type'] = pt.userValue[baseURI][0]['@type']
+        //   }
+
+        // }
+
+
+        // // make sure we didnt make an empty propery array [{}]
+        // if (newPt.userValue[baseURI]){
+        //     if (newPt.userValue[baseURI][0]){
+        //         if (Object.keys(newPt.userValue[baseURI][0]).length === 0){
+        //             delete newPt.userValue[baseURI]
+        //         }
+        //     }
+        // }
+
+        // console.log(JSON.stringify(newPt,null,2))
+        // // this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
+        // // this.activeProfile.rt[profile].ptOrder.splice(propertyPosition+1, 0, newPropertyId);
+        // // console.log(this.activeProfile.rt[profile].ptOrder)
+        // // // they changed something
+        // // this.dataChanged()
+
+      }else{
+        console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
+        console.log(JSON.stringify(this.activeProfile))
+      }
+
+
+
+    },
 
 
 
