@@ -118,22 +118,33 @@
           <div style="flex:1">
           <fieldset v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length>0) || lccFeatureData.title" >
             <legend>Cutter Calculator</legend>
-            
+
             <template v-if="lccFeatureData.contributors">
 
               <template v-if="lccFeatureData.contributors[0]">
                 <div>
                   <span style="font-weight: bold;">{{lccFeatureData.contributors[0].label.substring(0,parseInt(cutterCalcLength))}}</span>
                   <span>{{lccFeatureData.contributors[0].label.substring(parseInt(cutterCalcLength))}}</span>
-                  <input type="text" :value="'.' + calculateCutter(lccFeatureData.contributors[0].label,cutterCalcLength).substring(0,cutterCalcLength)">
+                  <input type="text" :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[0].label,cutterCalcLength).substring(0,cutterCalcLength)">
                   <a style="font-size: 0.85em; padding-left: 0.5em;" @click.prevent="setLccInfo(lccFeatureData.cutterGuid,calculateCutter(lccFeatureData.contributors[0].label,cutterCalcLength).substring(0,cutterCalcLength))" href="#">Use</a>
                 </div>
+
+                <div>
+                  <span style="font-weight: bold;">{{lccFeatureData.contributors[0].secondLetterLabel.substring(0,parseInt(cutterCalcLength))}}</span>
+                  <span>{{lccFeatureData.contributors[0].secondLetterLabel.substring(parseInt(cutterCalcLength))}}</span>
+                  <input type="text" :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[0].secondLetterLabel,cutterCalcLength).substring(0,cutterCalcLength)">
+                  <a style="font-size: 0.85em; padding-left: 0.5em;" @click.prevent="setLccInfo(lccFeatureData.cutterGuid,calculateCutter(lccFeatureData.contributors[0].secondLetterLabel,cutterCalcLength).substring(0,cutterCalcLength))" href="#">Use</a>
+                </div>
+
+
+                
+                
               </template>
               <template v-if="lccFeatureData.contributors[1]">
                 <div>
                   <span style="font-weight: bold;">{{lccFeatureData.contributors[1].label.substring(0,cutterCalcLength)}}</span>
                   <span>{{lccFeatureData.contributors[1].label.substring(parseInt(cutterCalcLength))}}</span>
-                  <input type="text" :value="'.' + calculateCutter(lccFeatureData.contributors[1].label,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength))">
+                  <input type="text" :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[1].label,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength))">
                   <a style="font-size: 0.85em; padding-left: 0.5em;" @click.prevent="setLccInfo(lccFeatureData.cutterGuid,calculateCutter(lccFeatureData.contributors[1].label,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength)))" href="#">Use</a>
                 </div>
               </template>            
@@ -141,10 +152,18 @@
                 <div>                  
                   <span style="font-weight: bold;">{{lccFeatureData.title.substring(0,parseInt(cutterCalcLength))}}</span>
                   <span>{{lccFeatureData.title.substring(parseInt(cutterCalcLength),parseInt(cutterCalcLength)+12)}}</span>
-                  <input type="text" :value="'.' + calculateCutter(lccFeatureData.title,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength))">
+                  <input type="text" :value="usePeriodInCutter() + calculateCutter(lccFeatureData.title,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength))">
                   <a style="font-size: 0.85em; padding-left: 0.5em;" @click.prevent="setLccInfo(lccFeatureData.cutterGuid,calculateCutter(lccFeatureData.title,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength)))" href="#">Use</a>
                 </div>
               </template>    
+
+              <div>                  
+                  <span style="font-weight: bold;">{{freeFormCutter.substring(0,parseInt(cutterCalcLength))}}</span>
+                  <span>{{freeFormCutter.substring(parseInt(cutterCalcLength),parseInt(cutterCalcLength)+12)}}</span>
+                  <input placeholder="Free Form Cutter Input" v-model="freeFormCutter">
+                  <input type="text" :value="usePeriodInCutter() + calculateCutter(freeFormCutter,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength))">
+                  <a style="font-size: 0.85em; padding-left: 0.5em;" @click.prevent="setLccInfo(lccFeatureData.cutterGuid,calculateCutter(freeFormCutter,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength)))" href="#">Use</a>
+                </div>
 
               
             </template>
@@ -212,7 +231,16 @@ export default {
 
   methods: {
 
-    
+    usePeriodInCutter(){
+
+      if (this.lccFeatureData && this.lccFeatureData.classNumber && this.lccFeatureData.classNumber.indexOf(".") > -1){
+        return ''
+      }else{
+        return '.'
+      }
+
+
+    },
 
     openShelfListSearch(){
 
@@ -467,7 +495,11 @@ export default {
     lccFeatureData(){
       this.lccFeatureDataCounter      
       if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length-1].propertyURI)>-1){
-        return this.profileStore.returnLccInfo(this.guid, this.structure)
+        let data = this.profileStore.returnLccInfo(this.guid, this.structure)
+        if (data.contributors && data.contributors.length>0){
+          data.contributors[0].secondLetterLabel = data.contributors[0].label.substring(1)
+        }
+        return data
       }
       return false
     },
@@ -519,6 +551,8 @@ export default {
     return {  
 
       activeGuid: this.guid,
+
+      freeFormCutter: '',
 
       // used as toggle to show the button when field is focused
       showActionButton: false,    
