@@ -46,7 +46,7 @@
 
       returnSubjectHeadingLabel(component){
 
-        
+        let returnString = 'No Heading'
         if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'] 
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0 
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] 
@@ -54,10 +54,33 @@
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-          return component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
-        }else{
-          return 'No Heading'
+          returnString = component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
         }
+
+        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'] 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length>0
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
+          returnString = component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+        }
+
+        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'] 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id']
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].indexOf('/fast/') > -1){
+
+          returnString = '(FAST) ' + returnString
+        }
+
+
+        
+
+        return returnString
+
       },
 
       returnTemplateTypes: function(templates){
