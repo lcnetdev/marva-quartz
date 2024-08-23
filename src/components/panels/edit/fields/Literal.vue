@@ -264,7 +264,7 @@ export default {
       if (fieldGuid == null){
         fieldGuid = short.generate()
       }
-      lccVal = `.${lccVal}`
+      lccVal = `${this.usePeriodInCutter()}${lccVal}`
       await this.profileStore.setValueLiteral(this.guid,fieldGuid,this.propertyPath,lccVal,null)
 
 

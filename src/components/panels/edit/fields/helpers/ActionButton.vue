@@ -92,7 +92,7 @@
 
         
 
-        <button style="width:100%" class="" @click="showDebug()">
+        <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
           <span class="button-shortcut-label">0</span>
           Debug
         </button>        

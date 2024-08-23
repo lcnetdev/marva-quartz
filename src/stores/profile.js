@@ -1795,12 +1795,12 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
 
-      if (!type){
+      
+      if (!type && URI){
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
         type = context.typeFull
       }
-
       if (pt !== false){
 
         pt.hasData = true
