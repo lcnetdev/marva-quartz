@@ -110,6 +110,7 @@
                   <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">
                     <!-- <a v-if="!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)" href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
                     <span v-else>{{avl.label}}</span> -->
+                    <span v-if="avl.source && avl.source=='FAST'" style="font-weight: bold;">(FAST) </span>
                     <a href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
                     <span class="uncontrolled" v-if="avl.isLiteral">
                       (uncontrolled)

@@ -1725,6 +1725,11 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
+          let source = null
+          if (URI && URI.indexOf('/fast/') >1){
+            source = 'FAST'
+          } 
+
 
 
           if (URI && label){
@@ -1732,6 +1737,7 @@ export const useProfileStore = defineStore('profile', {
               '@guid':v['@guid'],
               URI: URI,
               label: label,
+              source: source,
               needsDereference: false,
               isLiteral: false,
               type:v['@type']
@@ -1741,6 +1747,7 @@ export const useProfileStore = defineStore('profile', {
               '@guid':v['@guid'],
               URI: URI,
               label: label,
+              source: source,
               needsDereference: true,
               isLiteral: false,
               type:v['@type']
@@ -1750,6 +1757,7 @@ export const useProfileStore = defineStore('profile', {
               '@guid':v['@guid'],
               URI: URI,
               label: label,
+              source: source,
               needsDereference: false,
               isLiteral: true,
               type:v['@type']
@@ -2750,18 +2758,71 @@ export const useProfileStore = defineStore('profile', {
       return false
 
     },
+
+    
     /**
-    * Duplicate / create new component
+    * Moves the passed heading the first of the subjects in the PT order
     *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
-    * @param {boolean} createEmpty - if true make the component have no pre-populated data, if false "duplicate" the data from the source component
+    * @return {void}
+    */
+
+    makeSubjectHeadingPrimary: async function(componentGuid){
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      if (pt !== false){
+
+        console.log(pt)
+
+        // loop through all the headings and find the place the headings start
+        let firstHeading = null
+        let workRtId = null
+        for (let rtId in this.activeProfile.rt){
+          if (rtId.indexOf(":Work") > -1){
+            workRtId = rtId
+            for (let ptId of this.activeProfile.rt[rtId].ptOrder){
+              if (this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+                firstHeading=ptId
+                break
+              }
+            }
+          }
+          if (firstHeading){break}
+        }
+
+        if (firstHeading){
+
+          let firstHeadingPos = this.activeProfile.rt[workRtId].ptOrder.indexOf(firstHeading)
+          let currentHeadingPos = this.activeProfile.rt[workRtId].ptOrder.indexOf(pt.id)
+
+          // remove the current heading from its position
+          this.activeProfile.rt[workRtId].ptOrder.splice(currentHeadingPos, 1);
+          // insert where the first heading is
+          this.activeProfile.rt[workRtId].ptOrder.splice(firstHeadingPos, 0, pt.id);
+          
+          this.dataChanged()
+        }
+
+
+
+      }
+
+    },
+
+
+    /**
+    * Set the default values of the component fields
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {object} structure - passed from the UI, the structure object
     * @return {void}
     */
 
     insertDefaultValuesComponent: async function(componentGuid, structure){
 
-      console.log(componentGuid)
-      console.log("structure",structure)
+      // console.log(componentGuid)
+      // console.log("structure",structure)
 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)

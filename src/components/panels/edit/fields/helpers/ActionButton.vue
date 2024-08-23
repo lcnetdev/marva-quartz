@@ -11,7 +11,7 @@
   </div>
  -->
 
-  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
+ <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
     <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
     <template #popper>
@@ -31,6 +31,19 @@
           <span class="button-shortcut-label">3</span>
           Delete Component
         </button> 
+
+        
+        <template v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic'">
+          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-4`" @click="makeSubjectHeadingPrimary()">
+            <span class="button-shortcut-label">4</span>
+            Make Primary Heading
+          </button> 
+
+
+        </template>
+
+        
+        
 
         <hr>
 
@@ -273,7 +286,12 @@
         this.profileStore.deleteComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
         
       },
-    
+      makeSubjectHeadingPrimary: function(){
+        this.profileStore.makeSubjectHeadingPrimary(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
+        
+      },
+
+      
       
 
       addComponent: function(){
