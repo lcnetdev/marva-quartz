@@ -1818,8 +1818,8 @@ const utilsNetwork = {
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
         for (let r of result.hit){
-          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/')){
-            let responseUri = await this.returnRDFType(r.uri)
+          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/')){            
+            let responseUri = await this.returnRDFType(r.uri + '.madsrdf_raw.jsonld')
             if (responseUri){
               r.heading.rdfType = responseUri
             }
@@ -1846,6 +1846,8 @@ const utilsNetwork = {
 
         // most uris in the id.loc.gov dataset do not have https in the data uris
         uriToLookFor = uriToLookFor.replace('https://','http://')
+
+        uriToLookFor = uriToLookFor.replace('.madsrdf_raw.jsonld','')
 
         // any trailing slashers
         if (uri[uri.length-1] === '/'){
@@ -1910,7 +1912,7 @@ const utilsNetwork = {
     */
     subjectSearch: async function(searchVal,complexVal,mode){
 
-      console.log(useConfigStore().lookupConfig)
+      
 
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
