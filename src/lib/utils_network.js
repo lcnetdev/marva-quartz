@@ -290,10 +290,10 @@ const utilsNetwork = {
       // console.log("searchPayload",searchPayload)
 
 
+
         let returnUrls = useConfigStore().returnUrls
 
         let urlTemplate = searchPayload.url
-        let searchValue = searchPayload.searchValue
 
         console.log("######################################")
         console.log("url ", urlTemplate)
@@ -337,38 +337,8 @@ const utilsNetwork = {
               url = url.replace('q=?','q=')
             }
 
-            //break up complex (contains "--") headings to search against the whole term, and the last -- section of it
-            // this is for headings like "New York (State)--New York" where the second "New York" doesn't exist
-            // as a heading by itself
-            let r = null
-            let partial = null
-            let all = null
-            try{
-              if (searchValue.includes("--")) {
-                let pieces = searchValue.split("--")
-                if (pieces.length > 2){
-                  let last = pieces[pieces.length-1]
-                  let pen = pieces[pieces.length-2]
-                  let value = pen + "--" + last
-                  partial = await this.fetchSimpleLookup(url.replace(searchValue, value))
-                }
-                all = await this.fetchSimpleLookup(url)
 
-                if (partial != null){
-                  all.count += partial.count
-                  all.hits = all.hits.concat(partial.hits)
-                }
-                r = all
-
-              } else {
-                r = await this.fetchSimpleLookup(url)
-              }
-            } catch(error) {
-              console.log("error: ")
-            }
-            if (r === null){
-              r = await this.fetchSimpleLookup(url)
-            }
+            let r = await this.fetchSimpleLookup(url)
 
             //Config only allows 25 results, this will add something to the results
             // to let the user know there are more names.
@@ -434,7 +404,8 @@ const utilsNetwork = {
                   })
                 }
             }
-          }
+
+        }
 
         // always add in the literal they searched for at the end
         // if it is not a hub or work
@@ -1473,6 +1444,7 @@ const utilsNetwork = {
 
         let resultsGenre=[]
 
+
         // if it is a primary heading then we need to search LCNAF, HUBS, WORKS, and simple subjects, and do the whole thing with complex subjects
         if (heading.primary){
           // resultsNames = await this.searchComplex(searchPayloadNames)
@@ -1941,7 +1913,6 @@ const utilsNetwork = {
       console.log(useConfigStore().lookupConfig)
 
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
-
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
       let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=SimpleType'
 
@@ -1958,7 +1929,6 @@ const utilsNetwork = {
 
 
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count=4').replace("<OFFSET>", "1")
-      let HierarchicalGeographicAll = useConfigStore().lookupConfig['HierarchicalGeographicAll'].modes[0]['All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
 
       if (mode == 'GEO'){
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
@@ -1991,12 +1961,6 @@ const utilsNetwork = {
         searchValue: searchValHierarchicalGeographic
       }
 
-      let searchPayloadHierarchicalGeographicAll = {
-        processor: 'lcAuthorities',
-        url: [HierarchicalGeographicAll],
-        searchValue: complexVal
-      }
-
       let searchPayloadWorksAnchored = {
         processor: 'lcAuthorities',
         url: [worksUrlAnchored],
@@ -2027,19 +1991,17 @@ const utilsNetwork = {
       let resultsSubjectsSimple=[]
       let resultsSubjectsComplex=[]
       let resultsHierarchicalGeographic=[]
-      let resultsHierarchicalGeographicAll=[]
       let resultsWorksAnchored=[]
       let resultsWorksKeyword=[]
       let resultsHubsAnchored=[]
       let resultsHubsKeyword=[]
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsHierarchicalGeographicAll] = await Promise.all([
+        [resultsNames, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
             this.searchComplex(searchPayloadNames),
             this.searchComplex(searchPayloadSubjectsSimple),
             this.searchComplex(searchPayloadSubjectsComplex),
-            this.searchComplex(searchPayloadHierarchicalGeographic),
-            this.searchComplex(searchPayloadHierarchicalGeographicAll)
+            this.searchComplex(searchPayloadHierarchicalGeographic)
         ]);
 
       }else if (mode == "GEO"){
@@ -2070,9 +2032,6 @@ const utilsNetwork = {
       // drop the litearl value from names and complex
       if (resultsNames.length>0){
         resultsNames.pop()
-      }
-      if (resultsHierarchicalGeographicAll.length > 0){
-        resultsHierarchicalGeographicAll.pop()
       }
       if (resultsSubjectsComplex.length>0){
         resultsSubjectsComplex.pop()
@@ -2118,23 +2077,13 @@ const utilsNetwork = {
         resultsSubjectsSimple = resultsHubsAnchored
         resultsSubjectsComplex = resultsHubsKeyword
       }
-
-      // hierarchicalGeographicAll can sometimes have results found in subjectsComplex
-      // Remove the dupes
-      const hierarchicalGeographicURIs = resultsHierarchicalGeographic.map((item) => item.uri)
-      const subjectSimpleURIs = resultsSubjectsSimple.map((item) => item.uri)
-      const subjectComplexURIs = resultsSubjectsComplex.map((item) => item.uri)
-
-      const subjectURIs = subjectComplexURIs.concat(subjectSimpleURIs).concat(hierarchicalGeographicURIs)
-      const resultsHierarchicalGeographicAllFiltered = resultsHierarchicalGeographicAll.filter((subj) => !subjectURIs.includes(subj.uri))
-
       let results = {
         'subjectsSimple': resultsSubjectsSimple,
         'subjectsComplex': resultsSubjectsComplex,
         'names':resultsNames,
-        'hierarchicalGeographic': resultsHierarchicalGeographic,
-        'hierarchicalGeographicAll': resultsHierarchicalGeographicAllFiltered
+        'hierarchicalGeographic': resultsHierarchicalGeographic
       }
+
 
       return results
 
@@ -2365,12 +2314,6 @@ const utilsNetwork = {
         let req = await fetch(useConfigStore().returnUrls.id + `resources/instances/suggest2?q=${lccn}&searchtype=keyword` )
         let results = await req.json()
 
-        if (req && req.status && req.status == 500){
-          alert("Error talking to the Search API")
-          return ["Error searching LCCN"]
-        }
-
-
         let returnVal = []
 
         for (let r of results.hits){
@@ -2477,25 +2420,25 @@ const utilsNetwork = {
         // results = [{"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20H316%202005", "term":"TT820 H316 2005", "frequency":"", "creator":"", "title":"Decorative knitting", "pubdate":"2005", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20H813145%202008", "term":"TT820 H813145 2008", "frequency":"", "creator":"", "title":"Knit aid", "pubdate":"2008", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A115%201991", "term":"TT820 .A115 1991", "frequency":"", "creator":"", "title":"42 favorite crochet motifs", "pubdate":"1992", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1155%202023", "term":"TT820 .A1155 2023", "frequency":"", "creator":"", "title":"60 quick crochet projects for beginners", "pubdate":"2023", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1156%202024", "term":"TT820 .A1156 2024", "frequency":"", "creator":"", "title":"60 quick granny squares", "pubdate":"2024", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1158%202012", "term":"TT820 .A1158 2012", "frequency":"", "creator":"", "title":"101 crochet stitch patterns & edgings", "pubdate":"2012", "subject":"Crocheting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A116%202002", "term":"TT820 .A116 2002", "frequency":"", "creator":"", "title":"101 double-ended hook stitches", "pubdate":"2002", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A117%201996", "term":"TT820 .A117 1996", "frequency":"", "creator":"", "title":"101 fun-to-crochet projects", "pubdate":"1996", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A119%201995", "term":"TT820 .A119 1995", "frequency":"", "creator":"", "title":"150 favorite crochet designs", "pubdate":"1995", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A11912%202017", "term":"TT820 .A11912 2017", "frequency":"", "creator":"", "title":"200 fun things to crochet", "pubdate":"2017", "subject":"Crocheting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A11913%202017", "term":"TT820 .A11913 2017", "frequency":"", "creator":"", "title":"200 fun things to knit", "pubdate":"2017", "subject":"Knitting--Patterns", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1194%202015", "term":"TT820 .A1194 2015", "frequency":"", "creator":"", "title":"500 crochet stitches", "pubdate":"2015", "subject":"Crocheting--Technique", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1196%202008", "term":"TT820 .A1196 2008", "frequency":"", "creator":"", "title":"A to Z of crochet", "pubdate":"2008", "subject":"Crocheting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A11968%202009", "term":"TT820 .A11968 2009", "frequency":"", "creator":"", "title":"A to Z of knitting", "pubdate":"2009", "subject":"Knitting--Handbooks, manuals, etc.", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A1197%202020", "term":"TT820 .A1197 2020", "frequency":"", "creator":"", "title":"A-Z of knitting", "pubdate":"2020", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A19", "term":"TT820 .A19", "frequency":"", "creator":"", "title":"The complete book of knitting", "pubdate":"1971", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A33%202019", "term":"TT820 .A33 2019", "frequency":"", "creator":"", "title":"Fair Isle mittens", "pubdate":"2019", "subject":"Crocheting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A42%202007", "term":"TT820 .A42 2007", "frequency":"", "creator":"", "title":"The natural knitter", "pubdate":"2007", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A48", "term":"TT820 .A48", "frequency":"", "creator":"", "title":"Le Tricot", "pubdate":"1977", "subject":"Knitting", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TT820%20.A5149%202020", "term":"TT820 .A5149 2020", "frequency":"", "creator":"", "title":"Knitting & crocheting all-in-one", "pubdate":"2020", "subject":"Knitting--Patterns", "altsubject":""}]
         // let results = [{"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%201998%20.U5", "term":"G3762.B495 1998 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley National Heritage Corridor, Massachusetts/Rhode Island", "pubdate":"1998", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass. and R.I.)--Maps", "altsubject":"", "bibid":"5568980"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%201999%20.U5", "term":"G3762.B495 1999 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley National Heritage Corridor, Massachusetts/Rhode Island", "pubdate":"1999", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass. and R.I.)--Maps", "altsubject":"", "bibid":"11797321"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%202000%20.U5", "term":"G3762.B495 2000 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley National Heritage Corridor, Massachusetts, Rhode Island", "pubdate":"2000", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass. and R.I.)--Maps", "altsubject":"", "bibid":"19660525"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%202003%20.U5", "term":"G3762.B495 2003 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley", "pubdate":"2003", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass. and R.I.)--Maps", "altsubject":"", "bibid":"19664821"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%202004%20.U5", "term":"G3762.B495 2004 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley National Heritage Corridor, Massachusetts, Rhode Island", "pubdate":"2004", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass and R.I.)--Maps", "altsubject":"", "bibid":"19658722"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B495%202006%20.U5", "term":"G3762.B495 2006 .U5", "frequency":"", "creator":"", "title":"Blackstone River Valley National Heritage Corridor, Massachusetts, Rhode Island", "pubdate":"2006", "subject":"John H. Chafee Blackstone River Valley National Heritage Corridor (Mass and R.I.)--Maps", "altsubject":"", "bibid":"19658918"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B49P2%202004%20.A7", "term":"G3762.B49P2 2004 .A7", "frequency":"", "creator":"", "title":"Blackstone Valley, Massachusetts, street map", "pubdate":"2004", "subject":"Roads--Blackstone River Valley (Mass. and R.I.)--Maps", "altsubject":"", "bibid":"14274188"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4A5%201990%20.C3", "term":"G3762.B4A5 1990 .C3", "frequency":"", "creator":"", "title":"The Berkshires", "pubdate":"1990", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"12770913"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E63%201997%20.R8", "term":"G3762.B4E63 1997 .R8", "frequency":"", "creator":"", "title":"Western Massachusetts bicycle and road map, bed & breakfast guide", "pubdate":"1997", "subject":"Bicycle trails--Massachusetts--Berkshire Hills--Maps", "altsubject":"", "bibid":"5569084"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E63%202004%20.R8", "term":"G3762.B4E63 2004 .R8", "frequency":"", "creator":"", "title":"Western Massachusetts road and bicycle map, bed & breakfast guide", "pubdate":"2004", "subject":"Bicycle trails--Massachusetts--Berkshire Hills--Maps", "altsubject":"", "bibid":"14637168"}, {"selected":"selected", "lookup":"", "term":"G3762.B4E635 1975 .G7", "frequency":"", "creator":"", "title":"The Berkshires", "pubdate":"1975", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"5428687"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%201978%20.G7", "term":"G3762.B4E635 1978 .G7", "frequency":"", "creator":"", "title":"Circle tours, the Berkshires", "pubdate":"1978", "subject":"Berkshire Hills, Mass.--Maps.", "altsubject":"", "bibid":"5445127"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%201981%20.G7", "term":"G3762.B4E635 1981 .G7", "frequency":"", "creator":"", "title":"The Berkshires", "pubdate":"1981", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"5463162"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202001%20.R4", "term":"G3762.B4E635 2001 .R4", "frequency":"", "creator":"", "title":"The best of Berkshires, Massachusetts, north County featuring Adams, North Adams, Pittsfield,...", "pubdate":"2000", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"13816560"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202002%20.R4", "term":"G3762.B4E635 2002 .R4", "frequency":"", "creator":"", "title":"The best of Berkshires, Massachusetts, 2002", "pubdate":"2001", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"13816576"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202004%20.R4", "term":"G3762.B4E635 2004 .R4", "frequency":"", "creator":"", "title":"The best of the Berkshires, Massachusetts, 2004", "pubdate":"2003", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"13816614"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202005%20.R4", "term":"G3762.B4E635 2005 .R4", "frequency":"", "creator":"", "title":"The best of the Berkshires, Massachusetts, 2005", "pubdate":"2004", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"13900397"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202006%20.R4", "term":"G3762.B4E635 2006 .R4", "frequency":"", "creator":"", "title":"The best of the Berkshires, Massachusetts, 2006", "pubdate":"2005", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"14527448"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202007%20.R4", "term":"G3762.B4E635 2007 .R4", "frequency":"", "creator":"", "title":"The best of the Berkshires, Massachusetts, 2007", "pubdate":"2006", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"15065556"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=G3762.B4E635%202009%20.R4", "term":"G3762.B4E635 2009 .R4", "frequency":"", "creator":"", "title":"The best of the Berkshires, Massachusetts, 2009", "pubdate":"2008", "subject":"Berkshire Hills (Mass.)--Maps.", "altsubject":"", "bibid":"15684452"}]
 
-        // let selectedIndex = -1
-        // let c = 0
-        // for (let r of results){
-        //   r['lookup'] = useConfigStore().returnUrls.shelfListing.slice(0, -1) + r['lookup']
-        //   if (r.selected){
-        //     selectedIndex = c
-        //   }
-        //   c++
-        // }
-        // // selectedIndex = selectedIndex - 1
-        // if (selectedIndex > -1){
-        //   results.splice(selectedIndex, 0, {
-        //     term:'-----',
-        //     title:'Would Appear Here',
-        //     creator:'',
-        //     pubdate:"------",
-        //     lookup:'#'
-        //   })
-        // }
+        let selectedIndex = -1
+        let c = 0
+        for (let r of results){
+          r['lookup'] = useConfigStore().returnUrls.shelfListing.slice(0, -1) + r['lookup']
+          if (r.selected){
+            selectedIndex = c
+          }
+          c++
+        }
+        // selectedIndex = selectedIndex - 1
+        if (selectedIndex > -1){
+          results.splice(selectedIndex, 0, {
+            term:'-----',
+            title:'Would Appear Here',
+            creator:'',
+            pubdate:"------",
+            lookup:'#'
+          })
+        }
 
 
 
