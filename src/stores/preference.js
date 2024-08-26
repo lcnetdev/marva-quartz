@@ -830,7 +830,7 @@ export const usePreferenceStore = defineStore('preference', {
       console.log(this.panelDisplay.properties)
       const instance = getCurrentInstance();
       instance?.proxy?.$forceUpdate();
-
+      this.savePreferences()
     },
 
 

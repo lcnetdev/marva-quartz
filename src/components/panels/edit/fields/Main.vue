@@ -2,7 +2,6 @@
 
 
   <div v-if="componentType != 'META'" :class="[{'component': (level == 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode'))}]" :id="`edit_${parentId}_${id}`">
-    
     <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} id: {{id}} -->
     <Ref
       v-if="componentType === 'REF'"

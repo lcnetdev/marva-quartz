@@ -1399,7 +1399,7 @@ export const useProfileStore = defineStore('profile', {
         // console.log(JSON.stringify(pt,null,2))
 
         // let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
-        
+
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult
@@ -1725,6 +1725,11 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
+          let source = null
+          if (URI && URI.indexOf('/fast/') >1){
+            source = 'FAST'
+          } 
+
 
 
           if (URI && label){
@@ -1732,6 +1737,7 @@ export const useProfileStore = defineStore('profile', {
               '@guid':v['@guid'],
               URI: URI,
               label: label,
+              source: source,
               needsDereference: false,
               isLiteral: false,
               type:v['@type']
@@ -1741,6 +1747,7 @@ export const useProfileStore = defineStore('profile', {
               '@guid':v['@guid'],
               URI: URI,
               label: label,
+              source: source,
               needsDereference: true,
               isLiteral: false,
               type:v['@type']
@@ -1750,6 +1757,7 @@ export const useProfileStore = defineStore('profile', {
               '@guid':v['@guid'],
               URI: URI,
               label: label,
+              source: source,
               needsDereference: false,
               isLiteral: true,
               type:v['@type']
@@ -1795,12 +1803,12 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
 
-      if (!type){
+      
+      if (!type && URI){
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
         type = context.typeFull
       }
-
       if (pt !== false){
 
         pt.hasData = true
@@ -2751,6 +2759,287 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+    
+    /**
+    * Moves the passed heading the first of the subjects in the PT order
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @return {void}
+    */
+
+    makeSubjectHeadingPrimary: async function(componentGuid){
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      if (pt !== false){
+
+        console.log(pt)
+
+        // loop through all the headings and find the place the headings start
+        let firstHeading = null
+        let workRtId = null
+        for (let rtId in this.activeProfile.rt){
+          if (rtId.indexOf(":Work") > -1){
+            workRtId = rtId
+            for (let ptId of this.activeProfile.rt[rtId].ptOrder){
+              if (this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+                firstHeading=ptId
+                break
+              }
+            }
+          }
+          if (firstHeading){break}
+        }
+
+        if (firstHeading){
+
+          let firstHeadingPos = this.activeProfile.rt[workRtId].ptOrder.indexOf(firstHeading)
+          let currentHeadingPos = this.activeProfile.rt[workRtId].ptOrder.indexOf(pt.id)
+
+          // remove the current heading from its position
+          this.activeProfile.rt[workRtId].ptOrder.splice(currentHeadingPos, 1);
+          // insert where the first heading is
+          this.activeProfile.rt[workRtId].ptOrder.splice(firstHeadingPos, 0, pt.id);
+          
+          this.dataChanged()
+        }
+
+
+
+      }
+
+    },
+
+
+    /**
+    * Set the default values of the component fields
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {object} structure - passed from the UI, the structure object
+    * @return {void}
+    */
+
+    insertDefaultValuesComponent: async function(componentGuid, structure){
+
+      // console.log(componentGuid)
+      // console.log("structure",structure)
+
+      // locate the correct pt to work on in the activeProfile
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      if (pt !== false){
+
+        let baseURI = pt.propertyURI
+        if (!pt.userValue[baseURI]){
+          pt.userValue[baseURI] = [{}]
+        }
+        let userValue = pt.userValue[baseURI][0]
+
+        // find the default values for this template if they exist
+        if (structure){
+
+          if (structure.parentId){
+
+            let defaultsProperty = false
+            if (this.rtLookup[structure.parentId]){
+                console.log(this.rtLookup[structure.parentId])
+                // defaultsProperty = this.rtLookup[structure.parentId].propertyTemplates.filter((x)=>{ return (x.propertyURI === idPropertyId) ? true : false})
+                // if (defaultsProperty.length>0){
+                //     defaultsProperty=defaultsProperty[0]
+                // }
+
+                for (let p of this.rtLookup[structure.parentId].propertyTemplates){
+                  // dose it have a default value?
+                  if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
+
+                    // overwrite it if there is anything there already
+                    userValue[p.propertyURI] = []
+                    for (let d of p.valueConstraint.defaults){
+
+                      let value = {
+                        '@guid': short.generate()
+                      }
+
+                      if (d.defaultLiteral){
+                          // console.log(newPt)
+                          value['http://www.w3.org/2000/01/rdf-schema#label'] = [{
+                              '@guid': short.generate(),
+                              'http://www.w3.org/2000/01/rdf-schema#label':d.defaultLiteral
+                          }]
+                      }
+                      if (d.defaultURI){
+                        value['@id'] = d.defaultURI
+                      }
+
+
+
+                      userValue[p.propertyURI].push(value)
+
+
+                    }
+
+
+                  }
+
+
+                }
+            }
+
+            
+
+
+          }else{
+            console.warn("No structure.parentId found")
+          }
+
+
+
+
+        }else{
+
+          
+          alert("Error: no structure found")
+
+        }
+
+
+
+        // let profile
+        // let propertyPosition
+        // for (let r of this.activeProfile.rtOrder){
+        //   propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
+        //   if (propertyPosition != -1){
+        //     profile = r
+        //     break
+        //   }
+        // }
+
+
+        // console.log("Lookign at this PT", pt)
+        // let newPt = JSON.parse(JSON.stringify(pt))
+        // newPt.userValue = {
+        //     '@guid': short.generate(),
+        //     '@root' : newPt.propertyURIhihi
+
+        // }
+        // // we also want to add any default values in if it is just a empty new property and not duping
+        // let idPropertyId = pt.propertyURI
+        // let baseURI = newPt.propertyURI
+
+        // // let defaults = null
+        // let defaultsProperty
+
+        // let useProfile = profile
+        // // if the profile is a multiple, like lc:RT:bf2:Monograph:Item-0 split off the -0 for it to find it in the RT lookup
+        // if (!this.rtLookup[useProfile]){
+        //     if (useProfile.includes('-')){
+        //         useProfile = useProfile.split('-')[0]
+        //     }
+        // }
+        // // first check the top level
+        // if (this.rtLookup[useProfile]){
+        //     defaultsProperty = this.rtLookup[useProfile].propertyTemplates.filter((x)=>{ return (x.propertyURI === idPropertyId) ? true : false})
+        //     if (defaultsProperty.length>0){
+        //         defaultsProperty=defaultsProperty[0]
+
+        //     }
+        // }
+
+
+        // if (defaultsProperty && defaultsProperty.valueConstraint.defaults.length>0){
+        //     // make sure the base URI exists in the uservalue
+        //     if (!newPt.userValue[baseURI]){
+        //         newPt.userValue[baseURI] = [{}]
+        //     }
+        //     let userValue = newPt.userValue[baseURI][0]
+
+        //     // there are defauts at this level
+        //     // its not a nested component just add it in the first level
+        //     if (defaultsProperty.valueConstraint.defaults[0].defaultLiteral){
+        //         // console.log(newPt)
+        //         userValue['http://www.w3.org/2000/01/rdf-schema#label'] = [{
+        //             '@guid': short.generate(),
+        //             'http://www.w3.org/2000/01/rdf-schema#label':defaultsProperty.valueConstraint.defaults[0].defaultLiteral
+        //         }]
+        //     }
+        //     if (defaultsProperty.valueConstraint.defaults[0].defaultURI){
+        //         userValue['@id'] = defaultsProperty.valueConstraint.defaults[0].defaultURI
+        //     }
+
+
+        // }else if (defaultsProperty && defaultsProperty.valueConstraint.valueTemplateRefs.length>0){
+
+        //     if (!newPt.userValue[baseURI]){
+        //         newPt.userValue[baseURI] = [{}]
+        //     }
+        //     let userValue = newPt.userValue[baseURI][0]
+
+
+            
+        //     // it doesn't exist at the top level, see if it has at least one reference template, if so use the first one and look up if that one has defualt values
+        //     // the first one since it is the default for the referencetemplace componment
+        //     let useRef = defaultsProperty.valueConstraint.valueTemplateRefs[0]
+
+        //     // look through all of them and add in any default
+        //     for (let refPt of this.rtLookup[useRef].propertyTemplates){
+        //         if (refPt.valueConstraint.defaults.length>0){
+        //             let defaults = refPt.valueConstraint.defaults[0]
+        //             if (defaults.defaultLiteral){
+        //                 userValue[refPt.propertyURI]= [{
+        //                     '@guid': short.generate(),
+        //                     'http://www.w3.org/2000/01/rdf-schema#label': [
+        //                         {
+        //                             'http://www.w3.org/2000/01/rdf-schema#label':defaults.defaultLiteral,
+        //                             '@guid': short.generate(),
+        //                         }
+        //                     ]
+        //                 }]
+        //             }
+        //             if (defaults.defaultURI){
+        //                 if (userValue[refPt.propertyURI][0]){
+        //                     userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI
+        //                     if (refPt.valueConstraint.valueDataType && refPt.valueConstraint.valueDataType.dataTypeURI){
+        //                         userValue[refPt.propertyURI][0]['@type'] = refPt.valueConstraint.valueDataType.dataTypeURI
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+
+        // }
+        // // did the old one have a type? if so set the type for the new one
+        // if (pt && pt.userValue && pt.userValue[baseURI] && pt.userValue[baseURI][0] && pt.userValue[baseURI][0]['@type']){
+        //   if (newPt.userValue[baseURI] && newPt.userValue[baseURI][0]){
+        //     newPt.userValue[baseURI][0]['@type'] = pt.userValue[baseURI][0]['@type']
+        //   }
+
+        // }
+
+
+        // // make sure we didnt make an empty propery array [{}]
+        // if (newPt.userValue[baseURI]){
+        //     if (newPt.userValue[baseURI][0]){
+        //         if (Object.keys(newPt.userValue[baseURI][0]).length === 0){
+        //             delete newPt.userValue[baseURI]
+        //         }
+        //     }
+        // }
+
+        // console.log(JSON.stringify(newPt,null,2))
+        // // this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
+        // // this.activeProfile.rt[profile].ptOrder.splice(propertyPosition+1, 0, newPropertyId);
+        // // console.log(this.activeProfile.rt[profile].ptOrder)
+        // // // they changed something
+        // // this.dataChanged()
+
+      }else{
+        console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
+        console.log(JSON.stringify(this.activeProfile))
+      }
+
+
+
+    },
 
 
 
@@ -2981,7 +3270,11 @@ export const useProfileStore = defineStore('profile', {
           this.activeProfile.rt[pt.parentId].pt[pt.id].deleted = true
 
         }else{
-
+          console.info("this.activeProfile: ", this.activeProfile)
+          console.info("this.activeProfile.rt: ", this.activeProfile.rt)
+          console.info("this.activeProfile.rt[pt.parentId]: ", this.activeProfile.rt[pt.parentId])
+          console.info("pt.id: ", pt.id)
+          console.info("Trying to delete: ", this.activeProfile.rt[pt.parentId].pt[pt.id].userValue)
           for (let key in this.activeProfile.rt[pt.parentId].pt[pt.id].userValue){
             if (!key.startsWith('@')){
                delete this.activeProfile.rt[pt.parentId].pt[pt.id].userValue[key]
@@ -3167,9 +3460,19 @@ export const useProfileStore = defineStore('profile', {
         // console.log("CHANGED 1!!!")
       },500)
 
+    },
+
+
+    /**
+    * A helper that can be run before loading a new record to do any maintenance needed
+    *
+    * @return {void}
+    */
+    prepareForNewRecord:  function(){
+      
+      this.activeProfile = {}
+
     }
-
-
 
   }
 })

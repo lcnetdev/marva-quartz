@@ -227,7 +227,7 @@ const utilsParse = {
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
        } else if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')        
-       } else if (child.innerHTML.indexOf("bf:Hub")>-1){
+       } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
        } else if (child.innerHTML.indexOf("bf:Work")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')

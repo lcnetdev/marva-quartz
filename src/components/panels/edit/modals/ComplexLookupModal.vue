@@ -152,7 +152,7 @@
         let searchPayload = {
           processor: null,
           url: [],
-          searchValueLocal: this.searchValueLocal
+          searchValue: this.searchValueLocal   //This changed from searchValueLocal, to match what is expected in `utils_network.js`
         }
         // if (this.modeSelect == 'All'){
         //   this.modalSelectOptions.forEach((a)=>{
@@ -241,6 +241,7 @@
 
         console.log("toLoad: ", toLoad)
 
+        
         this.activeContext = {
             "contextValue": true,
             "source": [],
@@ -256,6 +257,9 @@
             "literal": true,
             "loading":true,
           }
+        if (toLoad && toLoad.literal){
+          return false
+        }
 
         let results = await utilsNetwork.returnContext(toLoad.uri)
         results.loading = false
@@ -267,7 +271,7 @@
             return false
           }
         } catch(err){
-          console.log("")
+
         }
 
 
@@ -487,7 +491,7 @@
                         <div v-if="activeContext.depreciated" style="background: pink;">
                           DEPRECIATED AUTHORITY
                         </div>
-                        <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" :href="rewriteURI(activeContext.uri)" target="_blank">view on id.loc.gov</a>
+                        <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank">view on id.loc.gov</a>
 
                     </div>
                     <div class="complex-lookup-modal-display-buttons">

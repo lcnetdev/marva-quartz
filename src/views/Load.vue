@@ -21,15 +21,14 @@
 
               <template #tbody="{row}">
 
-
                 <td>
-                  <router-link :to="{ name: 'Edit', params: { recordId: row.Id }}">
-                    {{ row.Id }}
-                  </router-link>
+                  <a href="#" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
+
                 </td>
 
-                <td v-text="row.RTs.join(', ')"/>
+                <td v-text="(row.RTs) ? row.RTs.join(', ') : row.RTs"/>
                 <td v-text="row.Type"/>
+                <td v-text="row.Title"/>
                 <td v-text="row.Status"/>
                 <td>
                   <div v-for="u in row.Urls">
@@ -66,6 +65,7 @@
 
               <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
                 <input placeholder="URL to resource or identifier to search" class="url-to-load" type="text" @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
+                <p>Need to search title or author? Use <a href="https://preprod-8230.id.loc.gov/lds/index.xqy" target="_blank">BFDB</a>.</p>
               </form>
 
 
@@ -268,6 +268,7 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore),
+      ...mapStores(useProfileStore),
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
       ...mapState(useConfigStore, ['testData']),
       ...mapState(useProfileStore, ['startingPoints','profiles']),
@@ -299,9 +300,24 @@
 
     methods: {
 
+
+      loadFromAllRecord: function(eId){
+
+
+        this.profileStore.prepareForNewRecord()
+
+        this.$router.push({ name: 'Edit', params: { recordId: eId } })
+
+
+      },
+
+
+
+
+
       allRecordsRowClick: function(row){
 
-        
+
 
       },
 
@@ -313,7 +329,7 @@
         this.isLoadingAllRecords=true
 
         let allRecordsRaw = await utilsNetwork.searchSavedRecords()
-        
+
         this.allRecords = []
         for (let r of allRecordsRaw){
 
@@ -322,6 +338,7 @@
 
             'RTs': r.rstused,
             'Type': r.typeid,
+            'Title': r.title,
             'Status': r.status,
             'Urls': r.externalid,
             'Time': r.time,
@@ -340,7 +357,7 @@
         this.isLoadingAllRecords=false
       },
 
-      returnTimeAgo: function(timestamp){        
+      returnTimeAgo: function(timestamp){
         return timeAgo.format(timestamp*1000)
       },
 
@@ -350,7 +367,7 @@
       },
 
       loadTestData: function(meta){
-        
+
 
         let href = window.location.href.split("/")
         this.urlToLoad = `/${href[3]}/${href[4]}/test_files/${meta.lccn}.xml`
@@ -366,6 +383,8 @@
 
       loadSearch: function(){
         this.lccnLoadSelected = null
+
+        console.info("Load: ", this.urlToLoad)
 
         if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")){
           this.urlToLoadIsHttp = true
@@ -394,14 +413,13 @@
       },
 
       loadUrl: async function(useInstanceProfile,multiTestFlag){
-
         if (this.lccnLoadSelected){
-          
+
           this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
 
         }
 
-        
+
 
         if (this.urlToLoad.trim() !== ''){
 
@@ -411,13 +429,13 @@
             return false
           }
           // if (xml.indexOf('<rdf:RDF'))
-          
+
 
           // check for XML problems here ?
 
           utilsParse.parseXml(xml)
 
-          
+
 
         }
 
@@ -427,6 +445,12 @@
           if (this.profiles[key].rtOrder.indexOf(useInstanceProfile)>-1){
             useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
           }
+        }
+
+        // check if the input field is empty
+        if (this.urlToLoad == "" && useProfile===null){
+          alert("Please enter the URL or Identifier of the record you want to load.")
+          return false
         }
 
         if (useProfile===null){
@@ -542,7 +566,7 @@
 
 
       let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
-      
+
       let lccnLookup = {}
 
       // in this view we want to remove any records that are repeats, so only show the latest LCCN being edited

@@ -44,6 +44,45 @@
 
     methods: {
 
+      returnSubjectHeadingLabel(component){
+
+        let returnString = 'No Heading'
+        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'] 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+          returnString = component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+        }
+
+        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'] 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length>0
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
+          returnString = component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+        }
+
+        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'] 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] 
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id']
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].indexOf('/fast/') > -1){
+
+          returnString = '(FAST) ' + returnString
+        }
+
+
+        
+
+        return returnString
+
+      },
+
       returnTemplateTypes: function(templates){
 
           let titles = []
@@ -129,7 +168,13 @@
                                 <li @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-li sidebar-property-li-empty">
                                   <a href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
-                                      {{activeProfile.rt[profileName].pt[element].propertyLabel}}
+                                      <span v-if="activeProfile.rt[profileName].pt[element].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'">
+                                        [SH]: {{ returnSubjectHeadingLabel(activeProfile.rt[profileName].pt[element]) }}
+                                      </span>
+                                      <span v-else>{{activeProfile.rt[profileName].pt[element].propertyLabel}}</span>
+                                      
+                                      
+
                                   </a>
                                   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-show-types')">
                                     <template v-if="activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs.length>1">
