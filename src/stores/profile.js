@@ -2850,29 +2850,47 @@ export const useProfileStore = defineStore('profile', {
 
                 for (let p of this.rtLookup[structure.parentId].propertyTemplates){
                   // dose it have a default value?
+
                   if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
+                    console.log('need to insert this somewhere')
+                    console.log(p)
+
+                    if (p.valueConstraint.valueTemplateRefs && p.valueConstraint.valueTemplateRefs.length>0){
+                      // they are linking to another template in this template, so if we ant to populate the imformation we would need to know what predicate to use :(((((
+                      console.log("Nested tempalte:")
+                      console.log(this.rtLookup[p.valueConstraint.valueTemplateRefs[0]])
+
+                    }
 
                     // overwrite it if there is anything there already
                     userValue[p.propertyURI] = []
                     for (let d of p.valueConstraint.defaults){
 
                       let value = {
-                        '@guid': short.generate()
+                        '@guid': short.generate(d.defaultLiteral, d.defaultURI)
                       }
+                      console.log()
+                      // if it just has a literal value and not a URI then don't create a blank node, just insert it using that literal property
+                      if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
 
-                      if (d.defaultLiteral){
+                        value[p.propertyURI] = d.defaultLiteral
+
+                      }else{
+
+
+                        if (d.defaultLiteral){
                           // console.log(newPt)
                           value['http://www.w3.org/2000/01/rdf-schema#label'] = [{
                               '@guid': short.generate(),
                               'http://www.w3.org/2000/01/rdf-schema#label':d.defaultLiteral
                           }]
+                        }
+                        if (d.defaultURI){
+                          value['@id'] = d.defaultURI
+                        }
+                    
                       }
-                      if (d.defaultURI){
-                        value['@id'] = d.defaultURI
-                      }
-
-
-
+                      console.log('value',value)
                       userValue[p.propertyURI].push(value)
 
 

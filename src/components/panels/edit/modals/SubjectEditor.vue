@@ -700,7 +700,8 @@ data: function() {
   return {
     searching: false,
 
-    subjectEditorMode: 'subjectEditorMode',
+    // subjectEditorMode: 'subjectEditorMode',
+    subjectEditorMode: 'build',
 
     contextData: {nodeMap:{}},
     authorityLookupLocal: null,
@@ -1733,7 +1734,7 @@ methods: {
 
   closeEditor: function(){
     //after closing always open in `link` mode for consistency
-    this.subjectEditorMode = "link"
+    this.subjectEditorMode = "build"
     this.$emit('hideSubjectModal', true)
   },
 
