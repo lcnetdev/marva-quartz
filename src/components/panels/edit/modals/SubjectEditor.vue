@@ -1235,7 +1235,10 @@ export default {
         if (parseInt(this.pickPostion) <= this.searchResults.names.length*-1){
           return false
         }
+
+        this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) - 1 )
+        this.pickCurrent = parseInt(this.pickPostion)
         event.preventDefault()
         return false
       }else if (event.key == 'ArrowDown'){
@@ -1244,8 +1247,9 @@ export default {
           return false
         }
 
-
+        this.pickCurrent = null //allows keyboard selection
         this.loadContext(parseInt(this.pickPostion) + 1 )
+        this.pickCurrent = parseInt(this.pickPostion)
         event.preventDefault()
         return false
       }else if (event.key == 'Enter'){

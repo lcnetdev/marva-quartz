@@ -1930,7 +1930,6 @@ const utilsNetwork = {
 
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count=4').replace("<OFFSET>", "1")
 
-
       if (mode == 'GEO'){
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
       }
@@ -1961,7 +1960,6 @@ const utilsNetwork = {
         url: [subjectUrlHierarchicalGeographic],
         searchValue: searchValHierarchicalGeographic
       }
-
 
       let searchPayloadWorksAnchored = {
         processor: 'lcAuthorities',
