@@ -822,7 +822,7 @@ export default {
 
     navKey: function(event){
 
-      
+
       if (event && event.keyCode == 220 && event.ctrlKey == true){
         let id = `action-button-${event.target.dataset.guid}`
         document.getElementById(id).click()
@@ -856,7 +856,7 @@ export default {
 
     actionButtonCommand: function(cmd){
       this.$refs.lookupInput.focus()
-      
+
     },
 
     focused: function(){
@@ -882,7 +882,7 @@ export default {
     */
     setComplexValue: function(contextValue){
       delete contextValue.typeFull
-      this.profileStore.setValueComplex(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
+      this.profileStore.setValueComplex(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap)
       this.searchValue=''
       this.displayModal=false
 

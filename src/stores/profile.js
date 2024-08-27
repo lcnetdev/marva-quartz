@@ -117,7 +117,6 @@ export const useProfileStore = defineStore('profile', {
     */
     async buildProfiles() {
 
-
       const config = useConfigStore()
 
       let profileData;
@@ -1728,7 +1727,7 @@ export const useProfileStore = defineStore('profile', {
           let source = null
           if (URI && URI.indexOf('/fast/') >1){
             source = 'FAST'
-          } 
+          }
 
 
 
@@ -1790,9 +1789,7 @@ export const useProfileStore = defineStore('profile', {
 
     * @return {void}
     */
-    setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type){
-
-
+    setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null){
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -1802,8 +1799,6 @@ export const useProfileStore = defineStore('profile', {
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-
-      
       if (!type && URI){
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
@@ -1846,6 +1841,29 @@ export const useProfileStore = defineStore('profile', {
               'http://www.w3.org/2000/01/rdf-schema#label' : label
             }
           ]
+
+          //Add gacs code to user data
+          if (nodeMap["GAC(s)"]){
+            blankNode["http://www.loc.gov/mads/rdf/v1#code"] = [
+              {
+                '@guid': short.generate(),
+                'http://www.loc.gov/mads/rdf/v1#code':
+                  [{
+                    '@type': 'http://www.loc.gov/mads/rdf/v1#code',
+                    "@about": "https://id.loc.gov/vocabulary/geographicAreas/" + nodeMap["GAC(s)"][0].replace(/---/g, ""),
+                    "http://www.loc.gov/mads/rdf/v1#code": nodeMap["GAC(s)"][0]
+                  }]
+              }
+            ]
+          }
+          if (nodeMap["marcKey"]){
+            blankNode["http://id.loc.gov/ontologies/bflc/marcKey"] = [
+              {
+                '@guid': short.generate(),
+                'http://id.loc.gov/ontologies/bflc/marcKey': nodeMap["marcKey"][0]
+              }
+            ]
+          }
         }else{
 
           let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
@@ -2759,7 +2777,7 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
-    
+
     /**
     * Moves the passed heading the first of the subjects in the PT order
     *
@@ -2800,7 +2818,7 @@ export const useProfileStore = defineStore('profile', {
           this.activeProfile.rt[workRtId].ptOrder.splice(currentHeadingPos, 1);
           // insert where the first heading is
           this.activeProfile.rt[workRtId].ptOrder.splice(firstHeadingPos, 0, pt.id);
-          
+
           this.dataChanged()
         }
 
@@ -2885,7 +2903,7 @@ export const useProfileStore = defineStore('profile', {
                 }
             }
 
-            
+
 
 
           }else{
@@ -2897,7 +2915,7 @@ export const useProfileStore = defineStore('profile', {
 
         }else{
 
-          
+
           alert("Error: no structure found")
 
         }
@@ -2975,7 +2993,7 @@ export const useProfileStore = defineStore('profile', {
         //     let userValue = newPt.userValue[baseURI][0]
 
 
-            
+
         //     // it doesn't exist at the top level, see if it has at least one reference template, if so use the first one and look up if that one has defualt values
         //     // the first one since it is the default for the referencetemplace componment
         //     let useRef = defaultsProperty.valueConstraint.valueTemplateRefs[0]
@@ -3051,7 +3069,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     duplicateComponent: async function(componentGuid, createEmpty){
-
       console.log(componentGuid)
 
       createEmpty = true
@@ -3270,11 +3287,6 @@ export const useProfileStore = defineStore('profile', {
           this.activeProfile.rt[pt.parentId].pt[pt.id].deleted = true
 
         }else{
-          console.info("this.activeProfile: ", this.activeProfile)
-          console.info("this.activeProfile.rt: ", this.activeProfile.rt)
-          console.info("this.activeProfile.rt[pt.parentId]: ", this.activeProfile.rt[pt.parentId])
-          console.info("pt.id: ", pt.id)
-          console.info("Trying to delete: ", this.activeProfile.rt[pt.parentId].pt[pt.id].userValue)
           for (let key in this.activeProfile.rt[pt.parentId].pt[pt.id].userValue){
             if (!key.startsWith('@')){
                delete this.activeProfile.rt[pt.parentId].pt[pt.id].userValue[key]
@@ -3451,7 +3463,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     dataChanged:  function(){
-
       this.activeProfileSaved = false
 
       window.clearTimeout(dataChangedTimeout)
@@ -3469,7 +3480,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     prepareForNewRecord:  function(){
-      
+
       this.activeProfile = {}
 
     }

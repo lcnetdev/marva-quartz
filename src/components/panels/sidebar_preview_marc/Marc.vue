@@ -40,12 +40,9 @@
     methods: {
 
       async refreshMarc() {
-
         this.previewData = await this.profileStore.marcPreview()
-       
-
       }
-      
+
 
 
 
@@ -57,7 +54,7 @@
       // this.profileStore.$subscribe(async (mutation, state)=>{
 
       //   if (mutation && mutation.events && mutation.events.target && mutation.events.target['@guid'] ){
-          
+
       //     window.clearTimeout(this.timeout)
       //     this.timeout = window.setTimeout(()=>{
 
@@ -66,7 +63,7 @@
       //     },500)
 
 
-          
+
       //   }
 
 
@@ -83,9 +80,9 @@
     },
 
     mounted() {
-     
 
-      
+
+
     }
   }
 
@@ -121,21 +118,21 @@
           </pre>
         </div>
       </template>
-    
+
     </template>
     <template v-else>
       <template v-for="ver in previewData.versions">
         <div v-if="selected == ver.version">
           <div class="version-number">{{ ver.version  }}</div>
           <template v-if="ver.error">
-            
+
             <pre>
               <code>
 {{ ver.results }}
               </code>
-            </pre>            
+            </pre>
           </template>
-          <template v-else>            
+          <template v-else>
             <pre>
               <code>
 {{ ver.marcRecord }}
@@ -176,7 +173,7 @@ li{
 }
 
 
-.sidebar-header-text{  
+.sidebar-header-text{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size', true) + 0.25  + 'em'");
   font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;

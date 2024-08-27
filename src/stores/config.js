@@ -13,11 +13,12 @@ export const useConfigStore = defineStore('config', {
       dev:{
 
         ldpjs : 'http://localhost:9401/api-staging/',
-        util  : 'http://localhost:9401/util/',
+        //util  : 'http://localhost:9401/util/',
+        util  : 'http://localhost:5200/',
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
-        validate: 'http://localhost:5200/util/validate',
+        validate: 'http://localhost:5200/validate',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         profiles : 'http://localhost:9401/util/profiles/profile/prod',

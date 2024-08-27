@@ -473,9 +473,6 @@ const utilsNetwork = {
     * @return {object} - the data response
     */
     fetchContextData: async function(uri){
-
-
-
           let returnUrls = useConfigStore().returnUrls
 
           if ((uri.startsWith('http://id.loc.gov') || uri.startsWith('https://id.loc.gov')) && uri.match(/(authorities|vocabularies)/)) {
@@ -722,31 +719,38 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     extractContextData: function(data){
-          var results = { contextValue: true, source: [], type: null, typeFull: null, variant : [], uri: data.uri, title: null, contributor:[], date:null, genreForm: null, nodeMap:{}};
-
+          var results = {
+            contextValue: true,
+            source: [],
+            type: null,
+            typeFull: null,
+            variant : [],
+            uri: data.uri,
+            title: null,
+            contributor:[],
+            date:null,
+            genreForm: null,
+            nodeMap:{},
+          };
 
           if (data.uri.includes('wikidata.org')){
-
-
             if (data.entities){
               let qid = Object.keys(data.entities)[0]
-
-
 
               if (data.entities[qid].labels.en){
                 results.title = data.entities[qid].labels.en.value
               }
+
               if (data.entities[qid].descriptions.en){
                 results.nodeMap['Description'] = [data.entities[qid].descriptions.en.value]
               }
 
               if (data.entities[qid].aliases.en){
-
                 data.entities[qid].aliases.en.forEach((v)=>{
                   results.variant.push(v.value)
                 })
-
               }
+
               // just hardcode it for now
               results.type = 'http://www.loc.gov/mads/rdf/v1#PersonalName'
               results.typeFull = 'http://www.loc.gov/mads/rdf/v1#PersonalName'
@@ -764,78 +768,49 @@ const utilsNetwork = {
                   }
                 }
               }
-
-
-
-
-
-
-
             }
-
-
-          }else if(data.uri.includes('id.loc.gov/resources/works/') || data.uri.includes('id.loc.gov/resources/instances/')|| data.uri.includes('id.loc.gov/resources/hubs/')){
-
-
-
-
+          } else if (
+              data.uri.includes('id.loc.gov/resources/works/')
+              || data.uri.includes('id.loc.gov/resources/instances/')
+              || data.uri.includes('id.loc.gov/resources/hubs/')
+          ){
             let uriIdPart = data.uri.split('/').slice(-1)[0]
-
-
 
             //find the right graph
             for (let g of data){
-
-              if (g && g['@id'] && (g['@id'].endsWith(`/works/${uriIdPart}`) || g['@id'].endsWith(`/instances/${uriIdPart}`) || g['@id'].endsWith(`/hubs/${uriIdPart}`)) ){
-
-
+              if (
+                    g
+                    && g['@id']
+                    && (
+                      g['@id'].endsWith(`/works/${uriIdPart}`)
+                      || g['@id'].endsWith(`/instances/${uriIdPart}`)
+                      || g['@id'].endsWith(`/hubs/${uriIdPart}`)
+                    )
+              ){
                 if (
                   (g['@id'].endsWith(`/works/${uriIdPart}`) && data.uri.includes('id.loc.gov/resources/works/')) ||
                   (g['@id'].endsWith(`/instances/${uriIdPart}`) && data.uri.includes('id.loc.gov/resources/instances/')) ||
                   (g['@id'].endsWith(`/hubs/${uriIdPart}`) && data.uri.includes('id.loc.gov/resources/hubs/'))
-                  ){
-
-
-
+                ){
                   if (g['http://www.w3.org/2000/01/rdf-schema#label'] && g['http://www.w3.org/2000/01/rdf-schema#label'][0]){
                     results.title = g['http://www.w3.org/2000/01/rdf-schema#label'][0]['@value']
                   }else if (g['http://id.loc.gov/ontologies/bflc/aap'] && g['http://id.loc.gov/ontologies/bflc/aap'][0]){
                     results.title = g['http://id.loc.gov/ontologies/bflc/aap'][0]['@value']
-
                   }
-
-
 
                   if (g['@type'] && g['@type'][0]){
                     results.type = this.rdfType(g['@type'][0])
                     results.typeFull = g['@type'][0]
                   }
-
-
-
-
                 }
-
-
               }
             }
             // console.log(uriIdPart)
-
-
-
-
-
-
-
-
-
           }else{
-
             // if it is in jsonld format
             if (data['@graph']){
               data = data['@graph'];
             }
-
 
             var nodeMap = {};
 
@@ -874,7 +849,6 @@ const utilsNetwork = {
               if (n['http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection']){
                 nodeMap['MADS Collection'] = n['http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection'].map(function(d){ return d['@id']})
               }
-
               if (n['http://www.loc.gov/mads/rdf/v1#code'] && n['http://www.loc.gov/mads/rdf/v1#code'][0]['@type'] == 'http://id.loc.gov/datatypes/codes/gac') {
                 nodeMap['GAC(s)'] = n['http://www.loc.gov/mads/rdf/v1#code'].map(function(d){
                         if (d['@type'] == 'http://id.loc.gov/datatypes/codes/gac') {
@@ -882,33 +856,27 @@ const utilsNetwork = {
                         }
                     })
               }
-
-
               if ( n['@type'].includes('http://id.loc.gov/ontologies/lcc#ClassNumber') !== false ){
                 if (!nodeMap['LC Classification']){
                   nodeMap['LC Classification'] = []
                 }
-
-
                 if (n['http://www.loc.gov/mads/rdf/v1#code'] && n['http://id.loc.gov/ontologies/bibframe/assigner']){
                   nodeMap['LC Classification'].push(`${n['http://www.loc.gov/mads/rdf/v1#code'][0]['@value']} (${n['http://id.loc.gov/ontologies/bibframe/assigner'][0]['@id'].split('/').pop()})`)
                 }else if (n['http://www.loc.gov/mads/rdf/v1#code']){
                   nodeMap['LC Classification'].push(n['http://www.loc.gov/mads/rdf/v1#code'][0]['@value'])
                 }
-
               }
-
-
-
               if (n['http://www.loc.gov/mads/rdf/v1#classification']){
                 nodeMap['Classification'] = n['http://www.loc.gov/mads/rdf/v1#classification'].map(function(d){ return d['@value']})
                 nodeMap['Classification'] = nodeMap['Classification'].filter((v)=>{(v)})
               }
-
-
-
-
+              if (n['http://id.loc.gov/ontologies/bflc/marcKey']){
+                nodeMap['marcKey'] = n['http://id.loc.gov/ontologies/bflc/marcKey'].map(function(d){
+                  return d['@value']
+                })
+              }
             })
+
             // pull out the labels
             data.forEach(function(n){
 
@@ -936,9 +904,11 @@ const utilsNetwork = {
                     if (nodeMap[k].length>0){
                       results.nodeMap[k]=nodeMap[k]
                     }
-
+                  } else if (k == 'marcKey'){
+                    if (nodeMap[k].length>0){
+                      results.nodeMap[k]=nodeMap[k]
+                    }
                   } else if (n['@id'] && n['@id'] == uri){
-
                     if (n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
                       n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].forEach(function(val){
                         if (val['@value']){
@@ -963,17 +933,9 @@ const utilsNetwork = {
                     if (results.nodeMap[k].indexOf(slug)==-1){
                       results.nodeMap[k].push(slug)
                     }
-
-
                   }
-
-
                 })
               })
-
-
-
-
             })
 
 
@@ -2265,10 +2227,7 @@ const utilsNetwork = {
   * @return {string} - the MARC in XML response
   */
   marcPreview: async function(xml){
-
     let url = useConfigStore().returnUrls.util + 'marcpreview'
-
-    console.log(xml)
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
