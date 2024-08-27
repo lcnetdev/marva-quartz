@@ -1388,6 +1388,8 @@ const utilsExport = {
     // console.log(strXmlFormatted)
     // console.log("------")
     // console.log(strXmlBasic)
+		console.info("strBf2MarcXmlElBib: ", strBf2MarcXmlElBib)
+
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,

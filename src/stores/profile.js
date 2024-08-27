@@ -1847,12 +1847,18 @@ export const useProfileStore = defineStore('profile', {
             blankNode["http://www.loc.gov/mads/rdf/v1#code"] = [
               {
                 '@guid': short.generate(),
-                'http://www.loc.gov/mads/rdf/v1#code':
-                  [{
-                    '@type': 'http://www.loc.gov/mads/rdf/v1#code',
-                    "@about": "https://id.loc.gov/vocabulary/geographicAreas/" + nodeMap["GAC(s)"][0].replace(/---/g, ""),
-                    "http://www.loc.gov/mads/rdf/v1#code": nodeMap["GAC(s)"][0]
-                  }]
+                "@id": "https://id.loc.gov/vocabulary/geographicAreas/" + nodeMap["GAC(s)"][0].replace(/---/g, ""),
+                'http://www.loc.gov/mads/rdf/v1#code': nodeMap["GAC(s)"][0]
+
+
+
+                // [
+                //   {
+                //     '@type': 'http://www.loc.gov/mads/rdf/v1#code',
+                //     "@about": "https://id.loc.gov/vocabulary/geographicAreas/" + nodeMap["GAC(s)"][0].replace(/---/g, ""),
+                //     "http://www.loc.gov/mads/rdf/v1#code": nodeMap["GAC(s)"][0]
+                //   }
+                // ]
               }
             ]
           }
