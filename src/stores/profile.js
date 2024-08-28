@@ -1847,7 +1847,7 @@ export const useProfileStore = defineStore('profile', {
             blankNode["http://www.loc.gov/mads/rdf/v1#code"] = [
               {
                 '@guid': short.generate(),
-                "@id": "https://id.loc.gov/vocabulary/geographicAreas/" + nodeMap["GAC(s)"][0].replace(/---/g, ""),
+                "@gacs": "http://id.loc.gov/datatypes/codes/gac",
                 'http://www.loc.gov/mads/rdf/v1#code': nodeMap["GAC(s)"][0]
 
 

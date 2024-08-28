@@ -185,8 +185,8 @@ const utilsExport = {
 		if (userValue['@parseType']){
 			p.setAttribute('rdf:parseType', userValue['@parseType'])
 		}
-		if (userValue['@about']){
-			p.setAttribute('rdf:about', userValue['@about'])
+		if (userValue['@gacs']){
+			p.setAttribute('rdf:datatype', userValue['@gacs'])
 		}
 
 		// doesnt work :(
@@ -1388,7 +1388,6 @@ const utilsExport = {
     // console.log(strXmlFormatted)
     // console.log("------")
     // console.log(strXmlBasic)
-		console.info("strBf2MarcXmlElBib: ", strBf2MarcXmlElBib)
 
 		return {
 			xmlDom: rdf,
