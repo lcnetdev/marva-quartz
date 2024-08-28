@@ -2825,73 +2825,98 @@ export const useProfileStore = defineStore('profile', {
     },
 
 
-    /**
-    * Set the default values of the component fields
-    *
-    * @param {string} componentGuid - the guid of the component (the parent of all fields)
-    * @param {object} structure - passed from the UI, the structure object
-    * @return {void}
-    */
+  /**
+      * Set the default values of the component fields
+      *
+      * @param {string} componentGuid - the guid of the component (the parent of all fields)
+      * @param {object} structure - passed from the UI, the structure object
+      * @return {void}
+      */
 
-    insertDefaultValuesComponent: async function(componentGuid, structure){
+  insertDefaultValuesComponent: async function(componentGuid, structure){
 
-      // console.log(componentGuid)
-      // console.log("structure",structure)
+    // console.log(componentGuid)
+    // console.log("structure",structure)
 
-      // locate the correct pt to work on in the activeProfile
-      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+    // locate the correct pt to work on in the activeProfile
+    let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-      if (pt !== false){
+    if (pt !== false){
 
-        let baseURI = pt.propertyURI
-        if (!pt.userValue[baseURI]){
-          pt.userValue[baseURI] = [{}]
-        }
-        let userValue = pt.userValue[baseURI][0]
+      let baseURI = pt.propertyURI
+      if (!pt.userValue[baseURI]){
+        pt.userValue[baseURI] = [{}]
+      }
+      let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
+      
+      // userValue['somting'] = {'@guid':'00000','hppts:sfsdfgfdsg.com':['helllerrlooo']}
 
-        // find the default values for this template if they exist
-        if (structure){
+      // find the default values for this template if they exist
+      if (structure){
 
-          if (structure.parentId){
+        if (structure.parentId){
 
-            let defaultsProperty = false
-            if (this.rtLookup[structure.parentId]){
-                console.log(this.rtLookup[structure.parentId])
-                // defaultsProperty = this.rtLookup[structure.parentId].propertyTemplates.filter((x)=>{ return (x.propertyURI === idPropertyId) ? true : false})
-                // if (defaultsProperty.length>0){
-                //     defaultsProperty=defaultsProperty[0]
-                // }
-
-                for (let p of this.rtLookup[structure.parentId].propertyTemplates){
-                  // dose it have a default value?
-
-                  if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
-                    console.log('need to insert this somewhere')
-                    console.log(p)
-
-                    if (p.valueConstraint.valueTemplateRefs && p.valueConstraint.valueTemplateRefs.length>0){
-                      // they are linking to another template in this template, so if we ant to populate the imformation we would need to know what predicate to use :(((((
-                      console.log("Nested tempalte:")
-                      console.log(this.rtLookup[p.valueConstraint.valueTemplateRefs[0]])
-
+          let defaultsProperty = false
+          if (this.rtLookup[structure.parentId]){
+              for (let p of this.rtLookup[structure.parentId].propertyTemplates){
+                // dose it have a default value?
+                if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
+                  if (p.valueConstraint.valueTemplateRefs && p.valueConstraint.valueTemplateRefs.length>0){
+                    // they are linking to another template in this template, so if we ant to populate the imformation we would need to know what predicate to use :(((((
+                    if (this.rtLookup[p.valueConstraint.valueTemplateRefs[0]] && this.rtLookup[p.valueConstraint.valueTemplateRefs[0]].propertyTemplates && this.rtLookup[p.valueConstraint.valueTemplateRefs[0]].propertyTemplates.length==1){
+                      let defaultPropertyToUse = this.rtLookup[p.valueConstraint.valueTemplateRefs[0]].propertyTemplates[0].propertyURI
+                      // we know what to store in the value and we now know what property to use
+                      userValue[p.propertyURI] = []
+                      for (let d of p.valueConstraint.defaults){
+                        let value = {
+                          '@guid': short.generate(d.defaultLiteral, d.defaultURI)
+                        }                        
+                        // do we need to create a blank node for this value?
+                        let useType = utilsRDF.suggestTypeProfile(p.propertyURI,pt)
+                        if (useType === false){
+                          // did not find it in the profile, look to the network
+                          useType = await utilsRDF.suggestTypeNetwork(p.propertyURI)
+                        }   
+                        if (useType && useType != 'http://www.w3.org/2000/01/rdf-schema#Literal'){
+                          value['@type'] = useType
+                          value[defaultPropertyToUse] = [{
+                            '@guid': short.generate(d.defaultLiteral, d.defaultURI)
+                          }]
+                          if (d.defaultLiteral && d.defaultLiteral != ''){
+                            value[defaultPropertyToUse][0][defaultPropertyToUse] = d.defaultLiteral
+                          }
+                          if (d.defaultURI && d.defaultURI != ''){
+                            value['@id'] = d.defaultURI
+                          }
+                        }else{
+                          if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
+                            value[defaultPropertyToUse] = d.defaultLiteral
+                          }else{                           
+                            value['@id'] = d.defaultURI                                  
+                          }
+                        }  
+                        userValue[p.propertyURI].push(value)
+                      }
+                    }else{
+                      console.warn("Nested default template trying to insert values but there are multiple propertyTemplates so no clue which proerpty to look into for the default value: ", this.rtLookup[p.valueConstraint.valueTemplateRefs[0]])
                     }
-
+                  }else{                      
+                    let blankNodeType = null
+                    // we probably need to make a blank node, so find out what rdf type blank node is needed
+                    if (p.valueConstraint && p.valueConstraint.valueDataType && p.valueConstraint.valueDataType.dataTypeURI){
+                      blankNodeType = p.valueConstraint.valueDataType.dataTypeURI
+                    }
                     // overwrite it if there is anything there already
-                    userValue[p.propertyURI] = []
+                    userValue[p.propertyURI] = []                      
                     for (let d of p.valueConstraint.defaults){
-
                       let value = {
                         '@guid': short.generate(d.defaultLiteral, d.defaultURI)
-                      }
-                      console.log()
+                      }                        
                       // if it just has a literal value and not a URI then don't create a blank node, just insert it using that literal property
                       if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
-
                         value[p.propertyURI] = d.defaultLiteral
-
                       }else{
-
-
+                        // it is a blank node
                         if (d.defaultLiteral){
                           // console.log(newPt)
                           value['http://www.w3.org/2000/01/rdf-schema#label'] = [{
@@ -2902,177 +2927,33 @@ export const useProfileStore = defineStore('profile', {
                         if (d.defaultURI){
                           value['@id'] = d.defaultURI
                         }
+                        if (blankNodeType){
+                          value['@type'] = blankNodeType
+                        }
                     
                       }
-                      console.log('value',value)
                       userValue[p.propertyURI].push(value)
-
-
                     }
-
-
                   }
-
-
                 }
-            }
-
-
-
-
-          }else{
-            console.warn("No structure.parentId found")
+              }
           }
-
-
-
-
         }else{
-
-
-          alert("Error: no structure found")
-
+          console.warn("No structure.parentId found")
         }
-
-
-
-        // let profile
-        // let propertyPosition
-        // for (let r of this.activeProfile.rtOrder){
-        //   propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
-        //   if (propertyPosition != -1){
-        //     profile = r
-        //     break
-        //   }
-        // }
-
-
-        // console.log("Lookign at this PT", pt)
-        // let newPt = JSON.parse(JSON.stringify(pt))
-        // newPt.userValue = {
-        //     '@guid': short.generate(),
-        //     '@root' : newPt.propertyURIhihi
-
-        // }
-        // // we also want to add any default values in if it is just a empty new property and not duping
-        // let idPropertyId = pt.propertyURI
-        // let baseURI = newPt.propertyURI
-
-        // // let defaults = null
-        // let defaultsProperty
-
-        // let useProfile = profile
-        // // if the profile is a multiple, like lc:RT:bf2:Monograph:Item-0 split off the -0 for it to find it in the RT lookup
-        // if (!this.rtLookup[useProfile]){
-        //     if (useProfile.includes('-')){
-        //         useProfile = useProfile.split('-')[0]
-        //     }
-        // }
-        // // first check the top level
-        // if (this.rtLookup[useProfile]){
-        //     defaultsProperty = this.rtLookup[useProfile].propertyTemplates.filter((x)=>{ return (x.propertyURI === idPropertyId) ? true : false})
-        //     if (defaultsProperty.length>0){
-        //         defaultsProperty=defaultsProperty[0]
-
-        //     }
-        // }
-
-
-        // if (defaultsProperty && defaultsProperty.valueConstraint.defaults.length>0){
-        //     // make sure the base URI exists in the uservalue
-        //     if (!newPt.userValue[baseURI]){
-        //         newPt.userValue[baseURI] = [{}]
-        //     }
-        //     let userValue = newPt.userValue[baseURI][0]
-
-        //     // there are defauts at this level
-        //     // its not a nested component just add it in the first level
-        //     if (defaultsProperty.valueConstraint.defaults[0].defaultLiteral){
-        //         // console.log(newPt)
-        //         userValue['http://www.w3.org/2000/01/rdf-schema#label'] = [{
-        //             '@guid': short.generate(),
-        //             'http://www.w3.org/2000/01/rdf-schema#label':defaultsProperty.valueConstraint.defaults[0].defaultLiteral
-        //         }]
-        //     }
-        //     if (defaultsProperty.valueConstraint.defaults[0].defaultURI){
-        //         userValue['@id'] = defaultsProperty.valueConstraint.defaults[0].defaultURI
-        //     }
-
-
-        // }else if (defaultsProperty && defaultsProperty.valueConstraint.valueTemplateRefs.length>0){
-
-        //     if (!newPt.userValue[baseURI]){
-        //         newPt.userValue[baseURI] = [{}]
-        //     }
-        //     let userValue = newPt.userValue[baseURI][0]
-
-
-
-        //     // it doesn't exist at the top level, see if it has at least one reference template, if so use the first one and look up if that one has defualt values
-        //     // the first one since it is the default for the referencetemplace componment
-        //     let useRef = defaultsProperty.valueConstraint.valueTemplateRefs[0]
-
-        //     // look through all of them and add in any default
-        //     for (let refPt of this.rtLookup[useRef].propertyTemplates){
-        //         if (refPt.valueConstraint.defaults.length>0){
-        //             let defaults = refPt.valueConstraint.defaults[0]
-        //             if (defaults.defaultLiteral){
-        //                 userValue[refPt.propertyURI]= [{
-        //                     '@guid': short.generate(),
-        //                     'http://www.w3.org/2000/01/rdf-schema#label': [
-        //                         {
-        //                             'http://www.w3.org/2000/01/rdf-schema#label':defaults.defaultLiteral,
-        //                             '@guid': short.generate(),
-        //                         }
-        //                     ]
-        //                 }]
-        //             }
-        //             if (defaults.defaultURI){
-        //                 if (userValue[refPt.propertyURI][0]){
-        //                     userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI
-        //                     if (refPt.valueConstraint.valueDataType && refPt.valueConstraint.valueDataType.dataTypeURI){
-        //                         userValue[refPt.propertyURI][0]['@type'] = refPt.valueConstraint.valueDataType.dataTypeURI
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-
-        // }
-        // // did the old one have a type? if so set the type for the new one
-        // if (pt && pt.userValue && pt.userValue[baseURI] && pt.userValue[baseURI][0] && pt.userValue[baseURI][0]['@type']){
-        //   if (newPt.userValue[baseURI] && newPt.userValue[baseURI][0]){
-        //     newPt.userValue[baseURI][0]['@type'] = pt.userValue[baseURI][0]['@type']
-        //   }
-
-        // }
-
-
-        // // make sure we didnt make an empty propery array [{}]
-        // if (newPt.userValue[baseURI]){
-        //     if (newPt.userValue[baseURI][0]){
-        //         if (Object.keys(newPt.userValue[baseURI][0]).length === 0){
-        //             delete newPt.userValue[baseURI]
-        //         }
-        //     }
-        // }
-
-        // console.log(JSON.stringify(newPt,null,2))
-        // // this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
-        // // this.activeProfile.rt[profile].ptOrder.splice(propertyPosition+1, 0, newPropertyId);
-        // // console.log(this.activeProfile.rt[profile].ptOrder)
-        // // // they changed something
-        // // this.dataChanged()
-
       }else{
-        console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
-        console.log(JSON.stringify(this.activeProfile))
+        alert("Error: no structure found")
       }
 
+      pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
+        // they changed something
+        this.dataChanged()
 
+    }else{
+      console.error('insertDefaultValuesComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
+    }
 
-    },
-
+  },
 
 
     /**
@@ -3082,17 +2963,16 @@ export const useProfileStore = defineStore('profile', {
     * @param {boolean} createEmpty - if true make the component have no pre-populated data, if false "duplicate" the data from the source component
     * @return {void}
     */
-    duplicateComponent: async function(componentGuid, createEmpty){
-      console.log(componentGuid)
+    duplicateComponent: async function(componentGuid, structure){
 
-      createEmpty = true
+      let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt !== false){
-        console.log(this.activeProfile)
 
+        
         let profile
         let propertyPosition
         for (let r of this.activeProfile.rtOrder){
@@ -3112,10 +2992,10 @@ export const useProfileStore = defineStore('profile', {
         newPt['@guid'] = short.generate()
 
 
-        console.log("Lookign at this PT", pt)
-        console.log(this.activeProfile)
-        console.log(propertyPosition)
-        console.log(key,newPropertyId)
+        // console.log("Lookign at this PT", pt)
+        // console.log(this.activeProfile)
+        // console.log(propertyPosition)
+        // console.log(key,newPropertyId)
         if (createEmpty){
 
 
@@ -3125,9 +3005,20 @@ export const useProfileStore = defineStore('profile', {
           // console.log(profile,newPropertyId)
           newPt.userValue = {
               '@guid': short.generate(),
-              '@root' : newPt.propertyURIhihi
+              '@root' : newPt.propertyURI
 
           }
+
+          if (newPt.activeType){
+            newPt.userValue[newPt.propertyURI] = [
+              {
+                '@type': newPt.activeType
+              }
+            ]
+          }
+
+          console.log(JSON.stringify(newPt.userValue))
+
 
           // we also want to add any default values in if it is just a empty new property and not duping
 
@@ -3158,101 +3049,22 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-          if (defaultsProperty && defaultsProperty.valueConstraint.defaults.length>0){
-             console.log(JSON.stringify(newPt,null,2))
-              // make sure the base URI exists in the uservalue
-              if (!newPt.userValue[baseURI]){
-                  newPt.userValue[baseURI] = [{}]
-              }
-              let userValue = newPt.userValue[baseURI][0]
-
-              // there are defauts at this level
-              // its not a nested component just add it in the first level
-              if (defaultsProperty.valueConstraint.defaults[0].defaultLiteral){
-                  // console.log(newPt)
-                  userValue['http://www.w3.org/2000/01/rdf-schema#label'] = [{
-                      '@guid': short.generate(),
-                      'http://www.w3.org/2000/01/rdf-schema#label':defaultsProperty.valueConstraint.defaults[0].defaultLiteral
-                  }]
-              }
-              if (defaultsProperty.valueConstraint.defaults[0].defaultURI){
-                  userValue['@id'] = defaultsProperty.valueConstraint.defaults[0].defaultURI
-              }
-
-
-          }else if (defaultsProperty && defaultsProperty.valueConstraint.valueTemplateRefs.length>0){
-
-              console.log(JSON.stringify(newPt,null,2))
-              if (!newPt.userValue[baseURI]){
-                  newPt.userValue[baseURI] = [{}]
-              }
-              let userValue = newPt.userValue[baseURI][0]
-
-              console.log(JSON.stringify(newPt,null,2))
-
-              // it doesn't exist at the top level, see if it has at least one reference template, if so use the first one and look up if that one has defualt values
-              // the first one since it is the default for the referencetemplace componment
-              let useRef = defaultsProperty.valueConstraint.valueTemplateRefs[0]
-
-              // look through all of them and add in any default
-              for (let refPt of this.rtLookup[useRef].propertyTemplates){
-                  if (refPt.valueConstraint.defaults.length>0){
-                      let defaults = refPt.valueConstraint.defaults[0]
-                      if (defaults.defaultLiteral){
-                          userValue[refPt.propertyURI]= [{
-                              '@guid': short.generate(),
-                              'http://www.w3.org/2000/01/rdf-schema#label': [
-                                  {
-                                      'http://www.w3.org/2000/01/rdf-schema#label':defaults.defaultLiteral,
-                                      '@guid': short.generate(),
-                                  }
-                              ]
-                          }]
-                      }
-                      if (defaults.defaultURI){
-                          if (userValue[refPt.propertyURI][0]){
-                              userValue[refPt.propertyURI][0]['@id'] = defaults.defaultURI
-                              if (refPt.valueConstraint.valueDataType && refPt.valueConstraint.valueDataType.dataTypeURI){
-                                  userValue[refPt.propertyURI][0]['@type'] = refPt.valueConstraint.valueDataType.dataTypeURI
-                              }
-                          }
-                      }
-                  }
-              }
-
-          }
-
-          // did the old one have a type? if so set the type for the new one
-          if (pt && pt.userValue && pt.userValue[baseURI] && pt.userValue[baseURI][0] && pt.userValue[baseURI][0]['@type']){
-            if (newPt.userValue[baseURI] && newPt.userValue[baseURI][0]){
-              newPt.userValue[baseURI][0]['@type'] = pt.userValue[baseURI][0]['@type']
-            }
-
-          }
-
-
-          // make sure we didnt make an empty propery array [{}]
-          if (newPt.userValue[baseURI]){
-              if (newPt.userValue[baseURI][0]){
-                  if (Object.keys(newPt.userValue[baseURI][0]).length === 0){
-                      delete newPt.userValue[baseURI]
-                  }
-              }
-          }
-
-
-
 
         }else{
 
-
+          // doesn't support duplicating components yet
 
         }
 
-        console.log(JSON.stringify(newPt,null,2))
+
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
         this.activeProfile.rt[profile].ptOrder.splice(propertyPosition+1, 0, newPropertyId);
         console.log(this.activeProfile.rt[profile].ptOrder)
+
+        if (structure){
+          this.insertDefaultValuesComponent(newPt['@guid'], structure)
+        }
+
         // they changed something
         this.dataChanged()
 

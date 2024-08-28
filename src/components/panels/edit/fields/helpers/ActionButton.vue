@@ -272,7 +272,7 @@
       },
 
       duplicateComponent: function(){
-        this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
+        this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
         this.sendFocusHome()
       },
 
