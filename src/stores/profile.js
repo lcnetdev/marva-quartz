@@ -1812,7 +1812,6 @@ export const useProfileStore = defineStore('profile', {
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
         console.log("blankNode === ",blankNode, fieldGuid)
         if (blankNode === false){
-
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
           console.log('buildBlankNodeResult',buildBlankNodeResult)
@@ -2902,7 +2901,7 @@ export const useProfileStore = defineStore('profile', {
                         if (d.defaultURI){
                           value['@id'] = d.defaultURI
                         }
-                    
+
                       }
                       console.log('value',value)
                       userValue[p.propertyURI].push(value)
