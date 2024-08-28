@@ -575,13 +575,14 @@ const utilsNetwork = {
       for (let val of data){
 
         if (val['@id']){
-
-
-
           if (val['@id'] == data.uri){
             // this is the main graph
 
             for (let k in val){
+              //add the marcKey to the nodeMap, so nothing needs to happen downstream
+              if (k == 'http://id.loc.gov/ontologies/bflc/marcKey'){
+                results.nodeMap["marcKey"] = [val[k][0]['@value']]
+              }
               //find the title
               if (k == 'http://www.w3.org/2000/01/rdf-schema#label'){
                 results.title = val[k][0]['@value']
@@ -594,26 +595,19 @@ const utilsNetwork = {
 
 
               if (k == 'http://id.loc.gov/ontologies/bibframe/hasInstance'){
-
-
                 let counter = 1
                 for (let i of val['http://id.loc.gov/ontologies/bibframe/hasInstance']){
-
                   if (counter>4){
                     break
                   }
                   counter++
 
-
                   let url = i['@id']
 
                   if (url.includes('gpo_')  ){
-
                     url = url.replace('https://id.','https://preprod-8295.id.')
                     url = url.replace('http://id.','http://preprod-8295.id.')
-
                   }
-
 
                   if (url.includes('/instances/') || url.includes('/works/') || url.includes('/hubs/')){
                     if (returnUrls.env === 'production'){
@@ -1227,7 +1221,7 @@ const utilsNetwork = {
                 r.slice(0,2).toLowerCase() != '|a' &&
                 r.slice(0,2).toLowerCase() != '|x' &&
                 r.slice(0,2).toLowerCase() != '|y' &&
-                r.slice(0,2).toLowerCase() != '|z'                
+                r.slice(0,2).toLowerCase() != '|z'
                 ){
               // console.log(r.slice(0,2).toLowerCase())
               result.resultType = 'ERROR'
@@ -1789,7 +1783,7 @@ const utilsNetwork = {
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
         for (let r of result.hit){
-          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/')){            
+          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/')){
             let responseUri = await this.returnRDFType(r.uri + '.madsrdf_raw.jsonld')
             if (responseUri){
               r.heading.rdfType = responseUri
@@ -1883,7 +1877,7 @@ const utilsNetwork = {
     */
     subjectSearch: async function(searchVal,complexVal,mode){
 
-      
+
 
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
