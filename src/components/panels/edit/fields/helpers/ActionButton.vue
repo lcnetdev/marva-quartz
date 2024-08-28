@@ -101,7 +101,7 @@
         <template v-if="this.profileStore.returnStructureByComponentGuid(this.guid)['remark']">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-7`" @click="openRemark()">
             <span class="button-shortcut-label">7</span>
-            View Remarks<span class="material-icons action-button-icon">open_in_new</span>
+            View Documentation<span class="material-icons action-button-icon">open_in_new</span>
           </button>
         </template>
 
