@@ -22,7 +22,7 @@ const formatXML = function(xml, tab = '\t', nl = '\n') {
 	return formatted;
 }
 
-// we will use the built in DOMParser() in the browser 
+// we will use the built in DOMParser() in the browser
 const returnDOMParser = function(){
 	let p
 	try{
@@ -32,7 +32,7 @@ const returnDOMParser = function(){
 		// const { JSDOM } = jsdom;
 		// const { window } = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
 		p = new window.DOMParser();
-	}	
+	}
 	return p
 }
 
@@ -56,12 +56,12 @@ const utilsExport = {
 	],
 
   /**
-  * if passed full uri like http://id.loc.gov/ontology/bibframe/xxx will convert to a prefixed bf:xxx 
-  * 
-  * @param {string} uri - the uri to convert 
+  * if passed full uri like http://id.loc.gov/ontology/bibframe/xxx will convert to a prefixed bf:xxx
+  *
+  * @param {string} uri - the uri to convert
   * @return {string}
-  */  
-  namespaceUri: function(uri){	
+  */
+  namespaceUri: function(uri){
 		for (let ns in this.namespace){
 			let nsuri = this.namespace[ns]
 			if (uri.includes(nsuri)){
@@ -72,10 +72,10 @@ const utilsExport = {
 
   /**
   * if passed a prefix like bf:xxx it will expand it to http://id.loc.gov/ontology/bibframe...
-  * 
-  * @param {string} passedNS - the prefixed element/prop 
+  *
+  * @param {string} passedNS - the prefixed element/prop
   * @return {string}
-  */  
+  */
 	UriNamespace: function(passedNS){
 		for (let ns in this.namespace){
 			let nsuri = this.namespace[ns]
@@ -87,16 +87,15 @@ const utilsExport = {
 
   /**
   * creates a element with createElementNS using the correct namespace
-  * 
-  * @param {string} elStr - the element to create 
+  *
+  * @param {string} elStr - the element to create
   * @return {element}
   */
   createElByBestNS: function(elStr){
-
 		// HACK - bad marc2bf conversion
 		if (elStr == 'http://www.loc.gov/mads/rdf/v1#'){
 			elStr = 'http://www.loc.gov/mads/rdf/v1#Authority'
-		} 
+		}
 
 		elStr=elStr.replace('https://','http://')
 		// if the elString is not a expanded URI
@@ -104,32 +103,31 @@ const utilsExport = {
 			elStr = this.UriNamespace(elStr)
 		}
 		for (let ns of Object.keys(this.namespace)){
-			if (elStr.startsWith(this.namespace[ns])){		
+			if (elStr.startsWith(this.namespace[ns])){
 				return document.createElementNS(this.namespace[ns],this.namespaceUri(elStr))
 			}
 		}
 		console.error('could not find namespace for ', elStr)
 		return null
-	}, 
+	},
 
   /**
   * A helper function that will build blank node based on userValue obj
-  * 
+  *
   * @param {obj} userValue - the uservalue to test
   * @param {string} property - the property uri
   * @return {boolean}
   */
 	createBnode: function(userValue,property){
-
 		// some special cases here
 		if (property == 'http://id.loc.gov/ontologies/bibframe/agent'){
 			// if it is an agent create the Agent bnode and just add the type to it as rdf:type
 			let bnode = this.createElByBestNS('bf:Agent')
 			if (userValue['@id']){
-				bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])						
+				bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])
 			}
 			let rdftype = this.createElByBestNS('rdf:type')
-			rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@type'])						
+			rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@type'])
 			bnode.appendChild(rdftype)
 			if (userValue['@parseType']){
 				bnode.setAttribute('rdf:parseType', userValue['@parseType'])
@@ -139,7 +137,7 @@ const utilsExport = {
 			// if it is this specific note vocabulary type then create a bf:Note with a RDF type in it
 			let bnode = this.createElByBestNS('bf:Note')
 			let rdftype = this.createElByBestNS('rdf:type')
-			rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@type'])						
+			rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@type'])
 			bnode.appendChild(rdftype)
 			return bnode
 		}else{
@@ -147,19 +145,19 @@ const utilsExport = {
 			// just normally make it
 			let bnode = this.createElByBestNS(userValue['@type'])
 			if (userValue['@id']){
-				bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])						
+				bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])
 			}
 			if (userValue['@parseType']){
 				bnode.setAttribute('rdf:parseType', userValue['@parseType'])
 			}
 			return bnode
 		}
-	
+
 	},
 
   /**
   * A helper function that will build a literal value element
-  * 
+  *
   * @param {string} property - the property uri
   * @param {obj} userValue - the uservalue to test
   * @return {boolean}
@@ -187,6 +185,9 @@ const utilsExport = {
 		if (userValue['@parseType']){
 			p.setAttribute('rdf:parseType', userValue['@parseType'])
 		}
+		if (userValue['@gacs']){
+			p.setAttribute('rdf:datatype', userValue['@gacs'])
+		}
 
 		// doesnt work :(
 		// p.removeAttributeNS("http://www.w3.org/2000/xmlns/", 'xmlns:rdfs')
@@ -196,8 +197,8 @@ const utilsExport = {
 
 
   /**
-  * 
-  * 
+  *
+  *
   * @param {obj} userValue - the uservalue to test
   * @return {boolean}
   */
@@ -217,7 +218,7 @@ const utilsExport = {
 
   /**
   * Some structures share the same predicate
-  * 
+  *
   * @param {string} key - the uri
   * @return {boolean}
   */
@@ -229,8 +230,8 @@ const utilsExport = {
 	},
 
   /**
-  * 
-  * 
+  *
+  *
   * @param {obj} userValue - the uservalue to test
   * @return {boolean}
   */
@@ -247,7 +248,7 @@ const utilsExport = {
 
   /**
   * returns the just the item portion of the profile
-  * 
+  *
   * @param {string} URI - the uri of the instance to look for it's items
   * @param {obj} profile - profile
   * @param {obj} tleLookup - the lookup created out of the export XML process
@@ -272,8 +273,8 @@ const utilsExport = {
 	},
   /**
   * returns the just the work portion of the profile
-  * 
-  * @param {string} instanceURI - the uri of the instance 
+  *
+  * @param {string} instanceURI - the uri of the instance
   * @param {obj} profile - profile
   * @param {obj} tleLookup - the lookup created out of the export XML process
   * @return {obj}
@@ -297,67 +298,62 @@ const utilsExport = {
 			}
 		}
 		return results
-	},	
+	},
 
 
 
 
   /**
-  * 
-  * 
+  *
+  *
   * @param {string} uri - the URI to test
   * @return {boolean}
   */
   buildXML: async function(profile){
-
-	
     // console.log(profile)
 
     // keep track of the proces for later
-		// let debugHistory = []
-		let xmlLog = []
-    
+	// let debugHistory = []
+	let xmlLog = []
 
     let componentXmlLookup = {}
-    
+
     // keep a copy of the org profile around
     let orginalProfile = profile
 	// cut the ref to the orginal
 	profile = JSON.parse(JSON.stringify(profile))
 
-	let xmlParser = returnDOMParser()					
-
+	let xmlParser = returnDOMParser()
 
     // these will store the top level elements
     let tleWork = []
-		let tleInstance = []
-		let tleItem = []
+	let tleInstance = []
+	let tleItem = []
 
     // we are creating the xml in two formats, create the root node for both
     let rdf = document.createElementNS(this.namespace.rdf, "RDF");
-		let rdfBasic = document.createElementNS(this.namespace.rdf, "RDF");
+	let rdfBasic = document.createElementNS(this.namespace.rdf, "RDF");
 
     // just add all the namespaces into the root element
-		for (let ns of Object.keys(this.namespace)){			
-			rdf.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:${ns}`, this.namespace[ns])
-			rdfBasic.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:${ns}`, this.namespace[ns])
-		}
+	for (let ns of Object.keys(this.namespace)){
+		rdf.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:${ns}`, this.namespace[ns])
+		rdfBasic.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:${ns}`, this.namespace[ns])
+	}
 
     // these are elements used to store metadata about the record in the backend
-		let xmlVoidDataRtsUsed = []
-		let xmlVoidDataType = []
-		let xmlVoidExternalID = []
-		let xmlVoidDataTitle = ""
-		let xmlVoidDataContributor = ""
-		let xmlVoidDataLccn = ""
+	let xmlVoidDataRtsUsed = []
+	let xmlVoidDataType = []
+	let xmlVoidExternalID = []
+	let xmlVoidDataTitle = ""
+	let xmlVoidDataContributor = ""
+	let xmlVoidDataLccn = ""
 
     let tleLookup = {
-			Work: {},
-			Instance: {},
-			Item: {},
-			Hub:{}
-		}
-
+		Work: {},
+		Instance: {},
+		Item: {},
+		Hub:{}
+	}
 
 		for (let rt of profile.rtOrder){
 
@@ -366,8 +362,8 @@ const utilsExport = {
 			if (profile.rt[rt].noData){
 				xmlLog.push(` - ${rt} has no data, skipping it.`)
 				continue
-			} 
-			
+			}
+
 			let tleArray // eslint-disable-line
 			let rootEl
 			let rootElName
@@ -399,7 +395,7 @@ const utilsExport = {
 
 			// rdf.appendChild(rootEl,tleArray)
 
-			
+
 			if (profile.rt[rt].URI){
 				rootEl.setAttributeNS(this.namespace.rdf, 'rdf:about', profile.rt[rt].URI)
 				xmlLog.push(`Setting URI for this resource rdf:about to: ${profile.rt[rt].URI}`)
@@ -409,7 +405,7 @@ const utilsExport = {
 				let type = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
 				type.setAttributeNS(this.namespace.rdf, 'rdf:resource', profile.rt[rt]['@type'])
 				xmlLog.push(`Setting URI for this resource rdf:resource to: ${profile.rt[rt]['@type']}`)
-				rootEl.appendChild(type)				
+				rootEl.appendChild(type)
 			}
 
 
@@ -423,7 +419,7 @@ const utilsExport = {
 				if (ptObj.deleted){
 					continue
 				}
-				
+
 				if (ptObj.deepHierarchy){
 
 					// just take our existing XML and plop it into the root element
@@ -441,11 +437,11 @@ const utilsExport = {
 
         		// the uservalue could be stored in a few places depending on the nesting
 				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){
-					userValue = ptObj.userValue[ptObj.propertyURI][0] 				
+					userValue = ptObj.userValue[ptObj.propertyURI][0]
 				}else if (ptObj.userValue[ptObj.propertyURI]){
 					userValue = ptObj.userValue[ptObj.propertyURI]
 				}else{
-					userValue = ptObj.userValue 	
+					userValue = ptObj.userValue
 				}
 
 				// temp hack to clcean up bad data -- not perm required
@@ -463,7 +459,7 @@ const utilsExport = {
 
 				xmlLog.push(['Set userValue to:', JSON.parse(JSON.stringify(userValue)) ])
 
-				
+
 
 				if (this.ignoreProperties.indexOf(ptObj.propertyURI) > -1){
 					xmlLog.push(`Skpping it because it is in the ignoreProperties list`)
@@ -471,13 +467,13 @@ const utilsExport = {
 				}
 
 
-				// do some updates to the admin metadata 
+				// do some updates to the admin metadata
 				if (pt.includes('http://id.loc.gov/ontologies/bibframe/adminMetadata')){
 					let adminData = ptObj.userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'][0]
 					// set the profile used
 					adminData['http://id.loc.gov/ontologies/bflc/profile'] = [
 						{
-							'http://id.loc.gov/ontologies/bflc/profile' : rt							
+							'http://id.loc.gov/ontologies/bflc/profile' : rt
 						}
 					]
 					// drop any existing changeDate and add our own
@@ -550,7 +546,7 @@ const utilsExport = {
 								}else if (userValue[key1] && userValue[key1][0] && userValue[key1][0]['http://www.w3.org/2000/01/rdf-schema#label']){
 									let rdftype = this.createElByBestNS(key1)
 									rdftype.innerHTML=userValue[key1][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
-									xmlLog.push(`This bnode just has a rdf:type and label : ${rdftype} setting it an continuing`)									
+									xmlLog.push(`This bnode just has a rdf:type and label : ${rdftype} setting it an continuing`)
 									bnodeLvl1.appendChild(rdftype)
 									continue
 								}
@@ -565,9 +561,9 @@ const utilsExport = {
 									pLvl2 = this.createElByBestNS(key1)
 									xmlLog.push(`Creating lvl 2 property : ${pLvl2.tagName} for ${JSON.stringify(value1)}`)
 								}
-								
 
-								// is it a bnode?
+
+								// is it a bnode?  createElByBestNS
 								if (this.isBnode(value1)){
 									// yes
 									let bnodeLvl2 = this.createBnode(value1,key1)
@@ -588,6 +584,7 @@ const utilsExport = {
 												bnodeLvl2.appendChild(pLvl3)
 												xmlLog.push(`Creating lvl 3 bnode: ${bnodeLvl3.tagName} for ${key2}`)
 
+
 												for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
 													let pLvl4 = this.createElByBestNS(key2)
 													for (let value3 of value2[key3]){
@@ -598,13 +595,13 @@ const utilsExport = {
 															bnodeLvl3.appendChild(pLvl4)
 															xmlLog.push(`Creating lvl 4 bnode: ${bnodeLvl4.tagName} for ${key3}`)
 
-															
+
 															for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
 																for (let value4 of value3[key4]){
 																	if (this.isBnode(value4)){
 																		console.error("Max hierarchy depth reached, but there are more levels left:", key4, 'in', userValue )
 																		xmlLog.push(`Max hierarchy depth reached, but there are more levels left for ${key4}`)
-			
+
 																	}else{
 
 																		for (let key5 of Object.keys(value4).filter(k => (!k.includes('@') ? true : false ) )){
@@ -625,7 +622,7 @@ const utilsExport = {
 
 															}
 
-														
+
 														}else{
 															for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
 																if (typeof value3[key4] == 'string' || typeof value3[key4] == 'number'){
@@ -657,7 +654,6 @@ const utilsExport = {
 										}
 									}
 								}else{
-
 									xmlLog.push(`It's value at lvl is not a bnode, looping through and adding a literal value`)
 									// no it is a literal or something else
 									// loop through its keys and make the values
@@ -670,7 +666,6 @@ const utilsExport = {
 											xmlLog.push(`Setting its rdf:about to ${value1['@id']}`)
 											bnodeLvl1.setAttributeNS(this.namespace.rdf, 'rdf:about', value1['@id'])
 										}
-
 									}
 
 									if (keys.length>0){
@@ -721,18 +716,18 @@ const utilsExport = {
 										let p2 = this.createLiteral(key1, value1)
 										if (p2!==false) bnodeLvl1.appendChild(p2);
 
-										
+
 									}else{
 
 										console.warn('Unhadled literal situtation')
 										console.log("value1", value1, 'key1',key1)
 										// just set it to an empty value
 										value1[key1] = ""
-										
+
 
 									}
 
-									
+
 
 
 								}
@@ -740,12 +735,12 @@ const utilsExport = {
 								value1FirstLoop = false
 
 							}
-						}	
+						}
 						pLvl1.appendChild(bnodeLvl1)
 						rootEl.appendChild(pLvl1)
 
 						componentXmlLookup[`${rt}-${pt}`] = formatXML(pLvl1.outerHTML)
-						
+
 					}else{
 
 						// this.debug(ptObj.propertyURI, 'root level element does not look like a bnode', userValue)
@@ -764,7 +759,7 @@ const utilsExport = {
 								// xmlLog.push(`Found special flag rule for ${ptObj.propertyURI}`)
 								// // an edge case here where we wanted to allow multiple simple lookups in root level fields
 								// // like carrierType, loop through the labels, build the properties, if it doesnt have a @id its because its at te root lvl
-								
+
 								// if (userValue['http://www.w3.org/2000/01/rdf-schema#label']){
 
 								// 	let allXMLFragments = ''
@@ -808,7 +803,7 @@ const utilsExport = {
 								// this.debug(ptObj.propertyURI, 'But has @type, making bnode')
 
 								let p = this.createElByBestNS(ptObj.propertyURI)
-								let bnode = this.createElByBestNS(userValue['@type'])						
+								let bnode = this.createElByBestNS(userValue['@type'])
 								bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])
 
 								xmlLog.push(`Created ${p.tagName} property and ${bnode.tagName} bnode`)
@@ -836,15 +831,15 @@ const utilsExport = {
 									// console.log("userValue[key1]",userValue[key1])
 									// are we at the right level?
 									if (typeof userValue[key1] === 'string' || typeof userValue[key1] === 'number'){
-													
+
 										let p1 = this.createLiteral(key1, userValue)
 										// console.log("p1",p1)
 										if (p1!==false) {
 											rootEl.appendChild(p1);
 											xmlLog.push(`Creating literal at root level for ${key1} with value ${p1.innerHTML}`)
-											allXMLFragments = allXMLFragments + `\n${formatXML(p1.outerHTML)}`																								
+											allXMLFragments = allXMLFragments + `\n${formatXML(p1.outerHTML)}`
 										}
-									}else{										
+									}else{
 										for (let value1 of userValue[key1]){
 											for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 												if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
@@ -852,7 +847,7 @@ const utilsExport = {
 													let p1 = this.createLiteral(key2, value1)
 													if (p1!==false) {
 														rootEl.appendChild(p1);
-														allXMLFragments = allXMLFragments + `\n${formatXML(p1.outerHTML)}`																								
+														allXMLFragments = allXMLFragments + `\n${formatXML(p1.outerHTML)}`
 														xmlLog.push(`Creating literal at root level for ${key2} with value ${value1}`)
 													}
 												}else{
@@ -860,9 +855,9 @@ const utilsExport = {
 													xmlLog.push(`Not a literal at root level ${key2} with value ${value1[key2]}`)
 												}
 											}
-										}									
+										}
 									}
-								}								
+								}
 								componentXmlLookup[`${rt}-${pt}`] = allXMLFragments
 							}else if (await utilsRDF.suggestTypeNetwork(ptObj.propertyURI) == 'http://www.w3.org/2000/01/rdf-schema#Resource'){
 
@@ -922,12 +917,12 @@ const utilsExport = {
 					xmlLog.push(`Skpping it because hasUserValue == false`)
 				}
 			}
-				
+
 
 			// add in the admindata
 			// if (orginalProfile.rt[rt].adminMetadataData){
 
-				
+
 			// 	let parser = new DOMParser();
 			// 	let adm = parser.parseFromString(orginalProfile.rt[rt].adminMetadataData, "text/xml");
 
@@ -958,7 +953,7 @@ const utilsExport = {
 			// 	gP.appendChild(GP)
 
 			// 	let GPD = this.createElByBestNS('bf:generationDate')
-			// 	GPD.innerHTML = new Date().toISOString()							
+			// 	GPD.innerHTML = new Date().toISOString()
 			// 	GPD.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://www.w3.org/2001/XMLSchema#dateTime')
 			// 	GP.appendChild(GPD)
 
@@ -972,19 +967,19 @@ const utilsExport = {
 
 
 			// 	adm.getElementsByTagName('bf:AdminMetadata')[0].appendChild(p)
-				
-				
+
+
 
 			// 	rootEl.appendChild(adm)
 			// }
 
-      
 
-			if (orginalProfile.rt[rt].unusedXml){			
+
+			if (orginalProfile.rt[rt].unusedXml){
 
 				let unusedXmlNode = xmlParser.parseFromString(orginalProfile.rt[rt].unusedXml, "text/xml")
 				unusedXmlNode = unusedXmlNode.children[0]
-				for (let el of unusedXmlNode.children){					
+				for (let el of unusedXmlNode.children){
 					// console.log("Looking at",el.tagName)
 					if (el.tagName != 'rdfs:label'){
 						// there is some strange behavior adding the element directly
@@ -1010,7 +1005,7 @@ const utilsExport = {
 		let catCode = profile.user.split(" (")
 		catCode = catCode[catCode.length-1]
 		catCode=catCode.split(")")[0]
-		
+
 		let bf_adminMetadata = this.createElByBestNS("bf:adminMetadata")
 		let bf_AdminMetadtat = this.createElByBestNS("bf:AdminMetadata")
 		let bf_status = this.createElByBestNS("bf:status")
@@ -1027,7 +1022,7 @@ const utilsExport = {
 
 		bf_AdminMetadtat.appendChild(bf_date)
 		bf_AdminMetadtat.appendChild(bf_catalogerId)
-		
+
 		bf_Status.appendChild(bf_StatusLabel)
 		bf_status.appendChild(bf_Status)
 		bf_AdminMetadtat.appendChild(bf_status)
@@ -1038,19 +1033,19 @@ const utilsExport = {
 
 
 
-		
-		
+
+
 		for (let URI in tleLookup['Work']){
-			tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])		
+			tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
 		}
 		for (let URI in tleLookup['Instance']){
-			tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])		
+			tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
 		}
 
 
 
 
-		// also just build a basic version tosave	
+		// also just build a basic version tosave
 		for (let URI in tleLookup['Work']){
 			let theWork = (new XMLSerializer()).serializeToString(tleLookup['Work'][URI])
 			// theWork = theWork.replace(/\sxmlns:[a-z]+="http.*?"/g,'')
@@ -1078,7 +1073,7 @@ const utilsExport = {
 					uri = item.attributes['rdf:resource'].value
 				}else if(item.attributes['rdf:about']){
 					uri = item.attributes['rdf:about'].value
-				}	
+				}
 				if (uri){
 					let hasItem = this.createElByBestNS('bf:hasItem')
 					hasItem.setAttributeNS(this.namespace.rdf, 'rdf:resource', uri)
@@ -1102,7 +1097,7 @@ const utilsExport = {
 			rdfBasic.appendChild(item)
 		}
 
-		if (orginalProfile.procInfo.includes("update")){	
+		if (orginalProfile.procInfo.includes("update")){
 			//build it cenered around the instance
 			if (Object.keys(tleLookup['Instance']).length>0){
 				for (let URI in tleLookup['Instance']){
@@ -1117,7 +1112,7 @@ const utilsExport = {
 							instance.appendChild(p)
 						}
 					}
-					
+
 					let work = this.returnWorkFromInstance(URI,orginalProfile,tleLookup)
 					if (work){
 						let p = this.createElByBestNS('bf:instanceOf')
@@ -1133,10 +1128,10 @@ const utilsExport = {
 				// use the first work key TODO: multiple works....?
 				let workKey = Object.keys(tleLookup['Work'])[0]
 				let work = tleLookup['Work'][workKey]
-				if (work){			
+				if (work){
 				  rdf.appendChild(work)
 				}
-			}			
+			}
 		}else{
 			// FIX CHANGE NOT RIGHT ECT!!
 			for (let URI in tleLookup['Instance']){
@@ -1144,7 +1139,7 @@ const utilsExport = {
 				let instance = (new XMLSerializer()).serializeToString(tleLookup['Instance'][URI])
 				instance = xmlParser.parseFromString(instance, "text/xml").children[0];
 				let items = this.returnHasItem(URI,orginalProfile,tleLookup)
-				if (items.length > 0){			
+				if (items.length > 0){
 					for (let item of items){
 						let p = this.createElByBestNS('bf:hasItem')
 						p.appendChild(item)
@@ -1152,7 +1147,7 @@ const utilsExport = {
 					}
 				}
 				let work = this.returnWorkFromInstance(URI,orginalProfile,tleLookup)
-				
+
 				if (work){
 					let p = this.createElByBestNS('bf:instanceOf')
 					p.appendChild(work)
@@ -1166,7 +1161,7 @@ const utilsExport = {
 
 		// are we just editing a single HUB?
 		if (Object.keys(tleLookup['Work']).length==0 && Object.keys(tleLookup['Hub']).length == 1){
-			
+
 
 			let theHub = (new XMLSerializer()).serializeToString(rdfBasic)
 			theHub = parser.parseFromString(theHub, "text/xml").children[0];
@@ -1190,7 +1185,7 @@ const utilsExport = {
 			if (rdfBasic.getElementsByTagName("bflc:PrimaryContribution")[0].getElementsByTagName("rdfs:label").length>0){
 				xmlVoidDataContributor = rdfBasic.getElementsByTagName("bflc:PrimaryContribution")[0].getElementsByTagName("rdfs:label")[0].innerHTML
 			}
-			
+
 		}else{
 
 			if (rdfBasic.getElementsByTagName("bf:Contribution").length>0){
@@ -1245,7 +1240,7 @@ const utilsExport = {
 						}
 					}
 				}
-				
+
 			}
 
 		}
@@ -1291,7 +1286,7 @@ const utilsExport = {
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:lccn')
 		el.innerHTML = xmlVoidDataLccn
 		datasetDescriptionEl.appendChild(el)
-    	
+
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:user')
 		el.innerHTML = profile.user
 		datasetDescriptionEl.appendChild(el)
@@ -1348,7 +1343,7 @@ const utilsExport = {
       let almaItemsEl =  rdfBasic.getElementsByTagName("bf:Item")
 
       const doc = document.implementation.createDocument("", "", null);
-      // make a new root element 
+      // make a new root element
       let almaXmlElBib = doc.createElement("bib");
       // <bib>
 
@@ -1356,19 +1351,19 @@ const utilsExport = {
       almaXmlElRecordFormat.innerHTML = "BIBFRAME"
       almaXmlElBib.appendChild(almaXmlElRecordFormat)
       // make a child element record of bib
-      let almaXmlElRecord = doc.createElement("record");			
-      //rdf tag should be open 
+      let almaXmlElRecord = doc.createElement("record");
+      //rdf tag should be open
       let almaXmlElRdf = doc.createElement("rdf:RDF");
-      almaXmlElRdf.setAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");					
+      almaXmlElRdf.setAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
       almaXmlElRecord.appendChild(almaXmlElRdf)
-      almaXmlElBib.appendChild(almaXmlElRecord)	
-    
+      almaXmlElBib.appendChild(almaXmlElRecord)
+
       for (let el of almaWorksEl){ almaXmlElRdf.appendChild(el) }
       for (let el of almaInstancesEl){ almaXmlElRdf.appendChild(el) }
       for (let el of almaItemsEl){ almaXmlElRdf.appendChild(el) }
-          
 
-      let strAlmaXmlElBib = (new XMLSerializer()).serializeToString(almaXmlElBib)	
+
+      let strAlmaXmlElBib = (new XMLSerializer()).serializeToString(almaXmlElBib)
 
       // overwrite the existing string with with one
       // strXml is the one sent to the server
@@ -1378,22 +1373,22 @@ const utilsExport = {
 
 
         // build the BF2MARC package
-		
+
 		let bf2MarcXmlElRdf = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF')
-		// bf2MarcXmlElRdf.setAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");					
-	
+		// bf2MarcXmlElRdf.setAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+
 		for (let el of rdfBasic.getElementsByTagName("bf:Work")){ bf2MarcXmlElRdf.appendChild(el) }
 		for (let el of rdfBasic.getElementsByTagName("bf:Instance")){ bf2MarcXmlElRdf.appendChild(el) }
 		for (let el of rdfBasic.getElementsByTagName("bf:Item")){ bf2MarcXmlElRdf.appendChild(el) }
-		let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)	
+		let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
 		// console.log(strBf2MarcXmlElBib, strXmlFormatted, strXmlBasic, strXml)
-			
+
 		// console.log("-------componentXmlLookup",componentXmlLookup)
     // console.log(strXmlFormatted)
     // console.log("------")
     // console.log(strXmlBasic)
-		
+
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,

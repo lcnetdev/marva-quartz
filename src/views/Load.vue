@@ -384,8 +384,6 @@
       loadSearch: function(){
         this.lccnLoadSelected = null
 
-        console.info("Load: ", this.urlToLoad)
-
         if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")){
           this.urlToLoadIsHttp = true
           return false

@@ -12,11 +12,11 @@ const utilsProfile = {
 
   /**
   * Returns the piece of the the userValue passed that contains the given @guid
-  * 
+  *
   * @param {object} obj - the object, most likely the userValue
   * @param {string} guid - the guid to search for
   * @return {object|boolean} - will return the obj or false if not found
-  */    
+  */
   returnGuidLocation: function(obj,guid){
     // use a pattern that looks at many possible levels down for a @guid
     let foundPos = objectScan(['*.**.@guid,*.**.@guid.**.@guid,*.**.@guid.**.@guid.**.@guid,*.**.@guid.**.@guid.**.@guid.**.@guid'])(obj);
@@ -27,7 +27,7 @@ const utilsProfile = {
       // and pointerParent will be the object containing that @guid
       let pointerParent = null
       for (let pos of fp){
-        
+
         pointerParent = pointer
         // if the guid was not in the hiearchy at some point this pointer will be undefined and we can kick back a false
         if (typeof pointer ==='undefined'){
@@ -48,11 +48,11 @@ const utilsProfile = {
 
   /**
   * Returns the parent of the node with that guid
-  * 
+  *
   * @param {object} obj - the object, most likely the userValue
   * @param {string} guid - the guid to search for
   * @return {object|boolean} - will return the obj or false if not found
-  */    
+  */
   returnGuidParent: function(obj,guid){
     // use a pattern that looks at many possible levels down for a @guid
     let foundPos = objectScan(['*.**.@guid,*.**.@guid.**.@guid,*.**.@guid.**.@guid.**.@guid,*.**.@guid.**.@guid.**.@guid.**.@guid'])(obj);
@@ -66,7 +66,7 @@ const utilsProfile = {
       // let pointerGrandParent = null
       let pointerHistory = []
       for (let pos of fp){
-        
+
         // pointerGrandParent = pointerParent
         // pointerParent = pointer
         // if the guid was not in the hiearchy at some point this pointer will be undefined and we can kick back a false
@@ -91,14 +91,14 @@ const utilsProfile = {
           // else if (pointerHistory[pointerHistory.length-1]){
           //   // if (Array.isArray(pointerHistory[pointerHistory.length-2]) == true){
           //   //   pointerHistory[pointerHistory.length-2] = pointerHistory[pointerHistory.length-2][0]
-          //   // } 
+          //   // }
           //   return pointerHistory[pointerHistory.length-1]
           // }
 
-          
+
         }else{
           // add it to the history if we didn't just find it
-          pointerHistory.push(pointer[pos])          
+          pointerHistory.push(pointer[pos])
           pointer = pointer[pos]
         }
 
@@ -117,13 +117,13 @@ const utilsProfile = {
 
   /**
   * Returns the piece profile passed to find the sepcific PT requested regardless of RT
-  * 
+  *
   * @param {object} prfoile - the object, most likely the activeProfile
   * @param {string} guid - the guid to search for
   * @return {object|boolean} - will return the obj or false if not found
-  */    
+  */
   returnPt: function(profile,guid){
-      
+
       for (let rt in profile.rt){
         for (let pt in profile.rt[rt].pt){
           if (profile.rt[rt].pt[pt]['@guid'] === guid){
@@ -143,7 +143,7 @@ const utilsProfile = {
   * @param {object} pt - the pt field for that component
   * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
   * @return {number} - will return the count
-  */    
+  */
   countValues: function(pt,propertyPath){
       // link to the base userValue
       let pointer = pt.userValue
@@ -154,10 +154,10 @@ const utilsProfile = {
           return counter
         }else{
           // if this is the last property in the list then take the count at the end of it
-          if (p === propertyPath[propertyPath.length-1].propertyURI){            
+          if (p === propertyPath[propertyPath.length-1].propertyURI){
             counter = pointer[p].length
           }else{
-            if (pointer[p][0]){            
+            if (pointer[p][0]){
               pointer = pointer[p][0]
             }else{
               return counter
@@ -179,7 +179,7 @@ const utilsProfile = {
   * @param {object} pt - the pt field for that component
   * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
   * @return {object|boolean} - the position in the pt hiearchy or false
-  */    
+  */
   returnPropertyPathParent: function(pt,propertyPath){
       // link to the base userValue
       let pointer = pt.userValue
@@ -190,10 +190,10 @@ const utilsProfile = {
           return false
         }else{
           // if this is the last property in the list then take the count at the end of it
-          if (p === propertyPath[propertyPath.length-1].propertyURI){            
+          if (p === propertyPath[propertyPath.length-1].propertyURI){
             return pointer
           }else{
-            if (pointer[p][0]){            
+            if (pointer[p][0]){
               pointer = pointer[p][0]
             }else{
               return false
@@ -214,15 +214,15 @@ const utilsProfile = {
   * @param {object} pt - the pt field for that component
   * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
   * @return {array} - will return an array with the pt as 0 and the new @guid of the blanknode as 1
-  */    
+  */
   buildBlanknode: function(pt,propertyPath){
-      
+
       // link to the base userValue
       let pointer = pt.userValue
 
       for (let p of propertyPath){
 
-        // the property path has two parts 
+        // the property path has two parts
         // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
         // we don't care about the level number so just overwrite it
         p = p.propertyURI
@@ -248,7 +248,7 @@ const utilsProfile = {
             // console.log("Linink to",pointer[p][0])
             pointer = pointer[p][0]
           }else{
-            console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)  
+            console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
           }
         }
 
@@ -257,7 +257,7 @@ const utilsProfile = {
       if (!pointer || !pointer['@guid']){
         console.error("There was an unknown error trying to create a blank node in", propertyPath, ' in ', pt)
       }
-      
+
       this.setTypesForBlankNode(pt,propertyPath)
       console.log("Return pointer to blank node now")
       return [pt, pointer['@guid']]
@@ -265,13 +265,13 @@ const utilsProfile = {
 
 
   /**
-  * Called from buildBlanknode to build the @types for a userValue it is a seperate function to allow it to run 
+  * Called from buildBlanknode to build the @types for a userValue it is a seperate function to allow it to run
   * without blocking the creation of the blanknode which lags data input if we had to wait around why deciding the @types for the node
   * @async
   * @param {object} pt - the pt field for that component
   * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
   * @return {void} - doesn't return anything it works on the reference to the pt.userValue updating the orginal
-  */    
+  */
   setTypesForBlankNode: async function(pt, propertyPath){
     let pointer = pt.userValue
     for (let p of propertyPath){
@@ -287,24 +287,24 @@ const utilsProfile = {
         if (type === false){
           // did not find it in the profile, look to the network
           type = await utilsRDF.suggestTypeNetwork(p)
-        } 
+        }
         if (type !== false){
-          // first we test to see if the type is a literal, if so then we 
+          // first we test to see if the type is a literal, if so then we
           // don't need to set the type, as its not a blank node, just a nested property
           if (utilsRDF.isUriALiteral(type) === false){
             // if it doesn't yet have a type then go ahead and set it
             if (!pointer[p][0]['@type']){
-              pointer[p][0]['@type'] = type  
+              pointer[p][0]['@type'] = type
             }
           }else{
             // nothing to do, its a literal
           }
         }else{
-          console.error("Could not find type for this property", p, 'of', propertyPath, 'in', pt)  
+          console.error("Could not find type for this property", p, 'of', propertyPath, 'in', pt)
         }
         pointer = pointer[p][0]
       }else{
-        console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)  
+        console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
       }
     }
   },
@@ -315,7 +315,7 @@ const utilsProfile = {
   * @param {object} pt - the pt field for that component
   * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
   * @return {array} - will return the value array at the end of the property path if it exists
-  */    
+  */
   returnValueFromPropertyPath: function(pt,propertyPath){
 
       let deepestLevel = propertyPath[propertyPath.length-1].level
@@ -323,9 +323,9 @@ const utilsProfile = {
       let pointer = pt.userValue
       for (let p of propertyPath){
 
-        // the property path has two parts 
+        // the property path has two parts
         // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
-        
+
         // navigates the property
         if (pointer[p.propertyURI]){
 
@@ -335,7 +335,7 @@ const utilsProfile = {
               console.warn("Expecting there to be at least one value here: ", pt, p, propertyPath)
             }
 
-            // if this is the last level then return the whole array, if we are continuing 
+            // if this is the last level then return the whole array, if we are continuing
             // down the hiearchy then just select the first element, as we don't support multiple values at the early levels
             if (p.level !== deepestLevel){
               pointer = pointer[p.propertyURI][0]
@@ -367,13 +367,13 @@ const utilsProfile = {
 
 
   /**
-  * Loops through a uservalue and looks for properties that have children that 
+  * Loops through a uservalue and looks for properties that have children that
   * only have a @guid and/or a @type but no other data, an empty blank node
   * @param {object} userValue - the userValue
   * @return {object} - will return the userValue pruned
-  */    
+  */
   pruneUserValue: function(userValue){
-      
+
     for (let key in userValue){
 
       if (Array.isArray(userValue[key])){
@@ -408,7 +408,7 @@ const utilsProfile = {
         if (!hasData){
           console.log(key,'does not have data')
           delete userValue[key]
-        }      
+        }
       }
     }
       return userValue
@@ -417,10 +417,10 @@ const utilsProfile = {
 
   /**
   * Loads a record from the marva backend store and parses the XML into the profile
-  * 
+  *
   * @param {string} recordId - the userValue
   * @return {object} - the profile
-  */ 
+  */
   loadRecordFromBackend: async function(recordId){
     console.log(recordId)
     let xml = await utilsNetwork.loadSavedRecord(recordId)
@@ -428,8 +428,8 @@ const utilsProfile = {
     let meta = this.returnMetaFromSavedXML(xml)
     console.log(meta.xml)
 
-    
-    
+
+
     utilsParse.parseXml(meta.xml)
 
     // alert(parseBfdb.hasItem)
@@ -444,17 +444,17 @@ const utilsProfile = {
     }
 
     // we might need to load in a item
-    if (utilsParse.hasItem>0){       
+    if (utilsParse.hasItem>0){
       let useItemRtLabel
       // look for the RT for this item
       let instanceId = meta.rts.filter((id)=>{ return id.includes(':Instance')  })
       if (instanceId.length>0){
-        useItemRtLabel = instanceId[0].replace(':Instance',':Item')          
+        useItemRtLabel = instanceId[0].replace(':Instance',':Item')
       }
       if (!useItemRtLabel){
         let instanceId = meta.rts.filter((id)=>{ return id.includes(':Work')  })
         if (instanceId.length>0){
-          useItemRtLabel = instanceId[0].replace(':Work',':Item')          
+          useItemRtLabel = instanceId[0].replace(':Work',':Item')
         }
 
       }
@@ -464,32 +464,32 @@ const utilsProfile = {
               if (rtkey == useItemRtLabel){
                 let useItem = JSON.parse(JSON.stringify(useProfileStore().profiles[pkey].rt[rtkey]))
                 useProfile.rtOrder.push(useItemRtLabel+'-'+step)
-                useProfile.rt[useItemRtLabel+'-'+step] = useItem                
+                useProfile.rt[useItemRtLabel+'-'+step] = useItem
               }
             }
           }
 
 
 
-      }         
+      }
 
-      
+
 
 
     }
 
-    
-    
+
+
     if (!useProfile.log){
       useProfile.log = []
-    
+
     }
     useProfile.log.push({action:'loadInstanceFromSave',from:meta.eid})
     // useProfile.procInfo= "update instance"
 
 
     useProfile.procInfo = meta.procInfo
-    
+
     // console.log('meta',meta)
 
     // also give it an ID for storage
@@ -497,7 +497,7 @@ const utilsProfile = {
     useProfile.user = meta.user
     useProfile.status = meta.status
 
-    
+
     let transformResults  = await utilsParse.transformRts(useProfile)
 
     transformResults = this.reorderRTOrder(transformResults)
@@ -513,10 +513,10 @@ const utilsProfile = {
   /**
   * Pass it a profile and it will reorder the rtOrder array abased on how it should flow
   * Work->Instance1->Item1,Item2->Instance2-Item2-1,etc..
-  * 
+  *
   * @param {object} profile - the profile
   * @return {object} - the profile
-  */ 
+  */
   reorderRTOrder: function(profile){
       //build an item lookup
       let itemLookup = {}
@@ -528,7 +528,7 @@ const utilsProfile = {
                   itemLookup[rt] = profile.rt[rt].itemOf
               }else{
                   console.warn('Cannot find the itemOf of this item',rt)
-              }                
+              }
           }
       }
 
@@ -542,16 +542,16 @@ const utilsProfile = {
 
           if (rt.includes(':Instance')){
 
-              
-              // add itself in 
+
+              // add itself in
               newOrder.push(rt)
               let thisInstanceURI = profile.rt[rt].URI
 
               // then look for its items
               for (let k in itemLookup){
                   if (itemLookup[k] == thisInstanceURI){
-                      
-                      newOrder.push(k)                        
+
+                      newOrder.push(k)
                   }
               }
           }
@@ -589,7 +589,7 @@ const utilsProfile = {
 
 
 
-  returnMetaFromSavedXML: function(xml){      
+  returnMetaFromSavedXML: function(xml){
 
       let parser = new DOMParser();
       xml = parser.parseFromString(xml, "text/xml");

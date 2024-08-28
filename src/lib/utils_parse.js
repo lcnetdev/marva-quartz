@@ -9,7 +9,7 @@ import utilsRDF from './utils_rdf';
 
 const utilsParse = {
 
-  data: {   
+  data: {
     work: [],
     instance: [],
     item:[]
@@ -24,12 +24,12 @@ const utilsParse = {
 
   /**
   * Tests if a URI string is likely an RDF Class
-  * 
+  *
   * @param {string} uri - the URI to test
   * @return {boolean}
   */
   isClass: function(uri){
-    
+
     // just testing a few name spaces here
     if (uri.match(/bf:[A-Z]/)){
       return true
@@ -67,11 +67,11 @@ const utilsParse = {
 
   /**
   * Takes a URI and turns it into the shortened namespaced version bf:whatever
-  * 
+  *
   * @param {string} uri - the URI to convert
   * @return {string} - the namespaced version
   */
-  namespaceUri: function(uri){  
+  namespaceUri: function(uri){
     for (let ns in this.namespace){
       let nsuri = this.namespace[ns]
       if (uri.includes(nsuri)){
@@ -83,7 +83,7 @@ const utilsParse = {
 
   /**
   * Takes a shortened namespaced version bf:whatever and turns it into the full URI
-  * 
+  *
   * @param {string} uri - the URI to convert
   * @return {string} - the full version
   */
@@ -98,7 +98,7 @@ const utilsParse = {
 
   /**
   * Small helper to add a modifer to URIs being pulled from the data
-  * 
+  *
   * @param {string} uri - the URI to extract
   * @return {string} - the modified URI
   */
@@ -109,21 +109,21 @@ const utilsParse = {
 
   /**
   * Returns the first child of where the parent is a spefific XML node
-  * 
+  *
   * @param {dom} selection - XML dom tree to parse
   * @param {string} requiredParent - the tagName of parent that is requreid
   * @return {dom} - the dom xml of the result
   */
-  returnOneWhereParentIs: function(selection, requiredParent){  
+  returnOneWhereParentIs: function(selection, requiredParent){
     if (selection.length == 1){
       if (selection[0].parentNode.tagName === requiredParent){
         return selection[0]
       }else{
         return false
-      }     
+      }
     }
     for (let el of selection){
-      
+
       if (el.parentNode.tagName === requiredParent){
         return el
       }
@@ -132,20 +132,20 @@ const utilsParse = {
   },
 
   /**
-  * For ID uris, return the code from the uri 
-  * 
+  * For ID uris, return the code from the uri
+  *
   * @param {string} uri - the URI to test
   * @return {string} - the trailing part of the uri
   */
   returnLookupListFromURI: function(uri){
 
-    // its an ID vocab, just split off the end and use that 
+    // its an ID vocab, just split off the end and use that
     if (uri.includes('http://id.loc.gov/vocabulary/') || uri.includes('https://id.loc.gov/vocabulary/')){
       uri = uri.split('/')
       uri.splice(-1,1)
       uri = uri.join('/')
       return uri
-    }    
+    }
     return false
   },
 
@@ -154,7 +154,7 @@ const utilsParse = {
   testSeperateRdfTypeProperty: function(pt){
     if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs){
       for (let id of pt.valueConstraint.valueTemplateRefs){
-        if (useProfileStore().rtLookup[id]){          
+        if (useProfileStore().rtLookup[id]){
           for (let p of useProfileStore().rtLookup[id].propertyTemplates){
             if (p.propertyURI === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
               return true
@@ -162,7 +162,7 @@ const utilsParse = {
           }
         }
       }
-    }   
+    }
     return false
   },
 
@@ -170,7 +170,7 @@ const utilsParse = {
 
   /**
   * Takes the XML and parses it
-  * 
+  *
   * @param {string} xml - the XML payload
   * @return {void}
   */
@@ -178,7 +178,7 @@ const utilsParse = {
 
     // if (!xml){
     //   xml = this.testXml
-    // } 
+    // }
 
     this.xmlSource = xml
     // use the browser if we can, should be faster, fall back to the library if not running in the browser
@@ -192,9 +192,9 @@ const utilsParse = {
       if (root.length > 0){ root = root[0]}
 
 
-      
+
       this.hasInstance = 0
-      for (let rdfChild of root.children){        
+      for (let rdfChild of root.children){
         if (rdfChild.tagName == 'bf:Instance'){
           this.hasInstance++
         }
@@ -202,7 +202,7 @@ const utilsParse = {
 
       // test to see if there are any Items,
       this.hasItem = this.activeDom.getElementsByTagName('bf:Item').length
-      
+
 
     // the library very much doesn't work on anything but chrome
     // }else{
@@ -216,28 +216,28 @@ const utilsParse = {
 
   /**
   * Takes the XML marks any bf:relation properties with hints to use in the parsing of it
-  * 
+  *
   * @param {Node} xml - the XML payload
   * @return {Node}
   */
   sniffWorkRelationType(xml){
-    for (let child of xml.children){ 
+    for (let child of xml.children){
       if (child.tagName == 'bf:relation'){
        if (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
        } else if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')        
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
        } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
        } else if (child.innerHTML.indexOf("bf:Work")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
        }else{
-          // leave blank? 
+          // leave blank?
         }
       }
     }
     return xml
-  },  
+  },
 
 
   specialTransforms: {
@@ -246,9 +246,8 @@ const utilsParse = {
 
 
   transformRts: async function(profile){
-
     let toDeleteNoData = []
-  
+
     // before we start processing make sure we have enough instance rts for the number needed
     let totalInstanceRts = 0
     let useInstanceRt = null
@@ -261,7 +260,7 @@ const utilsParse = {
       }
     }
 
-    
+
     [...Array(this.hasInstance - totalInstanceRts)].forEach((_, i) => {
       profile.rt[useInstanceRtName + '_'+(i+1)] = JSON.parse(JSON.stringify(useInstanceRt))
       profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
@@ -270,7 +269,7 @@ const utilsParse = {
 
     for (const pkey in profile.rt) {
 
-      let tle = ""      
+      let tle = ""
       if (pkey.includes(':Work')){
         tle = "bf:Work"
       }else if (pkey.includes(':Instance')){
@@ -287,14 +286,14 @@ const utilsParse = {
       // select the right part of the profile
       let pt = profile.rt[pkey].pt
       let xml = this.activeDom.getElementsByTagName(tle)
-      
+
       // store this here for easy access to the error report
       profile.xmlSource = this.xmlSource
-      
-      
+
+
       // only return the top level, no nested related things
       xml = this.returnOneWhereParentIs(xml, "rdf:RDF")
-      
+
 
       if (xml === false && tle == 'bf:Hub'){
         tle = "bf:Work"
@@ -305,7 +304,7 @@ const utilsParse = {
           xml = this.activeDom.getElementsByTagName(tle)
         }
         xml = this.returnOneWhereParentIs(xml, "rdf:RDF")
-        
+
       }
       if (xml===false){
         console.warn(tle,'was not processed because it failed the top level test, must be a nested resource?')
@@ -331,7 +330,7 @@ const utilsParse = {
 
 
       //let rdftype = xml.getElementsByTagName('rdf:type')
-      for (let child of xml.children){ 
+      for (let child of xml.children){
         if (child.tagName == 'rdf:type'){
           if (child.attributes['rdf:resource']){
             profile.rt[pkey]['@type'] = child.attributes['rdf:resource'].value
@@ -350,11 +349,11 @@ const utilsParse = {
             profile.rt[pkey].instanceOf = instanceOf.attributes['rdf:resource'].value
           }else if(instanceOf.attributes['rdf:about']){
             profile.rt[pkey].instanceOf = instanceOf.attributes['rdf:about'].value
-          }         
+          }
 
 
         }
-        
+
       }
 
       // find itemOf
@@ -365,14 +364,14 @@ const utilsParse = {
             profile.rt[pkey].itemOf = itemOf.attributes['rdf:resource'].value
           }else if(itemOf.attributes['rdf:about']){
             profile.rt[pkey].itemOf = itemOf.attributes['rdf:about'].value
-          }     
+          }
           // delete it
           itemOf.remove()
         }
       }
 
       // is there admin metdata in the data? If so we need to insert that profile template into the pt
-      
+
       let adminMetadataCount = xml.getElementsByTagName('bf:adminMetadata').length
 
       if (adminMetadataCount>0){
@@ -387,8 +386,8 @@ const utilsParse = {
             break
           }
         }
-          
-        
+
+
         // adminMetadataCount
         pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
           "mandatory": false,
@@ -420,7 +419,7 @@ const utilsParse = {
       if (tle == "bf:Work"){
         xml = this.sniffWorkRelationType(xml)
       }
-      
+
 
 
 
@@ -430,8 +429,8 @@ const utilsParse = {
       // at this point we have the main piece of the xml tree that has all our data
       // loop through properties we are looking for and build out the the profile
       for (let k in pt){
-        
-        
+
+
         let ptk = JSON.parse(JSON.stringify(pt[k]))
         // make sure each new one has a unique guid
         ptk['@guid'] = short.generate()
@@ -443,12 +442,12 @@ const utilsParse = {
         let propertyURI = ptk.propertyURI
         let prefixURI = this.namespaceUri(propertyURI)
 
-        // we only want top level elements, not nested things like dupe notes etc.                
+        // we only want top level elements, not nested things like dupe notes etc.
         let el = []
         for (let e of xml.children){
           if (this.UriNamespace(e.tagName) == propertyURI){
             // if it has a hint then we need to check if we can find the right pt for it
-            if (e.attributes['local:pthint'] && e.attributes['local:pthint'].value){              
+            if (e.attributes['local:pthint'] && e.attributes['local:pthint'].value){
               // check to see if this pt has that hint value in the valueConstraint  valueTemplateRefs
               if (ptk.valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
                 // it matches, so use this one for sure
@@ -457,7 +456,7 @@ const utilsParse = {
                 // if it doesn't match that might mean there is a better match further in the pts or it could mean it will never match
                 // so look ahead and see, if there is a better match don't add it now and leave this el for that future pt
                 let foundPtToUse = false
-                for (let kCheck in pt){                  
+                for (let kCheck in pt){
                   if (pt[kCheck].valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
                     // console.log("found a place for you in the future :)")
                     // console.log("here",pt[kCheck])
@@ -468,8 +467,8 @@ const utilsParse = {
                   // jump to the next el this one will get grabbed by the one it is suppose to use
                   continue
                 }else{
-                  // we did not find a place to put this el, so we need to add it here 
-                  el.push(e)                                    
+                  // we did not find a place to put this el, so we need to add it here
+                  el.push(e)
                 }
               }
             }else{
@@ -478,7 +477,7 @@ const utilsParse = {
             }
           }
         }
-        
+
 
         // Some structural things here to hardcode
         if (propertyURI==='http://id.loc.gov/ontologies/bibframe/Work'){
@@ -488,15 +487,15 @@ const utilsParse = {
               '@root': 'http://id.loc.gov/ontologies/bibframe/Work',
               '@guid': short.generate() ,
               '@id': profile.rt[pkey].URI,
-            }            
-          }          
+            }
+          }
           pt[k] = ptk
           continue
         }
 
 
 
-        // sometimes the profile has a rdf:type selectable in the profile itself, we probably 
+        // sometimes the profile has a rdf:type selectable in the profile itself, we probably
         // took that piece of data out eariler and set it at the RT level, so fake that userValue for this piece of
         // data in the properties because el will be empty
         if (profile.rt[pkey]['@type'] && propertyURI == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
@@ -522,7 +521,7 @@ const utilsParse = {
           ptk.hasData = true
           ptk.canBeHidden = false
           ptk.deepHierarchy = false
-          
+
           // loop through all of them
           let counter = 0
           for (let e of el){
@@ -548,7 +547,7 @@ const utilsParse = {
               }
 
 
-              // does it have a rdf type of that 
+              // does it have a rdf type of that
               for (let typeEl of e.getElementsByTagName('rdf:type')){
                 if (typeEl.attributes['rdf:resource']){
                 }
@@ -557,7 +556,7 @@ const utilsParse = {
                 }
                 if (typeEl.attributes['rdf:resource'] && typeEl.attributes['rdf:resource'].value == 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution'){
                   isPrimaryContribXML = true
-                }                
+                }
               }
 
               // or is using the <bflc:PrimaryContribution> element
@@ -591,28 +590,28 @@ const utilsParse = {
             populateData.xmlSource = e.outerHTML
 
             populateData['@guid'] = short.generate()
-          
+
             // if (this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)]){
-            //   populateData.valueConstraint.valueTemplateRefs.push(this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)])              
+            //   populateData.valueConstraint.valueTemplateRefs.push(this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)])
             // }
 
 
             // we want all userValues to includ the root predicate property
             // we will map that to the base level to make things cleaner below
-            // so populateData.userValue['http://id.loc.gov/bibframe/title'] becomes userValue              
+            // so populateData.userValue['http://id.loc.gov/bibframe/title'] becomes userValue
             populateData.userValue[populateData.propertyURI] = [{}]
             let userValue = populateData.userValue[populateData.propertyURI][0]
 
-            
+
             // we have some special functions to deal with tricky elements
             if (this.specialTransforms[prefixURI]){
               // make sure to pass the current 'this' context to the functions that use helper functions at this level like this.UriNamespace
-              populateData = this.specialTransforms[prefixURI].call(this,e,populateData)  
-              
+              populateData = this.specialTransforms[prefixURI].call(this,e,populateData)
 
-            }else if (e.children.length == 0){          
 
-              
+            }else if (e.children.length == 0){
+
+
               // if (!populateData.userValue){
                 userValue['@guid'] = short.generate()
               // }
@@ -620,9 +619,9 @@ const utilsParse = {
               let eProperty = this.UriNamespace(e.tagName)
 
               // could be a first level bnode with no children
-              
+
               if (this.isClass(e.tagName)){
-                
+
                 userValue['@type'] = this.UriNamespace(e.tagName)
 
                 // check for URI
@@ -635,7 +634,7 @@ const utilsParse = {
                 }
 
               }else if (this.UriNamespace(e.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
-                
+
                 if (this.testSeperateRdfTypeProperty(populateData)){
                   console.warn("Need to account for rdf:type at this level.")
                 }
@@ -655,7 +654,7 @@ const utilsParse = {
 
 
               }else if (e.attributes['rdf:resource'] && e.innerHTML.trim() == ''){
-                
+
                 // it is a property pointing to another resource with no label or anything
                 userValue['@guid'] = short.generate()
                 userValue['@id'] = this.extractURI(e.attributes['rdf:resource'].value)
@@ -665,11 +664,11 @@ const utilsParse = {
                 //  {
                 //  "http://www.w3.org/2000/01/rdf-schema#label": userValue['@id'].split('/').slice(-1)[0],
                 //  "@guid": short.generate()
-                //  }               
+                //  }
                 // ]
 
               }else{
-                
+
 
 
                 if (!userValue[eProperty]){
@@ -690,7 +689,7 @@ const utilsParse = {
                 if (e.innerHTML != null && e.innerHTML.trim() != ''){
                   userValue[eProperty] = e.innerHTML
 
-                  // does it have a data type or lang                 
+                  // does it have a data type or lang
                   if (e.attributes && e.attributes['rdf:datatype']){
                     userValue['@datatype'] = e.attributes['rdf:datatype'].value
                   }
@@ -702,12 +701,12 @@ const utilsParse = {
                   }
                   if (e.attributes && e.attributes['rdf:parseType']){
                     userValue['@parseType'] = e.attributes['rdf:parseType'].value
-                  }                 
+                  }
 
 
                 }
 
-                
+
                 // console.log(userValue)
 
 
@@ -717,7 +716,7 @@ const utilsParse = {
 
 
 
-                    
+
             }else{
 
 
@@ -730,8 +729,8 @@ const utilsParse = {
               }
 
 
-              // loop through.... though don't really need to loop, 
-              // this is the main bnode <bf:title><bf:Title> 
+              // loop through.... though don't really need to loop,
+              // this is the main bnode <bf:title><bf:Title>
               for (let child of e.children){
 
                 // the inital bnode
@@ -741,7 +740,7 @@ const utilsParse = {
                 userValue['@type'] = this.UriNamespace(child.tagName)
 
                 // does this thing have a URI?
-                // <bf:title><bf:Title rdf:about="http://...."> 
+                // <bf:title><bf:Title rdf:about="http://....">
 
                 if (child.attributes && child.attributes['rdf:about']){
                   userValue['@id'] = this.extractURI(child.attributes['rdf:about'].value)
@@ -754,15 +753,15 @@ const utilsParse = {
                   // this is okay, it mostly won't
                 }
 
-                // now loop through all the children 
+                // now loop through all the children
                 for (let gChild of child.children){
 
 
                   if (this.UriNamespace(gChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
-                    
+
                     if (this.testSeperateRdfTypeProperty(populateData)){
 
-                      // we have a patern, in notes for example, where we are storing the type in a single rdftype 
+                      // we have a patern, in notes for example, where we are storing the type in a single rdftype
                       // predicate and the don't want to change the orginal type. so look through the templates and see
                       // if that pt has a standalone rdf:type predicate defined, if so populate just that and don't overwrite
                       let rdfTypeUri = null
@@ -816,7 +815,7 @@ const utilsParse = {
                     let gChildProperty = this.UriNamespace(gChild.tagName)
 
 
-                    // if it a one liner Class w/ no children add it in as its own obj otherwise it is a 
+                    // if it a one liner Class w/ no children add it in as its own obj otherwise it is a
                     // literal or something
                     if (this.isClass(gChild.tagName)){
                       let gChildData = {'@guid': short.generate()}
@@ -842,8 +841,8 @@ const utilsParse = {
 
                       if (gChild.innerHTML != null && gChild.innerHTML.trim() != ''){
                         gChildData[gChildProperty] = gChild.innerHTML
-                        
-                        // does it have a data type or lang                 
+
+                        // does it have a data type or lang
                         if (gChild.attributes && gChild.attributes['rdf:datatype']){
                           gChildData['@datatype'] = gChild.attributes['rdf:datatype'].value
                         }
@@ -855,7 +854,7 @@ const utilsParse = {
                         }
                         if (gChild.attributes && gChild.attributes['rdf:parseType']){
                           gChildData['@parseType'] = gChild.attributes['rdf:parseType'].value
-                        } 
+                        }
 
                       }
 
@@ -865,7 +864,7 @@ const utilsParse = {
                     }
 
 
-                  
+
 
                   }else{
 
@@ -887,7 +886,7 @@ const utilsParse = {
 
 
 
-                      // if its a bnode then loop through the children, 
+                      // if its a bnode then loop through the children,
                       if (this.isClass(ggChild.tagName)){
 
                         // mint a new one for this iteration, since there could be multiple classes nested
@@ -907,7 +906,7 @@ const utilsParse = {
                         //       <bf:Identifier> ~~~~~~~~~~~~~YOU ARE HERE ~~~~~~~~~~~~
                         //         <rdf:value>fst01920007</rdf:value>
                         //         <bf:source>
-                        //           <bf:Source> 
+                        //           <bf:Source>
                         //             <bf:code>OCoLC</bf:code>
                         //           </bf:Source>
                         //         </bf:source>
@@ -934,7 +933,7 @@ const utilsParse = {
                         // now loop through these ggchildren, they are properties of this bnode
                         for (let gggChild of ggChild.children){
 
-                          // not a bnode, just a one liner property of the bnode      
+                          // not a bnode, just a one liner property of the bnode
                           if (this.UriNamespace(gggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
 
@@ -971,7 +970,7 @@ const utilsParse = {
 
                               if (gggChild.innerHTML != null && gggChild.innerHTML.trim() != ''){
                                 gggChildData[gggChildProperty] = gggChild.innerHTML
-                                // does it have a data type or lang                 
+                                // does it have a data type or lang
                                 if (gggChild.attributes && gggChild.attributes['rdf:datatype']){
                                   gggChildData['@datatype'] = gggChild.attributes['rdf:datatype'].value
                                 }
@@ -983,7 +982,7 @@ const utilsParse = {
                                 }
                                 if (gggChild.attributes && gggChild.attributes['rdf:parseType']){
                                   gggChildData['@parseType'] = gggChild.attributes['rdf:parseType'].value
-                                } 
+                                }
 
 
                               }
@@ -1055,7 +1054,7 @@ const utilsParse = {
                                 // now loop through this bnodes descendants
                                 for (let gggggChild of ggggChild.children){
 
-                                  
+
 
                                   if (this.UriNamespace(gggggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
@@ -1093,8 +1092,8 @@ const utilsParse = {
 
                                       if (gggggChild.innerHTML != null && gggggChild.innerHTML.trim() != ''){
                                         ggggChildData[gggggChildProperty] = gggggChild.innerHTML
-                                        
-                                        // does it have a data type or lang                 
+
+                                        // does it have a data type or lang
                                         if (gggggChild.attributes && gggggChild.attributes['rdf:datatype']){
                                           ggggChildData['@datatype'] = gggggChild.attributes['rdf:datatype'].value
                                         }
@@ -1106,7 +1105,7 @@ const utilsParse = {
                                         }
                                         if (gggggChild.attributes && gggggChild.attributes['rdf:parseType']){
                                           ggggChildData['@parseType'] = gggggChild.attributes['rdf:parseType'].value
-                                        } 
+                                        }
 
 
                                       }
@@ -1130,7 +1129,7 @@ const utilsParse = {
 
                                     for (let g6Child of gggggChild.children){
                                       // console.log("Doing",g6Child.tagName)
-                                      
+
 
                                       if (this.isClass(g6Child.tagName)){
 
@@ -1176,10 +1175,10 @@ const utilsParse = {
                                             if (!g5ChildData[g7ChildProperty]){
                                               g5ChildData[g7ChildProperty] = []
                                             }
-      
+
                                             // it doesn't have any children, so it will be a literal or something like that
                                             let g6ChildData = {'@guid': short.generate()}
-      
+
                                             if (g7Child.attributes && g7Child.attributes['rdf:about']){
                                               g6ChildData['@id'] = this.extractURI(g7Child.attributes['rdf:about'].value)
                                             }else if (g6ChildData.attributes && g7Child.attributes['rdf:resource']){
@@ -1187,11 +1186,11 @@ const utilsParse = {
                                             }else{
                                               // console.log('No URI for this child property')
                                             }
-      
+
                                             if (g7Child.innerHTML != null && g7Child.innerHTML.trim() != ''){
                                               g6ChildData[g7ChildProperty] = g7Child.innerHTML
-                                              
-                                              // does it have a data type or lang                 
+
+                                              // does it have a data type or lang
                                               if (g7Child.attributes && g7Child.attributes['rdf:datatype']){
                                                 g6ChildData['@datatype'] = g7Child.attributes['rdf:datatype'].value
                                               }
@@ -1203,11 +1202,11 @@ const utilsParse = {
                                               }
                                               if (g7Child.attributes && g7Child.attributes['rdf:parseType']){
                                                 g6ChildData['@parseType'] = g7Child.attributes['rdf:parseType'].value
-                                              } 
-      
-      
+                                              }
+
+
                                             }
-      
+
                                             g5ChildData[g7ChildProperty].push(g6ChildData)
 
 
@@ -1226,7 +1225,7 @@ const utilsParse = {
                                             if (!g5ChildData[g7ChildProperty]){
                                               g5ChildData[g7ChildProperty] = []
                                             }
-                                            
+
                                             if (g7Child.children.length>0){
 
                                               // now loop through this bnodes descendants
@@ -1235,13 +1234,13 @@ const utilsParse = {
                                                 // console.log("Looking at",g8Child)
 
                                                 if (this.isClass(g8Child.tagName)){
-                                                  // its a class build a blank node                                             
+                                                  // its a class build a blank node
                                                 }else{
 
                                                 }
 
 
-                                              }                                              
+                                              }
 
                                             }else{
 
@@ -1249,10 +1248,10 @@ const utilsParse = {
 
 
                                             }
-                                            
 
 
-                                            
+
+
 
 
 
@@ -1265,7 +1264,7 @@ const utilsParse = {
 
 
                                             // for (let ggggChild of gggChild.children){
-                                            
+
 
 
                                           }
@@ -1288,14 +1287,14 @@ const utilsParse = {
 
                                     }
 
-                                    
+
                                     gggData[g5ChildProperty].push(g5ChildData)
 
 
                                   }
 
-                                }                              
-                                
+                                }
+
 
                               }else{
 
@@ -1315,13 +1314,13 @@ const utilsParse = {
                                 }else{
                                   // console.log('No URI for this child property')
                                 }
-                                
+
                                 let ggggChildData = {'@guid': short.generate()}
 
                                 if (ggggChild.innerHTML != null && ggggChild.innerHTML.trim() != ''){
                                   ggggChildData[ggggChildProperty] = ggggChild.innerHTML
 
-                                  // does it have a data type or lang                 
+                                  // does it have a data type or lang
                                   if (ggggChild.attributes && ggggChild.attributes['rdf:datatype']){
                                     ggggChildData['@datatype'] = ggggChild.attributes['rdf:datatype'].value
                                   }
@@ -1333,7 +1332,7 @@ const utilsParse = {
                                   }
                                   if (ggggChild.attributes && ggggChild.attributes['rdf:parseType']){
                                     ggggChildData['@parseType'] = ggggChild.attributes['rdf:parseType'].value
-                                  } 
+                                  }
 
 
                                 }
@@ -1391,7 +1390,7 @@ const utilsParse = {
 
                             if (ggChild.innerHTML != null && ggChild.innerHTML.trim() != ''){
                               ggChildData[ggChildProperty] = ggChild.innerHTML
-                              // does it have a data type or lang                 
+                              // does it have a data type or lang
                               if (ggChild.attributes && ggChild.attributes['rdf:datatype']){
                                 ggChildData['@datatype'] = ggChild.attributes['rdf:datatype'].value
                               }
@@ -1403,7 +1402,7 @@ const utilsParse = {
                               }
                               if (ggChild.attributes && ggChild.attributes['rdf:parseType']){
                                 ggChildData['@parseType'] = ggChild.attributes['rdf:parseType'].value
-                              } 
+                              }
 
 
                             }
@@ -1426,14 +1425,14 @@ const utilsParse = {
                       }
 
                     }
-                    // when there are multiple nested bnodes we take 
+                    // when there are multiple nested bnodes we take
                     // care of adding them to the structure above
                     // and then set the last one to false
-                    // so dont add 
+                    // so dont add
                     if (gChildData !== false){
-                      userValue[gChildProperty].push(gChildData)  
+                      userValue[gChildProperty].push(gChildData)
                     }
-                    
+
 
                   }
                 }
@@ -1441,15 +1440,15 @@ const utilsParse = {
               }
             }
 
-            sucessfulElements.push(e.outerHTML)          
+            sucessfulElements.push(e.outerHTML)
 
-            // since we created a brand new populateData we either need to 
-            // replace the orginal in the profile or if there is more than one we 
+            // since we created a brand new populateData we either need to
+            // replace the orginal in the profile or if there is more than one we
             // need to make a new one and add it to the resource template list
             // since each piece of data in the property is its own resource template
 
-            if (counter === 0){              
-              pt[k] = populateData              
+            if (counter === 0){
+              pt[k] = populateData
             }else{
 
               let newKey = `${k}_${counter}`
@@ -1461,26 +1460,26 @@ const utilsParse = {
             }
 
 
-            
-            // do a little sanity check here, loop through and 
+
+            // do a little sanity check here, loop through and
             userValue = this.removeEmptyBnodes(userValue)
-            
+
 
 
             counter++
 
           }
 
-        }        
-        
+        }
+
         // we did something with it, so remove it from the xml
         // doing this inside the loop because some PT use the same element (like primary contribuitor vs contributor)
 
         for (let p of sucessfulProperties){
           let els = xml.getElementsByTagName(p)
           // this is a strange loop here because we need to remvoe elements without changing the parent order which will mess up the dom tree and the loop
-          for (let step = els.length-1; step >= 0; step=step-1) {            
-            
+          for (let step = els.length-1; step >= 0; step=step-1) {
+
             if (sucessfulElements.indexOf(els[step].outerHTML)> -1){
               els[step].remove()
             }
@@ -1491,7 +1490,7 @@ const utilsParse = {
 
       }
 
-      // store the unused xml     
+      // store the unused xml
       profile.rt[pkey].unusedXml = xml.outerHTML;
       if (xml.children.length == 0){
         profile.rt[pkey].unusedXml = false
@@ -1506,7 +1505,7 @@ const utilsParse = {
 
           if (!profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata']){
             profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'] = [{}]
-          }         
+          }
           let userValue = profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'][0]
 
           // // if it doesnt already have a cataloger id use ours
@@ -1529,14 +1528,14 @@ const utilsParse = {
 
           // using MARC2BF rules 2.6+ we need to find the admin metadata that does not have a status
           // that will be our primary adminMetadat that they edit
-          
+
           if (userValue){
             if (!userValue['http://id.loc.gov/ontologies/bibframe/status']){
               profile.rt[pkey].pt[key].adminMetadataType = 'primary'
               adminMedtataPrimary = key
             }else{
               profile.rt[pkey].pt[key].adminMetadataType = 'secondary'
-              
+
               let useDate = "00000000"
               if (userValue['http://id.loc.gov/ontologies/bibframe/date'] && userValue['http://id.loc.gov/ontologies/bibframe/date'][0]){
                 if (userValue['http://id.loc.gov/ontologies/bibframe/date'][0]['http://id.loc.gov/ontologies/bibframe/date']){
@@ -1556,19 +1555,19 @@ const utilsParse = {
                 console.warn('Cant parse date',useDate)
                 useDate = 0
               }
-              
-              adminMedtataSecondary.push({key:key,date:useDate})
-              
-              
-              
-              
-              
 
-              
+              adminMedtataSecondary.push({key:key,date:useDate})
+
+
+
+
+
+
+
             }
           }
         }
-        
+
         // if we have multiple types of adminMetadata we want to reorder them
         if (adminMedtataPrimary && adminMedtataSecondary.length>0){
           // first remove all of them from the order
@@ -1585,7 +1584,7 @@ const utilsParse = {
 
         }
 
-        
+
 
 
         // we can potentailly prevent some xml errors from propagating further here
@@ -1599,7 +1598,7 @@ const utilsParse = {
         //    // delete profile.rt[pkey].pt[key].userValue['@type']
         //    console.log('----------x_x-----------')
         //    console.log(profile.rt[pkey].pt[key].userValue)
-        //    console.log('---------------------')            
+        //    console.log('---------------------')
 
 
         //  }
@@ -1617,13 +1616,13 @@ const utilsParse = {
 
 
       }
-      
+
 
       let uniquePropertyURIs  = {}
       // we are now going to do some ananlyis on profile, see how many properties are acutally used, what is not used, etc
       // also do some post-load data cleanup (like &amp; -> &)
       for (let key in profile.rt[pkey].pt){
-        
+
         if (Object.keys(uniquePropertyURIs).indexOf(profile.rt[pkey].pt[key].propertyURI)===-1){
           uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI] = {status:false,data:[],resourceTemplates:{},unAssingedProperties:[]}
         }
@@ -1658,9 +1657,9 @@ const utilsParse = {
             if (Array.isArray(profile.rt[pkey].pt[key].userValue[k])){
               for (let kItem of profile.rt[pkey].pt[key].userValue[k]){
 
-                
+
                 for (let kItemKey in kItem){
-                  
+
 
                   if (kItemKey == 'http://www.w3.org/2000/01/rdf-schema#label'){
 
@@ -1676,7 +1675,7 @@ const utilsParse = {
                       }
                     }
 
-                    
+
                   }
 
 
@@ -1708,16 +1707,16 @@ const utilsParse = {
                 allUris.push(ptObj.propertyURI)
               }
 
-            })  
+            })
           })
 
-          
+
           profile.rt[pkey].pt[key].missingProfile = []
           // loop though the URIs we have
           Object.keys(profile.rt[pkey].pt[key].userValue).forEach((userURI)=>{
             if (!userURI.includes('@')){
               if (allUris.indexOf(userURI)===-1){
-                
+
                 profile.rt[pkey].pt[key].missingProfile.push(userURI)
 
                 uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI].unAssingedProperties.push(userURI)
@@ -1740,7 +1739,7 @@ const utilsParse = {
         }
       }
 
-      
+
 
 
 
@@ -1748,8 +1747,8 @@ const utilsParse = {
 
       profile.rt[pkey].propertyLoadRatio = parseInt(Object.keys(uniquePropertyURIs).filter((k)=>uniquePropertyURIs[k].status).length /Object.keys(uniquePropertyURIs).length * 100)
 
-      
-      
+
+
       // remove it for the next item if there is one
       if (tle == 'bf:Item' || tle == 'bf:Instance'){
         console.log('Done processing XML fragment, removing',xml)
@@ -1762,7 +1761,7 @@ const utilsParse = {
 
     // these RTs did not have any data parsed into them, because they were not present
     for (let x of toDeleteNoData){
-      profile.rt[x].noData=true     
+      profile.rt[x].noData=true
     }
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
 
@@ -1777,8 +1776,8 @@ const utilsParse = {
 
 
   /**
-  * Will take a profile obj and make sure the Works have a hasInstance and the Instances have instanceOf 
-  * 
+  * Will take a profile obj and make sure the Works have a hasInstance and the Instances have instanceOf
+  *
   * @param {object} profile - profile object
   * @return {object} - the updated profile
   */
@@ -1816,19 +1815,19 @@ const utilsParse = {
       if (k.indexOf(':Instance')>-1){
 
         for (let pk in useProfile.rt[k].pt){
-          
+
           if (useProfile.rt[k].pt[pk].propertyURI == 'http://id.loc.gov/ontologies/bibframe/instanceOf'){
             if (!useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/instanceOf']){
               useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/instanceOf'] = []
-            }            
+            }
             useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/instanceOf'].push(
               {
                 "@guid": short.generate(),
                 "@id": workUri
-              })           
+              })
           }
-        }     
-      
+        }
+
       }else if (k.indexOf(':Work')>-1){
 
         for (let pk in useProfile.rt[k].pt){
@@ -1836,20 +1835,20 @@ const utilsParse = {
           if (useProfile.rt[k].pt[pk].propertyURI == 'http://id.loc.gov/ontologies/bibframe/hasInstance'){
             if (!useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/hasInstance']){
               useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/hasInstance'] = []
-            }       
+            }
             for (let i of instanceUris){
 
-            
+
             useProfile.rt[k].pt[pk].userValue['http://id.loc.gov/ontologies/bibframe/hasInstance'].push(
               {
                 "@guid": short.generate(),
                 "@id": i
-              })           
+              })
             }
           }
         }
 
-      
+
       }
     }
 
@@ -1866,7 +1865,7 @@ const utilsParse = {
       if (Array.isArray(userValue[key])){
         let newArray = []
         for (let arrayObj of userValue[key]){
-          if (typeof arrayObj === 'object' && !Array.isArray(arrayObj) && arrayObj !== null){            
+          if (typeof arrayObj === 'object' && !Array.isArray(arrayObj) && arrayObj !== null){
             if (Object.keys(arrayObj).length==1){
               console.log("Bad obj->",arrayObj)
             }else{
@@ -1874,8 +1873,8 @@ const utilsParse = {
             }
             // console.log("Is arrayObj object ===>",arrayObj)
           }
-        }      
-        userValue[key] = newArray  
+        }
+        userValue[key] = newArray
       }
     }
 
@@ -1900,7 +1899,7 @@ const utilsParse = {
 
 
 
-  
+
 
 }
 
