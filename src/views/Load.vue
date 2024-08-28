@@ -177,6 +177,9 @@
               <h1 style="margin-bottom: 10px;">
                 <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_document</span>
                 <span>Create Blank Record</span></h1>
+                <div style="padding:5px;">
+                  Use these blank templates to test, but any record that you want to post to Voyager must originate in Voyager. Marva cannot currently assign Voyager bib numbers, so you need to create a stub record in Voyager and then load it into Marva.
+                </div>
                 <div>
                   <div class="load-buttons">
                     <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>

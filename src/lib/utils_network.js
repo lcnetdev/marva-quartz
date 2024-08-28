@@ -2394,15 +2394,15 @@ const utilsNetwork = {
           c++
         }
         // selectedIndex = selectedIndex - 1
-        if (selectedIndex > -1){
-          results.splice(selectedIndex, 0, {
-            term:'-----',
-            title:'Would Appear Here',
-            creator:'',
-            pubdate:"------",
-            lookup:'#'
-          })
-        }
+        // if (selectedIndex > -1){
+        //   results.splice(selectedIndex, 0, {
+        //     term:'-----',
+        //     title:'Would Appear Here',
+        //     creator:'',
+        //     pubdate:"------",
+        //     lookup:'#'
+        //   })
+        // }
 
 
 
