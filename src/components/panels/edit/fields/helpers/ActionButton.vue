@@ -3,7 +3,7 @@
 <!--   <div>
         <button @mouseover="actionButtonShow" class="action-button"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
         <div @mouseout="startHideActionButton" @mousemove="actionButtonShow" ref="actionMenu" v-if="showActionButtonMenu" class="action-button-list-container">
-            
+
             <template v-if="type == 'literal'">
               <a @mouseover.stop="" v-on:click.prevent.stop="actionClick('addNonLatinLiteral')" href="@">Add non-latin literal</a>
             </template>
@@ -21,29 +21,24 @@
         <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-1`" @click="duplicateComponent()">
           <span class="button-shortcut-label">1</span>
           Add Another Component
-        </button>     
+        </button>
         <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="insertDefaultValues()">
           <span class="button-shortcut-label">2</span>
           Insert Default Values
-        </button>     
+        </button>
 
         <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-3`" @click="deleteComponent()">
           <span class="button-shortcut-label">3</span>
           Delete Component
-        </button> 
+        </button>
 
-        
+
         <template v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic'">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-4`" @click="makeSubjectHeadingPrimary()">
             <span class="button-shortcut-label">4</span>
             Make Primary Heading
-          </button> 
-
-
+          </button>
         </template>
-
-        
-        
 
         <hr>
 
@@ -51,7 +46,7 @@
 
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-5`" @click="$emit('actionButtonCommand', 'addField')">
               <span class="button-shortcut-label">5</span>
-              
+
               Additional Literal
             </button><br>
 
@@ -66,12 +61,12 @@
                 <button   style="width:100%"   class="" :id="`action-button-command-${fieldGuid}-${index + 7}`"  @click="$emit('actionButtonCommand', 'trans', {lang:lang.lang,dir:lang.dir, fieldGuid: fieldGuid} )">
                   <span v-if="index<3" class="button-shortcut-label">{{index + 7}}</span>
                   <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{ lang.name }}</span>
-                  
+
                 </button>
 
-                
 
-<!--                 
+
+<!--
               <button  v-if="scriptShifterOptions[lang].s2r"  style="width:100%"   class=""  @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'s2r', fieldGuid: fieldGuid} )">
 
                 <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} S2R</span>
@@ -85,8 +80,8 @@
 
 
 
-    
-            
+
+
             <hr>
 
         </template>
@@ -94,7 +89,7 @@
 
         <template v-if="type=='lookupSimple'">
 
-          
+
         </template>
 
         <template v-if="type=='lookupComplex'">
@@ -103,15 +98,20 @@
         </template>
 
 
-        
+        <template v-if="this.profileStore.returnStructureByComponentGuid(this.guid)['remark']">
+          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-7`" @click="openRemark()">
+            <span class="button-shortcut-label">7</span>
+            View Remarks<span class="material-icons action-button-icon">open_in_new</span>
+          </button>
+        </template>
 
         <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
           <span class="button-shortcut-label">0</span>
           Debug
-        </button>        
+        </button>
 
       </div>
-      <!-- 
+      <!--
         <VDropdown
           v-for="n in 5"
           :key="n"
@@ -213,8 +213,8 @@
     methods: {
 
       shortCutPressed: function(){
-        
-        
+
+
         // start fishing for the popup div
         let popoverDetectTimeout
         popoverDetectTimeout = window.setInterval(()=>{
@@ -223,11 +223,11 @@
             this.popperKeyboardShortcutElement = document.activeElement
             this.popperKeyboardShortcutEvent = this.popperKeyboardShortcutElement.addEventListener('keyup',this.processShortcutKeypress)
           }
-        },50)        
+        },50)
       },
 
       processShortcutKeypress(event){
-        
+
         if (event && event.key && ['0','1','2','3','4','5','6','7','8','9'].indexOf(event.key) > -1){
 
           let buttonToClick = document.getElementById(`action-button-command-${this.fieldGuid}-${event.key}`)
@@ -254,18 +254,18 @@
       },
 
 
-      menuClosed: function(){        
+      menuClosed: function(){
         if (this.popperKeyboardShortcutElement){
           this.popperKeyboardShortcutElement.removeEventListener('keyup',this.processShortcutKeypress)
         }
 
-        
+
       },
 
       showDebug: function() {
-        
 
-        this.debugModalData= this.profileStore.returnStructureByComponentGuid(this.guid); 
+
+        this.debugModalData= this.profileStore.returnStructureByComponentGuid(this.guid);
         this.showDebugModal = true
         this.sendFocusHome()
 
@@ -279,20 +279,25 @@
       insertDefaultValues: function(){
         this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
         this.sendFocusHome()
-        
+
       },
 
       deleteComponent: function(){
         this.profileStore.deleteComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
-        
+
       },
       makeSubjectHeadingPrimary: function(){
         this.profileStore.makeSubjectHeadingPrimary(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
-        
+
       },
 
-      
-      
+      openRemark: function(){
+        const target = this.profileStore.returnStructureByComponentGuid(this.guid)['remark']
+        window.open(target, '_blank').focus();
+      },
+
+
+
 
       addComponent: function(){
 
@@ -308,7 +313,7 @@
       //   window.clearTimeout(this.showActionButtonMenuTimer)
       // },
       // /**
-      // * When the mouse moves out of the menu start the time to close it 
+      // * When the mouse moves out of the menu start the time to close it
       // * @return {void}
       // */
       // startHideActionButton: function(){
@@ -370,7 +375,7 @@
       border-radius: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-border-radius')");
       margin: 1px;
       display: inline-flex;
-      align-items: center; 
+      align-items: center;
   }
 
   .action-button-list-container{
