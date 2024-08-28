@@ -1812,7 +1812,6 @@ export const useProfileStore = defineStore('profile', {
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
         console.log("blankNode === ",blankNode, fieldGuid)
         if (blankNode === false){
-
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
           console.log('buildBlankNodeResult',buildBlankNodeResult)
@@ -2848,7 +2847,7 @@ export const useProfileStore = defineStore('profile', {
         pt.userValue[baseURI] = [{}]
       }
       let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
-      
+
       // userValue['somting'] = {'@guid':'00000','hppts:sfsdfgfdsg.com':['helllerrlooo']}
 
       // find the default values for this template if they exist
@@ -2870,13 +2869,13 @@ export const useProfileStore = defineStore('profile', {
                       for (let d of p.valueConstraint.defaults){
                         let value = {
                           '@guid': short.generate(d.defaultLiteral, d.defaultURI)
-                        }                        
+                        }
                         // do we need to create a blank node for this value?
                         let useType = utilsRDF.suggestTypeProfile(p.propertyURI,pt)
                         if (useType === false){
                           // did not find it in the profile, look to the network
                           useType = await utilsRDF.suggestTypeNetwork(p.propertyURI)
-                        }   
+                        }
                         if (useType && useType != 'http://www.w3.org/2000/01/rdf-schema#Literal'){
                           value['@type'] = useType
                           value[defaultPropertyToUse] = [{
@@ -2891,27 +2890,27 @@ export const useProfileStore = defineStore('profile', {
                         }else{
                           if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
                             value[defaultPropertyToUse] = d.defaultLiteral
-                          }else{                           
-                            value['@id'] = d.defaultURI                                  
+                          }else{
+                            value['@id'] = d.defaultURI
                           }
-                        }  
+                        }
                         userValue[p.propertyURI].push(value)
                       }
                     }else{
                       console.warn("Nested default template trying to insert values but there are multiple propertyTemplates so no clue which proerpty to look into for the default value: ", this.rtLookup[p.valueConstraint.valueTemplateRefs[0]])
                     }
-                  }else{                      
+                  }else{
                     let blankNodeType = null
                     // we probably need to make a blank node, so find out what rdf type blank node is needed
                     if (p.valueConstraint && p.valueConstraint.valueDataType && p.valueConstraint.valueDataType.dataTypeURI){
                       blankNodeType = p.valueConstraint.valueDataType.dataTypeURI
                     }
                     // overwrite it if there is anything there already
-                    userValue[p.propertyURI] = []                      
+                    userValue[p.propertyURI] = []
                     for (let d of p.valueConstraint.defaults){
                       let value = {
                         '@guid': short.generate(d.defaultLiteral, d.defaultURI)
-                      }                        
+                      }
                       // if it just has a literal value and not a URI then don't create a blank node, just insert it using that literal property
                       if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
                         value[p.propertyURI] = d.defaultLiteral
@@ -2930,7 +2929,7 @@ export const useProfileStore = defineStore('profile', {
                         if (blankNodeType){
                           value['@type'] = blankNodeType
                         }
-                    
+
                       }
                       userValue[p.propertyURI].push(value)
                     }
@@ -2972,7 +2971,7 @@ export const useProfileStore = defineStore('profile', {
 
       if (pt !== false){
 
-        
+
         let profile
         let propertyPosition
         for (let r of this.activeProfile.rtOrder){
