@@ -1910,10 +1910,10 @@ export const useProfileStore = defineStore('profile', {
 
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-        console.log('-----')
-        console.log(pt)
-        console.log(subjectComponents)
-        console.log(propertyPath)
+        // console.log('-----')
+        // console.log(pt)
+        // console.log(subjectComponents)
+        // console.log(propertyPath)
 
 
 
@@ -1954,9 +1954,8 @@ export const useProfileStore = defineStore('profile', {
                 if (!currentUserValuePos[p.propertyURI]){
                     currentUserValuePos[p.propertyURI] = []
                 }
-                // thisLevelType = await exportXML.suggestType(p.propertyURI)
 
-                let thisLevelType = utilsRDF.suggestTypeProfile(p.propertyURI,pt)
+                let thisLevelType = utilsRDF.suggestTypeProfile(p.propertyURI,pt)   
                 if (thisLevelType === false){
                   // did not find it in the profile, look to the network
                   thisLevelType = await utilsRDF.suggestTypeNetwork(p.propertyURI)
@@ -2109,22 +2108,27 @@ export const useProfileStore = defineStore('profile', {
             }
 
 
+            // double check the @type of the resource we want to be as specific as possible
+            if (currentUserValuePos['@type'] == 'http://www.w3.org/2000/01/rdf-schema#Resource'){
+              // this is very generic, try not to use that
+              if (pt.activeType){
+                currentUserValuePos['@type'] = pt.activeType
+              }else{
+                if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length>0){
+                  let useTemplate = this.rtLookup[pt.valueConstraint.valueTemplateRefs[0]]
+                  if (useTemplate && useTemplate.resourceURI){
+                    currentUserValuePos['@type'] = useTemplate.resourceURI
+                  }
+                }
+              }
+            }
+
             // they changed something
             this.dataChanged()
 
-            console.log("USERVALUE IS",userValue)
+            // console.log("USERVALUE IS",userValue)
             pt.userValue = userValue
         }
-
-
-
-
-
-
-
-        // return true
-
-
 
     },
 
