@@ -293,7 +293,7 @@
 
       openRemark: function(){
         const target = this.profileStore.returnStructureByComponentGuid(this.guid)['remark']
-        window.open(target, '_blank').focus();
+        window.open(target, '_blank').focus()
       },
 
 
