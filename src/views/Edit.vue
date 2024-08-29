@@ -180,12 +180,13 @@
     mounted: function(){
 
       console.log("Mounted called", this.$route.params.action, this.$route.params.recordId )
-
+      console.log(this.$route.params)
       if (this.profilesLoaded && this.activeProfile){
 
         if (this.activeProfile.neweId){
           // if they just created a new record then we should save the record to back end first thing so it is recorded
           this.profileStore.saveRecord()
+          this.activeProfile.neweId = false
         }else if( this.$route.params.action && this.$route.params.action == 'load' ){
           // they are loading a record from the all record screen
           this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
