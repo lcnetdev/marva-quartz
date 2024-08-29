@@ -98,17 +98,16 @@
         </template>
 
 
-        <template v-if="this.profileStore.returnStructureByComponentGuid(this.guid)['remark']">
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-7`" @click="openRemark()">
-            <span class="button-shortcut-label">7</span>
-            View Documentation<span class="material-icons action-button-icon">open_in_new</span>
-          </button>
-        </template>
-
         <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
           <span class="button-shortcut-label">0</span>
           Debug
         </button>
+        <template v-if="this.profileStore.returnStructureByComponentGuid(this.guid)['remark']">
+          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}--`" @click="openRemark()">
+            <span class="button-shortcut-label">-</span>
+            View Documentation<span class="material-icons action-button-icon">open_in_new</span>
+          </button>
+        </template>
 
       </div>
       <!--
@@ -228,7 +227,7 @@
 
       processShortcutKeypress(event){
 
-        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9'].indexOf(event.key) > -1){
+        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9','-'].indexOf(event.key) > -1){
 
           let buttonToClick = document.getElementById(`action-button-command-${this.fieldGuid}-${event.key}`)
           if (buttonToClick){
