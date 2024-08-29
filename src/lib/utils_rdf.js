@@ -2,7 +2,7 @@ import {useConfigStore} from "../stores/config";
 import {useProfileStore} from "../stores/profile";
 
 
-// we will use the built in DOMParser() in the browser 
+// we will use the built in DOMParser() in the browser
 const returnDOMParser = function(){
   let p
   try{
@@ -12,7 +12,7 @@ const returnDOMParser = function(){
     // const { JSDOM } = jsdom;
     // const { window } = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
     p = new window.DOMParser();
-  } 
+  }
   return p
 }
 
@@ -28,12 +28,12 @@ const utilsRDF = {
 
   namespace: {
     'bflc': 'http://id.loc.gov/ontologies/bflc/',
-    'bf':'http://id.loc.gov/ontologies/bibframe/',  
+    'bf':'http://id.loc.gov/ontologies/bibframe/',
     'bfsimple':'http://id.loc.gov/ontologies/bfsimple/',
     'madsrdf': 'http://www.loc.gov/mads/rdf/v1#',
     'rdfs':'http://www.w3.org/2000/01/rdf-schema#',
     'rdf' : 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-    'lclocal':'http://id.loc.gov/ontologies/lclocal/',    
+    'lclocal':'http://id.loc.gov/ontologies/lclocal/',
     'pmo' :'http://performedmusicontology.org/ontology/',
     'datatypes': 'http://id.loc.gov/datatypes/',
     'xsd': 'http://www.w3.org/2001/XMLSchema#',
@@ -42,6 +42,7 @@ const utilsRDF = {
     'dcterms': 'http://purl.org/dc/terms/',
     'owl': 'http://www.w3.org/2002/07/owl#',
 		'void':'http://rdfs.org/ns/void#',
+    'lcc': 'http://id.loc.gov/ontologies/lcc#',
 
 
   },
@@ -61,7 +62,7 @@ const utilsRDF = {
   * this allows a single place to change what qualifies as a literal
   * @param {string} URI - the string URI to test
   * @return {bolean}
-  */    
+  */
   isUriALiteral: function(URI){
       if (this.LITERAL_TYPES.map((v) => {return v.toLowerCase()}).indexOf(URI.toLowerCase()) > -1){
           return true
@@ -69,14 +70,14 @@ const utilsRDF = {
       return false
   },
 
-   
+
   /**
   * returns a Class type basedon the predicate from the the profiles
   * @param {string} URI - the string URI to test
   * @param {obj} pt - the pt template from the profile
   * @param {obj} rtLookup - the rtLookup from the processed profiles
   * @return {string} URI - the uri of the type
-  */      
+  */
   suggestTypeProfile: function(propertyURI,pt){
 
       // grab the rtLookup from the profile store
@@ -92,7 +93,7 @@ const utilsRDF = {
           }
       }
 
-    
+
 
       // find a template name to use
       if (pt && pt.valueConstraint && pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length>0){
@@ -113,7 +114,7 @@ const utilsRDF = {
                   console.warn("Did not find the requested template name", rtKey)
               }
 
-          } 
+          }
 
           possibleTypes = [...new Set(possibleTypes)];
           // console.log("possibleTypes",possibleTypes)
@@ -126,15 +127,15 @@ const utilsRDF = {
           let lookForResourceURI = false
 
           if (!pt.userValue[pt.propertyURI]){
-              lookForResourceURI = true                
+              lookForResourceURI = true
           }else{
               if (pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){
                   console.log(pt.userValue[pt.propertyURI])
                   if (!pt.userValue[pt.propertyURI][0]['@type']){
-                      lookForResourceURI = true     
+                      lookForResourceURI = true
                   }
               }else{
-                  lookForResourceURI = true     
+                  lookForResourceURI = true
               }
 
           }
@@ -143,7 +144,7 @@ const utilsRDF = {
               if (pt && pt.valueConstraint && pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length>0){
                   let rtKey = pt.valueConstraint.valueTemplateRefs[0]
                   if (rtLookup[rtKey]){
-                      // suggest the resource                        
+                      // suggest the resource
                       return rtLookup[rtKey].resourceURI
                   }else{
                       console.warn("Did not find the requested template name", rtKey)
@@ -160,9 +161,9 @@ const utilsRDF = {
   * returns a Class type basedon the range returned from the ontology
   * @param {string} propertyURI - the string URI to test
   * @return {string|boolean} URI - the uri of the type or false
-  */      
+  */
   suggestTypeNetwork: async function(propertyURI){
-    
+
     let result = false
 
     // some very common hardcoded options
@@ -226,7 +227,7 @@ const utilsRDF = {
     if (propertyURI==='http://id.loc.gov/ontologies/bflc/aap'){
       result = 'http://www.w3.org/2000/01/rdf-schema#Literal'
     }
-    
+
     if (result==='http://id.loc.gov/ontologies/bflc/date'){
       result = 'http://www.w3.org/2000/01/rdf-schema#Literal'
     }
@@ -266,16 +267,16 @@ const utilsRDF = {
   },
 
   /**
-  * Takes care of calling and storing in the local storage the response a URI 
+  * Takes care of calling and storing in the local storage the response a URI
   * used to figure out the @type for blanknodes
   * @param {string} url - the string URI to test
   * @return {obj} - the objext response from the server, also stores it in the localstorage
-  */   
+  */
 
   fetchOntology: async function(url){
 
     // we are going to look into the local storage to see if we have a cache version of this URI from
-    // less than 24 hours ago      
+    // less than 24 hours ago
     let currentTS = Math.floor(Date.now() / 1000)
 
     if (window.localStorage && window.localStorage.getItem('ontology_'+url+'.rdf')){
@@ -292,7 +293,7 @@ const utilsRDF = {
     if (url.endsWith('.rdf')===false){
       url = url + '.rdf'
     }
-    
+
     let r
 
     try{
@@ -300,7 +301,7 @@ const utilsRDF = {
     }catch{
       return false
     }
-    
+
 
 
     // if we got here set that localstorage for next time
@@ -316,7 +317,7 @@ const utilsRDF = {
   * Gose through all URIs used in the profiles and stores their info, used to figure out the @type for blanknodes
   * @param {string} url - the string URI to test
   * @return {obj} - the objext response from the server, also stores it in the localstorage
-  */   
+  */
 
   fetchAllOntology: async function(profiles){
 
@@ -326,14 +327,14 @@ const utilsRDF = {
 
       if (profiles.lookup[key].resourceURI.includes('id.loc.gov/ontologies/')){
         // console.log(profiles.lookup[key])
-        let r = await this.fetchOntology(profiles.lookup[key].resourceURI) 
+        let r = await this.fetchOntology(profiles.lookup[key].resourceURI)
         allData[profiles.lookup[key].resourceURI] = r
       }
 
       for (let pt of profiles.lookup[key].propertyTemplates){
         if (pt.propertyURI.includes('id.loc.gov/ontologies/')){
           // console.log(pt.propertyURI)
-          let r = await this.fetchOntology(pt.propertyURI) 
+          let r = await this.fetchOntology(pt.propertyURI)
           allData[pt.propertyURI] = r
         }
       }
