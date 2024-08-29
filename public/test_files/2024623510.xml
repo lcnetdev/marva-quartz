@@ -1,0 +1,760 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+      xmlns:bf="http://id.loc.gov/ontologies/bibframe/"
+      xmlns:bflc="http://id.loc.gov/ontologies/bflc/"
+      xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/"
+      xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:pmo="http://performedmusicontology.org/ontology/"
+      xmlns:streams="info:lc/streams#"
+      xmlns:dcterms="http://purl.org/dc/terms/"
+      xmlns:foaf="http://xmlns.com/foaf/0.1/">
+      <bf:Work rdf:about="http://id.loc.gov/resources/works/23704895">
+            <bflc:aap>Brahms, Johannes, 1833-1897 Ein deutsches Requiem</bflc:aap>
+            <bflc:aap-normalized>brahmsjohannes18331897eindeutschesrequiem</bflc:aap-normalized>
+            <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/MusicAudio"/>
+            <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Monograph"/>
+            <bf:language>
+                  <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/ger">
+                        <rdfs:label xml:lang="en">German</rdfs:label>
+                  </bf:Language>
+            </bf:language>
+            <bf:supplementaryContent>
+                  <bf:SupplementaryContent rdf:about="http://id.loc.gov/vocabulary/msupplcont/libretto">
+                        <rdfs:label>libretto or text</rdfs:label>
+                  </bf:SupplementaryContent>
+            </bf:supplementaryContent>
+            <bf:supplementaryContent>
+                  <bf:SupplementaryContent rdf:about="http://id.loc.gov/vocabulary/msupplcont/performerhistory">
+                        <rdfs:label>history of performer or ensemble</rdfs:label>
+                  </bf:SupplementaryContent>
+            </bf:supplementaryContent>
+            <bf:supplementaryContent>
+                  <bf:SupplementaryContent rdf:about="http://id.loc.gov/vocabulary/msupplcont/historicalinfo">
+                        <rdfs:label>historical information</rdfs:label>
+                  </bf:SupplementaryContent>
+            </bf:supplementaryContent>
+            <bf:capture>
+                  <bf:Capture>
+                        <bf:note>
+                              <bf:Note>
+                                    <rdfs:label>capture</rdfs:label>
+                              </bf:Note>
+                        </bf:note>
+                        <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">1995-04-XX</bf:date>
+                        <bf:place>
+                              <bf:Place rdf:about="http://id.loc.gov/authorities/classification/G3804.N4:2L375">
+                                    <rdfs:label>Geography. Anthropology. Recreation--Maps--By region or country--America. Western Hemisphere--North America--United States--Eastern United States, 1870 and later--Northeastern States--Northeast Atlantic States--Middle Atlantic States. Middle States--New York--Cities, towns, and urban townships, etc., A-Z--Lincoln Center for the Performing Arts [New York]</rdfs:label>
+                                    <madsrdf:componentList rdf:parseType="Collection">
+                                          <madsrdf:Collection>
+                                                <rdfs:label>Geography. Anthropology. Recreation</rdfs:label>
+                                          </madsrdf:Collection>
+                                          <lcc:ClassNumber xmlns:lcc="http://id.loc.gov/ontologies/lcc#">
+                                                <madsrdf:authoritativeLabel>Maps</madsrdf:authoritativeLabel>
+                                          </lcc:ClassNumber>
+                                          <lcc:ClassNumber xmlns:lcc="http://id.loc.gov/ontologies/lcc#">
+                                                <madsrdf:authoritativeLabel>By region or country</madsrdf:authoritativeLabel>
+                                          </lcc:ClassNumber>
+                                          <lcc:ClassNumber xmlns:lcc="http://id.loc.gov/ontologies/lcc#">
+                                                <madsrdf:authoritativeLabel>America. Western Hemisphere</madsrdf:authoritativeLabel>
+                                          </lcc:ClassNumber>
+                                          <lcc:ClassNumber xmlns:lcc="http://id.loc.gov/ontologies/lcc#">
+                                                <madsrdf:authoritativeLabel>North America</madsrdf:authoritativeLabel>
+                                          </lcc:ClassNumber>
+                                          <lcc:ClassNumber xmlns:lcc="http://id.loc.gov/ontologies/lcc#">
+                                                <madsrdf:authoritativeLabel>United States</madsrdf:authoritativeLabel>
+                                          </lcc:ClassNumber>
+                                          <lcc:ClassNumber xmlns:lcc="http://id.loc.gov/ontologies/lcc#">
+                                                <madsrdf:authoritativeLabel>Eastern United States, 1870 and later</madsrdf:authoritativeLabel>
+                                          </lcc:ClassNumber>
+                                          <lcc:ClassNumber xmlns:lcc="http://id.loc.gov/ontologies/lcc#">
+                                                <madsrdf:authoritativeLabel>Northeastern States</madsrdf:authoritativeLabel>
+                                          </lcc:ClassNumber>
+                                          <lcc:ClassNumber xmlns:lcc="http://id.loc.gov/ontologies/lcc#">
+                                                <madsrdf:authoritativeLabel>Northeast Atlantic States</madsrdf:authoritativeLabel>
+                                          </lcc:ClassNumber>
+                                          <lcc:ClassNumber xmlns:lcc="http://id.loc.gov/ontologies/lcc#">
+                                                <madsrdf:authoritativeLabel>Middle Atlantic States. Middle States</madsrdf:authoritativeLabel>
+                                          </lcc:ClassNumber>
+                                          <lcc:ClassNumber xmlns:lcc="http://id.loc.gov/ontologies/lcc#">
+                                                <madsrdf:authoritativeLabel>New York</madsrdf:authoritativeLabel>
+                                          </lcc:ClassNumber>
+                                          <lcc:ClassNumber xmlns:lcc="http://id.loc.gov/ontologies/lcc#">
+                                                <madsrdf:authoritativeLabel>Cities, towns, and urban townships, etc., A-Z</madsrdf:authoritativeLabel>
+                                          </lcc:ClassNumber>
+                                          <madsrdf:ClassNumber>
+                                                <madsrdf:authoritativeLabel>Lincoln Center for the Performing Arts [New York]</madsrdf:authoritativeLabel>
+                                          </madsrdf:ClassNumber>
+                                    </madsrdf:componentList>
+                              </bf:Place>
+                        </bf:place>
+                  </bf:Capture>
+            </bf:capture>
+            <bf:accompaniedBy>
+                  <bf:Work>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/resourceComponents/stx"/>
+                        <bf:language>
+                              <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/ger">
+                                    <rdfs:label xml:lang="en">German</rdfs:label>
+                              </bf:Language>
+                        </bf:language>
+                  </bf:Work>
+            </bf:accompaniedBy>
+            <bf:accompaniedBy>
+                  <bf:Work>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/resourceComponents/lib"/>
+                        <bf:language>
+                              <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                                    <rdfs:label xml:lang="en">English</rdfs:label>
+                              </bf:Language>
+                        </bf:language>
+                  </bf:Work>
+            </bf:accompaniedBy>
+            <bf:accompaniedBy>
+                  <bf:Work>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/resourceComponents/lib"/>
+                        <bf:language>
+                              <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/fre">
+                                    <rdfs:label xml:lang="en">French</rdfs:label>
+                              </bf:Language>
+                        </bf:language>
+                  </bf:Work>
+            </bf:accompaniedBy>
+            <bf:accompaniedBy>
+                  <bf:Work>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/resourceComponents/lib"/>
+                        <bf:language>
+                              <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/ger">
+                                    <rdfs:label xml:lang="en">German</rdfs:label>
+                              </bf:Language>
+                        </bf:language>
+                  </bf:Work>
+            </bf:accompaniedBy>
+            <bf:note>
+                  <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/resourceComponents/olb"/>
+                        <bf:language>
+                              <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/ger">
+                                    <rdfs:label xml:lang="en">German</rdfs:label>
+                              </bf:Language>
+                        </bf:language>
+                  </bf:Note>
+            </bf:note>
+            <bf:accompaniedBy>
+                  <bf:Work>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/resourceComponents/amt"/>
+                        <bf:language>
+                              <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                                    <rdfs:label xml:lang="en">English</rdfs:label>
+                              </bf:Language>
+                        </bf:language>
+                  </bf:Work>
+            </bf:accompaniedBy>
+            <bf:accompaniedBy>
+                  <bf:Work>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/resourceComponents/amt"/>
+                        <bf:language>
+                              <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/fre">
+                                    <rdfs:label xml:lang="en">French</rdfs:label>
+                              </bf:Language>
+                        </bf:language>
+                  </bf:Work>
+            </bf:accompaniedBy>
+            <bf:accompaniedBy>
+                  <bf:Work>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/resourceComponents/amt"/>
+                        <bf:language>
+                              <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/ger">
+                                    <rdfs:label xml:lang="en">German</rdfs:label>
+                              </bf:Language>
+                        </bf:language>
+                  </bf:Work>
+            </bf:accompaniedBy>
+            <bf:voice>
+                  <bf:MusicVoice>
+                        <bf:voiceType>voice</bf:voiceType>
+                        <rdfs:label>soprano</rdfs:label>
+                        <bf:count>1</bf:count>
+                        <bf:source>
+                              <bf:Source rdf:about="http://id.loc.gov/vocabulary/musiccodeschemes/marcmusperf">
+                                    <rdfs:label>MARC instruments and voices codes list</rdfs:label>
+                              </bf:Source>
+                        </bf:source>
+                  </bf:MusicVoice>
+            </bf:voice>
+            <bf:voice>
+                  <bf:MusicVoice>
+                        <bf:voiceType>voice</bf:voiceType>
+                        <rdfs:label>baritone</rdfs:label>
+                        <bf:count>1</bf:count>
+                        <bf:source>
+                              <bf:Source rdf:about="http://id.loc.gov/vocabulary/musiccodeschemes/marcmusperf">
+                                    <rdfs:label>MARC instruments and voices codes list</rdfs:label>
+                              </bf:Source>
+                        </bf:source>
+                  </bf:MusicVoice>
+            </bf:voice>
+            <bf:voice>
+                  <bf:MusicVoice>
+                        <bf:voiceType>chorus</bf:voiceType>
+                        <rdfs:label>mixed chorus</rdfs:label>
+                        <bf:source>
+                              <bf:Source rdf:about="http://id.loc.gov/vocabulary/musiccodeschemes/marcmusperf">
+                                    <rdfs:label>MARC instruments and voices codes list</rdfs:label>
+                              </bf:Source>
+                        </bf:source>
+                  </bf:MusicVoice>
+            </bf:voice>
+            <bf:ensemble>
+                  <bf:MusicEnsemble>
+                        <bf:ensembleType>instrumental</bf:ensembleType>
+                        <rdfs:label>orchestra</rdfs:label>
+                        <bf:source>
+                              <bf:Source rdf:about="http://id.loc.gov/vocabulary/musiccodeschemes/marcmusperf">
+                                    <rdfs:label>MARC instruments and voices codes list</rdfs:label>
+                              </bf:Source>
+                        </bf:source>
+                  </bf:MusicEnsemble>
+            </bf:ensemble>
+            <bf:classification>
+                  <bf:ClassificationLcc>
+                        <bf:classificationPortion>SDD 78068</bf:classificationPortion>
+                        <bf:assigner>
+                              <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                    <rdfs:label>United States, Library of Congress</rdfs:label>
+                              </bf:Organization>
+                        </bf:assigner>
+                        <bf:status>
+                              <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/uba">
+                                    <rdfs:label>used by assigner</rdfs:label>
+                              </bf:Status>
+                        </bf:status>
+                  </bf:ClassificationLcc>
+            </bf:classification>
+            <bf:classification>
+                  <bf:ClassificationDdc>
+                        <bf:classificationPortion>782.3238</bf:classificationPortion>
+                        <bf:source>
+                              <bf:Source>
+                                    <bf:code>20</bf:code>
+                              </bf:Source>
+                        </bf:source>
+                        <bf:edition>full</bf:edition>
+                  </bf:ClassificationDdc>
+            </bf:classification>
+            <bf:contribution>
+                  <bf:Contribution>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+                        <bf:agent>
+                              <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n79077221">
+                                    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                                    <rdfs:label>Brahms, Johannes, 1833-1897</rdfs:label>
+                                    <bflc:marcKey>1001 $aBrahms, Johannes,$d1833-1897</bflc:marcKey>
+                              </bf:Agent>
+                        </bf:agent>
+                        <bf:role>
+                              <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/cmp">
+                                    <rdfs:label>Composer</rdfs:label>
+                              </bf:Role>
+                        </bf:role>
+                  </bf:Contribution>
+            </bf:contribution>
+            <bf:title>
+                  <bf:Title>
+                        <bf:mainTitle>Ein deutsches Requiem</bf:mainTitle>
+                        <bflc:nonSortNum>4</bflc:nonSortNum>
+                  </bf:Title>
+            </bf:title>
+            <bf:content>
+                  <bf:Content rdf:about="http://id.loc.gov/vocabulary/contentTypes/prm">
+                        <rdfs:label>performed music</rdfs:label>
+                  </bf:Content>
+            </bf:content>
+            <bf:musicMedium>
+                  <bf:MusicMedium>
+                        <bflc:readMarc382>38201$bsoprano voice$n1$bbaritone voice$n1$amixed chorus$e1$aorchestra$e1$r2$t1$2lcmpt</bflc:readMarc382>
+                  </bf:MusicMedium>
+            </bf:musicMedium>
+            <bf:capture>
+                  <bf:Capture>
+                        <bf:date>1995 April</bf:date>
+                        <bf:note>
+                              <bf:Note>
+                                    <rdfs:label>Recorded at</rdfs:label>
+                              </bf:Note>
+                        </bf:note>
+                        <bf:place>
+                              <bf:Place>
+                                    <rdfs:label>Avery Fisher Hall, New York</rdfs:label>
+                              </bf:Place>
+                        </bf:place>
+                  </bf:Capture>
+            </bf:capture>
+            <bf:note>
+                  <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/lang"/>
+                        <rdfs:label>Sung in German. Includes libretto and program notes in German, English and French (35 pages).</rdfs:label>
+                  </bf:Note>
+            </bf:note>
+            <bf:tableOfContents>
+                  <bf:TableOfContents>
+                        <rdfs:label>Selig sind, die da Leid tragen (chorus) (8:59) -- Denn alles Fleisch, es ist wie Gras (chorus) (11:48) -- Herr, lehre doch mich (baritone, chorus) (8:32) -- Wie lieblich sind deine Wohnungen, Herr Zebaoth! (chorus) (4:17) -- Ihr habt nun Traurigkeit (soprano, chorus) (6:34) -- Denn wir haben hie keine bleibende Statt (baritone, chorus) (10:28) -- Selig sind die Toten, die in dem Herren sterben (chorus) (9:15).</rdfs:label>
+                  </bf:TableOfContents>
+            </bf:tableOfContents>
+            <bf:subject>
+                  <bf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh85112983">
+                        <rdfs:label xml:lang="en">Requiems</rdfs:label>
+                        <bflc:marcKey>150  $aRequiems</bflc:marcKey>
+                  </bf:Topic>
+            </bf:subject>
+            <bf:subject>
+                  <bf:Topic>
+                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Topic"/>
+                        <rdfs:label>Requiem</rdfs:label>
+                        <madsrdf:authoritativeLabel>Requiem</madsrdf:authoritativeLabel>
+                        <bflc:aap-normalized>requiem</bflc:aap-normalized>
+                        <bf:source>
+                              <bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/rvm">
+                                    <rdfs:label>Répertoire de vedettes-matière</rdfs:label>
+                              </bf:Source>
+                        </bf:source>
+                  </bf:Topic>
+            </bf:subject>
+            <bf:subject>
+                  <bf:Topic rdf:about="http://id.worldcat.org/fast/1095083">
+                        <bflc:marcKey>150  $aRequiems</bflc:marcKey>
+                        <madsrdf:authoritativeLabel>Requiems</madsrdf:authoritativeLabel>
+                  </bf:Topic>
+            </bf:subject>
+            <bf:genreForm>
+                  <bf:Topic rdf:about="http://id.worldcat.org/fast/1726720">
+                        <bflc:marcKey>155  $aRequiems</bflc:marcKey>
+                        <madsrdf:authoritativeLabel>Requiems</madsrdf:authoritativeLabel>
+                  </bf:Topic>
+            </bf:genreForm>
+            <bf:genreForm>
+                  <bf:GenreForm rdf:about="http://id.loc.gov/authorities/genreForms/gf2014027048">
+                        <rdfs:label xml:lang="en">Requiems</rdfs:label>
+                        <bflc:marcKey>155  $aRequiems</bflc:marcKey>
+                  </bf:GenreForm>
+            </bf:genreForm>
+            <bf:genreForm>
+                  <bf:GenreForm>
+                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#GenreForm"/>
+                        <madsrdf:authoritativeLabel>Requiem</madsrdf:authoritativeLabel>
+                        <bf:source>
+                              <madsrdf:Authority rdf:about="http://id.loc.gov/vocabulary/genreFormSchemes/rvmgf">
+                                    <rdfs:label>Thésaurus des descripteurs de genre/forme de l'Université Laval</rdfs:label>
+                              </madsrdf:Authority>
+                        </bf:source>
+                        <rdfs:label>Requiem</rdfs:label>
+                  </bf:GenreForm>
+            </bf:genreForm>
+            <bf:contribution>
+                  <bf:Contribution>
+                        <bf:agent>
+                              <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n89642186">
+                                    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                                    <rdfs:label>McNair, Sylvia (Soprano)</rdfs:label>
+                                    <bflc:marcKey>1001 $aMcNair, Sylvia$c(Soprano)</bflc:marcKey>
+                              </bf:Agent>
+                        </bf:agent>
+                        <bf:role>
+                              <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/sng">
+                                    <rdfs:label>Singer</rdfs:label>
+                              </bf:Role>
+                        </bf:role>
+                  </bf:Contribution>
+            </bf:contribution>
+            <bf:contribution>
+                  <bf:Contribution>
+                        <bf:agent>
+                              <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n81149286">
+                                    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                                    <rdfs:label>Hagegård, Håkan</rdfs:label>
+                                    <bflc:marcKey>1001 $aHagegård, Håkan</bflc:marcKey>
+                              </bf:Agent>
+                        </bf:agent>
+                        <bf:role>
+                              <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/sng">
+                                    <rdfs:label>Singer</rdfs:label>
+                              </bf:Role>
+                        </bf:role>
+                  </bf:Contribution>
+            </bf:contribution>
+            <bf:contribution>
+                  <bf:Contribution>
+                        <bf:agent>
+                              <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n82101516">
+                                    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                                    <rdfs:label>Masur, Kurt</rdfs:label>
+                                    <bflc:marcKey>1001 $aMasur, Kurt</bflc:marcKey>
+                              </bf:Agent>
+                        </bf:agent>
+                        <bf:role>
+                              <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/cnd">
+                                    <rdfs:label>Conductor</rdfs:label>
+                              </bf:Role>
+                        </bf:role>
+                  </bf:Contribution>
+            </bf:contribution>
+            <bf:contribution>
+                  <bf:Contribution>
+                        <bf:agent>
+                              <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/no91024075">
+                                    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                                    <rdfs:label>Westminster Symphonic Choir</rdfs:label>
+                                    <bflc:marcKey>11020$aWestminster Symphonic Choir</bflc:marcKey>
+                              </bf:Agent>
+                        </bf:agent>
+                        <bf:role>
+                              <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/sng">
+                                    <rdfs:label>Singer</rdfs:label>
+                              </bf:Role>
+                        </bf:role>
+                  </bf:Contribution>
+            </bf:contribution>
+            <bf:contribution>
+                  <bf:Contribution>
+                        <bf:agent>
+                              <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n81139912">
+                                    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                                    <rdfs:label>New York Philharmonic</rdfs:label>
+                                    <bflc:marcKey>1102 $aNew York Philharmonic</bflc:marcKey>
+                              </bf:Agent>
+                        </bf:agent>
+                        <bf:role>
+                              <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/itr">
+                                    <rdfs:label>Instrumentalist</rdfs:label>
+                              </bf:Role>
+                        </bf:role>
+                  </bf:Contribution>
+            </bf:contribution>
+            <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/works"/>
+            <bf:hasInstance rdf:resource="http://id.loc.gov/resources/instances/23704895"/>
+            <bf:adminMetadata>
+                  <bf:AdminMetadata>
+                        <bf:status>
+                              <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                                    <rdfs:label>new</rdfs:label>
+                              </bf:Status>
+                        </bf:status>
+                        <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2024-05-23</bf:date>
+                        <bf:agent>
+                              <bf:Agent>
+                                    <bf:code>JBL</bf:code>
+                              </bf:Agent>
+                        </bf:agent>
+                  </bf:AdminMetadata>
+            </bf:adminMetadata>
+            <bf:adminMetadata>
+                  <bf:AdminMetadata>
+                        <bf:status>
+                              <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                                    <rdfs:label>changed</rdfs:label>
+                              </bf:Status>
+                        </bf:status>
+                        <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-05-23T10:36:53</bf:date>
+                        <bf:descriptionModifier>
+                              <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                    <rdfs:label>United States, Library of Congress</rdfs:label>
+                              </bf:Organization>
+                        </bf:descriptionModifier>
+                  </bf:AdminMetadata>
+            </bf:adminMetadata>
+            <bf:adminMetadata>
+                  <bf:AdminMetadata>
+                        <bf:status>
+                              <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                                    <rdfs:label>changed</rdfs:label>
+                              </bf:Status>
+                        </bf:status>
+                        <bf:agent>
+                              <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                                    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                                    <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                              </bf:Agent>
+                        </bf:agent>
+                        <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.7.0"/>
+                        <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-08-29T16:17:00.429576-04:00</bf:date>
+                  </bf:AdminMetadata>
+            </bf:adminMetadata>
+            <bf:adminMetadata>
+                  <bf:AdminMetadata>
+                        <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-4-0/"/>
+                        <bflc:encodingLevel>
+                              <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/f">
+                                    <rdfs:label>full</rdfs:label>
+                              </bflc:EncodingLevel>
+                        </bflc:encodingLevel>
+                        <bf:descriptionConventions>
+                              <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+                                    <rdfs:label>ISBD: International standard bibliographic description</rdfs:label>
+                              </bf:DescriptionConventions>
+                        </bf:descriptionConventions>
+                        <bf:identifiedBy>
+                              <bf:Local>
+                                    <rdf:value>23704895</rdf:value>
+                                    <bf:assigner>
+                                          <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                                <rdfs:label>United States, Library of Congress</rdfs:label>
+                                          </bf:Organization>
+                                    </bf:assigner>
+                              </bf:Local>
+                        </bf:identifiedBy>
+                        <lclocal:d906>=906     $a 7 $b cbc $c copycat $d 2 $e ncip $f 20 $g y-soundrec</lclocal:d906>
+                        <lclocal:d925>=925  0  $a acquire $b 2 shelf copies $x policy default</lclocal:d925>
+                        <lclocal:d955>=955     $a qr06 2024-05-23 z-client $i qr06 2024-05-23</lclocal:d955>
+                        <bf:descriptionLanguage>
+                              <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                                    <rdfs:label xml:lang="en">English</rdfs:label>
+                              </bf:Language>
+                        </bf:descriptionLanguage>
+                        <bf:descriptionConventions>
+                              <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+                                    <rdfs:label>Resource description and access</rdfs:label>
+                              </bf:DescriptionConventions>
+                        </bf:descriptionConventions>
+                        <bflc:marcKey>040  $aJBL$beng$erda$cJBL$dOCL$dOCLCG$dTNF$dOCLCA$dOCLCQ$dOCLCA$dOCLCF$dOCLCO$dTJC$dOCL$dOCLCA$dCEF$dOCLCQ$dUWO$dOCLCO$dOCLCQ$dTJCBL$dOCLCQ$dOCLCO$dOCLCQ$dOCLCL$dDLC</bflc:marcKey>
+                        <bf:descriptionAuthentication>
+                              <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/lccopycat">
+                                    <rdfs:label>LC Copy Cataloging</rdfs:label>
+                              </bf:DescriptionAuthentication>
+                        </bf:descriptionAuthentication>
+                  </bf:AdminMetadata>
+            </bf:adminMetadata>
+      </bf:Work>
+      <bf:Instance rdf:about="http://id.loc.gov/resources/instances/23704895">
+            <bf:issuance>
+                  <bf:Issuance rdf:about="http://id.loc.gov/vocabulary/issuance/mono">
+                        <rdfs:label>single unit</rdfs:label>
+                  </bf:Issuance>
+            </bf:issuance>
+            <bf:soundCharacteristic>
+                  <bf:PlayingSpeed rdf:about="http://id.loc.gov/vocabulary/mplayspeed/f">
+                        <rdfs:label>1.4 m/s</rdfs:label>
+                  </bf:PlayingSpeed>
+            </bf:soundCharacteristic>
+            <bf:baseMaterial>
+                  <bf:BaseMaterial rdf:about="http://id.loc.gov/vocabulary/mmaterial/pla">
+                        <rdfs:label>plastic</rdfs:label>
+                  </bf:BaseMaterial>
+            </bf:baseMaterial>
+            <bf:baseMaterial>
+                  <bf:BaseMaterial rdf:about="http://id.loc.gov/vocabulary/mmaterial/mtl">
+                        <rdfs:label>metal</rdfs:label>
+                  </bf:BaseMaterial>
+            </bf:baseMaterial>
+            <bf:soundCharacteristic>
+                  <bf:CaptureStorage rdf:about="http://id.loc.gov/vocabulary/mcapturestorage/dist">
+                        <rdfs:label>Electrical capture, Digital storage</rdfs:label>
+                  </bf:CaptureStorage>
+            </bf:soundCharacteristic>
+            <bf:provisionActivity>
+                  <bf:ProvisionActivity>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Publication"/>
+                        <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">1995</bf:date>
+                        <bf:place>
+                              <bf:Place rdf:about="http://id.loc.gov/vocabulary/countries/gw">
+                                    <rdfs:label xml:lang="en">Germany</rdfs:label>
+                              </bf:Place>
+                        </bf:place>
+                        <bflc:simplePlace>Hamburg, Germany</bflc:simplePlace>
+                        <bflc:simpleAgent>Teldec</bflc:simpleAgent>
+                        <bflc:simpleDate>[1995]</bflc:simpleDate>
+                  </bf:ProvisionActivity>
+            </bf:provisionActivity>
+            <bf:publicationStatement>Hamburg, Germany: Teldec, [1995]</bf:publicationStatement>
+            <bf:copyrightDate rdf:datatype="http://id.loc.gov/datatypes/edtf">1995</bf:copyrightDate>
+            <bf:identifiedBy>
+                  <bf:Lccn>
+                        <rdf:value>  2024623510</rdf:value>
+                  </bf:Lccn>
+            </bf:identifiedBy>
+            <bf:identifiedBy>
+                  <bf:Upc>
+                        <rdf:value>745099841324</rdf:value>
+                  </bf:Upc>
+            </bf:identifiedBy>
+            <bf:identifiedBy>
+                  <bf:Upc>
+                        <rdf:value>4509984132</rdf:value>
+                  </bf:Upc>
+            </bf:identifiedBy>
+            <bf:identifiedBy>
+                  <bf:AudioIssueNumber>
+                        <rdf:value>4509-98413-2</rdf:value>
+                        <bf:assigner>
+                              <bf:Agent>
+                                    <rdfs:label>Teldec</rdfs:label>
+                              </bf:Agent>
+                        </bf:assigner>
+                  </bf:AudioIssueNumber>
+            </bf:identifiedBy>
+            <bf:identifiedBy>
+                  <bf:OclcNumber>
+                        <rdf:value>ocm34796414</rdf:value>
+                  </bf:OclcNumber>
+            </bf:identifiedBy>
+            <bf:responsibilityStatement>Johannes Brahms</bf:responsibilityStatement>
+            <bf:title>
+                  <bf:Title>
+                        <bf:mainTitle>Ein deutsches Requiem</bf:mainTitle>
+                        <bf:subtitle>op. 45</bf:subtitle>
+                        <bflc:nonSortNum>4</bflc:nonSortNum>
+                  </bf:Title>
+            </bf:title>
+            <bf:extent>
+                  <bf:Extent>
+                        <rdfs:label>1 audio disc (60 min., 19 sec.)</rdfs:label>
+                  </bf:Extent>
+            </bf:extent>
+            <bf:dimensions>4 3/4 in</bf:dimensions>
+            <bf:duration rdf:datatype="http://www.w3.org/2001/XMLSchema#duration">010019</bf:duration>
+            <bf:media>
+                  <bf:Media rdf:about="http://id.loc.gov/vocabulary/mediaTypes/s">
+                        <rdfs:label>audio</rdfs:label>
+                  </bf:Media>
+            </bf:media>
+            <bf:carrier>
+                  <bf:Carrier rdf:about="http://id.loc.gov/vocabulary/carriers/sd">
+                        <rdfs:label>audio disc</rdfs:label>
+                  </bf:Carrier>
+            </bf:carrier>
+            <bf:soundCharacteristic>
+                  <bf:RecordingMethod rdf:about="http://id.loc.gov/vocabulary/mrectype/digital">
+                        <rdfs:label>digital</rdfs:label>
+                  </bf:RecordingMethod>
+            </bf:soundCharacteristic>
+            <bf:soundCharacteristic>
+                  <bf:RecordingMedium rdf:about="http://id.loc.gov/vocabulary/mrecmedium/opt">
+                        <rdfs:label>optical</rdfs:label>
+                  </bf:RecordingMedium>
+            </bf:soundCharacteristic>
+            <bf:soundCharacteristic>
+                  <bf:PlayingSpeed>
+                        <rdfs:label>1.4 m/s</rdfs:label>
+                  </bf:PlayingSpeed>
+            </bf:soundCharacteristic>
+            <bf:soundCharacteristic>
+                  <bf:PlaybackChannels rdf:about="http://id.loc.gov/vocabulary/mplayback/ste">
+                        <rdfs:label>stereo</rdfs:label>
+                  </bf:PlaybackChannels>
+            </bf:soundCharacteristic>
+            <bf:digitalCharacteristic>
+                  <bf:FileType rdf:about="http://id.loc.gov/vocabulary/mfiletype/audio">
+                        <rdfs:label>audio file</rdfs:label>
+                  </bf:FileType>
+            </bf:digitalCharacteristic>
+            <bf:digitalCharacteristic>
+                  <bf:EncodingFormat rdf:about="http://id.loc.gov/vocabulary/mencformat/cda">
+                        <rdfs:label>CD audio</rdfs:label>
+                  </bf:EncodingFormat>
+            </bf:digitalCharacteristic>
+            <bf:note>
+                  <bf:Note>
+                        <rdfs:label>Title from disc label.</rdfs:label>
+                  </bf:Note>
+            </bf:note>
+            <bf:credits>Sylvia McNair, soprano ; Håkan Hagegård, baritone ; Westminster Symphonic Choir ; New York Philharmonic ; Kurt Masur, conductor.</bf:credits>
+            <bf:note>
+                  <bf:Note>
+                        <rdfs:label>Program notes by Carmen Debryn in German, English, and French, notes on the performers, and libretto with English and French translations (35 pages : illustrations) inserted in container.</rdfs:label>
+                  </bf:Note>
+            </bf:note>
+            <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/instances"/>
+            <bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/23704895"/>
+            <bf:adminMetadata>
+                  <bf:AdminMetadata>
+                        <bf:status>
+                              <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                                    <rdfs:label>new</rdfs:label>
+                              </bf:Status>
+                        </bf:status>
+                        <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2024-05-23</bf:date>
+                        <bf:agent>
+                              <bf:Agent>
+                                    <bf:code>JBL</bf:code>
+                              </bf:Agent>
+                        </bf:agent>
+                  </bf:AdminMetadata>
+            </bf:adminMetadata>
+            <bf:adminMetadata>
+                  <bf:AdminMetadata>
+                        <bf:status>
+                              <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                                    <rdfs:label>changed</rdfs:label>
+                              </bf:Status>
+                        </bf:status>
+                        <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-05-23T10:36:53</bf:date>
+                        <bf:descriptionModifier>
+                              <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                    <rdfs:label>United States, Library of Congress</rdfs:label>
+                              </bf:Organization>
+                        </bf:descriptionModifier>
+                  </bf:AdminMetadata>
+            </bf:adminMetadata>
+            <bf:adminMetadata>
+                  <bf:AdminMetadata>
+                        <bf:status>
+                              <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                                    <rdfs:label>changed</rdfs:label>
+                              </bf:Status>
+                        </bf:status>
+                        <bf:agent>
+                              <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                                    <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                                    <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                              </bf:Agent>
+                        </bf:agent>
+                        <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.7.0"/>
+                        <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-08-29T16:17:00.429576-04:00</bf:date>
+                  </bf:AdminMetadata>
+            </bf:adminMetadata>
+            <bf:adminMetadata>
+                  <bf:AdminMetadata>
+                        <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-4-0/"/>
+                        <bflc:encodingLevel>
+                              <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/f">
+                                    <rdfs:label>full</rdfs:label>
+                              </bflc:EncodingLevel>
+                        </bflc:encodingLevel>
+                        <bf:descriptionConventions>
+                              <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+                                    <rdfs:label>ISBD: International standard bibliographic description</rdfs:label>
+                              </bf:DescriptionConventions>
+                        </bf:descriptionConventions>
+                        <bf:identifiedBy>
+                              <bf:Local>
+                                    <rdf:value>23704895</rdf:value>
+                                    <bf:assigner>
+                                          <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                                <rdfs:label>United States, Library of Congress</rdfs:label>
+                                          </bf:Organization>
+                                    </bf:assigner>
+                              </bf:Local>
+                        </bf:identifiedBy>
+                        <lclocal:d906>=906     $a 7 $b cbc $c copycat $d 2 $e ncip $f 20 $g y-soundrec</lclocal:d906>
+                        <lclocal:d925>=925  0  $a acquire $b 2 shelf copies $x policy default</lclocal:d925>
+                        <lclocal:d955>=955     $a qr06 2024-05-23 z-client $i qr06 2024-05-23</lclocal:d955>
+                        <bf:descriptionLanguage>
+                              <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                                    <rdfs:label xml:lang="en">English</rdfs:label>
+                              </bf:Language>
+                        </bf:descriptionLanguage>
+                        <bf:descriptionConventions>
+                              <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+                                    <rdfs:label>Resource description and access</rdfs:label>
+                              </bf:DescriptionConventions>
+                        </bf:descriptionConventions>
+                        <bflc:marcKey>040  $aJBL$beng$erda$cJBL$dOCL$dOCLCG$dTNF$dOCLCA$dOCLCQ$dOCLCA$dOCLCF$dOCLCO$dTJC$dOCL$dOCLCA$dCEF$dOCLCQ$dUWO$dOCLCO$dOCLCQ$dTJCBL$dOCLCQ$dOCLCO$dOCLCQ$dOCLCL$dDLC</bflc:marcKey>
+                        <bf:descriptionAuthentication>
+                              <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/lccopycat">
+                                    <rdfs:label>LC Copy Cataloging</rdfs:label>
+                              </bf:DescriptionAuthentication>
+                        </bf:descriptionAuthentication>
+                  </bf:AdminMetadata>
+            </bf:adminMetadata>
+      </bf:Instance>
+</rdf:RDF>
