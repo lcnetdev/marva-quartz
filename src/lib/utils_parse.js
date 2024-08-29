@@ -328,7 +328,6 @@ const utilsParse = {
       }
 
 
-
       //let rdftype = xml.getElementsByTagName('rdf:type')
       for (let child of xml.children){
         if (child.tagName == 'rdf:type'){
@@ -885,7 +884,6 @@ const utilsParse = {
                     for (let ggChild of gChild.children){
 
 
-
                       // if its a bnode then loop through the children,
                       if (this.isClass(ggChild.tagName)){
 
@@ -1053,12 +1051,7 @@ const utilsParse = {
 
                                 // now loop through this bnodes descendants
                                 for (let gggggChild of ggggChild.children){
-
-
-
                                   if (this.UriNamespace(gggggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
-
-
                                     if (gggggChild.attributes && gggggChild.attributes['rdf:about']){
                                       gggData['@type'] = gggggChild.attributes['rdf:about'].value
                                     }else if (gggggChild.attributes && gggggChild.attributes['rdf:resource']){
@@ -1106,10 +1099,7 @@ const utilsParse = {
                                         if (gggggChild.attributes && gggggChild.attributes['rdf:parseType']){
                                           ggggChildData['@parseType'] = gggggChild.attributes['rdf:parseType'].value
                                         }
-
-
                                       }
-
                                       gggData[gggggChildProperty].push(ggggChildData)
 
 
@@ -1300,6 +1290,7 @@ const utilsParse = {
 
 
                                 let ggggChildProperty = this.UriNamespace(ggggChild.tagName)
+
 
                                 if (!gggData[ggggChildProperty]){
                                   gggData[ggggChildProperty] = []
