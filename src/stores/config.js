@@ -13,7 +13,7 @@ export const useConfigStore = defineStore('config', {
       dev:{
 
         ldpjs : 'http://localhost:9401/api-staging/',
-        //util  : 'http://localhost:9401/util/',
+        // util  : 'http://localhost:9401/util/',
         util  : 'http://localhost:5200/',
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
@@ -217,11 +217,15 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2024591512',label:"The Berkshires, Massachusetts discovery map 2022-2023", idUrl:'https://id.loc.gov/resources/instances/23486403.html', profile:'Cartographic',profileId:'lc:RT:bf2:Cartographic:Instance'},
     {lccn:'2016627557',label:"Wallflower", idUrl:'https://id.loc.gov/resources/instances/2016627557.html', profile:'Audio CD',profileId:'lc:RT:bf2:SoundRecording:Instance'},
+    {lccn:'2024623510',label:"Ein deutsches Requiem", idUrl:'https://id.loc.gov/resources/instances/23704895.html', profile:'Audio CD',profileId:'lc:RT:bf2:SoundRecording:Instance'},
 
     {lccn:'2023602524',label:"Bones and all", idUrl:'https://id.loc.gov/resources/instances/23150570.html', profile:'Moving Image: BluRay DVD',profileId:'lc:RT:bf2:MIBluRayDVD:Instance'},
     {lccn:'2005264032',label:"Business week", idUrl:'https://id.loc.gov/resources/instances/11138862.html', profile:'Serial',profileId:'lc:RT:bf2:Serial:Instance'},
 
 
+
+
+    
 
 
   ],
