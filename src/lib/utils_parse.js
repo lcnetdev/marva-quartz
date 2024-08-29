@@ -328,7 +328,6 @@ const utilsParse = {
       }
 
 
-      console.info("xml: ", xml)
       //let rdftype = xml.getElementsByTagName('rdf:type')
       for (let child of xml.children){
         if (child.tagName == 'rdf:type'){
@@ -1046,7 +1045,7 @@ const utilsParse = {
                                 }else if (ggggChild.attributes && ggggChild.attributes['rdf:resource']){
                                   gggData['@id'] = this.extractURI(ggggChild.attributes['rdf:resource'].value)
                                 }else{
-                                  // console.log('No URI for this child property')e)
+                                  // console.log('No URI for this child property')
                                 }
 
 
