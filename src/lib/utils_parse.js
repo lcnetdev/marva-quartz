@@ -49,7 +49,10 @@ const utilsParse = {
     if (uri.match(/lclocal:[A-Z]/)){
       return true
     }
-
+    if (uri.match(/lcc:[A-Z]/)){
+      return true
+    }
+    
     // for (let nsKey of Object.keys(this.namespace)){
 
     //  let pattern = `${nsKey}:[A-Z]/`
