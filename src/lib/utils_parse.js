@@ -513,9 +513,10 @@ const utilsParse = {
 
 
         if (el.length>0){
-
-          // console.log("Putting ", el)
-          // console.log("Into ", ptk)
+          console.log('------')
+          console.log(prefixURI)
+          console.log("Putting ", el)
+          console.log("Into ", ptk)
 
           // we have that element
           sucessfulProperties.push(prefixURI)
@@ -1457,8 +1458,8 @@ const utilsParse = {
 
             // do a little sanity check here, loop through and
             userValue = this.removeEmptyBnodes(userValue)
-
-
+            
+            
 
             counter++
 
