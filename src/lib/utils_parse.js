@@ -188,12 +188,37 @@ const utilsParse = {
     if (window.DOMParser){
       let parser = new DOMParser();
 
-      this.activeDom = parser.parseFromString(xml, "text/xml");
-      this.testDom = parser.parseFromString(xml, "text/xml");
+
+      // this.activeDom = parser.parseFromString(xml, 'application/xml');
+      // var xsltDoc = new DOMParser().parseFromString([
+      //     // describes how we want to modify the XML - indent everything
+      //     '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">',
+      //     '  <xsl:strip-space elements="*"/>',
+      //     '  <xsl:template match="para[content-style][not(text())]">', // change to just text() to strip space in text nodes
+      //     '    <xsl:value-of select="normalize-space(.)"/>',
+      //     '  </xsl:template>',
+      //     '  <xsl:template match="node()|@*">',
+      //     '    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
+      //     '  </xsl:template>',
+      //     '  <xsl:output indent="yes"/>',
+      //     '</xsl:stylesheet>',
+      // ].join('\n'), 'application/xml');
+
+      // var xsltProcessor = new XSLTProcessor();    
+      // xsltProcessor.importStylesheet(xsltDoc);
+      // var resultDoc = xsltProcessor.transformToDocument(this.activeDom);
+      // var resultXml = new XMLSerializer().serializeToString(resultDoc);
+      // xml = resultXml
+
+
+      // xml = xml.replace(/(<\/?.*?>)/g, '$1\n');
+      
+      this.activeDom = parser.parseFromString(xml, 'application/xml');
+      this.testDom = parser.parseFromString(xml, 'application/xml');
+
 
       let root = this.activeDom.getElementsByTagName('rdf:RDF')
       if (root.length > 0){ root = root[0]}
-
 
 
       this.hasInstance = 0
@@ -269,7 +294,6 @@ const utilsParse = {
       profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
     });
 
-
     for (const pkey in profile.rt) {
 
       let tle = ""
@@ -296,7 +320,6 @@ const utilsParse = {
 
       // only return the top level, no nested related things
       xml = this.returnOneWhereParentIs(xml, "rdf:RDF")
-
 
       if (xml === false && tle == 'bf:Hub'){
         tle = "bf:Work"
@@ -414,8 +437,6 @@ const utilsParse = {
         profile.rt[pkey].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
 
       }
-
-
       // some more optional xml enrichment here to help the process
       // first try to give hints to which PT to use based on some rules we are using at LC
       if (tle == "bf:Work"){
@@ -444,10 +465,21 @@ const utilsParse = {
         let propertyURI = ptk.propertyURI
         let prefixURI = this.namespaceUri(propertyURI)
 
+        // console.log("------xml--------Before  ",propertyURI)
+        // // console.log((new XMLSerializer()).serializeToString(xml))
+        // console.log(((new XMLSerializer()).serializeToString(xml).match(/German/g) || []).length)
+        // console.log((new XMLSerializer()).serializeToString(xml))
+
+
+
         // we only want top level elements, not nested things like dupe notes etc.
         let el = []
         for (let e of xml.children){
+
+
           if (this.UriNamespace(e.tagName) == propertyURI){
+
+
             // if it has a hint then we need to check if we can find the right pt for it
             if (e.attributes['local:pthint'] && e.attributes['local:pthint'].value){
               // check to see if this pt has that hint value in the valueConstraint  valueTemplateRefs
@@ -513,10 +545,10 @@ const utilsParse = {
 
 
         if (el.length>0){
-          console.log('------')
-          console.log(prefixURI)
-          console.log("Putting ", el)
-          console.log("Into ", ptk)
+          // console.log('------')
+          // console.log(prefixURI)
+          // console.log("Putting ", el)
+          // console.log("Into ", ptk)
 
           // we have that element
           sucessfulProperties.push(prefixURI)
@@ -528,6 +560,9 @@ const utilsParse = {
           // loop through all of them
           let counter = 0
           for (let e of el){
+            // console.log("------------")
+            // console.log(e.innerHTML)
+            // console.log((new XMLSerializer()).serializeToString(e))
 
             // some special checks here first
             // differentiate between creator and contributor
@@ -1476,7 +1511,12 @@ const utilsParse = {
           for (let step = els.length-1; step >= 0; step=step-1) {
 
             if (sucessfulElements.indexOf(els[step].outerHTML)> -1){
-              els[step].remove()
+
+
+              // make sure we are about to remove a property node that is the child of the main bf:Work/bf:Instance etc.. don't delete nested things
+              if (xml === els[step].parentNode){
+                els[step].remove()
+              }
             }
           }
         }
