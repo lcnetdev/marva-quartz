@@ -2978,8 +2978,6 @@ export const useProfileStore = defineStore('profile', {
         actionTarget = "Instance"
       } else if (structure.parentId.includes("Work")) {
         actionTarget = "Work"
-      } else {
-        console.error("Don't know how to handle: ", structure.parentId)
       }
 
       if (pt !== false){
@@ -2987,7 +2985,8 @@ export const useProfileStore = defineStore('profile', {
         let propertyPosition
         for (let r of this.activeProfile.rtOrder){
           propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
-          if (propertyPosition != -1 && r.includes(actionTarget)){
+
+          if (propertyPosition != -1 && (r.includes(actionTarget) || actionTarget == null)){
             profile = r
             break
           }
