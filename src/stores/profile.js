@@ -1805,7 +1805,6 @@ export const useProfileStore = defineStore('profile', {
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
-        console.log("blankNode === ",blankNode, fieldGuid)
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
@@ -2007,6 +2006,15 @@ export const useProfileStore = defineStore('profile', {
                     "@guid": short.generate(),
                     "http://www.w3.org/2000/01/rdf-schema#label": subjectComponents[0].label
                 }]
+
+                if (subjectComponents[0].marcKey){
+                  currentUserValuePos["http://id.loc.gov/ontologies/bflc/marcKey"] = [{
+                    "@guid": short.generate(),
+                    "http://id.loc.gov/ontologies/bflc/marcKey": subjectComponents[0].marcKey
+                  }]
+
+                }
+                
 
                 // store.state.activeUndoLog.push(`Added subject heading ${subjectComponents[0].label}`)
 

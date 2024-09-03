@@ -1796,19 +1796,20 @@ const utilsNetwork = {
 
           marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
         }
-
         let marcKeyPromisesResults = await Promise.all(marcKeyPromises);
         for (let marcKeyResult of marcKeyPromisesResults){
-
           for (let r of result.hit){
             if (r.uri == marcKeyResult.uri){
               r.marcKey = marcKeyResult.marcKey
             }
           }
-
         }
+      }else if (result.hit && result.resultType == 'COMPLEX') {
+        // if they are adding a complex value still need to lookup the marc key
+        let marcKeyResult = await this.returnMARCKey(result.hit.uri + '.madsrdf_raw.jsonld')
+        result.hit.marcKey = marcKeyResult.marcKey        
       }
-      console.log("result",result)
+      // console.log("result",result)
       return result
     },
 

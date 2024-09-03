@@ -142,19 +142,18 @@
 
         
         <template v-if="configStore.useSubjectEditor.includes(structure.propertyURI)">
-          <div class="marc-deliminated-lcsh-mode-container" v-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.hit">
 
-
-            
+          <div class="marc-deliminated-lcsh-mode-container" v-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.hit && Array.isArray(marcDeliminatedLCSHModeResults.hit)">
             <template v-for="heading in marcDeliminatedLCSHModeResults.hit">
               <span v-if="heading.literal==false" class="marc-deliminated-lcsh-mode-entity"> <span class="material-icons marc-deliminated-lcsh-mode-icon">check_circle</span> <a :href="heading.uri" target="_blank">{{ heading.label }}</a></span>
               <span v-if="heading.literal==true" class="marc-deliminated-lcsh-mode-entity"> <span class="material-icons marc-deliminated-lcsh-mode-icon-warning">warning</span> {{ heading.label }} </span>
-
-              
             </template>
-
-            
           </div>
+          
+          <div class="marc-deliminated-lcsh-mode-container" v-else-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.resultType == 'COMPLEX'">
+            <span class="marc-deliminated-lcsh-mode-entity"> <span class="material-icons marc-deliminated-lcsh-mode-icon">check_circle</span> <a :href="marcDeliminatedLCSHModeResults.hit.uri" target="_blank">{{ marcDeliminatedLCSHModeResults.hit.label }}</a></span>
+          </div>
+
           <div class="marc-deliminated-lcsh-mode-container" v-else-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.resultType == 'ERROR'">
 
             <span v-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.resultType == 'ERROR'">
@@ -614,6 +613,7 @@ export default {
                     literal: false,
                     posEnd: 0,
                     posStart: 0,
+                    marcKey: this.marcDeliminatedLCSHModeResults.hit.marcKey,
                     type:  "madsrdf:Topic",
                     uri: this.marcDeliminatedLCSHModeResults.hit.uri
                   })
