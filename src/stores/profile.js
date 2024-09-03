@@ -1950,7 +1950,7 @@ export const useProfileStore = defineStore('profile', {
                     currentUserValuePos[p.propertyURI] = []
                 }
 
-                let thisLevelType = utilsRDF.suggestTypeProfile(p.propertyURI,pt)   
+                let thisLevelType = utilsRDF.suggestTypeProfile(p.propertyURI,pt)
                 if (thisLevelType === false){
                   // did not find it in the profile, look to the network
                   thisLevelType = await utilsRDF.suggestTypeNetwork(p.propertyURI)
@@ -2971,20 +2971,26 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     duplicateComponent: async function(componentGuid, structure){
-
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
+      //Ensure that the component is going to the right place by checking the structure.parentID
+      let actionTarget = null
+      if (structure.parentId.includes("Instance")) {
+        actionTarget = "Instance"
+      } else if (structure.parentId.includes("Work")) {
+        actionTarget = "Work"
+      }
+
       if (pt !== false){
-
-
         let profile
         let propertyPosition
         for (let r of this.activeProfile.rtOrder){
           propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
-          if (propertyPosition != -1){
+
+          if (propertyPosition != -1 && (r.includes(actionTarget) || actionTarget == null)){
             profile = r
             break
           }
@@ -3028,15 +3034,10 @@ export const useProfileStore = defineStore('profile', {
 
 
           // we also want to add any default values in if it is just a empty new property and not duping
-
           let idPropertyId = newPt.propertyURI
-
           let baseURI = newPt.propertyURI
-
-
           // let defaults = null
           let defaultsProperty
-
 
           let useProfile = profile
           // if the profile is a multiple, like lc:RT:bf2:Monograph:Item-0 split off the -0 for it to find it in the RT lookup
@@ -3053,14 +3054,8 @@ export const useProfileStore = defineStore('profile', {
 
               }
           }
-
-
-
-
         }else{
-
           // doesn't support duplicating components yet
-
         }
 
 
