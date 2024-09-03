@@ -586,7 +586,7 @@ export default {
         
 
 
-        console.log(this.searchValue)
+        
         
           
           if (this.searchValue.match(/[$‡|]/)){
@@ -594,11 +594,11 @@ export default {
             window.clearTimeout(this.marcDeliminatedLCSHModeTimeout)  
             this.marcDeliminatedLCSHModeSearching = true
             this.marcDeliminatedLCSHModeResults = {}
-            
+
             this.marcDeliminatedLCSHModeTimeout = window.setTimeout(async ()=>{
 
               this.marcDeliminatedLCSHMode = true
-              console.log('do lcsh',this.searchValue)
+              
 
               
               this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue)
@@ -627,6 +627,7 @@ export default {
                       literal: v.literal,
                       posEnd: 0,
                       posStart: 0,
+                      marcKey: v.marcKey,
                       type: v.heading.rdfType.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:'),
                       uri: v.uri
                     })
@@ -635,9 +636,9 @@ export default {
 
 
 
-                console.log(this.marcDeliminatedLCSHModeResults)
+                // console.log(this.marcDeliminatedLCSHModeResults)
                 this.subjectAdded(sendResults)
-                console.log(sendResults)
+                // console.log(sendResults)
               }
 
 
@@ -689,7 +690,6 @@ export default {
 
 
     subjectAdded: function(components){
-
       this.profileStore.setValueSubject(this.guid,components,this.propertyPath)
       this.hideSubjectModal()
       // this.profileStore.setComplexSubjectValue(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)

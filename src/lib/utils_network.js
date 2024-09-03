@@ -295,8 +295,8 @@ const utilsNetwork = {
 
         let urlTemplate = searchPayload.url
 
-        console.log("######################################")
-        console.log("url ", urlTemplate)
+        // console.log("######################################")
+        // console.log("url ", urlTemplate)
 
         if (!Array.isArray(urlTemplate)){
             urlTemplate=[urlTemplate]
@@ -1153,7 +1153,7 @@ const utilsNetwork = {
         result.msg = 'REGEX Error: That value doesn\'t look like a valid MARC encoded LCSH string (not string)'
       }
 
-      lcsh=lcsh.replace(/\$c/g,'').replace(/\$d/g,'').replace(/‡c/g,'').replace(/‡d/g,'').replace(/\s{2,}/g, ' ')
+      lcsh=lcsh.replace(/\$c/g,'').replace(/\$d/g,'').replace(/\|c/g,'').replace(/\|d/g,'').replace(/‡c/g,'').replace(/‡d/g,'').replace(/\s{2,}/g, ' ')
 
       // if it doesn't have a $a or ‡a in the start of the string add it
       // often times copying from a system they dont include the $a
@@ -1779,6 +1779,8 @@ const utilsNetwork = {
       }
 
 
+      let marcKeyPromises = []
+
       // we want to double check the rdfType heading to make sure if we need to ask id to get more clarity about the rdfType
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
@@ -1789,9 +1791,24 @@ const utilsNetwork = {
               r.heading.rdfType = responseUri
             }
           }
+
+          // also we need the MARCKeys 
+
+          marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
+        }
+
+        let marcKeyPromisesResults = await Promise.all(marcKeyPromises);
+        for (let marcKeyResult of marcKeyPromisesResults){
+
+          for (let r of result.hit){
+            if (r.uri == marcKeyResult.uri){
+              r.marcKey = marcKeyResult.marcKey
+            }
+          }
+
         }
       }
-      // console.log("result",result)
+      console.log("result",result)
       return result
     },
 
@@ -1856,6 +1873,62 @@ const utilsNetwork = {
                 else if(type == 'http://www.loc.gov/mads/rdf/v1#Title'){ return 'http://www.loc.gov/mads/rdf/v1#Title'}
                 else if(type == 'http://www.loc.gov/mads/rdf/v1#Topic'){ return 'http://www.loc.gov/mads/rdf/v1#Topic'}
                 else if(type == 'http://www.loc.gov/mads/rdf/v1#SimpleType'){ return 'http://www.loc.gov/mads/rdf/v1#SimpleType'}
+              }
+            }
+          }
+        }
+      }
+
+      return false
+
+    },
+
+    /**
+    * Send the URI it returns the MARC Key, mostly used for authoirties/names uris from id.loc.gov
+    * @async
+    * @param {string} uri - the URI to the authority we want to find the RDF type for
+    * @return {string} - The URI of the likely MADSRDF rdf type
+    */
+    returnMARCKey: async function(uri){
+
+      uri=uri.trim()
+      let uriToLookFor = uri
+
+      // just clean up the URI a little we are probably asking for a id.loc.gov authority url
+      if (uri.indexOf('id.loc.gov')>-1){
+
+        // most uris in the id.loc.gov dataset do not have https in the data uris
+        uriToLookFor = uriToLookFor.replace('https://','http://')
+
+        uriToLookFor = uriToLookFor.replace('.madsrdf_raw.jsonld','')
+
+        // any trailing slashers
+        if (uri[uri.length-1] === '/'){
+          uri = uri.slice(0,-2)
+        }
+
+        uri=uri.replace('.html','.json')
+
+        // add in the filetype for the request if not yet
+        if (uri.indexOf('.json')===-1){
+          uri=uri+'.json'
+        }
+      }
+
+      let data = await this.fetchSimpleLookup(uri,true)
+
+      if (uri.indexOf('id.loc.gov')>-1){
+
+        for (let d of data){
+
+          // loop through the graphs
+          if (d && d['@id'] && d['@id'] == uriToLookFor){
+            // this is the right graph
+            if (d['http://id.loc.gov/ontologies/bflc/marcKey']){
+              for (let marcKey of d['http://id.loc.gov/ontologies/bflc/marcKey']){
+                if (marcKey['@value']){
+                  return {marcKey: marcKey['@value'], uri: uriToLookFor}
+                }
               }
             }
           }
