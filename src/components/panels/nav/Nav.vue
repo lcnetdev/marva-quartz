@@ -237,7 +237,8 @@
               click: () => {
                 this.showPostModal = true;
                 this.$nextTick(()=>{
-                  this.$refs.postmodal.post()
+                  this.$refs.postmodal.post();
+                  this.profileStore.saveRecord()
                 })
               }
             }
