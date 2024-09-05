@@ -180,14 +180,13 @@ export const usePreferenceStore = defineStore('preference', {
       //     range: [true,false]
       // },
 
-      // preview - opac
-
+      // All previews -- wording used to suggest this only affects OPAC preview, but really changes all previews
       '--c-edit-main-splitpane-opac-background-color' : {
           value:'#f2f2f2',
-          desc: 'The background color of the opac side bar on the edit screen.',
+          desc: 'The background color of the preview side bars on the edit screen.',
           descShort: 'Background Color',
           type: 'color',
-          group: 'Sidebars - OPAC',
+          group: 'Sidebars - Previews',
           range: null
         },
       '--c-edit-main-splitpane-opac-highlight-background-color' : {
@@ -195,7 +194,7 @@ export const usePreferenceStore = defineStore('preference', {
           desc: 'The background color of the field when selected or hovered.',
           descShort: 'Highlight Color',
           type: 'color',
-          group: 'Sidebars - OPAC',
+          group: 'Sidebars - Previews',
           range: null
        },
 
@@ -205,44 +204,44 @@ export const usePreferenceStore = defineStore('preference', {
           value: 5,
           type: 'number',
           step: 1,
-          group: 'Sidebars - OPAC',
+          group: 'Sidebars - Previews',
           range: [5,100]
       },
 
       '--n-edit-main-splitpane-opac-font-size' : {
-          desc: 'The fontsize of the text in the opac view side bar.',
+          desc: 'The fontsize of the text in the preview view side bars.',
           descShort: 'Font Size',
           value: 1,
           step: 0.01,
           type: 'number',
           unit: 'em',
-          group: 'Sidebars - OPAC',
+          group: 'Sidebars - Previews',
           range: [1,2]
       },
       '--c-edit-main-splitpane-opac-font-family' : {
           value:'Avenir, Helvetica, Arial, sans-serif',
-          desc: 'The font of the text in the opac view.',
+          desc: 'The font of the text in the preiveiws.',
           descShort: 'Font',
           type: 'font',
-          group: 'Sidebars - OPAC',
+          group: 'Sidebars - Previews',
           range: null
       },
 
       '--c-edit-main-splitpane-opac-font-color' : {
           value:'#202124',
-          desc: 'The font color of the text in the opac view.',
+          desc: 'The font color of the text in the previews.',
           descShort: 'Text Color',
           type: 'color',
-          group: 'Sidebars - OPAC',
+          group: 'Sidebars - Previews',
           range: null
       },
       '--b-edit-main-splitpane-opac-no-scrollbar' : {
-          desc: 'Do not display a scroll bar in the opac preview side panel.',
+          desc: 'Do not display a scroll bar in the preview side panels.',
           descShort: 'No Scrollbar',
           value: true,
           type: 'boolean',
           unit: null,
-          group: 'Sidebars - OPAC',
+          group: 'Sidebars - Previews',
           range: [true,false]
       },
 

@@ -298,26 +298,26 @@
 .edit-main-splitpane-properties{
     height: 100%;
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-background-color')") !important;
-    overflow-y: scroll;
+    overflow: scroll;
 }
 
 .edit-main-splitpane-opac{
     height: 100%;
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')") !important;
 
-    overflow-y: scroll;
+    overflow: scroll;
 }
 .edit-main-splitpane-xml{
     height: 100%;
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')") !important;
 
-    overflow-y: scroll;
+    overflow: scroll;
 }
 .edit-main-splitpane-marc{
     height: 100%;
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')") !important;
 
-    overflow-y: scroll;
+    overflow: scroll;
 }
 
 
