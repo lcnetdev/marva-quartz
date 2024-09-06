@@ -41,6 +41,8 @@ const returnDOMParser = function(){
 
 const utilsExport = {
 
+  lastGoodXMLBuildProfile: null,
+
   // all the namespaces are stored in the utils_rdf
   namespace: utilsRDF.namespace,
 
@@ -302,14 +304,49 @@ const utilsExport = {
 
 
 
+  /**
+  *
+  *
+  * @param {object} profile - the profile to convert to XML
+  * @return {boolean}
+  */
+  buildXML: async function(profile){
+
+	
+	// if we are in dev mode let the error bubble, but otherwise catch the error and try to recover
+	if (useConfigStore().returnUrls.dev === false){
+
+		return await this.buildXMLProcess(profile)
+
+	}else{
+
+		try{
+			let xmlObj = await this.buildXMLProcess(profile)
+			this.lastGoodXMLBuildProfile = JSON.parse(JSON.stringify(profile))
+			return xmlObj
+		} catch (error) {
+			console.warn("XML Parsing Error:")
+			console.warn(error)
+
+			useProfileStore().triggerBadXMLBuildRecovery(this.lastGoodXMLBuildProfile)
+			return false
+		}
+
+	}
+
+
+
+  },
+
+
 
   /**
   *
   *
-  * @param {string} uri - the URI to test
-  * @return {boolean}
+  * @param {object} profile - the profile to convert to XML
+  * @return {object} multiple XML strings
   */
-  buildXML: async function(profile){
+  buildXMLProcess: async function(profile){
     // console.log(profile)
 
     // keep track of the proces for later
