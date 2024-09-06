@@ -1,9 +1,11 @@
 import {useConfigStore} from "../stores/config";
 import {useProfileStore} from "../stores/profile";
+import {usePreferenceStore} from "../stores/preference";
 
 // import short from 'short-uuid'
 import utilsRDF from './utils_rdf';
 import utilsMisc from './utils_misc';
+import utilsNetwork from './utils_network';
 
 
 const formatXML = function(xml, tab = '\t', nl = '\n') {
@@ -42,6 +44,7 @@ const returnDOMParser = function(){
 const utilsExport = {
 
   lastGoodXMLBuildProfile: null,
+  lastGoodXMLBuildProfileTimestamp: null,
 
   // all the namespaces are stored in the utils_rdf
   namespace: utilsRDF.namespace,
@@ -323,12 +326,47 @@ const utilsExport = {
 		try{
 			let xmlObj = await this.buildXMLProcess(profile)
 			this.lastGoodXMLBuildProfile = JSON.parse(JSON.stringify(profile))
+			this.lastGoodXMLBuildProfileTimestamp = Math.floor(Date.now() / 1000)
+
 			return xmlObj
 		} catch (error) {
 			console.warn("XML Parsing Error:")
-			console.warn(error)
+			console.warn(error)			
 
-			useProfileStore().triggerBadXMLBuildRecovery(this.lastGoodXMLBuildProfile)
+			useProfileStore().triggerBadXMLBuildRecovery(this.lastGoodXMLBuildProfile, this.lastGoodXMLBuildProfileTimestamp)
+
+			let profileAsJson
+			try{
+				profileAsJson = JSON.stringify(profile,null,2)
+			}catch{
+				profileAsJson = 'Error stringify-ing profile!'
+			}
+
+			let user = `${usePreferenceStore().catInitals}_${usePreferenceStore().catCode}`.replace("/\s/g",'_')
+			const filename = `${Math.floor(Date.now() / 1000)}_${user}_` + `${new Date().toDateString()}_${new Date().toTimeString()}`.replaceAll(' ','_').replaceAll(':','-') + '.txt'
+
+			let errorReport = `
+
+			Error: ${error}
+
+			----------------
+			XML Creation Log
+			----------------
+			
+			----End Creation Log----
+
+
+			****************
+			XML Source
+			****************
+			${(profile.xmlSource) ? profile.xmlSource : 'No Source Found'}
+			***End Source***
+			`			
+
+			utilsNetwork.sendErrorReportLog(errorReport,filename,profileAsJson)
+
+
+
 			return false
 		}
 

@@ -57,7 +57,7 @@ export const useProfileStore = defineStore('profile', {
     activeProfileSaved: true,
 
     showPostModal: false,
-    showRecoveryModal: true,
+    showRecoveryModal: false,
     showValidateModal: false,
     showShelfListingModal: false,
     activeShelfListData:{
@@ -2850,26 +2850,34 @@ export const useProfileStore = defineStore('profile', {
 
 
   triggerBadXMLBuildRecovery: function(lastGoodBuild, lastGoodBuildTimetamp){
-
-    console.log("RECOVER MODE")
-    console.log(this.activeProfile)
-
-
-    this.showRecoveryModal = true
-
-    
-    const timeAgo = new TimeAgo('en-US')
-
-    console.log('lats bugiodl from:', timeAgo.format(lastGoodBuildTimetamp*1000))
-
-
-
+    this.showRecoveryModal = true    
+    const timeAgo = new TimeAgo('en-US')    
     this.activeProfile = JSON.parse(JSON.stringify(lastGoodBuild))
-    this.dataChanged()``
-    console.log(">>>>>>")
-    console.log(lastGoodBuild)
+    this.dataChanged()
+  },
+
+
+  breakRecord: async function(componentGuid, structure){
+
+    let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+    if (pt !== false){
+
+      let baseURI = pt.propertyURI
+      if (!pt.userValue[baseURI]){
+        pt.userValue[baseURI] = [{}]
+      }
+      let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
+
+      userValue['somting'] = {'@guid':'00000','hppts:sfsdfgfdsg.com':['helllerrlooo']}
+      pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
+      // they changed something
+      this.dataChanged()
+
+    }
 
   },
+
 
 
   /**
@@ -2993,8 +3001,8 @@ export const useProfileStore = defineStore('profile', {
       }
 
       pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
-        // they changed something
-        this.dataChanged()
+      // they changed something
+      this.dataChanged()
 
     }else{
       console.error('insertDefaultValuesComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)

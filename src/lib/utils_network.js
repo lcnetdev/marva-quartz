@@ -2306,6 +2306,11 @@ const utilsNetwork = {
   * @return {string} - the MARC in XML response
   */
   marcPreview: async function(xml){
+    
+    if (!xml){
+      return ""
+    }
+    
     let url = useConfigStore().returnUrls.util + 'marcpreview'
     const rawResponse = await fetch(url, {
       method: 'POST',
@@ -2485,6 +2490,29 @@ const utilsNetwork = {
         return results
 
     },
+
+    sendErrorReportLog: function(log,filename,profileAsJson){
+
+      let url = useConfigStore().returnUrls.util + 'errorlog/'
+
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          log: log, 
+          filename:filename,
+          profile: profileAsJson
+        })
+      });
+
+
+    },
+
+
 
 
 }

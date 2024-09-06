@@ -13,6 +13,10 @@
       </template>
 
 
+      <template v-if="showRecoveryModal==true">
+        <RecoveryModal ref="recoverymodal" v-model="showRecoveryModal" />
+      </template>
+
     </Teleport>
 
   </div>
@@ -26,10 +30,11 @@
   import VueFileToolbarMenu from 'vue-file-toolbar-menu'
   import PostModal from "@/components/panels/nav/PostModal.vue";
   import ValidateModal from "@/components/panels/nav/ValidateModal.vue";
+  import RecoveryModal from "@/components/panels/nav/RecoveryModal.vue";
 
 
   export default {
-    components: { VueFileToolbarMenu, PostModal, ValidateModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal },
     data() {
       return {
 
@@ -49,8 +54,8 @@
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData']),
-      ...mapWritableState(useProfileStore, ['showValidateModal']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal']),
+      
 
 
 

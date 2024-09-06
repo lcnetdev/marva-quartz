@@ -109,6 +109,17 @@
           </button>
         </template>
 
+
+        <template v-if="catInitals.toLowerCase().indexOf('matt') > -1">
+          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="breakRecord()">
+          <span class="button-shortcut-label">2</span>
+          💀 Break Record 💀
+          </button>
+        </template>
+
+
+        
+
       </div>
       <!--
         <VDropdown
@@ -164,8 +175,9 @@
     computed: {
       ...mapStores(usePreferenceStore),
       ...mapStores(useProfileStore),
-      ...mapState(usePreferenceStore, ['scriptShifterOptions']),
+      ...mapState(usePreferenceStore, ['scriptShifterOptions','catInitals']),
 
+      
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
 
       scriptShifterOptionsForMenu(){
@@ -280,6 +292,14 @@
         this.sendFocusHome()
 
       },
+
+      breakRecord: function(){
+        this.profileStore.breakRecord(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
+        this.sendFocusHome()
+
+      },
+
+      
 
       deleteComponent: function(){
         this.profileStore.deleteComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
