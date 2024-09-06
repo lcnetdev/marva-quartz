@@ -1180,32 +1180,22 @@ const utilsExport = {
 		}
 
 
-		if (rdfBasic.getElementsByTagName("bflc:PrimaryContribution").length>0){
-
-			if (rdfBasic.getElementsByTagName("bflc:PrimaryContribution")[0].getElementsByTagName("rdfs:label").length>0){
-				xmlVoidDataContributor = rdfBasic.getElementsByTagName("bflc:PrimaryContribution")[0].getElementsByTagName("rdfs:label")[0].innerHTML
+		if (rdfBasic.getElementsByTagName("bf:PrimaryContribution").length>0){
+			if (rdfBasic.getElementsByTagName("bf:PrimaryContribution")[0].getElementsByTagName("rdfs:label").length>0){
+				xmlVoidDataContributor = rdfBasic.getElementsByTagName("bf:PrimaryContribution")[0].getElementsByTagName("rdfs:label")[0].innerHTML
 			}
-
 		}else{
-
 			if (rdfBasic.getElementsByTagName("bf:Contribution").length>0){
-
 				if (rdfBasic.getElementsByTagName("bf:Contribution")[0].getElementsByTagName("rdfs:label").length>0){
 					xmlVoidDataContributor = rdfBasic.getElementsByTagName("bf:Contribution")[0].getElementsByTagName("rdfs:label")[0].innerHTML
-				}else{
+				} else {
 					console.warn('no PrimaryContribution or Contribution found for db')
-
 				}
-
-
 			}else{
-
 				console.warn('no PrimaryContribution or Contribution found for db')
-
-
 			}
-
 		}
+
 
 
 		if (rdfBasic.getElementsByTagName("bf:Instance").length>0){
@@ -1280,6 +1270,11 @@ const utilsExport = {
 
 
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:contributor')
+
+		console.info("this.namespace.lclocal- ", this.namespace.lclocal)
+		console.info("lclocal:contributor-", el)
+		console.info("xmlVoidDataContributor: ", xmlVoidDataContributor)
+
 		el.innerHTML = xmlVoidDataContributor
 		datasetDescriptionEl.appendChild(el)
 
