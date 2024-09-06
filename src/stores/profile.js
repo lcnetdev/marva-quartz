@@ -2,6 +2,10 @@ import { defineStore } from 'pinia'
 import { useConfigStore } from './config'
 import { usePreferenceStore } from './preference'
 
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en'
+TimeAgo.addDefaultLocale(en)
+
 import utilsNetwork from '@/lib/utils_network';
 import utilsParse from '@/lib/utils_parse';
 import utilsRDF from '@/lib/utils_rdf';
@@ -53,6 +57,7 @@ export const useProfileStore = defineStore('profile', {
     activeProfileSaved: true,
 
     showPostModal: false,
+    showRecoveryModal: true,
     showValidateModal: false,
     showShelfListingModal: false,
     activeShelfListData:{
@@ -2840,6 +2845,29 @@ export const useProfileStore = defineStore('profile', {
     },
 
 
+  triggerBadXMLBuildRecovery: function(lastGoodBuild, lastGoodBuildTimetamp){
+
+    console.log("RECOVER MODE")
+    console.log(this.activeProfile)
+
+
+    this.showRecoveryModal = true
+
+    
+    const timeAgo = new TimeAgo('en-US')
+
+    console.log('lats bugiodl from:', timeAgo.format(lastGoodBuildTimetamp*1000))
+
+
+
+    this.activeProfile = JSON.parse(JSON.stringify(lastGoodBuild))
+    this.dataChanged()``
+    console.log(">>>>>>")
+    console.log(lastGoodBuild)
+
+  },
+
+
   /**
       * Set the default values of the component fields
       *
@@ -2864,8 +2892,8 @@ export const useProfileStore = defineStore('profile', {
       }
       let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
 
-      // userValue['somting'] = {'@guid':'00000','hppts:sfsdfgfdsg.com':['helllerrlooo']}
-
+      userValue['somting'] = {'@guid':'00000','hppts:sfsdfgfdsg.com':['helllerrlooo']}
+      console.log(userValue)
       // find the default values for this template if they exist
       if (structure){
 
