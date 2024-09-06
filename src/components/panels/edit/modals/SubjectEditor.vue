@@ -103,17 +103,23 @@
                           <span v-if="name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
+                          <span> ({{ this.buildAddtionalInfo(name.collections) }})</span>
                         </div>
                       <hr>
                     </div>
 
                     <div v-if="searchResults.subjectsComplex.length>0">
-                      <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">{{subjectC.suggestLabel}}<span></span></div>
+                      <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
+                        {{subjectC.suggestLabel}}<span></span>
+                      </div>
                       <hr>
                     </div>
 
                     <div v-if="searchResults.subjectsSimple.length>0">
-                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">{{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span></div>
+                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
+                        {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
+                        <span v-if="!subject.literal"> ({{ this.buildAddtionalInfo(subject.collections) }})</span>
+                      </div>
                     </div>
 
 
@@ -1060,19 +1066,8 @@ methods: {
             }
           }
         }
-
-
-
-
       // },100)
-
-
-
-
     })
-
-
-
   }, 500),
 
   navStringClick: function(event){
@@ -1126,6 +1121,22 @@ methods: {
   clearSelected: function(){
     this.pickLookup[this.pickCurrent].picked = false
     this.pickCurrent = null
+  },
+
+  buildAddtionalInfo: function(collections){
+    console.info(collections)
+    let out = []
+    if (collections.includes("LCSHAuthorizedHeadings") || collections.includes("NamesAuthorizedHeadings")){
+      out.push("Auth Hd")
+    } else if (collections.includes("GenreFormSubdivisions")){
+      out.push("GnFrm")
+    } else if (collections.includes("GeographicSubdivisions") || collections.includes("SubdivideGeographically")){
+      out.push("GeoSubDiv")
+    } else if (collections.includes("Subdivisions")){
+      out.push("SubDiv")
+    }
+
+    return out.join(", ")
   },
 
   loadContext: async function(pickPostion){

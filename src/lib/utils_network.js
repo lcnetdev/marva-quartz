@@ -353,9 +353,10 @@ const utilsNetwork = {
                 // console.log("URL",url)
                 // console.log("r",r)
                 for (let hit of r.hits){
-
+                  let context = await this.returnContext(hit.uri)
 
                   let hitAdd = {
+                    collections: context.nodeMap["MADS Collection"],
                     label: hit.aLabel,
                     vlabel: hit.vLabel,
                     suggestLabel: hit.suggestLabel,
@@ -1792,7 +1793,7 @@ const utilsNetwork = {
             }
           }
 
-          // also we need the MARCKeys 
+          // also we need the MARCKeys
 
           marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
         }
@@ -1807,7 +1808,7 @@ const utilsNetwork = {
       }else if (result.hit && result.resultType == 'COMPLEX') {
         // if they are adding a complex value still need to lookup the marc key
         let marcKeyResult = await this.returnMARCKey(result.hit.uri + '.madsrdf_raw.jsonld')
-        result.hit.marcKey = marcKeyResult.marcKey        
+        result.hit.marcKey = marcKeyResult.marcKey
       }
       // console.log("result",result)
       return result
