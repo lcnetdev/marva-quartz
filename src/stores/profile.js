@@ -690,7 +690,7 @@ export const useProfileStore = defineStore('profile', {
       }
       useProfile.rtOrder = toKeep
 
-      
+
       if (!useProfile.log){
         useProfile.log=[]
       }
@@ -1045,11 +1045,11 @@ export const useProfileStore = defineStore('profile', {
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
-        
+
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
-          
+
 
           pt = buildBlankNodeResult[0]
 
@@ -1232,7 +1232,7 @@ export const useProfileStore = defineStore('profile', {
         for (let p in parent){
           if (Array.isArray(parent[p])){
             parent[p] = parent[p].filter((v) => {
-            
+
               if (v && v['@guid'] && v['@guid'] === fieldGuid){
                 return false
               }else{
@@ -1277,7 +1277,7 @@ export const useProfileStore = defineStore('profile', {
         // see if we removed it from those actions
         parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
 
-        
+
         if (parent !== false){
 
           for (let p in parent){
@@ -1298,10 +1298,10 @@ export const useProfileStore = defineStore('profile', {
                   oldTypeParent = k
                  }
                 }
-                
+
                 for (let k in pt.userValue){
                   if (k != '@root'){
-                    
+
                     delete pt.userValue[k]
                   }
                 }
@@ -1479,6 +1479,10 @@ export const useProfileStore = defineStore('profile', {
         // if we just set an empty value, remove the value property, and if there are no other values, remvoe the entire property
         if (value.trim() === ''){
           delete blankNode[lastProperty]
+
+          //remove the lastProperty, since the old one was deleted
+          propertyPath.pop()
+          lastProperty = propertyPath.at(-1).propertyURI
 
           let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
 
@@ -2014,7 +2018,7 @@ export const useProfileStore = defineStore('profile', {
                   }]
 
                 }
-                
+
 
                 // store.state.activeUndoLog.push(`Added subject heading ${subjectComponents[0].label}`)
 
@@ -2043,7 +2047,7 @@ export const useProfileStore = defineStore('profile', {
                 currentUserValuePos["http://www.loc.gov/mads/rdf/v1#componentList"] = []
 
                 for (let c of subjectComponents){
-                    
+
 
                     let compo = {
                             "@guid": short.generate(),
@@ -2279,7 +2283,7 @@ export const useProfileStore = defineStore('profile', {
       let pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
       pubResuts.resourceLinks=[]
       // if it was accepted by the system send it to the marva backend to store as posted
-      
+
 
 
       if (pubResuts.status){
@@ -2308,7 +2312,7 @@ export const useProfileStore = defineStore('profile', {
           })
         }
       }
-      
+
 
 
       return pubResuts
@@ -2454,11 +2458,11 @@ export const useProfileStore = defineStore('profile', {
     * @return {array} - array of the fields
     */
     returnPossibleFieldsInComponent: function(componentGuid){
-      
+
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt.valueConstraint.valueTemplateRefs.length==0){
-        
+
         return []
       }
       let use = []
@@ -2468,11 +2472,11 @@ export const useProfileStore = defineStore('profile', {
       }else{
 
         if (pt.activeType){
-          
+
           for (let ref of pt.valueConstraint.valueTemplateRefs){
-            
+
            if (this.rtLookup[ref].resourceURI === pt.activeType){
-            
+
               use = this.rtLookup[ref].propertyTemplates
               break
            }
@@ -2502,14 +2506,14 @@ export const useProfileStore = defineStore('profile', {
     * @return {array} - array of the fields
     */
     setInlineDisplay: function(componentGuid, label){
-      
+
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       if (!pt.inlineModeDisplay){
         pt.inlineModeDisplay = {}
       }
 
       pt.inlineModeDisplay[label] = true
-      
+
     },
 
     /**
@@ -2569,12 +2573,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     setPropertyVisible: function(profile,component){
-      
+
       this.activeProfile.rt[profile].pt[component].canBeHidden = false
 
 
 
-      
+
       this.activeProfile.rt[profile].ptOrder.push(this.activeProfile.rt[profile].ptOrder.splice(this.activeProfile.rt[profile].ptOrder.indexOf(component), 1)[0]);
 
 
@@ -2586,7 +2590,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     loadRecordFromBackend: async function(eid){
-      
+
       this.activeProfile = await utilsProfile.loadRecordFromBackend(eid)
 
     },
@@ -2802,7 +2806,7 @@ export const useProfileStore = defineStore('profile', {
 
       if (pt !== false){
 
-        
+
 
         // loop through all the headings and find the place the headings start
         let firstHeading = null
@@ -3038,7 +3042,7 @@ export const useProfileStore = defineStore('profile', {
             ]
           }
 
-          
+
 
 
           // we also want to add any default values in if it is just a empty new property and not duping
@@ -3069,7 +3073,7 @@ export const useProfileStore = defineStore('profile', {
 
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
         this.activeProfile.rt[profile].ptOrder.splice(propertyPosition+1, 0, newPropertyId);
-        
+
 
         if (structure){
           this.insertDefaultValuesComponent(newPt['@guid'], structure)
@@ -3080,7 +3084,7 @@ export const useProfileStore = defineStore('profile', {
 
       }else{
         console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
-        
+
       }
 
 
@@ -3094,13 +3098,13 @@ export const useProfileStore = defineStore('profile', {
     */
     deleteComponent: async function(componentGuid){
 
-      
+
 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt !== false){
-        
+
 
         // first see how many these properties exist in the resource
         let propertyCount = 0
@@ -3116,8 +3120,8 @@ export const useProfileStore = defineStore('profile', {
 
         if (propertyCount>1){
 
-          
-          
+
+
           // delete this.activeProfile.rt[pt.parentId].pt[pt.id]
 
           this.activeProfile.rt[pt.parentId].pt[pt.id].deleted = true
