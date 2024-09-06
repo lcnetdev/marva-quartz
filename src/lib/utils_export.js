@@ -1270,11 +1270,6 @@ const utilsExport = {
 
 
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:contributor')
-
-		console.info("this.namespace.lclocal- ", this.namespace.lclocal)
-		console.info("lclocal:contributor-", el)
-		console.info("xmlVoidDataContributor: ", xmlVoidDataContributor)
-
 		el.innerHTML = xmlVoidDataContributor
 		datasetDescriptionEl.appendChild(el)
 
