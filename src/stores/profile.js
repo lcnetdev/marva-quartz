@@ -2904,8 +2904,8 @@ export const useProfileStore = defineStore('profile', {
       }
       let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
 
-      userValue['somting'] = {'@guid':'00000','hppts:sfsdfgfdsg.com':['helllerrlooo']}
-      console.log(userValue)
+
+      
       // find the default values for this template if they exist
       if (structure){
 
