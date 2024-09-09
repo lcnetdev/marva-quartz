@@ -53,7 +53,7 @@
 
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
-      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal']),
+      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal']),
       ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal']),
       
 
@@ -178,7 +178,9 @@
             { text: "Preferences",  menu: [
 
               { text: 'Scriptshifter', click: () => this.showScriptshifterConfigModal = true, icon: 'translate' },
+              { text: 'Diacritics', click: () => this.showDiacriticConfigModal = true, icon: 'keyboard' },
 
+              
 
               { is: 'separator'},
 

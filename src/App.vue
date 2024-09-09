@@ -5,7 +5,10 @@ import LoadingModal from "@/components/general/LoadingModal.vue";
 import PreferenceModal from "@/components/general/PreferenceModal.vue";
 import LoginModal from "@/components/panels/nav/LoginModal.vue";
 import ScriptshifterConfigModal from "@/components/panels/edit/modals/ScriptshifterConfigModal.vue";
+import DiacriticsConfigModal from "@/components/panels/edit/modals/DiacriticsConfigModal.vue";
+
 import ShelfListingModal from "@/components/panels/edit/modals/ShelfListing.vue";
+
 
 
 
@@ -25,7 +28,9 @@ export default {
     PreferenceModal,
     LoginModal,
     ScriptshifterConfigModal,
-    ShelfListingModal
+    ShelfListingModal,
+    DiacriticsConfigModal,
+
   },
   data() {
     return {
@@ -42,7 +47,7 @@ export default {
     ...mapWritableState(useProfileStore, ['showShelfListingModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
-    ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal']),
 
 
     showLocalPreferenceModal: {
@@ -112,7 +117,11 @@ export default {
   <template v-if="showScriptshifterConfigModal==true">
     <ScriptshifterConfigModal v-model="showScriptshifterConfigModal" />
   </template>
+  <template v-if="showDiacriticConfigModal==true">
+    <DiacriticsConfigModal v-model="showDiacriticConfigModal" />
+  </template>
 
+  
   <template v-if="showShelfListingModal==true">
     <ShelfListingModal v-model="showShelfListingModal"  />
   </template>

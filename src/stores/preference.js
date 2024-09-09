@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia'
 import { getCurrentInstance } from 'vue'
+import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyager_macro_express.json"
+import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
 
 
 export const usePreferenceStore = defineStore('preference', {
   state: () => ({
-
+    
 
     // controls showing the modal that is parked in the App.vue
     showPrefModal: false,
@@ -27,6 +29,17 @@ export const usePreferenceStore = defineStore('preference', {
     showLoginModal: false,
 
     fontFamilies: ['Avenir, Helvetica, Arial, sans-serif','serif','sans-serif','monospace','cursive','fantasy','system-ui','ui-serif','ui-sans-serif','ui-monospace','ui-rounded'],
+
+    showDiacriticConfigModal:false,
+
+    diacriticPacks: {
+      macroExpress: diacrticsVoyagerMacroExpress,
+      voyager: diacrticsVoyagerNative,
+    },
+
+    diacriticUse:{},
+    diacriticUseValues:{},
+
 
 
     // keeps a copy of the orginal values to be able to reset
@@ -662,6 +675,11 @@ export const usePreferenceStore = defineStore('preference', {
       if (window.localStorage.getItem('marva-scriptShifterOptions')){
         this.scriptShifterOptions = JSON.parse(window.localStorage.getItem('marva-scriptShifterOptions'))
       }
+      if (window.localStorage.getItem('marva-diacriticUse')){
+        this.diacriticUse = JSON.parse(window.localStorage.getItem('marva-diacriticUse'))
+      }
+      
+
 
       this.styleDefaultOrginal = JSON.parse(JSON.stringify(this.styleDefault))
       this.panelDisplayOrginal = JSON.parse(JSON.stringify(this.panelDisplay))
