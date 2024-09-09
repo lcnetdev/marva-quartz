@@ -2850,8 +2850,8 @@ export const useProfileStore = defineStore('profile', {
 
 
   triggerBadXMLBuildRecovery: function(lastGoodBuild, lastGoodBuildTimetamp){
-    this.showRecoveryModal = true    
-    const timeAgo = new TimeAgo('en-US')    
+    this.showRecoveryModal = true
+    const timeAgo = new TimeAgo('en-US')
     this.activeProfile = JSON.parse(JSON.stringify(lastGoodBuild))
     this.dataChanged()
   },
@@ -2904,7 +2904,7 @@ export const useProfileStore = defineStore('profile', {
       }
       let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
 
-      userValue['somting'] = {'@guid':'00000','hppts:sfsdfgfdsg.com':['helllerrlooo']}
+      //userValue['somting'] = {'@guid':'00000','hppts:sfsdfgfdsg.com':['helllerrlooo']}
       console.log(userValue)
       // find the default values for this template if they exist
       if (structure){

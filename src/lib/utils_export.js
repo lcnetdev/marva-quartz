@@ -315,10 +315,9 @@ const utilsExport = {
   */
   buildXML: async function(profile){
 
-	
+
 	// if we are in dev mode let the error bubble, but otherwise catch the error and try to recover
 	if (useConfigStore().returnUrls.dev === false){
-
 		return await this.buildXMLProcess(profile)
 
 	}else{
@@ -331,7 +330,7 @@ const utilsExport = {
 			return xmlObj
 		} catch (error) {
 			console.warn("XML Parsing Error:")
-			console.warn(error)			
+			console.warn(error)
 
 			useProfileStore().triggerBadXMLBuildRecovery(this.lastGoodXMLBuildProfile, this.lastGoodXMLBuildProfileTimestamp)
 
@@ -352,7 +351,7 @@ const utilsExport = {
 			----------------
 			XML Creation Log
 			----------------
-			
+
 			----End Creation Log----
 
 
@@ -361,7 +360,7 @@ const utilsExport = {
 			****************
 			${(profile.xmlSource) ? profile.xmlSource : 'No Source Found'}
 			***End Source***
-			`			
+			`
 
 			utilsNetwork.sendErrorReportLog(errorReport,filename,profileAsJson)
 
