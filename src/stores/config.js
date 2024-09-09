@@ -225,7 +225,7 @@ export const useConfigStore = defineStore('config', {
 
 
 
-    
+
 
 
   ],
@@ -281,7 +281,10 @@ export const useConfigStore = defineStore('config', {
           'NAF Name/Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=NameTitle&count=25&offset=<OFFSET>"},
           'NAF Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Title&count=25&offset=<OFFSET>"},
           'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>"},
-          'NAF Conference Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=25&offset=<OFFSET>"}
+          'NAF Conference Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=25&offset=<OFFSET>"},
+
+          'NAF Auth Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings&count=25&offset=<OFFSET>"},
+          'NAF Geo SubDiv':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions&count=25&offset=<OFFSET>"}
         }
       ]
 
@@ -312,10 +315,11 @@ export const useConfigStore = defineStore('config', {
           'LCSH GenreForm':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=GenreForm&count=25&offset=<OFFSET>"},
           'LCSH Simple Type':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=SimpleType&count=25&offset=<OFFSET>"},
           'LCSH Complex Subject':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=ComplexSubject&count=25&offset=<OFFSET>"},
-          'LCSH Temporal':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Temporal&count=25&offset=<OFFSET>"}
+          'LCSH Temporal':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Temporal&count=25&offset=<OFFSET>"},
 
-
-
+          'LCSH Auth Subjects':{"url":"http://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&count=25&offset=<OFFSET>"},
+          'LCSH SubDiv Subjects':{"url":"http://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&count=25&offset=<OFFSET>"},
+          'LCSH GnFrm Subjects':{"url":"http://id.loc.gov/authorities/genreForms/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/genreForms/collection_LCGFT_General&count=25&offset=<OFFSET>"},
         }
       ]
     },
