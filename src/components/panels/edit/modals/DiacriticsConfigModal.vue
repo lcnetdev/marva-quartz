@@ -114,6 +114,7 @@
           }
         },
 
+
         updateLocalStorage(event){
 
           console.log(this.scriptshifterLanguages)
@@ -144,7 +145,7 @@
 
         enabled: function(event,something){
 
-          console.log(event.target.getAttribute('name'))
+          console.log()
 
 
         }
@@ -201,6 +202,9 @@
         >
           <div id="diacirtic-content" ref="diacirticContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
             
+            <div class="menu-buttons">
+              <button class="close-button" @pointerup="showDiacriticConfigModal=false">X</button>
+            </div>
 
             <fieldset>
               <legend>Diacritic Packs Available</legend>
@@ -215,8 +219,6 @@
                 <input type="radio" id="dewey" v-model="showPack" name="usePack" value="voyagerMode" />
                 <label for="dewey">Voyager Diacritic Entry Mode Shortcuts</label>
                 <div style="padding-left: 2em; font-style: italic;">This mode you press Control+e to put the input into diacritic mode, then press one of the short cuts. It is always activated</div>
-
-
               </div>
 
               
