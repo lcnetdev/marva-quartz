@@ -327,7 +327,10 @@ const utilsExport = {
 
 	if (!profile){
 		console.warn("Trying to build XML with bad profile:", profile)
+		return false
 	}
+
+	console.log(profile)
 
 	// if we are in dev mode let the error bubble, but otherwise catch the error and try to recover
 	if (useConfigStore().returnUrls.dev === false){
