@@ -325,7 +325,7 @@ const utilsExport = {
   */
   buildXML: async function(profile){
 
-	if (!profile){
+	if (!profile || (profile && Object.keys(profile).length==0)){
 		console.warn("Trying to build XML with bad profile:", profile)
 		return false
 	}
