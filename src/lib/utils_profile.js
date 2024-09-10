@@ -216,16 +216,20 @@ const utilsProfile = {
   * @return {array} - will return an array with the pt as 0 and the new @guid of the blanknode as 1
   */
   buildBlanknode: function(pt,propertyPath){
-
+      console.info("Building blankNode")
+      console.info("pt: ", pt)
+      console.info("propertyPath: ", propertyPath)
       // link to the base userValue
       let pointer = pt.userValue
 
       for (let p of propertyPath){
-
         // the property path has two parts
         // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
         // we don't care about the level number so just overwrite it
         p = p.propertyURI
+
+        console.info("p: ", p)
+        console.info("pointer[p]: ", pointer[p])
 
         // if the property doesn't exist then create it
         if (!pointer[p]){
@@ -238,8 +242,11 @@ const utilsProfile = {
           pointer = pointer[p][0]
 
         }else{
+          console.info("there is a pointer[p]")
           // console.log("dont need to create this level", p, pointer[p])
           // if we don't need to create this level, so just link to it
+
+          console.info("pointer[p][0]: ", pointer[p][0])
           if (pointer[p][0]){
             // make sure it has a guid
             if (!pointer[p][0]['@guid']){
@@ -248,6 +255,7 @@ const utilsProfile = {
             // console.log("Linink to",pointer[p][0])
             pointer = pointer[p][0]
           }else{
+            console.info("---------------------------FAILED---------------------------")
             console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
           }
         }
