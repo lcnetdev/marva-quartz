@@ -216,12 +216,10 @@ const utilsProfile = {
   * @return {array} - will return an array with the pt as 0 and the new @guid of the blanknode as 1
   */
   buildBlanknode: function(pt,propertyPath){
-
       // link to the base userValue
       let pointer = pt.userValue
 
       for (let p of propertyPath){
-
         // the property path has two parts
         // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
         // we don't care about the level number so just overwrite it
@@ -240,6 +238,7 @@ const utilsProfile = {
         }else{
           // console.log("dont need to create this level", p, pointer[p])
           // if we don't need to create this level, so just link to it
+
           if (pointer[p][0]){
             // make sure it has a guid
             if (!pointer[p][0]['@guid']){

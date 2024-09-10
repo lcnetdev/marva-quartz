@@ -2123,10 +2123,8 @@ export const useProfileStore = defineStore('profile', {
                     ]
                 }
                 break
-              } else if (h['uri'] == null){
-                // set this to zero incase the user has changed the subject and it's now a literal
-                currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] = []
               }
+
             }
 
 
@@ -2850,8 +2848,8 @@ export const useProfileStore = defineStore('profile', {
 
 
   triggerBadXMLBuildRecovery: function(lastGoodBuild, lastGoodBuildTimetamp){
-    this.showRecoveryModal = true    
-    const timeAgo = new TimeAgo('en-US')    
+    this.showRecoveryModal = true
+    const timeAgo = new TimeAgo('en-US')
     this.activeProfile = JSON.parse(JSON.stringify(lastGoodBuild))
     this.dataChanged()
   },
@@ -2905,7 +2903,7 @@ export const useProfileStore = defineStore('profile', {
       let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
 
 
-      
+
       // find the default values for this template if they exist
       if (structure){
 

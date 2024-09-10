@@ -477,7 +477,7 @@ export default {
 
     actionButtonCommand: function(cmd){
       this.$refs.input.focus()
-      
+
     },
 
     // Takes the list of values from this lookup uri and filters it based on the input
@@ -536,7 +536,7 @@ export default {
 
       }
       Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]).forEach((v)=>{
-        
+
         // the list has a special key metdata that contains more info
         if (v==='metadata'){return false}
         // no filter yet show first 25
@@ -574,11 +574,11 @@ export default {
 
 
       })
-      
+
       // sometimes you'll find code hacks circumvents ontology
       this.displayList = this.displayList.filter((v)=>{ return (v === 'Englisch (eng)') ? false : true})
 
-      
+
 
       this.displayList.sort()
 
@@ -621,7 +621,7 @@ export default {
       if (this.activeFilter.length==0){
         this.displayAutocomplete = true
       }
-      
+
       if (this.displayAutocomplete){
         // this.$store.dispatch("disableMacroNav")
       }else{
@@ -729,8 +729,8 @@ export default {
         this.findSelectListTime = window.setInterval(()=>{
 
           if (this.$refs.selectlist && this.$refs.selectlist.style){
-            window.clearTimeout(this.findSelectListTime)            
-            var rect = event.target.getBoundingClientRect();            
+            window.clearTimeout(this.findSelectListTime)
+            var rect = event.target.getBoundingClientRect();
             this.$refs.selectlist.style.left = rect.left + 'px'
 
           }
@@ -900,7 +900,7 @@ export default {
 
     mouseSelectValue: function(val){
 
-      
+
 
 
     },
@@ -915,7 +915,7 @@ export default {
 
           idx = this.simpleLookupValues.length - 1
         }
-        
+
         let removeGuid = this.simpleLookupValues[idx]['@guid']
         this.profileStore.removeValueSimple(this.guid, removeGuid)
         // No clue what this is refering to about hasSeries...
@@ -1254,7 +1254,7 @@ export default {
 
     clickAdd: function(item){
       this.displayAutocomplete=false
-      
+
       this.activeSelect = item
 
       let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
@@ -1262,7 +1262,7 @@ export default {
       if (this.activeKeyword){
         metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values
       }
-      
+
       // find the active selected in the data
       Object.keys(metadata).forEach((key)=>{
         let idx = metadata[key].displayLabel.indexOf(this.activeSelect)
