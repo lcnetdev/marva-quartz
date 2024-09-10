@@ -739,6 +739,14 @@ export const usePreferenceStore = defineStore('preference', {
     loadPreferences: function(){
       if (window.localStorage.getItem('marva-preferences')){
         let prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
+
+        // TEMP - 10/24 remove eventually
+        for (let k in prefs.styleDefault){
+          if (prefs.styleDefault[k].group == "Sidebars - OPAC"){
+            prefs.styleDefault[k].group = "Sidebars - Previews"
+          }
+        }
+
         this.styleDefault = prefs.styleDefault
         this.panelDisplay = prefs.panelDisplay
       }
