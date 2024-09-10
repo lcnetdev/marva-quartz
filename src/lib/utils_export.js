@@ -8,6 +8,16 @@ import utilsMisc from './utils_misc';
 import utilsNetwork from './utils_network';
 
 
+const escapeHTML = str => str.replace(/[&<>'"]/g, 
+  tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag]));
+
+
 const formatXML = function(xml, tab = '\t', nl = '\n') {
 	if (!xml){
 		return 'No XML'
@@ -175,7 +185,7 @@ const utilsExport = {
 			if (userValue[property].trim()==''){
 				return false
 			}
-			p.innerHTML = userValue[property]
+			p.innerHTML = escapeHTML(userValue[property])
 		}
 		// does it also have a URI?
 		if (userValue['@id']){
@@ -315,7 +325,7 @@ const utilsExport = {
   */
   buildXML: async function(profile){
 
-	
+
 	// if we are in dev mode let the error bubble, but otherwise catch the error and try to recover
 	if (useConfigStore().returnUrls.dev === false){
 
@@ -620,7 +630,7 @@ const utilsExport = {
 									continue
 								}else if (userValue[key1] && userValue[key1][0] && userValue[key1][0]['http://www.w3.org/2000/01/rdf-schema#label']){
 									let rdftype = this.createElByBestNS(key1)
-									rdftype.innerHTML=userValue[key1][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+									rdftype.innerHTML=escapeHTML(userValue[key1][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
 									xmlLog.push(`This bnode just has a rdf:type and label : ${rdftype} setting it an continuing`)
 									bnodeLvl1.appendChild(rdftype)
 									continue
@@ -1090,7 +1100,7 @@ const utilsExport = {
 		bf_StatusLabel.innerHTML="changed"
 
 		let bf_catalogerId = this.createElByBestNS("bflc:catalogerId")
-		bf_catalogerId.innerHTML = catCode
+		bf_catalogerId.innerHTML = escapeHTML(catCode)
 
 		let bf_date = this.createElByBestNS("bf:date")
 		bf_date.innerHTML = new Date().toISOString()
@@ -1328,54 +1338,54 @@ const utilsExport = {
 
 		for (let x of xmlVoidDataRtsUsed){
 			el = document.createElementNS(this.namespace.lclocal, 'lclocal:rtsused')
-			el.innerHTML = x
+			el.innerHTML = escapeHTML(x)
 			datasetDescriptionEl.appendChild(el)
 		}
 
 		for (let x of xmlVoidDataType){
 			el = document.createElementNS(this.namespace.lclocal, 'lclocal:profiletypes')
-			el.innerHTML = x
+			el.innerHTML = escapeHTML(x)
 			datasetDescriptionEl.appendChild(el)
 		}
 
 
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:title')
-		el.innerHTML = xmlVoidDataTitle
+		el.innerHTML = escapeHTML(xmlVoidDataTitle)
 		datasetDescriptionEl.appendChild(el)
 
 
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:contributor')
-		el.innerHTML = xmlVoidDataContributor
+		el.innerHTML = escapeHTML(xmlVoidDataContributor)
 		datasetDescriptionEl.appendChild(el)
 
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:lccn')
-		el.innerHTML = xmlVoidDataLccn
+		el.innerHTML = escapeHTML(xmlVoidDataLccn)
 		datasetDescriptionEl.appendChild(el)
 
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:user')
-		el.innerHTML = profile.user
+		el.innerHTML = escapeHTML(profile.user)
 		datasetDescriptionEl.appendChild(el)
 
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:status')
-		el.innerHTML = profile.status
+		el.innerHTML = escapeHTML(profile.status)
 		datasetDescriptionEl.appendChild(el)
 
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:eid')
-		el.innerHTML = profile.eId
+		el.innerHTML = escapeHTML(profile.eId)
 		datasetDescriptionEl.appendChild(el)
 
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:typeid')
-		el.innerHTML = profile.id
+		el.innerHTML = escapeHTML(profile.id)
 		datasetDescriptionEl.appendChild(el)
 
 		el = document.createElementNS(this.namespace.lclocal, 'lclocal:procinfo')
-		el.innerHTML = orginalProfile.procInfo
+		el.innerHTML = escapeHTML(orginalProfile.procInfo)
 		datasetDescriptionEl.appendChild(el)
 
 
 		for (let x of xmlVoidExternalID){
 			el = document.createElementNS(this.namespace.lclocal, 'lclocal:externalid')
-			el.innerHTML = x
+			el.innerHTML = escapeHTML(x)
 			datasetDescriptionEl.appendChild(el)
 		}
 
