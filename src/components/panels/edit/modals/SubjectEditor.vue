@@ -945,7 +945,7 @@ methods: {
       // get the boxes lined up correctly
       this.renderHintBoxes()
 
-      // hacky, but without this the componentLooks won't match in `subjectStringChanged`
+      // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
       for (let i in this.components){
         for (let j in this.componetLookup){
           const key = Object.keys(this.componetLookup[j])[0]
@@ -962,7 +962,6 @@ methods: {
       let unApproved = []
       let unApprovedIdx = []
       let approved = []
-      let componentMap = []
       for (let c in this.components){
         if (this.components[c].uri == null && this.components[c].literal != true){
           unApproved.push(this.components[c])
@@ -974,7 +973,9 @@ methods: {
 
       //remove the terms that have been exploded
       for (let i in unApprovedIdx){
-        this.components.splice(unApprovedIdx[i], 1)
+        if (this.components[unApprovedIdx[i]].label.includes("‑‑")){
+          this.components.splice(unApprovedIdx[i], 1)
+        }
       }
 
       for (let c in unApproved){
@@ -1013,17 +1014,8 @@ methods: {
 
         }
 
-        //build the map to maintain order
-        for (let c in this.components){
-          if (this.components[c].uri == null && this.components[c].literal != true){
-            componentMap.push("-")
-          } else {
-            componentMap.push(c)
-          }
-        }
-
-
         let final = this.components.map((component) => component.label)
+
         this.adjustStartEndPos(this.components)
         this.subjectString = final.join("--")
       }
