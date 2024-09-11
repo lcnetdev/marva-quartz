@@ -829,9 +829,143 @@ methods: {
   },
 
 
-
   searchModeSwitch: function(mode){
     this.searchMode = mode
+
+    /**
+     * If it's in GEO mode look at all the components and build the
+     * subject string based on the ones with out URIs.
+     * How does this affect literals
+     *
+     * (c.uri !== null || c.literal)
+     */
+
+    if (mode == "GEO"){
+      /**
+       * When dealing with a switch to GEO, we need to combine the "loose" components
+       * into 1 so the search will work.
+       */
+      //get the loose components
+      let looseComponents = []
+      let indx = []
+      for (let c in this.components){
+        if (this.components[c].uri == null && this.components[c].literal != true){
+          looseComponents.push(this.components[c])
+          indx.push(c)
+        }
+      }
+
+      /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       *  !! the `not` hyphes are very important !!
+       *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       */
+      // Update the id of the active component to indx[0]
+      this.activeComponentIndex = Number(indx[0])
+      this.activeComponent = looseComponents[this.activeComponentIndex]
+      this.activeComponent.id = this.activeComponentIndex
+
+      //update the active component with the loose components
+      const looseCompoentsCpy = looseComponents.slice()
+      for (let c in looseComponents){
+        if (c != 0){
+          let part1 = ""
+            if (c == 1){
+              part1 = looseComponents[0].label
+            } else {
+              part1 = this.activeComponent.label
+            }
+          const part2 = looseComponents[c].label
+          this.activeComponent.label = part1 + "‑‑" + part2
+          this.activeComponent.posEnd = looseComponents[c].posEnd
+        }
+      }
+      this.activeComponent.posStart = looseComponents[0].posStart
+
+      //Need to update the subjectString with the `not` hyphens so that the correct portion of the
+      //subject string is replaced when an option is selected
+      let pieces = this.subjectString.split("--")
+      // the index of the "pieces" that are in indx need to be removed and replaced with the  new activeComponent.label
+      pieces.splice(indx[0], indx.length)
+      pieces.push(this.activeComponent.label)
+      this.subjectString =  pieces.join("--")
+
+      //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
+      this.components.splice(indx[0], indx.length, this.activeComponent)
+    } else {
+      // Above we took loose components and combined them,
+      // here we undo that incase someone made a mistake and the geo
+      // term has a subject in it that needs to be split out.
+      let unApproved = []
+      let unApprovedIdx = []
+      let approved = []
+      for (let c in this.components){
+        if (this.components[c].uri == null && this.components[c].literal != true){
+          unApproved.push(this.components[c])
+          unApprovedIdx.push(c)
+        } else {
+          approved.push(this.components[c])
+        }
+      }
+
+      for (let c in unApproved){
+        let target = unApproved[c]
+        if (target.label.includes("‑‑")){
+          let needComponents = target.label.split("‑‑")
+
+          //build and add the exploded components
+          for (let idx in needComponents){
+            let start = 0
+            let end = 0
+
+            let previous = null
+            if (idx == 0){
+              start = 0
+            } else {
+              previous = this.components.at(-1)
+              start = previous.posEnd + 2 //for the hyphens
+            }
+            end = start + needComponents[idx].length
+            this.components.push({
+              label: needComponents[idx],
+              uri: null,
+              id: idx,
+              type: mode == "GEO" ? 'madsrdf:Geographic': 'madsrdf:Topic',
+              complex: false,
+              literal: null,
+              posStart: start,
+              posEnd: end,
+            })
+          }
+        }
+
+        //remove the old component
+        for (let c of unApprovedIdx){
+          this.components.splice(c, 1)
+        }
+
+        //rebuild the subject string without `not` hyphens
+        this.subjectString = approved.map((component) => component.label).join("--")
+        // the correct posStart and posEnd are in the components
+        let newSubjects = this.components.map((component) =>
+          {
+            if (component.uri == null && component.literal != true){
+              return component.label
+            }
+          }
+        ).filter((item) => item != undefined).join("--")
+
+        if (this.subjectString != ""){
+          this.subjectString = this.subjectString + "--" + newSubjects
+        } else {
+          this.subjectString = newSubjects
+        }
+
+        // get the boxes lined up correctly
+        this.renderHintBoxes()
+
+      }
+    }
+
     if (this.activeComponent && this.activeComponent.label){
       this.searchApis(this.activeComponent.label,this.subjectString,this)
     }
@@ -864,8 +998,6 @@ methods: {
 
     searchString=searchString.replaceAll('‑','-')
     searchStringFull=searchStringFull.replaceAll('‑','-')
-
-
 
     that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
 
@@ -1232,7 +1364,6 @@ methods: {
       }
 
     }else{
-
       console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
 
       // take the subject string and split
@@ -1322,7 +1453,6 @@ methods: {
 
     }else if (this.searchMode == 'GEO' && event.key == "-"){
 
-
       if (this.components.length>0){
         let lastC = this.components[this.components.length-1]
         console.log(lastC)
@@ -1350,10 +1480,8 @@ methods: {
 
 
       this.$nextTick(() => {
-
           console.log(start,end)
           event.target.setSelectionRange(start+1,end+1)
-
 
       })
 
@@ -1440,6 +1568,8 @@ methods: {
 
   //TODO: if it's a literal, there shouldn't be a thesaurus
   subjectStringChanged: async function(event){
+    const cpy = this.subjectString
+
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
