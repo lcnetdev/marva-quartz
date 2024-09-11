@@ -924,15 +924,6 @@ methods: {
       // get the boxes lined up correctly
       this.renderHintBoxes()
 
-      // for (let i in this.components){
-      //   for (let j in this.componetLookup){
-      //     if (this.components[i].label == this.componetLookup[j].label && i != j){
-      //       this.componetLookup[i] = this.componetLookup[j]
-      //       delete this.componetLookup[j]
-      //     }
-      //   }
-      // }
-
     } else {
       // Above we took loose components and combined them,
       // here we undo that incase someone made a mistake and the geo
