@@ -848,10 +848,14 @@ methods: {
       //get the loose components
       let looseComponents = []
       let indx = []
+      let componentMap = []
       for (let c in this.components){
         if (this.components[c].uri == null && this.components[c].literal != true){
           looseComponents.push(this.components[c])
           indx.push(c)
+          componentMap.push("-")
+        } else {
+          componentMap.push(c)
         }
       }
 
@@ -865,7 +869,6 @@ methods: {
       this.activeComponent.id = this.activeComponentIndex
 
       //update the active component with the loose components
-      const looseCompoentsCpy = looseComponents.slice()
       for (let c in looseComponents){
         if (c != 0){
           let part1 = ""
@@ -881,16 +884,55 @@ methods: {
       }
       this.activeComponent.posStart = looseComponents[0].posStart
 
-      //Need to update the subjectString with the `not` hyphens so that the correct portion of the
-      //subject string is replaced when an option is selected
-      let pieces = this.subjectString.split("--")
-      // the index of the "pieces" that are in indx need to be removed and replaced with the  new activeComponent.label
-      pieces.splice(indx[0], indx.length)
-      pieces.push(this.activeComponent.label)
-      this.subjectString =  pieces.join("--")
+      // if the approved pieces aren't all at the front, we need to make sure the order is maintained
+      // use the component map to determine maintain order
+      let final = []
+      for (let el in componentMap){
+        let good = componentMap[el] != '-'
+        if (good){
+          final.push(this.components[el].label)
+        } else {
+          final.push(this.activeComponent.label)
+        }
+      }
+
+      final = new Set(final)
+      final = Array.from(final)
+
+      this.subjectString =  final.join("--")
 
       //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
       this.components.splice(indx[0], indx.length, this.activeComponent)
+
+      //need to make sure postStart and posEnd are correct, and the id
+      for (let x in this.components){
+        let prev = null
+        let current = this.components[x]
+
+        if (x > 0){
+          prev = this.components[x] - 1
+        } else if (x == 0) {
+          current.posStart = 0
+        } else {
+          current.posStart = prev.posEnd + 2
+        }
+        current.posEnd = current.posStart + current.label.length
+
+        current.id = x
+      }
+
+      // get the boxes lined up correctly
+      this.renderHintBoxes()
+
+      // for (let i in this.components){
+      //   for (let j in this.componetLookup){
+      //     if (this.components[i].label == this.componetLookup[j].label && i != j){
+      //       this.componetLookup[i] = this.componetLookup[j]
+      //       delete this.componetLookup[j]
+      //     }
+      //   }
+      // }
+
     } else {
       // Above we took loose components and combined them,
       // here we undo that incase someone made a mistake and the geo
@@ -1522,7 +1564,6 @@ methods: {
   },
 
   renderHintBoxes: function(){
-
       // wait for the UI to render
       this.$nextTick(() => {
         // loop through the current components
@@ -1568,8 +1609,6 @@ methods: {
 
   //TODO: if it's a literal, there shouldn't be a thesaurus
   subjectStringChanged: async function(event){
-    const cpy = this.subjectString
-
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
