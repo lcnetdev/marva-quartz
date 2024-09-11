@@ -828,6 +828,26 @@ methods: {
 
   },
 
+  adjustStartEndPos: function(obj){
+    //need to make sure postStart and posEnd are correct, and the id
+    for (let x in obj){
+        let prev = null
+        let current = obj[x]
+
+        if (x > 0){
+          prev = obj[x] - 1
+        } else if (x == 0) {
+          current.posStart = 0
+        } else {
+          current.posStart = prev.posEnd + 2
+        }
+        current.posEnd = current.posStart + current.label.length
+
+        current.id = x
+      }
+
+      return obj
+  },
 
   searchModeSwitch: function(mode){
     this.searchMode = mode
@@ -904,7 +924,8 @@ methods: {
       //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
       this.components.splice(indx[0], indx.length, this.activeComponent)
 
-      //need to make sure postStart and posEnd are correct, and the id
+      // need to make sure postStart and posEnd are correct, and the id
+      this.adjustStartEndPos(this.components)
       for (let x in this.components){
         let prev = null
         let current = this.components[x]
@@ -930,7 +951,6 @@ methods: {
           const key = Object.keys(this.componetLookup[j])[0]
           if (this.components[i].label == key){
             this.componetLookup[i] = this.componetLookup[j]
-
           }
         }
       }
@@ -942,6 +962,7 @@ methods: {
       let unApproved = []
       let unApprovedIdx = []
       let approved = []
+      let componentMap = []
       for (let c in this.components){
         if (this.components[c].uri == null && this.components[c].literal != true){
           unApproved.push(this.components[c])
@@ -951,11 +972,17 @@ methods: {
         }
       }
 
+      //remove the terms that have been exploded
+      for (let i in unApprovedIdx){
+        this.components.splice(unApprovedIdx[i], 1)
+      }
+
       for (let c in unApproved){
         let target = unApproved[c]
+        let id = target.id
+
         if (target.label.includes("‑‑")){
           let needComponents = target.label.split("‑‑")
-
           //build and add the exploded components
           for (let idx in needComponents){
             let start = 0
@@ -969,7 +996,7 @@ methods: {
               start = previous.posEnd + 2 //for the hyphens
             }
             end = start + needComponents[idx].length
-            this.components.push({
+            this.components.splice(id, 0, {
               label: needComponents[idx],
               uri: null,
               id: idx,
@@ -979,35 +1006,30 @@ methods: {
               posStart: start,
               posEnd: end,
             })
+
+            id++
+          }
+
+
+        }
+
+        //build the map to maintain order
+        for (let c in this.components){
+          if (this.components[c].uri == null && this.components[c].literal != true){
+            componentMap.push("-")
+          } else {
+            componentMap.push(c)
           }
         }
 
-        //remove the old component
-        for (let c of unApprovedIdx){
-          this.components.splice(c, 1)
-        }
 
-        //rebuild the subject string without `not` hyphens
-        this.subjectString = approved.map((component) => component.label).join("--")
-        // the correct posStart and posEnd are in the components
-        let newSubjects = this.components.map((component) =>
-          {
-            if (component.uri == null && component.literal != true){
-              return component.label
-            }
-          }
-        ).filter((item) => item != undefined).join("--")
-
-        if (this.subjectString != ""){
-          this.subjectString = this.subjectString + "--" + newSubjects
-        } else {
-          this.subjectString = newSubjects
-        }
-
-        // get the boxes lined up correctly
-        this.renderHintBoxes()
-
+        let final = this.components.map((component) => component.label)
+        this.adjustStartEndPos(this.components)
+        this.subjectString = final.join("--")
       }
+
+      // get the boxes lined up correctly
+      this.renderHintBoxes()
     }
 
     if (this.activeComponent && this.activeComponent.label){
