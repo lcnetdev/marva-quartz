@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
+import utilsNetwork from '@/lib/utils_network';
 
 
 export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 0,
-    versionMinor: 13,
-    versionPatch: 12,
+    versionMinor: 14,
+    versionPatch: 0,
 
     regionUrls: {
 
@@ -120,6 +121,8 @@ export const useConfigStore = defineStore('config', {
 
   // this value goes into the admin metadata to tell BFDB what type of action to take, this value is when a new work instance is being created
   procInfoNewWorkInstance: "create work",
+
+  showUpdateAvailableModal:false,
 
 
   scriptshifterLanguages: {},
@@ -939,6 +942,23 @@ export const useConfigStore = defineStore('config', {
 
 
     },
+
+    /**
+    * Ask the backend for the current version if out of date flip the flag
+    *
+    * @return {void} -
+    */
+    async checkVersionOutOfDate() {
+
+
+      if (await utilsNetwork.checkVersionOutOfDate()){
+        this.showUpdateAvailableModal = true
+      }
+
+    },
+
+
+    
 
 
 

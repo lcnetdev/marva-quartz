@@ -30,6 +30,7 @@ export const usePreferenceStore = defineStore('preference', {
 
     fontFamilies: ['Avenir, Helvetica, Arial, sans-serif','serif','sans-serif','monospace','cursive','fantasy','system-ui','ui-serif','ui-sans-serif','ui-monospace','ui-rounded'],
 
+
     showDiacriticConfigModal:false,
 
     diacriticPacks: {

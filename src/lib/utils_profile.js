@@ -317,7 +317,12 @@ const utilsProfile = {
   */
   returnValueFromPropertyPath: function(pt,propertyPath){
 
-      let deepestLevel = propertyPath[propertyPath.length-1].level
+      let deepestLevel
+      if (propertyPath[propertyPath.length-1]){
+        deepestLevel = propertyPath[propertyPath.length-1].level
+      }else{
+        return false
+      }
 
       let pointer = pt.userValue
       for (let p of propertyPath){

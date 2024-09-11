@@ -1369,6 +1369,10 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
+      
+      // make a copy of the property path, dont modify the linked one passed
+      propertyPath = JSON.parse(JSON.stringify(propertyPath))
+
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt
@@ -1483,23 +1487,22 @@ export const useProfileStore = defineStore('profile', {
 
         // if we just set an empty value, remove the value property, and if there are no other values, remvoe the entire property
         if (value.trim() === ''){
-          delete blankNode[lastProperty]
 
-          //remove the lastProperty, since the old one was deleted
-          propertyPath.pop()
-          lastProperty = propertyPath.at(-1).propertyURI
+
+          delete blankNode[lastProperty]
+          
 
           let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
-
-          // console.log('PARENT is',parent)
+          
           if (parent && parent[lastProperty]){
             let keep = []
-
             if (parent[lastProperty].length>0){
               for (let value of parent[lastProperty]){
                 // does it have a value?
                 if (value[lastProperty] && value[lastProperty] != ''){
                   keep.push(value)
+                }else{
+                  // console.log("dumping",value)
                 }
               }
             }
@@ -1515,6 +1518,38 @@ export const useProfileStore = defineStore('profile', {
 
 
           }
+
+          // make sure the blank node is not empty either
+          // loop through the property list and check the parents
+
+          // if (parent && Object.keys(parent).length==2 && parent['@type'] && parent['@guid']) {
+
+            propertyPath.pop()
+            let uv = pt.userValue
+            let oldUv = pt.userValue
+            for (let p of propertyPath){
+              uv = uv[p.propertyURI]
+              if (Array.isArray(uv)){
+                uv=uv[0]
+              }
+              if (Object.keys(uv).length == 2 && uv['@guid'] && uv['@type']){
+                // it is an empty bnode, delete it
+                delete oldUv[p.propertyURI]
+              }else if (Object.keys(uv).length == 1 && uv['@guid']){
+                delete oldUv[p.propertyURI]
+              }
+
+              console.log(p.propertyURI,'has',Object.keys(uv).length,'keys')
+              // the oldUv so we have a references to where we will be in the next loop so we can delete from the parent obj
+              oldUv = oldUv[p.propertyURI]
+              if (Array.isArray(oldUv)){
+                oldUv=oldUv[0]
+              }
+
+            }
+
+          //   console.log("Delete this guy",propertyPath )
+          // }
 
 
         }
@@ -1550,7 +1585,6 @@ export const useProfileStore = defineStore('profile', {
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
-
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
 
       // console.log(propertyPath[0], deepestLevelURI)
@@ -2732,7 +2766,7 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-          if (titleNonSort && titleNonSort.trim().length >0){
+          if (titleNonSort && titleNonSort.trim().length >0 && title){
             if (isNaN(parseInt(titleNonSort)) == false ){
               titleNonSort = parseInt(titleNonSort)
               title = title.substr(titleNonSort).trim()

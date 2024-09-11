@@ -9,6 +9,7 @@ import DiacriticsConfigModal from "@/components/panels/edit/modals/DiacriticsCon
 
 import ShelfListingModal from "@/components/panels/edit/modals/ShelfListing.vue";
 
+import UpdateAvailableModal from "@/components/general/UpdateAvailableModal.vue";
 
 
 
@@ -30,6 +31,7 @@ export default {
     ScriptshifterConfigModal,
     ShelfListingModal,
     DiacriticsConfigModal,
+    UpdateAvailableModal
 
   },
   data() {
@@ -48,6 +50,7 @@ export default {
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal']),
+    ...mapWritableState(useConfigStore, ['showUpdateAvailableModal']),
 
 
     showLocalPreferenceModal: {
@@ -94,6 +97,9 @@ export default {
     //},500)
 
 
+    this.configStore.checkVersionOutOfDate()
+
+
 
   }
 }
@@ -125,8 +131,11 @@ export default {
   <template v-if="showShelfListingModal==true">
     <ShelfListingModal v-model="showShelfListingModal"  />
   </template>
+  <template v-if="showUpdateAvailableModal==true">
+    <UpdateAvailableModal v-model="showUpdateAvailableModal"  />
+  </template>
 
-
+  
 
 </template>
 

@@ -2309,7 +2309,7 @@ const utilsNetwork = {
     if (!xml){
       return ""
     }
-    
+
     let url = useConfigStore().returnUrls.util + 'marcpreview'
     const rawResponse = await fetch(url, {
       method: 'POST',
@@ -2507,6 +2507,47 @@ const utilsNetwork = {
           profile: profileAsJson
         })
       });
+
+
+    },
+
+
+
+    checkVersionOutOfDate: async function(){
+
+
+      let versionPath = (useConfigStore().returnUrls.env === 'production') ? 'version/editor' : 'version/editor/stage'
+
+      let url = useConfigStore().returnUrls.util + versionPath + "?blastdacache=" + Date.now()
+      let content
+
+      try{
+
+
+        const rawResponse = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          
+        });
+        content = await rawResponse.json();
+      }catch{
+        // if sometihng network goes wrong just say were not out of date
+        return false
+
+      }
+
+
+      let ourVer = useConfigStore().versionMajor + (useConfigStore().versionMinor * 0.1) + (useConfigStore().versionPatch* 0.01) 
+      let curVer = content.major + (content.minor* 0.1) + (content.patch* 0.01) 
+      console.log("ourVer:",ourVer,"curVer:",curVer)
+      if (ourVer < curVer){
+        return true
+      }else{
+        return false
+      }
 
 
     },

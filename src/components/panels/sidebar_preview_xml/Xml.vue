@@ -45,7 +45,7 @@
         let exportResult = await this.profileStore.buildExportXML()
 
         this.xml = exportResult.xlmStringBasic
-        console.log(this.xml)
+
         if (this.firstLoad){
           this.$nextTick(()=>{
             for (let el of document.querySelectorAll('.element-name')){                
