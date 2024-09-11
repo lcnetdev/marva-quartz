@@ -333,7 +333,7 @@ const utilsExport = {
 	console.log(profile)
 
 	// if we are in dev mode let the error bubble, but otherwise catch the error and try to recover
-	if (useConfigStore().returnUrls.dev === false){
+	if (useConfigStore().returnUrls.dev === true){
 
 		return await this.buildXMLProcess(profile)
 
