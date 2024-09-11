@@ -863,7 +863,7 @@ methods: {
        *  !! the `not` hyphes are very important !!
        *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        */
-      // Update the id of the active component to indx[0]
+      // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
       this.activeComponentIndex = Number(indx[0])
       this.activeComponent = looseComponents[this.activeComponentIndex]
       this.activeComponent.id = this.activeComponentIndex
@@ -884,7 +884,7 @@ methods: {
       }
       this.activeComponent.posStart = looseComponents[0].posStart
 
-      // if the approved pieces aren't all at the front, we need to make sure the order is maintained
+      // we need to make sure the order is maintained
       // use the component map to determine maintain order
       let final = []
       for (let el in componentMap){
@@ -923,6 +923,17 @@ methods: {
 
       // get the boxes lined up correctly
       this.renderHintBoxes()
+
+      // hacky, but without this the componentLooks won't match in `subjectStringChanged`
+      for (let i in this.components){
+        for (let j in this.componetLookup){
+          const key = Object.keys(this.componetLookup[j])[0]
+          if (this.components[i].label == key){
+            this.componetLookup[i] = this.componetLookup[j]
+
+          }
+        }
+      }
 
     } else {
       // Above we took loose components and combined them,
