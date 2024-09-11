@@ -861,6 +861,7 @@ methods: {
      */
 
     if (mode == "GEO"){
+      this.typeLookup[this.activeComponentIndex] = 'madsrdf:Geographic'
       /**
        * When dealing with a switch to GEO, we need to combine the "loose" components
        * into 1 so the search will work.
@@ -956,6 +957,7 @@ methods: {
       }
 
     } else {
+      this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
       // Above we took loose components and combined them,
       // here we undo that incase someone made a mistake and the geo
       // term has a subject in it that needs to be split out.
@@ -1704,6 +1706,9 @@ methods: {
       if (this.typeLookup[id]){
         type = this.typeLookup[id]
       }
+
+      console.info("id: ", id)
+      console.info("typelookup: ", this.typeLookup)
 
       this.components.push({
         label: ss,
