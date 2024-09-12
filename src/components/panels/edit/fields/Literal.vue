@@ -250,7 +250,7 @@ export default {
         cutterGuid: this.lccFeatureData.cutterGuid,
         componentPropertyPath: this.propertyPath,
         componentGuid: this.guid,
-        contributor: this.lccFeatureData.contributors[0].label,
+        contributor: this.lccFeatureData.contributors.length > 0 ? this.lccFeatureData.contributors[0].label : "",
         title: this.lccFeatureData.title,
         subj: this.lccFeatureData.firstSubject,
         date: ""  //not in `lccFeatureData`
