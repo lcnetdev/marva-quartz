@@ -178,7 +178,7 @@
             { text: "Preferences",  menu: [
 
               { text: 'Scriptshifter', click: () => this.showScriptshifterConfigModal = true, icon: 'translate' },
-              // { text: 'Diacritics', click: () => this.showDiacriticConfigModal = true, icon: 'keyboard' },
+              { text: 'Diacritics', click: () => this.showDiacriticConfigModal = true, icon: 'keyboard' },
 
               
 
