@@ -1707,9 +1707,6 @@ methods: {
         type = this.typeLookup[id]
       }
 
-      console.info("id: ", id)
-      console.info("typelookup: ", this.typeLookup)
-
       this.components.push({
         label: ss,
         uri: uri,
