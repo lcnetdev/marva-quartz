@@ -79,8 +79,9 @@
                 autocomplete="off"
                 @focusin="focused" 
                 @blur="blured"
-                @input="valueChanged"
-                @keyup="navKey"           
+                @input="valueChanged" 
+                @keyup="navKey"    
+                @keydown="keyDown"
                 :ref="'input_' + lValue['@guid']"
                 :data-guid="lValue['@guid']"
                 :disabled="readOnly"
@@ -284,6 +285,8 @@ export default {
 
     navKey: function(event){
 
+      
+
       if (event && event.code === 'ArrowUp'){
         utilsMisc.globalNav('up',event.target)
       }
@@ -297,6 +300,8 @@ export default {
         let id = `action-button-${event.target.dataset.guid}`
         document.getElementById(id).click()
       }
+
+      
 
     },
   
@@ -338,6 +343,255 @@ export default {
       }
 
     },
+
+    runMacroExpressMacro(event){
+
+      for (let macro of this.diacriticUseValues){
+            if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
+              // console.log("run this macro", macro)
+              
+              let insertAt = event.target.value.length
+          
+              if (event.target && event.target.selectionStart){
+                insertAt=event.target.selectionStart
+              }       
+              let inputV    
+              if (event.target){
+                inputV = event.target
+              }else{
+                console.warn("ERROR: Field not found")
+                return false
+              }
+
+
+
+              if (!macro.combining){
+
+                // there is behavior where if it is a digit shortcut the numerial is still sent
+                // so if thats the case remove the last digit from the value
+                if (event.code.includes('Digit')){
+                  // if it is in fact a digit char then remove it
+                  if (inputV.value.charAt(insertAt) == event.code.replace('Digit','')){
+                    // remove the last char
+                    // inputV.value = inputV.value.slice(0, -1); 
+                    inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+
+                  }
+                }
+
+                // same for euqal key
+                if (event.code == 'Equal'){
+                  if (inputV.value.charAt(inputV.value.length-1) == '='){
+                    // remove the last char
+                    // inputV.value = inputV.value.slice(0, -1);
+                    inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+
+                  }
+                }
+                // same for Backquote key
+
+                if (event.code == 'Backquote'){
+
+                  if (inputV.value.charAt(inputV.value.length-1) == '`'){
+                    // remove the last char
+                    // inputV.value = inputV.value.slice(0, -1);
+                    inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt) 
+                  }
+
+                }
+
+
+                // it is not a combining unicode char so just insert it into the value
+                if (inputV.value){
+                  // inputV.value=inputV.value+macro.codeEscape
+
+                  inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
+
+
+                  if (insertAt){
+                    this.$nextTick(()=>{
+                      inputV.setSelectionRange(insertAt+1,insertAt+1)
+
+                      this.$nextTick(()=>{
+                        inputV.focus()
+                      })
+
+                    })
+                  }else{
+
+                      this.$nextTick(()=>{
+                        inputV.focus()
+                      })
+                    
+                  }
+
+
+
+
+                  }else{
+                    inputV.value = macro.codeEscape
+                  }
+
+                }else{
+
+
+                  // same for Backquote key
+
+                  if (event.code == 'Backquote'){
+
+                    if (inputV.value.charAt(inputV.value.length-1) == '`'){
+                      // remove the last char
+                      inputV.value = inputV.value.slice(0, -1); 
+                    }
+
+                    }
+
+
+                    // little cheap hack here, on macos the Alt+9 makes ª digits 1-0 do this with Alt+## but we only 
+                    // have one short cut that uses Alt+9 so just remove that char for now
+                    inputV.value=inputV.value.replace('ª','')
+
+                    inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
+                    // inputV.value=inputV.value+macro.codeEscape
+
+                    inputV.setSelectionRange(insertAt+1,insertAt+1)
+                    inputV.focus()
+
+
+                    if (insertAt){
+                    this.$nextTick(()=>{
+                      inputV.setSelectionRange(insertAt+1,insertAt+1)
+
+                      this.$nextTick(()=>{
+                        inputV.focus()
+                      })
+
+                    })
+                    }else{
+
+                      this.$nextTick(()=>{
+                        inputV.focus()
+                      })
+
+                    }
+                }
+
+                event.preventDefault()
+                event.stopPropagation()
+                return false                
+            }
+          }
+
+
+
+    },
+
+
+    // we need to check to see if they are attempting to do a couple different types of macros, if they are then stop the event but kick off the macro action
+    keyDown: function(event){
+
+      if (this.nextInputIsVoyagerModeDiacritics){
+
+        
+
+        // they are pressing shift in about to press antoher macro shrotcut 
+        if (event.key == 'Shift'){
+          return false
+        }
+        
+        if (this.diacriticPacks.voyager[event.code]){
+
+
+          let useMacro
+          for (let macro of this.diacriticPacks.voyager[event.code]){          
+            if (macro.shiftKey == event.shiftKey){
+              useMacro = macro
+              break
+            }
+          }
+
+          let inputV = event.target
+          let insertAt = event.target.value.length          
+          if (event.target && event.target.selectionStart){
+            insertAt=event.target.selectionStart
+          }       
+
+          if (!useMacro.combining){
+          // it is not a combining unicode char so just insert it into the value            
+            if (inputV.value){
+              // inputV.value=inputV.value+useMacro.codeEscape
+              inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+            }else{
+              inputV.value = useMacro.codeEscape
+            }
+          }else{
+                // inputV.value=inputV.value+useMacro.codeEscape
+                inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+          }
+
+          if (insertAt){
+          this.$nextTick(()=>{
+            inputV.setSelectionRange(insertAt+1,insertAt+1)
+
+            this.$nextTick(()=>{
+              inputV.focus()
+            })
+
+          })
+          }else{
+
+            this.$nextTick(()=>{
+              inputV.focus()
+            })
+
+          }
+
+
+
+        }
+
+
+        // turn off mode
+        this.nextInputIsVoyagerModeDiacritics  =false
+
+        event.target.style.removeProperty('background-color')
+        event.preventDefault()
+        return false
+      }
+
+
+
+        if (event.ctrlKey == true){
+          if (this.diacriticUse.length>0){
+            for (let macro of this.diacriticUseValues){
+              if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
+                console.log("run this macro", macro)
+                event.preventDefault()
+
+                this.runMacroExpressMacro(event)
+                this.valueChanged(event)
+                return false
+                
+              }
+            }
+          }
+
+          if (event.code == 'KeyE'){
+            if (!this.preferenceStore.returnValue('--b-diacritics-disable-voyager-mode')){
+
+              event.target.style.backgroundColor="chartreuse"
+              this.nextInputIsVoyagerModeDiacritics = true
+              event.preventDefault()
+              return false
+            }
+            
+          }
+
+          // 
+
+        }
+    },
+
     valueChanged: async function(event,setFocus){
 
       let v = event.target.value
@@ -453,7 +707,7 @@ export default {
     ...mapStores(usePreferenceStore),
 
     ...mapState(useConfigStore, ['scriptShifterLangCodes', 'lccFeatureProperties']),
-
+    ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
     ...mapWritableState(useProfileStore, ['showShelfListingModal','activeField','activeProfile', 'literalLangShow', 'literalLangInfo','dataChangedTimestamp','activeShelfListData']),
 
 
@@ -563,6 +817,8 @@ export default {
       showField: true,
 
       cutterCalcLength: 2,
+
+      nextInputIsVoyagerModeDiacritics: false,
 
       
       

@@ -173,9 +173,9 @@
             }
             
           }
-          console.log(this.literalLangInfo)
-          console.log(lang,script)
-          console.log(langStr)
+          // console.log(this.literalLangInfo)
+          // console.log(lang,script)
+          // console.log(langStr)
 
 
 

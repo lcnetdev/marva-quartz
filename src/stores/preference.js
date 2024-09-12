@@ -38,8 +38,9 @@ export const usePreferenceStore = defineStore('preference', {
       voyager: diacrticsVoyagerNative,
     },
 
-    diacriticUse:{},
-    diacriticUseValues:{},
+    diacriticUse:[],
+    diacriticUseValues:[],
+    
 
 
 
@@ -633,6 +634,33 @@ export const usePreferenceStore = defineStore('preference', {
       },
 
 
+
+      // diacritics
+
+      '--b-diacritics-disable-voyager-mode' : {
+        desc: 'Do not use Voyager Mode (crtl+e).',
+        descShort: 'Do not use Voyager Mode (crtl+e)',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Diacritics',
+        range: [true,false]
+      },      
+
+      '--c-diacritics-enabled-macros' : {
+        value:[],
+        desc: '',
+        descShort: 'List of diacritic macros to use',
+        type: 'color',
+        group: 'Diacritics',
+        range: null
+      },
+
+
+
+
+
+
     }
 
 
@@ -686,6 +714,8 @@ export const usePreferenceStore = defineStore('preference', {
       this.panelDisplayOrginal = JSON.parse(JSON.stringify(this.panelDisplay))
       this.loadPreferences()
 
+      this.buildDiacriticSettings()
+
         // fetch(this.configStore.returnUrls.scriptshifter + 'languages', {
         //   method: 'GET'
         // })
@@ -730,6 +760,7 @@ export const usePreferenceStore = defineStore('preference', {
         styleDefault: this.styleDefault,
         panelDisplay: this.panelDisplay
       }
+      console.log(bfPrefs)
       let prefs = JSON.stringify(bfPrefs)
       window.localStorage.setItem('marva-preferences',prefs)
     },
@@ -747,6 +778,14 @@ export const usePreferenceStore = defineStore('preference', {
             prefs.styleDefault[k].group = "Sidebars - Previews"
           }
         }
+
+        // if there is a new style in the defaults that is not in their saved prefs.
+        for (let k in this.styleDefault){
+          if (!prefs.styleDefault[k]){
+            prefs.styleDefault[k] = this.styleDefault[k]
+          }
+        }
+
 
         this.styleDefault = prefs.styleDefault
         this.panelDisplay = prefs.panelDisplay
@@ -792,6 +831,9 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {boolean} - Did it work
     */
     setValue: function(propertyName,value){
+      console.log(propertyName,value)
+      console.log(this.styleDefault)
+      console.log(this.styleDefault[propertyName])
       if (!this.styleDefault[propertyName]){
         return false
       }
@@ -860,6 +902,36 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
 
+    /**
+    * Builds the diacrtic settings to use in the edit panel
+    * @return {void}
+    */
+    buildDiacriticSettings: function(){
+
+      this.diacriticUse = this.returnValue('--c-diacritics-enabled-macros')
+
+
+      this.diacriticUse = [...new Set(this.diacriticUse)];
+      
+      console.log(this.diacriticUse)
+
+
+      for (let d in this.diacriticPacks.macroExpress){
+
+        let macros = this.diacriticPacks.macroExpress[d]
+        for (let macro of macros ){
+          let key = d + '-' + macro.unicode
+          if (this.diacriticUse.indexOf(key)>-1){
+            this.diacriticUseValues.push(macro)
+          }
+        }
+        
+
+      }
+      console.log(this.diacriticUseValues)
+
+      
+    },
 
     /**
     * Take a url and rewrites it to match the url pattern of the current enviornment
