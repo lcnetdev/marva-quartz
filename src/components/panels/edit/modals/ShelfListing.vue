@@ -16,7 +16,7 @@
     components: {
       VueFinalModal,
       VueDragResize,
-      
+
     },
 
     data() {
@@ -33,6 +33,10 @@
 
         classNumber: null,
         cutterNumber:null,
+        contributor:null,
+        title:null,
+        subj:null,
+        date:null,
 
         results: [],
 
@@ -49,8 +53,8 @@
       ...mapStores(useConfigStore),
       ...mapStores(useProfileStore),
 
-      
-      
+
+
       // ...mapWritableState(usePreferenceStore, ['literalLangGuid']),
       ...mapWritableState(useProfileStore, ['showShelfListingModal','activeShelfListData']),
 
@@ -58,23 +62,23 @@
       /**
       * Returns the current scripts defined in th embdeded data
       * @return {array} results - array of scripts
-      */  
+      */
       xxxxx(){
 
 
       },
-    
+
 
 
     },
 
     watch: {
 
-      
+
     },
 
     methods: {
-        
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -99,14 +103,14 @@
         async save(){
 
 
-          // using the 
+          // using the
 
           if (this.classNumber && this.classNumber.trim() != ''){
             if (!this.activeShelfListData.classGuid){
               this.activeShelfListData.classGuid = short.generate()
-            } 
+            }
 
-            // the open button lives in the item portion of the number so we don't have the class portion, but they will always be siblings so just modify the path 
+            // the open button lives in the item portion of the number so we don't have the class portion, but they will always be siblings so just modify the path
             // so it matches to where the class property path is
             let classPropertyPath = JSON.parse(JSON.stringify(this.activeShelfListData.componentPropertyPath))
             console.log(classPropertyPath)
@@ -127,7 +131,7 @@
             await this.profileStore.setValueLiteral(this.activeShelfListData.componentGuid,this.activeShelfListData.cutterGuid,this.activeShelfListData.componentPropertyPath,this.cutterNumber)
           }
 
-          
+
 
           this.showShelfListingModal=false
 
@@ -136,45 +140,55 @@
 
 
         async search(){
-
           if (!this.classNumber){this.classNumber=''}
           if (!this.cutterNumber){this.cutterNumber=''}
+
+
+          this.contributor= this.contributor ? "&sp-name="+this.contributor : ""
+          this.title= this.title ? "&sp-title="+this.title  : ""
+          this.subj= this.subj ? "&sp-subject="+this.subj  : ""
+          this.date= this.date ? "&sp-date="+this.date : ""
+
+
           this.results = []
           this.searching=true
-          this.results =  await utilsNetwork.searchShelfList(this.classNumber.trim() + '' + this.cutterNumber.trim())
+          this.results =  await utilsNetwork.searchShelfList(
+            this.classNumber.trim() + '' + this.cutterNumber.trim(),
+            this.contributor + this.title + this.subj +this.date
+          )
 
           this.searching=false
 
           //       altsubject
-          // : 
+          // :
           // "Railroad trains"
           // creator
-          // : 
+          // :
           // ""
           // frequency
-          // : 
+          // :
           // ""
           // lookup
-          // : 
+          // :
           // "/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20C66%202016"
           // pubdate
-          // : 
+          // :
           // "2016"
           // subject
-          // : 
+          // :
           // "Railroad trains--Juvenile literature"
           // term
-          // : 
+          // :
           // "TF148 C66 2016"
           // title
-          // : 
+          // :
           // "Trains"
 
 
 
         },
 
-       
+
 
 
     },
@@ -185,17 +199,20 @@
     },
 
     async mounted() {
-
       this.classNumber = this.activeShelfListData.class
       this.cutterNumber = this.activeShelfListData.cutter
+      this.contributor = this.activeShelfListData.contributor
+      this.title = this.activeShelfListData.title
+      this.subj = this.activeShelfListData.firstSubject
+      this.date = this.activeShelfListData.date
       if ((this.classNumber && this.classNumber != '') || (this.cutterNumber && this.cutterNumber != '')){
         this.search()
       }
-      
+
     }
   }
 
-  
+
 
 </script>
 
@@ -207,7 +224,7 @@
       :hide-overlay="true"
       :overlay-transition="'vfm-fade'"
 
-      
+
     >
         <VueDragResize
           :is-active="true"
@@ -222,7 +239,7 @@
         >
           <div id="shelf-listing-content" ref="shelfListingContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
 
-            
+
             <div class="menu-buttons">
               <button class="close-button"   @pointerup="showShelfListingModal=false">X</button>
             </div>
@@ -251,7 +268,7 @@
                   <tbody>
 
                     <template v-for="r in results">
-                      <template  v-if="r.title.trim() != 'Class would appear here.'">
+                      <template  v-if="r.title.trim() != 'Class would appear here.' && r.bibid.trim() != ''">
                         <tr>
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
@@ -261,7 +278,9 @@
                         </tr>
                       </template>
 
-                      <template  v-if="r.title.trim() == 'Class would appear here.'">
+                      <!-- <template  v-if="r.title.trim() == 'Class would appear here.'"> -->
+                      <!-- The new entry shouldn't have a bibid -->
+                      <template  v-if="r.bibid.trim() == ''">
                         <tr style="background-color: yellow;">
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
@@ -272,14 +291,14 @@
                         </tr>
                       </template>
 
-                  
-                                    
+
+
 
 
                     </template>
 
 
-                    
+
 
 
 
@@ -289,11 +308,11 @@
 
                 </table>
               </div>
-              
+
 
             </div>
 
-            
+
           </div>
 
 
@@ -324,7 +343,7 @@
   }
   .shelf-listing-work-area{
     clear: both;
-    
+
   }
   .shelf-listing-modal{
     background-color: white;
@@ -370,7 +389,7 @@
     width: 25px;
     height: 25px;
   }
-  
+
 
   .option{
     display: flex;
@@ -385,9 +404,9 @@
     font-size: 0.8em;
     color:gray;
   }
-  
+
   .menu-buttons{
-    
+
     position: relative;
     z-index: 100;
   }

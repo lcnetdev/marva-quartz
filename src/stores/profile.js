@@ -105,11 +105,8 @@ export const useProfileStore = defineStore('profile', {
             }
           }
         }
-      };
-
-
+      }
     },
-
 
   },
   actions: {
@@ -1369,7 +1366,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-      
+
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
 
@@ -1490,10 +1487,10 @@ export const useProfileStore = defineStore('profile', {
 
 
           delete blankNode[lastProperty]
-          
+
 
           let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
-          
+
           if (parent && parent[lastProperty]){
             let keep = []
             if (parent[lastProperty].length>0){

@@ -4,24 +4,24 @@
     <template v-if="inlineModeShouldDisplay">
 
       <template v-if="literalValues.length===1 && literalValues[0].value === ''">
-          
+
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
           <!-- <span @focus="inlineEmptyFocus" contenteditable="true" class="inline-mode-editable-span" ><span class="inline-mode-editable-span-space-maker">&nbsp;</span></span>         -->
-          <input type="text" @focusin="focused" @keyup="navKey"  @input="valueChanged($event,true)" class="inline-mode-editable-span-input can-select" :ref="'input_' + literalValues[0]['@guid']" :data-guid="literalValues[0]['@guid']" />     
+          <input type="text" @focusin="focused" @keyup="navKey"  @input="valueChanged($event,true)" class="inline-mode-editable-span-input can-select" :ref="'input_' + literalValues[0]['@guid']" :data-guid="literalValues[0]['@guid']" />
 
       </template>
       <template v-else>
 
         <template v-for="lValue in literalValues">
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <span contenteditable="true" @focusin="focused" @blur="blured" class="inline-mode-editable-span can-select" @keyup="navKey" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>        
+          <span contenteditable="true" @focusin="focused" @blur="blured" class="inline-mode-editable-span can-select" @keyup="navKey" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>
         </template>
 
 
       </template>
 
       <Transition name="action">
-        <div class="literal-action-inline-mode" v-if="showActionButton && myGuid == activeField">          
+        <div class="literal-action-inline-mode" v-if="showActionButton && myGuid == activeField">
           <action-button :clickmode="true" :structure="structure"  :small="true" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
       </div>
     </Transition>
@@ -40,7 +40,7 @@
 
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
-            <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>       
+            <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
           </template>
           <form autocomplete="off" >
 
@@ -49,15 +49,15 @@
               <div class="bfcode-display-mode-holder">
                 <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
                 <div class="bfcode-display-mode-holder-value">
-                    <textarea 
-                    :class="['literal-textarea', 'can-select',{'bfcode-textarea': preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode')}]" 
+                    <textarea
+                    :class="['literal-textarea', 'can-select',{'bfcode-textarea': preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode')}]"
                     v-model="lValue.value"
                     v-on:keydown.enter.prevent="submitField"
                     autocomplete="off"
-                    @focusin="focused" 
+                    @focusin="focused"
                     @blur="blured"
-                    @input="valueChanged" 
-                    @keyup="navKey"         
+                    @input="valueChanged"
+                    @keyup="navKey"
                     :ref="'input_' + lValue['@guid']"
                     :data-guid="lValue['@guid']"
                     :disabled="readOnly"
@@ -66,18 +66,18 @@
 
                 </div>
               </div>
-              
+
 
 
             </template>
             <template v-else>
 
-              <textarea 
-                :class="['literal-textarea', 'can-select',{}]" 
+              <textarea
+                :class="['literal-textarea', 'can-select',{}]"
                 v-model="lValue.value"
                 v-on:keydown.enter.prevent="submitField"
                 autocomplete="off"
-                @focusin="focused" 
+                @focusin="focused"
                 @blur="blured"
                 @input="valueChanged" 
                 @keyup="navKey"    
@@ -107,11 +107,11 @@
 
     <div class="lcc-action-zone" v-if="lccFeatureData !== false">
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/classificationPortion'">
-        
+
         <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://classweb.org/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan='+lccFeatureData.classNumber+'&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'" target="_blank">ClassWeb Search: {{ lccFeatureData.classNumber }}</a><br/>
         <a style="color:black" v-if="lccFeatureData.firstSubject" :href="'https://classweb.org/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a>
 
-        
+
       </div>
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/itemPortion'">
         <!-- { "title": "knitter's handy book of patterns", "classNumber": "TT820", "cutterNumber": ".B877 2002", "titleNonSort": 4, "contributors": [ { "type": "PrimaryContribution", "label": "Budd, Ann, 1956-" } ], "firstSubject": "Knitting--Patterns" } -->
@@ -138,8 +138,8 @@
                 </div>
 
 
-                
-                
+
+
               </template>
               <template v-if="lccFeatureData.contributors[1]">
                 <div>
@@ -148,17 +148,17 @@
                   <input type="text" :value="usePeriodInCutter() + calculateCutter(lccFeatureData.contributors[1].label,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength))">
                   <a style="font-size: 0.85em; padding-left: 0.5em;" @click.prevent="setLccInfo(lccFeatureData.cutterGuid,calculateCutter(lccFeatureData.contributors[1].label,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength)))" href="#">Use</a>
                 </div>
-              </template>            
+              </template>
               <template v-if="lccFeatureData.title">
-                <div>                  
+                <div>
                   <span style="font-weight: bold;">{{lccFeatureData.title.substring(0,parseInt(cutterCalcLength))}}</span>
                   <span>{{lccFeatureData.title.substring(parseInt(cutterCalcLength),parseInt(cutterCalcLength)+12)}}</span>
                   <input type="text" :value="usePeriodInCutter() + calculateCutter(lccFeatureData.title,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength))">
                   <a style="font-size: 0.85em; padding-left: 0.5em;" @click.prevent="setLccInfo(lccFeatureData.cutterGuid,calculateCutter(lccFeatureData.title,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength)))" href="#">Use</a>
                 </div>
-              </template>    
+              </template>
 
-              <div>                  
+              <div>
                   <span style="font-weight: bold;">{{freeFormCutter.substring(0,parseInt(cutterCalcLength))}}</span>
                   <span>{{freeFormCutter.substring(parseInt(cutterCalcLength),parseInt(cutterCalcLength)+12)}}</span>
                   <input placeholder="Free Form Cutter Input" v-model="freeFormCutter">
@@ -166,7 +166,7 @@
                   <a style="font-size: 0.85em; padding-left: 0.5em;" @click.prevent="setLccInfo(lccFeatureData.cutterGuid,calculateCutter(freeFormCutter,parseInt(cutterCalcLength)).substring(0,parseInt(cutterCalcLength)))" href="#">Use</a>
                 </div>
 
-              
+
             </template>
 
             <div>
@@ -174,7 +174,7 @@
               <label for="cutterCalcLength" style="font-size: 0.8em; vertical-align: text-top;">Calc Length ({{ cutterCalcLength }})</label>
             </div>
 
-            
+
           </fieldset>
           </div>
           <div style="flex:1;     display: flex;justify-content: center;align-items: center;">
@@ -182,7 +182,7 @@
           </div>
 
         </div>
-        
+
       </div>
 
 
@@ -218,7 +218,7 @@ export default {
     ActionButton,
     // EditLiteralEditor,
     // EditLabelRemark,
-    // Keypress: () => import('vue-keypress')    
+    // Keypress: () => import('vue-keypress')
   },
 
   props: {
@@ -244,18 +244,21 @@ export default {
     },
 
     openShelfListSearch(){
-
       this.activeShelfListData = {
         class: this.lccFeatureData.classNumber,
         cutter:this.lccFeatureData.cutterNumber,
         classGuid:this.lccFeatureData.classGuid,
         cutterGuid: this.lccFeatureData.cutterGuid,
         componentPropertyPath: this.propertyPath,
-        componentGuid: this.guid
+        componentGuid: this.guid,
+        contributor: this.lccFeatureData.contributors.length > 0 ? this.lccFeatureData.contributors[0].label : "",
+        title: this.lccFeatureData.title,
+        subj: this.lccFeatureData.firstSubject,
+        date: ""  //not in `lccFeatureData`
       }
       this.showShelfListingModal = true
 
-      
+
     },
 
 
@@ -269,7 +272,7 @@ export default {
       await this.profileStore.setValueLiteral(this.guid,fieldGuid,this.propertyPath,lccVal,null)
 
 
-      
+
 
     },
 
@@ -291,11 +294,11 @@ export default {
         utilsMisc.globalNav('up',event.target)
       }
       if (event && event.code === 'ArrowDown'){
-        
+
         utilsMisc.globalNav('down',event.target)
       }
 
-      
+
       if (event && event.keyCode == 220 && event.ctrlKey == true){
         let id = `action-button-${event.target.dataset.guid}`
         document.getElementById(id).click()
@@ -304,7 +307,7 @@ export default {
       
 
     },
-  
+
     focusClick: function(lValue){
 
       this.$refs['input_' + lValue['@guid']][0].focus()
@@ -313,8 +316,8 @@ export default {
     focused: function(){
 
 
-      
-      // set the state active field 
+
+      // set the state active field
       this.activeField = this.myGuid
 
       // if enabled show the action button
@@ -339,7 +342,7 @@ export default {
       for (let key of Object.keys(this.$refs)){
         if (key.startsWith('input_')){
           this.$refs[key][0].style.height =  this.$refs[key][0].scrollHeight + "px"
-        }      
+        }
       }
 
     },
@@ -595,7 +598,7 @@ export default {
     valueChanged: async function(event,setFocus){
 
       let v = event.target.value
-      
+
       if (event.target.tagName === 'SPAN'){
         v = event.target.innerText
         if (event.data && event.data === '|'){
@@ -604,9 +607,9 @@ export default {
           return false
         }
       }
-      
+
       await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,event.target.dataset.lang)
-      
+
       if (setFocus){
 
         let r = 'input_' + this.literalValues[0]['@guid']
@@ -629,11 +632,11 @@ export default {
         }
 
 
-        
 
 
 
-      }      
+
+      }
     },
 
 
@@ -641,21 +644,21 @@ export default {
     actionButtonCommand: async function(cmd,options){
 
 
-      
+
 
       if (cmd == 'addField'){
         this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,"new value",null,true)
       }
-      
+
       if (cmd == 'trans'){
         // this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,"new value",null,true)
 
         let fieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] == options.fieldGuid) })
-        
+
 
         let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
         transValue = JSON.parse(transValue)
-        
+
         let toLang = null
         let fromLang = null
         if (this.scriptShifterLangCodes[options.lang]){
@@ -669,21 +672,21 @@ export default {
         // but also make sure the old string has the language tag
         this.profileStore.setValueLiteral(this.guid,fieldValue[0]['@guid'],this.propertyPath,fieldValue[0]['value'],fromLang)
 
-        
-        
-        
+
+
+
       }
 
       if (cmd == 'setLiteralLang'){
 
-        
+
         this.literalLangInfo={
           propertyPath: this.propertyPath,
           componentGuid: this.guid,
           values: this.profileStore.returnLiteralValueFromProfile(this.guid,this.propertyPath)
         }
 
-        
+
         this.literalLangShow=true
 
 
@@ -723,7 +726,7 @@ export default {
           value: '',
           '@lang': null,
           '@guid': short.generate()
-        }]        
+        }]
       }
 
       if (values.length == 0){
@@ -736,7 +739,7 @@ export default {
         this.hasNoData=true
         if (this.readOnly){
           this.showField=false
-        }        
+        }
       }else{
         this.hasNoData=false
       }
@@ -744,10 +747,10 @@ export default {
 
       return values
 
-    }, 
+    },
 
     lccFeatureData(){
-      this.lccFeatureDataCounter      
+      this.lccFeatureDataCounter
       if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length-1].propertyURI)>-1){
         let data = this.profileStore.returnLccInfo(this.guid, this.structure)
         if (data.contributors && data.contributors.length>0){
@@ -758,7 +761,7 @@ export default {
       return false
     },
 
-    
+
     inlineModeShouldDisplay(){
 
 
@@ -772,7 +775,7 @@ export default {
         if (this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath)){
           return true
         }
-      } 
+      }
 
       return false
 
@@ -786,42 +789,41 @@ export default {
 
   watch: {
 
-    
-    // literalValues(newliteralValues, oldliteralValues) {      
+
+    // literalValues(newliteralValues, oldliteralValues) {
     //   console.log(newliteralValues, this.guid, this.structure)
     //   if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length-1].propertyURI)>-1){
     //     this.lccFeatureData = this.profileStore.returnLccInfo(this.guid, this.structure)
     //   }
     // }
-    dataChangedTimestamp(newVal, oldVal) {      
+    dataChangedTimestamp(newVal, oldVal) {
       this.lccFeatureDataCounter++
     }
-    
 
-    
+
+
   },
 
   data: function() {
-    return {  
+    return {
 
       activeGuid: this.guid,
 
       freeFormCutter: '',
 
       // used as toggle to show the button when field is focused
-      showActionButton: false,    
-      
+      showActionButton: false,
+
       lccFeatureDataCounter: 0,
 
       hasNoData: false,
       showField: true,
 
       cutterCalcLength: 2,
-
       nextInputIsVoyagerModeDiacritics: false,
 
-      
-      
+
+
     }
   },
 
@@ -838,7 +840,7 @@ export default {
     this.$nextTick().then(() => {
       this.expandHeightToContent()
     })
-    
+
 
 
 
@@ -959,7 +961,7 @@ textarea{
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
-  box-shadow: none;  
+  box-shadow: none;
   resize: none;
   width: 100%;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
