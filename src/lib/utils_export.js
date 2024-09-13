@@ -8,7 +8,7 @@ import utilsMisc from './utils_misc';
 import utilsNetwork from './utils_network';
 
 
-const escapeHTML = str => str.replace(/[&<>'"]/g, 
+const escapeHTML = str => str.replace(/[&<>'"]/g,
   tag => ({
       '&': '&amp;',
       '<': '&lt;',
@@ -347,7 +347,7 @@ const utilsExport = {
 			return xmlObj
 		} catch (error) {
 			console.warn("XML Parsing Error:")
-			console.warn(error)			
+			console.warn(error)
 
 			useProfileStore().triggerBadXMLBuildRecovery(this.lastGoodXMLBuildProfile, this.lastGoodXMLBuildProfileTimestamp)
 
@@ -368,7 +368,7 @@ const utilsExport = {
 			----------------
 			XML Creation Log
 			----------------
-			
+
 			----End Creation Log----
 
 
@@ -377,7 +377,7 @@ const utilsExport = {
 			****************
 			${(profile.xmlSource) ? profile.xmlSource : 'No Source Found'}
 			***End Source***
-			`			
+			`
 
 			utilsNetwork.sendErrorReportLog(errorReport,filename,profileAsJson)
 
@@ -1469,6 +1469,8 @@ const utilsExport = {
     // console.log(strXmlFormatted)
     // console.log("------")
     // console.log(strXmlBasic)
+
+		console.info("xml: ", strXmlBasic)
 
 		return {
 			xmlDom: rdf,

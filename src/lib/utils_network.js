@@ -571,7 +571,6 @@ const utilsNetwork = {
 
       let instances = []
 
-
       // grab the title
       for (let val of data){
 
@@ -2123,7 +2122,6 @@ const utilsNetwork = {
         'names':resultsNames,
         'hierarchicalGeographic': resultsHierarchicalGeographic
       }
-
 
       return results
 
