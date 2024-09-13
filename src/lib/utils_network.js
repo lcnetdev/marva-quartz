@@ -145,7 +145,6 @@ const utilsNetwork = {
     */
 
     loadSimpleLookupKeyword: async function(uris,keyword){
-
       if (!Array.isArray(uris)){
         uris=[uris]
       }
