@@ -1074,17 +1074,22 @@ methods: {
       pos = pieces.indexOf(searchString)
     }
 
+    // limiting output so that authorized headings won't appear when search for a subdivsion
+    // But it is possible for someone to build a heading that exists in full and they could end up with
+    // an uncontrolled heading that really should be
     for (let element in that.searchResults){
-      for (let i = that.searchResults[element].length-1; i >= 0; i--){
-        if (that.searchResults[element][i].collections){
-          let isAuth = that.searchResults[element][i].collections.findIndex(coll => coll.includes("AuthorizedHeadings")) >= 0
-          // the heading is not authorized, and we're looking at position 0, remove it
-          if (!isAuth && pos == 0){
-            that.searchResults[element].splice(i, 1)
-          } else if (isAuth && pos != 0) { // the heading is authorized, but we're not looking at position 0, remove it
-            that.searchResults[element].splice(i, 1)
-          }
+      if (element != "subjectsComplex"){  // keep showing complext subjects so the most full version shows if available
+        for (let i = that.searchResults[element].length-1; i >= 0; i--){
+          if (that.searchResults[element][i].collections){
+            let isAuth = that.searchResults[element][i].collections.findIndex(coll => coll.includes("AuthorizedHeadings")) >= 0
+            // the heading is not authorized, and we're looking at position 0, remove it
+            if (!isAuth && pos == 0){
+              that.searchResults[element].splice(i, 1)
+            } else if (isAuth && pos != 0) { // the heading is authorized, but we're not looking at position 0, remove it
+              that.searchResults[element].splice(i, 1)
+            }
 
+          }
         }
       }
     }
@@ -1121,17 +1126,10 @@ methods: {
     }
 
     for (let s of that.searchResults.subjectsSimple){
-
-
       if (s.suggestLabel && s.suggestLabel.includes('(DEPRECATED')){
-
         s.suggestLabel = s.suggestLabel.split('(DEPRECATED')[0] + "(DEPRECATED)"
       }
-
-
     }
-
-
 
     for (let s of that.searchResults.hierarchicalGeographic){
       if (s.suggestLabel && s.suggestLabel.includes(' (USE ')){
@@ -1149,11 +1147,7 @@ methods: {
           s.suggestLabel = s.label
         }
       }
-
     }
-
-
-
 
     for (let s of that.searchResults.hierarchicalGeographic){
       s.labelOrginal = s.label
@@ -1161,12 +1155,9 @@ methods: {
       s.label = s.label.replaceAll('-','‑')
     }
 
-
     if (that.searchResults.hierarchicalGeographic.length>0 && that.searchResults.subjectsComplex.length==0){
       that.searchResults.subjectsComplex = that.searchResults.hierarchicalGeographic
     }
-
-
 
     that.pickLookup = {}
 
@@ -1183,19 +1174,12 @@ methods: {
       that.pickLookup[parseInt(x)+parseInt(that.searchResults.subjectsComplex.length)] = that.searchResults.subjectsSimple[x]
     }
 
-
-
-
-
-
     for (let x in that.searchResults.names){
       that.pickLookup[(that.searchResults.names.length - x)*-1] = that.searchResults.names[x]
     }
 
     for (let k in that.pickLookup){
-
       that.pickLookup[k].picked = false
-
       if (searchString.toLowerCase() == that.pickLookup[k].label.toLowerCase() && !that.pickLookup[k].literal ){
         // if the labels are the same for the current one selected don't overide it
         if (that.pickLookup[k].label.replaceAll('‑','-') == that.activeComponent.label.replaceAll('‑','-') && that.activeComponent.uri){
@@ -1204,53 +1188,32 @@ methods: {
             that.pickLookup[k].picked=true
             that.selectContext()
           }
-
         }else{
-
-
           // if they started typing the next word already then stop this
           if (that.subjectString.replaceAll('‑','-')!=searchStringFull.replaceAll('‑','-')){
             break
-
           }
-
           // do they even have the same label currently, they might be clicking around in the interface
           // so at this point with the async lookup this is not even the right componen
           if (that.pickLookup[k].label !=  that.activeComponent.label){
             break
-
           }
-
-
           that.pickPostion=k
           that.pickLookup[k].picked=true
           that.selectContext()
-
         }
-
-
-
-
-
       }
     }
 
     // that.contextData.dispatch("clearContext", { self: that})
-
     if (that.pickLookup[that.pickPostion] && !that.pickLookup[that.pickPostion].literal){
       that.contextRequestInProgress = true
-
       that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
-
       // keep a local copy of it for looking up subject type
       if (that.contextData){
         that.localContextCache[that.contextData.uri] = JSON.parse(JSON.stringify(that.contextData))
       }
-
     }
-
-
-
 
     window.clearInterval(ti)
     window.clearTimeout(tiBackup)
@@ -1955,8 +1918,33 @@ methods: {
         c.type = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
       }
     }
-    console.log(this.localContextCache)
-    console.log(this.components)
+
+    // If the individual components together, match a complex subject, switch'em so the user ends up with a controlled term
+    let match = false
+    const componentCount = this.components.length
+    const componentCheck = this.components.length > 0 ? this.components.map((component) => component.label).join("--") : false
+
+    for (let el in this.searchResults["subjectsComplex"]){
+      let target = this.searchResults["subjectsComplex"][el]
+      if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
+        match = true
+        this.components.push({
+          "complex": target.complex,
+          "id": 0,
+          "label": target.label,
+          "literal": false,
+          "posEnd": target.label.length,
+          "posStart": 0,
+          "type": "madsrdf:Topic",
+          "uri": target.uri,
+        })
+      }
+    }
+    //remove unused components
+    if (match){
+      Array(componentCount).fill(0).map((i) => this.components.shift())
+    }
+
     this.$emit('subjectAdded', this.components)
   },
 
