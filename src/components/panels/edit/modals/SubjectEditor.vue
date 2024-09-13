@@ -1035,9 +1035,6 @@ methods: {
 
   // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
   searchApis: debounce(async (searchString, searchStringFull, that) => {
-    console.info("searchApis")
-    console.info("searchString: ", searchString)
-    console.info("searchStringFull: ", searchStringFull)
     that.pickCurrent = null //reset the current selection when the search changes
 
     that.searchResults=null
@@ -1063,7 +1060,6 @@ methods: {
     searchStringFull=searchStringFull.replaceAll('‑','-')
 
     that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
-    console.info("searchResults: ", that.searchResults)
 
     /**
      * The following lines will remove search results based on
@@ -1907,7 +1903,6 @@ methods: {
 
 
   add: function(){
-    console.info("adding")
     //remove any existing thesaurus label, so it has the most current
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 

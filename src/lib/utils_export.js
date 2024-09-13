@@ -1470,8 +1470,6 @@ const utilsExport = {
     // console.log("------")
     // console.log(strXmlBasic)
 
-		console.info("xml: ", strXmlBasic)
-
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,
