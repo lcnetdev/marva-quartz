@@ -26,6 +26,7 @@ export const useConfigStore = defineStore('config', {
         starting: 'http://localhost:9401/util/profiles/starting/prod',
 
         profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        //profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
 
@@ -361,6 +362,17 @@ export const useConfigStore = defineStore('config', {
       "modes":[
         {
           'All':{"url":"https://preprod-8288.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+        }
+      ]
+    },
+
+    "http://id.loc.gov/authorities/demographicTerms": {
+      "name":"demographicTerms",
+      "type":"complex",
+      "processor" : 'lcAuthorities',
+      "modes":[
+        {
+          'LCDGT All':{"url":"https://preprod-8288.id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>", "all":true},
         }
       ]
     },

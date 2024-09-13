@@ -8,7 +8,7 @@
       <template v-if="simpleLookupValues.length===0">
 
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
+          <input v-model="activeValue" class="inline-lookup-input can-select 1" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
 
 
       </template>
@@ -83,7 +83,7 @@
                   </div>
                 </div>
                 <div class="lookup-fake-input-text" style="display: inline-block;">
-                  <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" />
+                  <input v-model="activeValue" class="inline-lookup-input can-select 2" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" />
                 </div>
 
               </div>
@@ -101,7 +101,7 @@
               </div>
             </div>
             <div class="lookup-fake-input-text">
-              <input v-model="activeValue" class="inline-lookup-input can-select" ref="lookupInput" :data-guid="structure['@guid']" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
+              <input v-model="activeValue" class="inline-lookup-input can-select 3" ref="lookupInput" :data-guid="structure['@guid']" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
             </div>
 
 
