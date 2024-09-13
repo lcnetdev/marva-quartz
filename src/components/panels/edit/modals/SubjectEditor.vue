@@ -1923,14 +1923,33 @@ methods: {
         c.type = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
       }
     }
-    console.log(this.localContextCache)
-    console.log(this.components)
-    console.info("this.localContextCache: ", this.localContextCache)
-    console.info("this.components: ", this.components)
-    // the the components that are being added exist as a single term in the localContextCache, swap them
-    let componentCheck = this.components.map((component) => component.label).join("--") ? this.components.length > 0 : false
-    console.info("check: ", componentCheck)
-    console.info(this.components.map((component) => component.label).join("--"))
+
+    // If the individual components together, match a complex subject, switch'em so the user ends up with a controlled term
+    let match = false
+    const componentCount = this.components.length
+    const componentCheck = this.components.length > 0 ? this.components.map((component) => component.label).join("--") : false
+
+    for (let el in this.searchResults["subjectsComplex"]){
+      let target = this.searchResults["subjectsComplex"][el]
+      if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
+        match = true
+        this.components.push({
+          "complex": target.complex,
+          "id": 0,
+          "label": target.label,
+          "literal": false,
+          "posEnd": target.label.length,
+          "posStart": 0,
+          "type": "madsrdf:Topic",
+          "uri": target.uri,
+        })
+      }
+    }
+    //remove unused components
+    if (match){
+      Array(componentCount).fill(0).map((i) => this.components.shift())
+    }
+
     this.$emit('subjectAdded', this.components)
   },
 
