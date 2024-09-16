@@ -41,7 +41,7 @@ export const usePreferenceStore = defineStore('preference', {
     diacriticUse:[],
     diacriticUseValues:[],
     
-
+    showTextMacroModal: false,
 
 
     // keeps a copy of the orginal values to be able to reset
@@ -651,7 +651,15 @@ export const usePreferenceStore = defineStore('preference', {
         value:[],
         desc: '',
         descShort: 'List of diacritic macros to use',
-        type: 'color',
+        type: 'other',
+        group: 'Diacritics',
+        range: null
+      },
+      '--o-diacritics-text-macros' : {
+        value:[],
+        desc: '',
+        descShort: 'Text macros to use',
+        type: 'other',
         group: 'Diacritics',
         range: null
       },

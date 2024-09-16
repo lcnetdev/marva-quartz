@@ -608,6 +608,15 @@ export default {
         }
       }
 
+      let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
+
+      if (useTextMacros && useTextMacros.length>0){
+        for (let m of useTextMacros){
+          v = v.replace(m.lookFor,m.replaceWith)
+        }
+      }
+
+
       await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,event.target.dataset.lang)
 
       if (setFocus){

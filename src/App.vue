@@ -6,6 +6,9 @@ import PreferenceModal from "@/components/general/PreferenceModal.vue";
 import LoginModal from "@/components/panels/nav/LoginModal.vue";
 import ScriptshifterConfigModal from "@/components/panels/edit/modals/ScriptshifterConfigModal.vue";
 import DiacriticsConfigModal from "@/components/panels/edit/modals/DiacriticsConfigModal.vue";
+import TextMacroModal from "@/components/panels/edit/modals/TextMacroModal.vue";
+
+
 
 import ShelfListingModal from "@/components/panels/edit/modals/ShelfListing.vue";
 
@@ -31,7 +34,8 @@ export default {
     ScriptshifterConfigModal,
     ShelfListingModal,
     DiacriticsConfigModal,
-    UpdateAvailableModal
+    UpdateAvailableModal,
+    TextMacroModal
 
   },
   data() {
@@ -49,7 +53,7 @@ export default {
     ...mapWritableState(useProfileStore, ['showShelfListingModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
-    ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal']),
     ...mapWritableState(useConfigStore, ['showUpdateAvailableModal']),
 
 
@@ -134,6 +138,10 @@ export default {
   <template v-if="showUpdateAvailableModal==true">
     <UpdateAvailableModal v-model="showUpdateAvailableModal"  />
   </template>
+  <template v-if="showTextMacroModal==true">
+    <TextMacroModal v-model="showTextMacroModal"  />
+  </template>
+  
 
   
 
