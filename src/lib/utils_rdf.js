@@ -180,7 +180,11 @@ const utilsRDF = {
     if (propertyURI==='http://www.loc.gov/mads/rdf/v1#componentList'){
       return 'http://www.w3.org/1999/02/22-rdf-syntax-ns#List'
     }
+    if (propertyURI==='http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
+      return 'http://www.w3.org/2000/01/rdf-schema#Resource'
+    }
 
+    
 
 
     // at this point we have a well cached lookup of the whole onotlogy in localstorage
@@ -195,6 +199,17 @@ const utilsRDF = {
       range=range[0]
       if (range.attributes['rdf:resource']){
         result = range.attributes['rdf:resource'].value
+      }
+    }else{
+      // check if it has a rdfs:subPropertyOf, if it does then we can ask for that
+      let subPropertyOf = prop.getElementsByTagName("rdfs:subPropertyOf")
+      if (subPropertyOf.length>0){
+        if (subPropertyOf[0].attributes['rdf:resource']){          
+          let subPropertyResult = await this.suggestTypeNetwork(subPropertyOf[0].attributes['rdf:resource'].value)
+          if (subPropertyResult){
+            return subPropertyResult
+          }
+        }
       }
     }
 
