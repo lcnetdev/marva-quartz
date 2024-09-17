@@ -2213,13 +2213,6 @@ before: function () {},
 mounted: function(){},
 
 updated: function() {
-  // this was opened from an existing subject
-  if (this.searchValue && this.activeComponent == null){
-    this.subjectString = this.searchValue
-    this.subjectStringChanged()
-  }
-
-
   // this supports loading existing information into the forms
   if (this.authorityLookup != null) {
     this.authorityLookupLocal = this.authorityLookup
