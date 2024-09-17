@@ -257,8 +257,7 @@ const utilsProfile = {
         console.error("There was an unknown error trying to create a blank node in", propertyPath, ' in ', pt)
       }
 
-      this.setTypesForBlankNode(pt,propertyPath)
-      console.log("Return pointer to blank node now")
+      this.setTypesForBlankNode(pt,propertyPath)      
       return [pt, pointer['@guid']]
   },
 

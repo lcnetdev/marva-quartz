@@ -175,6 +175,13 @@ export const useConfigStore = defineStore('config', {
 
   ],
 
+  checkForEDTFDatatype: [    
+    'http://id.loc.gov/ontologies/bibframe/date',
+    'http://id.loc.gov/ontologies/bibframe/copyrightDate',
+    'http://id.loc.gov/ontologies/bibframe/originDate',
+    'http://id.loc.gov/ontologies/bflc/simpleDate',
+    'http://id.loc.gov/ontologies/bflc/projectedProvisionDate',   
+  ],
 
 
   // these are properties that aren't allowed to be both when merging data with template

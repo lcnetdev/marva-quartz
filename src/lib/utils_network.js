@@ -149,8 +149,7 @@ const utilsNetwork = {
         uris=[uris]
       }
 
-      let results = {metadata:{ uri:uris[0]+'KEYWORD', values:{}  }}
-      console.log("results",results)
+      let results = {metadata:{ uri:uris[0]+'KEYWORD', values:{}  }}      
       for (let uri of uris){
 
 

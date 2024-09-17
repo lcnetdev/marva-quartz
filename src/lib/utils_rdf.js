@@ -129,8 +129,7 @@ const utilsRDF = {
           if (!pt.userValue[pt.propertyURI]){
               lookForResourceURI = true
           }else{
-              if (pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){
-                  console.log(pt.userValue[pt.propertyURI])
+              if (pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){                  
                   if (!pt.userValue[pt.propertyURI][0]['@type']){
                       lookForResourceURI = true
                   }
