@@ -880,9 +880,9 @@ methods: {
         }
       }
 
-      /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       *  !! the `not` hyphes are very important !!
-       *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       *  !! the `not` hyphens are very important !!
+       *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        */
       // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
       this.activeComponentIndex = Number(indx[0])
@@ -1588,8 +1588,8 @@ methods: {
 
   },
 
-  //TODO: if it's a literal, there shouldn't be a thesaurus
   subjectStringChanged: async function(event){
+    console.info("subjectStringChanged!")
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
@@ -1603,6 +1603,7 @@ methods: {
     // they are setting the type, next key inputed is important
     if (event && event.data === '$'){
       this.nextInputIsTypeSelection=true
+      console.info("returning false1")
       return false
     }
 
@@ -1632,6 +1633,7 @@ methods: {
       // its a normal keystroke not after '$' but check to see if it was a keyboard event
       // if not then event will be null and was just evoked from code, if its a event then they are typeing in a search value, clear out the old
       if (event){
+        console.info("setting to null")
         this.searchResults=null
       }
     }
@@ -1647,6 +1649,7 @@ methods: {
     }
 
     let subjectStringSplit = this.subjectString.split('--')
+    console.info("subjectStringSplit: ", subjectStringSplit)
 
     // clear the current
     this.components = []
@@ -1670,6 +1673,7 @@ methods: {
         type = this.typeLookup[id]
       }
 
+      console.info("here1")
       this.components.push({
         label: ss,
         uri: uri,
@@ -1678,7 +1682,7 @@ methods: {
         complex: ss.includes('‑'),
         literal:literal,
         posStart: activePosStart,
-        posEnd: activePosStart + ss.length - 1,
+        posEnd: activePosStart + ss.length,
       })
 
       // increase the start length by the length of the string and also add 2 for the "--"
@@ -2119,7 +2123,7 @@ methods: {
 
 
           linkModeValue = linkModeValue + '$' + marcType + label
-
+          console.info("here2")
           let toAdd = {
             label: label,
             uri: uri,
@@ -2145,7 +2149,7 @@ methods: {
 
           this.componetLookup[id][label] = toAdd
 
-
+          console.info("here3")
           activePosStart = activePosStart + label.length + 2
 
           id++
@@ -2206,9 +2210,6 @@ methods: {
 
 },
 
-
-
-
 created: function () {
   this.loadUserValue()
 
@@ -2218,7 +2219,24 @@ created: function () {
 before: function () {
 },
 
+mounted: function(){
+
+},
+
 updated: function() {
+  console.info("updated")
+  console.info("search value: ", this.searchValue)
+  console.info("active: ", this.activeComponent)
+  console.info("components: ", this.components)
+  // this was opened from an existing subject
+  if (this.searchValue && this.activeComponent == null){
+    console.info("need to focus on the input")
+    console.info("this.$refs: ", this.$refs)
+    this.subjectString = this.searchValue
+    this.subjectStringChanged()
+  }
+
+
   // this supports loading existing information into the forms
   if (this.authorityLookup != null) {
     this.authorityLookupLocal = this.authorityLookup
