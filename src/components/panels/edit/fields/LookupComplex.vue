@@ -719,7 +719,6 @@ export default {
 
     // Open the authority `panel` for an given authority
     openAuthority: function() {
-      console.info("opening authority")
       let label = this.$refs.el[0].innerHTML
 
       let sibling = this.$refs.el[0].parentNode.childNodes[2]
@@ -729,31 +728,10 @@ export default {
         this.isLiteral = false
       }
 
-      /* This only gets populated when it's loaded from a record
-      so it can't be used becasuse it won't work with an empty record
-      and if the the value is changed, this underlying data will
-      remain. */
-
-      console.info("guid: ", this.guid)
-      console.info(this.profileStore.returnStructureByGUID(this.guid))
-      // console.info(this.profileStore.returnStructureByGUID(this.guid).xmlSource)
-
       // store the label to pass as a prop
       this.authorityLookup = label
-
       this.searchValue = label
-
       this.displaySubjectModal = true
-      //Decide which modal to open/ don't support subject
-      // if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
-      //   this.displayModal = true
-      // } else {
-      //   this.displaySubjectModal = true
-      // }
-
-
-      // TODO: how to get the ID to `complexLookupModal` >> `selectChange`? >> what did this mean?
-
     },
 
 
