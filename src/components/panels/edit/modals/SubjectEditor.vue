@@ -97,7 +97,7 @@
 
                   <div v-if="activeSearch!==false">{{activeSearch}}</div>
                   <div v-if="searchResults !== null">
-                    <div v-if="searchResults.names.length>0 && !this.searching">
+                    <div v-if="searchResults && searchResults.names.length>0 && !this.searching">
 
                       <div v-for="(name,idx) in searchResults.names" @click="selectContext((searchResults.names.length - idx)*-1)" @mouseover="loadContext((searchResults.names.length - idx)*-1)" :data-id="(searchResults.names.length - idx)*-1" :key="name.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1 ),'picked': (pickLookup[(searchResults.names.length - idx)*-1] && pickLookup[(searchResults.names.length - idx)*-1].picked)}]">
                           <span v-if="name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
@@ -108,7 +108,7 @@
                       <hr>
                     </div>
 
-                    <div v-if="searchResults.subjectsComplex.length>0">
+                    <div v-if="searchResults && searchResults.subjectsComplex.length>0">
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> ({{ this.buildAddtionalInfo(subjectC.collections) }})</span>
@@ -116,7 +116,7 @@
                       <hr>
                     </div>
 
-                    <div v-if="searchResults.subjectsSimple.length>0">
+                    <div v-if="searchResults && searchResults.subjectsSimple.length>0">
                       <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> ({{ this.buildAddtionalInfo(subject.collections) }})</span>
@@ -197,10 +197,10 @@
                     <div  style="display: flex;">
                       <div  style="flex:1; position: relative;">
                         <form autocomplete="off" style="height: 3em;">
-                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"  class="input-single-subject subject-input">
+                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input">
                         </form>
 
-                        <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx" >
+                        <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
                           {{c.label}}
                         </div>
                       </div>
@@ -691,7 +691,6 @@ props: {
 
 },
 
-
 watch: {
   // // watch when the undoindex changes, means they are undoing redoing, so refresh the
   // // value in the acutal input box
@@ -699,7 +698,6 @@ watch: {
     this.subjectString = this.searchValue
     this.linkModeString = this.searchValue
   }
-
 
 },
 
@@ -743,6 +741,7 @@ data: function() {
     showTypes: false,
 
     initialLoad: true, // when this load the first time
+    hintBoxes: [],
 
     activeTypes: {
       'madsrdf:Topic': {label:'Topic / Heading ($a $x)', value:'madsrdf:Topic',selected:false},
@@ -761,8 +760,54 @@ computed: {
 
 },
 methods: {
+  /**
+   * Creates components from the search string
+   *
+   * If the subject is loaded from an existing record, there will be a search string
+   * but there won't be components.
+   */
+  buildComponents: function(searchString){
+    let subjectStringSplit = searchString.split('--')
 
+    // clear the current
+    this.components = []
+    let id = 0
 
+    let activePosStart = 0
+
+    for (let ss of subjectStringSplit){
+      // check the lookup to see if we have the data for this label
+
+      let uri = null
+      let type = null
+      let literal = null
+
+      if (this.componetLookup[id] && this.componetLookup[id][ss]){
+        uri = this.componetLookup[id][ss].uri
+        literal = this.componetLookup[id][ss].literal
+      }
+
+      if (this.typeLookup[id]){
+        type = this.typeLookup[id]
+      }
+
+      this.components.push({
+        label: ss,
+        uri: uri,
+        id: id,
+        type:type,
+        complex: ss.includes('‑'),
+        literal:literal,
+        posStart: activePosStart,
+        posEnd: activePosStart + ss.length,
+      })
+
+      // increase the start length by the length of the string and also add 2 for the "--"
+      activePosStart = activePosStart + ss.length + 2
+
+      id++
+    }
+  },
 
   /**
   * Kicks off search when the link mode string is changed
@@ -1647,52 +1692,9 @@ methods: {
       this.typeLookup={}
     }
 
-    let subjectStringSplit = this.subjectString.split('--')
+    this.buildComponents(this.subjectString)
 
-    // clear the current
-    this.components = []
-    let id = 0
-
-    let activePosStart = 0
-
-    for (let ss of subjectStringSplit){
-      // check the lookup to see if we have the data for this label
-
-      let uri = null
-      let type = null
-      let literal = null
-
-      if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        uri = this.componetLookup[id][ss].uri
-        literal = this.componetLookup[id][ss].literal
-      }
-
-      if (this.typeLookup[id]){
-        type = this.typeLookup[id]
-      }
-
-      this.components.push({
-        label: ss,
-        uri: uri,
-        id: id,
-        type:type,
-        complex: ss.includes('‑'),
-        literal:literal,
-        posStart: activePosStart,
-        posEnd: activePosStart + ss.length,
-      })
-
-      // increase the start length by the length of the string and also add 2 for the "--"
-      activePosStart = activePosStart + ss.length + 2
-
-      this.renderHintBoxes()
-
-      id++
-    }
-
-
-
-
+    this.renderHintBoxes()
 
 
     // if they are typing in the heading select it as we go
@@ -2212,7 +2214,15 @@ created: function () {
 before: function () {},
 mounted: function(){},
 
+
 updated: function() {
+  // this was opened from an existing subject
+  if (this.searchValue && this.components.length == 0){
+    this.buildComponents(this.searchValue)
+    this.initialLoad = false
+    this.subjectStringChanged()
+  }
+
   // this supports loading existing information into the forms
   if (this.authorityLookup != null) {
     this.authorityLookupLocal = this.authorityLookup
@@ -2271,4 +2281,5 @@ updated: function() {
   }
 }
 };
+
 </script>
