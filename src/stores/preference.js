@@ -6,7 +6,7 @@ import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_nati
 
 export const usePreferenceStore = defineStore('preference', {
   state: () => ({
-    
+
 
     // controls showing the modal that is parked in the App.vue
     showPrefModal: false,
@@ -40,7 +40,7 @@ export const usePreferenceStore = defineStore('preference', {
 
     diacriticUse:[],
     diacriticUseValues:[],
-    
+
     showTextMacroModal: false,
 
 
@@ -645,7 +645,7 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Diacritics',
         range: [true,false]
-      },      
+      },
 
       '--c-diacritics-enabled-macros' : {
         value:[],
@@ -662,6 +662,75 @@ export const usePreferenceStore = defineStore('preference', {
         type: 'other',
         group: 'Diacritics',
         range: null
+      },
+
+      //Shelflisting
+      '--b-shelflist-link-1-label' : {
+        desc: 'Label for link 1.',
+        descShort: 'Link 1 Label',
+        value: "Cutter Table",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 0
+      },
+      '--b-shelflist-link-1' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 1 URL',
+        value: "http://www.loc.gov/aba/pcc/053/table",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 0
+      },
+
+      '--b-shelflist-link-2-label' : {
+        desc: 'Label for link 2.',
+        descShort: 'Link 2 Label',
+        value: "Biography Table",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 1
+      },
+      '--b-shelflist-link-2' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 2 URL',
+        value: "https://www.loc.gov/aba/publications/FreeCSM/G320.pdf",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 1
+      },
+
+      '--b-shelflist-link-3-label' : {
+        desc: 'Label for link 3.',
+        descShort: 'Link 3 Label',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 2
+      },
+      '--b-shelflist-link-3' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 3 URL',
+        value: "https://www.loc.gov/aba/publications/FreeCSM/G150.pdf",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 2
+      },
+
+      '--b-shelflist-link-4-label' : {
+        desc: 'Label for link 4.',
+        descShort: 'Link 4 Label',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 4
+      },
+      '--b-shelflist-link-4' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 4 URL',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 4
       },
 
 
@@ -715,7 +784,7 @@ export const usePreferenceStore = defineStore('preference', {
       if (window.localStorage.getItem('marva-diacriticUse')){
         this.diacriticUse = JSON.parse(window.localStorage.getItem('marva-diacriticUse'))
       }
-      
+
 
 
       this.styleDefaultOrginal = JSON.parse(JSON.stringify(this.styleDefault))
@@ -920,7 +989,7 @@ export const usePreferenceStore = defineStore('preference', {
 
 
       this.diacriticUse = [...new Set(this.diacriticUse)];
-      
+
       console.log(this.diacriticUse)
 
 
@@ -933,12 +1002,12 @@ export const usePreferenceStore = defineStore('preference', {
             this.diacriticUseValues.push(macro)
           }
         }
-        
+
 
       }
       console.log(this.diacriticUseValues)
 
-      
+
     },
 
     /**

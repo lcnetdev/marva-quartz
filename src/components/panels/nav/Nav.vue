@@ -55,7 +55,7 @@
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal']),
       ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal']),
-      
+
 
 
 
@@ -181,9 +181,9 @@
               { text: 'Diacritic Macros', click: () => this.showDiacriticConfigModal = true, icon: 'keyboard' },
               { text: 'Text Macros', click: () => this.showTextMacroModal = true, icon: 'abc' },
 
-              
 
-              
+
+
 
               { is: 'separator'},
 
@@ -196,6 +196,7 @@
               { text: 'Nav Bar', click: () => this.preferenceStore.togglePrefModal('Nav Bar')},
               { text: 'Sidebars - Previews', click: () => this.preferenceStore.togglePrefModal('Sidebars - Previews')},
               { text: 'Sidebars - Property', click: () => this.preferenceStore.togglePrefModal('Sidebars - Property')},
+              { text: 'Sheflisting', click: () => this.preferenceStore.togglePrefModal('Sheflisting')},
 
 
               { is: 'separator'},

@@ -30,6 +30,7 @@
         rangeValue: {},
         fontValue: {},
         booleanValue: {},
+        stringValue: {},
 
       }
     },
@@ -39,7 +40,7 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(usePreferenceStore, ['showPrefModal','showPrefModalGroup','styleDefault', 'showPrefModalGroup', 'fontFamilies']),
+      ...mapState(usePreferenceStore, ['showPrefModal','showPrefModalgroup','styleDefault', 'showPrefModalGroup', 'fontFamilies']),
 
       // array of the pssobile groups from the stlyes
       possilbleGroups() {
@@ -100,6 +101,7 @@
           this.rangeValue = {}
           this.fontValue = {}
           this.booleanValue = {}
+          this.stringValue = {}
 
           if (event){
             this.preferenceStore.setShowPrefModalGroup(event.target.value)
@@ -122,6 +124,8 @@
                 this.fontValue[o.id] = o.value
               }else if (o.type == 'boolean'){
                 this.booleanValue[o.id] = o.value
+              } else if (o.type == 'string'){
+                this.stringValue[o.id] = o.value
               }
               this.renderProperties.push(o)
             }
@@ -156,6 +160,11 @@
           for (let id in this.booleanValue){
             console.log(id,this.booleanValue[id])
             this.preferenceStore.setValue(id,this.booleanValue[id])
+          }
+        },
+        stringValueChange: function(){
+          for (let id in this.stringValue){
+            this.preferenceStore.setValue(id, this.stringValue[id])
           }
         },
 
@@ -240,9 +249,10 @@
                         </select>
                     </template>
                     <template v-else-if="option.type==='boolean'">
-
                       <input type="checkbox" class="checkbox-option" @change="booleanValueChange"  v-model="booleanValue[option.id]">
-
+                    </template>
+                    <template v-else-if="option.type==='string'">
+                      <input type="url" @input="stringValueChange" v-model="stringValue[option.id]">
                     </template>
 
 
