@@ -794,7 +794,9 @@ methods: {
         lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
       }
       try {
-        let label = incomingSubjects[subjIdx][lookUp][0][lookUp]
+        let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("-", "‑")
+
+        console.info("label: ", label)
 
         //Set up componentLookup, so the component builder can give them URIs
         this.componetLookup[subjIdx][label] = {
@@ -817,6 +819,35 @@ methods: {
   buildComponents: function(searchString){
     let subjectStringSplit = searchString.split('--')
 
+    let componentLookUpCount = Object.keys(this.componetLookup).length
+    if (componentLookUpCount > 0){ //We are dealing with a hierarchical GEO and need to stitch some terms together
+      if (componentLookUpCount < subjectStringSplit.length){
+        console.info("??")
+        let target = false
+        for (let i in this.componetLookup){
+          for (let j in this.componetLookup[i]) {
+            if (this.componetLookup[i][j].label.includes("--")){
+              target = this.componetLookup[i][j].label.replaceAll("-", "‑")
+            }
+          }
+        }
+        let matchIndx = []
+        if (target){
+          for (let i in subjectStringSplit){
+            if (target.includes(subjectStringSplit[i])){
+              matchIndx.push(i)
+            }
+          }
+          //remove them
+          for (let i = matchIndx.length-1; i >=0; i--){
+            subjectStringSplit.splice(matchIndx[i], 1)
+          }
+          // add the combined terms
+          subjectStringSplit.push(target)
+        }
+      }
+    }
+
     // clear the current
     this.components = []
     let id = 0
@@ -825,7 +856,7 @@ methods: {
 
     for (let ss of subjectStringSplit){
       // check the lookup to see if we have the data for this label
-
+      console.info("building component for ", ss)
       let uri = null
       let type = null
       let literal = null
@@ -2254,6 +2285,8 @@ mounted: function(){},
 
 
 updated: function() {
+  console.info("update")
+  console.info("components: ", this.components)
   // this was opened from an existing subject
   let profileData = this.profileData
   let incomingSubjects
@@ -2270,8 +2303,13 @@ updated: function() {
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
   if (this.searchValue && this.components.length != this.searchValue.split("--")){
+    console.info("???")
     this.buildLookupComponents(incomingSubjects)
     this.buildComponents(this.searchValue)
+
+    console.info("components: ", this.components)
+    console.info("componetLookup: ", this.componetLookup)
+
     this.initialLoad = false
     this.subjectStringChanged()
     this.activeComponentIndex = 0
