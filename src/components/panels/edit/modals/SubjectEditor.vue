@@ -760,6 +760,54 @@ computed: {
 
 },
 methods: {
+
+  /**
+   * When loading from an existing subject, the component lookup
+   * needs to be build, so the components will have URIs, types,
+   * and be flaged as literals or not
+   *
+   * @param {obj} incomingSubjects - the existing subject data
+   */
+  buildLookupComponents: function(incomingSubjects){
+    this.typeLookup = []
+    for (let subjIdx in incomingSubjects){
+      this.componetLookup[subjIdx] = {}
+      let type = incomingSubjects[subjIdx]["@type"]
+      let lookUp
+
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
+        this.typeLookup[subjIdx] = 'madsrdf:Topic'
+      }
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
+        this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
+      }
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic")){
+        this.typeLookup[subjIdx] = 'madsrdf:Geographic'
+      }
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
+        this.typeLookup[subjIdx] = 'madsrdf:Temporal'
+      }
+
+      if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
+        lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+      } else {
+        lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+      try {
+        let label = incomingSubjects[subjIdx][lookUp][0][lookUp]
+
+        //Set up componentLookup, so the component builder can give them URIs
+        this.componetLookup[subjIdx][label] = {
+          label: incomingSubjects[subjIdx][lookUp][0][lookUp],
+          literal: incomingSubjects[subjIdx]["@id"] ? false : true,
+          uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null
+        }
+
+      } catch(err){
+        console.error(err)
+      }
+    }
+  },
   /**
    * Creates components from the search string
    *
@@ -1000,7 +1048,6 @@ methods: {
           }
         }
       }
-
     } else {
       this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
       // Above we took loose components and combined them,
@@ -1256,6 +1303,7 @@ methods: {
       that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
       // keep a local copy of it for looking up subject type
       if (that.contextData){
+        console.info("Copying subject info: ",  JSON.parse(JSON.stringify(that.contextData)))
         that.localContextCache[that.contextData.uri] = JSON.parse(JSON.stringify(that.contextData))
       }
     }
@@ -1582,7 +1630,6 @@ methods: {
 
 
   setTypeClick: function(event,type){
-
     this.typeLookup[this.activeComponentIndex] =type
     this.subjectStringChanged()
     this.$refs.subjectInput.focus()
@@ -1712,17 +1759,9 @@ methods: {
           // so do look that one up
           }else if (/[0-9]{4}\??-/.test(c.label)){
             this.searchApis(c.label,event.target.value,this)
-
-
-
           }else if (/,\s[0-9]{4}-/.test(c.label)){
             this.searchApis(c.label,event.target.value,this)
-
-
-
           }
-
-
           //            // BUT if it starts with
 
           break
@@ -1761,6 +1800,7 @@ methods: {
 
 
             if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
+              console.info("setting geographic")
               x.type = 'madsrdf:Geographic'
             }
 
@@ -1910,6 +1950,7 @@ methods: {
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
     console.log('this.components',this.components)
+    console.info('starting components', JSON.parse(JSON.stringify(this.components)))
     // remove our werid hyphens before we send it back
     for (let c of this.components){
       c.label = c.label.replaceAll('‑','-')
@@ -1917,7 +1958,11 @@ methods: {
       // we have the full mads type from the build process, check if the component is a id name authortiy
       // if so over write the user defined type with the full type from the authority file so that
       // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
+      console.info("uri: ", c.uri)
+      console.info("ContextCache: ", this.localContextCache)
+      console.info("this.localContextCache[c.uri]: ", this.localContextCache[c.uri])
       if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]){
+        console.info("overwriting type")
         c.type = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
       }
     }
@@ -1947,6 +1992,9 @@ methods: {
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
     }
+
+    console.info("adding components: ", JSON.parse(JSON.stringify(this.components)))
+    console.info("typeLookup: ", this.typeLookup)
 
     this.$emit('subjectAdded', this.components)
   },
@@ -2191,8 +2239,8 @@ methods: {
 
       this.subjectString=completeLabel
 
-      // this.subjectStringChanged()
-      // this.updateAvctiveTypeSelected()
+      this.subjectStringChanged()
+      this.updateAvctiveTypeSelected()
 
       // wait for the ui to render and then pretend keydonw to trigger update of things
       this.$nextTick(() => {
@@ -2222,48 +2270,17 @@ updated: function() {
   if (profileData && profileData.propertyLabel != "Subjects"){
     incomingSubjects = false
   } else if (profileData) {
-    incomingSubjects = profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"]
-    // build this.componetLookup
-    for (let subjIdx in incomingSubjects){
-      this.componetLookup[subjIdx] = {}
-      let type = incomingSubjects[subjIdx]["@type"]
-      let lookUp
-
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
-        this.typeLookup[subjIdx] = 'madsrdf:Topic'
-      }
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
-        this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
-      }
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic")){
-        this.typeLookup[subjIdx] = 'madsrdf:Geographic'
-      }
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
-        this.typeLookup[subjIdx] = 'madsrdf:Temporal'
-      }
-
-      if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
-        lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
-      } else {
-        lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
-      }
-      try {
-        let label = incomingSubjects[subjIdx][lookUp][0][lookUp]
-
-        //Set up componentLookup, so the component builder can give them URIs
-        this.componetLookup[subjIdx][label] = {
-          label: incomingSubjects[subjIdx][lookUp][0][lookUp],
-          literal: incomingSubjects[subjIdx]["@id"] ? false : true,
-          uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null
-        }
-
-      } catch(err){
-        console.error(err)
-      }
+    try {
+      incomingSubjects = profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"]
+    } catch(err){
+      incomingSubjects = false
     }
   }
 
+  //When there is existing data, we need to make sure that the number of components matches
+  // the number subjects in the searchValue
   if (this.searchValue && this.components.length != this.searchValue.split("--")){
+    this.buildLookupComponents(incomingSubjects)
     this.buildComponents(this.searchValue)
     this.initialLoad = false
     this.subjectStringChanged()
