@@ -687,7 +687,8 @@ props: {
   structure: Object,
   searchValue: String,
   authorityLookup: String,
-  isLiteral: Boolean
+  isLiteral: Boolean,
+  profileData: Object,
 
 },
 
@@ -741,7 +742,6 @@ data: function() {
     showTypes: false,
 
     initialLoad: true, // when this load the first time
-    hintBoxes: [],
 
     activeTypes: {
       'madsrdf:Topic': {label:'Topic / Heading ($a $x)', value:'madsrdf:Topic',selected:false},
@@ -2217,10 +2217,58 @@ mounted: function(){},
 
 updated: function() {
   // this was opened from an existing subject
-  if (this.searchValue && this.components.length == 0){
+  let profileData = this.profileData
+  let incomingSubjects
+  if (profileData && profileData.propertyLabel != "Subjects"){
+    incomingSubjects = false
+  } else if (profileData) {
+    incomingSubjects = profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"]
+    // build this.componetLookup
+    for (let subjIdx in incomingSubjects){
+      this.componetLookup[subjIdx] = {}
+      let type = incomingSubjects[subjIdx]["@type"]
+      let lookUp
+
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
+        this.typeLookup[subjIdx] = 'madsrdf:Topic'
+      }
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
+        this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
+      }
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic")){
+        this.typeLookup[subjIdx] = 'madsrdf:Geographic'
+      }
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
+        this.typeLookup[subjIdx] = 'madsrdf:Temporal'
+      }
+
+      if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
+        lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+      } else {
+        lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+      try {
+        let label = incomingSubjects[subjIdx][lookUp][0][lookUp]
+
+        //Set up componentLookup, so the component builder can give them URIs
+        this.componetLookup[subjIdx][label] = {
+          label: incomingSubjects[subjIdx][lookUp][0][lookUp],
+          literal: incomingSubjects[subjIdx]["@id"] ? false : true,
+          uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null
+        }
+
+      } catch(err){
+        console.error(err)
+      }
+    }
+  }
+
+  if (this.searchValue && this.components.length != this.searchValue.split("--")){
     this.buildComponents(this.searchValue)
     this.initialLoad = false
     this.subjectStringChanged()
+    this.activeComponentIndex = 0
+    this.activeComponent = this.components[this.activeComponentIndex]
   }
 
   // this supports loading existing information into the forms
@@ -2233,7 +2281,7 @@ updated: function() {
       this.linkModeTextChange({key:'Enter',shiftKey:false})
 
       //Do the search for build mode
-      this.searchResults = this.searchApis(this.authorityLookupLocal, this.authorityLookupLocal, this)
+      this.searchResults = this.searchApis(this.components[0].label, this.authorityLookupLocal, this)
 
       //Wait for the search results
       this.searching = true

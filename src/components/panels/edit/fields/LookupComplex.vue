@@ -177,7 +177,7 @@
   </template>
 
   <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false" :structure="structure" v-model="displayModal"/>
-  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
+  <SubjectEditor ref="subjectEditorModal" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
 
 </template>
 
@@ -247,7 +247,7 @@ export default {
 
       showActionButton: false,
 
-
+      profileData: null,
       searchValue: null,
       authorityLookup: null,
       isLiteral: null,
@@ -720,6 +720,7 @@ export default {
     // Open the authority `panel` for an given authority
     openAuthority: function() {
       let label = this.$refs.el[0].innerHTML
+      this.profileData = this.profileStore.returnStructureByGUID(this.guid)
 
       let sibling = this.$refs.el[0].parentNode.childNodes[2]
       if (sibling.className == "uncontrolled") {
