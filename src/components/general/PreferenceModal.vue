@@ -40,7 +40,7 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(usePreferenceStore, ['showPrefModal','showPrefModalgroup','styleDefault', 'showPrefModalGroup', 'fontFamilies']),
+      ...mapState(usePreferenceStore, ['showPrefModal','showPrefModalGroup','styleDefault', 'showPrefModalGroup', 'fontFamilies']),
 
       // array of the pssobile groups from the stlyes
       possilbleGroups() {
