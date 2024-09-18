@@ -196,7 +196,7 @@
               { text: 'Nav Bar', click: () => this.preferenceStore.togglePrefModal('Nav Bar')},
               { text: 'Sidebars - Previews', click: () => this.preferenceStore.togglePrefModal('Sidebars - Previews')},
               { text: 'Sidebars - Property', click: () => this.preferenceStore.togglePrefModal('Sidebars - Property')},
-              { text: 'Sheflisting', click: () => this.preferenceStore.togglePrefModal('Sheflisting')},
+              { text: 'Shelflisting', click: () => this.preferenceStore.togglePrefModal('Shelflisting')},
 
 
               { is: 'separator'},

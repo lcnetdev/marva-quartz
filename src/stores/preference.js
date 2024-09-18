@@ -702,7 +702,7 @@ export const usePreferenceStore = defineStore('preference', {
       '--b-shelflist-link-3-label' : {
         desc: 'Label for link 3.',
         descShort: 'Link 3 Label',
-        value: "",
+        value: "Translation Table",
         type: 'string',
         group: 'Shelflisting',
         index: 2
@@ -722,7 +722,7 @@ export const usePreferenceStore = defineStore('preference', {
         value: "",
         type: 'string',
         group: 'Shelflisting',
-        index: 4
+        index: 3
       },
       '--b-shelflist-link-4' : {
         desc: 'Link to an outside resource to help with shelf listing.',
@@ -730,18 +730,27 @@ export const usePreferenceStore = defineStore('preference', {
         value: "",
         type: 'string',
         group: 'Shelflisting',
+        index: 3
+      },
+
+      '--b-shelflist-link-5-label' : {
+        desc: 'Label for link 5.',
+        descShort: 'Link 5 Label',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 4
+      },
+      '--b-shelflist-link-5' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 5 URL',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
         index: 4
       },
 
-
-
-
-
-
     }
-
-
-
   }),
 
   // catInitals: null,
@@ -853,6 +862,9 @@ export const usePreferenceStore = defineStore('preference', {
         for (let k in prefs.styleDefault){
           if (prefs.styleDefault[k].group == "Sidebars - OPAC"){
             prefs.styleDefault[k].group = "Sidebars - Previews"
+          }
+          if (prefs.styleDefault[k].group == "Shelflisting"){
+            prefs.styleDefault[k].group = "Shelflisting"
           }
         }
 

@@ -252,7 +252,7 @@
                       <input type="checkbox" class="checkbox-option" @change="booleanValueChange"  v-model="booleanValue[option.id]">
                     </template>
                     <template v-else-if="option.type==='string'">
-                      <input type="url" @input="stringValueChange" v-model="stringValue[option.id]">
+                      <input type="text" @input="stringValueChange" v-model="stringValue[option.id]">
                     </template>
 
 
