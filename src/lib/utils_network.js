@@ -524,7 +524,6 @@ const utilsNetwork = {
           jsonuri = jsonuri.replace('http://id.loc.gov','https://id.loc.gov')
 
           try{
-            console.info("jsonuri: ", jsonuri)
             let response = await fetch(jsonuri);
             let data =  await response.json()
             return  data;
@@ -772,7 +771,6 @@ const utilsNetwork = {
 
             //find the right graph
             for (let g of data){
-              console.info("Extracting context from g: ", g)
               if (
                     g
                     && g['@id']
@@ -795,7 +793,6 @@ const utilsNetwork = {
 
                   if (g['@type'] && g['@type'][0]){
                     results.type = this.rdfType(g['@type'][0])
-                    console.info("setting typeFull: ", g['@type'][0])
                     results.typeFull = g['@type'][0]
                   }
                 }
@@ -983,7 +980,6 @@ const utilsNetwork = {
                   n['@type'].forEach((t)=>{
                       if (results.type===null){
                           results.type = this.rdfType(t)
-                          console.info("setting typeFull 2: ", t)
                           results.typeFull = t
                       }
                   })

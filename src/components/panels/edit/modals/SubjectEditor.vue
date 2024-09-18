@@ -1303,7 +1303,6 @@ methods: {
       that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
       // keep a local copy of it for looking up subject type
       if (that.contextData){
-        console.info("Copying subject info: ",  JSON.parse(JSON.stringify(that.contextData)))
         that.localContextCache[that.contextData.uri] = JSON.parse(JSON.stringify(that.contextData))
       }
     }
@@ -1800,7 +1799,6 @@ methods: {
 
 
             if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
-              console.info("setting geographic")
               x.type = 'madsrdf:Geographic'
             }
 
@@ -1950,7 +1948,6 @@ methods: {
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
     console.log('this.components',this.components)
-    console.info('starting components', JSON.parse(JSON.stringify(this.components)))
     // remove our werid hyphens before we send it back
     for (let c of this.components){
       c.label = c.label.replaceAll('‑','-')
@@ -1958,11 +1955,7 @@ methods: {
       // we have the full mads type from the build process, check if the component is a id name authortiy
       // if so over write the user defined type with the full type from the authority file so that
       // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
-      console.info("uri: ", c.uri)
-      console.info("ContextCache: ", this.localContextCache)
-      console.info("this.localContextCache[c.uri]: ", this.localContextCache[c.uri])
       if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]){
-        console.info("overwriting type")
         c.type = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
       }
     }
@@ -1992,9 +1985,6 @@ methods: {
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
     }
-
-    console.info("adding components: ", JSON.parse(JSON.stringify(this.components)))
-    console.info("typeLookup: ", this.typeLookup)
 
     this.$emit('subjectAdded', this.components)
   },
