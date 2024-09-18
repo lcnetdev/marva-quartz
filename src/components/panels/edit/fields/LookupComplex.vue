@@ -129,7 +129,7 @@
             <div class="lookup-fake-input-text">
                 <input   v-on:keydown.enter.prevent="submitField" @keyup="navKey" class="can-select" :data-guid="structure['@guid']" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
                 <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
-            </div>            
+            </div>
           </template>
 
           <Transition name="action">
@@ -140,7 +140,7 @@
 
         </div>
 
-        
+
         <template v-if="configStore.useSubjectEditor.includes(structure.propertyURI)">
 
           <div class="marc-deliminated-lcsh-mode-container" v-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.hit && Array.isArray(marcDeliminatedLCSHModeResults.hit)">
@@ -149,7 +149,7 @@
               <span v-if="heading.literal==true" class="marc-deliminated-lcsh-mode-entity"> <span class="material-icons marc-deliminated-lcsh-mode-icon-warning">warning</span> {{ heading.label }} </span>
             </template>
           </div>
-          
+
           <div class="marc-deliminated-lcsh-mode-container" v-else-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.resultType == 'COMPLEX'">
             <span class="marc-deliminated-lcsh-mode-entity"> <span class="material-icons marc-deliminated-lcsh-mode-icon">check_circle</span> <a :href="marcDeliminatedLCSHModeResults.hit.uri" target="_blank">{{ marcDeliminatedLCSHModeResults.hit.label }}</a></span>
           </div>
@@ -163,11 +163,11 @@
           <div class="marc-deliminated-lcsh-mode-container" v-else-if="marcDeliminatedLCSHModeSearching == true">
 
             Searching...
-            
+
           </div>
 
-          
-          
+
+
 
         </template>
 
@@ -177,7 +177,7 @@
   </template>
 
   <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false" :structure="structure" v-model="displayModal"/>
-  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
+  <SubjectEditor ref="subjectEditorModal" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
 
 </template>
 
@@ -247,7 +247,7 @@ export default {
 
       showActionButton: false,
 
-
+      profileData: null,
       searchValue: null,
       authorityLookup: null,
       isLiteral: null,
@@ -582,29 +582,29 @@ export default {
 
 
 
-        
 
 
-        
-        
-          
+
+
+
+
           if (this.searchValue.match(/[$‡|]/)){
 
-            window.clearTimeout(this.marcDeliminatedLCSHModeTimeout)  
+            window.clearTimeout(this.marcDeliminatedLCSHModeTimeout)
             this.marcDeliminatedLCSHModeSearching = true
             this.marcDeliminatedLCSHModeResults = {}
 
             this.marcDeliminatedLCSHModeTimeout = window.setTimeout(async ()=>{
 
               this.marcDeliminatedLCSHMode = true
-              
 
-              
+
+
               this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue)
               this.marcDeliminatedLCSHModeSearching = false
               let sendResults = []
               if (this.marcDeliminatedLCSHModeResults.resultType != 'ERROR'){
-                  
+
                 if (this.marcDeliminatedLCSHModeResults.resultType && this.marcDeliminatedLCSHModeResults.resultType==='COMPLEX'){
                   sendResults.push({
                     complex: true,
@@ -659,7 +659,7 @@ export default {
               this.$refs.subjectEditorModal.focusInput()
             })
 
-            
+
           }
 
 
@@ -720,6 +720,7 @@ export default {
     // Open the authority `panel` for an given authority
     openAuthority: function() {
       let label = this.$refs.el[0].innerHTML
+      this.profileData = this.profileStore.returnStructureByGUID(this.guid)
 
       let sibling = this.$refs.el[0].parentNode.childNodes[2]
       if (sibling.className == "uncontrolled") {
@@ -728,28 +729,10 @@ export default {
         this.isLiteral = false
       }
 
-      /* This only gets populated when it's loaded from a record
-      so it can't be used becasuse it won't work with an empty record
-      and if the the value is changed, this underlying data will
-      remain.
-
-      console.log("guid: ", this.guid)
-      console.log(this.profileStore.returnStructureByGUID(this.guid))
-      console.log(this.profileStore.returnStructureByGUID(this.guid).xmlSource)*/
-
       // store the label to pass as a prop
       this.authorityLookup = label
-
-      //Decide which modal to open/ don't support subject
-      if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
-        this.displayModal = true
-      } else {
-        this.displaySubjectModal = true
-      }
-
-
-      // TODO: how to get the ID to `complexLookupModal` >> `selectChange`?
-
+      this.searchValue = label
+      this.displaySubjectModal = true
     },
 
 

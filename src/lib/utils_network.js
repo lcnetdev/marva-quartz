@@ -1047,7 +1047,7 @@ const utilsNetwork = {
         rdftype = 'PersonalName';
       } else if (type == 'http://id.loc.gov/ontologies/bibframe/Topic' || type == 'http://www.loc.gov/mads/rdf/v1#Topic') {
         rdftype = 'Topic';
-      } else if (type == 'http://www.loc.gov/mads/rdf/v1#Place' || type == 'http://id.loc.gov/ontologies/bibframe/Place' || type == 'http://www.loc.gov/mads/rdf/v1#Geographic') {
+      } else if (type == 'http://www.loc.gov/mads/rdf/v1#Place' || type == 'http://id.loc.gov/ontologies/bibframe/Place' || type == 'http://www.loc.gov/mads/rdf/v1#Geographic' || type == 'http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic') {
         rdftype = 'Geographic';
       } else if (type == 'http://www.loc.gov/mads/rdf/v1#Temporal'){
         rdftype= 'Temporal';

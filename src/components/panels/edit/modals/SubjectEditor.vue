@@ -97,7 +97,7 @@
 
                   <div v-if="activeSearch!==false">{{activeSearch}}</div>
                   <div v-if="searchResults !== null">
-                    <div v-if="searchResults.names.length>0 && !this.searching">
+                    <div v-if="searchResults && searchResults.names.length>0 && !this.searching">
 
                       <div v-for="(name,idx) in searchResults.names" @click="selectContext((searchResults.names.length - idx)*-1)" @mouseover="loadContext((searchResults.names.length - idx)*-1)" :data-id="(searchResults.names.length - idx)*-1" :key="name.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1 ),'picked': (pickLookup[(searchResults.names.length - idx)*-1] && pickLookup[(searchResults.names.length - idx)*-1].picked)}]">
                           <span v-if="name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
@@ -108,7 +108,7 @@
                       <hr>
                     </div>
 
-                    <div v-if="searchResults.subjectsComplex.length>0">
+                    <div v-if="searchResults && searchResults.subjectsComplex.length>0">
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> ({{ this.buildAddtionalInfo(subjectC.collections) }})</span>
@@ -116,7 +116,7 @@
                       <hr>
                     </div>
 
-                    <div v-if="searchResults.subjectsSimple.length>0">
+                    <div v-if="searchResults && searchResults.subjectsSimple.length>0">
                       <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> ({{ this.buildAddtionalInfo(subject.collections) }})</span>
@@ -197,10 +197,10 @@
                     <div  style="display: flex;">
                       <div  style="flex:1; position: relative;">
                         <form autocomplete="off" style="height: 3em;">
-                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"  class="input-single-subject subject-input">
+                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input">
                         </form>
 
-                        <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx" >
+                        <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
                           {{c.label}}
                         </div>
                       </div>
@@ -687,10 +687,10 @@ props: {
   structure: Object,
   searchValue: String,
   authorityLookup: String,
-  isLiteral: Boolean
+  isLiteral: Boolean,
+  profileData: Object,
 
 },
-
 
 watch: {
   // // watch when the undoindex changes, means they are undoing redoing, so refresh the
@@ -699,7 +699,6 @@ watch: {
     this.subjectString = this.searchValue
     this.linkModeString = this.searchValue
   }
-
 
 },
 
@@ -762,7 +761,131 @@ computed: {
 },
 methods: {
 
+  /**
+   * When loading from an existing subject, the component lookup
+   * needs to be build, so the components will have URIs, types,
+   * and be flaged as literals or not
+   *
+   * @param {obj} incomingSubjects - the existing subject data
+   */
+  buildLookupComponents: function(incomingSubjects){
+    this.typeLookup = []
+    for (let subjIdx in incomingSubjects){
+      this.componetLookup[subjIdx] = {}
+      let type = incomingSubjects[subjIdx]["@type"]
+      let lookUp
 
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
+        this.typeLookup[subjIdx] = 'madsrdf:Topic'
+      }
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
+        this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
+      }
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic")){
+        this.typeLookup[subjIdx] = 'madsrdf:Geographic'
+      }
+      if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
+        this.typeLookup[subjIdx] = 'madsrdf:Temporal'
+      }
+
+      if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
+        lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+      } else {
+        lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+      try {
+        let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("-", "‑")
+
+        //Set up componentLookup, so the component builder can give them URIs
+        this.componetLookup[subjIdx][label] = {
+          label: incomingSubjects[subjIdx][lookUp][0][lookUp],
+          literal: incomingSubjects[subjIdx]["@id"] ? false : true,
+          uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null
+        }
+
+      } catch(err){
+        console.error(err)
+      }
+    }
+  },
+  /**
+   * Creates components from the search string
+   *
+   * If the subject is loaded from an existing record, there will be a search string
+   * but there won't be components.
+   */
+  buildComponents: function(searchString){
+    let subjectStringSplit = searchString.split('--')
+
+    let componentLookUpCount = Object.keys(this.componetLookup).length
+    if (componentLookUpCount > 0){ //We are dealing with a hierarchical GEO and need to stitch some terms together
+      if (componentLookUpCount < subjectStringSplit.length){
+        let target = false
+        for (let i in this.componetLookup){
+          for (let j in this.componetLookup[i]) {
+            if (this.componetLookup[i][j].label.includes("--")){
+              target = this.componetLookup[i][j].label.replaceAll("-", "‑")
+            }
+          }
+        }
+        let matchIndx = []
+        if (target){
+          for (let i in subjectStringSplit){
+            if (target.includes(subjectStringSplit[i])){
+              matchIndx.push(i)
+            }
+          }
+          //remove them
+          for (let i = matchIndx.length-1; i >=0; i--){
+            subjectStringSplit.splice(matchIndx[i], 1)
+          }
+          // add the combined terms
+          subjectStringSplit.push(target)
+        }
+      }
+    }
+
+    // clear the current
+    this.components = []
+    let id = 0
+
+    let activePosStart = 0
+
+    for (let ss of subjectStringSplit){
+      // check the lookup to see if we have the data for this label
+      let uri = null
+      let type = null
+      let literal = null
+
+      if (this.componetLookup[id] && this.componetLookup[id][ss]){
+        uri = this.componetLookup[id][ss].uri
+        literal = this.componetLookup[id][ss].literal
+      }
+
+      if (this.typeLookup[id]){
+        type = this.typeLookup[id]
+      }
+
+      this.components.push({
+        label: ss,
+        uri: uri,
+        id: id,
+        type:type,
+        complex: ss.includes('‑'),
+        literal:literal,
+        posStart: activePosStart,
+        posEnd: activePosStart + ss.length,
+      })
+
+      // increase the start length by the length of the string and also add 2 for the "--"
+      activePosStart = activePosStart + ss.length + 2
+
+      id++
+    }
+
+    //make sure the searchString matches the components
+    this.subjectString = this.components.map((component) => component.label).join("--")
+  },
 
   /**
   * Kicks off search when the link mode string is changed
@@ -880,9 +1003,9 @@ methods: {
         }
       }
 
-      /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       *  !! the `not` hyphes are very important !!
-       *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       *  !! the `not` hyphens are very important !!
+       *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        */
       // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
       this.activeComponentIndex = Number(indx[0])
@@ -955,7 +1078,6 @@ methods: {
           }
         }
       }
-
     } else {
       this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
       // Above we took loose components and combined them,
@@ -1537,7 +1659,6 @@ methods: {
 
 
   setTypeClick: function(event,type){
-
     this.typeLookup[this.activeComponentIndex] =type
     this.subjectStringChanged()
     this.$refs.subjectInput.focus()
@@ -1551,12 +1672,14 @@ methods: {
         let activeLeft=0
         for (let com of this.components){
           // set the left
-          if (this.$refs['cBackground'+com.id] && this.$refs['cBackground'+com.id][0]){
-            this.$refs['cBackground'+com.id][0].style.left = `${activeLeft}px`
-            // add the width of all the existing components to the var
-            // add 12 to accomodate the "--" seperator
-            activeLeft = activeLeft + this.$refs['cBackground'+com.id][0].offsetWidth + 11
-          }
+          this.$nextTick(() => {
+            if (this.$refs['cBackground'+com.id] && this.$refs['cBackground'+com.id][0]){
+              this.$refs['cBackground'+com.id][0].style.left = `${activeLeft}px`
+              // add the width of all the existing components to the var
+              // add 12 to accomodate the "--" seperator
+              activeLeft = activeLeft + this.$refs['cBackground'+com.id][0].offsetWidth + 11
+            }
+          })
         }
       })
 
@@ -1588,7 +1711,6 @@ methods: {
 
   },
 
-  //TODO: if it's a literal, there shouldn't be a thesaurus
   subjectStringChanged: async function(event){
     this.validateOkayToAdd()
 
@@ -1645,53 +1767,9 @@ methods: {
       this.componetLookup = {}
       this.typeLookup={}
     }
+    this.buildComponents(this.subjectString)
 
-    let subjectStringSplit = this.subjectString.split('--')
-
-    // clear the current
-    this.components = []
-    let id = 0
-
-    let activePosStart = 0
-
-    for (let ss of subjectStringSplit){
-      // check the lookup to see if we have the data for this label
-
-      let uri = null
-      let type = null
-      let literal = null
-
-      if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        uri = this.componetLookup[id][ss].uri
-        literal = this.componetLookup[id][ss].literal
-      }
-
-      if (this.typeLookup[id]){
-        type = this.typeLookup[id]
-      }
-
-      this.components.push({
-        label: ss,
-        uri: uri,
-        id: id,
-        type:type,
-        complex: ss.includes('‑'),
-        literal:literal,
-        posStart: activePosStart,
-        posEnd: activePosStart + ss.length - 1,
-      })
-
-      // increase the start length by the length of the string and also add 2 for the "--"
-      activePosStart = activePosStart + ss.length + 2
-
-      this.renderHintBoxes()
-
-      id++
-    }
-
-
-
-
+    this.renderHintBoxes()
 
 
     // if they are typing in the heading select it as we go
@@ -1709,17 +1787,9 @@ methods: {
           // so do look that one up
           }else if (/[0-9]{4}\??-/.test(c.label)){
             this.searchApis(c.label,event.target.value,this)
-
-
-
           }else if (/,\s[0-9]{4}-/.test(c.label)){
             this.searchApis(c.label,event.target.value,this)
-
-
-
           }
-
-
           //            // BUT if it starts with
 
           break
@@ -2119,7 +2189,6 @@ methods: {
 
 
           linkModeValue = linkModeValue + '$' + marcType + label
-
           let toAdd = {
             label: label,
             uri: uri,
@@ -2144,7 +2213,6 @@ methods: {
           }
 
           this.componetLookup[id][label] = toAdd
-
 
           activePosStart = activePosStart + label.length + 2
 
@@ -2190,8 +2258,8 @@ methods: {
 
       this.subjectString=completeLabel
 
-      // this.subjectStringChanged()
-      // this.updateAvctiveTypeSelected()
+      this.subjectStringChanged()
+      this.updateAvctiveTypeSelected()
 
       // wait for the ui to render and then pretend keydonw to trigger update of things
       this.$nextTick(() => {
@@ -2206,19 +2274,40 @@ methods: {
 
 },
 
-
-
-
 created: function () {
   this.loadUserValue()
-
 },
 
+before: function () {},
+mounted: function(){},
 
-before: function () {
-},
 
 updated: function() {
+  // this was opened from an existing subject
+  let profileData = this.profileData
+  let incomingSubjects
+  if (profileData && profileData.propertyLabel != "Subjects"){
+    incomingSubjects = false
+  } else if (profileData) {
+    try {
+      incomingSubjects = profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"]
+    } catch(err){
+      incomingSubjects = false
+    }
+  }
+
+  //When there is existing data, we need to make sure that the number of components matches
+  // the number subjects in the searchValue
+  if (this.searchValue && this.components.length != this.searchValue.split("--")){
+    this.buildLookupComponents(incomingSubjects)
+    this.buildComponents(this.searchValue)
+
+    this.initialLoad = false
+    this.subjectStringChanged()
+    this.activeComponentIndex = 0
+    this.activeComponent = this.components[this.activeComponentIndex]
+  }
+
   // this supports loading existing information into the forms
   if (this.authorityLookup != null) {
     this.authorityLookupLocal = this.authorityLookup
@@ -2229,7 +2318,7 @@ updated: function() {
       this.linkModeTextChange({key:'Enter',shiftKey:false})
 
       //Do the search for build mode
-      this.searchResults = this.searchApis(this.authorityLookupLocal, this.authorityLookupLocal, this)
+      this.searchResults = this.searchApis(this.components[0].label, this.authorityLookupLocal, this)
 
       //Wait for the search results
       this.searching = true
@@ -2271,9 +2360,11 @@ updated: function() {
       console.log("Error: ", err)
     }
 
+    this.renderHintBoxes()
     //this.subjectStringChanged()
     //this.validateOkayToAdd()
   }
 }
 };
+
 </script>
