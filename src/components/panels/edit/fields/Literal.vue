@@ -179,12 +179,14 @@
           </div>
           <div>
             <ul>
-              <li v-for="(item, idx) in preferences" >
-                <a :href="preferenceStore.returnValue(item[1])" target="_blank">
-                  {{ preferenceStore.returnValue(item[0]) }}
-                  <span class="material-icons" style="font-size: 14px;">open_in_new</span>
-                </a>
-              </li>
+              <template v-for="(item, idx) in preferences">
+                <li v-if="preferenceStore.returnValue(item[1]).trim() != ''">
+                  <a :href="preferenceStore.returnValue(item[1])" target="_blank">
+                    {{ preferenceStore.returnValue(item[0]).trim() != "" ? preferenceStore.returnValue(item[0]) : preferenceStore.returnValue(item[1])}}
+                    <span class="material-icons" style="font-size: 14px;">open_in_new</span>
+                  </a>
+                </li>
+              </template>
             </ul>
           </div>
           <div style="flex:1;     display: flex;justify-content: center;align-items: center;">
