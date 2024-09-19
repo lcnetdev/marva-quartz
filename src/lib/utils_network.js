@@ -149,7 +149,7 @@ const utilsNetwork = {
         uris=[uris]
       }
 
-      let results = {metadata:{ uri:uris[0]+'KEYWORD', values:{}  }}      
+      let results = {metadata:{ uri:uris[0]+'KEYWORD', values:{}  }}
       for (let uri of uris){
 
 
@@ -525,6 +525,7 @@ const utilsNetwork = {
           try{
             let response = await fetch(jsonuri);
             let data =  await response.json()
+
             return  data;
 
           }catch(err){

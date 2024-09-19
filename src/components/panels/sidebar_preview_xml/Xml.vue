@@ -45,20 +45,21 @@
         let exportResult = await this.profileStore.buildExportXML()
 
         this.xml = exportResult.xlmStringBasic
+        console.info("XML: ", this.xml)
 
         if (this.firstLoad){
           this.$nextTick(()=>{
-            for (let el of document.querySelectorAll('.element-name')){                
+            for (let el of document.querySelectorAll('.element-name')){
                 if (el.innerText == 'bf:Work' || el.innerText == 'bf:Instance' || el.innerText == 'void:DatasetDescription'){
                   el.click()
                   this.firstLoad = false
                 }
-            }            
+            }
           })
         }
 
       }
-      
+
 
 
 
@@ -70,7 +71,7 @@
       // this.profileStore.$subscribe(async (mutation, state)=>{
 
       //   if (mutation && mutation.events && mutation.events.target && mutation.events.target['@guid'] ){
-          
+
       //     window.clearTimeout(this.timeout)
       //     this.timeout = window.setTimeout(()=>{
 
@@ -79,11 +80,11 @@
       //     },500)
 
 
-          
+
       //   }
 
 
-      //   // if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){  
+      //   // if (state.profilesLoaded && Object.keys(state.activeProfile).length == 0){
       //   //   // the profilesLoaded flipped and there is no active profile, so load the data
       //   //   this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
       //   // }else{
@@ -104,9 +105,9 @@
     },
 
     mounted() {
-     
 
-      
+
+
     }
   }
 
@@ -117,7 +118,7 @@
 <template>
 
   <div>
-    
+
     <XmlViewer ref="xmlviewer" :xml="xml" />
 
 
@@ -133,7 +134,7 @@
 
 
 
-.sidebar-header-text{  
+.sidebar-header-text{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size', true) + 0.25  + 'em'");
   font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;

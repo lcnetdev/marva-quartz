@@ -1474,6 +1474,27 @@ methods: {
 
   },
 
+  // Check if the complex subject is made of multiple authorized headings.
+  // Used to build a subject `componentList` that doesn't have multiple
+  // terms connected by `--`
+  parseComplexSubject: async function(uri){
+    let data = await utilsNetwork.fetchSimpleLookup(uri+ ".json", true)
+    let components = false
+    let subfields = false
+    for (let el of data){
+      if (el["@id"] == uri){
+        components = el["http://www.loc.gov/mads/rdf/v1#componentList"]
+        subfields = el["http://id.loc.gov/ontologies/bflc/marcKey"][0]["@value"]
+      }
+    }
+    //get the subfields from the marcKey
+    if (subfields){
+      subfields = subfields.slice(5)
+      subfields = subfields.match(/\$./g)
+    }
+    return {"components": components, "subfields": subfields}
+  },
+
   selectContext: async function(pickPostion, update=true){
     if (pickPostion != null){
       this.pickPostion=pickPostion
@@ -1972,7 +1993,7 @@ methods: {
   },
 
 
-  add: function(){
+  add: async function(){
     //remove any existing thesaurus label, so it has the most current
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -1997,6 +2018,7 @@ methods: {
     for (let el in this.searchResults["subjectsComplex"]){
       let target = this.searchResults["subjectsComplex"][el]
       if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
+        //the entire built subject can be replaced by 1 term
         match = true
         this.components.push({
           "complex": target.complex,
@@ -2013,7 +2035,59 @@ methods: {
     //remove unused components
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
-    }
+    } else {
+        // need to break up the complex heading into it's pieces so their URIs are availble
+        for (let component in this.components){
+          if (this.components[component].complex){
+            let uri = this.components[component].uri
+            let data = await this.parseComplexSubject(uri)
+
+            const complexLabel = this.components[component].label
+            //remove the complex component
+            this.components.shift()
+
+            //build the new components
+            let id = 0
+
+            for (let label of complexLabel.split("--")){
+              let subfield = data["subfields"][id]
+              switch(subfield){
+                case("$a"):
+                  subfield = "madsrdf:Topic"
+                  break
+                case("$x"):
+                  subfield = "madsrdf:Topic"
+                  break
+                case("$v"):
+                  subfield = "madsrdf:GenreForm"
+                  break
+                case("$y"):
+                  subfield = "madsrdf:Temporal"
+                  break
+                case("$z"):
+                  subfield = "madsrdf:Geographic"
+                  break
+                default:
+                  subfield = false
+              }
+
+              this.components.splice(id, 0, ({
+                "complex": false,
+                "id": id,
+                "label": label,
+                "literal": false,
+                "posEnd": label.length,
+                "posStart": 0,
+                "type": subfield,
+                "uri": data["components"][0][id],
+              }))
+
+              id++
+            }
+
+          }
+        }
+      }
 
     this.$emit('subjectAdded', this.components)
   },
