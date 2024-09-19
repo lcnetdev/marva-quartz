@@ -105,7 +105,7 @@
       </div>
     </div>
 
-    <div class="lcc-action-zone" v-if="lccFeatureData !== false">
+    <div class="lcc-action-zone" v-if="lccFeatureData !== false && preferenceStore.returnValue('--b-shelflist-show-cutter-helpers')">
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/classificationPortion'">
 
         <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://classweb.org/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan='+lccFeatureData.classNumber+'&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'" target="_blank">ClassWeb Search: {{ lccFeatureData.classNumber }}</a><br/>
@@ -113,6 +113,8 @@
 
 
       </div>
+      
+
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/itemPortion'">
         <!-- { "title": "knitter's handy book of patterns", "classNumber": "TT820", "cutterNumber": ".B877 2002", "titleNonSort": 4, "contributors": [ { "type": "PrimaryContribution", "label": "Budd, Ann, 1956-" } ], "firstSubject": "Knitting--Patterns" } -->
         <div style="display: flex;">

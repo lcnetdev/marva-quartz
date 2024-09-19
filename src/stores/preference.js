@@ -750,6 +750,18 @@ export const usePreferenceStore = defineStore('preference', {
         index: 4
       },
 
+      '--b-shelflist-show-cutter-helpers' : {
+        desc: 'Display cutter tools like author cutter and links',
+        descShort: 'Display cutter tools.',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Shelflisting',
+        range: [true,false]
+    },
+
+
+
     }
   }),
 
