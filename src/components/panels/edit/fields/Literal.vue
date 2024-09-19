@@ -79,8 +79,8 @@
                 autocomplete="off"
                 @focusin="focused"
                 @blur="blured"
-                @input="valueChanged" 
-                @keyup="navKey"    
+                @input="valueChanged"
+                @keyup="navKey"
                 @keydown="keyDown"
                 :ref="'input_' + lValue['@guid']"
                 :data-guid="lValue['@guid']"
@@ -177,15 +177,23 @@
 
           </fieldset>
           </div>
+          <div>
+            <ul>
+              <template v-for="(item, idx) in preferences">
+                <li v-if="preferenceStore.returnValue(item[1]).trim() != ''">
+                  <a :href="preferenceStore.returnValue(item[1])" target="_blank">
+                    {{ preferenceStore.returnValue(item[0]).trim() != "" ? preferenceStore.returnValue(item[0]) : preferenceStore.returnValue(item[1])}}
+                    <span class="material-icons" style="font-size: 14px;">open_in_new</span>
+                  </a>
+                </li>
+              </template>
+            </ul>
+          </div>
           <div style="flex:1;     display: flex;justify-content: center;align-items: center;">
               <button @click="openShelfListSearch">Shelf List Search</button>
           </div>
-
         </div>
-
       </div>
-
-
     </div>
 
 
@@ -288,7 +296,7 @@ export default {
 
     navKey: function(event){
 
-      
+
 
       if (event && event.code === 'ArrowUp'){
         utilsMisc.globalNav('up',event.target)
@@ -304,7 +312,7 @@ export default {
         document.getElementById(id).click()
       }
 
-      
+
 
     },
 
@@ -352,13 +360,13 @@ export default {
       for (let macro of this.diacriticUseValues){
             if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
               // console.log("run this macro", macro)
-              
+
               let insertAt = event.target.value.length
-          
+
               if (event.target && event.target.selectionStart){
                 insertAt=event.target.selectionStart
-              }       
-              let inputV    
+              }
+              let inputV
               if (event.target){
                 inputV = event.target
               }else{
@@ -376,7 +384,7 @@ export default {
                   // if it is in fact a digit char then remove it
                   if (inputV.value.charAt(insertAt) == event.code.replace('Digit','')){
                     // remove the last char
-                    // inputV.value = inputV.value.slice(0, -1); 
+                    // inputV.value = inputV.value.slice(0, -1);
                     inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
 
                   }
@@ -398,7 +406,7 @@ export default {
                   if (inputV.value.charAt(inputV.value.length-1) == '`'){
                     // remove the last char
                     // inputV.value = inputV.value.slice(0, -1);
-                    inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt) 
+                    inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
                   }
 
                 }
@@ -425,7 +433,7 @@ export default {
                       this.$nextTick(()=>{
                         inputV.focus()
                       })
-                    
+
                   }
 
 
@@ -444,13 +452,13 @@ export default {
 
                     if (inputV.value.charAt(inputV.value.length-1) == '`'){
                       // remove the last char
-                      inputV.value = inputV.value.slice(0, -1); 
+                      inputV.value = inputV.value.slice(0, -1);
                     }
 
                     }
 
 
-                    // little cheap hack here, on macos the Alt+9 makes ª digits 1-0 do this with Alt+## but we only 
+                    // little cheap hack here, on macos the Alt+9 makes ª digits 1-0 do this with Alt+## but we only
                     // have one short cut that uses Alt+9 so just remove that char for now
                     inputV.value=inputV.value.replace('ª','')
 
@@ -481,7 +489,7 @@ export default {
 
                 event.preventDefault()
                 event.stopPropagation()
-                return false                
+                return false
             }
           }
 
@@ -495,18 +503,18 @@ export default {
 
       if (this.nextInputIsVoyagerModeDiacritics){
 
-        
 
-        // they are pressing shift in about to press antoher macro shrotcut 
+
+        // they are pressing shift in about to press antoher macro shrotcut
         if (event.key == 'Shift'){
           return false
         }
-        
+
         if (this.diacriticPacks.voyager[event.code]){
 
 
           let useMacro
-          for (let macro of this.diacriticPacks.voyager[event.code]){          
+          for (let macro of this.diacriticPacks.voyager[event.code]){
             if (macro.shiftKey == event.shiftKey){
               useMacro = macro
               break
@@ -514,13 +522,13 @@ export default {
           }
 
           let inputV = event.target
-          let insertAt = event.target.value.length          
+          let insertAt = event.target.value.length
           if (event.target && event.target.selectionStart){
             insertAt=event.target.selectionStart
-          }       
+          }
 
           if (!useMacro.combining){
-          // it is not a combining unicode char so just insert it into the value            
+          // it is not a combining unicode char so just insert it into the value
             if (inputV.value){
               // inputV.value=inputV.value+useMacro.codeEscape
               inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
@@ -574,7 +582,7 @@ export default {
                 this.runMacroExpressMacro(event)
                 this.valueChanged(event)
                 return false
-                
+
               }
             }
           }
@@ -587,10 +595,10 @@ export default {
               event.preventDefault()
               return false
             }
-            
+
           }
 
-          // 
+          //
 
         }
     },
@@ -721,7 +729,7 @@ export default {
     ...mapState(useConfigStore, ['scriptShifterLangCodes', 'lccFeatureProperties']),
     ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
     ...mapWritableState(useProfileStore, ['showShelfListingModal','activeField','activeProfile', 'literalLangShow', 'literalLangInfo','dataChangedTimestamp','activeShelfListData']),
-
+    ...mapState(usePreferenceStore, ['showPrefModal','showPrefModalgroup','styleDefault', 'showPrefModalGroup', 'fontFamilies']),
 
     myGuid(){
       return `${this.structure['@guid']}--${this.guid}`
@@ -831,7 +839,7 @@ export default {
       cutterCalcLength: 2,
       nextInputIsVoyagerModeDiacritics: false,
 
-
+      preferences: {},
 
     }
   },
@@ -841,19 +849,24 @@ export default {
       this.expandHeightToContent()
     })
 
-
-
+    //get the preferences to load into the page
+    for (let k in this.styleDefault){
+      if (k.includes("shelflist")){
+        let o = Object.assign({}, this.styleDefault[k])
+        if (o.index in this.preferences){
+          //save `k` so the information in the page will match the preferences in real time
+          this.preferences[o.index].push(k)
+        } else {
+          this.preferences[o.index] = [k]
+        }
+      }
+    }
   },
   created: function(){
 
     this.$nextTick().then(() => {
       this.expandHeightToContent()
     })
-
-
-
-
-
   },
 };
 </script>
