@@ -180,7 +180,7 @@ const utilsExport = {
   * @param {obj} userValue - the uservalue to test
   * @return {boolean}
   */
-	createLiteral: function(property,userValue){		
+	createLiteral: function(property,userValue){
 		let p = this.createElByBestNS(property)
 		// it should be stored under the same key
 		if (userValue[property]){
@@ -194,7 +194,7 @@ const utilsExport = {
 		if (userValue['@id']){
 			p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
 		}
-		
+
 		if (!this.checkForEDTFDatatype){ this.checkForEDTFDatatype = useConfigStore().checkForEDTFDatatype}
 
 		if (userValue['@datatype']){
@@ -202,7 +202,7 @@ const utilsExport = {
 		}else if (this.checkForEDTFDatatype.indexOf(property) >-1)  {
 			let dataType = false
 			// try to parse the value if it parses use the edtf data type
-			try { parseEDTF(userValue[property]); dataType = "http://id.loc.gov/datatypes/edtf" } catch { dataType = false }			
+			try { parseEDTF(userValue[property]); dataType = "http://id.loc.gov/datatypes/edtf" } catch { dataType = false }
 			if (dataType){
 				p.setAttributeNS(this.namespace.rdf, 'rdf:datatype', dataType)
 			}
@@ -217,7 +217,7 @@ const utilsExport = {
 		if (userValue['@gacs']){
 			p.setAttribute('rdf:datatype', userValue['@gacs'])
 		}
-		
+
 
 		// doesnt work :(
 		// p.removeAttributeNS("http://www.w3.org/2000/xmlns/", 'xmlns:rdfs')
@@ -345,7 +345,7 @@ const utilsExport = {
 		return false
 	}
 
-	
+
 
 	// if we are in dev mode let the error bubble, but otherwise catch the error and try to recover
 	if (useConfigStore().returnUrls.dev === true){
@@ -1116,6 +1116,7 @@ const utilsExport = {
 		let bf_AdminMetadtat = this.createElByBestNS("bf:AdminMetadata")
 		let bf_status = this.createElByBestNS("bf:status")
 		let bf_Status = this.createElByBestNS("bf:Status")
+
 		bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/c')
 		let bf_StatusLabel = this.createElByBestNS("rdfs:label")
 		bf_StatusLabel.innerHTML="changed"

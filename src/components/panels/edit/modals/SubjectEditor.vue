@@ -2039,8 +2039,10 @@ methods: {
         // need to break up the complex heading into it's pieces so their URIs are availble
         for (let component in this.components){
           if (this.components[component].complex){
+            console.info("!!!!!!!!!! BREAKING IT UP !!!!!!!!!!")
             let uri = this.components[component].uri
             let data = await this.parseComplexSubject(uri)
+            console.info("data: ", data)
 
             const complexLabel = this.components[component].label
             //remove the complex component
@@ -2079,7 +2081,7 @@ methods: {
                 "posEnd": label.length,
                 "posStart": 0,
                 "type": subfield,
-                "uri": data["components"][0][id],
+                "uri": data["components"][0]["@list"][id]["@id"],
               }))
 
               id++
@@ -2089,6 +2091,7 @@ methods: {
         }
       }
 
+    console.info("final components: ", this.components)
     this.$emit('subjectAdded', this.components)
   },
 
