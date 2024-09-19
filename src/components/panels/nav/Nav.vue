@@ -26,6 +26,8 @@
 <script>
   import { useProfileStore } from '@/stores/profile'
   import { usePreferenceStore } from '@/stores/preference'
+  import { useConfigStore } from '@/stores/config'
+
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import VueFileToolbarMenu from 'vue-file-toolbar-menu'
   import PostModal from "@/components/panels/nav/PostModal.vue";
@@ -53,7 +55,8 @@
 
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
-      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal']),
+      ...mapState(useConfigStore, ['layouts']),
+      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive']),
       ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal']),
 
 
@@ -209,7 +212,42 @@
             ] }
           )
         }
+        if (this.$route.path.startsWith('/edit/')){
+          menu.push({ is: "separator" })
+          
+          menu.push(
+            {
+              text: "",
+              icon: "reorder",
+              disabled: (this.layoutActive) ? false : true,
+              class: (this.layoutActive) ? "layout-active" : "layout-not-active",
 
+              click: () => {
+                this.layoutActive=false
+                this.layoutActiveFilter=null
+              }
+            }
+          )            
+
+           let layoutsMenu = []
+           console.log("this.layouts",this.layouts)
+           for (let l in this.layouts.all ){
+
+            layoutsMenu.push({
+              text: this.layouts.all[l].label,              
+              click: () => {
+                this.activateLayout(this.layouts.all[l])
+              }
+
+            })
+           }
+
+            menu.push(
+              { text: "Layouts",  menu: layoutsMenu }
+            )
+
+        }
+        
 
         if (this.$route.path.startsWith('/edit/')){
           menu.push({ is: "separator" })
@@ -301,6 +339,15 @@
         return pixles/window.innerHeight*100
       },
 
+      activateLayout(layout){
+
+
+        
+        this.layoutActive = true
+        this.layoutActiveFilter = layout
+
+
+      }
 
 
 
@@ -395,10 +442,20 @@
     .save-saved span{
       color: mediumblue !important;
     }
+    .layout-active{
+      /* background-color: chartreuse !important; */
+      cursor: pointer;
+    }
+    .layout-not-active{
+      display: none !important;
+    }
+
 
 </style>
 
 <style scoped>
+
+
 
   #nav-holder{
     position: absolute;

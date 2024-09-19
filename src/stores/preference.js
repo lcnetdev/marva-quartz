@@ -43,10 +43,16 @@ export const usePreferenceStore = defineStore('preference', {
 
     showTextMacroModal: false,
 
+    layoutActive: false,
+
+    layoutActiveFilter: null,
+
+
 
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},
+    
 
     panelDisplay:{
 

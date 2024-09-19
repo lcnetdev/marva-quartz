@@ -1,5 +1,7 @@
 <template>
+  
 
+  
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true">
 
       <div style="text-align: right;">
@@ -16,95 +18,103 @@
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
 
 
-      <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
+          <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
 
-        <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
+            <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
-          <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
-              :key="profileCompoent">
+              <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
+                  :key="profileCompoent">
+                  
+
+                <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
 
 
-            <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
+                  <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
-              <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+                    <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
 
-              <Main
-                :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
-                :level="0"
-                :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-                :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
-                :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"/>
+                    <Main
+                      :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
+                      :level="0"
+                      :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+                      :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
+                      :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"/>
 
+                  </template>
+
+                </template>
+
+              </div>
             </template>
 
-          </div>
-        </template>
 
-      </template>
+          </template>
       <template v-if="instanceMode == false">
 
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
+          <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
 
-          <template v-if="!hideProps.includes(activeProfile.rt[profileName].pt[profileCompoent].propertyURI)">
+            <template v-if="!hideProps.includes(activeProfile.rt[profileName].pt[profileCompoent].propertyURI)">
 
-            <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
+              <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
-              <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
+                <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
-                <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
-
-
-                  <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
+                  <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
 
 
-                    <template v-if="this.dualEdit == false">
-                      <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
-                        <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
-                          <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
-                        </div>
-                      </template>
-                  </template>
-                  <template v-if="this.dualEdit == true">
-                      <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && profileName.indexOf(':Instance') == -1">
-                        <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
-                          <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
-                        </div>
-                      </template>
-                  </template>
+                    <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
 
-                    <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
-                      <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
-                      <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
-                      <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
+
+                      <template v-if="this.dualEdit == false">
+                        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
+                          <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
+                            <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
+                          </div>
+                        </template>
+                    </template>
+                    <template v-if="this.dualEdit == true">
+                        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && profileName.indexOf(':Instance') == -1">
+                          <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
+                            <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
+                          </div>
+                        </template>
                     </template>
 
-                    <!-- index == -1 means it's the work, so just add the work -->
-                    <Main v-if="profileName.indexOf(':Instance') == -1"
-                      :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
-                      :level="0"
-                      :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-                      :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
-                      :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
+                      <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
+                        <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
+                        <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
+                        <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
+                      </template>
 
-                    <!-- If it's not in dual mode add the instances too -->
-                    <Main v-if="this.dualEdit == false && profileName.indexOf(':Instance') > -1"
-                      :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
-                      :level="0"
-                      :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-                      :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
-                      :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
+                      <!-- index == -1 means it's the work, so just add the work -->
+                      <Main v-if="profileName.indexOf(':Instance') == -1"
+                        :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
+                        :level="0"
+                        :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+                        :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
+                        :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
+
+                      <!-- If it's not in dual mode add the instances too -->
+                      <Main v-if="this.dualEdit == false && profileName.indexOf(':Instance') > -1"
+                        :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
+                        :level="0"
+                        :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+                        :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
+                        :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
 
 
 
-                        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
-                          <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
-                        </template>
+                          <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
+                            <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                          </template>
 
-                    </div>
+                      </div>
+                    </template>
                   </template>
                 </template>
-              </template>
 
+              </template>
             </template>
 
         </template>
@@ -165,7 +175,7 @@
       ...mapStores(useProfileStore),
 
 
-      ...mapState(usePreferenceStore, ['styleDefault']),
+      ...mapState(usePreferenceStore, ['styleDefault', 'layoutActive', 'layoutActiveFilter']),
 
       // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
@@ -218,7 +228,7 @@
 
         addProperty: function(event,profile){
 
-          console.log(profile,event.target.value)
+          
           this.profileStore.setPropertyVisible(profile,event.target.value)
           event.target.value = "home"
         }
@@ -238,7 +248,7 @@
             this.$nextTick(() => {
               window.setTimeout(()=> {
                 document.getElementById(`edit_${newVal.parentId}_${newVal.id}`).scrollIntoView({behavior: "smooth", block:"start"});
-                console.log(document.getElementById(`edit_${newVal.parentId}_${newVal.id}`))
+                
 
                 document.getElementById(`edit_${newVal.parentId}_${newVal.id}`).querySelector('input,textarea').focus()
 

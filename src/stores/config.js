@@ -220,6 +220,45 @@ export const useConfigStore = defineStore('config', {
   ],
 
 
+  layouts: {
+    all: {
+      titles: {
+        label: "Titles",
+        properties: [
+          "http://id.loc.gov/ontologies/bibframe/title"
+        ]
+      },
+      contributors: {
+        label: "Contributors",
+        properties: [
+          "http://id.loc.gov/ontologies/bibframe/contribution"
+        ]
+      },    
+      subjects: {
+        label: "Subjects & Class",
+        properties: [
+          "http://id.loc.gov/ontologies/bibframe/subject",
+          "http://id.loc.gov/ontologies/bibframe/classification",
+
+          
+        ]
+      }        
+      
+    }
+
+
+
+
+
+
+  },
+  
+
+
+
+
+
+
   // xml files stored in the static file directory
   testData:[
     {lccn:'2001059208',label:"The knitter's handy book of patterns: basic designs in multiple sizes & gauges", idUrl:'https://id.loc.gov/resources/instances/12618072.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
