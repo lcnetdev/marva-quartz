@@ -1994,6 +1994,7 @@ methods: {
 
 
   add: async function(){
+    console.info("Adding Subject")
     //remove any existing thesaurus label, so it has the most current
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2038,8 +2039,11 @@ methods: {
     } else {
         // need to break up the complex heading into it's pieces so their URIs are availble
         for (let component in this.components){
-          if (this.components[component].complex){
+          console.info("Type: ", this.components[component].type)
+          console.info("includes", ['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type))
+          if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
             console.info("!!!!!!!!!! BREAKING IT UP !!!!!!!!!!")
+            console.info(this.components[component])
             let uri = this.components[component].uri
             let data = await this.parseComplexSubject(uri)
             console.info("data: ", data)

@@ -45,7 +45,6 @@
         let exportResult = await this.profileStore.buildExportXML()
 
         this.xml = exportResult.xlmStringBasic
-        console.info("XML: ", this.xml)
 
         if (this.firstLoad){
           this.$nextTick(()=>{
