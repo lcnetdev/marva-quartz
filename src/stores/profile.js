@@ -1986,7 +1986,6 @@ export const useProfileStore = defineStore('profile', {
             let thisLevelType
 
             for (let p of propertyPath){
-
                 // if the property is owl:sameAs it is the last field
                 // of where we are building the entitiy, so we don't  want
                 // bf:Agent -> owl:sameAs we just want the bf:Agent with values filed in there
@@ -2075,7 +2074,6 @@ export const useProfileStore = defineStore('profile', {
 
 
             }else if (subjectComponents.length>1){
-
                 //userValue
 
 
@@ -2098,8 +2096,6 @@ export const useProfileStore = defineStore('profile', {
                 currentUserValuePos["http://www.loc.gov/mads/rdf/v1#componentList"] = []
 
                 for (let c of subjectComponents){
-
-
                     let compo = {
                             "@guid": short.generate(),
                             "@type": c.type.replace('madsrdf:','http://www.loc.gov/mads/rdf/v1#'),
