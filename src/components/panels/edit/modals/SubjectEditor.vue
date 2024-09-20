@@ -100,7 +100,7 @@
                     <div v-if="searchResults && searchResults.names.length>0 && !this.searching">
 
                       <div v-for="(name,idx) in searchResults.names" @click="selectContext((searchResults.names.length - idx)*-1)" @mouseover="loadContext((searchResults.names.length - idx)*-1)" :data-id="(searchResults.names.length - idx)*-1" :key="name.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1 ),'picked': (pickLookup[(searchResults.names.length - idx)*-1] && pickLookup[(searchResults.names.length - idx)*-1].picked)}]">
-                          <span v-if="name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
+                          <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
                           <span v-if="name.collections"> ({{ this.buildAddtionalInfo(name.collections) }})</span>
@@ -1182,40 +1182,6 @@ methods: {
     searchStringFull=searchStringFull.replaceAll('‑','-')
 
     that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
-
-    /**
-     * The following lines will remove search results based on
-     * the position of the term in the string and whether or not
-     * the term is an authorized heading.
-     *
-     * Authorized headings should only show in position 0.
-     */
-    let pos = 0
-    if (searchStringFull.includes("--")){
-      let pieces = searchStringFull.split("--")
-      pos = pieces.indexOf(searchString)
-    }
-
-    // limiting output so that authorized headings won't appear when search for a subdivsion
-    // But it is possible for someone to build a heading that exists in full and they could end up with
-    // an uncontrolled heading that really should be
-    for (let element in that.searchResults){
-      if (element != "subjectsComplex"){  // keep showing complext subjects so the most full version shows if available
-        for (let i = that.searchResults[element].length-1; i >= 0; i--){
-          if (that.searchResults[element][i].collections){
-            let isAuth = that.searchResults[element][i].collections.findIndex(coll => coll.includes("AuthorizedHeadings")) >= 0
-            // the heading is not authorized, and we're looking at position 0, remove it
-            if (!isAuth && pos == 0){
-              that.searchResults[element].splice(i, 1)
-            } else if (isAuth && pos != 0) { // the heading is authorized, but we're not looking at position 0, remove it
-              that.searchResults[element].splice(i, 1)
-            }
-
-          }
-        }
-      }
-    }
-
     // if they clicked around while it was doing this lookup bail out
     // if (that.activeSearchInterrupted){
 
@@ -1855,7 +1821,6 @@ methods: {
         this.updateAvctiveTypeSelected()
         this.validateOkayToAdd()
       },100)
-
     })
 
 

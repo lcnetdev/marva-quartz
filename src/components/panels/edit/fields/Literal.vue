@@ -113,7 +113,7 @@
 
 
       </div>
-      
+
 
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/itemPortion'">
         <!-- { "title": "knitter's handy book of patterns", "classNumber": "TT820", "cutterNumber": ".B877 2002", "titleNonSort": 4, "contributors": [ { "type": "PrimaryContribution", "label": "Budd, Ann, 1956-" } ], "firstSubject": "Knitting--Patterns" } -->
@@ -182,9 +182,9 @@
           <div>
             <ul>
               <template v-for="(item, idx) in preferences">
-                <li v-if="preferenceStore.returnValue(item[1]).trim() != ''">
+                <li v-if="preferenceStore.returnValue(item[1]) != ''">
                   <a :href="preferenceStore.returnValue(item[1])" target="_blank">
-                    {{ preferenceStore.returnValue(item[0]).trim() != "" ? preferenceStore.returnValue(item[0]) : preferenceStore.returnValue(item[1])}}
+                    {{ preferenceStore.returnValue(item[0]) != "" ? preferenceStore.returnValue(item[0]) : preferenceStore.returnValue(item[1])}}
                     <span class="material-icons" style="font-size: 14px;">open_in_new</span>
                   </a>
                 </li>
