@@ -662,6 +662,7 @@ const utilsExport = {
 							let value1FirstLoop = true
 							// loop through the value array of each of them
 							for (let value1 of userValue[key1]){
+
 								if (!value1FirstLoop && this.needsNewPredicate(key1)){
 									// we are going to make a new predicate, same type but not the same one as the last one was attached to
 									pLvl2 = this.createElByBestNS(key1)

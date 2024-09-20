@@ -1034,6 +1034,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
+      propertyPath = JSON.parse(JSON.stringify(propertyPath))
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
 
@@ -1078,8 +1079,8 @@ export const useProfileStore = defineStore('profile', {
 
           // make sure we can find where to put the new one
           if (parent[lastProperty]){
-            // create a new node here
-            parent[lastProperty].push({
+            // create a new node here            
+            let toadd = {
               '@id': URI,
               '@guid' : short.generate(),
               'http://www.w3.org/2000/01/rdf-schema#label' : [
@@ -1088,9 +1089,23 @@ export const useProfileStore = defineStore('profile', {
                   'http://www.w3.org/2000/01/rdf-schema#label' : label
                 }
               ]
-            })
-
-
+            }
+            let type = utilsRDF.suggestTypeProfile(lastProperty,pt)
+            if (type === false){
+              // did not find it in the profile, look to the network
+              type = await utilsRDF.suggestTypeNetwork(lastProperty)
+            }
+            if (type !== false){
+              // first we test to see if the type is a literal, if so then we
+              // don't need to set the type, as its not a blank node, just a nested property
+              if (utilsRDF.isUriALiteral(type) === false){
+                // if it doesn't yet have a type then go ahead and set it
+                toadd['@type'] = type                
+              }else{
+                // nothing to do, its a literal
+              }
+            }
+            parent[lastProperty].push(toadd)
           }else{
             console.error("Could not find the parent[lastProperty] of the existing value", {'parent':parent,'pt.userValue':pt.userValue, 'fieldGuid':fieldGuid})
           }
