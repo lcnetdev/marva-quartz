@@ -517,9 +517,7 @@ const utilsExport = {
 
 			xmlLog.push(`Looping through the PTs`)
 
-
 			for (let pt of profile.rt[rt].ptOrder){
-
         		// extract the pt, this is the individual component like a <mainTitle>
 				let ptObj = profile.rt[rt].pt[pt]
 				if (ptObj.deleted){
