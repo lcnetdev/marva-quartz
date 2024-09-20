@@ -149,7 +149,7 @@ const utilsNetwork = {
         uris=[uris]
       }
 
-      let results = {metadata:{ uri:uris[0]+'KEYWORD', values:{}  }}      
+      let results = {metadata:{ uri:uris[0]+'KEYWORD', values:{}  }}
       for (let uri of uris){
 
 
@@ -1950,8 +1950,13 @@ const utilsNetwork = {
     subjectSearch: async function(searchVal,complexVal,mode){
 
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
+      let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
       let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=SimpleType'
+      let subjectUrlSimpleSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
+        let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
 
       let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
       let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
@@ -1979,12 +1984,33 @@ const utilsNetwork = {
         url: [namesUrl],
         searchValue: searchVal
       }
+      let searchPayloadNamesSubdivision = {
+        processor: 'lcAuthorities',
+        url: [namesUrlSubdivision],
+        searchValue: searchVal
+      }
 
       let searchPayloadSubjectsSimple = {
         processor: 'lcAuthorities',
         url: [subjectUrlSimple],
         searchValue: searchVal
       }
+      let searchPayloadSubjectsSimpleSubdivision = {
+        processor: 'lcAuthorities',
+        url: [subjectUrlSimpleSubdivison],
+        searchValue: searchVal
+      }
+      let searchPayloadTemporal = {
+        processor: 'lcAuthorities',
+        url: [subjectUrlTemporal],
+        searchValue: searchVal
+      }
+      let searchPayloadGenre = {
+        processor: 'lcAuthorities',
+        url: [subjectUrlGenre],
+        searchValue: searchVal
+      }
+
       let searchPayloadSubjectsComplex = {
         processor: 'lcAuthorities',
         url: [subjectUrlComplex],
@@ -2025,7 +2051,10 @@ const utilsNetwork = {
 
 
       let resultsNames =[]
+      let resultsNamesSubdivision =[]
+
       let resultsSubjectsSimple=[]
+      let resultsPayloadSubjectsSimpleSubdivision=[]
       let resultsSubjectsComplex=[]
       let resultsHierarchicalGeographic=[]
       let resultsWorksAnchored=[]
@@ -2034,9 +2063,11 @@ const utilsNetwork = {
       let resultsHubsKeyword=[]
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
+        [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
             this.searchComplex(searchPayloadNames),
+            this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadSubjectsSimple),
+            this.searchComplex(searchPayloadSubjectsSimpleSubdivision),
             this.searchComplex(searchPayloadSubjectsComplex),
             this.searchComplex(searchPayloadHierarchicalGeographic)
         ]);
@@ -2070,6 +2101,7 @@ const utilsNetwork = {
       if (resultsNames.length>0){
         resultsNames.pop()
       }
+      resultsNamesSubdivision = resultsNamesSubdivision.filter((r) => {return (!r.literal)})
       if (resultsSubjectsComplex.length>0){
         resultsSubjectsComplex.pop()
       }
@@ -2079,6 +2111,7 @@ const utilsNetwork = {
         resultsSubjectsSimple.push(resultsSubjectsSimple.pop())
         resultsSubjectsSimple.reverse()
       }
+      resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
 
 
       resultsSubjectsComplex.reverse()
@@ -2114,10 +2147,15 @@ const utilsNetwork = {
         resultsSubjectsSimple = resultsHubsAnchored
         resultsSubjectsComplex = resultsHubsKeyword
       }
+
+      //determine position of search and set results accordingly
+      let searchPieces = complexVal.split("--")
+      let pos = searchPieces.indexOf(searchVal)
+
       let results = {
-        'subjectsSimple': resultsSubjectsSimple,
+        'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': resultsSubjectsComplex,
-        'names':resultsNames,
+        'names': pos == 0 ? resultsNames : resultsNamesSubdivision,
         'hierarchicalGeographic': resultsHierarchicalGeographic
       }
 
