@@ -254,8 +254,8 @@
             </div>
 
             <div class="shelf-listing-work-area">
-              <input v-model="classNumber" class="number-input" placeholder="Class" @keyup="search" type="text" />
-              <input v-model="cutterNumber" class="number-input" @keyup="search" placeholder="Cutter" type="text" />
+              <input v-model="classNumber" class="number-input" placeholder="Class" @keyup="hitCount=10; search()" type="text" />
+              <input v-model="cutterNumber" class="number-input" @keyup="hitCount=10; search()" placeholder="Cutter" type="text" />
               <button class="number-input" @click="save" :disabled="(!activeShelfListData.componentGuid)">Save</button>
               
               <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -303,32 +303,16 @@
                           <td>{{ r.title }}</td>
                           <td v-if="displaySubjects">{{ r.subject }}</td> 
                           <td>{{ r.pubdate }}</td>
-                          <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="r.lookup">view</a></td>
+                          <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.bfdbbase + 'resources/works/' + r.bibid">view</a></td>
                         </tr>
                       </template>
-
-
-
-
-
                     </template>
-
-
-
-
-
-
-
                   </tbody>
-
-
                 </table>
-                <button v-if="searching==false && results.length > 0" class="number-input" ref="moreButton" @click="hitCount += 20; search()">More</button>
+                <button v-if="searching==false && results.length > 0" class="number-input" ref="moreButton" @click="hitCount += 20; search()">Next 20</button>
               </div>
 
-
             </div>
-
 
           </div>
 
