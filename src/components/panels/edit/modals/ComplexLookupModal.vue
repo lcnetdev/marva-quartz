@@ -175,7 +175,6 @@
             }
           })
 
-
         this.searchTimeout = window.setTimeout(async ()=>{
           this.activeComplexSearchInProgress = true
           this.activeComplexSearch = []
@@ -184,7 +183,6 @@
           this.initalSearchState =false;
         }, 400)
       },
-
 
 
       inputKeydown: function(event){
@@ -332,9 +330,13 @@
         }
       },
 
+      forceSearch: function(){
+        //reset the search and do it again
+        this.currentPage = 1
+        this.doSearch()
+      },
+
     },
-
-
 
     updated: function(){
       if (this.authorityLookup == null){
@@ -448,9 +450,9 @@
                 </select>
               </template>
               <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" type="text" />
-
+              <button @click="forceSearch()">Search</button>
+              <hr style="margin-top: 5px;">
               <div>
-
 
                   <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)">
 

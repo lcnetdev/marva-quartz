@@ -769,10 +769,12 @@ methods: {
    * @param {obj} incomingSubjects - the existing subject data
    */
   buildLookupComponents: function(incomingSubjects){
+
     this.typeLookup = []
     for (let subjIdx in incomingSubjects){
       this.componetLookup[subjIdx] = {}
       let type = incomingSubjects[subjIdx]["@type"]
+
       let lookUp
 
       if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
@@ -800,13 +802,15 @@ methods: {
         this.componetLookup[subjIdx][label] = {
           label: incomingSubjects[subjIdx][lookUp][0][lookUp],
           literal: incomingSubjects[subjIdx]["@id"] ? false : true,
-          uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null
+          uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null,
+          type: this.typeLookup[subjIdx]
         }
 
       } catch(err){
         console.error(err)
       }
     }
+
   },
   /**
    * Creates components from the search string
@@ -817,6 +821,7 @@ methods: {
   buildComponents: function(searchString){
     let subjectStringSplit = searchString.split('--')
 
+    let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
     if (componentLookUpCount > 0){ //We are dealing with a hierarchical GEO and need to stitch some terms together
       if (componentLookUpCount < subjectStringSplit.length){
@@ -825,6 +830,7 @@ methods: {
           for (let j in this.componetLookup[i]) {
             if (this.componetLookup[i][j].label.includes("--")){
               target = this.componetLookup[i][j].label.replaceAll("-", "‑")
+              targetIndex = i  // needs this to ensure the target will go into the search string in the right place
             }
           }
         }
@@ -840,7 +846,8 @@ methods: {
             subjectStringSplit.splice(matchIndx[i], 1)
           }
           // add the combined terms
-          subjectStringSplit.push(target)
+          // subjectStringSplit.push(target)
+          subjectStringSplit.splice(targetIndex, 0, target)
         }
       }
     }
@@ -857,9 +864,15 @@ methods: {
       let type = null
       let literal = null
 
+
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        uri = this.componetLookup[id][ss].uri
+        if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
+          literal = this.componetLookup[id][ss].literal = false
+          uri = this.componetLookup[id][ss].uri = null
+        }
+
         literal = this.componetLookup[id][ss].literal
+        uri = this.componetLookup[id][ss].uri
       }
 
       if (this.typeLookup[id]){
@@ -885,6 +898,8 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
+
+
   },
 
   /**
@@ -1175,7 +1190,6 @@ methods: {
       that.activeSearch = false
 
     }, 10000)
-
 
 
     searchString=searchString.replaceAll('‑','-')
@@ -1584,7 +1598,6 @@ methods: {
       this.searchModeSwitch("WORKS")
 
     }else if (this.searchMode == 'GEO' && event.key == "-"){
-
       if (this.components.length>0){
         let lastC = this.components[this.components.length-1]
         console.log(lastC)
@@ -1754,7 +1767,9 @@ methods: {
       this.componetLookup = {}
       this.typeLookup={}
     }
-    this.buildComponents(this.subjectString)
+    if (!this.subjectString.endsWith("-")){
+      this.buildComponents(this.subjectString)
+    }
 
     this.renderHintBoxes()
 
@@ -2325,6 +2340,7 @@ updated: function() {
   // this was opened from an existing subject
   let profileData = this.profileData
   let incomingSubjects
+
   if (profileData && profileData.propertyLabel != "Subjects"){
     incomingSubjects = false
   } else if (profileData) {
@@ -2337,7 +2353,7 @@ updated: function() {
 
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
-  if (this.searchValue && this.components.length != this.searchValue.split("--")){
+  if (this.searchValue && this.components.length != this.searchValue.split("--") && !this.searchValue.endsWith('-')){
     this.buildLookupComponents(incomingSubjects)
     this.buildComponents(this.searchValue)
 

@@ -733,6 +733,7 @@ export default {
       this.authorityLookup = label
       this.searchValue = label
       this.displaySubjectModal = true
+
     },
 
 
