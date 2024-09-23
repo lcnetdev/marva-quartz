@@ -807,6 +807,8 @@ methods: {
         console.error(err)
       }
     }
+
+    console.info('Final componetLookup: ', this.componetLookup)
   },
   /**
    * Creates components from the search string
@@ -817,6 +819,8 @@ methods: {
   buildComponents: function(searchString){
     let subjectStringSplit = searchString.split('--')
 
+    console.info("subjectStringSplit: ", subjectStringSplit)
+    let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
     if (componentLookUpCount > 0){ //We are dealing with a hierarchical GEO and need to stitch some terms together
       if (componentLookUpCount < subjectStringSplit.length){
@@ -825,22 +829,27 @@ methods: {
           for (let j in this.componetLookup[i]) {
             if (this.componetLookup[i][j].label.includes("--")){
               target = this.componetLookup[i][j].label.replaceAll("-", "‑")
+              targetIndex = i
             }
           }
         }
         let matchIndx = []
+        console.info("target: ", target)
         if (target){
           for (let i in subjectStringSplit){
             if (target.includes(subjectStringSplit[i])){
               matchIndx.push(i)
             }
           }
+          console.info("matchIndex: ", matchIndx)
+          console.info("targetIndex: ", targetIndex)
           //remove them
           for (let i = matchIndx.length-1; i >=0; i--){
             subjectStringSplit.splice(matchIndx[i], 1)
           }
           // add the combined terms
-          subjectStringSplit.push(target)
+          // subjectStringSplit.push(target)
+          subjectStringSplit.splice(targetIndex, 0, target)
         }
       }
     }
@@ -885,6 +894,8 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
+
+    console.info("built components: ", this.components)
   },
 
   /**
@@ -2323,8 +2334,10 @@ mounted: function(){},
 
 updated: function() {
   // this was opened from an existing subject
+  console.info("this one")
   let profileData = this.profileData
   let incomingSubjects
+
   if (profileData && profileData.propertyLabel != "Subjects"){
     incomingSubjects = false
   } else if (profileData) {
@@ -2335,6 +2348,7 @@ updated: function() {
     }
   }
 
+  console.info("incomingSubjects: ", incomingSubjects)
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
   if (this.searchValue && this.components.length != this.searchValue.split("--")){

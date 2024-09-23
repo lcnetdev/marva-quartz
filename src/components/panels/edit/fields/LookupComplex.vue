@@ -719,6 +719,7 @@ export default {
 
     // Open the authority `panel` for an given authority
     openAuthority: function() {
+      console.info("Opening Auth")
       let label = this.$refs.el[0].innerHTML
       this.profileData = this.profileStore.returnStructureByGUID(this.guid)
 
@@ -733,6 +734,8 @@ export default {
       this.authorityLookup = label
       this.searchValue = label
       this.displaySubjectModal = true
+
+      console.info("this.authorityLookup: ", this.authorityLookup)
     },
 
 

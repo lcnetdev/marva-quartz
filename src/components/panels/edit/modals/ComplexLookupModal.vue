@@ -177,12 +177,13 @@
 
 
         this.searchTimeout = window.setTimeout(async ()=>{
+          console.info("searching: ", searchPayload)
           this.activeComplexSearchInProgress = true
           this.activeComplexSearch = []
           this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
           this.activeComplexSearchInProgress = false
           this.initalSearchState =false;
-        }, 400)
+        }, 500)
       },
 
 
@@ -333,6 +334,7 @@
       },
 
       forceSearch: function(){
+        //reset the search and do it again
         console.info("search: ", this.searchValueLocal)
         this.currentPage = 1
         this.doSearch()
