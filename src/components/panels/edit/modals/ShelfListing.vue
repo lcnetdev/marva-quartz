@@ -37,7 +37,9 @@
         title:null,
         subj:null,
         date:null,
+        countParam:null,
 
+        hitCount: 10,
         results: [],
 
 
@@ -89,7 +91,10 @@
           this.$refs.shelfListingContent.style.height = newRect.height + 'px'
 
         },
-
+        
+        scrollTo: function() {
+            this.$refs.moreButton.scrollIntoView({ behavior: 'smooth' });
+        },
 
 
         onSelectElement (event) {
@@ -148,16 +153,19 @@
           this.title= this.title ? "&sp-title="+this.title  : ""
           this.subj= this.subj ? "&sp-subject="+this.subj  : ""
           this.date= this.date ? "&sp-date="+this.date : ""
+          this.countParam = this.hitCount ? "&count="+this.hitCount : ""
 
 
           this.results = []
           this.searching=true
           this.results =  await utilsNetwork.searchShelfList(
             this.classNumber.trim() + '' + this.cutterNumber.trim(),
-            this.contributor + this.title + this.subj +this.date
+            this.contributor + this.title + this.subj + this.date + this.countParam
           )
-
           this.searching=false
+          this.$nextTick(() => {
+            this.scrollTo();
+          });
 
           //       altsubject
           // :
@@ -259,6 +267,7 @@
                     <tr>
                       <td>Number</td>
                       <td>Contributor</td>
+                      <td>Uniform Title</td>
                       <td>Title</td>
                       <td>Date</td>
                       <td> </td>
@@ -268,26 +277,25 @@
                   <tbody>
 
                     <template v-for="r in results">
-                      <template  v-if="r.title.trim() != 'Class would appear here.' && r.bibid.trim() != ''">
+                      <template  v-if="r.selected == undefined">
                         <tr>
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
+                          <td>{{ r.uniformtitle }}</td>
                           <td>{{ r.title }}</td>
                           <td>{{ r.pubdate }}</td>
-                          <td><a style="color: inherit; text-decoration: none;" target="_blank" :href="r.lookup">view</a></td>
+                          <td><a v-if="r.lookup.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="r.lookup">view</a></td>
                         </tr>
                       </template>
 
-                      <!-- <template  v-if="r.title.trim() == 'Class would appear here.'"> -->
-                      <!-- The new entry shouldn't have a bibid -->
-                      <template  v-if="r.bibid.trim() == ''">
+                      <template  v-if="r.selected != undefined && r.selected.trim() == 'selected'">
                         <tr style="background-color: yellow;">
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
-
+                          <td>{{ r.uniformtitle }}</td>
                           <td>{{ r.title }}</td>
                           <td>{{ r.pubdate }}</td>
-                          <td></td>
+                          <td><a v-if="r.lookup.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="r.lookup">view</a></td>
                         </tr>
                       </template>
 
@@ -307,6 +315,7 @@
 
 
                 </table>
+                <button v-if="searching==false && results.length > 0" class="number-input" ref="moreButton" @click="hitCount += 20; search()">More</button>
               </div>
 
 
@@ -377,7 +386,7 @@
   #shelf-listing-content{
     padding: 1em;
     background-color: white;
-    overflow-y: scroll;
+    overflow-y: scroll !important;
   }
 
   .checkbox-option{
