@@ -719,7 +719,6 @@ export default {
 
     // Open the authority `panel` for an given authority
     openAuthority: function() {
-      console.info("Opening Auth")
       let label = this.$refs.el[0].innerHTML
       this.profileData = this.profileStore.returnStructureByGUID(this.guid)
 

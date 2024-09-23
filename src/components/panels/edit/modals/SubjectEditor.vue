@@ -796,7 +796,6 @@ methods: {
         lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
       }
       try {
-        console.info("???1")
         let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("-", "‑")
 
         //Set up componentLookup, so the component builder can give them URIs
@@ -820,9 +819,7 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
-    console.info("building components: ", searchString)
     let subjectStringSplit = searchString.split('--')
-    console.info("subjectStringSplit: ", subjectStringSplit)
 
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
@@ -832,9 +829,7 @@ methods: {
         for (let i in this.componetLookup){
           for (let j in this.componetLookup[i]) {
             if (this.componetLookup[i][j].label.includes("--")){
-              console.info("???2", this.componetLookup[i][j])
               target = this.componetLookup[i][j].label.replaceAll("-", "‑")
-              console.info("target: ", target)
               targetIndex = i  // needs this to ensure the target will go into the search string in the right place
             }
           }
@@ -901,11 +896,9 @@ methods: {
       id++
     }
 
-    console.info("built components: ", this.components)
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
 
-    console.info("subjectString: ", this.subjectString)
 
   },
 
@@ -1019,7 +1012,6 @@ methods: {
         if (this.components[c].uri == null && this.components[c].literal != true){
           looseComponents.push(this.components[c])
           indx.push(c)
-          console.info("???3")
           componentMap.push("-")
         } else {
           componentMap.push(c)
@@ -1200,7 +1192,6 @@ methods: {
     }, 10000)
 
 
-    console.info("???8")
     searchString=searchString.replaceAll('‑','-')
     searchStringFull=searchStringFull.replaceAll('‑','-')
 
@@ -1607,7 +1598,6 @@ methods: {
       this.searchModeSwitch("WORKS")
 
     }else if (this.searchMode == 'GEO' && event.key == "-"){
-      console.info("???4")
       if (this.components.length>0){
         let lastC = this.components[this.components.length-1]
         console.log(lastC)
@@ -1619,7 +1609,6 @@ methods: {
         }
 
         // if the last string is a normal "-" then make this one normal too
-        console.info("???5")
         if (this.subjectString.slice(-1) == '-'){
           return true
         }
@@ -1793,7 +1782,6 @@ methods: {
           this.activeComponentIndex = c.id
           // it is not empty
           // it dose not end with "-" so it the '--' typing doesn't trigger
-          console.info("???6", c)
           if (c.label.trim() != '' && !c.label.endsWith('-')){
             this.searchApis(c.label,event.target.value,this)
 
@@ -1992,7 +1980,6 @@ methods: {
     console.log('this.components',this.components)
     // remove our werid hyphens before we send it back
     for (let c of this.components){
-      console.info("???7")
       c.label = c.label.replaceAll('‑','-')
 
       // we have the full mads type from the build process, check if the component is a id name authortiy
@@ -2350,7 +2337,6 @@ mounted: function(){},
 
 
 updated: function() {
-  console.info("updating", this.searchValue)
   // this was opened from an existing subject
   let profileData = this.profileData
   let incomingSubjects

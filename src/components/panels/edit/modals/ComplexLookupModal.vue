@@ -175,14 +175,13 @@
             }
           })
 
-
         this.searchTimeout = window.setTimeout(async ()=>{
           this.activeComplexSearchInProgress = true
           this.activeComplexSearch = []
           this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
           this.activeComplexSearchInProgress = false
           this.initalSearchState =false;
-        }, 500)
+        }, 400)
       },
 
 

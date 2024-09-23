@@ -17,6 +17,8 @@ const utilsNetwork = {
     // a cache to keep previosuly requested vocabularies and lookups in memory for use again
     lookupLibrary : {},
 
+    //abort controller
+    controller: null,
 
     /**
     * processes the data returned from id vocabularies
@@ -198,6 +200,12 @@ const utilsNetwork = {
     * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
     */
     fetchSimpleLookup: async function(url, json) {
+      // if there is already a controller, send the abort command
+      if (this.controller){
+        this.controller.abort()
+      }
+      this.controller = new AbortController();
+
       url = url || config.profileUrl
       if (url.includes("id.loc.gov")){
         url = url.replace('http://','https://')
@@ -213,7 +221,7 @@ const utilsNetwork = {
       // console.log("url:",url)
       // console.log('options:',options)
       try{
-        let response = await fetch(url,options);
+        let response = await fetch(url,options, {signal: signal});
         let data = null
         if (response.status == 404){
           return false
@@ -224,10 +232,18 @@ const utilsNetwork = {
         }else{
           data =  await response.json()
         }
+        //reset the controller
+        this.controller = false
+
+        //If the signal was abort, don't return anything
+        if (signal.aborted){
+          return false
+        }
         return  data;
       }catch(err){
         //alert("There was an error retriving the record from:",url)
         console.error(err);
+        this.controller = null
         return false
         // Handle errors here
       }
