@@ -3446,7 +3446,7 @@ export const useProfileStore = defineStore('profile', {
       }
       
       instanceCount++
-      let newRdId = instanceName+'-'+instanceCount  
+      let newRdId = instanceName+'_'+instanceCount  
       instanceRt.isNew = true
       this.activeProfile.rt[newRdId] = instanceRt
       this.activeProfile.rtOrder.push(newRdId)
@@ -3464,7 +3464,7 @@ export const useProfileStore = defineStore('profile', {
       this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
 
 
-      
+      console.log(this.activeProfile)
       
       // this.activeProfileSaved = false
 
