@@ -424,7 +424,7 @@
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
-                  <div v-if="(activeComplexSearch && activeComplexSearch[0] && activeComplexSearch[0].total % 25 ) > 0" class="complex-lookup-paging">
+                  <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % 25 ) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
                     <span>
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
                         <span class="material-icons pagination">keyboard_double_arrow_left</span>
@@ -432,7 +432,7 @@
                       <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
                         <span class="material-icons pagination">chevron_left</span>
                       </a>
-                      <span class="pagination-label"> Page {{ this.currentPage }} of {{ Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) }} </span>
+                      <span class="pagination-label"> Page {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last Page"}} </span>
                       <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
                         <span class="material-icons pagination">chevron_right</span>
                       </a>
@@ -442,7 +442,6 @@
                     </span>
                   </div>
                 </div>
-
               </template>
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === true">
                 <select v-model="modeSelect">
