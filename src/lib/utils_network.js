@@ -201,10 +201,11 @@ const utilsNetwork = {
     */
     fetchSimpleLookup: async function(url, json) {
       // if there is already a controller, send the abort command
-      if (this.controller){
-        this.controller.abort()
-      }
-      this.controller = new AbortController();
+      // if (this.controller){
+      //   this.controller.abort()
+      // }
+      // this.controller = new AbortController();
+      // const signal = this.controller.signal
 
       url = url || config.profileUrl
       if (url.includes("id.loc.gov")){
@@ -221,7 +222,8 @@ const utilsNetwork = {
       // console.log("url:",url)
       // console.log('options:',options)
       try{
-        let response = await fetch(url,options, {signal: signal});
+        // let response = await fetch(url,options, {signal: signal});
+        let response = await fetch(url,options);
         let data = null
         if (response.status == 404){
           return false
@@ -233,12 +235,13 @@ const utilsNetwork = {
           data =  await response.json()
         }
         //reset the controller
-        this.controller = false
+        // this.controller = false
 
         //If the signal was abort, don't return anything
-        if (signal.aborted){
-          return false
-        }
+        // if (signal.aborted){
+        //   console.info("aborted")
+        //   return false
+        // }
         return  data;
       }catch(err){
         //alert("There was an error retriving the record from:",url)
@@ -299,8 +302,6 @@ const utilsNetwork = {
     * @return {array} - An array of {@link searchComplexResult} results
     */
     searchComplex: async function(searchPayload){
-
-
       // console.log("searchPayload",searchPayload)
 
 
@@ -1965,7 +1966,6 @@ const utilsNetwork = {
     * @return {} -
     */
     subjectSearch: async function(searchVal,complexVal,mode){
-
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings'
       let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
