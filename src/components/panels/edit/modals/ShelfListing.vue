@@ -33,6 +33,7 @@
 
         classNumber: null,
         cutterNumber:null,
+        displaySubjects: false,
         contributor:null,
         title:null,
         subj:null,
@@ -42,7 +43,7 @@
         hitCount: 10,
         results: [],
 
-
+        bfdbbase: useConfigStore().returnUrls.bfdb
 
 
       }
@@ -256,7 +257,11 @@
               <input v-model="classNumber" class="number-input" placeholder="Class" @keyup="search" type="text" />
               <input v-model="cutterNumber" class="number-input" @keyup="search" placeholder="Cutter" type="text" />
               <button class="number-input" @click="save" :disabled="(!activeShelfListData.componentGuid)">Save</button>
-
+              
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <input type="checkbox" id="showSubjects" v-model="displaySubjects" v-on:change="search" />
+              <label for="showSubjects">&nbsp;Show Subjects</label>
+              
               <div class="serach-results-container">
                 <h2 v-if="searching == true"><span class="material-icons icon">search</span>Searching...</h2>
 
@@ -269,6 +274,7 @@
                       <td>Contributor</td>
                       <td>Uniform Title</td>
                       <td>Title</td>
+                      <td v-if="displaySubjects">Subject</td> 
                       <td>Date</td>
                       <td> </td>
 
@@ -283,8 +289,9 @@
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
                           <td>{{ r.title }}</td>
+                          <td v-if="displaySubjects">{{ r.subject }}</td> 
                           <td>{{ r.pubdate }}</td>
-                          <td><a v-if="r.lookup.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="r.lookup">view</a></td>
+                          <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.bfdbbase + 'resources/works/' + r.bibid">view</a></td>
                         </tr>
                       </template>
 
@@ -294,8 +301,9 @@
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
                           <td>{{ r.title }}</td>
+                          <td v-if="displaySubjects">{{ r.subject }}</td> 
                           <td>{{ r.pubdate }}</td>
-                          <td><a v-if="r.lookup.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="r.lookup">view</a></td>
+                          <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="r.lookup">view</a></td>
                         </tr>
                       </template>
 
@@ -371,6 +379,11 @@
     border:dashed 1px black;
   }
 
+  thead tr td{
+    text-align: left;
+    font-weight: bolder;
+
+  }
   th{
     text-align: left;
     font-weight: bold;
