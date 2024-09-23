@@ -735,7 +735,6 @@ export default {
       this.searchValue = label
       this.displaySubjectModal = true
 
-      console.info("this.authorityLookup: ", this.authorityLookup)
     },
 
 
