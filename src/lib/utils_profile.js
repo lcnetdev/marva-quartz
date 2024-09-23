@@ -645,6 +645,50 @@ const utilsProfile = {
   },
 
 
+  suggestURI: function(profile,type,URI){
+    // for items find the instance URI and then count up the items and add it as a suffix to the instance URI pattern
+    if (type === 'bf:Item'){
+        for (let rtId in profile.rt){
+            if (profile.rt[rtId].URI == URI){
+                let newURI = profile.rt[rtId].URI.replace('/instances/','/items/')
+                let itemCount = 0
+                for (let rtId2 in profile.rt){
+                    if (rtId2.includes(":Item")){
+                        itemCount++
+                    }
+                }
+                let itemCountLabel = String(itemCount).padStart(4, '0');
+                newURI = newURI + '-' + itemCountLabel
+                return newURI
+            }
+        }
+    }
+
+
+    if (type === 'bf:Instance'){
+        let instanceURIbasedOnWork = URI.replace('/works/','/instances/')
+        // let workID = URI.split('/').slice(-1)[0]
+        // if there are no instances yet, make a new instance and just use the work's URI
+        let instanceCount = 0
+        // let workUriUsed = false
+        for (let rtId2 in profile.rt){
+            if (rtId2.includes(":Instance")){
+                instanceCount++
+                if (profile.rt.URI == instanceURIbasedOnWork){
+                    // workUriUsed=true
+                }
+            }
+        }      
+        // if there are no instances yet use the instanceURIbasedOnWork
+        if (instanceCount==0){
+            return instanceURIbasedOnWork
+        }else{
+            // there are already instances, so use the work id but append a suffix to it
+            return instanceURIbasedOnWork + '-' + String(instanceCount).padStart(4, '0');
+        }
+    }
+},
+
 
 
 }

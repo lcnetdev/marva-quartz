@@ -3399,7 +3399,84 @@ export const useProfileStore = defineStore('profile', {
 
       this.activeProfile = {}
 
-    }
+    },
+
+
+
+    
+    /**
+    * Build a new seconary instance
+    *
+    * @return {void}
+    */
+    createSecondaryInstance:  function(){
+
+
+      // find the RT for the instance of this profile orginally
+      // get the work rt
+
+      let instanceName
+      let instanceRt
+      let workUri
+
+      for (let rtId in this.activeProfile.rt){
+          if (rtId.includes(":Work")){
+              workUri = this.activeProfile.rt[rtId].URI
+              // now find the corosponding instance id
+              for (let allRt in this.profiles){
+                  if (this.profiles[allRt].rtOrder.indexOf(rtId)>-1){
+                      instanceName = this.profiles[allRt].rtOrder.filter(i => i.includes(":Instance"))[0]
+                      instanceRt = JSON.parse(JSON.stringify(this.profiles[allRt].rt[instanceName]))
+                  }
+              }
+          }
+      }
+      let instanceCount = 0;
+
+      // gather info to add it 
+      let instances = Object.keys(this.activeProfile.rt).filter(i => i.includes(":Instance"))
+
+      for (let i of instances){
+          if (i.includes('-')){
+              let nid = parseInt(i.split('-')[1])
+              if (nid > instances.length){
+                  instanceCount = nid
+              }
+          }
+      }
+      
+      instanceCount++
+      let newRdId = instanceName+'-'+instanceCount  
+      instanceRt.isNew = true
+      this.activeProfile.rt[newRdId] = instanceRt
+      this.activeProfile.rtOrder.push(newRdId)
+
+      // give it all new guids
+      for (let pt in this.activeProfile.rt[newRdId].pt){
+        this.activeProfile.rt[newRdId].pt[pt]['@guid'] = short.generate()
+      }
+      // setup the new instance's properies
+      // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
+
+      this.activeProfile.rt[newRdId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
+      this.activeProfile.rt[newRdId].instanceOf = workUri
+
+      this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
+
+
+      
+      
+      // this.activeProfileSaved = false
+
+      // window.clearTimeout(dataChangedTimeout)
+      // dataChangedTimeout = window.setTimeout(()=>{
+      //   this.dataChangedTimestamp = Date.now()
+      //   // console.log("CHANGED 1!!!")
+      // },500)
+
+    },
+
+
 
   }
 })

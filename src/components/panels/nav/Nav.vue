@@ -114,30 +114,44 @@
         //       //     <span style="font-size:2em; font-weight:bold; position: absolute; width: 100px; left:0;">M</span>
         //       //     `,
         //   })
-        // }
+        // }  
+
+
+
+
+
+        let menuButtonSubMenu = [  
+          { text: "Load Resource", click: () => {
+            try{
+              this.$nextTick(()=>{
+                this.$router.push('/load')
+              })
+            }catch{
+              // expected error :(
+            }
+            }, icon:"💾" }
+        ]
+
+
+        if (this.$route.path.startsWith('/edit/')){      
+          menuButtonSubMenu.push({ is: 'separator'})            
+          menuButtonSubMenu.push(
+            {
+              text: 'Add Secondary Instance',
+              click: () => { this.profileStore.createSecondaryInstance() }
+            }
+            
+          )
+        }
 
         if (!this.disable.includes('Menu')){
           menu.push(
-          { text: "Menu",  menu: [
-            { text: "Load Resource", click: () => {
-
-              try{
-
-                this.$nextTick(()=>{
-                  this.$router.push('/load')
-                })
-
-              }catch{
-                // expected error :(
-              }
-
-
-            }, icon:"💾" },
-
-
-          ] }
+          { text: "Menu",  menu: menuButtonSubMenu }
           )
         }
+
+
+
 
         if (!this.disable.includes('Tools')){
           menu.push(
