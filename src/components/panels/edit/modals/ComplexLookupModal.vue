@@ -453,7 +453,7 @@
               </template>
               <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" type="text" />
               <button @click="forceSearch()">Search</button>
-              <hr style="margin-top: 5px;;">
+              <hr style="margin-top: 5px;">
               <div>
 
                   <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)">
