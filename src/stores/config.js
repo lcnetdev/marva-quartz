@@ -271,6 +271,7 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2023602524',label:"Bones and all", idUrl:'https://id.loc.gov/resources/instances/23150570.html', profile:'Moving Image: BluRay DVD',profileId:'lc:RT:bf2:MIBluRayDVD:Instance'},
     {lccn:'2005264032',label:"Business week", idUrl:'https://id.loc.gov/resources/instances/11138862.html', profile:'Serial',profileId:'lc:RT:bf2:Serial:Instance'},
+    {lccn:'2011263182',label:"San Francisco chronicle", idUrl:'https://id.loc.gov/resources/instances/2011263182.html', profile:'Serial',profileId:'lc:RT:bf2:Serial:Instance'},
 
 
 
