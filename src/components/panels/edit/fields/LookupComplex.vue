@@ -732,7 +732,12 @@ export default {
       // store the label to pass as a prop
       this.authorityLookup = label
       this.searchValue = label
-      this.displaySubjectModal = true
+
+      if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
+        this.displayModal = true
+      } else {
+        this.displaySubjectModal = true
+      }
 
     },
 
