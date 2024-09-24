@@ -3435,17 +3435,21 @@ export const useProfileStore = defineStore('profile', {
 
       // gather info to add it 
       let instances = Object.keys(this.activeProfile.rt).filter(i => i.includes(":Instance"))
-
-      for (let i of instances){
-          if (i.includes('-')){
-              let nid = parseInt(i.split('-')[1])
-              if (nid > instances.length){
-                  instanceCount = nid
-              }
-          }
+      if (instances.length>1){
+        instanceCount = instances.length -1
       }
+      // console.log('instances',instances)
+      // for (let i of instances){
+      //     if (i.includes('_')){
+      //         let nid = parseInt(i.split('_')[1])
+      //         if (nid > instances.length){
+      //             instanceCount = nid
+      //         }
+      //     }
+      // }
       
       instanceCount++
+      // console.log('instanceCount',instanceCount)
       let newRdId = instanceName+'_'+instanceCount  
       instanceRt.isNew = true
       this.activeProfile.rt[newRdId] = instanceRt
@@ -3454,7 +3458,19 @@ export const useProfileStore = defineStore('profile', {
       // give it all new guids
       for (let pt in this.activeProfile.rt[newRdId].pt){
         this.activeProfile.rt[newRdId].pt[pt]['@guid'] = short.generate()
+        // update the parentId
+        this.activeProfile.rt[newRdId].pt[pt].parentId = this.activeProfile.rt[newRdId].pt[pt].parentId.replace(instanceName,newRdId)
+        this.activeProfile.rt[newRdId].pt[pt].parent = this.activeProfile.rt[newRdId].pt[pt].parent.replace(instanceName,newRdId)
+
+
+        
+
+        
+
       }
+
+      
+
       // setup the new instance's properies
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
@@ -3463,17 +3479,8 @@ export const useProfileStore = defineStore('profile', {
 
       this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
 
-
-      console.log(this.activeProfile)
+      this.dataChanged()
       
-      // this.activeProfileSaved = false
-
-      // window.clearTimeout(dataChangedTimeout)
-      // dataChangedTimeout = window.setTimeout(()=>{
-      //   this.dataChangedTimestamp = Date.now()
-      //   // console.log("CHANGED 1!!!")
-      // },500)
-
     },
 
 

@@ -244,7 +244,7 @@
           )            
 
            let layoutsMenu = []
-           console.log("this.layouts",this.layouts)
+           
            for (let l in this.layouts.all ){
 
             layoutsMenu.push({

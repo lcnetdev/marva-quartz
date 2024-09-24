@@ -1974,8 +1974,6 @@ const utilsNetwork = {
       }
 
 
-
-
       let searchPayloadNames = {
         processor: 'lcAuthorities',
         url: [namesUrl],
@@ -2100,8 +2098,6 @@ const utilsNetwork = {
         ]);
 
       }
-
-
 
 
       // drop the litearl value from names and complex

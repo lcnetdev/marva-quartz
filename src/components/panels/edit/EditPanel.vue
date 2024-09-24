@@ -15,7 +15,7 @@
   <div
     v-for="profileName in this.activeProfile.rtOrder"
     :key="profileName"
-    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0] == 'Instance_1'), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
+    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
 
 
           <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
@@ -32,7 +32,6 @@
                   <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
                     <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
-
                     <Main
                       :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
                       :level="0"
@@ -86,7 +85,7 @@
                         <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
                         <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
                       </template>
-
+                      
                       <!-- index == -1 means it's the work, so just add the work -->
                       <Main v-if="profileName.indexOf(':Instance') == -1"
                         :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
