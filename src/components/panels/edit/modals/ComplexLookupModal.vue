@@ -38,6 +38,7 @@
 
         activeComplexSearch: [],
         activeComplexSearchInProgress: false,
+        controller: new AbortController(),
 
         initalSearchState: true,
 
@@ -117,6 +118,12 @@
 
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
+        //if there is an ongoing search, abort it
+        if (this.activeComplexSearchInProgress){
+          this.controller.abort()
+          this.controller = new AbortController()
+        }
+
         if (!this.searchValueLocal){ return false}
 
         if (this.searchValueLocal.trim()==''){
@@ -152,7 +159,8 @@
         let searchPayload = {
           processor: null,
           url: [],
-          searchValue: this.searchValueLocal   //This changed from searchValueLocal, to match what is expected in `utils_network.js`
+          searchValue: this.searchValueLocal,   //This changed from searchValueLocal, to match what is expected in `utils_network.js`
+          signal: this.controller.signal
         }
         // if (this.modeSelect == 'All'){
         //   this.modalSelectOptions.forEach((a)=>{

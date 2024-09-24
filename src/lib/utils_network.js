@@ -18,7 +18,10 @@ const utilsNetwork = {
     lookupLibrary : {},
 
     //abort controller
-    controller: null,
+    searching: false,
+    controller: new AbortController(),
+    currentURL: "",
+    prevURL: "",
 
     /**
     * processes the data returned from id vocabularies
@@ -197,16 +200,10 @@ const utilsNetwork = {
     * @async
     * @param {string} url - the URL to ask for, if left blank it just pulls in the profiles
     * @param {boolean} json - if defined and true will treat the call as a json request, addding some headers to ask for json
+    * @param {signal} signal - signal that will be used to abort the call if needed
     * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
     */
-    fetchSimpleLookup: async function(url, json) {
-      // if there is already a controller, send the abort command
-      // if (this.controller){
-      //   this.controller.abort()
-      // }
-      // this.controller = new AbortController();
-      // const signal = this.controller.signal
-
+    fetchSimpleLookup: async function(url, json, signal=null) {
       url = url || config.profileUrl
       if (url.includes("id.loc.gov")){
         url = url.replace('http://','https://')
@@ -215,14 +212,13 @@ const utilsNetwork = {
       // if we use the memberOf there might be a id URL in the params, make sure its not https
       url = url.replace('memberOf=https://id.loc.gov/','memberOf=http://id.loc.gov/')
 
-      let options = {}
+      let options = {signal: signal}
       if (json){
-        options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors"}
+        options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors", signal: signal}
       }
       // console.log("url:",url)
       // console.log('options:',options)
       try{
-        // let response = await fetch(url,options, {signal: signal});
         let response = await fetch(url,options);
         let data = null
         if (response.status == 404){
@@ -234,19 +230,12 @@ const utilsNetwork = {
         }else{
           data =  await response.json()
         }
-        //reset the controller
-        // this.controller = false
 
-        //If the signal was abort, don't return anything
-        // if (signal.aborted){
-        //   console.info("aborted")
-        //   return false
-        // }
         return  data;
       }catch(err){
         //alert("There was an error retriving the record from:",url)
         console.error(err);
-        this.controller = null
+
         return false
         // Handle errors here
       }
@@ -299,13 +288,11 @@ const utilsNetwork = {
     /**
     * Looks for instances by LCCN against ID, returns into for them to be displayed and load the resource
     * @param {searchPayload} searchPayload - the {@link searchPayload} to look for
+    * @param {allowAbort} --
     * @return {array} - An array of {@link searchComplexResult} results
     */
     searchComplex: async function(searchPayload){
       // console.log("searchPayload",searchPayload)
-
-
-
         let returnUrls = useConfigStore().returnUrls
 
         let urlTemplate = searchPayload.url
@@ -352,8 +339,7 @@ const utilsNetwork = {
               url = url.replace('q=?','q=')
             }
 
-
-            let r = await this.fetchSimpleLookup(url)
+            let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
             //Config only allows 25 results, this will add something to the results
             // to let the user know there are more names.
