@@ -354,10 +354,14 @@ const utilsNetwork = {
                 // console.log("URL",url)
                 // console.log("r",r)
                 for (let hit of r.hits){
-                  let context = await this.returnContext(hit.uri)
+                  let context = null
+                  // we only need the context for the subject search to have collection information in the output
+                  if(searchPayload.subjectSearch == true){
+                    context = await this.returnContext(hit.uri)
+                  }
 
                   let hitAdd = {
-                    collections: context.nodeMap["MADS Collection"],
+                    collections: context ? context.nodeMap["MADS Collection"] : [],
                     label: hit.aLabel,
                     vlabel: hit.vLabel,
                     suggestLabel: hit.suggestLabel,
@@ -372,11 +376,7 @@ const utilsNetwork = {
                     hitAdd.label  = hitAdd.suggestLabel.split('(DEPRECATED')[0] + ' DEPRECATED'
                     hitAdd.depreciated = true
                   }
-
-
                   results.push(hitAdd)
-
-
                 }
 
 
@@ -1985,23 +1985,27 @@ const utilsNetwork = {
       let searchPayloadNames = {
         processor: 'lcAuthorities',
         url: [namesUrl],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true
       }
       let searchPayloadNamesSubdivision = {
         processor: 'lcAuthorities',
         url: [namesUrlSubdivision],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true
       }
 
       let searchPayloadSubjectsSimple = {
         processor: 'lcAuthorities',
         url: [subjectUrlSimple],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true
       }
       let searchPayloadSubjectsSimpleSubdivision = {
         processor: 'lcAuthorities',
         url: [subjectUrlSimpleSubdivison],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true
       }
       let searchPayloadTemporal = {
         processor: 'lcAuthorities',
@@ -2017,38 +2021,44 @@ const utilsNetwork = {
       let searchPayloadSubjectsComplex = {
         processor: 'lcAuthorities',
         url: [subjectUrlComplex],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true
       }
 
 
       let searchPayloadHierarchicalGeographic = {
         processor: 'lcAuthorities',
         url: [subjectUrlHierarchicalGeographic],
-        searchValue: searchValHierarchicalGeographic
+        searchValue: searchValHierarchicalGeographic,
+        subjectSearch: true
       }
 
       let searchPayloadWorksAnchored = {
         processor: 'lcAuthorities',
         url: [worksUrlAnchored],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true
       }
 
       let searchPayloadWorksKeyword = {
         processor: 'lcAuthorities',
         url: [worksUrlKeyword],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true
       }
 
       let searchPayloadHubsAnchored = {
         processor: 'lcAuthorities',
         url: [hubsUrlAnchored],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true
       }
 
       let searchPayloadHubsKeyword = {
         processor: 'lcAuthorities',
         url: [hubsUrlKeyword],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true
       }
 
 
