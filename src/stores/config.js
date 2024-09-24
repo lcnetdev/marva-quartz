@@ -179,7 +179,6 @@ export const useConfigStore = defineStore('config', {
     'http://id.loc.gov/ontologies/bibframe/date',
     'http://id.loc.gov/ontologies/bibframe/copyrightDate',
     'http://id.loc.gov/ontologies/bibframe/originDate',
-    'http://id.loc.gov/ontologies/bflc/simpleDate',
     'http://id.loc.gov/ontologies/bflc/projectedProvisionDate',   
   ],
 

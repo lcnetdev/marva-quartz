@@ -38,6 +38,7 @@
 
         activeComplexSearch: [],
         activeComplexSearchInProgress: false,
+        controller: new AbortController(),
 
         initalSearchState: true,
 
@@ -117,6 +118,12 @@
 
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
+        //if there is an ongoing search, abort it
+        if (this.activeComplexSearchInProgress){
+          this.controller.abort()
+          this.controller = new AbortController()
+        }
+
         if (!this.searchValueLocal){ return false}
 
         if (this.searchValueLocal.trim()==''){
@@ -152,7 +159,8 @@
         let searchPayload = {
           processor: null,
           url: [],
-          searchValue: this.searchValueLocal   //This changed from searchValueLocal, to match what is expected in `utils_network.js`
+          searchValue: this.searchValueLocal,   //This changed from searchValueLocal, to match what is expected in `utils_network.js`
+          signal: this.controller.signal        //Allows canceling the correct call
         }
         // if (this.modeSelect == 'All'){
         //   this.modalSelectOptions.forEach((a)=>{
@@ -175,12 +183,13 @@
             }
           })
 
+        // wrapping this in setTimeout might not be needed anymore
         this.searchTimeout = window.setTimeout(async ()=>{
           this.activeComplexSearchInProgress = true
           this.activeComplexSearch = []
           this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
           this.activeComplexSearchInProgress = false
-          this.initalSearchState =false;
+          this.initalSearchState =false
         }, 400)
       },
 
@@ -229,6 +238,7 @@
               toLoad = this.activeComplexSearch[idx]
               try{
                 this.$refs.selectOptions.selectedIndex = idx
+                break
               } catch(err) {
                 console.log("")
               }
@@ -254,6 +264,7 @@
             "literal": true,
             "loading":true,
           }
+
         if (toLoad && toLoad.literal){
           return false
         }
@@ -273,8 +284,6 @@
 
 
         this.activeContext = results
-
-
       },
 
       rewriteURI: function(uri){
