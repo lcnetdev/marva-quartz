@@ -17,12 +17,6 @@ const utilsNetwork = {
     // a cache to keep previosuly requested vocabularies and lookups in memory for use again
     lookupLibrary : {},
 
-    //abort controller
-    searching: false,
-    controller: new AbortController(),
-    currentURL: "",
-    prevURL: "",
-
     /**
     * processes the data returned from id vocabularies
     *
