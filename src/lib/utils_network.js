@@ -1994,8 +1994,6 @@ const utilsNetwork = {
       }
 
 
-      console.info("url: ", namesUrl)
-
       let searchPayloadNames = {
         processor: 'lcAuthorities',
         url: [namesUrl],
@@ -2112,8 +2110,6 @@ const utilsNetwork = {
       }
 
 
-
-      console.info("resultsNames: ", resultsNames)
       // drop the litearl value from names and complex
       if (resultsNames.length>0){
         resultsNames.pop()
@@ -2168,10 +2164,6 @@ const utilsNetwork = {
       //determine position of search and set results accordingly
       let searchPieces = complexVal.split("--")
       let pos = searchPieces.indexOf(searchVal)
-
-      console.info("searching")
-      console.info("pos: ", pos)
-      console.info("resultsNames: ", resultsNames)
 
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
