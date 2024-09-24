@@ -43,7 +43,7 @@
         hitCount: 10,
         results: [],
 
-        bfdbbase: useConfigStore().returnUrls.bfdb
+        idbase: useConfigStore().returnUrls.id
 
 
       }
@@ -291,7 +291,7 @@
                           <td>{{ r.title }}</td>
                           <td v-if="displaySubjects">{{ r.subject }}</td> 
                           <td>{{ r.pubdate }}</td>
-                          <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.bfdbbase + 'resources/works/' + r.bibid">view</a></td>
+                          <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.idbase + 'resources/works/' + r.bibid">view</a></td>
                         </tr>
                       </template>
 
@@ -303,7 +303,7 @@
                           <td>{{ r.title }}</td>
                           <td v-if="displaySubjects">{{ r.subject }}</td> 
                           <td>{{ r.pubdate }}</td>
-                          <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.bfdbbase + 'resources/works/' + r.bibid">view</a></td>
+                          <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.idbase + 'resources/works/' + r.bibid">view</a></td>
                         </tr>
                       </template>
                     </template>
