@@ -2161,7 +2161,6 @@ const utilsNetwork = {
         'names': pos == 0 ? resultsNames : resultsNamesSubdivision,
         'hierarchicalGeographic':  pos == 0 ? [] : resultsHierarchicalGeographic
       }
-      console.info(results)
       return results
 
     },
