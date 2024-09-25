@@ -26,7 +26,7 @@ export const useConfigStore = defineStore('config', {
         starting: 'http://localhost:9401/util/profiles/starting/prod',
 
         profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        //profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
 
@@ -175,11 +175,11 @@ export const useConfigStore = defineStore('config', {
 
   ],
 
-  checkForEDTFDatatype: [    
+  checkForEDTFDatatype: [
     'http://id.loc.gov/ontologies/bibframe/date',
     'http://id.loc.gov/ontologies/bibframe/copyrightDate',
     'http://id.loc.gov/ontologies/bibframe/originDate',
-    'http://id.loc.gov/ontologies/bflc/projectedProvisionDate',   
+    'http://id.loc.gov/ontologies/bflc/projectedProvisionDate',
   ],
 
 
@@ -232,17 +232,17 @@ export const useConfigStore = defineStore('config', {
         properties: [
           "http://id.loc.gov/ontologies/bibframe/contribution"
         ]
-      },    
+      },
       subjects: {
         label: "Subjects & Class",
         properties: [
           "http://id.loc.gov/ontologies/bibframe/subject",
           "http://id.loc.gov/ontologies/bibframe/classification",
 
-          
+
         ]
-      }        
-      
+      }
+
     }
 
 
@@ -251,7 +251,7 @@ export const useConfigStore = defineStore('config', {
 
 
   },
-  
+
 
 
 

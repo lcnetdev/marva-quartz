@@ -1079,7 +1079,7 @@ export const useProfileStore = defineStore('profile', {
 
           // make sure we can find where to put the new one
           if (parent[lastProperty]){
-            // create a new node here            
+            // create a new node here
             let toadd = {
               '@id': URI,
               '@guid' : short.generate(),
@@ -1100,7 +1100,7 @@ export const useProfileStore = defineStore('profile', {
               // don't need to set the type, as its not a blank node, just a nested property
               if (utilsRDF.isUriALiteral(type) === false){
                 // if it doesn't yet have a type then go ahead and set it
-                toadd['@type'] = type                
+                toadd['@type'] = type
               }else{
                 // nothing to do, its a literal
               }
@@ -1853,6 +1853,13 @@ export const useProfileStore = defineStore('profile', {
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
         type = context.typeFull
+      }
+      // literals don't have a type or a URI
+      if (!type && !URI){
+        type = await utilsRDF.suggestTypeProfile(lastProperty, pt)
+        if (type == false){
+          type = await utilsRDF.suggestTypeNetwork(lastProperty)
+        }
       }
       if (pt !== false){
 
@@ -3403,7 +3410,7 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-    
+
     /**
     * Build a new seconary instance
     *
@@ -3433,7 +3440,7 @@ export const useProfileStore = defineStore('profile', {
       }
       let instanceCount = 0;
 
-      // gather info to add it 
+      // gather info to add it
       let instances = Object.keys(this.activeProfile.rt).filter(i => i.includes(":Instance"))
       if (instances.length>1){
         instanceCount = instances.length -1
@@ -3447,10 +3454,10 @@ export const useProfileStore = defineStore('profile', {
       //         }
       //     }
       // }
-      
+
       instanceCount++
       // console.log('instanceCount',instanceCount)
-      let newRdId = instanceName+'_'+instanceCount  
+      let newRdId = instanceName+'_'+instanceCount
       instanceRt.isNew = true
       this.activeProfile.rt[newRdId] = instanceRt
       this.activeProfile.rtOrder.push(newRdId)
@@ -3463,13 +3470,13 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.rt[newRdId].pt[pt].parent = this.activeProfile.rt[newRdId].pt[pt].parent.replace(instanceName,newRdId)
 
 
-        
 
-        
+
+
 
       }
 
-      
+
 
       // setup the new instance's properies
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
@@ -3480,7 +3487,7 @@ export const useProfileStore = defineStore('profile', {
       this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
 
       this.dataChanged()
-      
+
     },
 
 
