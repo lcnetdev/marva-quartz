@@ -24,6 +24,9 @@
         initalHeight: 800,
         initalLeft: 400,
 
+        editMode: false,
+        editModeIndex: -1,
+
         newMacroLookFor: '',
         newMacroReplaceWith: '',
 
@@ -98,30 +101,55 @@
 
           this.preferenceStore.setValue('--o-diacritics-text-macros',this.textMacros )
 
+          this.newMacroLookFor=''
+          this.newMacroReplaceWith=''
 
 
           
 
         },
 
-        deleteMacro(delM){
+        deleteMacro(index){
+          this.textMacros.splice(index, 1);
+          this.preferenceStore.setValue('--o-diacritics-text-macros',this.textMacros )
+        },
 
+
+
+
+        editMacro(index){
+
+          this.editMode = true
+          this.editModeIndex=index
+
+          this.newMacroLookFor= this.textMacros[index].lookFor
+          this.newMacroReplaceWith= this.textMacros[index].replaceWith
+
+        },
+        updateMacro(){
+
+
+
+          this.textMacros[this.editModeIndex].lookFor = JSON.parse(JSON.stringify(this.newMacroLookFor))
+          this.textMacros[this.editModeIndex].replaceWith = JSON.parse(JSON.stringify(this.newMacroReplaceWith))
           
-          this.textMacros = this.textMacros.filter((m)=>{ return (m.lookFor != delM.lookFor && m.replaceWith != delM.replaceWith)})
+          this.newMacroLookFor= ''
+          this.newMacroReplaceWith= ''
+
+          this.editModeIndex=-1
+
+          this.editMode = false
           this.preferenceStore.setValue('--o-diacritics-text-macros',this.textMacros )
 
+        },
 
-
-        }
-
-
-
-
+        
 
         
 
 
     },
+
 
     created(){
 
@@ -189,7 +217,12 @@
               <div class="add-new-replace-with"><input v-model="newMacroReplaceWith" type="text" placeholder="Replace With"></div>
               
             </div>
-            <div class="add-new-button"><button @click="addMacro">Add</button></div>
+
+            <div v-if="editMode==false" class="add-new-button"><button title="Add Macro" @click="addMacro">Add</button></div>
+            <div v-else class="add-new-button">
+              <button @click="updateMacro" title="Update Macro">Update</button>
+              <button @click="editMode=false; editModeIndex=-1" title="Cancel Update">Cancel</button>
+            </div>
             <hr>
 
             <h3>Existing Macros</h3>
@@ -205,11 +238,15 @@
               </thead>
               <tbody>
                 
-                <template v-for="m in textMacros">
-                  <tr>
+                <template v-for="(m,idx) in textMacros">
+                  <tr>                    
                     <td class="table-look-for">{{ m.lookFor }}</td>
                     <td class="table-look-for">{{ m.replaceWith }}</td>
-                    <td class="table-delete"><button @click="deleteMacro(m)"><span class="material-icons celebration-icon">delete</span></button></td>
+                    <td class="table-delete">
+                      <button @click="deleteMacro(idx)"><span class="material-icons celebration-icon">delete</span></button>
+                      <button @click="editMacro(idx)"><span class="material-icons edit-icon">edit</span></button>
+                    </td>
+
                   </tr>
                 </template>
 
