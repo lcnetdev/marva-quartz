@@ -1849,13 +1849,16 @@ export const useProfileStore = defineStore('profile', {
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-      if (!type && URI){
+      console.info("lastProp: ", lastProperty)
+      if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
+        console.info("context: ", context)
         type = context.typeFull
+
       }
-      // literals don't have a type or a URI
-      if (!type && !URI){
+      // literals don't have a type or a URI & intended audience has extra considerations
+      if ((!type && !URI) || lastProperty.includes("intendedAudience")){
         type = await utilsRDF.suggestTypeProfile(lastProperty, pt)
         if (type == false){
           type = await utilsRDF.suggestTypeNetwork(lastProperty)
@@ -1887,6 +1890,7 @@ export const useProfileStore = defineStore('profile', {
 
           // overwrite whatever the helper methods set the type to for this one, we know the final
           // type and what it needs to be
+          console.info("setting type: ", type)
           blankNode['@type'] = type
 
 
