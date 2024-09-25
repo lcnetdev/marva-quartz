@@ -1849,15 +1849,14 @@ export const useProfileStore = defineStore('profile', {
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-      console.info("lastProp: ", lastProperty)
       if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
-        console.info("context: ", context)
         type = context.typeFull
 
       }
-      // literals don't have a type or a URI & intended audience has extra considerations
+      // literals don't have a type or a URI & intendedAudience has extra considerations
+      // namely that the rdf:Type in BF is bf:Authority
       if ((!type && !URI) || lastProperty.includes("intendedAudience")){
         type = await utilsRDF.suggestTypeProfile(lastProperty, pt)
         if (type == false){
@@ -1890,7 +1889,6 @@ export const useProfileStore = defineStore('profile', {
 
           // overwrite whatever the helper methods set the type to for this one, we know the final
           // type and what it needs to be
-          console.info("setting type: ", type)
           blankNode['@type'] = type
 
 
@@ -1953,8 +1951,6 @@ export const useProfileStore = defineStore('profile', {
 
 
       console.log("pt is ",pt)
-
-
     },
 
     /**
@@ -2940,7 +2936,6 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
-
     // console.log(componentGuid)
     // console.log("structure",structure)
 
@@ -3038,7 +3033,12 @@ export const useProfileStore = defineStore('profile', {
                         }
 
                       }
-                      userValue[p.propertyURI].push(value)
+                      // userValue[p.propertyURI].push(value)
+                      // don't add the defaults if the @type doesn't match the baseURI
+                      // Is there any danger here of side effects?
+                      if (baseURI == JSON.parse(JSON.stringify(userValue))["@type"]){
+                        userValue[p.propertyURI].push(value)
+                      }
                     }
                   }
                 }
@@ -3058,7 +3058,6 @@ export const useProfileStore = defineStore('profile', {
     }else{
       console.error('insertDefaultValuesComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
     }
-
   },
 
 
@@ -3173,8 +3172,6 @@ export const useProfileStore = defineStore('profile', {
         console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
 
       }
-
-
     },
 
     /**

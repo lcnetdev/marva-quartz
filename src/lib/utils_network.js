@@ -447,10 +447,8 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     returnContext: async function(uri){
-      console.info("getting context for ", uri)
         let d = await this.fetchContextData(uri)
         d.uri = uri
-      console.info("d: ", d)
         let results
 
         if (uri.includes('resources/works/') || uri.includes('resources/hubs/')){
@@ -459,7 +457,6 @@ const utilsNetwork = {
           results =  this.extractContextData(d)
         }
 
-        console.info("results: ", results)
         return results
 
     },
@@ -765,7 +762,6 @@ const utilsNetwork = {
               || data.uri.includes('id.loc.gov/resources/instances/')
               || data.uri.includes('id.loc.gov/resources/hubs/')
           ){
-            console.info("data.uri: ", data.uri)
             let uriIdPart = data.uri.split('/').slice(-1)[0]
 
             //find the right graph
@@ -792,7 +788,6 @@ const utilsNetwork = {
 
                   if (g['@type'] && g['@type'][0]){
                     results.type = this.rdfType(g['@type'][0])
-                    console.info("setting type: ", g['@type'][0])
                     results.typeFull = g['@type'][0]
                   }
                 }
@@ -804,8 +799,6 @@ const utilsNetwork = {
             if (data['@graph']){
               data = data['@graph'];
             }
-
-            console.info("data: ", data)
 
             var nodeMap = {};
 
@@ -978,8 +971,6 @@ const utilsNetwork = {
               }
 
               if (n['@id'] && n['@id'] == data.uri && n['@type']){
-                console.info(n)
-                  console.info("Another one: ", n["@type"])
                   n['@type'].forEach((t)=>{
                       if (results.type===null){
                           results.type = this.rdfType(t)

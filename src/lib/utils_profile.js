@@ -123,7 +123,6 @@ const utilsProfile = {
   * @return {object|boolean} - will return the obj or false if not found
   */
   returnPt: function(profile,guid){
-
       for (let rt in profile.rt){
         for (let pt in profile.rt[rt].pt){
           if (profile.rt[rt].pt[pt]['@guid'] === guid){
@@ -257,7 +256,7 @@ const utilsProfile = {
         console.error("There was an unknown error trying to create a blank node in", propertyPath, ' in ', pt)
       }
 
-      this.setTypesForBlankNode(pt,propertyPath)      
+      this.setTypesForBlankNode(pt,propertyPath)
       return [pt, pointer['@guid']]
   },
 
@@ -678,7 +677,7 @@ const utilsProfile = {
                     // workUriUsed=true
                 }
             }
-        }      
+        }
         // if there are no instances yet use the instanceURIbasedOnWork
         if (instanceCount==0){
             return instanceURIbasedOnWork
