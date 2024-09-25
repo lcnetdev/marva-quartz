@@ -3036,7 +3036,7 @@ export const useProfileStore = defineStore('profile', {
                       // userValue[p.propertyURI].push(value)
                       // don't add the defaults if the @type doesn't match the baseURI
                       // Is there any danger here of side effects?
-                      if (baseURI == JSON.parse(JSON.stringify(userValue))["@type"]){
+                      if (baseURI == value['@type']){
                         userValue[p.propertyURI].push(value)
                       }
                     }
