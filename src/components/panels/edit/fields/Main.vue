@@ -47,102 +47,102 @@
 
 
 //   <div class="main-component-container">
-    
-    
+
+
 
 //     <div v-if="nested == false" :id="profileName+'|'+profileCompoent" style="display: flex; position: relative;">
 
-//       <div style="flex:15;">   
+//       <div style="flex:15;">
 
 
 //           <template v-else>
 
 
-//             <EditMetaComponent v-if="returnLookupType(structure) == 'meta'" 
-//               :isMini="isMini" 
-//               :ptGuid="ptGuid" 
-//               :parentURI="parentURI" 
-//               :nested="nested" 
-//               :structure="structure" 
-//               :profileName="profileName" 
+//             <EditMetaComponent v-if="returnLookupType(structure) == 'meta'"
+//               :isMini="isMini"
+//               :ptGuid="ptGuid"
+//               :parentURI="parentURI"
+//               :nested="nested"
+//               :structure="structure"
+//               :profileName="profileName"
 //               :level="levelPlusOne"
 //               :propertyPath="buildPropertyPath(propertyPath)"
 
-//               :profileCompoent="profileCompoent" 
-//               :parentStructureObj="parentStructureObj" 
-//               :parentStructure="parentStructure" 
+//               :profileCompoent="profileCompoent"
+//               :parentStructureObj="parentStructureObj"
+//               :parentStructure="parentStructure"
 //               :activeTemplate="activeTemplate" >
-//             </EditMetaComponent>           
+//             </EditMetaComponent>
 //             <!-- <EditAdminComponent v-else-if="returnLookupType(structure) == 'admin'" :ptGuid="ptGuid" :parentURI="parentURI" :nested="nested" :structure="structure" :profileName="profileName" :profileCompoent="profileCompoent" :parentStructureObj="parentStructureObj" :parentStructure="parentStructure" :activeTemplate="activeTemplate" ></EditAdminComponent> -->
-//             <EditLiteralComponent v-else-if="structure.type == 'literal' || structure.type == 'literal-lang'" 
-//               :key="useKey" 
-//               :isMini="isMini" 
-//               :ptGuid="ptGuid" 
-//               :parentURI="parentURI"  
-//               :nested="nested" 
-//               :structure="structure" 
+//             <EditLiteralComponent v-else-if="structure.type == 'literal' || structure.type == 'literal-lang'"
+//               :key="useKey"
+//               :isMini="isMini"
+//               :ptGuid="ptGuid"
+//               :parentURI="parentURI"
+//               :nested="nested"
+//               :structure="structure"
 //               :level="levelPlusOne"
 //               :propertyPath="buildPropertyPath(propertyPath)"
 
-//               :profileName="profileName" 
-//               :profileCompoent="profileCompoent" 
-//               :parentStructureObj="parentStructureObj" 
-//               :parentStructure="parentStructure" 
+//               :profileName="profileName"
+//               :profileCompoent="profileCompoent"
+//               :parentStructureObj="parentStructureObj"
+//               :parentStructure="parentStructure"
 //               :activeTemplate="activeTemplate" >
 //             </EditLiteralComponent>
 
-//             <EditSimpleLookupComponent v-else-if="returnLookupType(structure) == 'simple'" 
-//               :ptGuid="ptGuid" 
-//               :key="useKey" 
-//               :isMini="isMini" 
-//               :parentURI="parentURI" 
-//               :structure="structure"  
-//               :parentStructureObj="parentStructureObj" 
-//               :parentStructure="parentStructure" 
-//               :nested="nested"  
+//             <EditSimpleLookupComponent v-else-if="returnLookupType(structure) == 'simple'"
+//               :ptGuid="ptGuid"
+//               :key="useKey"
+//               :isMini="isMini"
+//               :parentURI="parentURI"
+//               :structure="structure"
+//               :parentStructureObj="parentStructureObj"
+//               :parentStructure="parentStructure"
+//               :nested="nested"
 //               :level="levelPlusOne"
 //               :propertyPath="buildPropertyPath(propertyPath)"
 
-//               :profileName="profileName" 
-//               :profileCompoent="profileCompoent" 
+//               :profileName="profileName"
+//               :profileCompoent="profileCompoent"
 //               :activeTemplate="activeTemplate" >
 //             </EditSimpleLookupComponent>
 
-//             <EditComplexLookupComponent v-on="$listeners" v-else-if="returnLookupType(structure) == 'complex'" 
-//               :key="useKey" 
-//               :isMini="isMini" 
-//               @updated="forceUpdate" 
-//               :ptGuid="ptGuid" 
-//               :parentURI="parentURI" 
-//               :structure="structure"  
-//               :parentStructureObj="parentStructureObj" 
-//               :parentStructure="parentStructure" 
-//               :nested="nested" 
+//             <EditComplexLookupComponent v-on="$listeners" v-else-if="returnLookupType(structure) == 'complex'"
+//               :key="useKey"
+//               :isMini="isMini"
+//               @updated="forceUpdate"
+//               :ptGuid="ptGuid"
+//               :parentURI="parentURI"
+//               :structure="structure"
+//               :parentStructureObj="parentStructureObj"
+//               :parentStructure="parentStructure"
+//               :nested="nested"
 //               :level="levelPlusOne"
 //               :propertyPath="buildPropertyPath(propertyPath)"
 
-//               :profileName="profileName" 
-//               :profileCompoent="profileCompoent" 
+//               :profileName="profileName"
+//               :profileCompoent="profileCompoent"
 //               :activeTemplate="activeTemplate"  >
-//             </EditComplexLookupComponent>     
+//             </EditComplexLookupComponent>
 
-//            <EditTemplateRefComponent v-on="$listeners" v-else-if="structure.valueConstraint.valueTemplateRefs.length > 0" 
-//               :isMini="isMini" 
-//               :key="useKey" 
-//               :ptGuid="ptGuid" 
-//               :parentURI="parentURI" 
-//               :structure="structure"  
-//               :parentStructureObj="parentStructureObj" 
-//               :parentStructure="parentStructure" 
-//               :nested="nested" 
+//            <EditTemplateRefComponent v-on="$listeners" v-else-if="structure.valueConstraint.valueTemplateRefs.length > 0"
+//               :isMini="isMini"
+//               :key="useKey"
+//               :ptGuid="ptGuid"
+//               :parentURI="parentURI"
+//               :structure="structure"
+//               :parentStructureObj="parentStructureObj"
+//               :parentStructure="parentStructure"
+//               :nested="nested"
 //               :level="levelPlusOne"
 //               :propertyPath="buildPropertyPath(propertyPath)"
 
-//               :profileName="profileName" 
-//               :profileCompoent="profileCompoent" 
+//               :profileName="profileName"
+//               :profileCompoent="profileCompoent"
 //               :activeTemplate="activeTemplate">
 //             </EditTemplateRefComponent>
-        
+
 
 
 //           </template>
@@ -153,9 +153,9 @@
 
 //       </div>
 
-//       <template v-if="settingsLeftMenuEnriched==false">            
+//       <template v-if="settingsLeftMenuEnriched==false">
 //         <div class="property-button-container" v-if="showDupeRemove()">
-          
+
 //           <button tabindex="-1" class="property-button property-duplicate simptip-position-left" :data-tooltip="labels.propertyDuplicateTip" @click="duplicateProperty">{{labels.propertyDuplicateSymbol}}</button>
 //           <button tabindex="-1" class="property-button property-remove" @click="removeProperty">{{labels.propertyRemoveSymbol}}</button>
 
@@ -171,70 +171,70 @@
 
 
 //     <!-- This block renders the recursive componets being sent in from the TemplateRefComponent -->
-//     <div v-else>  
+//     <div v-else>
 
-//         <EditLiteralComponent v-if="structure.type == 'literal' || structure.type == 'literal-lang'" 
-//           :key="useKey" 
-//           :isMini="isMini" 
-//           :ptGuid="ptGuid"  
-//           :parentURI="parentURI" 
-//           :activeTemplate="activeTemplate" 
-//           :nested="nested" 
+//         <EditLiteralComponent v-if="structure.type == 'literal' || structure.type == 'literal-lang'"
+//           :key="useKey"
+//           :isMini="isMini"
+//           :ptGuid="ptGuid"
+//           :parentURI="parentURI"
+//           :activeTemplate="activeTemplate"
+//           :nested="nested"
 //           :level="levelPlusOne"
 //           :propertyPath="buildPropertyPath(propertyPath)"
-          
-//           :structure="structure" 
-//           :profileName="profileName" 
-//           :profileCompoent="profileCompoent" 
-//           :parentStructureObj="parentStructureObj" 
+
+//           :structure="structure"
+//           :profileName="profileName"
+//           :profileCompoent="profileCompoent"
+//           :parentStructureObj="parentStructureObj"
 //           :parentStructure="parentStructure" >
-            
+
 //         </EditLiteralComponent>
-//         <EditSimpleLookupComponent v-else-if="returnLookupType(structure) == 'simple'" 
-//           :key="useKey" 
-//           :ptGuid="ptGuid" 
-//           :isMini="isMini" 
-//           :parentURI="parentURI" 
-//           :activeTemplate="activeTemplate" 
-//           :structure="structure" 
-//           :parentStructureObj="parentStructureObj" 
-//           :parentStructure="parentStructure" 
-//           :nested="nested"  
+//         <EditSimpleLookupComponent v-else-if="returnLookupType(structure) == 'simple'"
+//           :key="useKey"
+//           :ptGuid="ptGuid"
+//           :isMini="isMini"
+//           :parentURI="parentURI"
+//           :activeTemplate="activeTemplate"
+//           :structure="structure"
+//           :parentStructureObj="parentStructureObj"
+//           :parentStructure="parentStructure"
+//           :nested="nested"
 //           :level="levelPlusOne"
 //           :propertyPath="buildPropertyPath(propertyPath)"
-          
-//           :profileName="profileName" 
+
+//           :profileName="profileName"
 //           :profileCompoent="profileCompoent"  >
 //         </EditSimpleLookupComponent>
-//         <EditComplexLookupComponent v-on="$listeners" v-else-if="returnLookupType(structure) == 'complex'" 
-//           :key="useKey" 
-//           :isMini="isMini" @updated="forceUpdate" 
-//           :ptGuid="ptGuid" 
-//           :parentURI="parentURI" 
-//           :activeTemplate="activeTemplate" 
-//           :structure="structure" 
-//           :parentStructureObj="parentStructureObj" 
-//           :parentStructure="parentStructure" 
-//           :nested="nested" 
+//         <EditComplexLookupComponent v-on="$listeners" v-else-if="returnLookupType(structure) == 'complex'"
+//           :key="useKey"
+//           :isMini="isMini" @updated="forceUpdate"
+//           :ptGuid="ptGuid"
+//           :parentURI="parentURI"
+//           :activeTemplate="activeTemplate"
+//           :structure="structure"
+//           :parentStructureObj="parentStructureObj"
+//           :parentStructure="parentStructure"
+//           :nested="nested"
 //           :level="levelPlusOne"
 //           :propertyPath="buildPropertyPath(propertyPath)"
-          
-//           :profileName="profileName" 
+
+//           :profileName="profileName"
 //           :profileCompoent="profileCompoent"   >
-//         </EditComplexLookupComponent>          
-//         <EditTemplateRefComponent v-on="$listeners" v-else-if="structure.valueConstraint.valueTemplateRefs.length > 0" 
-//           :isMini="isMini" 
-//           :key="useKey" 
-//           :ptGuid="ptGuid" 
-//           :parentURI="parentURI" 
-//           :activeTemplate="activeTemplate" 
-//           :structure="structure" 
+//         </EditComplexLookupComponent>
+//         <EditTemplateRefComponent v-on="$listeners" v-else-if="structure.valueConstraint.valueTemplateRefs.length > 0"
+//           :isMini="isMini"
+//           :key="useKey"
+//           :ptGuid="ptGuid"
+//           :parentURI="parentURI"
+//           :activeTemplate="activeTemplate"
+//           :structure="structure"
 //           :level="levelPlusOne"
 //           :propertyPath="buildPropertyPath(propertyPath)"
-          
-//           :parentStructureObj="parentStructureObj" 
-//           :parentStructure="parentStructure" 
-//           :profileName="profileName" 
+
+//           :parentStructureObj="parentStructureObj"
+//           :parentStructure="parentStructure"
+//           :profileName="profileName"
 //           :profileCompoent="profileCompoent" :nested="nested">
 //         </EditTemplateRefComponent>
 
@@ -246,11 +246,11 @@
 //     <div v-if="nested == false && displayDebug" style="font-family: monospace;width: 69%; background-color: whitesmoke; margin-left: 5%;">
 
 //       <code v-if="structure.xmlSource"><pre>{{prettifyXml(structure.xmlSource)}}</pre></code>
-//       <vue-json-pretty 
+//       <vue-json-pretty
 //         :path="'res'"
 //         :highlightMouseoverNode="true"
 //         :collapsedOnClickBrackets="true"
-//         :data="structure"      
+//         :data="structure"
 //         >
 //       </vue-json-pretty>
 
@@ -334,10 +334,10 @@ export default {
     LookupSimple,
     Literal,
 
-  },  
+  },
   props: {
     guid: String,
-    level: Number,    
+    level: Number,
     propertyPath: Array,
     inheritedStructure: Object,   // this is the sturcture passed to it from its parents, we use this one if it is not the first level of the hierarchy
     nested: Boolean,
@@ -348,7 +348,7 @@ export default {
     // structure: Object,
     // parentStructure: Array,
     // parentStructureObj: Object,
-    
+
     // isMini: Boolean,
     // profileCompoent: String,
     // profileName: String,
@@ -360,8 +360,8 @@ export default {
   },
   data: function() {
     return {
-      
-      
+
+
       displayDebug: false,
 
 
@@ -384,12 +384,13 @@ export default {
     // returns the structure from the state
     ...mapState(useProfileStore, {
       structure(store) {
+        console.info("structure of ", this.guid, store.returnStructureByGUID(this.guid))
         if (typeof this.inheritedStructure === 'undefined'){
           return store.returnStructureByGUID(this.guid);
-        }else{        
+        }else{
           return this.inheritedStructure
         }
-        
+
       },
     }),
 
@@ -403,7 +404,7 @@ export default {
 
 
     // ...mapState(usePreferenceStore, ['styleDefault']),
-    
+
     // gives read access to this.count and this.double
     // ...mapState(usePreferenceStore, ['profilesLoaded']),
     // ...mapState(useProfileStore, ['profilesLoaded','activeProfile']),
@@ -419,7 +420,7 @@ export default {
       // we handle this structural thing elsewhere
       if (this.structure.propertyURI == "http://id.loc.gov/ontologies/bibframe/hasItem"){
         return "HIDE"
-      }   
+      }
 
       if (this.structure.valueConstraint.valueTemplateRefs.length > 0){
         return 'REF'
@@ -427,7 +428,7 @@ export default {
       if (this.structure.type === 'literal'){
         return 'LITERAL'
       }
-      
+
       let type = 'SIMPLE'
       if (this.structure.valueConstraint.useValuesFrom.length==0) return null
       this.structure.valueConstraint.useValuesFrom.forEach((cs)=>{
@@ -463,18 +464,18 @@ export default {
         currentPath = []
       }
       // if it is at level one it is a new bnode, but we might have
-      // already had other bnodes in this tree, so go through an delete eveything 
+      // already had other bnodes in this tree, so go through an delete eveything
       // that isn't level zero
       if (this.level==1){
-        currentPath = currentPath.filter((v) => { return (v.level==0) })        
+        currentPath = currentPath.filter((v) => { return (v.level==0) })
       }
 
       // we also want to remove any properties at the current level of THIS property
       // since it is a sibling and unrelated to the structure of this hierarchy
       // so only keep things with a lower level
-      currentPath = currentPath.filter((v) => { return (v.level<this.level) })  
+      currentPath = currentPath.filter((v) => { return (v.level<this.level) })
 
-      let currentUris = currentPath.map((v) => { return v.propertyURI })  
+      let currentUris = currentPath.map((v) => { return v.propertyURI })
 
       // don't duplicate property levels, if that is possible
       if (currentUris.indexOf(this.structure.propertyURI) == -1){
@@ -486,7 +487,7 @@ export default {
     },
 
     plusOne: function(val){
-     return val + 1 
+     return val + 1
    },
 
 
@@ -506,16 +507,16 @@ export default {
 
     //   if (noControls.indexOf(this.structure.propertyURI)>-1){
     //     return false
-    //   }      
+    //   }
 
     //   return true
 
 
     // },
 
-   
+
     // toggleDebug: function(){
-      
+
     //   if (this.displayDebug){this.displayDebug=false}else{this.displayDebug=true}
 
     // },
@@ -523,8 +524,8 @@ export default {
     // duplicateProperty: function(){
 
     //   this.$store.dispatch("duplicateProperty", { self: this, id: this.profileCompoent, profile:this.profileName }).then(() => {
-        
-    //   })   
+
+    //   })
 
     // },
 
@@ -535,11 +536,11 @@ export default {
     //   const answer = window.confirm('Are you sure you want to remove the property?')
     //   if (answer) {
     //     this.$store.dispatch("removeProperty", { self: this, id: this.profileCompoent, profile:this.profileName }).then(() => {
-          
-    //     })         
+
+    //     })
 
     //   } else {
-        
+
     //     return false
 
     //   }
