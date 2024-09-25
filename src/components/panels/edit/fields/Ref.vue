@@ -12,9 +12,8 @@
 
     </template>
     <template v-else>
-      Matching on {{ thisRtTemplate.id }}
       <select @change="templateChange($event)">
-          <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}} {{ rt.id }}</option>
+          <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
 
 
