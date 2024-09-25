@@ -384,7 +384,7 @@ export default {
     // returns the structure from the state
     ...mapState(useProfileStore, {
       structure(store) {
-        // console.info("structure of ", this.guid, store.returnStructureByGUID(this.guid))
+        console.info("structure of ", this.guid, store.returnStructureByGUID(this.guid))
         if (typeof this.inheritedStructure === 'undefined'){
           return store.returnStructureByGUID(this.guid);
         }else{
