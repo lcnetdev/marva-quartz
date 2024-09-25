@@ -236,14 +236,11 @@ export default {
         return true
       }
 
-      console.info(this.structure.valueConstraint.valueTemplateRefs[0], "structure: ", this.structure)
       // // grab the first component from the struecture, but there might be mutluple ones
       let useId = this.structure.valueConstraint.valueTemplateRefs[0]
-      console.info("    useId: ", useId)
       let foundBetter = false
 
       let userValue = this.structure.userValue
-      console.info("    userValue: ", userValue)
 
       // use the first value in the userValue
       if (userValue[this.structure.propertyURI] && userValue[this.structure.propertyURI][0]){
@@ -256,9 +253,6 @@ export default {
 
         // loop thrugh all the refs and see if there is a URI that matches it better
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
-          console.info("    looking for better ", tmpid)
-          console.info("    userValue['@type']: ", userValue['@type'])
-          console.info("    uri: ", this.rtLookup[tmpid].resourceURI)
           if (foundBetter) return false
           if (this.rtLookup[tmpid].resourceURI === userValue['@type']){
             useId = tmpid
@@ -283,11 +277,8 @@ export default {
       // if (this.parentStructure && this.parentStructure.indexOf(useId) ==-1){
         if (this.rtLookup[useId]){
 
-          console.info("    >>>>org: ", JSON.parse(JSON.stringify(this.rtLookup["lc:RT:bf2:Agent:bfCorp"])))
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
 
-          console.info("    use: ", use)
-          console.info("    use: ", use.id)
           return use
           // this.multiTemplateSelect = use.resourceLabel
           // this.multiTemplateSelectURI = useId
@@ -385,7 +376,6 @@ export default {
 
 
       let nextRef = this.allRtTemplate.filter((v)=>{ return (v.id === event.target.value) })[0]
-      console.info("change: ", event)
       let thisRef = this.thisRtTemplate
 
       this.profileStore.changeRefTemplate(this.guid,this.propertyPath,nextRef,thisRef)
