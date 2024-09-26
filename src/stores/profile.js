@@ -2941,6 +2941,7 @@ export const useProfileStore = defineStore('profile', {
 
     // locate the correct pt to work on in the activeProfile
     let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+    let isParentTop = false
 
     if (pt !== false){
 
@@ -2950,18 +2951,19 @@ export const useProfileStore = defineStore('profile', {
       }
       let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
 
-
-
       // find the default values for this template if they exist
       if (structure){
 
         if (structure.parentId){
+          if (structure.parentId.endsWith("Work") || structure.parentId.endsWith("Instance") || structure.parentId.endsWith("Hub") || structure.parentId.endsWith("Item")){
+            isParentTop = true
+          }
 
           let defaultsProperty = false
           if (this.rtLookup[structure.parentId]){
               for (let p of this.rtLookup[structure.parentId].propertyTemplates){
                 // dose it have a default value?
-                if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0 && p.propertyURI == baseURI){
+                if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
                   if (p.valueConstraint.valueTemplateRefs && p.valueConstraint.valueTemplateRefs.length>0){
                     // they are linking to another template in this template, so if we ant to populate the imformation we would need to know what predicate to use :(((((
                     if (this.rtLookup[p.valueConstraint.valueTemplateRefs[0]] && this.rtLookup[p.valueConstraint.valueTemplateRefs[0]].propertyTemplates && this.rtLookup[p.valueConstraint.valueTemplateRefs[0]].propertyTemplates.length==1){
@@ -2996,6 +2998,7 @@ export const useProfileStore = defineStore('profile', {
                             value['@id'] = d.defaultURI
                           }
                         }
+
                         userValue[p.propertyURI].push(value)
                       }
                     }else{
@@ -3033,16 +3036,19 @@ export const useProfileStore = defineStore('profile', {
                         }
 
                       }
-                      userValue[p.propertyURI].push(value)
-                      // don't add the defaults if the @type doesn't match the baseURI
-                      // Is there any danger here of side effects?
-                      // if (baseURI == value['@type']){
-                      //   userValue[p.propertyURI].push(value)
-                      // }
+
+                      // if we're not working at the top level, just add the default values
+                      if (!isParentTop){
+                        userValue[p.propertyURI].push(value)
+                      //otherwise, make sure the propertyURI matches the baseURI
+                      } else if (isParentTop && p.propertyURI == baseURI){
+                        userValue[p.propertyURI].push(value)
+                      }
                     }
                   }
                 }
               }
+
           }
         }else{
           console.warn("No structure.parentId found")
@@ -3051,7 +3057,13 @@ export const useProfileStore = defineStore('profile', {
         alert("Error: no structure found")
       }
 
-      pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
+
+      if (!isParentTop){
+        pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
+      } else {
+        //We're not in a nested component, so we can just set the userValue
+        pt.userValue = JSON.parse(JSON.stringify(userValue))
+      }
       // they changed something
       this.dataChanged()
 
