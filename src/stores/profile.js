@@ -2952,7 +2952,6 @@ export const useProfileStore = defineStore('profile', {
       let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
 
 
-
       // find the default values for this template if they exist
       if (structure){
 
@@ -3034,6 +3033,7 @@ export const useProfileStore = defineStore('profile', {
                         }
 
                       }
+
                       userValue[p.propertyURI].push(value)
                     }
                   }
