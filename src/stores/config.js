@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 14,
-    versionPatch: 18,
+    versionPatch: 19,
 
     regionUrls: {
 
