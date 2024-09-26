@@ -2942,9 +2942,6 @@ export const useProfileStore = defineStore('profile', {
     // locate the correct pt to work on in the activeProfile
     let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-    console.info("pt: ", pt)
-    console.info("structure: ", structure)
-
     if (pt !== false){
 
       let baseURI = pt.propertyURI
