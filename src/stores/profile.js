@@ -1871,13 +1871,15 @@ export const useProfileStore = defineStore('profile', {
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-      if (!type && URI){
+      if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
         type = context.typeFull
+
       }
-      // literals don't have a type or a URI
-      if (!type && !URI){
+      // literals don't have a type or a URI & intendedAudience has extra considerations
+      // namely that the rdf:Type in BF is bf:Authority
+      if ((!type && !URI) || lastProperty.includes("intendedAudience")){
         type = await utilsRDF.suggestTypeProfile(lastProperty, pt)
         if (type == false){
           type = await utilsRDF.suggestTypeNetwork(lastProperty)
@@ -1971,8 +1973,6 @@ export const useProfileStore = defineStore('profile', {
 
 
       console.log("pt is ",pt)
-
-
     },
 
     /**
@@ -2958,12 +2958,12 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
-
     // console.log(componentGuid)
     // console.log("structure",structure)
 
     // locate the correct pt to work on in the activeProfile
     let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+    let isParentTop = false
 
     if (pt !== false){
 
@@ -2973,12 +2973,13 @@ export const useProfileStore = defineStore('profile', {
       }
       let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
 
-
-
       // find the default values for this template if they exist
       if (structure){
 
         if (structure.parentId){
+          if (structure.parentId.endsWith("Work") || structure.parentId.endsWith("Instance") || structure.parentId.endsWith("Hub") || structure.parentId.endsWith("Item")){
+            isParentTop = true
+          }
 
           let defaultsProperty = false
           if (this.rtLookup[structure.parentId]){
@@ -3019,6 +3020,7 @@ export const useProfileStore = defineStore('profile', {
                             value['@id'] = d.defaultURI
                           }
                         }
+
                         userValue[p.propertyURI].push(value)
                       }
                     }else{
@@ -3056,11 +3058,19 @@ export const useProfileStore = defineStore('profile', {
                         }
 
                       }
-                      userValue[p.propertyURI].push(value)
+
+                      // if we're not working at the top level, just add the default values
+                      if (!isParentTop){
+                        userValue[p.propertyURI].push(value)
+                      //otherwise, make sure the propertyURI matches the baseURI
+                      } else if (isParentTop && p.propertyURI == baseURI){
+                        userValue[p.propertyURI].push(value)
+                      }
                     }
                   }
                 }
               }
+
           }
         }else{
           console.warn("No structure.parentId found")
@@ -3069,14 +3079,19 @@ export const useProfileStore = defineStore('profile', {
         alert("Error: no structure found")
       }
 
-      pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
+
+      if (!isParentTop){
+        pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
+      } else {
+        //We're not in a nested component, so we can just set the userValue
+        pt.userValue = JSON.parse(JSON.stringify(userValue))
+      }
       // they changed something
       this.dataChanged()
 
     }else{
       console.error('insertDefaultValuesComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
     }
-
   },
 
 
@@ -3191,8 +3206,6 @@ export const useProfileStore = defineStore('profile', {
         console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
 
       }
-
-
     },
 
     /**
