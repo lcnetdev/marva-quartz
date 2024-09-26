@@ -447,10 +447,8 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     returnContext: async function(uri){
-
         let d = await this.fetchContextData(uri)
         d.uri = uri
-
         let results
 
         if (uri.includes('resources/works/') || uri.includes('resources/hubs/')){
@@ -973,7 +971,6 @@ const utilsNetwork = {
               }
 
               if (n['@id'] && n['@id'] == data.uri && n['@type']){
-
                   n['@type'].forEach((t)=>{
                       if (results.type===null){
                           results.type = this.rdfType(t)

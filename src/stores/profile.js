@@ -29,6 +29,8 @@ const LABEL_PREDICATES = [
   'http://www.w3.org/2000/01/rdf-schema#label',
   'http://www.loc.gov/mads/rdf/v1#authoritativeLabel',
   'http://id.loc.gov/ontologies/bibframe/code',
+  'http://id.loc.gov/ontologies/bibframe/mainTitle',
+  'http://id.loc.gov/ontologies/bibframe/title'
 ]
 
 let cachePt = {}
@@ -1750,7 +1752,6 @@ export const useProfileStore = defineStore('profile', {
       // console.log("propertyPath=",propertyPath)
 
 
-
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
@@ -1767,6 +1768,8 @@ export const useProfileStore = defineStore('profile', {
           if (v['@id']){
             URI = v['@id']
           }
+
+
           for (let lP of LABEL_PREDICATES){
             if (v[lP] && v[lP][0][lP]){
               label = v[lP][0][lP]
@@ -1774,12 +1777,28 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
+          // look for bf:title -> bf:mainTitle
+          if (!label){
+            for (let lP1 of LABEL_PREDICATES){
+              for (let lP2 of LABEL_PREDICATES){
+                if (v[lP1] && v[lP1][0][lP2] && v[lP1][0][lP2][0][lP2]){
+                  label = v[lP1][0][lP2][0][lP2]
+                  break
+                }
+              }
+            }
+          }
+
           let source = null
           if (URI && URI.indexOf('/fast/') >1){
             source = 'FAST'
           }
+          let uneditable = false
 
-
+          // if we don't have a URI for a work don't let them edit it
+          if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bibframe/Work'){
+            uneditable = true
+          }
 
           if (URI && label){
             values.push({
@@ -1789,6 +1808,7 @@ export const useProfileStore = defineStore('profile', {
               source: source,
               needsDereference: false,
               isLiteral: false,
+              uneditable: uneditable,
               type:v['@type']
             })
           }else if (URI && !label){
@@ -1799,22 +1819,24 @@ export const useProfileStore = defineStore('profile', {
               source: source,
               needsDereference: true,
               isLiteral: false,
+              uneditable: uneditable,
               type:v['@type']
             })
           }else if (!URI && label){
+
             values.push({
               '@guid':v['@guid'],
               URI: URI,
               label: label,
               source: source,
               needsDereference: false,
+              uneditable: uneditable,
               isLiteral: true,
               type:v['@type']
             })
           }
 
         }
-
         return values
 
       }
@@ -1849,13 +1871,15 @@ export const useProfileStore = defineStore('profile', {
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-      if (!type && URI){
+      if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
         type = context.typeFull
+
       }
-      // literals don't have a type or a URI
-      if (!type && !URI){
+      // literals don't have a type or a URI & intendedAudience has extra considerations
+      // namely that the rdf:Type in BF is bf:Authority
+      if ((!type && !URI) || lastProperty.includes("intendedAudience")){
         type = await utilsRDF.suggestTypeProfile(lastProperty, pt)
         if (type == false){
           type = await utilsRDF.suggestTypeNetwork(lastProperty)
@@ -1949,8 +1973,6 @@ export const useProfileStore = defineStore('profile', {
 
 
       console.log("pt is ",pt)
-
-
     },
 
     /**
@@ -2936,12 +2958,12 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
-
     // console.log(componentGuid)
     // console.log("structure",structure)
 
     // locate the correct pt to work on in the activeProfile
     let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+    let isParentTop = false
 
     if (pt !== false){
 
@@ -2951,11 +2973,13 @@ export const useProfileStore = defineStore('profile', {
       }
       let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
 
-
       // find the default values for this template if they exist
       if (structure){
 
         if (structure.parentId){
+          if (structure.parentId.endsWith("Work") || structure.parentId.endsWith("Instance") || structure.parentId.endsWith("Hub") || structure.parentId.endsWith("Item")){
+            isParentTop = true
+          }
 
           let defaultsProperty = false
           if (this.rtLookup[structure.parentId]){
@@ -2996,6 +3020,7 @@ export const useProfileStore = defineStore('profile', {
                             value['@id'] = d.defaultURI
                           }
                         }
+
                         userValue[p.propertyURI].push(value)
                       }
                     }else{
@@ -3034,11 +3059,18 @@ export const useProfileStore = defineStore('profile', {
 
                       }
 
-                      userValue[p.propertyURI].push(value)
+                      // if we're not working at the top level, just add the default values
+                      if (!isParentTop){
+                        userValue[p.propertyURI].push(value)
+                      //otherwise, make sure the propertyURI matches the baseURI
+                      } else if (isParentTop && p.propertyURI == baseURI){
+                        userValue[p.propertyURI].push(value)
+                      }
                     }
                   }
                 }
               }
+
           }
         }else{
           console.warn("No structure.parentId found")
@@ -3047,14 +3079,19 @@ export const useProfileStore = defineStore('profile', {
         alert("Error: no structure found")
       }
 
-      pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
+
+      if (!isParentTop){
+        pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
+      } else {
+        //We're not in a nested component, so we can just set the userValue
+        pt.userValue = JSON.parse(JSON.stringify(userValue))
+      }
       // they changed something
       this.dataChanged()
 
     }else{
       console.error('insertDefaultValuesComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
     }
-
   },
 
 
@@ -3169,8 +3206,6 @@ export const useProfileStore = defineStore('profile', {
         console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
 
       }
-
-
     },
 
     /**

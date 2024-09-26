@@ -271,7 +271,7 @@
                   <thead v-if="results.length>0">
                     <tr>
                       <td>Number</td>
-                      <td>Contributor</td>
+                      <td>Main Author, Creator, etc.</td>
                       <td>Uniform Title</td>
                       <td>Title</td>
                       <td v-if="displaySubjects">Subject</td> 

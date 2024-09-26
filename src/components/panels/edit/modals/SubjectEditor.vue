@@ -796,7 +796,7 @@ methods: {
         lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
       }
       try {
-        let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("-", "‑")
+        let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("--", "‑‑")
 
         //Set up componentLookup, so the component builder can give them URIs
         this.componetLookup[subjIdx][label] = {
@@ -884,7 +884,7 @@ methods: {
         uri: uri,
         id: id,
         type:type,
-        complex: ss.includes('‑'),
+        complex: ss.includes('‑‑'),
         literal:literal,
         posStart: activePosStart,
         posEnd: activePosStart + ss.length,
@@ -2248,7 +2248,7 @@ methods: {
             uri: uri,
             id: id,
             type:type,
-            complex: label.includes('‑'),
+            complex: label.includes('‑‑'),
             literal:literal,
             posStart: activePosStart,
             posEnd: activePosStart + label.length - 1,
