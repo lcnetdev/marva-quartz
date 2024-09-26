@@ -102,7 +102,7 @@
           <span class="button-shortcut-label">0</span>
           Debug
         </button>
-        <template v-if="this.profileStore.returnStructureByComponentGuid(this.guid)['remark']">
+        <template v-if="this.returnRemark()">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}--`" @click="openRemark()">
             <span class="button-shortcut-label">-</span>
             View Documentation<span class="material-icons action-button-icon">open_in_new</span>
@@ -310,9 +310,42 @@
 
       },
 
-      openRemark: function(){
-        const target = this.profileStore.returnStructureByComponentGuid(this.guid)['remark']
-        window.open(target, '_blank').focus()
+      openRemark(){
+        let remark = this.returnRemark()
+        if (remark && (remark.indexOf('http://') > -1 || remark.indexOf('https://') > -1)){
+          window.open(this.returnRemark(), '_blank').focus()
+        }else{
+          alert(remark)
+        }
+        
+      },
+      
+      returnRemark: function(){
+        // check the lowest level first
+        if (this.profileStore.rtLookup[this.structure.parentId] && this.profileStore.rtLookup[this.structure.parentId].propertyTemplates){
+          for (let pt of this.profileStore.rtLookup[this.structure.parentId].propertyTemplates){
+            if (pt.propertyURI == this.structure.propertyURI && pt.remark){
+              return pt.remark
+            }
+          }
+        } 
+        // maybe it is in the parent structure
+        let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (this.profileStore.rtLookup[parentStructure.parentId] && this.profileStore.rtLookup[parentStructure.parentId].propertyTemplates){
+          for (let pt of this.profileStore.rtLookup[parentStructure.parentId].propertyTemplates){
+            if (pt.propertyURI == parentStructure.propertyURI && pt.remark){
+              return pt.remark
+            }
+          }
+        } 
+        // if this fails then check to see if there happens to be a remark on the structure
+        if (this.structure.remark && this.structure.remark != ''){
+          return this.structure.remark
+        }
+
+        // no remark
+        return false
+
       },
 
 
