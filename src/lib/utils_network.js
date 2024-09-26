@@ -2386,7 +2386,7 @@ const utilsNetwork = {
       }
 
       try{
-        let req = await fetch(useConfigStore().returnUrls.id + `resources/instances/suggest2?q=${lccn}&searchtype=keyword` )
+        let req = await fetch(useConfigStore().returnUrls.id + `resources/instances/suggest2?q=${lccn}&searchtype=keyword&nocache=${Date.now()}` )
         let results = await req.json()
 
         let returnVal = []
