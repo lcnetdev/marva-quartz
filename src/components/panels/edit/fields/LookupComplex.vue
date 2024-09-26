@@ -12,7 +12,7 @@
 
       </template>
       <template v-else>
-
+        
         <template v-for="(avl,idx) in complexLookupValues" class="">
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
 
@@ -56,7 +56,6 @@
   </template>
 
   <template v-else>
-
   <!-- <div>Complext Lookup ({{propertyPath.map((x)=>{return x.propertyURI}).join('->')}})</div> -->
       <form autocomplete="off" v-on:submit.prevent >
 
@@ -107,7 +106,7 @@
                 </div>
                 <div class="selected-value-container-title">
                   <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
-                  <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">
+                  <span v-if="!avl.needsDereference && !avl.uneditable " style="padding-right: 0.3em; font-weight: bold">
                     <!-- <a v-if="!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)" href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
                     <span v-else>{{avl.label}}</span> -->
                     <span v-if="avl.source && avl.source=='FAST'" style="font-weight: bold;">(FAST) </span>
@@ -118,9 +117,10 @@
                     <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style="">
                     </span>
                   </span>
-                  <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+                  <span v-else-if="avl.needsDereference" style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+                  <span v-else-if="avl.uneditable" style="padding-right: 0.3em; font-weight: bold">{{ avl.label }} (Uneditable)</span>
                 </div>
-                <div class="selected-value-container-action">
+                <div class="selected-value-container-action" v-if="!avl.uneditable">
                   <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
                 </div>
               </div>

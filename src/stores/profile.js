@@ -29,6 +29,8 @@ const LABEL_PREDICATES = [
   'http://www.w3.org/2000/01/rdf-schema#label',
   'http://www.loc.gov/mads/rdf/v1#authoritativeLabel',
   'http://id.loc.gov/ontologies/bibframe/code',
+  'http://id.loc.gov/ontologies/bibframe/mainTitle',
+  'http://id.loc.gov/ontologies/bibframe/title'
 ]
 
 let cachePt = {}
@@ -1750,7 +1752,6 @@ export const useProfileStore = defineStore('profile', {
       // console.log("propertyPath=",propertyPath)
 
 
-
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
@@ -1767,6 +1768,8 @@ export const useProfileStore = defineStore('profile', {
           if (v['@id']){
             URI = v['@id']
           }
+
+
           for (let lP of LABEL_PREDICATES){
             if (v[lP] && v[lP][0][lP]){
               label = v[lP][0][lP]
@@ -1774,12 +1777,28 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
+          // look for bf:title -> bf:mainTitle
+          if (!label){
+            for (let lP1 of LABEL_PREDICATES){
+              for (let lP2 of LABEL_PREDICATES){
+                if (v[lP1] && v[lP1][0][lP2] && v[lP1][0][lP2][0][lP2]){
+                  label = v[lP1][0][lP2][0][lP2]
+                  break
+                }              
+              }
+            }
+          }
+
           let source = null
           if (URI && URI.indexOf('/fast/') >1){
             source = 'FAST'
           }
+          let uneditable = false
 
-
+          // if we don't have a URI for a work don't let them edit it
+          if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bibframe/Work'){
+            uneditable = true
+          }        
 
           if (URI && label){
             values.push({
@@ -1789,6 +1808,7 @@ export const useProfileStore = defineStore('profile', {
               source: source,
               needsDereference: false,
               isLiteral: false,
+              uneditable: uneditable,
               type:v['@type']
             })
           }else if (URI && !label){
@@ -1799,22 +1819,24 @@ export const useProfileStore = defineStore('profile', {
               source: source,
               needsDereference: true,
               isLiteral: false,
+              uneditable: uneditable,
               type:v['@type']
             })
           }else if (!URI && label){
+
             values.push({
               '@guid':v['@guid'],
               URI: URI,
               label: label,
               source: source,
               needsDereference: false,
+              uneditable: uneditable,
               isLiteral: true,
               type:v['@type']
             })
           }
 
         }
-
         return values
 
       }
