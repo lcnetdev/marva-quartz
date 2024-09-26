@@ -884,7 +884,7 @@ methods: {
         uri: uri,
         id: id,
         type:type,
-        complex: ss.includes('‑'),
+        complex: ss.includes('‑‑'),
         literal:literal,
         posStart: activePosStart,
         posEnd: activePosStart + ss.length,
