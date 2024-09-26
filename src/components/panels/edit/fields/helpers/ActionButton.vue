@@ -22,7 +22,7 @@
           <span class="button-shortcut-label">1</span>
           Add Another Component
         </button>
-        <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="insertDefaultValues()">
+        <button v-if="structure.valueConstraint.defaults.length > 0" style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="insertDefaultValues()">
           <span class="button-shortcut-label">2</span>
           Insert Default Values
         </button>
@@ -118,7 +118,7 @@
         </template>
 
 
-        
+
 
       </div>
       <!--
@@ -177,7 +177,7 @@
       ...mapStores(useProfileStore),
       ...mapState(usePreferenceStore, ['scriptShifterOptions','catInitals']),
 
-      
+
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
 
       scriptShifterOptionsForMenu(){
@@ -299,7 +299,7 @@
 
       },
 
-      
+
 
       deleteComponent: function(){
         this.profileStore.deleteComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])

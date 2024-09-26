@@ -1784,7 +1784,7 @@ export const useProfileStore = defineStore('profile', {
                 if (v[lP1] && v[lP1][0][lP2] && v[lP1][0][lP2][0][lP2]){
                   label = v[lP1][0][lP2][0][lP2]
                   break
-                }              
+                }
               }
             }
           }
@@ -1798,7 +1798,7 @@ export const useProfileStore = defineStore('profile', {
           // if we don't have a URI for a work don't let them edit it
           if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bibframe/Work'){
             uneditable = true
-          }        
+          }
 
           if (URI && label){
             values.push({
