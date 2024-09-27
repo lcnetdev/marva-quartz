@@ -12,7 +12,7 @@
 
       </template>
       <template v-else>
-        
+
         <template v-for="(avl,idx) in complexLookupValues" class="">
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
 
@@ -676,7 +676,6 @@ export default {
 
 
     hideSubjectModal: function(){
-
       this.displaySubjectModal = false;
       if (this.marcDeliminatedLCSHMode==false){
         this.searchValue = ""

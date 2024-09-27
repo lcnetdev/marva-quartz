@@ -22,7 +22,7 @@
           <span class="button-shortcut-label">1</span>
           Add Another Component
         </button>
-        <button v-if="structure.valueConstraint.defaults.length > 0" style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="insertDefaultValues()">
+        <button v-if="hasDefaultValues()" style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="insertDefaultValues()">
           <span class="button-shortcut-label">2</span>
           Insert Default Values
         </button>
@@ -290,7 +290,6 @@
       insertDefaultValues: function(){
         this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
         this.sendFocusHome()
-
       },
 
       breakRecord: function(){
@@ -317,9 +316,9 @@
         }else{
           alert(remark)
         }
-        
+
       },
-      
+
       returnRemark: function(){
         // check the lowest level first
         if (this.profileStore.rtLookup[this.structure.parentId] && this.profileStore.rtLookup[this.structure.parentId].propertyTemplates){
@@ -328,7 +327,7 @@
               return pt.remark
             }
           }
-        } 
+        }
         // maybe it is in the parent structure
         let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
         if (this.profileStore.rtLookup[parentStructure.parentId] && this.profileStore.rtLookup[parentStructure.parentId].propertyTemplates){
@@ -337,7 +336,7 @@
               return pt.remark
             }
           }
-        } 
+        }
         // if this fails then check to see if there happens to be a remark on the structure
         if (this.structure.remark && this.structure.remark != ''){
           return this.structure.remark
@@ -346,6 +345,26 @@
         // no remark
         return false
 
+      },
+
+      hasDefaultValues: function(){
+        // if the selected item has defaults
+        if (this.structure.valueConstraint.defaults.length > 0){
+          return true
+        }
+
+        // if it's part of a group with members that have defaults, and that group isn't the whole thing
+        let parentId = this.structure.parentId
+
+        if (!parentId.endsWith("Work") && !parentId.endsWith("Instance") && !parentId.endsWith("Hub") && !parentId.endsWith("Item")){
+          for (let sibling of this.profileStore.rtLookup[parentId].propertyTemplates){
+            if (sibling.valueConstraint.defaults.length > 0){
+              return true
+            }
+          }
+        }
+
+        return false
       },
 
 
