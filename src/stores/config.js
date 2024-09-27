@@ -53,7 +53,7 @@ export const useConfigStore = defineStore('config', {
         profiles : '/bfe2/util/profiles/profile/stage',
         // profiles: 'https://preprod-3001.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
         starting : '/bfe2/util/profiles/starting/stage',
-        id: 'https://preprod-8299.id.loc.gov/',
+        id: 'https://preprod-8288.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
 
