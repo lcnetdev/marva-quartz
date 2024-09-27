@@ -363,17 +363,10 @@ export default {
     // }
   // }),
   created: function () {
-
-
-
-
   },
   methods: {
 
     templateChange(event){
-
-
-
       let nextRef = this.allRtTemplate.filter((v)=>{ return (v.id === event.target.value) })[0]
       let thisRef = this.thisRtTemplate
 
