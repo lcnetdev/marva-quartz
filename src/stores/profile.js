@@ -2711,17 +2711,41 @@ export const useProfileStore = defineStore('profile', {
         for (let ptId in work.pt){
 
           let pt = work.pt[ptId]
+          
+          /*
+          // 
+          {
+            "@root": "http://id.loc.gov/ontologies/bibframe/title",
+            "http://id.loc.gov/ontologies/bibframe/title": [
+                {
+                    "@guid": "dYC2wKS5RkmPcP6rB7DH8m",
+                    "@type": "http://id.loc.gov/ontologies/bibframe/Title",
+                    "http://id.loc.gov/ontologies/bibframe/mainTitle": [
+                        {
+                            "@guid": "th7wNkaXeBQxj4Gqc3PZKH",
+                            "http://id.loc.gov/ontologies/bibframe/mainTitle": "Ch'ŏnggyech'ŏn Taehakch'ŏn ch'aekpang kŏri"
+                        },
+                        {
+                            "@guid": "49g8LszgTg4d6GzN7fBFhK",
+                            "http://id.loc.gov/ontologies/bibframe/mainTitle": "청계천 대학천 책방 거리",
+                            "@language": "ko-hang"
+                        }
+                    ]
+                }
+            ]
+        }
+        */
 
           if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/title'){
             let titleUserValue = pt.userValue
             if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'] && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'].length>0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]){
               titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
-              if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle']){
+              if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                 if (titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'][0] && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                   title = titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
                 }
               }
-              if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum']){
+              if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum']){
                 if (titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum'].length > 0 && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum'][0] && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum'][0]['http://id.loc.gov/ontologies/bflc/nonSortNum']){
                   titleNonSort = titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum'][0]['http://id.loc.gov/ontologies/bflc/nonSortNum']
                 }
@@ -2733,23 +2757,27 @@ export const useProfileStore = defineStore('profile', {
           if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/contribution'){
             let contributorUserValue = pt.userValue
             let type="normal"
-
-            if (contributorUserValue && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'] && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'].length > 0 && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['@type']){
-              if (contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['@type'] === 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution'){
-                type="PrimaryContribution"
-              }
-
-              if (contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]){
-                let agent = contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
-                if (agent && agent['http://www.w3.org/2000/01/rdf-schema#label'] && agent['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && agent['http://www.w3.org/2000/01/rdf-schema#label'][0] && agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-                  contributors.push({type:type,label:agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']})
+            if (contributorUserValue && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'] && 
+                contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'].length > 0 && 
+                contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] && 
+                contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['@type'] )
+                {
+                
+                contributorUserValue = contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]
+                
+                if (contributorUserValue && contributorUserValue["@type"] == "http://id.loc.gov/ontologies/bibframe/PrimaryContribution")
+                { 
+                    type="PrimaryContribution"
+                    if (contributorUserValue['http://id.loc.gov/ontologies/bibframe/agent'] && 
+                        contributorUserValue['http://id.loc.gov/ontologies/bibframe/agent'][0])
+                        {
+                        let agent = contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
+                        if (agent && agent['http://www.w3.org/2000/01/rdf-schema#label'] && agent['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && agent['http://www.w3.org/2000/01/rdf-schema#label'][0] && agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+                            contributors.push({type:type,label:agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']})
+                        }
+                    }
                 }
-              }
-
-
-
             }
-
           }
 
           if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/subject' && firstSubject === null){
