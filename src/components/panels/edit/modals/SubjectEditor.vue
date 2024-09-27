@@ -1461,18 +1461,24 @@ methods: {
     let data = await utilsNetwork.fetchSimpleLookup(uri+ ".json", true)
     let components = false
     let subfields = false
+    let marcKey = false
     for (let el of data){
       if (el["@id"] == uri){
-        components = el["http://www.loc.gov/mads/rdf/v1#componentList"]
-        subfields = el["http://id.loc.gov/ontologies/bflc/marcKey"][0]["@value"]
+        marcKey = el["http://id.loc.gov/ontologies/bflc/marcKey"][0]["@value"]
+        // we're not looking at a GEO heading, so the components will be URIs
+        // GEO won't have URIs, so they can be ignored
+        if(!el["@type"].includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")){
+          components = el["http://www.loc.gov/mads/rdf/v1#componentList"]
+        }
       }
     }
     //get the subfields from the marcKey
-    if (subfields){
-      subfields = subfields.slice(5)
+    if (marcKey){
+      subfields = marcKey.slice(5)
       subfields = subfields.match(/\$./g)
     }
-    return {"components": components, "subfields": subfields}
+
+    return {"components": components, "subfields": subfields, "marcKey": marcKey}
   },
 
   selectContext: async function(pickPostion, update=true){
@@ -2012,25 +2018,30 @@ methods: {
         })
       }
     }
+
     //remove unused components
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
     } else {
         // need to break up the complex heading into it's pieces so their URIs are availble
+        // Also break Hierarchical GEO headings apart
+        let prevItems = 0
         for (let component in this.components){
-          if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
+          // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
+          if (this.components[component].complex){
             let uri = this.components[component].uri
             let data = await this.parseComplexSubject(uri)
-
             const complexLabel = this.components[component].label
+
             //remove the complex component
-            this.components.shift()
+            this.components.splice(component, 1)
 
             //build the new components
-            let id = 0
+            let id = prevItems
+
 
             for (let label of complexLabel.split("--")){
-              let subfield = data["subfields"][id]
+              let subfield = data["subfields"][id - prevItems]
               switch(subfield){
                 case("$a"):
                   subfield = "madsrdf:Topic"
@@ -2059,12 +2070,15 @@ methods: {
                 "posEnd": label.length,
                 "posStart": 0,
                 "type": subfield,
-                "uri": data["components"][0]["@list"][id]["@id"],
+                "uri": data["components"] != false ? data["components"][0]["@list"][id]["@id"] : "",
+                "marcKey": data["marcKey"]
               }))
 
               id++
+              prevItems++
             }
-
+          } else {
+            prevItems++
           }
         }
       }
