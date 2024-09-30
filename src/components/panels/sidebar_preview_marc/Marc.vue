@@ -197,17 +197,18 @@ li{
   stroke:rgb(0,0,0)
 }
 
->>> .marc.record{
+/** MARC preview formatting */
+:deep() .marc.record{
   font-family: monospace;
 }
 
->>> .marc.indicators {
+:deep() .marc.indicators {
   white-space: pre;
 }
 
 
->>> .marc.subfield.subfield-0 .subfield-value,
->>> .marc.subfield.subfield-1 .subfield-value{
+:deep() .marc.subfield.subfield-0 .subfield-value,
+:deep() .marc.subfield.subfield-1 .subfield-value{
   width: 4.5em;
   display: inline-block;
   text-overflow: ellipsis;
