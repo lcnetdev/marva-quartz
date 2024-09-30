@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useProfileStore } from './profile'
 import { getCurrentInstance } from 'vue'
 import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyager_macro_express.json"
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
@@ -52,7 +53,7 @@ export const usePreferenceStore = defineStore('preference', {
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},
-    
+
 
     panelDisplay:{
 
@@ -265,6 +266,15 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Previews',
           range: [true,false]
       },
+      '--b-edit-main-splitpane-opac-marc-html' : {
+        desc: 'Display the MARC preview as HTML instead of plain text',
+        descShort: 'MARC HTML',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Previews',
+        range: [true, false]
+    },
 
 
 
@@ -316,7 +326,7 @@ export const usePreferenceStore = defineStore('preference', {
         },
 
 
-        
+
 
       '--c-edit-main-splitpane-edit-focused-field-color' : {
           value:'#f2f6f6',
@@ -962,6 +972,9 @@ export const usePreferenceStore = defineStore('preference', {
       if (!this.styleDefault[propertyName]){
         return false
       }
+
+      //update
+      useProfileStore ().dataChanged()
 
       this.styleDefault[propertyName].value = value
       this.savePreferences()

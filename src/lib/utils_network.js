@@ -2337,15 +2337,20 @@ const utilsNetwork = {
   * Send off a rdf bibframe xml files in the format <rdf:RDF><bf:Work/><bf:Instance/>...etc...</rdf:RDF>
   * @async
   * @param {string} xml - The xml string
+  * @param {boolean} html - return the response as HTML
   * @return {string} - the MARC in XML response
   */
-  marcPreview: async function(xml){
-
+  marcPreview: async function(xml, html=false){
     if (!xml){
       return ""
     }
 
     let url = useConfigStore().returnUrls.util + 'marcpreview'
+    if (html) {
+      url = url + '/html'
+    } else {
+      url = url + '/text'
+    }
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
@@ -2457,7 +2462,7 @@ const utilsNetwork = {
 
         results = JSON.parse(results)
 
-        // capitalize the first char if that preference is set true        
+        // capitalize the first char if that preference is set true
         if (results.output){
           if (usePreferenceStore().returnValue('--b-scriptshifter-capitalize-first-letter')){
             results.output = results.output.charAt(0).toUpperCase() + results.output.slice(1);

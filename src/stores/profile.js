@@ -2261,7 +2261,13 @@ export const useProfileStore = defineStore('profile', {
     */
     marcPreview: async function(){
       let xml = await utilsExport.buildXML(this.activeProfile)
-      let preview = await utilsNetwork.marcPreview(xml.bf2Marc)
+
+      let preview = null
+      if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')){
+        preview = await utilsNetwork.marcPreview(xml.bf2Marc, false)
+      } else {
+        preview = await utilsNetwork.marcPreview(xml.bf2Marc, true)
+      }
 
       // clean it up a bit for the component
       let versions = preview.map((v)=>{ return v.version}).sort().reverse()
@@ -2287,8 +2293,6 @@ export const useProfileStore = defineStore('profile', {
           toAdd.error = false
         }
         newResults.push(toAdd)
-
-
       }
 
 
@@ -2301,7 +2305,7 @@ export const useProfileStore = defineStore('profile', {
       }
       return({
         default: defaultVer,
-        versions: newResults
+        versions: newResults,
       })
 
 
