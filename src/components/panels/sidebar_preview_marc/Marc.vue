@@ -105,11 +105,12 @@
       <template v-for="ver in previewData.versions">
         <div v-if="ver.default">
           <div class="version-number">{{ ver.version  }}</div>
-          <pre>
+          <div v-html="ver.marcRecord"></div>
+          <!-- <pre>
             <code>
 {{ ver.marcRecord }}
             </code>
-          </pre>
+          </pre> -->
           <hr>
           <pre>
             <code>
@@ -196,7 +197,25 @@ li{
   stroke:rgb(0,0,0)
 }
 
+>>> .marc.record{
+  font-family: monospace;
+}
 
+>>> .marc.indicators {
+  white-space: pre;
+}
+
+
+>>> .marc.subfield.subfield-0 .subfield-value,
+>>> .marc.subfield.subfield-1 .subfield-value{
+  width: 4.5em;
+  display: inline-block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.5);
+  vertical-align: bottom;
+}
 
 
 </style>
