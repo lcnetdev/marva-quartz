@@ -786,6 +786,18 @@ export const usePreferenceStore = defineStore('preference', {
         range: [true,false]
     },
 
+      // scriptshifter
+
+      '--b-scriptshifter-capitalize-first-letter' : {
+        desc: 'Capitalize the first letter of the transliterated string.',
+        descShort: 'Capitalize the first letter',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Scriptshifter',
+        range: [true,false]
+      },
+
 
 
     }
@@ -884,7 +896,6 @@ export const usePreferenceStore = defineStore('preference', {
         styleDefault: this.styleDefault,
         panelDisplay: this.panelDisplay
       }
-      console.log(bfPrefs)
       let prefs = JSON.stringify(bfPrefs)
       window.localStorage.setItem('marva-preferences',prefs)
     },
@@ -958,9 +969,6 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {boolean} - Did it work
     */
     setValue: function(propertyName,value){
-      console.log(propertyName,value)
-      console.log(this.styleDefault)
-      console.log(this.styleDefault[propertyName])
       if (!this.styleDefault[propertyName]){
         return false
       }

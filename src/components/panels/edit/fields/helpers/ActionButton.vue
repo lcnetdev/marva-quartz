@@ -59,21 +59,10 @@
             <template v-for="(lang,index) in scriptShifterOptionsForMenu">
 
                 <button   style="width:100%"   class="" :id="`action-button-command-${fieldGuid}-${index + 7}`"  @click="$emit('actionButtonCommand', 'trans', {lang:lang.lang,dir:lang.dir, fieldGuid: fieldGuid} )">
-                  <span v-if="index<3" class="button-shortcut-label">{{index + 7}}</span>
-                  <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{ lang.name }}</span>
+                  <span v-if="index<3" class="button-shortcut-label">{{index + 7}}</span>                  
+                  <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{ lang.label||lang.name }}</span>
 
                 </button>
-
-
-
-<!--
-              <button  v-if="scriptShifterOptions[lang].s2r"  style="width:100%"   class=""  @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'s2r', fieldGuid: fieldGuid} )">
-
-                <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} S2R</span>
-              </button>
-              <button v-if="scriptShifterOptions[lang].r2s"  style="width:100%" class=""  @click="$emit('actionButtonCommand', 'trans', {lang:lang,dir:'r2s', fieldGuid: fieldGuid} )">
-                <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{scriptShifterOptions[lang].name}} R2S</span>
-              </button> -->
 
             </template>
 
@@ -190,14 +179,14 @@
             menuOptions.push({
               dir:'s2r',
               lang: lang,
-              name:this.scriptShifterOptions[lang].name + ' S2R'
+              name:this.scriptShifterOptions[lang].label + ' S2R'
             })
           }
           if (this.scriptShifterOptions[lang].r2s){
             menuOptions.push({
               dir:'r2s',
               lang: lang,
-              name:this.scriptShifterOptions[lang].name + ' R2S'
+              name:this.scriptShifterOptions[lang].label + ' R2S'
 
             })
           }
