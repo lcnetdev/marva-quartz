@@ -1,4 +1,6 @@
 import {useConfigStore} from "../stores/config";
+import {usePreferenceStore} from "../stores/preference";
+
 import short from 'short-uuid'
 const translator = short();
 
@@ -2420,15 +2422,17 @@ const utilsNetwork = {
     },
 
     /**
-    * Send off a rdf bibframe xml files in the format <rdf:RDF><bf:Work/><bf:Instance/>...etc...</rdf:RDF>
+    * Request string transliteration via the backend scriptshifter API
     * @async
-    * @param {string} xml - The xml string
-    * @return {string} - the MARC in XML response
+    * @param {string} lang - The scriptshifter language code
+    * @param {string} text - The string to send to scriptshifter
+    * @param {boolean} capitalize - ask to caplitalize all the words
+    * @param {string} t_dir - s2r or r2s, not both directions are supported for all languages
+    * @return {object|false} - the response from the service
     */
     scriptShifterRequestTrans: async function(lang,text,capitalize,t_dir){
 
-
-      let url = useConfigStore().returnUrls.scriptshifter + 'trans'
+            let url = useConfigStore().returnUrls.scriptshifter + 'trans'
 
       let r = await fetch(url, {
         method: 'POST',
@@ -2450,24 +2454,18 @@ const utilsNetwork = {
         alert(results)
         return false
       }else{
+
+        results = JSON.parse(results)
+
+        // capitalize the first char if that preference is set true        
+        if (results.output){
+          if (usePreferenceStore().returnValue('--b-scriptshifter-capitalize-first-letter')){
+            results.output = results.output.charAt(0).toUpperCase() + results.output.slice(1);
+          }
+        }
         return results
       }
 
-
-
-      // const rawResponse = await fetch(url, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify({rdfxml:xml})
-      // });
-      // const content = await rawResponse.json();
-
-      // console.log(content);
-
-      // return content
 
     },
 
