@@ -11,7 +11,7 @@
 
     data() {
       return {
-        previewData : {default:null,versions:[]},
+        previewData : {default:null, versions:[]},
         timeout: null,
         firstLoad: true,
         selected: null
@@ -105,12 +105,12 @@
       <template v-for="ver in previewData.versions">
         <div v-if="ver.default">
           <div class="version-number">{{ ver.version  }}</div>
-          <div v-html="ver.marcRecord"></div>
-          <!-- <pre>
+          <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-opac-marc-html')" v-html="ver.marcRecord"></div>
+          <pre v-else>
             <code>
 {{ ver.marcRecord }}
             </code>
-          </pre> -->
+          </pre>
           <hr>
           <pre>
             <code>

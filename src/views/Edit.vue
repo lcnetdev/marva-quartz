@@ -6,7 +6,6 @@
       <Nav/>
     </pane>
 
-
     <pane>
 
       <splitpanes>

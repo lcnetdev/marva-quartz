@@ -52,7 +52,7 @@ export const usePreferenceStore = defineStore('preference', {
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},
-    
+
 
     panelDisplay:{
 
@@ -265,6 +265,15 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Previews',
           range: [true,false]
       },
+      '--b-edit-main-splitpane-opac-marc-html' : {
+        desc: 'Display the MARC preview as HTML instead of plain text',
+        descShort: 'MARC HTML',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Previews',
+        range: [true, false]
+    },
 
 
 
@@ -316,7 +325,7 @@ export const usePreferenceStore = defineStore('preference', {
         },
 
 
-        
+
 
       '--c-edit-main-splitpane-edit-focused-field-color' : {
           value:'#f2f6f6',
