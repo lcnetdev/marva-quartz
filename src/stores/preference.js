@@ -776,6 +776,18 @@ export const usePreferenceStore = defineStore('preference', {
         range: [true,false]
     },
 
+      // scriptshifter
+
+      '--b-scriptshifter-capitalize-first-letter' : {
+        desc: 'Capitalize the first letter of the transliterated string.',
+        descShort: 'Capitalize the first letter',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Scriptshifter',
+        range: [true,false]
+      },
+
 
 
     }

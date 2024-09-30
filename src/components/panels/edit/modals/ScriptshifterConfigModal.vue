@@ -31,7 +31,7 @@
       // other computed properties
       // ...
       // gives access to this.counterStore and this.userStore
-      // ...mapStores(usePreferenceStore),
+      ...mapStores(usePreferenceStore),
       ...mapStores(useConfigStore),
 
       
@@ -39,7 +39,19 @@
       ...mapWritableState(usePreferenceStore, ['showScriptshifterConfigModal','scriptShifterOptions']),
       ...mapWritableState(useConfigStore, ['scriptshifterLanguages']),
 
+      // 
 
+      capitalizeFirstWord: {
+      // getter
+        get() {
+          return this.preferenceStore.returnValue('--b-scriptshifter-capitalize-first-letter')
+        },
+        // setter
+        set(newValue) {
+          // Note: we are using destructuring assignment syntax here.
+          this.preferenceStore.setValue('--b-scriptshifter-capitalize-first-letter',newValue)
+        }
+      }
 
       
       
@@ -112,6 +124,8 @@
           for (let x in this.scriptshifterLanguages){
             if (this.scriptshifterLanguages[x].s2r || this.scriptshifterLanguages[x].r2s ){
               current[x] = this.scriptshifterLanguages[x]
+              current[x].name = this.scriptshifterLanguages[x].label
+              current[x].label = this.scriptshifterLanguages[x].label
             }else{
               if (current[x]){
                 delete current[x]
@@ -255,8 +269,17 @@
             </div>
             <p>Visit <a href="https://bibframe.org/scriptshifter" target="_blank">bibframe.org/scriptshifter</a> to test these languages.</p>
             
-            <hr style="margin-top: 1em; margin-bottom: 1em;"/>
+            <hr style="margin-top: 1em; margin-bottom: 1em;">
+            <div style="display: flex; align-items: center;">
+              <div style="flex: 0;"><input type="checkbox" v-model="capitalizeFirstWord" id="capitalizeFirstWord"></div>
+              <div style="flex:1; padding-left: 1em;"><label for="capitalizeFirstWord"> Capitalize first letter of transliteration</label></div>
+          
 
+
+            </div>
+
+
+            <hr style="margin-top: 1em; margin-bottom: 1em;"/>
             <table>
               <!-- <tr v-for=""></tr> -->
               <thead>
@@ -267,17 +290,17 @@
             
               <tr  v-for="l in scriptshifterLanguages">
                 <td style="width: 66%;">
-                  {{ l.name }}
+                  {{ l.label }}
                   <template v-if="l.description">
                     <br/>
                     <span style="font-size: 90%;">{{ l.description }}</span>
                   </template>
                 </td>
                 <td style="text-align: center;">
-                  <input type="checkbox" @change="updateLocalStorage" v-model="l.s2r"/>
+                  <input :disabled="l.has_s2r==false" type="checkbox" @change="updateLocalStorage" v-model="l.s2r"/>
                 </td>
                 <td style="text-align: center;"> 
-                  <input type="checkbox" @change="updateLocalStorage" v-model="l.r2s"/>
+                  <input :disabled="l.has_r2s==false" type="checkbox" @change="updateLocalStorage" v-model="l.r2s"/>
                 </td>              
               </tr>
               <!-- <input type="checkbox" v-model="optionChecks[z']"> -->

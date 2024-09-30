@@ -670,13 +670,10 @@ export default {
       }
 
       if (cmd == 'trans'){
-        // this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,"new value",null,true)
 
         let fieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] == options.fieldGuid) })
-
-
         let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
-        transValue = JSON.parse(transValue)
+        
 
         let toLang = null
         let fromLang = null
