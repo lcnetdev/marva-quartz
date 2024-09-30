@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useProfileStore } from './profile'
 import { getCurrentInstance } from 'vue'
 import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyager_macro_express.json"
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
@@ -963,6 +964,9 @@ export const usePreferenceStore = defineStore('preference', {
       if (!this.styleDefault[propertyName]){
         return false
       }
+
+      //update
+      useProfileStore ().dataChanged()
 
       this.styleDefault[propertyName].value = value
       this.savePreferences()
