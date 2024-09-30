@@ -486,7 +486,7 @@ const utilsParse = {
               if (ptk.valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
                 // it matches, so use this one for sure
                 // make sure to remove the hint attribute
-                e.removeAttribute('local:pthint')
+                // e.removeAttribute('local:pthint')
                 el.push(e)
               }else{
                 // if it doesn't match that might mean there is a better match further in the pts or it could mean it will never match
@@ -504,7 +504,7 @@ const utilsParse = {
                   continue
                 }else{
                   // we did not find a place to put this el, so we need to add it here
-                  e.removeAttribute('local:pthint')
+                  // e.removeAttribute('local:pthint')
                   el.push(e)
                 }
               }
