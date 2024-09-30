@@ -886,7 +886,6 @@ export const usePreferenceStore = defineStore('preference', {
         styleDefault: this.styleDefault,
         panelDisplay: this.panelDisplay
       }
-      console.log(bfPrefs)
       let prefs = JSON.stringify(bfPrefs)
       window.localStorage.setItem('marva-preferences',prefs)
     },
@@ -960,9 +959,6 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {boolean} - Did it work
     */
     setValue: function(propertyName,value){
-      console.log(propertyName,value)
-      console.log(this.styleDefault)
-      console.log(this.styleDefault[propertyName])
       if (!this.styleDefault[propertyName]){
         return false
       }
