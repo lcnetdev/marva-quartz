@@ -1718,9 +1718,6 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
-    console.info("subjectStringChanged: ", event.target.value)
-    console.info("    is ", this.subjectString)
-
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
@@ -1771,11 +1768,15 @@ methods: {
 
     // if they erase everything remove the components
     if (this.subjectString.length==0){
-      console.info("resetting search")
       this.activeComponent = null
       this.activeComponentIndex=0
       this.componetLookup = {}
       this.typeLookup={}
+      this.components=[]
+
+      //search for nothing. Otherwise, if the user deletes their search
+      // quickly, it will end up searcing on the last letter to be deleted
+      this.searchApis("", "", this)
     }
     if (!this.subjectString.endsWith("-")){
       this.buildComponents(this.subjectString)
