@@ -19,6 +19,21 @@ const utilsNetwork = {
     // a cache to keep previosuly requested vocabularies and lookups in memory for use again
     lookupLibrary : {},
 
+    //Controllers to manage searches
+    controllers: {
+      "controllerNames": new AbortController(),
+      "controllerNamesSubdivision": new AbortController(),
+      "controllerSubjectsSimple": new AbortController(),
+      "controllerPayloadSubjectsSimpleSubdivision": new AbortController(),
+      "controllerSubjectsComplex": new AbortController(),
+      "controllerHierarchicalGeographic": new AbortController(),
+      "controllerWorksAnchored": new AbortController(),
+      "controllerWorksKeyword": new AbortController(),
+      "controllerHubsAnchored": new AbortController(),
+      "controllerHubsKeyword": new AbortController(),
+    },
+    subjectSearchActive: false,
+
     /**
     * processes the data returned from id vocabularies
     *
@@ -1318,28 +1333,28 @@ const utilsNetwork = {
         let searchPayloadNames = {
           processor: 'lcAuthorities',
           url: [namesUrl],
-          searchValue: searchVal
+          searchValue: searchVal,
         }
         let searchPayloadNamesSubdivision = {
           processor: 'lcAuthorities',
           url: [namesUrlSubdivision],
-          searchValue: searchVal
+          searchValue: searchVal,
         }
 
         let searchPayloadSubjectsSimple = {
           processor: 'lcAuthorities',
           url: [subjectUrlSimple],
-          searchValue: searchVal
+          searchValue: searchVal,
         }
         let searchPayloadSubjectsSimpleSubdivision = {
           processor: 'lcAuthorities',
           url: [subjectUrlSimpleSubdivison],
-          searchValue: searchVal
+          searchValue: searchVal,
         }
         let searchPayloadTemporal = {
           processor: 'lcAuthorities',
           url: [subjectUrlTemporal],
-          searchValue: searchVal
+          searchValue: searchVal,
         }
 
         let searchPayloadGenre = {
@@ -1945,6 +1960,15 @@ const utilsNetwork = {
     * @return {} -
     */
     subjectSearch: async function(searchVal,complexVal,mode){
+      if (this.subjectSearchActive){
+        for (let controller in this.controllers){
+          this.controllers[controller].abort()
+          this.controllers[controller] = new AbortController()
+        }
+      }
+
+
+      this.subjectSearchActive = true
       let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings'
       let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
@@ -1977,26 +2001,30 @@ const utilsNetwork = {
         processor: 'lcAuthorities',
         url: [namesUrl],
         searchValue: searchVal,
-        subjectSearch: true
+        subjectSearch: true,
+        signal: this.controllers.controllerNames.signal,
       }
       let searchPayloadNamesSubdivision = {
         processor: 'lcAuthorities',
         url: [namesUrlSubdivision],
         searchValue: searchVal,
-        subjectSearch: true
+        subjectSearch: true,
+        signal: this.controllers.controllerNamesSubdivision.signal,
       }
 
       let searchPayloadSubjectsSimple = {
         processor: 'lcAuthorities',
         url: [subjectUrlSimple],
         searchValue: searchVal,
-        subjectSearch: true
+        subjectSearch: true,
+        signal: this.controllers.controllerSubjectsSimple.signal,
       }
       let searchPayloadSubjectsSimpleSubdivision = {
         processor: 'lcAuthorities',
         url: [subjectUrlSimpleSubdivison],
         searchValue: searchVal,
-        subjectSearch: true
+        subjectSearch: true,
+        signal: this.controllers.controllerPayloadSubjectsSimpleSubdivision.signal,
       }
       let searchPayloadTemporal = {
         processor: 'lcAuthorities',
@@ -2013,7 +2041,8 @@ const utilsNetwork = {
         processor: 'lcAuthorities',
         url: [subjectUrlComplex],
         searchValue: searchVal,
-        subjectSearch: true
+        subjectSearch: true,
+        signal: this.controllers.controllerSubjectsComplex.signal,
       }
 
 
@@ -2021,35 +2050,40 @@ const utilsNetwork = {
         processor: 'lcAuthorities',
         url: [subjectUrlHierarchicalGeographic],
         searchValue: searchValHierarchicalGeographic,
-        subjectSearch: true
+        subjectSearch: true,
+        signal: this.controllers.controllerHierarchicalGeographic.signal,
       }
 
       let searchPayloadWorksAnchored = {
         processor: 'lcAuthorities',
         url: [worksUrlAnchored],
         searchValue: searchVal,
-        subjectSearch: true
+        subjectSearch: true,
+        signal: this.controllers.controllerWorksAnchored.signal,
       }
 
       let searchPayloadWorksKeyword = {
         processor: 'lcAuthorities',
         url: [worksUrlKeyword],
         searchValue: searchVal,
-        subjectSearch: true
+        subjectSearch: true,
+        signal: this.controllers.controllerWorksKeyword.signal,
       }
 
       let searchPayloadHubsAnchored = {
         processor: 'lcAuthorities',
         url: [hubsUrlAnchored],
         searchValue: searchVal,
-        subjectSearch: true
+        subjectSearch: true,
+        signal: this.controllers.controllerHubsAnchored.signal,
       }
 
       let searchPayloadHubsKeyword = {
         processor: 'lcAuthorities',
         url: [hubsUrlKeyword],
         searchValue: searchVal,
-        subjectSearch: true
+        subjectSearch: true,
+        signal: this.controllers.controllerHubsKeyword.signal,
       }
 
 
@@ -2160,6 +2194,8 @@ const utilsNetwork = {
         'names': pos == 0 ? resultsNames : resultsNamesSubdivision,
         'hierarchicalGeographic':  pos == 0 ? [] : resultsHierarchicalGeographic
       }
+
+      this.subjectSearchActive = false
       return results
 
     },

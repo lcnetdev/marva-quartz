@@ -1718,6 +1718,9 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    console.info("subjectStringChanged: ", event.target.value)
+    console.info("    is ", this.subjectString)
+
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
@@ -1768,6 +1771,7 @@ methods: {
 
     // if they erase everything remove the components
     if (this.subjectString.length==0){
+      console.info("resetting search")
       this.activeComponent = null
       this.activeComponentIndex=0
       this.componetLookup = {}
@@ -1862,7 +1866,7 @@ methods: {
 
         this.updateAvctiveTypeSelected()
         this.validateOkayToAdd()
-      },100)
+      },400)
     })
 
 
