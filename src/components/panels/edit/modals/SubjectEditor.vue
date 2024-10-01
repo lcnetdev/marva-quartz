@@ -1772,6 +1772,11 @@ methods: {
       this.activeComponentIndex=0
       this.componetLookup = {}
       this.typeLookup={}
+      this.components=[]
+
+      //search for nothing. Otherwise, if the user deletes their search
+      // quickly, it will end up searcing on the last letter to be deleted
+      this.searchApis("", "", this)
     }
     if (!this.subjectString.endsWith("-")){
       this.buildComponents(this.subjectString)
@@ -1862,7 +1867,7 @@ methods: {
 
         this.updateAvctiveTypeSelected()
         this.validateOkayToAdd()
-      },100)
+      },400)
     })
 
 
