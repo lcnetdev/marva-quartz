@@ -31,6 +31,11 @@ const utilsNetwork = {
       "controllerWorksKeyword": new AbortController(),
       "controllerHubsAnchored": new AbortController(),
       "controllerHubsKeyword": new AbortController(),
+      "controllerTemporal": new AbortController(),
+      "controllerGenre": new AbortController(),
+      "controllerHierarchicalGeographicLCSH": new AbortController(),
+      "controllerGeographicLCSH": new AbortController(),
+      "controllerGeographicLCNAF": new AbortController(),
     },
     subjectSearchActive: false,
 
@@ -1143,6 +1148,13 @@ const utilsNetwork = {
     */
 
     subjectLinkModeResolveLCSH: async function(lcsh){
+      if (this.subjectSearchActive){
+        for (let controller in this.controllers){
+          this.controllers[controller].abort()
+          this.controllers[controller] = new AbortController()
+        }
+      }
+      this.subjectSearchActive = true
 
       let result = {
         resultType: '',
@@ -1308,7 +1320,8 @@ const utilsNetwork = {
         }
 
         let searchVal = heading.label
-
+        //encode the URLs
+        searchVal = encodeURIComponent(searchVal)
 
         // we'll define all this for each one but not nessisarly use all of them
 
@@ -1334,70 +1347,79 @@ const utilsNetwork = {
           processor: 'lcAuthorities',
           url: [namesUrl],
           searchValue: searchVal,
+          signal: this.controllers.controllerNames.signal
         }
         let searchPayloadNamesSubdivision = {
           processor: 'lcAuthorities',
           url: [namesUrlSubdivision],
           searchValue: searchVal,
+          signal: this.controllers.controllerNamesSubdivision.signal
         }
 
         let searchPayloadSubjectsSimple = {
           processor: 'lcAuthorities',
           url: [subjectUrlSimple],
           searchValue: searchVal,
+          signal: this.controllers.controllerSubjectsSimple.signal
         }
         let searchPayloadSubjectsSimpleSubdivision = {
           processor: 'lcAuthorities',
           url: [subjectUrlSimpleSubdivison],
           searchValue: searchVal,
+          signal: this.controllers.controllerPayloadSubjectsSimpleSubdivision.signal
         }
+
         let searchPayloadTemporal = {
           processor: 'lcAuthorities',
           url: [subjectUrlTemporal],
           searchValue: searchVal,
+          signal: this.controllers.controllerTemporal.signal
         }
 
         let searchPayloadGenre = {
           processor: 'lcAuthorities',
           url: [subjectUrlGenre],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerGenre.signal
         }
-
-
-
 
         let searchPayloadHierarchicalGeographic = {
           processor: 'lcAuthorities',
           url: [subjectUrlHierarchicalGeographic],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerHierarchicalGeographic.signal
         }
         let searchPayloadHierarchicalGeographicLCSH = {
           processor: 'lcAuthorities',
           url: [subjectUrlHierarchicalGeographicLCSH],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerHierarchicalGeographicLCSH.signal
         }
-
 
         let searchPayloadGeographicLCSH = {
           processor: 'lcAuthorities',
           url: [subjectUrlGeographicLCSH],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerGeographicLCSH.signal
         }
         let searchPayloadGeographicLCNAF = {
           processor: 'lcAuthorities',
           url: [subjectUrlGeographicLCNAF],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerGeographicLCNAF.signal
         }
 
         let searchPayloadWorksAnchored = {
           processor: 'lcAuthorities',
           url: [worksUrlAnchored],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerWorksAnchored.signal
         }
         let searchPayloadHubsAnchored = {
           processor: 'lcAuthorities',
           url: [hubsUrlAnchored],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerHubsAnchored.signal
         }
 
         let resultsNames =[]
@@ -1437,7 +1459,6 @@ const utilsNetwork = {
 
           // console.log("searchPayloadSubjectsSimpleSubdivision",searchPayloadSubjectsSimpleSubdivision)
           // console.log("resultsPayloadSubjectsSimpleSubdivision",resultsPayloadSubjectsSimpleSubdivision)
-
 
           // take out the literal values that are automatically added
           resultsNames = resultsNames.filter((r)=>{ return (!r.literal) })
@@ -1820,6 +1841,8 @@ const utilsNetwork = {
         result.hit.marcKey = marcKeyResult.marcKey
       }
       // console.log("result",result)
+
+      this.subjectSearchActive = false
       return result
     },
 
@@ -1960,6 +1983,10 @@ const utilsNetwork = {
     * @return {} -
     */
     subjectSearch: async function(searchVal,complexVal,mode){
+      //encode the URLs
+      searchVal = encodeURIComponent(searchVal)
+      complexVal = encodeURIComponent(complexVal)
+
       if (this.subjectSearchActive){
         for (let controller in this.controllers){
           this.controllers[controller].abort()
