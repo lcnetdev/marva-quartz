@@ -680,6 +680,11 @@ export default {
         if (this.scriptShifterLangCodes[options.lang]){
           fromLang = this.scriptShifterLangCodes[options.lang].code
           toLang = this.scriptShifterLangCodes[options.lang].code.split("-")[0] + "-Latn"
+          if (options.dir && options.dir.toLowerCase() == 'r2s'){
+            toLang = this.scriptShifterLangCodes[options.lang].code
+            fromLang = this.scriptShifterLangCodes[options.lang].code.split("-")[0] + "-Latn"           
+          }
+
         }
 
         // add the new string
