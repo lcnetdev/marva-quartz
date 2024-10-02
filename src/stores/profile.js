@@ -1799,6 +1799,12 @@ export const useProfileStore = defineStore('profile', {
           if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bibframe/Work'){
             uneditable = true
           }
+          if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bflc/Uncontrolled'){
+            uneditable = true
+          }
+          if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bibframe/Uncontrolled'){
+            uneditable = true
+          }
 
           if (URI && label){
             values.push({
