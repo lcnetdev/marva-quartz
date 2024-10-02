@@ -2552,7 +2552,7 @@ const utilsNetwork = {
       }
 
       let urlSearch = "lds/browse.xqy?bq=" + search +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
-
+      console.info("shelflist search: ", urlSearch)
       // try{
         //let req = await fetch(useConfigStore().returnUrls.shelfListing + `browse/class/${dir}/${search}.json` )
         let req = await fetch(useConfigStore().returnUrls.shelfListing + urlSearch )
