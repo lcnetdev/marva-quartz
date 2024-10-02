@@ -265,8 +265,11 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2023920086',label:"The Serby saga (IBC)", idUrl:'https://id.loc.gov/resources/instances/23354934.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
     {lccn:'2024398050',label:"Wehasŭ sonyŏn (Compilation)", idUrl:'https://id.loc.gov/resources/instances/23799873.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+    {lccn:'2007052988',label:"A journey to the Western Islands of Scotland", idUrl:'https://id.loc.gov/resources/instances/15146892.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
 
+
+    
 
     {lccn:'2024591512',label:"The Berkshires, Massachusetts discovery map 2022-2023", idUrl:'https://id.loc.gov/resources/instances/23486403.html', profile:'Cartographic',profileId:'lc:RT:bf2:Cartographic:Instance'},
     {lccn:'2016627557',label:"Wallflower", idUrl:'https://id.loc.gov/resources/instances/2016627557.html', profile:'Audio CD',profileId:'lc:RT:bf2:SoundRecording:Instance'},
