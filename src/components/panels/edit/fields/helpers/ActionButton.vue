@@ -59,7 +59,7 @@
             <template v-for="(lang,index) in scriptShifterOptionsForMenu">
 
                 <button   style="width:100%"   class="" :id="`action-button-command-${fieldGuid}-${index + 7}`"  @click="$emit('actionButtonCommand', 'trans', {lang:lang.lang,dir:lang.dir, fieldGuid: fieldGuid} )">
-                  <span v-if="index<3" class="button-shortcut-label">{{index + 7}}</span>                  
+                  <span v-if="index<3" class="button-shortcut-label">{{index + 7}}</span>
                   <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{ lang.label||lang.name }}</span>
 
                 </button>

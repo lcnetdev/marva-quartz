@@ -92,7 +92,7 @@
           this.$refs.shelfListingContent.style.height = newRect.height + 'px'
 
         },
-        
+
         scrollTo: function() {
             this.$refs.moreButton.scrollIntoView({ behavior: 'smooth' });
         },
@@ -150,18 +150,18 @@
           if (!this.cutterNumber){this.cutterNumber=''}
 
 
-          this.contributor= this.contributor ? "&sp-name="+this.contributor : ""
-          this.title= this.title ? "&sp-title="+this.title  : ""
-          this.subj= this.subj ? "&sp-subject="+this.subj  : ""
-          this.date= this.date ? "&sp-date="+this.date : ""
-          this.countParam = this.hitCount ? "&count="+this.hitCount : ""
+          const contributor = this.contributor ? "&sp-name="+this.contributor : ""
+          const title = this.title ? "&sp-title="+this.title  : ""
+          const subj = this.subj ? "&sp-subject="+this.subj  : ""
+          const date = this.date ? "&sp-date="+this.date : ""
+          const countParam = this.hitCount ? "&count="+this.hitCount : ""
 
 
           this.results = []
           this.searching=true
           this.results =  await utilsNetwork.searchShelfList(
             this.classNumber.trim() + '' + this.cutterNumber.trim(),
-            this.contributor + this.title + this.subj + this.date + this.countParam
+            contributor + title + subj + date + countParam
           )
           this.searching=false
           this.$nextTick(() => {
@@ -257,11 +257,11 @@
               <input v-model="classNumber" class="number-input" placeholder="Class" @keyup="hitCount=10; search()" type="text" />
               <input v-model="cutterNumber" class="number-input" @keyup="hitCount=10; search()" placeholder="Cutter" type="text" />
               <button class="number-input" @click="save" :disabled="(!activeShelfListData.componentGuid)">Save</button>
-              
+
               <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
               <input type="checkbox" id="showSubjects" v-model="displaySubjects" v-on:change="search" />
               <label for="showSubjects">&nbsp;Show Subjects</label>
-              
+
               <div class="serach-results-container">
                 <h2 v-if="searching == true"><span class="material-icons icon">search</span>Searching...</h2>
 
@@ -274,7 +274,7 @@
                       <td>Main Author, Creator, etc.</td>
                       <td>Uniform Title</td>
                       <td>Title</td>
-                      <td v-if="displaySubjects">Subject</td> 
+                      <td v-if="displaySubjects">Subject</td>
                       <td>Date</td>
                       <td> </td>
 
@@ -289,7 +289,7 @@
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
                           <td>{{ r.title }}</td>
-                          <td v-if="displaySubjects">{{ r.subject }}</td> 
+                          <td v-if="displaySubjects">{{ r.subject }}</td>
                           <td>{{ r.pubdate }}</td>
                           <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.idbase + 'resources/works/' + r.bibid">view</a></td>
                         </tr>
@@ -301,7 +301,7 @@
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
                           <td>{{ r.title }}</td>
-                          <td v-if="displaySubjects">{{ r.subject }}</td> 
+                          <td v-if="displaySubjects">{{ r.subject }}</td>
                           <td>{{ r.pubdate }}</td>
                           <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.idbase + 'resources/works/' + r.bibid">view</a></td>
                         </tr>
