@@ -1690,6 +1690,10 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
+          let uneditable = false
+
+          // if it is deepHierarchy then then we are copy pasting what came into the system and they cann change it anyway.
+          if (pt.deepHierarchy){uneditable=true}
 
 
           if (URI && label){
@@ -1698,6 +1702,7 @@ export const useProfileStore = defineStore('profile', {
               URI: URI,
               label: label,
               needsDereference: false,
+              uneditable:uneditable,
               isLiteral: false,
             })
           }else if (URI && !label){
@@ -1706,6 +1711,7 @@ export const useProfileStore = defineStore('profile', {
               URI: URI,
               label: label,
               needsDereference: true,
+              uneditable:uneditable,
               isLiteral: false,
             })
           }else if (!URI && label){
@@ -1714,6 +1720,7 @@ export const useProfileStore = defineStore('profile', {
               URI: URI,
               label: label,
               needsDereference: false,
+              uneditable:uneditable,
               isLiteral: true,
             })
           }
@@ -1805,6 +1812,11 @@ export const useProfileStore = defineStore('profile', {
           if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bibframe/Uncontrolled'){
             uneditable = true
           }
+
+          
+
+          // if it is deepHierarchy then then we are copy pasting what came into the system and they cann change it anyway.
+          if (pt.deepHierarchy){uneditable=true}
 
           if (URI && label){
             values.push({

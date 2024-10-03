@@ -652,6 +652,14 @@ const utilsParse = {
               }
             }
 
+            // do a deepHierarchy check here to see if it is a very nested bf:relation property if so we will mark it here
+            if (ptk.propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation'){              
+              if (e.innerHTML.indexOf("bf:hasInstance")>-1){
+                ptk.deepHierarchy=true
+              }
+
+            }
+
             // start populating the data
             let populateData = null
             populateData = JSON.parse(JSON.stringify(ptk))
@@ -663,6 +671,11 @@ const utilsParse = {
             // if (this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)]){
             //   populateData.valueConstraint.valueTemplateRefs.push(this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)])
             // }
+
+
+
+
+
 
 
             // we want all userValues to includ the root predicate property

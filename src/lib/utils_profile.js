@@ -424,11 +424,8 @@ const utilsProfile = {
   * @return {object} - the profile
   */
   loadRecordFromBackend: async function(recordId){
-    console.log(recordId)
     let xml = await utilsNetwork.loadSavedRecord(recordId)
-    console.log(xml)
     let meta = this.returnMetaFromSavedXML(xml)
-    console.log(meta.xml)
 
 
 
@@ -504,7 +501,7 @@ const utilsProfile = {
 
     transformResults = this.reorderRTOrder(transformResults)
 
-    console.log("transformResults",transformResults)
+
     return transformResults
 
 
