@@ -2862,6 +2862,18 @@ export const useProfileStore = defineStore('profile', {
             classGuid:classGuid
           }
 
+        } else {
+          // This is a LCC field, it shouldn't return `false`. False causes things to disappear
+          return {
+            title: null,
+            classNumber:null,
+            cutterNumber:null,
+            titleNonSort:null,
+            contributors:[],
+            firstSubject:null,
+            cutterGuid:null,
+            classGuid:null
+          }
         }
 
 
