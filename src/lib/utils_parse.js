@@ -273,6 +273,27 @@ const utilsParse = {
     return xml
   },
 
+  /**
+  * Takes the XML marks any bf:note properties with hints to use in the parsing of it
+  *
+  * @param {Node} xml - the XML payload
+  * @return {Node}
+  */
+  sniffNoteType(xml){
+    for (let child of xml.children){
+      if (child.tagName == 'bf:note'){
+        if ( child.innerHTML.indexOf("bf:language")>-1){
+          child.setAttribute('local:pthint', 'lc:RT:bf2:LangNote')
+        }else{
+          // leave blank?
+        }
+      }
+    }
+    return xml
+  },
+
+  
+
 
   specialTransforms: {
     // not currently used
@@ -447,6 +468,7 @@ const utilsParse = {
       // first try to give hints to which PT to use based on some rules we are using at LC
       if (tle == "bf:Work"){
         xml = this.sniffWorkRelationType(xml)
+        xml = this.sniffNoteType(xml)
       }
 
 
