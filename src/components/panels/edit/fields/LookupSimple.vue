@@ -28,7 +28,7 @@
               <!-- <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span> -->
 
               <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
-
+                
               <a href="#" class="inline-remove-x" @click="removeValue(idx)" style="">x</a>
           </template>
 
@@ -54,7 +54,6 @@
 
   <template v-else>
 
-
       <form autocomplete="off" @submit.prevent="null" >
 
         <div class="lookup-fake-input" @click="focusClick()" v-if="showField">
@@ -74,9 +73,9 @@
               <div class="bfcode-display-mode-holder-value">
 
                 <div class="lookup-fake-input-entities" style="display:inline-block;">
-                  <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
+                  <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">                    
                       <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span>
-
+                      
                       <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
 
                       <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
@@ -95,9 +94,11 @@
 
             <div class="lookup-fake-input-entities">
               <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
-                  <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span>
+
+                <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span>
                   <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
-                  <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+                  <span @click="removeValue(idx)" v-if="!avl.uneditable" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+                  <span v-else>(uneditable)</span>
               </div>
             </div>
             <div class="lookup-fake-input-text">
@@ -925,331 +926,6 @@ export default {
         //   return false
         // }
       },
-
-
-
-
-
-    // refreshInputDisplay: function(){
-
-    //   this.activeLookupValue = []
-
-    //   let userValue
-
-    //   if (this.isMini){
-    //     userValue = this.activeProfileMini.rt[this.profileName].pt[this.profileCompoent].userValue
-    //   }else{
-    //     userValue = this.activeProfile.rt[this.profileName].pt[this.profileCompoent].userValue
-    //   }
-
-    //   // get the length of the properties, for our case we can filter out sameAs properties
-    //   // as in simple lookups they are place holders and don't really need to be accounted for in the hierearchy of the properties
-    //   let propertyPathLength = this.propertyPath.filter((p)=>{ return (p.propertyURI != 'http://www.w3.org/2002/07/owl#sameAs') ? true : false }).length
-
-
-    //   let possibleLiteralProperties = ['http://www.w3.org/1999/02/22-rdf-syntax-ns#value', 'http://www.w3.org/2000/01/rdf-schema#label', 'http://id.loc.gov/ontologies/bibframe/code','http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
-
-
-    //   // filter out any bnodes with that guid starting from the bottom of the hiearchy
-    //   // then go through and check if we left an empty bnode hiearchy and if so delete it
-    //   if (propertyPathLength==4){
-    //       let L0URI = this.propertyPath[0].propertyURI
-    //       let L1URI = this.propertyPath[1].propertyURI
-    //       let L2URI = this.propertyPath[2].propertyURI
-    //       let L3URI = this.propertyPath[3].propertyURI
-    //       if (userValue[L0URI] && userValue[L0URI][0] && userValue[L0URI][0][L1URI] && userValue[L0URI][0][L1URI][0] && userValue[L0URI][0][L1URI][0][L2URI] && userValue[L0URI][0][L1URI][0][L2URI][0] && userValue[L0URI][0][L1URI][0][L2URI][0][L3URI]){
-    //         for (let v of userValue[L0URI][0][L1URI][0][L2URI][0][L3URI]){
-    //           let label = null
-    //           let labelGuid = null
-    //           let uri = null
-    //           let uriGuid = null
-
-    //           for (let aKey in v){
-
-
-    //             if (v['@id']){
-    //               uri = v['@id']
-    //               uriGuid = v['@guid']
-    //             }
-
-
-    //             if (possibleLiteralProperties.indexOf(aKey)>-1){
-    //               if (v[aKey] && v[aKey][0][aKey]){
-    //                 label = v[aKey][0][aKey]
-    //                 labelGuid = v['@guid']
-    //               }
-
-    //               if (v[aKey] && v[aKey][0]['@id']){
-    //                 uri = v[aKey][0]['@id']
-    //                 // if the URI is stored at this level, we still want to point to the parent's guid
-    //                 uriGuid = v['@guid']
-
-    //               }
-
-    //             }
-
-    //           }
-    //           if (!label){
-    //             // no label was found, just use the URI and it will get dereferenced by the componet
-    //             if (uri){
-    //               label = uri
-    //             }
-    //           }
-    //           this.activeLookupValue.push({
-    //             'http://www.w3.org/2000/01/rdf-schema#label' : label,
-    //             uri : uri,
-    //             uriGuid: uriGuid,
-    //             labelGuid: labelGuid
-    //           })
-    //         }
-    //       }
-    //   }
-
-    //   if (propertyPathLength==3){
-    //       let L0URI = this.propertyPath[0].propertyURI
-    //       let L1URI = this.propertyPath[1].propertyURI
-    //       let L2URI = this.propertyPath[2].propertyURI
-
-
-    //       if (userValue[L0URI] && userValue[L0URI][0] && userValue[L0URI][0][L1URI] && userValue[L0URI][0][L1URI][0] && userValue[L0URI][0][L1URI][0][L2URI]){
-    //         for (let v of userValue[L0URI][0][L1URI][0][L2URI]){
-    //           let label = null
-    //           let labelGuid = null
-    //           let uri = null
-    //           let uriGuid = null
-
-    //           for (let aKey in v){
-
-    //             if (v['@id']){
-    //               uri = v['@id']
-    //               uriGuid = v['@guid']
-    //             }
-
-
-    //             if (possibleLiteralProperties.indexOf(aKey)>-1){
-    //               if (v[aKey] && v[aKey][0][aKey]){
-    //                 label = v[aKey][0][aKey]
-    //                 labelGuid = v['@guid']
-    //               }
-
-    //               if (v[aKey] && v[aKey][0]['@id']){
-    //                 uri = v[aKey][0]['@id']
-    //                 // if the URI is stored at this level, we still want to point to the parent's guid
-    //                 uriGuid = v['@guid']
-
-    //               }
-
-    //             }
-
-    //           }
-    //           if (!label){
-    //             // no label was found, just use the URI and it will get dereferenced by the componet
-    //             if (uri){
-    //               label = uri
-    //             }
-    //           }
-    //           this.activeLookupValue.push({
-    //             'http://www.w3.org/2000/01/rdf-schema#label' : label,
-    //             uri : uri,
-    //             uriGuid: uriGuid,
-    //             labelGuid: labelGuid
-    //           })
-    //         }
-    //       }
-    //   }
-    //   if (propertyPathLength==2){
-
-    //       let L0URI = this.propertyPath[0].propertyURI
-    //       let L1URI = this.propertyPath[1].propertyURI
-    //       if (userValue[L0URI] && userValue[L0URI][0] && userValue[L0URI][0][L1URI]){
-    //         for (let v of userValue[L0URI][0][L1URI]){
-    //           let label = null
-    //           let labelGuid = null
-    //           let uri = null
-    //           let uriGuid = null
-
-    //           for (let aKey in v){
-
-    //             if (v['@id']){
-    //               uri = v['@id']
-    //               uriGuid = v['@guid']
-    //             }
-
-
-    //             if (possibleLiteralProperties.indexOf(aKey)>-1){
-    //               if (v[aKey] && v[aKey][0][aKey]){
-    //                 label = v[aKey][0][aKey]
-    //                 labelGuid = v['@guid']
-    //               }
-    //               if (v[aKey] && v[aKey][0]['@id']){
-    //                 uri = v[aKey][0]['@id']
-    //                 // if the URI is stored at this level, we still want to point to the parent's guid
-    //                 uriGuid = v['@guid']
-
-    //               }
-
-
-    //             }
-
-    //           }
-    //           if (!label){
-    //             // no label was found, just use the URI and it will get dereferenced by the componet
-    //             if (uri){
-    //               label = uri
-    //             }
-    //           }
-    //           this.activeLookupValue.push({
-    //             'http://www.w3.org/2000/01/rdf-schema#label' : label,
-    //             uri : uri,
-    //             uriGuid: uriGuid,
-    //             labelGuid: labelGuid
-    //           })
-
-    //         }
-    //       }
-    //   }
-    //   if (propertyPathLength==1){
-    //       let L0URI = this.propertyPath[0].propertyURI
-
-    //       console.log("!!!!!! HERE", L0URI, userValue,userValue[L0URI])
-
-    //       if (userValue[L0URI]){
-    //         for (let v of userValue[L0URI]){
-    //           let label = null
-    //           let labelGuid = null
-    //           let uri = null
-    //           let uriGuid = null
-
-    //           for (let aKey in v){
-
-
-    //             if (v['@id']){
-    //               uri = v['@id']
-    //               uriGuid = v['@guid']
-    //             }
-
-
-    //             if (possibleLiteralProperties.indexOf(aKey)>-1){
-    //               if (v[aKey] && v[aKey][0][aKey]){
-    //                 label = v[aKey][0][aKey]
-    //                 labelGuid = v['@guid']
-    //               }
-    //               if (v[aKey] && v[aKey][0]['@id']){
-    //                 uri = v[aKey][0]['@id']
-    //                 // if the URI is stored at this level, we still want to point to the parent's guid
-    //                 uriGuid = v['@guid']
-    //               }
-    //             }
-
-    //           }
-    //           if (!label){
-    //             // no label was found, just use the URI and it will get dereferenced by the componet
-    //             if (uri){
-    //               label = uri
-    //             }
-    //           }
-
-    //           if (label !== null || uri !== null){
-    //             this.activeLookupValue.push({
-    //               'http://www.w3.org/2000/01/rdf-schema#label' : label,
-    //               uri : uri,
-    //               uriGuid: uriGuid,
-    //               labelGuid: labelGuid
-    //             })
-    //           }
-    //         }
-    //       }
-    //   }
-
-
-
-
-
-
-
-    // },
-
-
-
-    // fakeContainerFocus: function(event){
-
-    //     //
-
-    //     return event
-    // },
-
-    // removeValue: function(idx){
-
-
-    //   let toRemove = this.activeLookupValue.splice(idx,1)
-    //   toRemove = toRemove[0]
-
-
-    //   // TODO unhack this, put it in the tempalte or put it in the config :(
-    //   if (this.structure.valueConstraint && this.structure.valueConstraint.defaults && this.structure.valueConstraint.defaults[0] && this.structure.valueConstraint.defaults[0].defaultURI && this.structure.valueConstraint.defaults[0].defaultURI === 'http://id.loc.gov/ontologies/bibframe/hasSeries'){
-    //     this.refreshInputDisplay()
-    //     return false
-    //   }
-
-    //   this.$store.dispatch("removeValueSimple", { self: this, ptGuid: this.ptGuid, idGuid: toRemove.uriGuid, labelGuid: toRemove.labelGuid, propertyPath: this.propertyPath }).then(() => {
-
-    //     this.$refs.lookupInput.focus()
-
-
-    //   })
-
-
-
-    //   // if (this.activeLookupValue.length>1){
-    //   //   this.activeLookupValue.splice(-1,1)
-    //   // }else{
-    //   //   this.activeLookupValue = []
-    //   // }
-
-    // },
-
-
-    // autoFocus: function(event){
-
-
-
-    //   // let the rest of the app know what is the active input right now
-    //   this.$store.dispatch("setActiveInput", { self: this, id: event.target.id, profileCompoent: this.profileCompoent, profileName: this.profileName }).then(()=>{
-    //     // now focus the side bars
-    //     this.$nextTick(()=>{
-    //       uiUtils.focusSidebars()
-    //     })
-
-
-    //   })
-    //   // assing the input value to the filter value
-    //   this.activeFilter = event.target.value;
-    //   // tell the store to load this specific lookup table into memory
-    //   this.$store.dispatch("fetchLookupValues", { self: this, url: this.structure.valueConstraint.useValuesFrom[0] }).then(() => {
-
-    //     this.uri = this.structure.valueConstraint.useValuesFrom[0]
-    //     // if there is already a value don't open up the full list, they can type ahead but dont open everything
-    //     // if (this.activeLookupValue.length==0){
-    //       // this.filter()
-    //     // }
-    //   })
-
-
-
-
-    // },
-
-    // blur: function(){
-
-    //  // we want to hide the menu on deblur but not if they just click an item in the list
-
-    //  this.$store.dispatch("enableMacroNav")
-    //  setTimeout(()=>{
-    //   this.displayAutocomplete=false
-    // },500)
-
-
-    // },
 
 
     clickAdd: function(item){

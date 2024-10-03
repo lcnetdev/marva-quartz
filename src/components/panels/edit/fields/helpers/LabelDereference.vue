@@ -56,7 +56,9 @@ export default {
                 this.URI.includes('/resources/instances/') || 
                 this.URI.includes('/resources/works/') || 
                 this.URI.includes('/resources/hubs/') ||
+                this.URI.includes('/ontologies/bibframe/') ||
 
+                
                 this.URI.includes('/vocabulary/') 
               ){
 
