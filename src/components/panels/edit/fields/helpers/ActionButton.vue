@@ -309,6 +309,7 @@
       },
 
       returnRemark: function(){
+
         // check the lowest level first
         if (this.profileStore.rtLookup[this.structure.parentId] && this.profileStore.rtLookup[this.structure.parentId].propertyTemplates){
           for (let pt of this.profileStore.rtLookup[this.structure.parentId].propertyTemplates){
@@ -317,8 +318,31 @@
             }
           }
         }
-        // maybe it is in the parent structure
+
+        // try the next level up 
         let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
+          for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
+            if (this.profileStore.rtLookup[vRt]){
+              if (this.structure.propertyURI == 'http://www.w3.org/2002/07/owl#sameAs'){
+                // if its a #sameAs we kind of lose the connection, so select the first one and check
+                if (this.profileStore.rtLookup[vRt].propertyTemplates && this.profileStore.rtLookup[vRt].propertyTemplates[0]){
+                  if (this.profileStore.rtLookup[vRt].propertyTemplates[0].remark && this.profileStore.rtLookup[vRt].propertyTemplates[0].remark  != ''){
+                    return this.profileStore.rtLookup[vRt].propertyTemplates[0].remark
+                  }
+                } 
+              }else{
+                for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
+                  if (pt.propertyURI == this.structure.propertyURI && pt.remark && pt.remark != ''){
+                    return pt.remark
+                  }
+                }
+              }              
+            }
+          }
+        }
+
+        // maybe it is in the parent structure
         if (this.profileStore.rtLookup[parentStructure.parentId] && this.profileStore.rtLookup[parentStructure.parentId].propertyTemplates){
           for (let pt of this.profileStore.rtLookup[parentStructure.parentId].propertyTemplates){
             if (pt.propertyURI == parentStructure.propertyURI && pt.remark){
