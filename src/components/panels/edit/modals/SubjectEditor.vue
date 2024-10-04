@@ -1985,7 +1985,6 @@ methods: {
 
 
   add: async function(){
-    console.info("incoming components: ", JSON.parse(JSON.stringify(this.components)))
     //remove any existing thesaurus label, so it has the most current
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2027,25 +2026,19 @@ methods: {
 
     let newComponents = []
 
-    console.info("middle", JSON.parse(JSON.stringify(this.components)))
     const frozenComponents = JSON.parse(JSON.stringify(this.components))
     //remove unused components
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
     } else {
-      console.info("breakup up subjects")
         // need to break up the complex heading into it's pieces so their URIs are availble
         // Also break Hierarchical GEO headings apart
         let prevItems = 0
-        console.info("before: ", JSON.parse(JSON.stringify(this.components)))
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
           const target = frozenComponents[component]
-          console.info("target: ", target)
           if (target.complex){
-            console.info("breaking it up")
             let uri = target.uri
-            console.info("uri: ", uri)
             let data = await this.parseComplexSubject(uri)
             const complexLabel = target.label
 
@@ -2075,8 +2068,6 @@ methods: {
                   subfield = false
               }
 
-              console.info("splicing", label, "into pos: ", id)
-              console.info("components being edited", JSON.parse(JSON.stringify(this.components)))
               newComponents.splice(id, 0, ({
                 "complex": false,
                 "id": id,
@@ -2103,7 +2094,6 @@ methods: {
     if (newComponents.length > 0){
       this.components = newComponents
     }
-    console.info("final components: ", JSON.parse(JSON.stringify(this.components)))
     this.$emit('subjectAdded', this.components)
   },
 

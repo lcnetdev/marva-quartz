@@ -1537,7 +1537,6 @@ export const useProfileStore = defineStore('profile', {
               }
             }
 
-            console.info("keep: ", keep)
 
             parent[lastProperty] = keep
 
@@ -1558,7 +1557,6 @@ export const useProfileStore = defineStore('profile', {
 
             propertyPath.pop()
             let uv = pt.userValue
-            console.info("uv: ", uv)
             let oldUv = pt.userValue
             for (let p of propertyPath){
               uv = uv[p.propertyURI]
@@ -1573,7 +1571,6 @@ export const useProfileStore = defineStore('profile', {
               }
 
               console.log(p.propertyURI,'has',Object.keys(uv).length,'keys')
-              console.info(p.propertyURI,'has',Object.keys(uv).length,'keys')
               // the oldUv so we have a references to where we will be in the next loop so we can delete from the parent obj
               oldUv = oldUv[p.propertyURI]
               if (Array.isArray(oldUv)){
@@ -2840,9 +2837,6 @@ export const useProfileStore = defineStore('profile', {
 
 
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
-        // console.info("classification")
-        // console.info("pt: ", pt)
-        // console.info("userVale: ", pt.userValue)
         let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
 
 
