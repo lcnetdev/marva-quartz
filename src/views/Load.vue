@@ -541,8 +541,6 @@
           this.activeProfile = useProfile
         }
 
-        console.info("loading profile: ", this.activeProfile)
-
 
         if (multiTestFlag){
           this.$router.push(`/multiedit/`)
