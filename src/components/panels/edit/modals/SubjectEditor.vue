@@ -2024,6 +2024,9 @@ methods: {
       }
     }
 
+    let newComponents = []
+
+    const frozenComponents = JSON.parse(JSON.stringify(this.components))
     //remove unused components
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
@@ -2031,15 +2034,13 @@ methods: {
         // need to break up the complex heading into it's pieces so their URIs are availble
         // Also break Hierarchical GEO headings apart
         let prevItems = 0
-        for (let component in this.components){
+        for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
-          if (this.components[component].complex){
-            let uri = this.components[component].uri
+          const target = frozenComponents[component]
+          if (target.complex){
+            let uri = target.uri
             let data = await this.parseComplexSubject(uri)
-            const complexLabel = this.components[component].label
-
-            //remove the complex component
-            this.components.splice(component, 1)
+            const complexLabel = target.label
 
             //build the new components
             let id = prevItems
@@ -2067,7 +2068,7 @@ methods: {
                   subfield = false
               }
 
-              this.components.splice(id, 0, ({
+              newComponents.splice(id, 0, ({
                 "complex": false,
                 "id": id,
                 "label": label,
@@ -2081,13 +2082,18 @@ methods: {
 
               id++
               prevItems++
+
             }
           } else {
+            newComponents.push(target)
             prevItems++
           }
         }
       }
 
+    if (newComponents.length > 0){
+      this.components = newComponents
+    }
     this.$emit('subjectAdded', this.components)
   },
 
