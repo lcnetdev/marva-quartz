@@ -271,6 +271,19 @@ const utilsExport = {
 				return true
 			}
 		}
+		// this part looks to see if maybe it is an array of literals, like a top level propert like Statement of Work, etc.
+		if (Array.isArray(userValue)){
+			let allHaveCorrectKeys = true;
+			for (let v of userValue){
+				for (let key in v){
+					if (!key.startsWith('@') && !key.startsWith('http://') && !key.startsWith('https://')){
+						allHaveCorrectKeys = false
+					}
+				}
+			}
+			if (allHaveCorrectKeys){ return true }
+		}
+
 		return false
 	},
 
@@ -540,8 +553,25 @@ const utilsExport = {
 				let userValue
 
         		// the uservalue could be stored in a few places depending on the nesting
-				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){
+				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){					
 					userValue = ptObj.userValue[ptObj.propertyURI][0]
+					// it might be a top level literal, if so we don't want to exclude additonal literals that might be added
+					// so look to see if the node we got only has a guid and literal value, and if so look if there are more of them as siblings
+					// and select that if so
+					let nonGuidProps = Object.keys(ptObj.userValue[ptObj.propertyURI][0]).filter(k => (!k.includes('@') ? true : false ))
+					if (nonGuidProps.length==1){
+						if (typeof ptObj.userValue[ptObj.propertyURI][0][nonGuidProps[0]] == 'string' || typeof ptObj.userValue[ptObj.propertyURI][0][nonGuidProps[0]] == 'number'){
+							// console.log("It is a top level literal")
+							// does it have more than one?
+							if (ptObj.userValue[ptObj.propertyURI].length > 1){
+								// console.log("It is a multi-top-level-literal!")
+								// set it to the sibling group not the individual
+								userValue = ptObj.userValue[ptObj.propertyURI]
+								// console.log("SETTING userValue to the group!",userValue)
+							}
+						}						
+					}
+					
 				}else if (ptObj.userValue[ptObj.propertyURI]){
 					userValue = ptObj.userValue[ptObj.propertyURI]
 				}else{
@@ -556,7 +586,7 @@ const utilsExport = {
 				}
 
 
-				// console.log(userValue)
+				// console.log('userValue',userValue)
 				// console.log('ptObj.propertyURI',ptObj.propertyURI)
 				// console.log('ptObj.userValue[ptObj.propertyURI]',ptObj.userValue[ptObj.propertyURI])
 				// console.log(ptObj.userValue[ptObj.propertyURI][0])
@@ -676,7 +706,7 @@ const utilsExport = {
 									bnodeLvl1.appendChild(pLvl2)
 									xmlLog.push(`Creating bnode lvl 2 for it ${bnodeLvl2.tagName}`)
 
-                  // now loop through its properties and see whats nested
+                  					// now loop through its properties and see whats nested
 									for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 										let pLvl3 = this.createElByBestNS(key2)
 										xmlLog.push(`Creating lvl 3 property: ${pLvl3.tagName} for ${key2}`)
@@ -772,10 +802,8 @@ const utilsExport = {
 											bnodeLvl1.setAttributeNS(this.namespace.rdf, 'rdf:about', value1['@id'])
 										}
 									}
-
 									if (keys.length>0){
 										for (let key2 of keys){
-
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 												// its a label or some other literal
 												let p2 = this.createLiteral(key2, value1)
@@ -854,6 +882,7 @@ const utilsExport = {
 						if (!Array.isArray(userValue)){
 							userValueArray = [userValue]
 						}
+						
 
 						// but it might be a bnode, but with only a URI
 						for (let userValue of userValueArray){
@@ -926,7 +955,7 @@ const utilsExport = {
 								console.error("Does not have URI, ERROR")
 							}else if (await utilsRDF.suggestTypeNetwork(ptObj.propertyURI) == 'http://www.w3.org/2000/01/rdf-schema#Literal'){
 
-
+								// console.log("Top level literal HERE!",userValue)
 								// its just a top level literal property
 								// loop through its keys and make the values
 								let allXMLFragments = ''
@@ -1022,7 +1051,7 @@ const utilsExport = {
 					xmlLog.push(`Skpping it because hasUserValue == false`)
 				}
 			}
-
+			
 
 			// add in the admindata
 			// if (orginalProfile.rt[rt].adminMetadataData){
