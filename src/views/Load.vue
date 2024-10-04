@@ -233,7 +233,7 @@
   import "@jobinsjp/vue3-datatable/dist/style.css"
 
 
-  TimeAgo.addDefaultLocale(en)
+  if (TimeAgo.getDefaultLocale() != 'en'){TimeAgo.addDefaultLocale(en)}
   const timeAgo = new TimeAgo('en-US')
 
   const decimalTranslator = short("0123456789");
