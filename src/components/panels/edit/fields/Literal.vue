@@ -626,6 +626,14 @@ export default {
         }
       }
 
+      // if the value is empty then wait 2 seconds and check if it is empty again, if it is then continue with the removal
+      if (v == ''){
+        await new Promise(r => setTimeout(r, 2000));        
+        if (event && event.target && event.target.value != ''){
+          return false
+        }
+      }
+
 
       await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,event.target.dataset.lang)
 

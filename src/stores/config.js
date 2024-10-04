@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 14,
-    versionPatch: 29,
+    versionPatch: 33,
 
     regionUrls: {
 
@@ -267,7 +267,14 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2007052988',label:"A journey to the Western Islands of Scotland", idUrl:'https://id.loc.gov/resources/instances/15146892.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+    {lccn:'2023546355',label:"'P'osŭt'ŭ cheguk' ŭi Tong Asia", idUrl:'https://id.loc.gov/resources/instances/23591130.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+    {lccn:'2024019569',label:"The Routledge handbook of Christianity and culture", idUrl:'https://id.loc.gov/resources/instances/2024019569.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+
+    {lccn:'2024038364',label:"White-tailed deer", idUrl:'https://id.loc.gov/resources/instances/23882742.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    
 
 
 
