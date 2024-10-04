@@ -606,7 +606,6 @@ export default {
     },
 
     valueChanged: async function(event,setFocus){
-
       let v = event.target.value
 
       if (event.target.tagName === 'SPAN'){
@@ -628,7 +627,7 @@ export default {
 
       // if the value is empty then wait 2 seconds and check if it is empty again, if it is then continue with the removal
       if (v == ''){
-        await new Promise(r => setTimeout(r, 2000));        
+        await new Promise(r => setTimeout(r, 2000));
         if (event && event.target && event.target.value != ''){
           return false
         }
@@ -681,7 +680,7 @@ export default {
 
         let fieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] == options.fieldGuid) })
         let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
-        
+
 
         let toLang = null
         let fromLang = null
@@ -690,7 +689,7 @@ export default {
           toLang = this.scriptShifterLangCodes[options.lang].code.split("-")[0] + "-Latn"
           if (options.dir && options.dir.toLowerCase() == 'r2s'){
             toLang = this.scriptShifterLangCodes[options.lang].code
-            fromLang = this.scriptShifterLangCodes[options.lang].code.split("-")[0] + "-Latn"           
+            fromLang = this.scriptShifterLangCodes[options.lang].code.split("-")[0] + "-Latn"
           }
 
         }

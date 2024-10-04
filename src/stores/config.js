@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 14,
-    versionPatch: 33,
+    versionPatch: 34,
 
     regionUrls: {
 
@@ -274,7 +274,7 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2024038364',label:"White-tailed deer", idUrl:'https://id.loc.gov/resources/instances/23882742.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
-    
+
 
 
 

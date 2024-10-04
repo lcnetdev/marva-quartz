@@ -37,6 +37,25 @@ let cachePt = {}
 let cacheGuid = {}
 let dataChangedTimeout = null
 
+//https://stackoverflow.com/questions/49562546/how-to-get-all-properties-values-of-a-javascript-nested-objects-without-knowing
+// clean cacheGuid of items that match the children of the PT that is insert default values too
+function cleanCacheGuid(cache, obj, target){
+  return Object.keys(obj).map(
+    function(key){
+      let value = obj[key]
+      if (key == "@guid" && value == target){
+        delete cache[value]
+        return value
+      } else if(Array.isArray(value)) {
+        for (let el in value){
+          return cleanCacheGuid( cache, value[el], target )
+        }
+      }else if (typeof value === "object"){
+        return  cleanCacheGuid( cache, value, target )
+      }
+    }
+  )
+}
 
 export const useProfileStore = defineStore('profile', {
   state: () => ({
@@ -1383,7 +1402,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
 
@@ -1401,7 +1419,6 @@ export const useProfileStore = defineStore('profile', {
       // let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       // console.log(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral)
       if (pt !== false){
-
         pt.hasData = true
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
@@ -1412,6 +1429,7 @@ export const useProfileStore = defineStore('profile', {
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
           cacheGuid[fieldGuid] = blankNode
         }
+
         // console.log("--------pt 2------------")
         // console.log(JSON.stringify(pt,null,2))
 
@@ -1424,7 +1442,6 @@ export const useProfileStore = defineStore('profile', {
           let currentValueCount = utilsProfile.countValues(pt,propertyPath)
 
           if (currentValueCount === 0){
-
             // this is the first value, we need to construct the hierarchy to the bnode
             buildBlankNodeResult = utilsProfile.buildBlanknode(pt,propertyPath, true)
 
@@ -1444,7 +1461,6 @@ export const useProfileStore = defineStore('profile', {
             // console.log(JSON.stringify(pt,null,2))
 
           }else{
-
             // there is already values here, so we need to insert a new value into the hiearchy
 
             let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
@@ -1521,6 +1537,8 @@ export const useProfileStore = defineStore('profile', {
               }
             }
 
+            console.info("keep: ", keep)
+
             parent[lastProperty] = keep
 
             if (parent[lastProperty].length==0){
@@ -1540,6 +1558,7 @@ export const useProfileStore = defineStore('profile', {
 
             propertyPath.pop()
             let uv = pt.userValue
+            console.info("uv: ", uv)
             let oldUv = pt.userValue
             for (let p of propertyPath){
               uv = uv[p.propertyURI]
@@ -1554,6 +1573,7 @@ export const useProfileStore = defineStore('profile', {
               }
 
               console.log(p.propertyURI,'has',Object.keys(uv).length,'keys')
+              console.info(p.propertyURI,'has',Object.keys(uv).length,'keys')
               // the oldUv so we have a references to where we will be in the next loop so we can delete from the parent obj
               oldUv = oldUv[p.propertyURI]
               if (Array.isArray(oldUv)){
@@ -1576,15 +1596,12 @@ export const useProfileStore = defineStore('profile', {
         // console.log("affter prune")
         // console.log(JSON.stringify(pt.userValue))
 
-
         // they changed something
         this.dataChanged()
 
       }else{
         console.error('setValueLiteral: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
-
-
     },
 
 
@@ -1812,8 +1829,6 @@ export const useProfileStore = defineStore('profile', {
           if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bibframe/Uncontrolled'){
             uneditable = true
           }
-
-          
 
           // if it is deepHierarchy then then we are copy pasting what came into the system and they cann change it anyway.
           if (pt.deepHierarchy){uneditable=true}
@@ -2825,6 +2840,9 @@ export const useProfileStore = defineStore('profile', {
 
 
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
+        // console.info("classification")
+        // console.info("pt: ", pt)
+        // console.info("userVale: ", pt.userValue)
         let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
 
 
@@ -2882,6 +2900,7 @@ export const useProfileStore = defineStore('profile', {
 
         } else {
           // This is a LCC field, it shouldn't return `false`. False causes things to disappear
+
           return {
             title: null,
             classNumber:null,
@@ -3009,7 +3028,6 @@ export const useProfileStore = defineStore('profile', {
   },
 
 
-
   /**
       * Set the default values of the component fields
       *
@@ -3024,10 +3042,20 @@ export const useProfileStore = defineStore('profile', {
 
     // locate the correct pt to work on in the activeProfile
     let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+    //Delete related items from the cache, loading from the cache
+    // sometimes causes errors after inserting defaults
+    if (Object.keys(cachePt).includes(componentGuid)){
+      delete cachePt[componentGuid]
+    }
+    for (let guid of Object.keys(cacheGuid)){
+      cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+    }
+
+
     let isParentTop = false
 
     if (pt !== false){
-
       let baseURI = pt.propertyURI
       if (!pt.userValue[baseURI]){
         pt.userValue[baseURI] = [{}]
@@ -3139,7 +3167,6 @@ export const useProfileStore = defineStore('profile', {
       }else{
         alert("Error: no structure found")
       }
-
 
       if (!isParentTop){
         pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
