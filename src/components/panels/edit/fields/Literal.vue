@@ -49,6 +49,12 @@
               <div class="bfcode-display-mode-holder">
                 <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
                 <div class="bfcode-display-mode-holder-value">
+                  <template v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bflc/nonSortNum'">
+                    <select id="nonSort-selection" @change="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']" style="margin-top: .5em;">
+                      <option v-for="(n, opt) in 10" :value="opt" :selected="opt == lValue['value']">{{ opt }}</option>
+                    </select>
+                  </template>
+                  <template v-else>
                     <textarea
                     :class="['literal-textarea', 'can-select',{'bfcode-textarea': preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode')}]"
                     v-model="lValue.value"
@@ -62,6 +68,7 @@
                     :data-guid="lValue['@guid']"
                     :disabled="readOnly"
                     ></textarea>
+                  </template>
 
 
                 </div>
@@ -71,21 +78,27 @@
 
             </template>
             <template v-else>
-
-              <textarea
-                :class="['literal-textarea', 'can-select',{}]"
-                v-model="lValue.value"
-                v-on:keydown.enter.prevent="submitField"
-                autocomplete="off"
-                @focusin="focused"
-                @blur="blured"
-                @input="valueChanged"
-                @keyup="navKey"
-                @keydown="keyDown"
-                :ref="'input_' + lValue['@guid']"
-                :data-guid="lValue['@guid']"
-                :disabled="readOnly"
-                ></textarea>
+              <template v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bflc/nonSortNum'">
+                <select id="nonSort-selection" @change="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']" style="margin-top: .5em;">
+                  <option v-for="(n, opt) in 10" :value="opt" :selected="opt == lValue['value']">{{ opt }}</option>
+                </select>
+              </template>
+              <template v-else>
+                <textarea
+                  :class="['literal-textarea', 'can-select',{}]"
+                  v-model="lValue.value"
+                  v-on:keydown.enter.prevent="submitField"
+                  autocomplete="off"
+                  @focusin="focused"
+                  @blur="blured"
+                  @input="valueChanged"
+                  @keyup="navKey"
+                  @keydown="keyDown"
+                  :ref="'input_' + lValue['@guid']"
+                  :data-guid="lValue['@guid']"
+                  :disabled="readOnly"
+                  ></textarea>
+              </template>
 
             </template>
 
@@ -1046,5 +1059,9 @@ textarea:hover{
   display: inline-block;
 }
 
-
+#nonSort-selection{
+  margin-top: .5em;
+  margin-bottom: .25em;
+  height: auto !important;
+}
 </style>
