@@ -902,7 +902,6 @@ methods: {
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
 
-
   },
 
   /**
@@ -1404,7 +1403,6 @@ methods: {
     this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
 	//save the marcKey
 	if (this.contextData.nodeMap.marcKey){
-		console.info("set marcKey: ", this.contextData.nodeMap.marcKey[0])
 		this.pickLookup[this.pickPostion].marcKey = this.contextData.nodeMap.marcKey[0]
 	}
     this.contextRequestInProgress = false
@@ -1500,7 +1498,7 @@ methods: {
       // if it is a complex authorized heading then just replace the whole things with it
       this.subjectString = this.pickLookup[this.pickPostion].label
       this.activeComponentIndex = 0
-
+	  
       this.componetLookup = {}
       this.componetLookup[this.activeComponentIndex] = {}
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
@@ -1540,7 +1538,7 @@ methods: {
         this.componetLookup[this.activeComponentIndex]= {}
       }
 
-
+	  let _ = await this.getContext() //ensure the pickLookup has the marcKey
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-','‑')] = this.pickLookup[this.pickPostion]
 
       for (let k in this.pickLookup){
@@ -1877,11 +1875,6 @@ methods: {
         this.validateOkayToAdd()
       },400)
     })
-
-
-
-
-
 
     // if (event === null){
     //   console.log(event)
