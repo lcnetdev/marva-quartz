@@ -863,6 +863,7 @@ methods: {
       let uri = null
       let type = null
       let literal = null
+	  let marcKey = null
 
 
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
@@ -873,6 +874,7 @@ methods: {
 
         literal = this.componetLookup[id][ss].literal
         uri = this.componetLookup[id][ss].uri
+		marcKey = this.componetLookup[id][ss].marcKey
       }
 
       if (this.typeLookup[id]){
@@ -888,6 +890,7 @@ methods: {
         literal:literal,
         posStart: activePosStart,
         posEnd: activePosStart + ss.length,
+		marcKey: marcKey
       })
 
       // increase the start length by the length of the string and also add 2 for the "--"
@@ -1399,6 +1402,11 @@ methods: {
 
     this.contextRequestInProgress = true
     this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
+	//save the marcKey
+	if (this.contextData.nodeMap.marcKey){
+		console.info("set marcKey: ", this.contextData.nodeMap.marcKey[0])
+		this.pickLookup[this.pickPostion].marcKey = this.contextData.nodeMap.marcKey[0]
+	}
     this.contextRequestInProgress = false
   },
 
