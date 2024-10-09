@@ -863,6 +863,7 @@ methods: {
       let uri = null
       let type = null
       let literal = null
+	  let marcKey = null
 
 
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
@@ -873,6 +874,7 @@ methods: {
 
         literal = this.componetLookup[id][ss].literal
         uri = this.componetLookup[id][ss].uri
+		marcKey = this.componetLookup[id][ss].marcKey
       }
 
       if (this.typeLookup[id]){
@@ -888,6 +890,7 @@ methods: {
         literal:literal,
         posStart: activePosStart,
         posEnd: activePosStart + ss.length,
+		marcKey: marcKey
       })
 
       // increase the start length by the length of the string and also add 2 for the "--"
@@ -898,7 +901,6 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
-
 
   },
 
@@ -1399,6 +1401,10 @@ methods: {
 
     this.contextRequestInProgress = true
     this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
+	//save the marcKey
+	if (this.contextData.nodeMap.marcKey){
+		this.pickLookup[this.pickPostion].marcKey = this.contextData.nodeMap.marcKey[0]
+	}
     this.contextRequestInProgress = false
   },
 
@@ -1492,7 +1498,7 @@ methods: {
       // if it is a complex authorized heading then just replace the whole things with it
       this.subjectString = this.pickLookup[this.pickPostion].label
       this.activeComponentIndex = 0
-
+	  
       this.componetLookup = {}
       this.componetLookup[this.activeComponentIndex] = {}
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
@@ -1532,7 +1538,7 @@ methods: {
         this.componetLookup[this.activeComponentIndex]= {}
       }
 
-
+	  let _ = await this.getContext() //ensure the pickLookup has the marcKey
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-','‑')] = this.pickLookup[this.pickPostion]
 
       for (let k in this.pickLookup){
@@ -1869,11 +1875,6 @@ methods: {
         this.validateOkayToAdd()
       },400)
     })
-
-
-
-
-
 
     // if (event === null){
     //   console.log(event)
