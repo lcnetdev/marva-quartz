@@ -290,7 +290,8 @@ const utilsProfile = {
           // don't need to set the type, as its not a blank node, just a nested property
           if (utilsRDF.isUriALiteral(type) === false){
             // if it doesn't yet have a type then go ahead and set it
-            if (!pointer[p][0]['@type']){
+			// OR if the suggested type is PrimaryContribution, override the existing type
+            if (!pointer[p][0]['@type'] || type.includes("PrimaryContribution")){
               pointer[p][0]['@type'] = type
             }
           }else{
@@ -375,7 +376,6 @@ const utilsProfile = {
   * @return {object} - will return the userValue pruned
   */
   pruneUserValue: function(userValue){
-
     for (let key in userValue){
 
       if (Array.isArray(userValue[key])){
