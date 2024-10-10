@@ -139,7 +139,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     async buildProfiles() {
-
       const config = useConfigStore()
 
       let profileData;
@@ -1900,7 +1899,7 @@ export const useProfileStore = defineStore('profile', {
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
+	  
       if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
@@ -1915,6 +1914,7 @@ export const useProfileStore = defineStore('profile', {
           type = await utilsRDF.suggestTypeNetwork(lastProperty)
         }
       }
+	  
       if (pt !== false){
 
         pt.hasData = true
@@ -1927,7 +1927,7 @@ export const useProfileStore = defineStore('profile', {
           console.log('buildBlankNodeResult',buildBlankNodeResult)
 
           pt = buildBlankNodeResult[0]
-
+		  
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
 
@@ -1970,7 +1970,6 @@ export const useProfileStore = defineStore('profile', {
             ]
           }
         }else{
-
           let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
 
           // make sure we can find where to put the new one
