@@ -43,7 +43,6 @@
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
           </template>
           <form autocomplete="off" >
-
             <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == true">
 
               <div class="bfcode-display-mode-holder">

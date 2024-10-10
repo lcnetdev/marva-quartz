@@ -269,8 +269,10 @@ const utilsProfile = {
   * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
   * @return {void} - doesn't return anything it works on the reference to the pt.userValue updating the orginal
   */
-  setTypesForBlankNode: async function(pt, propertyPath){
+  setTypesForBlankNode: async function(pt, propertyPath){    
     let pointer = pt.userValue
+    let pointerParent = null
+    let parentP = null
     for (let p of propertyPath){
 
       p = p.propertyURI
@@ -279,14 +281,15 @@ const utilsProfile = {
         // we may or maynot need to create a @type for this level, depending on what type of property it is,
         // so test first the property info in the profile
         let type = utilsRDF.suggestTypeProfile(p,pt)
-
-
         if (type === false){
           // did not find it in the profile, look to the network
           type = await utilsRDF.suggestTypeNetwork(p)
         }
         if (type !== false){
-          // first we test to see if the type is a literal, if so then we
+
+
+
+          // first we test to see if the type is a literal (the type returned, not the property of the value), if so then we
           // don't need to set the type, as its not a blank node, just a nested property
           if (utilsRDF.isUriALiteral(type) === false){
             // if it doesn't yet have a type then go ahead and set it
@@ -295,11 +298,46 @@ const utilsProfile = {
               pointer[p][0]['@type'] = type
             }
           }else{
-            // nothing to do, its a literal
+            // if it is a literal the profiles may in a covoluated way hold the @type for its parent blank node so check that
+            let possibleParentType = utilsRDF.suggestTypeProfileForLiteralParent(p,pt)
+
+            // console.log("But its parent is probably a", possibleParentType)
+            // console.log(pointerParent)
+            // console.log(parentP)
+
+            if (possibleParentType && pointerParent && pointerParent[parentP] && pointerParent[parentP][0] ){
+              if (pointerParent[parentP][0]['@type']){
+                // if it does have a type then check to see if they are different than what this process suggests
+                if (pointerParent[parentP][0]['@type'] != possibleParentType){
+                  // they are different so check if one is sub classed of the other
+                  let isSubClassOf = await utilsRDF.isSubClassOf(possibleParentType,pointerParent[parentP][0]['@type'])
+                  if (isSubClassOf){
+
+                    // overwrite the parent with the more specific class
+                    pointerParent[parentP][0]['@type'] = possibleParentType
+
+                  }else{
+                    // if it is here it means that the process doesn't think the parent node is the correct @type, but it might not be right, so warn for now
+                    console.warn("-------------------------")
+                    console.warn("It looks like ", JSON.stringify(pointerParent[parentP][0]['@type'],null,2))
+                    console.warn("Should not have the type ",pointerParent[parentP][0]['@type'])
+                    console.warn("But instead it should have", possibleParentType)
+                    console.warn("-------------------------")  
+                  }
+                }
+              }
+              
+            }
           }
+
+      
+
+
         }else{
           console.error("Could not find type for this property", p, 'of', propertyPath, 'in', pt)
         }
+        pointerParent = pointer
+        parentP = p
         pointer = pointer[p][0]
       }else{
         console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
