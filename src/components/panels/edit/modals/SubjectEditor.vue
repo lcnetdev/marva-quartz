@@ -2060,7 +2060,14 @@ methods: {
           const target = frozenComponents[component]
           if (target.complex){
             let uri = target.uri
-            // let data = await this.parseComplexSubject(uri)
+            let data 
+			
+			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)) {
+				data = false //await this.parseComplexSubject(uri)
+			} else {
+				data = false
+			}
+			
             const complexLabel = target.label
 
             //build the new components
@@ -2074,7 +2081,11 @@ methods: {
 				  subfield = marcKey.match(/\$./g)
 				  subfield = subfield[id - prevItems]
 			  } else {
-				  subfield = false
+				  if (data){
+					  subfield = data["subfields"][id - prevItems]
+				  } else {
+					subfield = false
+				  }
 			  }
 			  
               switch(subfield){
@@ -2105,8 +2116,8 @@ methods: {
                 "posEnd": label.length,
                 "posStart": 0,
                 "type": subfield,
-				"uri": target.uri,
-                "marcKey": target.marcKey
+				"uri": data ? data["components"][0]["@list"][id]["@id"] : target.uri,
+                "marcKey": data ? data["marcKey"] : target.marcKey
               }))
 
               id++
