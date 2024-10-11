@@ -2102,25 +2102,26 @@ methods: {
   closeEditor: function(){
     //after closing always open in `link` mode for consistency
     this.subjectEditorMode = "build"
+	
+	//clear out the compoents and related field so things will start clean if it reopened
+	this.cleanState()
+	
     this.$emit('hideSubjectModal', true)
   },
 
   checkToolBarHeight: function(){
-
     // also check to see if the toolbar is off the screen,
     // in very very low res setups sometimes this area gets clipped
     if (this.$refs.toolbar && this.$refs.toolbar.getBoundingClientRect().bottom > window.innerHeight){
       this.lowResMode=true
       this.$emit('lowResModeActivate', true)
     }
-
-
   },
-
-
-  loadUserValue: function(userValue){
-    // reset things if they might be opening this again for some reason
-    this.components= []
+  
+  cleanState: function(){
+	  console.info("reset")
+	this.searchMode = "LCSHNAF"
+	this.components= []
     this.lookup= {}
     this.searchResults= null
     this.activeSearch= false
@@ -2136,8 +2137,12 @@ methods: {
     this.typeLookup={}
     this.okayToAdd= false
     this.showTypes= false
+  },
 
 
+  loadUserValue: function(userValue){
+    // reset things if they might be opening this again for some reason
+    this.cleanState()
 
 
     if (!userValue){

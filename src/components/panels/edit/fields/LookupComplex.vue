@@ -653,7 +653,13 @@ export default {
 
 
           }else{
-
+			console.info("no more marc delimited")
+			// we're opening the subject builder, turn this off
+			this.marcDeliminatedLCSHMode = false
+			this.marcDeliminatedLCSHModeSearching = false
+			this.marcDeliminatedLCSHModeTimeout = null
+			this.marcDeliminatedLCSHModeResults = []
+			
             this.displaySubjectModal=true
             this.$nextTick(() => {
               this.$refs.subjectEditorModal.focusInput()
@@ -735,6 +741,13 @@ export default {
       if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
         this.displayModal = true
       } else {
+		console.info("no more marc delimited")
+		// we're opening the subject builder, turn this off
+		this.marcDeliminatedLCSHMode = false
+		this.marcDeliminatedLCSHModeSearching = false
+		this.marcDeliminatedLCSHModeTimeout = null
+		this.marcDeliminatedLCSHModeResults = []
+	  
         this.displaySubjectModal = true
       }
 
