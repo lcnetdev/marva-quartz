@@ -1024,8 +1024,6 @@ methods: {
        *  !! the `not` hyphens are very important !!
        *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        */
-	   console.info("********************************")
-	   console.info(looseComponents)
       // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
       this.activeComponentIndex = Number(indx[0])
 	  this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
@@ -2008,22 +2006,32 @@ methods: {
     let match = false
     const componentCount = this.components.length
     const componentCheck = this.components.length > 0 ? this.components.map((component) => component.label).join("--") : false
-
+	const componentTypes = this.components.length > 0 ? this.components.map((component) => component.marcKey.slice(5)).join("") : false
+	
     for (let el in this.searchResults["subjectsComplex"]){
       let target = this.searchResults["subjectsComplex"][el]
       if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
-        //the entire built subject can be replaced by 1 term
-        match = true
-        this.components.push({
-          "complex": target.complex,
-          "id": 0,
-          "label": target.label,
-          "literal": false,
-          "posEnd": target.label.length,
-          "posStart": 0,
-          "type": "madsrdf:Topic",
-          "uri": target.uri,
-        })
+		  
+		  // we need to check the types of each element to make sure they really are the same terms
+		  let targetContext = await utilsNetwork.returnContext(target.uri)
+		  let marcKey = targetContext.nodeMap.marcKey[0].slice(5)
+
+		  if (marcKey == componentTypes){
+			//the entire built subject can be replaced by 1 term
+			match = true
+			this.components.push({
+			  "complex": target.complex,
+			  "id": 0,
+			  "label": target.label,
+			  "literal": false,
+			  "posEnd": target.label.length,
+			  "posStart": 0,
+			  "type": "madsrdf:Topic",
+			  "uri": target.uri,
+			})
+		  } else {
+			  //console.info("no match")
+		  }
       }
     }
 
