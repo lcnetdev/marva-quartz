@@ -2006,7 +2006,13 @@ methods: {
     let match = false
     const componentCount = this.components.length
     const componentCheck = this.components.length > 0 ? this.components.map((component) => component.label).join("--") : false
-	const componentTypes = this.components.length > 0 ? this.components.map((component) => component.marcKey.slice(5)).join("") : false
+	let componentTypes 
+	try {
+		componentTypes = this.components.length > 0 ? this.components.map((component) => component.marcKey.slice(5)).join("") : false
+	} catch {
+		componentTypes = false
+	}
+	
 	
     for (let el in this.searchResults["subjectsComplex"]){
       let target = this.searchResults["subjectsComplex"][el]
@@ -2048,9 +2054,10 @@ methods: {
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
           const target = frozenComponents[component]
+		  console.info("target: ", target)
           if (target.complex){
             let uri = target.uri
-            let data = await this.parseComplexSubject(uri)
+            // let data = await this.parseComplexSubject(uri)
             const complexLabel = target.label
 
             //build the new components
@@ -2058,7 +2065,17 @@ methods: {
 
 
             for (let label of complexLabel.split("--")){
-              let subfield = data["subfields"][id - prevItems]
+			  let subfield
+			  if (target.marcKey){
+				  let marcKey = target.marcKey.slice(5)
+				  console.info("marcKey: ", marcKey)
+				  subfield = marcKey.match(/\$./g)
+				  console.info("subfield: ", subfield)
+				  subfield = subfield[id - prevItems]
+			  } else {
+				  subfield = false
+			  }
+			  
               switch(subfield){
                 case("$a"):
                   subfield = "madsrdf:Topic"
@@ -2078,6 +2095,9 @@ methods: {
                 default:
                   subfield = false
               }
+			
+			console.info("marcKey: ", target.marcKey)
+			  console.info("subfield: ", subfield)
 
               newComponents.splice(id, 0, ({
                 "complex": false,
@@ -2087,8 +2107,9 @@ methods: {
                 "posEnd": label.length,
                 "posStart": 0,
                 "type": subfield,
-                "uri": data["components"] != false ? data["components"][0]["@list"][id]["@id"] : "",
-                "marcKey": data["marcKey"]
+                //"uri": data["components"] != false ? data["components"][0]["@list"][id]["@id"] : "",
+				"uri": target.uri,
+                "marcKey": target.marcKey
               }))
 
               id++
