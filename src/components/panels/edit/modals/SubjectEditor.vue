@@ -1019,16 +1019,20 @@ methods: {
           componentMap.push(c)
         }
       }
-
+	  
       /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        *  !! the `not` hyphens are very important !!
        *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        */
       // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
       this.activeComponentIndex = Number(indx[0])
-	  this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
+		
+	  //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
+	  this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
+	  //this.activeComponent = looseComponents[this.activeComponentIndex]
+	  
 	  this.activeComponent.id = this.activeComponentIndex
-
+	  
       //update the active component with the loose components
       for (let c in looseComponents){
         if (c != 0){
@@ -2054,7 +2058,6 @@ methods: {
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
           const target = frozenComponents[component]
-		  console.info("target: ", target)
           if (target.complex){
             let uri = target.uri
             // let data = await this.parseComplexSubject(uri)
@@ -2068,9 +2071,7 @@ methods: {
 			  let subfield
 			  if (target.marcKey){
 				  let marcKey = target.marcKey.slice(5)
-				  console.info("marcKey: ", marcKey)
 				  subfield = marcKey.match(/\$./g)
-				  console.info("subfield: ", subfield)
 				  subfield = subfield[id - prevItems]
 			  } else {
 				  subfield = false
@@ -2096,9 +2097,6 @@ methods: {
                   subfield = false
               }
 			
-			console.info("marcKey: ", target.marcKey)
-			  console.info("subfield: ", subfield)
-
               newComponents.splice(id, 0, ({
                 "complex": false,
                 "id": id,
@@ -2107,7 +2105,6 @@ methods: {
                 "posEnd": label.length,
                 "posStart": 0,
                 "type": subfield,
-                //"uri": data["components"] != false ? data["components"][0]["@list"][id]["@id"] : "",
 				"uri": target.uri,
                 "marcKey": target.marcKey
               }))
@@ -2150,7 +2147,6 @@ methods: {
   },
   
   cleanState: function(){
-	  console.info("reset")
 	this.searchMode = "LCSHNAF"
 	this.components= []
     this.lookup= {}
