@@ -926,6 +926,7 @@ export const useProfileStore = defineStore('profile', {
 
         // if there are properties in the old template that are not in the new one then we need to remove them from the userValue
         let possibleProperties = nextRef.propertyTemplates.map((p) => {return p.propertyURI})
+		possibleProperties = possibleProperties.concat(propertyPath.map((p) => {return p.propertyURI}))
 
         if (!pt.refTemplateUserValue){
             pt.refTemplateUserValue = {}
