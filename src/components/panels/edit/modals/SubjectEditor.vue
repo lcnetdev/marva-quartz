@@ -1024,10 +1024,12 @@ methods: {
        *  !! the `not` hyphens are very important !!
        *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        */
+	   console.info("********************************")
+	   console.info(looseComponents)
       // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
       this.activeComponentIndex = Number(indx[0])
-      this.activeComponent = looseComponents[this.activeComponentIndex]
-      this.activeComponent.id = this.activeComponentIndex
+	  this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
+	  this.activeComponent.id = this.activeComponentIndex
 
       //update the active component with the loose components
       for (let c in looseComponents){
