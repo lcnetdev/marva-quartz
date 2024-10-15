@@ -1020,10 +1020,6 @@ methods: {
         }
       }
 	  
-	  console.info("looseComponents: ", looseComponents)
-	  console.info("componentMap: ", componentMap)
-	  console.info("indx: ", indx)
-	  
 	  //only stitch the loose components togethere if there are 2 next to each other
 	  if (indx.length == 2 && indx[1]-1 == indx[0]){
 		  /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2415,15 +2411,9 @@ mounted: function(){},
 
 
 updated: function() {
-	console.info("-- update --")
   // this was opened from an existing subject
   let profileData = this.profileData
 
-  console.info("profileDate:  ", profileData)
-  console.info("searchValue:  ", this.searchValue)
-  console.info("components:  ", this.components)
-  console.info("authorityLookup:  ", this.authorityLookup)
-  
   let incomingSubjects
 
   if (profileData && profileData.propertyLabel != "Subjects"){
