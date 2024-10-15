@@ -1304,9 +1304,9 @@ methods: {
           if (that.pickLookup[k].label !=  that.activeComponent.label){
             break
           }
-          that.pickPostion=k
-          that.pickLookup[k].picked=true
-          that.selectContext()
+          // that.pickPostion=k
+          // that.pickLookup[k].picked=true
+          // that.selectContext()
         }
       }
     }
