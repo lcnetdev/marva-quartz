@@ -803,15 +803,16 @@ methods: {
           label: incomingSubjects[subjIdx][lookUp][0][lookUp],
           literal: incomingSubjects[subjIdx]["@id"] ? false : true,
           uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null,
-          type: this.typeLookup[subjIdx]
+          type: this.typeLookup[subjIdx],
+		  marcKey: incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"]
         }
 
       } catch(err){
         console.error(err)
       }
     }
-
   },
+  
   /**
    * Creates components from the search string
    *
@@ -849,7 +850,12 @@ methods: {
           // subjectStringSplit.push(target)
           subjectStringSplit.splice(targetIndex, 0, target)
         }
-      }
+      } else {
+		// check if there are geo's with the same marc key that need to be stitcheed
+		for (let i in this.componetLookup){
+			console.info(this.componetLookup[i])
+		}
+	  }
     }
 
     // clear the current
@@ -867,11 +873,13 @@ methods: {
 
 
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
+		  // Zero out for geographic, because the terms won't be linked when reopengin
+		  // TODO: revisit this
+		if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
           literal = this.componetLookup[id][ss].literal = false
           uri = this.componetLookup[id][ss].uri = null
         }
-
+		
         literal = this.componetLookup[id][ss].literal
         uri = this.componetLookup[id][ss].uri
 		marcKey = this.componetLookup[id][ss].marcKey
@@ -901,7 +909,6 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
-
   },
 
   /**
@@ -1309,9 +1316,9 @@ methods: {
           if (that.pickLookup[k].label !=  that.activeComponent.label){
             break
           }
-          that.pickPostion=k
-          that.pickLookup[k].picked=true
-          that.selectContext()
+          // that.pickPostion=k
+          // that.pickLookup[k].picked=true
+          // that.selectContext()
         }
       }
     }
