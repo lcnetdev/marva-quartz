@@ -223,9 +223,14 @@ export default {
 
 
     thisRtTemplate(){
+		console.info("looking for template: ", this.rtLookup)
+		console.info("structure: ", this.structure )
+		console.info(this.rtLookup["lc:RT:bf2:Agents:Contribution"] )
       if (this.manualOverride !== null){
+		  console.info("override: ", this.manualOverride )
         for (let tmpid of this.structure.valueConstraint.valueTemplateRefs){
           console.log('tmpid',tmpid)
+		  console.info("tmpid", tmpid)
           if (tmpid === this.manualOverride){
             let use = JSON.parse(JSON.stringify(this.rtLookup[tmpid]))
             console.log(use)
@@ -363,6 +368,13 @@ export default {
     // }
   // }),
   created: function () {
+	  //if this is for contributors, set manualOverride
+	  if (this.structure.propertyURI == "http://id.loc.gov/ontologies/bibframe/contribution"){
+		console.info("setting manualOverride")
+		let userValue = this.structure.userValue
+		this.manualOverride = userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"][0]["@type"]
+		console.info(this.manualOverride )
+	  }
   },
   methods: {
 
