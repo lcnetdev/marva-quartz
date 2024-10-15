@@ -2178,8 +2178,6 @@ const utilsNetwork = {
         resultsSubjectsSimple.push(resultsSubjectsSimple.pop())
         resultsSubjectsSimple.reverse()
       }
-      resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
-
 
       resultsSubjectsComplex.reverse()
 
