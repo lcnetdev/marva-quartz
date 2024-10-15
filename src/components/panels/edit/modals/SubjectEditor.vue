@@ -1467,33 +1467,6 @@ methods: {
 
   },
 
-  // Check if the complex subject is made of multiple authorized headings.
-  // Used to build a subject `componentList` that doesn't have multiple
-  // terms connected by `--`
-  parseComplexSubject: async function(uri){
-    let data = await utilsNetwork.fetchSimpleLookup(uri+ ".json", true)
-    let components = false
-    let subfields = false
-    let marcKey = false
-    for (let el of data){
-      if (el["@id"] == uri){
-        marcKey = el["http://id.loc.gov/ontologies/bflc/marcKey"][0]["@value"]
-        // we're not looking at a GEO heading, so the components will be URIs
-        // GEO won't have URIs, so they can be ignored
-        if(!el["@type"].includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")){
-          components = el["http://www.loc.gov/mads/rdf/v1#componentList"]
-        }
-      }
-    }
-    //get the subfields from the marcKey
-    if (marcKey){
-      subfields = marcKey.slice(5)
-      subfields = subfields.match(/\$./g)
-    }
-
-    return {"components": components, "subfields": subfields, "marcKey": marcKey}
-  },
-
   selectContext: async function(pickPostion, update=true){
     if (pickPostion != null){
       this.pickPostion=pickPostion
@@ -2054,85 +2027,8 @@ methods: {
     //remove unused components
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
-    } else {
-        // need to break up the complex heading into it's pieces so their URIs are availble
-        // Also break Hierarchical GEO headings apart
-        let prevItems = 0
-        for (let component in frozenComponents){
-          // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
-          const target = frozenComponents[component]
-          if (target.complex){
-            let uri = target.uri
-            let data 
-			
-			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)) {
-				data = false //await this.parseComplexSubject(uri)
-			} else {
-				data = false
-			}
-			
-            const complexLabel = target.label
-
-            //build the new components
-            let id = prevItems
-
-
-            for (let label of complexLabel.split("--")){
-			  let subfield
-			  if (target.marcKey){
-				  let marcKey = target.marcKey.slice(5)
-				  subfield = marcKey.match(/\$./g)
-				  subfield = subfield[id - prevItems]
-			  } else {
-				  if (data){
-					  subfield = data["subfields"][id - prevItems]
-				  } else {
-					subfield = false
-				  }
-			  }
-			  
-              switch(subfield){
-                case("$a"):
-                  subfield = "madsrdf:Topic"
-                  break
-                case("$x"):
-                  subfield = "madsrdf:Topic"
-                  break
-                case("$v"):
-                  subfield = "madsrdf:GenreForm"
-                  break
-                case("$y"):
-                  subfield = "madsrdf:Temporal"
-                  break
-                case("$z"):
-                  subfield = "madsrdf:Geographic"
-                  break
-                default:
-                  subfield = false
-              }
-			
-              newComponents.splice(id, 0, ({
-                "complex": false,
-                "id": id,
-                "label": label,
-                "literal": false,
-                "posEnd": label.length,
-                "posStart": 0,
-                "type": subfield,
-				"uri": data ? data["components"][0]["@list"][id]["@id"] : target.uri,
-                "marcKey": data ? data["marcKey"] : target.marcKey
-              }))
-
-              id++
-              prevItems++
-
-            }
-          } else {
-            newComponents.push(target)
-            prevItems++
-          }
-        }
-      }
+    } 
+	
 
     if (newComponents.length > 0){
       this.components = newComponents
