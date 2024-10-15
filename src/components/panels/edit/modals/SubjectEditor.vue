@@ -201,7 +201,7 @@
                         </form>
 
                         <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
-                          {{c.label}}
+						  {{c.label}}
                         </div>
                       </div>
                     </div>
@@ -797,7 +797,6 @@ methods: {
       }
       try {
         let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("--", "‑‑")
-
         //Set up componentLookup, so the component builder can give them URIs
         this.componetLookup[subjIdx][label] = {
           label: incomingSubjects[subjIdx][lookUp][0][lookUp],
@@ -867,11 +866,6 @@ methods: {
 
 
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
-          literal = this.componetLookup[id][ss].literal = false
-          uri = this.componetLookup[id][ss].uri = null
-        }
-
         literal = this.componetLookup[id][ss].literal
         uri = this.componetLookup[id][ss].uri
 		marcKey = this.componetLookup[id][ss].marcKey
@@ -901,7 +895,6 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
-
   },
 
   /**
@@ -923,12 +916,8 @@ methods: {
       this.linkModeSearching=false
 
     }else if (event.key==='Enter' && event.shiftKey===true){
-
       this.addLinkMode()
-
     }
-
-
 
     if (event.preventDefault) {event.preventDefault()}
     return false
@@ -1272,7 +1261,10 @@ methods: {
 
     that.pickLookup = {}
 
+	console.info("setting that.pickPostion")
     that.pickPostion = that.searchResults.subjectsSimple.length + that.searchResults.subjectsComplex.length -1
+	
+	console.info("that.pickPostion: ", that.pickPostion)
 
 
 
@@ -1295,11 +1287,16 @@ methods: {
         // if the labels are the same for the current one selected don't overide it
         if (that.pickLookup[k].label.replaceAll('‑','-') == that.activeComponent.label.replaceAll('‑','-') && that.activeComponent.uri){
           if (that.activeComponent.uri == that.pickLookup[k].uri){
+			  console.info("here?", k)
+			  console.info("searchString", searchString)
+			  console.info(that.pickLookup[k])
+			  console.info("components: ", that.components)
             that.pickPostion=k
             that.pickLookup[k].picked=true
             that.selectContext()
           }
         }else{
+			console.info("else")
           // if they started typing the next word already then stop this
           if (that.subjectString.replaceAll('‑','-')!=searchStringFull.replaceAll('‑','-')){
             break
@@ -1309,9 +1306,6 @@ methods: {
           if (that.pickLookup[k].label !=  that.activeComponent.label){
             break
           }
-          that.pickPostion=k
-          that.pickLookup[k].picked=true
-          that.selectContext()
         }
       }
     }
