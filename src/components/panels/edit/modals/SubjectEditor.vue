@@ -1020,85 +1020,92 @@ methods: {
         }
       }
 	  
-      /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       *  !! the `not` hyphens are very important !!
-       *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       */
-      // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
-      this.activeComponentIndex = Number(indx[0])
-		
-	  //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
-	  this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
-	  //this.activeComponent = looseComponents[this.activeComponentIndex]
+	  console.info("looseComponents: ", looseComponents)
+	  console.info("componentMap: ", componentMap)
+	  console.info("indx: ", indx)
 	  
-	  this.activeComponent.id = this.activeComponentIndex
-	  
-      //update the active component with the loose components
-      for (let c in looseComponents){
-        if (c != 0){
-          let part1 = ""
-            if (c == 1){
-              part1 = looseComponents[0].label
-            } else {
-              part1 = this.activeComponent.label
-            }
-          const part2 = looseComponents[c].label
-          this.activeComponent.label = part1 + "‑‑" + part2
-          this.activeComponent.posEnd = looseComponents[c].posEnd
-        }
-      }
-      this.activeComponent.posStart = looseComponents[0].posStart
+	  //only stitch the loose components togethere if there are 2 next to each other
+	  if (indx.length == 2 && indx[1]-1 == indx[0]){
+		  /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		   *  !! the `not` hyphens are very important !!
+		   *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		   */
+		  // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
+		  this.activeComponentIndex = Number(indx[0])
+			
+		  //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
+		  this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
+		  //this.activeComponent = looseComponents[this.activeComponentIndex]
+		  
+		  this.activeComponent.id = this.activeComponentIndex
+		  
+		  //update the active component with the loose components
+		  for (let c in looseComponents){
+			if (c != 0){
+			  let part1 = ""
+				if (c == 1){
+				  part1 = looseComponents[0].label
+				} else {
+				  part1 = this.activeComponent.label
+				}
+			  const part2 = looseComponents[c].label
+			  this.activeComponent.label = part1 + "‑‑" + part2
+			  this.activeComponent.posEnd = looseComponents[c].posEnd
+			}
+		  }
+		  this.activeComponent.posStart = looseComponents[0].posStart
 
-      // we need to make sure the order is maintained
-      // use the component map to determine maintain order
-      let final = []
-      for (let el in componentMap){
-        let good = componentMap[el] != '-'
-        if (good){
-          final.push(this.components[el].label)
-        } else {
-          final.push(this.activeComponent.label)
-        }
-      }
+		  // we need to make sure the order is maintained
+		  // use the component map to determine maintain order
+		  let final = []
+		  for (let el in componentMap){
+			let good = componentMap[el] != '-'
+			if (good){
+			  final.push(this.components[el].label)
+			} else {
+			  final.push(this.activeComponent.label)
+			}
+		  }
 
-      final = new Set(final)
-      final = Array.from(final)
+		  final = new Set(final)
+		  final = Array.from(final)
 
-      this.subjectString =  final.join("--")
+		  this.subjectString =  final.join("--")
 
-      //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
-      this.components.splice(indx[0], indx.length, this.activeComponent)
+		  //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
+		  this.components.splice(indx[0], indx.length, this.activeComponent)
 
-      // need to make sure postStart and posEnd are correct, and the id
-      this.adjustStartEndPos(this.components)
-      for (let x in this.components){
-        let prev = null
-        let current = this.components[x]
+		  // need to make sure postStart and posEnd are correct, and the id
+		  this.adjustStartEndPos(this.components)
+		  for (let x in this.components){
+			let prev = null
+			let current = this.components[x]
 
-        if (x > 0){
-          prev = this.components[x] - 1
-        } else if (x == 0) {
-          current.posStart = 0
-        } else {
-          current.posStart = prev.posEnd + 2
-        }
-        current.posEnd = current.posStart + current.label.length
+			if (x > 0){
+			  prev = this.components[x] - 1
+			} else if (x == 0) {
+			  current.posStart = 0
+			} else {
+			  current.posStart = prev.posEnd + 2
+			}
+			current.posEnd = current.posStart + current.label.length
 
-        current.id = x
-      }
+			current.id = x
+		  }
 
-      // get the boxes lined up correctly
-      this.renderHintBoxes()
+		  // get the boxes lined up correctly
+		  this.renderHintBoxes()
 
-      // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
-      for (let i in this.components){
-        for (let j in this.componetLookup){
-          const key = Object.keys(this.componetLookup[j])[0]
-          if (this.components[i].label == key){
-            this.componetLookup[i] = this.componetLookup[j]
-          }
-        }
-      }
+		  // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
+		  for (let i in this.components){
+			for (let j in this.componetLookup){
+			  const key = Object.keys(this.componetLookup[j])[0]
+			  if (this.components[i].label == key){
+				this.componetLookup[i] = this.componetLookup[j]
+			  }
+			}
+		  }
+	  }
     } else {
       this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
       // Above we took loose components and combined them,
