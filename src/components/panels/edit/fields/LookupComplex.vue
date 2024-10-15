@@ -599,7 +599,6 @@ export default {
               this.marcDeliminatedLCSHMode = true
 
 
-
               this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue)
               this.marcDeliminatedLCSHModeSearching = false
               let sendResults = []

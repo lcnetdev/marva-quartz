@@ -1196,6 +1196,11 @@ const utilsNetwork = {
         }
 
         lcsh = lcsh.replace(secondDollarZ,collapsedDollarZ)
+		
+		//if there is a space before the hyphens remove it. It prevents matches
+		if (lcsh.includes(" --")){
+			lcsh = lcsh.replace(" --", "--")
+		}
 
       }
 
