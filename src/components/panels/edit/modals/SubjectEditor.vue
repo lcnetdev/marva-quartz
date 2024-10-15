@@ -2146,6 +2146,7 @@ methods: {
 
 
   closeEditor: function(){
+	  console.info("closing")
     //after closing always open in `link` mode for consistency
     this.subjectEditorMode = "build"
 	
@@ -2186,6 +2187,7 @@ methods: {
 
 
   loadUserValue: function(userValue){
+	  console.info("loadUserValue")
     // reset things if they might be opening this again for some reason
     this.cleanState()
 
@@ -2413,8 +2415,15 @@ mounted: function(){},
 
 
 updated: function() {
+	console.info("-- update --")
   // this was opened from an existing subject
   let profileData = this.profileData
+
+  console.info("profileDate:  ", profileData)
+  console.info("searchValue:  ", this.searchValue)
+  console.info("components:  ", this.components)
+  console.info("authorityLookup:  ", this.authorityLookup)
+  
   let incomingSubjects
 
   if (profileData && profileData.propertyLabel != "Subjects"){

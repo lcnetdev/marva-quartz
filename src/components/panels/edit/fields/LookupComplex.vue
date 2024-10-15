@@ -660,6 +660,9 @@ export default {
 			this.marcDeliminatedLCSHModeTimeout = null
 			this.marcDeliminatedLCSHModeResults = []
 			
+			this.authorityLookup = this.searchValue.trim()
+			this.searchValue = this.searchValue.trim()
+			
             this.displaySubjectModal=true
             this.$nextTick(() => {
               this.$refs.subjectEditorModal.focusInput()
