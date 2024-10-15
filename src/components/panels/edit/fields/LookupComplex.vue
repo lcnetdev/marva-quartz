@@ -653,7 +653,15 @@ export default {
 
 
           }else{
-
+			// we're opening the subject builder, turn this off
+			this.marcDeliminatedLCSHMode = false
+			this.marcDeliminatedLCSHModeSearching = false
+			this.marcDeliminatedLCSHModeTimeout = null
+			this.marcDeliminatedLCSHModeResults = []
+			
+			this.authorityLookup = this.searchValue.trim()
+			this.searchValue = this.searchValue.trim()
+			
             this.displaySubjectModal=true
             this.$nextTick(() => {
               this.$refs.subjectEditorModal.focusInput()
@@ -735,6 +743,12 @@ export default {
       if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
         this.displayModal = true
       } else {
+		// we're opening the subject builder, turn this off
+		this.marcDeliminatedLCSHMode = false
+		this.marcDeliminatedLCSHModeSearching = false
+		this.marcDeliminatedLCSHModeTimeout = null
+		this.marcDeliminatedLCSHModeResults = []
+	  
         this.displaySubjectModal = true
       }
 

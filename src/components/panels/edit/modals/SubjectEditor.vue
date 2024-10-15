@@ -1019,82 +1019,89 @@ methods: {
           componentMap.push(c)
         }
       }
+	  
+	  //only stitch the loose components togethere if there are 2 next to each other
+	  if (indx.length == 2 && indx[1]-1 == indx[0]){
+		  /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		   *  !! the `not` hyphens are very important !!
+		   *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		   */
+		  // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
+		  this.activeComponentIndex = Number(indx[0])
+			
+		  //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
+		  this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
+		  //this.activeComponent = looseComponents[this.activeComponentIndex]
+		  
+		  this.activeComponent.id = this.activeComponentIndex
+		  
+		  //update the active component with the loose components
+		  for (let c in looseComponents){
+			if (c != 0){
+			  let part1 = ""
+				if (c == 1){
+				  part1 = looseComponents[0].label
+				} else {
+				  part1 = this.activeComponent.label
+				}
+			  const part2 = looseComponents[c].label
+			  this.activeComponent.label = part1 + "‑‑" + part2
+			  this.activeComponent.posEnd = looseComponents[c].posEnd
+			}
+		  }
+		  this.activeComponent.posStart = looseComponents[0].posStart
 
-      /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       *  !! the `not` hyphens are very important !!
-       *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       */
-      // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
-      this.activeComponentIndex = Number(indx[0])
-      this.activeComponent = looseComponents[this.activeComponentIndex]
-      this.activeComponent.id = this.activeComponentIndex
+		  // we need to make sure the order is maintained
+		  // use the component map to determine maintain order
+		  let final = []
+		  for (let el in componentMap){
+			let good = componentMap[el] != '-'
+			if (good){
+			  final.push(this.components[el].label)
+			} else {
+			  final.push(this.activeComponent.label)
+			}
+		  }
 
-      //update the active component with the loose components
-      for (let c in looseComponents){
-        if (c != 0){
-          let part1 = ""
-            if (c == 1){
-              part1 = looseComponents[0].label
-            } else {
-              part1 = this.activeComponent.label
-            }
-          const part2 = looseComponents[c].label
-          this.activeComponent.label = part1 + "‑‑" + part2
-          this.activeComponent.posEnd = looseComponents[c].posEnd
-        }
-      }
-      this.activeComponent.posStart = looseComponents[0].posStart
+		  final = new Set(final)
+		  final = Array.from(final)
 
-      // we need to make sure the order is maintained
-      // use the component map to determine maintain order
-      let final = []
-      for (let el in componentMap){
-        let good = componentMap[el] != '-'
-        if (good){
-          final.push(this.components[el].label)
-        } else {
-          final.push(this.activeComponent.label)
-        }
-      }
+		  this.subjectString =  final.join("--")
 
-      final = new Set(final)
-      final = Array.from(final)
+		  //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
+		  this.components.splice(indx[0], indx.length, this.activeComponent)
 
-      this.subjectString =  final.join("--")
+		  // need to make sure postStart and posEnd are correct, and the id
+		  this.adjustStartEndPos(this.components)
+		  for (let x in this.components){
+			let prev = null
+			let current = this.components[x]
 
-      //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
-      this.components.splice(indx[0], indx.length, this.activeComponent)
+			if (x > 0){
+			  prev = this.components[x] - 1
+			} else if (x == 0) {
+			  current.posStart = 0
+			} else {
+			  current.posStart = prev.posEnd + 2
+			}
+			current.posEnd = current.posStart + current.label.length
 
-      // need to make sure postStart and posEnd are correct, and the id
-      this.adjustStartEndPos(this.components)
-      for (let x in this.components){
-        let prev = null
-        let current = this.components[x]
+			current.id = x
+		  }
 
-        if (x > 0){
-          prev = this.components[x] - 1
-        } else if (x == 0) {
-          current.posStart = 0
-        } else {
-          current.posStart = prev.posEnd + 2
-        }
-        current.posEnd = current.posStart + current.label.length
+		  // get the boxes lined up correctly
+		  this.renderHintBoxes()
 
-        current.id = x
-      }
-
-      // get the boxes lined up correctly
-      this.renderHintBoxes()
-
-      // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
-      for (let i in this.components){
-        for (let j in this.componetLookup){
-          const key = Object.keys(this.componetLookup[j])[0]
-          if (this.components[i].label == key){
-            this.componetLookup[i] = this.componetLookup[j]
-          }
-        }
-      }
+		  // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
+		  for (let i in this.components){
+			for (let j in this.componetLookup){
+			  const key = Object.keys(this.componetLookup[j])[0]
+			  if (this.components[i].label == key){
+				this.componetLookup[i] = this.componetLookup[j]
+			  }
+			}
+		  }
+	  }
     } else {
       this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
       // Above we took loose components and combined them,
@@ -2006,22 +2013,38 @@ methods: {
     let match = false
     const componentCount = this.components.length
     const componentCheck = this.components.length > 0 ? this.components.map((component) => component.label).join("--") : false
-
+	let componentTypes 
+	try {
+		componentTypes = this.components.length > 0 ? this.components.map((component) => component.marcKey.slice(5)).join("") : false
+	} catch {
+		componentTypes = false
+	}
+	
+	
     for (let el in this.searchResults["subjectsComplex"]){
       let target = this.searchResults["subjectsComplex"][el]
       if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
-        //the entire built subject can be replaced by 1 term
-        match = true
-        this.components.push({
-          "complex": target.complex,
-          "id": 0,
-          "label": target.label,
-          "literal": false,
-          "posEnd": target.label.length,
-          "posStart": 0,
-          "type": "madsrdf:Topic",
-          "uri": target.uri,
-        })
+		  
+		  // we need to check the types of each element to make sure they really are the same terms
+		  let targetContext = await utilsNetwork.returnContext(target.uri)
+		  let marcKey = targetContext.nodeMap.marcKey[0].slice(5)
+
+		  if (marcKey == componentTypes){
+			//the entire built subject can be replaced by 1 term
+			match = true
+			this.components.push({
+			  "complex": target.complex,
+			  "id": 0,
+			  "label": target.label,
+			  "literal": false,
+			  "posEnd": target.label.length,
+			  "posStart": 0,
+			  "type": "madsrdf:Topic",
+			  "uri": target.uri,
+			})
+		  } else {
+			  //console.info("no match")
+		  }
       }
     }
 
@@ -2040,7 +2063,14 @@ methods: {
           const target = frozenComponents[component]
           if (target.complex){
             let uri = target.uri
-            let data = await this.parseComplexSubject(uri)
+            let data 
+			
+			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)) {
+				data = false //await this.parseComplexSubject(uri)
+			} else {
+				data = false
+			}
+			
             const complexLabel = target.label
 
             //build the new components
@@ -2048,7 +2078,19 @@ methods: {
 
 
             for (let label of complexLabel.split("--")){
-              let subfield = data["subfields"][id - prevItems]
+			  let subfield
+			  if (target.marcKey){
+				  let marcKey = target.marcKey.slice(5)
+				  subfield = marcKey.match(/\$./g)
+				  subfield = subfield[id - prevItems]
+			  } else {
+				  if (data){
+					  subfield = data["subfields"][id - prevItems]
+				  } else {
+					subfield = false
+				  }
+			  }
+			  
               switch(subfield){
                 case("$a"):
                   subfield = "madsrdf:Topic"
@@ -2068,7 +2110,7 @@ methods: {
                 default:
                   subfield = false
               }
-
+			
               newComponents.splice(id, 0, ({
                 "complex": false,
                 "id": id,
@@ -2077,8 +2119,8 @@ methods: {
                 "posEnd": label.length,
                 "posStart": 0,
                 "type": subfield,
-                "uri": data["components"] != false ? data["components"][0]["@list"][id]["@id"] : "",
-                "marcKey": data["marcKey"]
+				"uri": data ? data["components"][0]["@list"][id]["@id"] : target.uri,
+                "marcKey": data ? data["marcKey"] : target.marcKey
               }))
 
               id++
@@ -2102,25 +2144,25 @@ methods: {
   closeEditor: function(){
     //after closing always open in `link` mode for consistency
     this.subjectEditorMode = "build"
+	
+	//clear out the compoents and related field so things will start clean if it reopened
+	this.cleanState()
+	
     this.$emit('hideSubjectModal', true)
   },
 
   checkToolBarHeight: function(){
-
     // also check to see if the toolbar is off the screen,
     // in very very low res setups sometimes this area gets clipped
     if (this.$refs.toolbar && this.$refs.toolbar.getBoundingClientRect().bottom > window.innerHeight){
       this.lowResMode=true
       this.$emit('lowResModeActivate', true)
     }
-
-
   },
-
-
-  loadUserValue: function(userValue){
-    // reset things if they might be opening this again for some reason
-    this.components= []
+  
+  cleanState: function(){
+	this.searchMode = "LCSHNAF"
+	this.components= []
     this.lookup= {}
     this.searchResults= null
     this.activeSearch= false
@@ -2136,8 +2178,12 @@ methods: {
     this.typeLookup={}
     this.okayToAdd= false
     this.showTypes= false
+  },
 
 
+  loadUserValue: function(userValue){
+    // reset things if they might be opening this again for some reason
+    this.cleanState()
 
 
     if (!userValue){
@@ -2365,6 +2411,7 @@ mounted: function(){},
 updated: function() {
   // this was opened from an existing subject
   let profileData = this.profileData
+
   let incomingSubjects
 
   if (profileData && profileData.propertyLabel != "Subjects"){
