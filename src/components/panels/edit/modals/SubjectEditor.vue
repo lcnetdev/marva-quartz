@@ -867,11 +867,6 @@ methods: {
 
 
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
-          literal = this.componetLookup[id][ss].literal = false
-          uri = this.componetLookup[id][ss].uri = null
-        }
-
         literal = this.componetLookup[id][ss].literal
         uri = this.componetLookup[id][ss].uri
 		marcKey = this.componetLookup[id][ss].marcKey
