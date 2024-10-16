@@ -1201,6 +1201,10 @@ const utilsNetwork = {
 		if (lcsh.includes(" --")){
 			lcsh = lcsh.replace(" --", "--")
 		}
+		//Also remove spaces after the hyphens
+		if (lcsh.includes("-- ")){
+			lcsh = lcsh.replace("-- ", "--")
+		}
 
       }
 
