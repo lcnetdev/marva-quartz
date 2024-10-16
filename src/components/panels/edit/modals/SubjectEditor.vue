@@ -849,12 +849,7 @@ methods: {
           // subjectStringSplit.push(target)
           subjectStringSplit.splice(targetIndex, 0, target)
         }
-      } else {
-		// check if there are geo's with the same marc key that need to be stitcheed
-		for (let i in this.componetLookup){
-			console.info(this.componetLookup[i])
-		}
-	  }
+      } 
     }
 
     // clear the current
@@ -1274,13 +1269,7 @@ methods: {
 
     that.pickLookup = {}
 
-	console.info("setting that.pickPostion")
     that.pickPostion = that.searchResults.subjectsSimple.length + that.searchResults.subjectsComplex.length -1
-	
-	console.info("that.pickPostion: ", that.pickPostion)
-
-
-
 
     for (let x in that.searchResults.subjectsComplex){
       that.pickLookup[x] = that.searchResults.subjectsComplex[x]
@@ -1300,16 +1289,11 @@ methods: {
         // if the labels are the same for the current one selected don't overide it
         if (that.pickLookup[k].label.replaceAll('‑','-') == that.activeComponent.label.replaceAll('‑','-') && that.activeComponent.uri){
           if (that.activeComponent.uri == that.pickLookup[k].uri){
-			  console.info("here?", k)
-			  console.info("searchString", searchString)
-			  console.info(that.pickLookup[k])
-			  console.info("components: ", that.components)
             that.pickPostion=k
             that.pickLookup[k].picked=true
             that.selectContext()
           }
         }else{
-			console.info("else")
           // if they started typing the next word already then stop this
           if (that.subjectString.replaceAll('‑','-')!=searchStringFull.replaceAll('‑','-')){
             break
@@ -2022,8 +2006,6 @@ methods: {
 			  "type": "madsrdf:Topic",
 			  "uri": target.uri,
 			})
-		  } else {
-			  //console.info("no match")
 		  }
       }
     }
