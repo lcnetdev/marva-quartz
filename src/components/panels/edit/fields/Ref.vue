@@ -223,14 +223,9 @@ export default {
 
 
     thisRtTemplate(){
-		console.info("looking for template: ", this.rtLookup)
-		console.info("structure: ", this.structure )
-		console.info(this.rtLookup["lc:RT:bf2:Agents:Contribution"] )
       if (this.manualOverride !== null){
-		  console.info("override: ", this.manualOverride )
         for (let tmpid of this.structure.valueConstraint.valueTemplateRefs){
           console.log('tmpid',tmpid)
-		  console.info("tmpid", tmpid)
           if (tmpid === this.manualOverride){
             let use = JSON.parse(JSON.stringify(this.rtLookup[tmpid]))
             console.log(use)
@@ -250,10 +245,9 @@ export default {
       if (userValue[this.structure.propertyURI] && userValue[this.structure.propertyURI][0]){
         userValue = this.structure.userValue[this.structure.propertyURI][0]
       }
-
+	  
       // do we have user data and a possible @type to use
       if (userValue['@type']){
-
 
         // loop thrugh all the refs and see if there is a URI that matches it better
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
@@ -273,16 +267,38 @@ export default {
               }
             }
           }
+
         })
-      }
+      } else {
+		  //There's no userValue, we'll use the parent's userValue to check
+		  //	if there's a template that might be even better-er
+		  // But, we're only going to look deeper for bf:contribution
+
+		  let parentUserValue 
+		  try {
+			  parentUserValue = this.$parent.$parent.structure.userValue
+	      } catch {
+			  parentUserValue = null
+		  }
+		  
+		  for (let idx in this.structure.valueConstraint.valueTemplateRefs){
+			  let template = this.structure.valueConstraint.valueTemplateRefs[idx]
+			  if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
+				  let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
+				  let type = target[0]["@type"]
+				  if (type && this.rtLookup[template].resourceURI === type){
+					useId = template
+				  }
+			  }
+		  }
+	  }
 
 
       // do not render recursivly if the thing we are trying to render recursivly is one the of the things thAT WER ARE RENDERING TO BEGIN WITHHHHH!!!1
       // if (this.parentStructure && this.parentStructure.indexOf(useId) ==-1){
         if (this.rtLookup[useId]){
-
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
-
+		  
           return use
           // this.multiTemplateSelect = use.resourceLabel
           // this.multiTemplateSelectURI = useId
@@ -368,13 +384,6 @@ export default {
     // }
   // }),
   created: function () {
-	  //if this is for contributors, set manualOverride
-	  if (this.structure.propertyURI == "http://id.loc.gov/ontologies/bibframe/contribution"){
-		console.info("setting manualOverride")
-		let userValue = this.structure.userValue
-		this.manualOverride = userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"][0]["@type"]
-		console.info(this.manualOverride )
-	  }
   },
   methods: {
 
