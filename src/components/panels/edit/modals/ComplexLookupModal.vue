@@ -48,7 +48,9 @@
         currentPage: 1,
         maxPage: 0,
 
-        activeContext: null
+        activeContext: null,
+		
+		searchType: "left",
 
 
       }
@@ -150,7 +152,8 @@
           }
         }
         window.clearTimeout(this.searchTimeout)
-
+		
+		let searchType = this.searchType
         let offset = this.offsetStart
         if (this.activeComplexSearch != []) {
           offset = this.offsetStep * (this.currentPage - 1)
@@ -179,6 +182,7 @@
                 a.urls
                   .replace('<QUERY>', this.searchValueLocal)
                   .replace('<OFFSET>', offset)
+				  .replace('<TYPE>', searchType)
               )
             }
           })
@@ -344,6 +348,15 @@
         this.currentPage = 1
         this.doSearch()
       },
+	  
+	  changeSearchType: function(event){ 
+		if (event.target.checked){
+			this.searchType = "keyword"
+		} else {
+			this.searchType = "left"
+		}
+		this.doSearch()
+	  },
 
     },
 
@@ -382,8 +395,19 @@
 
             this.$refs.complexLookupModalDisplay.style.height = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + 'px'
           }
+		  
+		  if (this.$refs.toggle){
+			if (this.$refs.toggle.checked){
+				this.searchType = "keyword"
+			}  else {
+				this.searchType = "left"
+			}
+		  }
         })
       })
+	  
+
+		
     },
 
     mounted() {
@@ -429,10 +453,11 @@
 
             <div class="complex-lookup-modal-search">
 
-
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
+				  </div>
+				  
                   <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % 25 ) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
                     <span>
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
@@ -450,7 +475,15 @@
                       </a>
                     </span>
                   </div>
-                </div>
+				  
+				  <div id="container">
+					<input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
+					<label for="search-type" class="toggle-container">
+						<div>Left Anchored</div>
+						<div>Keyword</div>
+					</label>
+				  </div>
+				  
               </template>
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === true">
                 <select v-model="modeSelect">
@@ -748,6 +781,7 @@
     display: unset;
     float: right;
     width: auto !important;
+	z-index: 1;
   }
 
   .material-icons.pagination{
@@ -766,5 +800,66 @@
   .icon-chevron-right:before {
     content: "\f054";
   }
+
+/* toggle */
+/* https://hudecz.medium.com/how-to-create-a-pure-css-toggle-button-2fcc955a8984 */
+#container{
+	margin-left: 5px;
+}
+
+.toggle {
+	display: none;
+}
+
+.toggle-container {
+   position: relative;
+   display: grid;
+   grid-template-columns: repeat(2, 1fr);
+   width: fit-content;
+   border: 3px solid lightskyblue;
+   border-radius: 20px;
+   background: lightskyblue;
+   font-weight: bold;
+   color: lightskyblue;
+   cursor: pointer;
+}
+
+.toggle-container::before {
+   content: '';
+   position: absolute;
+   width: 50%;
+   height: 100%;
+   left: 0%;
+   border-radius:20px;
+   background: black;
+   transition: all 0.3s;
+}
+
+.toggle-container div {
+   padding: 6px;
+   text-align: center;
+   z-index: 1;
+}
+
+.toggle:checked + .toggle-container::before {
+   left: 50%;
+}
+
+.toggle:checked + .toggle-container div:first-child{
+   color: black;
+   transition: color 0.3s;
+}
+.toggle:checked + .toggle-container div:last-child{
+   color: lightskyblue;
+   transition: color 0.3s;
+}
+.toggle + .toggle-container div:first-child{
+   color: lightskyblue;
+   transition: color 0.3s;
+}
+.toggle + .toggle-container div:last-child{
+   color: black;
+   transition: color 0.3s;
+}
 
 </style>

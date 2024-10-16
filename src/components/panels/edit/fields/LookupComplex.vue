@@ -176,7 +176,7 @@
 
   </template>
 
-  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false" :structure="structure" v-model="displayModal"/>
+  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal"/>
   <SubjectEditor ref="subjectEditorModal" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
 
 </template>
