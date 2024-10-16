@@ -33,7 +33,6 @@
         searchValueLocal: null,
         authorityLookupLocal: null,
 
-
         searchTimeout: null,
 
         activeComplexSearch: [],
@@ -51,8 +50,6 @@
         activeContext: null,
 		
 		searchType: "left",
-
-
       }
     },
     computed: {
@@ -476,7 +473,7 @@
                     </span>
                   </div>
 				  
-				  <div id="container">
+				  <div id="container" v-if="modalSelectOptions.length == 10 && modalSelectOptions[8].label == 'NAF Geo SubDiv'">
 					<input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
 					<label for="search-type" class="toggle-container">
 						<div>Left Anchored</div>
