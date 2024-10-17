@@ -763,7 +763,6 @@ methods: {
 	
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
-	  console.info("getting from uri: ", uri)
     let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
     let components = false
     let subfields = false
@@ -785,8 +784,6 @@ methods: {
       // subfields = subfields.match(/\$./g)
 	  subfields = subfields.match(/\$[axyzv]{1}/g)
     }
-	
-	console.info("subfields: ", subfields)
 	
     return {"components": components, "subfields": subfields, "marcKey": marcKey}
   },
@@ -1991,7 +1988,6 @@ methods: {
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
     console.log('this.components',this.components)
-	console.info('starting components', JSON.parse(JSON.stringify(this.components)))
     // remove our werid hyphens before we send it back
     for (let c of this.components){
       c.label = c.label.replaceAll('‑','-')
@@ -2053,7 +2049,6 @@ methods: {
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
 			const target = frozenComponents[component]
-			console.info("target: ", target)
 			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
 				let uri = target.uri
 				let data = await this.parseComplexSubject(uri)
@@ -2063,7 +2058,6 @@ methods: {
 				let id = prevItems
 				let labels = complexLabel.split("--")
 				for (let idx in labels){
-					console.info("building component for ", labels[idx])
 				  let subfield
 				  if (data){
 				    subfield = data["subfields"][idx]
@@ -2072,8 +2066,6 @@ methods: {
 					  subfield = marcKey.match(/\$./g)
 					  subfield = subfield[idx]
 				  }
-				  
-				  console.info("subfield: ", subfield)
 				  
 				  switch(subfield){
 					case("$a"):
@@ -2095,8 +2087,6 @@ methods: {
 					  subfield = false
 				  }
 				  
-				  console.info("Transformed subfield: ", subfield)
-				  
 				  //Override the subfield of the first element based on the marc tag
 				  let tag = target.marcKey.slice(0,3)
 				  if (idx == 0){
@@ -2113,7 +2103,6 @@ methods: {
 					  }
 				  }
 				  
-				  console.info("building marcKey")
 				  //make a marcKey for the component
 				  // We've got the label, subfield and the tag for the first element
 				  let sub = data["subfields"][idx]
@@ -2136,7 +2125,6 @@ methods: {
 					  }
 				  }
 				  let marcKey = tag + "  " + sub + labels[idx]
-				  console.info("marcKey: ", marcKey)
 				
 				  newComponents.splice(id, 0, ({
 					"complex": false,
@@ -2165,7 +2153,6 @@ methods: {
       this.components = newComponents
     }
 	
-	console.info('final components', JSON.parse(JSON.stringify(this.components)))
     this.$emit('subjectAdded', this.components)
   },
 
