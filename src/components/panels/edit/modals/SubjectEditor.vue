@@ -782,8 +782,11 @@ methods: {
     //get the subfields from the marcKey
     if (marcKey){
       subfields = marcKey.slice(5)
-      subfields = subfields.match(/\$./g)
+      // subfields = subfields.match(/\$./g)
+	  subfields = subfields.match(/\$[axyzv]{1}/g)
     }
+	
+	console.info("subfields: ", subfields)
 	
     return {"components": components, "subfields": subfields, "marcKey": marcKey}
   },
