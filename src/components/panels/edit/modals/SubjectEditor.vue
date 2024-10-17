@@ -2069,7 +2069,7 @@ methods: {
 				    subfield = data["subfields"][idx]
 				  } else if (target.marcKey){
 					  let marcKey = target.marcKey.slice(5)
-					  subfield = marcKey.match(/\$./g)
+					  subfield = marcKey.match(/\$[axyzv]{1}/g)
 					  subfield = subfield[idx]
 				  }
 				  
