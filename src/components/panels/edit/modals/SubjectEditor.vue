@@ -760,7 +760,34 @@ computed: {
 
 },
 methods: {
-
+	
+  //parse complex headings so we can have complete and broken up headings
+  parseComplexSubject: async function(uri){
+	  console.info("getting from uri: ", uri)
+    let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
+    let components = false
+    let subfields = false
+    let marcKey = false
+    for (let el of data){
+      if (el["@id"] == uri){
+        marcKey = el["http://id.loc.gov/ontologies/bflc/marcKey"][0]["@value"]
+        // we're not looking at a GEO heading, so the components will be URIs
+        // GEO won't have URIs, so they can be ignored
+        if(!el["@type"].includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")){
+          components = el["http://www.loc.gov/mads/rdf/v1#componentList"]
+        }
+      }
+    }
+	
+    //get the subfields from the marcKey
+    if (marcKey){
+      subfields = marcKey.slice(5)
+      subfields = subfields.match(/\$./g)
+    }
+	
+    return {"components": components, "subfields": subfields, "marcKey": marcKey}
+  },
+  
   /**
    * When loading from an existing subject, the component lookup
    * needs to be build, so the components will have URIs, types,
@@ -1961,6 +1988,7 @@ methods: {
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
     console.log('this.components',this.components)
+	console.info('starting components', JSON.parse(JSON.stringify(this.components)))
     // remove our werid hyphens before we send it back
     for (let c of this.components){
       c.label = c.label.replaceAll('‑','-')
@@ -2016,12 +2044,125 @@ methods: {
     //remove unused components
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
-    } 
+    } else {
+		// need to break up the complex heading into it's pieces so their URIs are availble
+        let prevItems = 0
+        for (let component in frozenComponents){
+          // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
+			const target = frozenComponents[component]
+			console.info("target: ", target)
+			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
+				let uri = target.uri
+				let data = await this.parseComplexSubject(uri)
+
+				const complexLabel = target.label
+				//build the new components
+				let id = prevItems
+				let labels = complexLabel.split("--")
+				for (let idx in labels){
+					console.info("building component for ", labels[idx])
+				  let subfield
+				  if (data){
+				    subfield = data["subfields"][idx]
+				  } else if (target.marcKey){
+					  let marcKey = target.marcKey.slice(5)
+					  subfield = marcKey.match(/\$./g)
+					  subfield = subfield[idx]
+				  }
+				  
+				  console.info("subfield: ", subfield)
+				  
+				  switch(subfield){
+					case("$a"):
+					  subfield = "madsrdf:Topic"
+					  break
+					case("$x"):
+					  subfield = "madsrdf:Topic"
+					  break
+					case("$v"):
+					  subfield = "madsrdf:GenreForm"
+					  break
+					case("$y"):
+					  subfield = "madsrdf:Temporal"
+					  break
+					case("$z"):
+					  subfield = "madsrdf:Geographic"
+					  break
+					default:
+					  subfield = false
+				  }
+				  
+				  console.info("Transformed subfield: ", subfield)
+				  
+				  //Override the subfield of the first element based on the marc tag
+				  let tag = target.marcKey.slice(0,3)
+				  if (idx == 0){
+					  console.info("overriding")
+					  switch(tag){
+						  case "151":
+							subfield = "madsrdf:Geographic"
+							break
+						  case "100":
+							subfield = "madsrdf:PersonalName"
+							break
+						  default:
+							subfield = "madsrdf:Topic"
+					  }
+				  }
+				  
+				  console.info("building marcKey")
+				  //make a marcKey for the component
+				  // We've got the label, subfield and the tag for the first element
+				  let sub = data["subfields"][idx]
+				  if (idx == 0){
+					  tag = tag
+				  } else {
+					  //build the tag from the subfield
+					  switch(sub){
+						case("$v"):
+						  tag = "185"
+						  break
+						case("$y"):
+						  tag = "182"
+						  break
+						case("$z"):
+						  tag = "181"
+						  break
+						default:
+						  tag = "180"
+					  }
+				  }
+				  let marcKey = tag + "  " + sub + labels[idx]
+				  console.info("marcKey: ", marcKey)
+				
+				  newComponents.splice(id, 0, ({
+					"complex": false,
+					"id": id,
+					"label": labels[idx],
+					"literal": false,
+					"posEnd": labels[idx].length,
+					"posStart": 0,
+					"type": subfield,
+					"uri": data && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
+					"marcKey": marcKey
+				  }))
+				  id++
+				  prevItems++
+				}
+			  
+			} else {
+				newComponents.push(target)
+				prevItems++
+			}
+		}
+	}
 	
 
     if (newComponents.length > 0){
       this.components = newComponents
     }
+	
+	console.info('final components', JSON.parse(JSON.stringify(this.components)))
     this.$emit('subjectAdded', this.components)
   },
 
