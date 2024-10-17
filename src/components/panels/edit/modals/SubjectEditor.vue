@@ -774,6 +774,7 @@ methods: {
         // GEO won't have URIs, so they can be ignored
         if(!el["@type"].includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")){
           components = el["http://www.loc.gov/mads/rdf/v1#componentList"]
+		  break
         }
       }
     }
@@ -2051,7 +2052,12 @@ methods: {
 			const target = frozenComponents[component]
 			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
 				let uri = target.uri
-				let data = await this.parseComplexSubject(uri)
+				let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
+				
+				let subs
+				subs = target.marcKey.slice(5)
+			    // subfields = subfields.match(/\$./g)
+			    subs = subs.match(/\$[axyzv]{1}/g)
 
 				const complexLabel = target.label
 				//build the new components
@@ -2090,7 +2096,6 @@ methods: {
 				  //Override the subfield of the first element based on the marc tag
 				  let tag = target.marcKey.slice(0,3)
 				  if (idx == 0){
-					  console.info("overriding")
 					  switch(tag){
 						  case "151":
 							subfield = "madsrdf:Geographic"
@@ -2105,7 +2110,12 @@ methods: {
 				  
 				  //make a marcKey for the component
 				  // We've got the label, subfield and the tag for the first element
-				  let sub = data["subfields"][idx]
+				  let sub
+				  if (data) {
+					sub = data["subfields"][idx]
+				  } else {
+					  sub = subs[idx]
+				  }
 				  if (idx == 0){
 					  tag = tag
 				  } else {
