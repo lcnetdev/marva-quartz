@@ -16,10 +16,11 @@
     >
 
     <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
-
       <div style="position: relative;">
-
           <div style="position:absolute; right:2em; top:  0.25em; z-index: 100;">
+			  <div class="menu-buttons">
+				<button @click="closeEditor()">Close</button>
+			  </div>
             <button @click="editorModeSwitch('build')" data-tooltip="Build LCSH headings using a lookup list" class="subjectEditorModeButtons simptip-position-left" style="margin-right: 1em; background-color: black; height: 2em; display: inline-flex;">
       <!--         <svg fill="#F2F2F2" width="20px" height="20px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                <g>
@@ -634,6 +635,13 @@ padding-right: 0.25em;
 
 .clear-selected-button {
 margin-top: 10px;
+}
+
+.menu-buttons{
+	margin-right: 5px;
+	padding-top: 5px;
+	padding-left: 15px;
+	float: right;
 }
 
 /*
@@ -2168,10 +2176,10 @@ methods: {
 
 
   closeEditor: function(){
-    //after closing always open in `link` mode for consistency
+    //after closing always open in `build` mode
     this.subjectEditorMode = "build"
 	
-	//clear out the compoents and related field so things will start clean if it reopened
+	//clear out the components and related field so things will start clean if it reopened
 	this.cleanState()
 	
     this.$emit('hideSubjectModal', true)
@@ -2204,6 +2212,11 @@ methods: {
     this.typeLookup={}
     this.okayToAdd= false
     this.showTypes= false
+	
+	this.contextData = {nodeMap:{}}
+	this.authorityLookupLocal = null,
+    this.subjectString = ''
+
   },
 
 
