@@ -454,7 +454,7 @@
 
         <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
 			<div class="menu-buttons">
-				<button @click="reset(); $emit('hideComplexModal')">X</button>
+				<button @click="reset(); $emit('hideComplexModal')">Close</button>
 			</div>
           <div class="complex-lookup-modal-container-parts">
 
