@@ -3505,6 +3505,7 @@ export const useProfileStore = defineStore('profile', {
               if (!latinRegex.test(value)){
                 console.log("VALUIE ==",value)
                 nonLatinNodes.push({
+                  ptObj:ptObj,
                   node: obj,
                   propertyURI: key,
                   value: value
@@ -3517,9 +3518,50 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-      console.log("nonLatinNodes",nonLatinNodes)
+      // console.log("nonLatinNodes",nonLatinNodes)
+      return nonLatinNodes
+    },
 
-    }
+    
+
+
+    /**
+    * Set lang of literal value
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {string} fieldGuid - the guid of the field
+    * @param {string} lang - the ISO rdf language value like 'en' to append to the literal 'xxxxx@en'
+    * @return {void}
+    */
+    setBulkLang: function(componentGuid, fieldGuid, lang){
+
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      if (pt !== false){
+        let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
+        if (blankNode){
+
+          console.log(blankNode)
+          if (lang){
+            blankNode['@language'] = lang
+          }else{
+            if (blankNode['@language']){
+              delete blankNode['@language']
+            }
+          }
+
+
+        }else{
+          console.warn("Cannot find blankNode",pt)
+        }
+      }else{
+        console.warn("Cannot find pt",componentGuid)
+      }
+
+
+    },
+
+
 
 
 
