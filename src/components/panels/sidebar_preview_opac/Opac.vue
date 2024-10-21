@@ -4,6 +4,29 @@
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
+  //find the bottom most element in a nested structure, no matter the structure
+  // and return the strings that are not part of `@` keys
+  function rockBottom(obj){
+	  try {
+		  return Object.keys(obj).map(
+			function(key){
+			  let value = obj[key]
+			  if (!key.startsWith("@") && typeof value == "string"){
+				return value
+			  } else if(Array.isArray(value)) {
+				for (let el in value){
+				  return rockBottom(value[el])
+				}
+			  }else if (typeof value === "object"){
+				return rockBottom(value)
+			  }
+			}
+		  ).filter(v => !(typeof v == "undefined"))[0]
+	  } catch {
+		  return false
+	  }
+    }
+
   export default {
     data() {
       return {
@@ -54,7 +77,6 @@
 
         // console.log('userValueuserValueuserValueuserValue',userValue)
         for (let k1 in userValue){
-
           if (!k1.startsWith('@')){
 
             for (let value of userValue[k1]){
@@ -93,7 +115,6 @@
                           toAdd.label.push(value2[k2])
                         }
                       }else if (value2['@id']){
-
                         // console.log("ITS A ENTTITY")
                         // console.log(value2)
                         toAdd.uri = value2['@id']
@@ -111,15 +132,17 @@
                           label: [],
                           children:[]
                         }
-
-
-
+                      } else if (["http://id.loc.gov/ontologies/bibframe/associatedResource", "http://id.loc.gov/ontologies/bflc/appliesTo"].includes(k2)) {
+                        //there's more nested data
+                        for (let child in value2){
+                          if (typeof value2[child] != "string"){
+                            const bottom = rockBottom(value2[child])
+                            toAdd.label.push(bottom)
+                          }
+                        }
                       }
-
-
                     }
-
-                  }else{
+                  } else {
                     // what is it?
                   }
 
@@ -142,10 +165,7 @@
 
         return results
 
-      }
-
-
-
+      },
 
     },
 
@@ -189,13 +209,11 @@
 
       <ul class="sidebar-opac-ul" role="list">
           <template  v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" >
-
             <li v-if="activeProfile.rt[profileName].pt[profileCompoent].hasData && !activeProfile.rt[profileName].pt[profileCompoent].deleted"  @click.stop="activeComponent = activeProfile.rt[profileName].pt[profileCompoent]"  class="sidebar-opac-li sidebar-opac-li-empty" >
                     <a style="font-size:0.95em" href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[profileCompoent]" class="sidebar-property-ul-alink">
                         {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                     </a>
                     <div style="" class="sidebar-opac-li-value" v-for="value in buildDisplayObjects(activeProfile.rt[profileName].pt[profileCompoent].userValue)">
-
                         <template v-if="value.uri !== null">
                           <a :href="value.uri" target="_blank">
                             <div class="sidebar-opac-li-value-text" v-for="l in value.label">{{l}}</div>
