@@ -429,6 +429,7 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
+	  console.info("building XML")
     // console.log(profile)
 
     // keep track of the proces for later
@@ -1179,7 +1180,7 @@ const utilsExport = {
 
 
 
-
+		console.info("tleLookup: ", JSON.parse(JSON.stringify(tleLookup)))
 		// also just build a basic version tosave
 		for (let URI in tleLookup['Work']){
 			let theWork = (new XMLSerializer()).serializeToString(tleLookup['Work'][URI])
@@ -1187,6 +1188,7 @@ const utilsExport = {
 			theWork = xmlParser.parseFromString(theWork, "text/xml").children[0];
 			rdfBasic.appendChild(theWork)
 		}
+		console.info("tleLookup with work: ", JSON.parse(JSON.stringify(tleLookup)))
 
 		for (let URI in tleLookup['Hub']){
 			let theHub = (new XMLSerializer()).serializeToString(tleLookup['Hub'][URI])
@@ -1313,19 +1315,28 @@ const utilsExport = {
 		}else{
 			console.warn('no title found for db')
 		}
-
+		
+		let elements = rdfBasic.querySelectorAll("*")
+		console.info("rdfBasic: ", rdfBasic)
+		console.info("elements: ", elements)
+		
 
 		if (rdfBasic.getElementsByTagName("bf:PrimaryContribution").length>0){
+			console.info("set primary")
 			if (rdfBasic.getElementsByTagName("bf:PrimaryContribution")[0].getElementsByTagName("rdfs:label").length>0){
 				xmlVoidDataContributor = rdfBasic.getElementsByTagName("bf:PrimaryContribution")[0].getElementsByTagName("rdfs:label")[0].innerHTML
 			}
 		}else{
+			console.info("set contributor?")
 			if (rdfBasic.getElementsByTagName("bf:Contribution").length>0){
 				if (rdfBasic.getElementsByTagName("bf:Contribution")[0].getElementsByTagName("rdfs:label").length>0){
 					xmlVoidDataContributor = rdfBasic.getElementsByTagName("bf:Contribution")[0].getElementsByTagName("rdfs:label")[0].innerHTML
 				} else {
 					console.warn('no PrimaryContribution or Contribution found for db')
 				}
+			} else if (rdfBasic.getElementsByTagName("bf:contribution").length>0){
+				console.info("contribution: ", rdfBasic.getElementsByTagName("bf:contribution")[0].getElementsByTagName("rdfs:label"))
+				xmlVoidDataContributor = rdfBasic.getElementsByTagName("bf:contribution")[0].getElementsByTagName("rdfs:label")[0].innerHTML
 			}else{
 				console.warn('no PrimaryContribution or Contribution found for db')
 			}

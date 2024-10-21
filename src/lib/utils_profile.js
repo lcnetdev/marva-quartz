@@ -215,6 +215,7 @@ const utilsProfile = {
   * @return {array} - will return an array with the pt as 0 and the new @guid of the blanknode as 1
   */
   buildBlanknode: function(pt,propertyPath){
+	  console.info("build blank node")
       // link to the base userValue
       let pointer = pt.userValue
 
@@ -270,6 +271,10 @@ const utilsProfile = {
   * @return {void} - doesn't return anything it works on the reference to the pt.userValue updating the orginal
   */
   setTypesForBlankNode: async function(pt, propertyPath){    
+	console.info("setTypeForBlankNode")
+	console.info("pt: ", JSON.parse(JSON.stringify(pt)))
+	console.info("propertyPath: ", JSON.parse(JSON.stringify(propertyPath)))
+	
     let pointer = pt.userValue
     let pointerParent = null
     let parentP = null
@@ -287,7 +292,7 @@ const utilsProfile = {
         }
         if (type !== false){
 
-
+		console.info("suggested type: ", type)
 
           // first we test to see if the type is a literal (the type returned, not the property of the value), if so then we
           // don't need to set the type, as its not a blank node, just a nested property

@@ -223,12 +223,15 @@ export default {
 
 
     thisRtTemplate(){
+		console.info("!! change !!", this.rtLookup)
+		console.info("override: ", this.manualOverride)
       if (this.manualOverride !== null){
         for (let tmpid of this.structure.valueConstraint.valueTemplateRefs){
           console.log('tmpid',tmpid)
           if (tmpid === this.manualOverride){
             let use = JSON.parse(JSON.stringify(this.rtLookup[tmpid]))
             console.log(use)
+			console.info("Override use: ", use)
             return use
           }
         }
@@ -246,9 +249,11 @@ export default {
         userValue = this.structure.userValue[this.structure.propertyURI][0]
       }
 	  
+	  console.info("userValue: ", JSON.parse(JSON.stringify(userValue)))
+	  
       // do we have user data and a possible @type to use
       if (userValue['@type']){
-
+		console.info("we've a type: ", userValue['@type'])
         // loop thrugh all the refs and see if there is a URI that matches it better
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
           if (foundBetter) return false
@@ -285,9 +290,12 @@ export default {
 			  let template = this.structure.valueConstraint.valueTemplateRefs[idx]
 			  if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
 				  let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
-				  let type = target[0]["@type"]
-				  if (type && this.rtLookup[template].resourceURI === type){
-					useId = template
+				  if (target){
+					  let type = target[0]["@type"]
+					  if (type && this.rtLookup[template].resourceURI === type){
+						  console.info("set useId: ", template)
+						useId = template
+					  }
 				  }
 			  }
 		  }
@@ -298,6 +306,8 @@ export default {
       // if (this.parentStructure && this.parentStructure.indexOf(useId) ==-1){
         if (this.rtLookup[useId]){
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
+		  
+		  console.info("use: ", use)
 		  
           return use
           // this.multiTemplateSelect = use.resourceLabel
@@ -390,11 +400,22 @@ export default {
     templateChange(event){
       let nextRef = this.allRtTemplate.filter((v)=>{ return (v.id === event.target.value) })[0]
       let thisRef = this.thisRtTemplate
+	  
+	  console.info("@@@@@@@@@@@@@@@@@@@@")
+	  console.info("nextRef: ", JSON.parse(JSON.stringify(nextRef)))
+	  console.info("thisRef: ", JSON.parse(JSON.stringify(thisRef)))
+	  
+	  console.info("structure: ", JSON.parse(JSON.stringify(this.structure)))
 
-      this.profileStore.changeRefTemplate(this.guid,this.propertyPath,nextRef,thisRef)
-
-
-      this.manualOverride = event.target.value
+      this.profileStore.changeRefTemplate(this.guid, this.propertyPath, nextRef, thisRef)
+	  
+	  
+	console.info("template change propertyPath: ", this.propertyPath)
+	// if (this.structure.parentId == "lc:RT:bflc:Agents:PrimaryContribution"){
+		// this.manualOverride = "lc:RT:bflc:Agents:PrimaryContribution"
+	// } else {
+		// this.manualOverride = event.target.value
+	// }
 
 
 

@@ -484,6 +484,9 @@ export default {
     // Takes the list of values from this lookup uri and filters it based on the input
 
     filter: async function(recursive){
+		
+		console.info("uri: ", this.uri)
+		console.info("stucture: ", this.structure)
 
       this.displayList = []
       this.activeSelect = ''

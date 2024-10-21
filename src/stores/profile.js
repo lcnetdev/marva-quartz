@@ -891,10 +891,14 @@ export const useProfileStore = defineStore('profile', {
       // let lastProperty = propertyPath.at(-1).propertyURI
       // // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+	  
+	  console.info("------------------------")
+	  console.info("starting pt: ", JSON.parse(JSON.stringify(pt)))
 
       if (pt !== false){
 
         pt.activeType = nextRef.resourceURI
+		console.info("activeType: ", JSON.parse(JSON.stringify(pt)).activeType)
         let baseURI = pt.propertyURI
 
         // map to the first level
@@ -902,12 +906,17 @@ export const useProfileStore = defineStore('profile', {
             pt.userValue[baseURI]=[{}]
         }
         let userValue = pt.userValue[baseURI][0]
+		console.info(">>> userValue: ", JSON.parse(JSON.stringify(userValue)))
         // always remove the @id
         if (userValue['@id']){
             delete userValue['@id']
         }
 
-        userValue['@type'] = nextRef.resourceURI
+		console.info("type1: ",  JSON.parse(JSON.stringify(userValue))['@type'])
+		if (userValue['@type'] != "http://id.loc.gov/ontologies/bibframe/PrimaryContribution"){
+			userValue['@type'] = nextRef.resourceURI
+		}
+		console.info("type2: ",  JSON.parse(JSON.stringify(userValue))['@type'])
 
         // store the other properies as well
         if (!pt.refTemplateUserValueKeys){
@@ -927,20 +936,37 @@ export const useProfileStore = defineStore('profile', {
         // if there are properties in the old template that are not in the new one then we need to remove them from the userValue
         let possibleProperties = nextRef.propertyTemplates.map((p) => {return p.propertyURI})
 		
+		console.info("nextRef:", JSON.parse(JSON.stringify(nextRef)))
+		console.info("thisRef:", JSON.parse(JSON.stringify(thisRef)))
+		
+		console.info("starting userValue: ", JSON.parse(JSON.stringify(userValue)))
+		
+		let structure = this.returnStructureByComponentGuid(componentGuid)
+		console.info("structure: ", JSON.parse(JSON.stringify(structure)))
+		
+		
+		console.info("possibleProperties1: ", JSON.parse(JSON.stringify(possibleProperties)))
 		//Look at the userValue for additional properties, only looking at the path misses role
 		possibleProperties = possibleProperties.concat(Object.keys(userValue).map((key) => {return !key.startsWith("@") ? key : ""}))
 		//possibleProperties = possibleProperties.concat(propertyPath.map((p) => {return p.propertyURI}))
+		console.info("possibleProperties2: ", JSON.parse(JSON.stringify(possibleProperties)))
+		
 		
         if (!pt.refTemplateUserValue){
             pt.refTemplateUserValue = {}
         }
 
         for (let key in userValue){
+			console.info("key: ", key)
             if (!key.startsWith('@')){
                 if (possibleProperties.indexOf(key)==-1){
                     //
                     // this property has no place in the ref template we are about to switch to
                     // so store them over in the refTemplateUserValue for later if needed
+					console.info("???")
+					console.info("???")
+					console.info("???")
+					console.info("???")
                     pt.refTemplateUserValue[key] =JSON.parse(JSON.stringify(userValue[key]))
                     delete userValue[key]
                 }
@@ -951,19 +977,22 @@ export const useProfileStore = defineStore('profile', {
         // can be filled into this template
 
         for (let pp of possibleProperties){
+			console.info("pp: ", pp, "--", pt.refTemplateUserValue[pp])
             if (pt.refTemplateUserValue[pp]){
                 // don't use http://id.loc.gov/ontologies/bibframe/assigner aka source
                 // kind of a hackish thing, but the source is really not transferable between
                 // differnt types of classifications so leave it out, it will get populated with the default so
                 // we shouldn't loose any data, only if they change it then cycle the options then it will be lost and need to re-add
                 if (pp != 'http://id.loc.gov/ontologies/bibframe/assigner'){
+					console.info("setting value: ", JSON.parse(JSON.stringify(pt.refTemplateUserValue[pp])))
                     userValue[pp]= JSON.parse(JSON.stringify(pt.refTemplateUserValue[pp]))
                 }
+				console.info("deleting: ", pt.refTemplateUserValue[pp])
                 delete pt.refTemplateUserValue[pp]
             }
-
         }
-
+		
+		console.info("final pt: ", JSON.parse(JSON.stringify(pt)))
 
         // also check to see if there are default values in the orignal profile that we might need to over write with if they are switching
 
@@ -1033,7 +1062,7 @@ export const useProfileStore = defineStore('profile', {
         // they changed something
         this.dataChanged()
 
-
+		console.info("ending userValue: ", JSON.parse(JSON.stringify(userValue)))
 
       }else{
         console.error('changeRefTemplate: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -1895,6 +1924,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null){
+		console.info("setValueComplse")
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
