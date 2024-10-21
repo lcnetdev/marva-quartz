@@ -312,6 +312,15 @@
         }
 
 
+        menu.push(
+
+        {
+            text: "Nonlatin",
+            // active: this.happy,
+            click: () => { this.profileStore.returnAllNonLatinLiterals() }
+        }
+        )
+
 
         menu.push(
 

@@ -795,10 +795,10 @@ export const useConfigStore = defineStore('config', {
         "code": "kv-Cyrl"
     },
     "korean_names": {
-        "code": "ko-hang"
+        "code": "ko-kore"
     },
     "korean_nonames": {
-        "code": "ko-hang"
+        "code": "ko-kore"
     },
     "koryak_cyrillic": {
         "code": "kpy-Cyrl"
