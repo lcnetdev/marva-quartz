@@ -935,10 +935,18 @@ export const useProfileStore = defineStore('profile', {
         // if there are properties in the old template that are not in the new one then we need to remove them from the userValue
         let possibleProperties = nextRef.propertyTemplates.map((p) => {return p.propertyURI})
 		
-		let structure = this.returnStructureByComponentGuid(componentGuid)
-		
 		//Look at the userValue for additional properties, only looking at the path misses role
-		possibleProperties = possibleProperties.concat(Object.keys(userValue).map((key) => {return !key.startsWith("@") ? key : ""}))
+		if (
+				userValue["@type"].includes("/Jurisdiction") || 
+				userValue["@type"].includes("/Person") || 
+				userValue["@type"].includes("/Family") || 
+				userValue["@type"].includes("/Organization") || 
+				userValue["@type"].includes("/Meeting") ||
+				userValue["@type"].includes("/PrimaryContribution") ||
+				userValue["@type"].includes("/Contribution")
+		   ){
+			possibleProperties = possibleProperties.concat(Object.keys(userValue).map((key) => {return !key.startsWith("@") ? key : ""}))
+		}
 		
 		
         if (!pt.refTemplateUserValue){
