@@ -935,26 +935,13 @@ export const useProfileStore = defineStore('profile', {
         // if there are properties in the old template that are not in the new one then we need to remove them from the userValue
         let possibleProperties = nextRef.propertyTemplates.map((p) => {return p.propertyURI})
 		
-		//Look at the userValue for additional properties, only looking at the path misses role
-		if (
-				userValue["@type"].includes("/Jurisdiction") || 
-				userValue["@type"].includes("/Person") || 
-				userValue["@type"].includes("/Family") || 
-				userValue["@type"].includes("/Organization") || 
-				userValue["@type"].includes("/Meeting") ||
-				userValue["@type"].includes("/PrimaryContribution") ||
-				userValue["@type"].includes("/Contribution")
-		   ){
-			possibleProperties = possibleProperties.concat(Object.keys(userValue).map((key) => {return !key.startsWith("@") ? key : ""}))
-		}
-		
-		
         if (!pt.refTemplateUserValue){
             pt.refTemplateUserValue = {}
         }
 
         for (let key in userValue){
-            if (!key.startsWith('@')){
+			//For contributions, keep the keys for agent role so the data persists
+			if (!key.startsWith('@') && !["http://id.loc.gov/ontologies/bibframe/agent", "http://id.loc.gov/ontologies/bibframe/role"].includes(key)){
                 if (possibleProperties.indexOf(key)==-1){
                     //
                     // this property has no place in the ref template we are about to switch to
@@ -1515,7 +1502,6 @@ export const useProfileStore = defineStore('profile', {
 
         }
 
-
         if (!blankNode[lastProperty]){
           console.error('Trying to find the value of this literal, unable to:',componentGuid, fieldGuid, propertyPath, value, lang, pt)
         }
@@ -1533,13 +1519,10 @@ export const useProfileStore = defineStore('profile', {
 
         // if we just set an empty value, remove the value property, and if there are no other values, remvoe the entire property
         if (value.trim() === ''){
-
-
           delete blankNode[lastProperty]
 
-
           let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
-
+		  
           if (parent && parent[lastProperty]){
             let keep = []
             if (parent[lastProperty].length>0){
@@ -1553,10 +1536,9 @@ export const useProfileStore = defineStore('profile', {
               }
             }
 
-
             parent[lastProperty] = keep
 
-            if (parent[lastProperty].length==0){
+            if (parent[lastProperty].length==0){				
               delete parent[lastProperty]
             }
 
