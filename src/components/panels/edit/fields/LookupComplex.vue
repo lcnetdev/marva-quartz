@@ -176,7 +176,7 @@
 
   </template>
 
-  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false" :structure="structure" v-model="displayModal"/>
+  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal"/>
   <SubjectEditor ref="subjectEditorModal" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
 
 </template>
@@ -602,7 +602,6 @@ export default {
               this.marcDeliminatedLCSHMode = true
 
 
-
               this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue)
               this.marcDeliminatedLCSHModeSearching = false
               let sendResults = []
@@ -656,7 +655,15 @@ export default {
 
 
           }else{
-
+			// we're opening the subject builder, turn this off
+			this.marcDeliminatedLCSHMode = false
+			this.marcDeliminatedLCSHModeSearching = false
+			this.marcDeliminatedLCSHModeTimeout = null
+			this.marcDeliminatedLCSHModeResults = []
+			
+			this.authorityLookup = this.searchValue.trim()
+			this.searchValue = this.searchValue.trim()
+			
             this.displaySubjectModal=true
             this.$nextTick(() => {
               this.$refs.subjectEditorModal.focusInput()
@@ -738,6 +745,12 @@ export default {
       if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
         this.displayModal = true
       } else {
+		// we're opening the subject builder, turn this off
+		this.marcDeliminatedLCSHMode = false
+		this.marcDeliminatedLCSHModeSearching = false
+		this.marcDeliminatedLCSHModeTimeout = null
+		this.marcDeliminatedLCSHModeResults = []
+	  
         this.displaySubjectModal = true
       }
 

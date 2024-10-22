@@ -37,6 +37,10 @@ let cachePt = {}
 let cacheGuid = {}
 let dataChangedTimeout = null
 
+// const nonLatinRegex = /^[A-z\u00C0-\u00ff\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9]+$/; 
+// const latinRegex = /^[\u3040-\u309F\u30A0-\u30FF]+$/; 
+const latinRegex = /^[A-z\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9\u0000-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\u2C60-\u2C7F\uA720-\uA7FF]+$/
+
 //https://stackoverflow.com/questions/49562546/how-to-get-all-properties-values-of-a-javascript-nested-objects-without-knowing
 // clean cacheGuid of items that match the children of the PT that is insert default values too
 function cleanCacheGuid(cache, obj, target){
@@ -3459,6 +3463,110 @@ export const useProfileStore = defineStore('profile', {
       this.dataChanged()
 
     },
+
+    /**
+    * 
+    *
+    * @return {array}
+    */
+    returnAllNonLatinLiterals:  function(){
+
+      function process (obj, func) {
+        
+        if (obj && obj.userValue){
+          obj = obj.userValue
+        }
+
+        if (Array.isArray(obj)){
+          obj.forEach(function (child) {
+            process(child, func);
+          });
+        }else if (typeof obj == 'object' && obj !== null){
+          for (let k in obj){
+            if (Array.isArray(obj[k])){
+              process(obj[k], func);
+            }else{
+              if (!k.startsWith('@')){
+                func(obj,k,obj[k]);
+              }
+            }
+          }
+        }
+
+      }
+
+
+
+
+      let nonLatinNodes = []
+      for (let rt of this.activeProfile.rtOrder){
+        for (let pt of this.activeProfile.rt[rt].ptOrder){
+          let ptObj = this.activeProfile.rt[rt].pt[pt]
+          
+
+          process(ptObj, function (obj,key,value) {
+              // e.g.
+              // console.log(obj,key);
+              if (!latinRegex.test(value)){
+                console.log("VALUIE ==",value)
+                nonLatinNodes.push({
+                  ptObj:ptObj,
+                  node: obj,
+                  propertyURI: key,
+                  value: value
+                })
+              }
+          });
+
+
+
+        }
+      }
+
+      // console.log("nonLatinNodes",nonLatinNodes)
+      return nonLatinNodes
+    },
+
+    
+
+
+    /**
+    * Set lang of literal value
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {string} fieldGuid - the guid of the field
+    * @param {string} lang - the ISO rdf language value like 'en' to append to the literal 'xxxxx@en'
+    * @return {void}
+    */
+    setBulkLang: function(componentGuid, fieldGuid, lang){
+
+
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      if (pt !== false){
+        let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
+        if (blankNode){
+
+          console.log(blankNode)
+          if (lang){
+            blankNode['@language'] = lang
+          }else{
+            if (blankNode['@language']){
+              delete blankNode['@language']
+            }
+          }
+
+
+        }else{
+          console.warn("Cannot find blankNode",pt)
+        }
+      }else{
+        console.warn("Cannot find pt",componentGuid)
+      }
+
+
+    },
+
+
 
 
 

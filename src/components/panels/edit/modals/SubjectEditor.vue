@@ -16,10 +16,11 @@
     >
 
     <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
-
       <div style="position: relative;">
-
           <div style="position:absolute; right:2em; top:  0.25em; z-index: 100;">
+			  <div class="menu-buttons">
+				<button @click="closeEditor()">Close</button>
+			  </div>
             <button @click="editorModeSwitch('build')" data-tooltip="Build LCSH headings using a lookup list" class="subjectEditorModeButtons simptip-position-left" style="margin-right: 1em; background-color: black; height: 2em; display: inline-flex;">
       <!--         <svg fill="#F2F2F2" width="20px" height="20px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                <g>
@@ -201,7 +202,7 @@
                         </form>
 
                         <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
-                          {{c.label}}
+						  {{c.label}}
                         </div>
                       </div>
                     </div>
@@ -636,6 +637,13 @@ padding-right: 0.25em;
 margin-top: 10px;
 }
 
+.menu-buttons{
+	margin-right: 5px;
+	padding-top: 5px;
+	padding-left: 15px;
+	float: right;
+}
+
 /*
 .left-menu-list-item-has-data::before {
   content: "✓ " !important;
@@ -760,7 +768,35 @@ computed: {
 
 },
 methods: {
-
+	
+  //parse complex headings so we can have complete and broken up headings
+  parseComplexSubject: async function(uri){
+    let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
+    let components = false
+    let subfields = false
+    let marcKey = false
+    for (let el of data){
+      if (el["@id"] == uri){
+        marcKey = el["http://id.loc.gov/ontologies/bflc/marcKey"][0]["@value"]
+        // we're not looking at a GEO heading, so the components will be URIs
+        // GEO won't have URIs, so they can be ignored
+        if(!el["@type"].includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")){
+          components = el["http://www.loc.gov/mads/rdf/v1#componentList"]
+		  break
+        }
+      }
+    }
+	
+    //get the subfields from the marcKey
+    if (marcKey){
+      subfields = marcKey.slice(5)
+      // subfields = subfields.match(/\$./g)
+	  subfields = subfields.match(/\$[axyzv]{1}/g)
+    }
+	
+    return {"components": components, "subfields": subfields, "marcKey": marcKey}
+  },
+  
   /**
    * When loading from an existing subject, the component lookup
    * needs to be build, so the components will have URIs, types,
@@ -797,21 +833,21 @@ methods: {
       }
       try {
         let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("--", "‑‑")
-
         //Set up componentLookup, so the component builder can give them URIs
         this.componetLookup[subjIdx][label] = {
           label: incomingSubjects[subjIdx][lookUp][0][lookUp],
           literal: incomingSubjects[subjIdx]["@id"] ? false : true,
           uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null,
-          type: this.typeLookup[subjIdx]
+          type: this.typeLookup[subjIdx],
+		  marcKey: incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"]
         }
 
       } catch(err){
         console.error(err)
       }
     }
-
   },
+  
   /**
    * Creates components from the search string
    *
@@ -849,7 +885,7 @@ methods: {
           // subjectStringSplit.push(target)
           subjectStringSplit.splice(targetIndex, 0, target)
         }
-      }
+      } 
     }
 
     // clear the current
@@ -867,11 +903,13 @@ methods: {
 
 
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
+		  // Zero out for geographic, because the terms won't be linked when reopengin
+		  // TODO: revisit this
+		if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
           literal = this.componetLookup[id][ss].literal = false
           uri = this.componetLookup[id][ss].uri = null
         }
-
+		
         literal = this.componetLookup[id][ss].literal
         uri = this.componetLookup[id][ss].uri
 		marcKey = this.componetLookup[id][ss].marcKey
@@ -901,7 +939,6 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
-
   },
 
   /**
@@ -923,12 +960,8 @@ methods: {
       this.linkModeSearching=false
 
     }else if (event.key==='Enter' && event.shiftKey===true){
-
       this.addLinkMode()
-
     }
-
-
 
     if (event.preventDefault) {event.preventDefault()}
     return false
@@ -1019,82 +1052,89 @@ methods: {
           componentMap.push(c)
         }
       }
+	  
+	  //only stitch the loose components togethere if there are 2 next to each other
+	  if (indx.length == 2 && indx[1]-1 == indx[0]){
+		  /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		   *  !! the `not` hyphens are very important !!
+		   *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		   */
+		  // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
+		  this.activeComponentIndex = Number(indx[0])
+			
+		  //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
+		  this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
+		  //this.activeComponent = looseComponents[this.activeComponentIndex]
+		  
+		  this.activeComponent.id = this.activeComponentIndex
+		  
+		  //update the active component with the loose components
+		  for (let c in looseComponents){
+			if (c != 0){
+			  let part1 = ""
+				if (c == 1){
+				  part1 = looseComponents[0].label
+				} else {
+				  part1 = this.activeComponent.label
+				}
+			  const part2 = looseComponents[c].label
+			  this.activeComponent.label = part1 + "‑‑" + part2
+			  this.activeComponent.posEnd = looseComponents[c].posEnd
+			}
+		  }
+		  this.activeComponent.posStart = looseComponents[0].posStart
 
-      /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       *  !! the `not` hyphens are very important !!
-       *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       */
-      // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
-      this.activeComponentIndex = Number(indx[0])
-      this.activeComponent = looseComponents[this.activeComponentIndex]
-      this.activeComponent.id = this.activeComponentIndex
+		  // we need to make sure the order is maintained
+		  // use the component map to determine maintain order
+		  let final = []
+		  for (let el in componentMap){
+			let good = componentMap[el] != '-'
+			if (good){
+			  final.push(this.components[el].label)
+			} else {
+			  final.push(this.activeComponent.label)
+			}
+		  }
 
-      //update the active component with the loose components
-      for (let c in looseComponents){
-        if (c != 0){
-          let part1 = ""
-            if (c == 1){
-              part1 = looseComponents[0].label
-            } else {
-              part1 = this.activeComponent.label
-            }
-          const part2 = looseComponents[c].label
-          this.activeComponent.label = part1 + "‑‑" + part2
-          this.activeComponent.posEnd = looseComponents[c].posEnd
-        }
-      }
-      this.activeComponent.posStart = looseComponents[0].posStart
+		  final = new Set(final)
+		  final = Array.from(final)
 
-      // we need to make sure the order is maintained
-      // use the component map to determine maintain order
-      let final = []
-      for (let el in componentMap){
-        let good = componentMap[el] != '-'
-        if (good){
-          final.push(this.components[el].label)
-        } else {
-          final.push(this.activeComponent.label)
-        }
-      }
+		  this.subjectString =  final.join("--")
 
-      final = new Set(final)
-      final = Array.from(final)
+		  //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
+		  this.components.splice(indx[0], indx.length, this.activeComponent)
 
-      this.subjectString =  final.join("--")
+		  // need to make sure postStart and posEnd are correct, and the id
+		  this.adjustStartEndPos(this.components)
+		  for (let x in this.components){
+			let prev = null
+			let current = this.components[x]
 
-      //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
-      this.components.splice(indx[0], indx.length, this.activeComponent)
+			if (x > 0){
+			  prev = this.components[x] - 1
+			} else if (x == 0) {
+			  current.posStart = 0
+			} else {
+			  current.posStart = prev.posEnd + 2
+			}
+			current.posEnd = current.posStart + current.label.length
 
-      // need to make sure postStart and posEnd are correct, and the id
-      this.adjustStartEndPos(this.components)
-      for (let x in this.components){
-        let prev = null
-        let current = this.components[x]
+			current.id = x
+		  }
 
-        if (x > 0){
-          prev = this.components[x] - 1
-        } else if (x == 0) {
-          current.posStart = 0
-        } else {
-          current.posStart = prev.posEnd + 2
-        }
-        current.posEnd = current.posStart + current.label.length
+		  // get the boxes lined up correctly
+		  this.renderHintBoxes()
 
-        current.id = x
-      }
-
-      // get the boxes lined up correctly
-      this.renderHintBoxes()
-
-      // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
-      for (let i in this.components){
-        for (let j in this.componetLookup){
-          const key = Object.keys(this.componetLookup[j])[0]
-          if (this.components[i].label == key){
-            this.componetLookup[i] = this.componetLookup[j]
-          }
-        }
-      }
+		  // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
+		  for (let i in this.components){
+			for (let j in this.componetLookup){
+			  const key = Object.keys(this.componetLookup[j])[0]
+			  if (this.components[i].label == key){
+				this.componetLookup[i] = this.componetLookup[j]
+			  }
+			}
+		  }
+	  }
     } else {
       this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
       // Above we took loose components and combined them,
@@ -1267,9 +1307,6 @@ methods: {
 
     that.pickPostion = that.searchResults.subjectsSimple.length + that.searchResults.subjectsComplex.length -1
 
-
-
-
     for (let x in that.searchResults.subjectsComplex){
       that.pickLookup[x] = that.searchResults.subjectsComplex[x]
     }
@@ -1302,9 +1339,6 @@ methods: {
           if (that.pickLookup[k].label !=  that.activeComponent.label){
             break
           }
-          that.pickPostion=k
-          that.pickLookup[k].picked=true
-          that.selectContext()
         }
       }
     }
@@ -1458,33 +1492,6 @@ methods: {
 
 
 
-  },
-
-  // Check if the complex subject is made of multiple authorized headings.
-  // Used to build a subject `componentList` that doesn't have multiple
-  // terms connected by `--`
-  parseComplexSubject: async function(uri){
-    let data = await utilsNetwork.fetchSimpleLookup(uri+ ".json", true)
-    let components = false
-    let subfields = false
-    let marcKey = false
-    for (let el of data){
-      if (el["@id"] == uri){
-        marcKey = el["http://id.loc.gov/ontologies/bflc/marcKey"][0]["@value"]
-        // we're not looking at a GEO heading, so the components will be URIs
-        // GEO won't have URIs, so they can be ignored
-        if(!el["@type"].includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")){
-          components = el["http://www.loc.gov/mads/rdf/v1#componentList"]
-        }
-      }
-    }
-    //get the subfields from the marcKey
-    if (marcKey){
-      subfields = marcKey.slice(5)
-      subfields = subfields.match(/\$./g)
-    }
-
-    return {"components": components, "subfields": subfields, "marcKey": marcKey}
   },
 
   selectContext: async function(pickPostion, update=true){
@@ -2006,22 +2013,36 @@ methods: {
     let match = false
     const componentCount = this.components.length
     const componentCheck = this.components.length > 0 ? this.components.map((component) => component.label).join("--") : false
-
+	let componentTypes 
+	try {
+		componentTypes = this.components.length > 0 ? this.components.map((component) => component.marcKey.slice(5)).join("") : false
+	} catch {
+		componentTypes = false
+	}
+	
+	
     for (let el in this.searchResults["subjectsComplex"]){
       let target = this.searchResults["subjectsComplex"][el]
       if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
-        //the entire built subject can be replaced by 1 term
-        match = true
-        this.components.push({
-          "complex": target.complex,
-          "id": 0,
-          "label": target.label,
-          "literal": false,
-          "posEnd": target.label.length,
-          "posStart": 0,
-          "type": "madsrdf:Topic",
-          "uri": target.uri,
-        })
+		  
+		  // we need to check the types of each element to make sure they really are the same terms
+		  let targetContext = await utilsNetwork.returnContext(target.uri)
+		  let marcKey = targetContext.nodeMap.marcKey[0].slice(5)
+
+		  if (marcKey == componentTypes){
+			//the entire built subject can be replaced by 1 term
+			match = true
+			this.components.push({
+			  "complex": target.complex,
+			  "id": 0,
+			  "label": target.label,
+			  "literal": false,
+			  "posEnd": target.label.length,
+			  "posStart": 0,
+			  "type": "madsrdf:Topic",
+			  "uri": target.uri,
+			})
+		  }
       }
     }
 
@@ -2032,95 +2053,150 @@ methods: {
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
     } else {
-        // need to break up the complex heading into it's pieces so their URIs are availble
-        // Also break Hierarchical GEO headings apart
+		// need to break up the complex heading into it's pieces so their URIs are availble
         let prevItems = 0
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
-          const target = frozenComponents[component]
-          if (target.complex){
-            let uri = target.uri
-            let data = await this.parseComplexSubject(uri)
-            const complexLabel = target.label
+			const target = frozenComponents[component]
+			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
+				let uri = target.uri
+				let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
+				
+				let subs
+				subs = target.marcKey.slice(5)
+			    // subfields = subfields.match(/\$./g)
+			    subs = subs.match(/\$[axyzv]{1}/g)
 
-            //build the new components
-            let id = prevItems
-
-
-            for (let label of complexLabel.split("--")){
-              let subfield = data["subfields"][id - prevItems]
-              switch(subfield){
-                case("$a"):
-                  subfield = "madsrdf:Topic"
-                  break
-                case("$x"):
-                  subfield = "madsrdf:Topic"
-                  break
-                case("$v"):
-                  subfield = "madsrdf:GenreForm"
-                  break
-                case("$y"):
-                  subfield = "madsrdf:Temporal"
-                  break
-                case("$z"):
-                  subfield = "madsrdf:Geographic"
-                  break
-                default:
-                  subfield = false
-              }
-
-              newComponents.splice(id, 0, ({
-                "complex": false,
-                "id": id,
-                "label": label,
-                "literal": false,
-                "posEnd": label.length,
-                "posStart": 0,
-                "type": subfield,
-                "uri": data["components"] != false ? data["components"][0]["@list"][id]["@id"] : "",
-                "marcKey": data["marcKey"]
-              }))
-
-              id++
-              prevItems++
-
-            }
-          } else {
-            newComponents.push(target)
-            prevItems++
-          }
-        }
-      }
+				const complexLabel = target.label
+				//build the new components
+				let id = prevItems
+				let labels = complexLabel.split("--")
+				for (let idx in labels){
+				  let subfield
+				  if (data){
+				    subfield = data["subfields"][idx]
+				  } else if (target.marcKey){
+					  let marcKey = target.marcKey.slice(5)
+					  subfield = marcKey.match(/\$[axyzv]{1}/g)
+					  subfield = subfield[idx]
+				  }
+				  
+				  switch(subfield){
+					case("$a"):
+					  subfield = "madsrdf:Topic"
+					  break
+					case("$x"):
+					  subfield = "madsrdf:Topic"
+					  break
+					case("$v"):
+					  subfield = "madsrdf:GenreForm"
+					  break
+					case("$y"):
+					  subfield = "madsrdf:Temporal"
+					  break
+					case("$z"):
+					  subfield = "madsrdf:Geographic"
+					  break
+					default:
+					  subfield = false
+				  }
+				  
+				  //Override the subfield of the first element based on the marc tag
+				  let tag = target.marcKey.slice(0,3)
+				  if (idx == 0){
+					  switch(tag){
+						  case "151":
+							subfield = "madsrdf:Geographic"
+							break
+						  case "100":
+							subfield = "madsrdf:PersonalName"
+							break
+						  default:
+							subfield = "madsrdf:Topic"
+					  }
+				  }
+				  
+				  //make a marcKey for the component
+				  // We've got the label, subfield and the tag for the first element
+				  let sub
+				  if (data) {
+					sub = data["subfields"][idx]
+				  } else {
+					  sub = subs[idx]
+				  }
+				  if (idx == 0){
+					  tag = tag
+				  } else {
+					  //build the tag from the subfield
+					  switch(sub){
+						case("$v"):
+						  tag = "185"
+						  break
+						case("$y"):
+						  tag = "182"
+						  break
+						case("$z"):
+						  tag = "181"
+						  break
+						default:
+						  tag = "180"
+					  }
+				  }
+				  let marcKey = tag + "  " + sub + labels[idx]
+				
+				  newComponents.splice(id, 0, ({
+					"complex": false,
+					"id": id,
+					"label": labels[idx],
+					"literal": false,
+					"posEnd": labels[idx].length,
+					"posStart": 0,
+					"type": subfield,
+					"uri": data && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
+					"marcKey": marcKey
+				  }))
+				  id++
+				  prevItems++
+				}
+			  
+			} else {
+				newComponents.push(target)
+				prevItems++
+			}
+		}
+	}
+	
 
     if (newComponents.length > 0){
       this.components = newComponents
     }
+	
     this.$emit('subjectAdded', this.components)
   },
 
 
   closeEditor: function(){
-    //after closing always open in `link` mode for consistency
+    //after closing always open in `build` mode
     this.subjectEditorMode = "build"
+	
+	//clear out the components and related field so things will start clean if it reopened
+	this.cleanState()
+	
     this.$emit('hideSubjectModal', true)
   },
 
   checkToolBarHeight: function(){
-
     // also check to see if the toolbar is off the screen,
     // in very very low res setups sometimes this area gets clipped
     if (this.$refs.toolbar && this.$refs.toolbar.getBoundingClientRect().bottom > window.innerHeight){
       this.lowResMode=true
       this.$emit('lowResModeActivate', true)
     }
-
-
   },
-
-
-  loadUserValue: function(userValue){
-    // reset things if they might be opening this again for some reason
-    this.components= []
+  
+  cleanState: function(){
+	this.searchMode = "LCSHNAF"
+	this.components= []
     this.lookup= {}
     this.searchResults= null
     this.activeSearch= false
@@ -2136,8 +2212,17 @@ methods: {
     this.typeLookup={}
     this.okayToAdd= false
     this.showTypes= false
+	
+	this.contextData = {nodeMap:{}}
+	this.authorityLookupLocal = null,
+    this.subjectString = ''
+
+  },
 
 
+  loadUserValue: function(userValue){
+    // reset things if they might be opening this again for some reason
+    this.cleanState()
 
 
     if (!userValue){
@@ -2365,6 +2450,7 @@ mounted: function(){},
 updated: function() {
   // this was opened from an existing subject
   let profileData = this.profileData
+
   let incomingSubjects
 
   if (profileData && profileData.propertyLabel != "Subjects"){

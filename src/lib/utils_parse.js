@@ -251,6 +251,47 @@ const utilsParse = {
   sniffWorkRelationType(xml){
     for (let child of xml.children){
       if (child.tagName == 'bf:relation'){
+      
+        // let hasUncontrolled = false
+        // if (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1){ hasUncontrolled = true }
+        // if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){ hasUncontrolled = true }
+        
+        // let hasSeriesProperty = false
+        // if (child.innerHTML.indexOf("bf:hasSeries")>-1){ hasSeriesProperty = true }
+
+        // let hasWork = false
+        // if (child.innerHTML.indexOf("bf:Work")>-1) { hasWork = true}
+
+        // let hasHub = false
+        // if (child.innerHTML.indexOf("bf:Hub")>-1) { hasHub = true}
+
+        // let hasSeries = false
+        // if (child.innerHTML.indexOf("bf:Series")>-1){ hasSeries = true }
+
+        // let hasAssociatedResource = false
+        // if (child.innerHTML.indexOf("bf:associatedResource")>-1) { hasAssociatedResource = true}
+
+        // if (hasSeriesProperty && hasAssociatedResource && hasSeries){
+        //   child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+        // }else if (hasAssociatedResource && (hasWork || hasHub) && hasSeriesProperty ){
+        //   child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
+        // }else if (hasUncontrolled && hasAssociatedResource && hasWork){
+        //   child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+        // }
+
+        // console.log(child)
+        // console.log('hasUncontrolled',hasUncontrolled)
+        // console.log('hasSeriesProperty',hasSeriesProperty)
+        // console.log('hasWork',hasWork)
+        // console.log('hasHub',hasHub)
+        // console.log('hasSeries',hasSeries)
+        // console.log('hasAssociatedResource',hasAssociatedResource)
+
+        
+
+        
+
+      // old Logic
        if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
        } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
@@ -268,6 +309,9 @@ const utilsParse = {
        }else{
           // leave blank?
         }
+
+
+
       }
     }
     return xml

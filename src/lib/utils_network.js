@@ -1196,6 +1196,15 @@ const utilsNetwork = {
         }
 
         lcsh = lcsh.replace(secondDollarZ,collapsedDollarZ)
+		
+		//if there is a space before the hyphens remove it. It prevents matches
+		if (lcsh.includes(" --")){
+			lcsh = lcsh.replace(" --", "--")
+		}
+		//Also remove spaces after the hyphens
+		if (lcsh.includes("-- ")){
+			lcsh = lcsh.replace("-- ", "--")
+		}
 
       }
 
@@ -2178,8 +2187,6 @@ const utilsNetwork = {
         resultsSubjectsSimple.push(resultsSubjectsSimple.pop())
         resultsSubjectsSimple.reverse()
       }
-      resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
-
 
       resultsSubjectsComplex.reverse()
 

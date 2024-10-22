@@ -689,6 +689,16 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Diacritics',
         range: null
       },
+      '--o-literal-lang-bulk-options' : {
+        value:[],
+        desc: '',
+        descShort: 'The lang-script options to use in the bulk tool',
+        type: 'other',
+        group: 'Diacritics',
+        range: null
+      },
+
+
 
       //Shelflisting
       '--b-shelflist-link-1-label' : {

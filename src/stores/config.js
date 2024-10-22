@@ -6,8 +6,9 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 0,
-    versionMinor: 14,
-    versionPatch: 39,
+    versionMinor: 15,
+    versionPatch: 0,
+
 
     regionUrls: {
 
@@ -125,6 +126,7 @@ export const useConfigStore = defineStore('config', {
 
   showUpdateAvailableModal:false,
 
+  showNonLatinBulkModal: false,
 
   scriptshifterLanguages: {},
 
@@ -339,16 +341,16 @@ export const useConfigStore = defineStore('config', {
       "processor" : 'lcAuthorities',
       "modes":[
         {
-          'NAF All':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
-          'NAF Personal Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=PersonalName&count=25&offset=<OFFSET>"},
-          'NAF Corporate Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=CorporateName&count=25&offset=<OFFSET>"},
-          'NAF Name/Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=NameTitle&count=25&offset=<OFFSET>"},
-          'NAF Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Title&count=25&offset=<OFFSET>"},
-          'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>"},
-          'NAF Conference Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=25&offset=<OFFSET>"},
+          'NAF All':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype=<TYPE>", "all":true},
+          'NAF Personal Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=PersonalName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Corporate Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=CorporateName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Name/Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=NameTitle&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Title&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Conference Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
 
-          'NAF Auth Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings&count=25&offset=<OFFSET>"},
-          'NAF Geo SubDiv':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions&count=25&offset=<OFFSET>"}
+          'NAF Auth Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Geo SubDiv':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions&count=25&offset=<OFFSET>&searchtype=<TYPE>"}
         }
       ]
 
@@ -795,10 +797,10 @@ export const useConfigStore = defineStore('config', {
         "code": "kv-Cyrl"
     },
     "korean_names": {
-        "code": "ko-hang"
+        "code": "ko-Kore"
     },
     "korean_nonames": {
-        "code": "ko-hang"
+        "code": "ko-Kore"
     },
     "koryak_cyrillic": {
         "code": "kpy-Cyrl"
