@@ -357,7 +357,6 @@ export default {
   },
 
   updated: function(){
-		console.info("updated???????????????")
 		//this.profileStore.dataChanged()
 		// this.setComplexValue("test") //causes a loop
   },
@@ -527,7 +526,6 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
-		console.info("set value: ", contextValue)
       delete contextValue.typeFull
       this.profileStore.setValueComplex(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap)
       this.searchValue=''
