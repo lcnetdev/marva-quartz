@@ -1311,8 +1311,6 @@ const utilsExport = {
 		}else{
 			console.warn('no title found for db')
 		}
-		
-		let elements = rdfBasic.querySelectorAll("*")
 
 		if (rdfBasic.getElementsByTagName("bf:PrimaryContribution").length>0){
 			if (rdfBasic.getElementsByTagName("bf:PrimaryContribution")[0].getElementsByTagName("rdfs:label").length>0){
@@ -1325,9 +1323,7 @@ const utilsExport = {
 				} else {
 					console.warn('no PrimaryContribution or Contribution found for db')
 				}
-			} else if (rdfBasic.getElementsByTagName("bf:contribution").length>0){
-				xmlVoidDataContributor = rdfBasic.getElementsByTagName("bf:contribution")[0].getElementsByTagName("rdfs:label")[0].innerHTML
-			}else{
+			} else{
 				console.warn('no PrimaryContribution or Contribution found for db')
 			}
 		}

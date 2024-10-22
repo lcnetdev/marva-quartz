@@ -356,11 +356,6 @@ export default {
 
   },
 
-  updated: function(){
-		//this.profileStore.dataChanged()
-		// this.setComplexValue("test") //causes a loop
-  },
-
   created: function(){
 
     // this.checkForUserData()

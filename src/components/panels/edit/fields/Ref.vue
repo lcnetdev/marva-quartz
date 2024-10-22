@@ -393,15 +393,6 @@ export default {
       let thisRef = this.thisRtTemplate
 	  
       this.profileStore.changeRefTemplate(this.guid, this.propertyPath, nextRef, thisRef)
-	  
-	// if (this.structure.parentId == "lc:RT:bflc:Agents:PrimaryContribution"){
-		// this.manualOverride = "lc:RT:bflc:Agents:PrimaryContribution"
-	// } else {
-		// this.manualOverride = event.target.value
-	// }
-
-
-
     }
 
 
