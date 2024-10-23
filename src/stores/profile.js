@@ -1420,12 +1420,12 @@ export const useProfileStore = defineStore('profile', {
 	  
 	  //clear the cache if the value was deleted
 	  if (value.trim() == ""){
-		  if (Object.keys(cachePt).includes(componentGuid)){
-			  delete cachePt[componentGuid]
-			}
-			for (let guid of Object.keys(cacheGuid)){
-			  cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
-			}
+        if (Object.keys(cachePt).includes(componentGuid)){
+          delete cachePt[componentGuid]
+        }
+        for (let guid of Object.keys(cacheGuid)){
+          cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+        }
 	  }
 	  
       // console.log("--------pt 1------------")
