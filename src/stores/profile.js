@@ -2961,9 +2961,7 @@ export const useProfileStore = defineStore('profile', {
         let subjItems = []
         let contribItems = []
        
-        
         if (pt !== false){
-            // loop through all the headings and find the place the headings start
             let workRtId = null
             for (let rtId in this.activeProfile.rt){
               if (rtId.indexOf(":Work") > -1){
@@ -3013,7 +3011,7 @@ export const useProfileStore = defineStore('profile', {
     * Moves the selected heading up or down
     *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
-    * @param {string} direction - which way the item should move `up` or `down`
+    * @param {string} dir - which way the item should move `up` or `down`
     * @return {void}
     */
     moveUpDown: function(componentGuid, dir){
@@ -3021,7 +3019,6 @@ export const useProfileStore = defineStore('profile', {
       let target
       
       if (pt !== false){
-        // loop through all the headings and find the place the headings start
         let firstHeading = null
         let workRtId = null
         for (let rtId in this.activeProfile.rt){
