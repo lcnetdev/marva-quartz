@@ -3042,7 +3042,6 @@ export const useProfileStore = defineStore('profile', {
           } else {
               newPos = currentPos+1
           }
-          const swapValue =  this.activeProfile.rt[workRtId].ptOrder[newPos]
           
           //swap the target with the element in the desired position
           //delete from current pos
