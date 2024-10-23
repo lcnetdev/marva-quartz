@@ -2955,7 +2955,12 @@ export const useProfileStore = defineStore('profile', {
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
         
         let target
-        let items = []
+        let targetType
+        
+        let items
+        let subjItems = []
+        let contribItems = []
+       
         
         if (pt !== false){
             // loop through all the headings and find the place the headings start
@@ -2963,11 +2968,22 @@ export const useProfileStore = defineStore('profile', {
             for (let rtId in this.activeProfile.rt){
               if (rtId.indexOf(":Work") > -1){
                 workRtId = rtId
-                for (let [idx, ptId] of this.activeProfile.rt[rtId].ptOrder.entries()){
+                for (let ptId of this.activeProfile.rt[rtId].ptOrder){
                   if (this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
-                    items.push(ptId)
+                    subjItems.push(ptId)
                     if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
                         target = ptId
+                        targetType = "subject"
+                    }
+                  }
+                  if (
+                        this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution' && 
+                        this.activeProfile.rt[rtId].pt[ptId].propertyLabel != "Creator of Work"
+                     ){
+                    contribItems.push(ptId)
+                    if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
+                        target = ptId
+                        targetType = "contribution"
                     }
                   }
                 }
@@ -2975,6 +2991,7 @@ export const useProfileStore = defineStore('profile', {
             }
         }
         
+        items = targetType == "subject" ? subjItems : contribItems
         if (items.length <= 1){
             return [false, false]
         } else {
@@ -2983,7 +3000,9 @@ export const useProfileStore = defineStore('profile', {
                 return [false, true]
             } else if (pos == items.length-1){
                 return [true, false]
-            } else {
+            } else if (pos < 0){
+                return [false, false]
+            }else {
                 return [true, true]
             }
         }
@@ -3009,7 +3028,10 @@ export const useProfileStore = defineStore('profile', {
           if (rtId.indexOf(":Work") > -1){
             workRtId = rtId
             for (let ptId of this.activeProfile.rt[rtId].ptOrder){
-              if (this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+              if (
+                    this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' ||
+                    this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution'
+                 ){
                 if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
                         target = ptId
                     }
