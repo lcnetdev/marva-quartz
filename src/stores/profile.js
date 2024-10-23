@@ -1417,6 +1417,17 @@ export const useProfileStore = defineStore('profile', {
         pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
         cachePt[componentGuid] = pt
       }
+	  
+	  //clear the cache if the value was deleted
+	  if (value.trim() == ""){
+        if (Object.keys(cachePt).includes(componentGuid)){
+          delete cachePt[componentGuid]
+        }
+        for (let guid of Object.keys(cacheGuid)){
+          cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+        }
+	  }
+	  
       // console.log("--------pt 1------------")
       // console.log(JSON.stringify(pt,null,2))
       // let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
@@ -1492,16 +1503,9 @@ export const useProfileStore = defineStore('profile', {
             blankNode[lastProperty] = true
             // console.log("--------pt 4------------")
             // console.log(JSON.stringify(pt,null,2))
-
-
           }
-
           // console.log("currentValueCount",currentValueCount)
-
-
-
         }
-
 
         if (!blankNode[lastProperty]){
           console.error('Trying to find the value of this literal, unable to:',componentGuid, fieldGuid, propertyPath, value, lang, pt)
@@ -1517,16 +1521,13 @@ export const useProfileStore = defineStore('profile', {
 
         // and now add in the literal value into the correct property
         blankNode[lastProperty] = value
-
+		
         // if we just set an empty value, remove the value property, and if there are no other values, remvoe the entire property
         if (value.trim() === ''){
-
-
           delete blankNode[lastProperty]
-
-
+	
           let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
-
+	
           if (parent && parent[lastProperty]){
             let keep = []
             if (parent[lastProperty].length>0){
@@ -1539,7 +1540,6 @@ export const useProfileStore = defineStore('profile', {
                 }
               }
             }
-
 
             parent[lastProperty] = keep
 
@@ -1561,6 +1561,7 @@ export const useProfileStore = defineStore('profile', {
             propertyPath.pop()
             let uv = pt.userValue
             let oldUv = pt.userValue
+			
             for (let p of propertyPath){
               uv = uv[p.propertyURI]
               if (Array.isArray(uv)){
@@ -1574,6 +1575,7 @@ export const useProfileStore = defineStore('profile', {
               }
 
               console.log(p.propertyURI,'has',Object.keys(uv).length,'keys')
+			  
               // the oldUv so we have a references to where we will be in the next loop so we can delete from the parent obj
               oldUv = oldUv[p.propertyURI]
               if (Array.isArray(oldUv)){
