@@ -32,7 +32,6 @@
           Delete Component
         </button>
 
-
         <template v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic'">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-4`" @click="makeSubjectHeadingPrimary()">
             <span class="button-shortcut-label">4</span>
@@ -234,18 +233,14 @@
 
       processShortcutKeypress(event){
 
-        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9','-'].indexOf(event.key) > -1){
+        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9','-', 'u', 'd'].indexOf(event.key) > -1){
 
           let buttonToClick = document.getElementById(`action-button-command-${this.fieldGuid}-${event.key}`)
           if (buttonToClick){
             buttonToClick.click()
             this.isMenuShown=false
             this.sendFocusHome()
-
-
-
           }
-
         }
       },
 
@@ -255,7 +250,6 @@
           document.querySelector(`[data-guid='${this.structure["@guid"]}']`).focus()
         }else if (document.querySelector(`[data-guid='${this.fieldGuid}']`)){
           document.querySelector(`[data-guid='${this.fieldGuid}']`).focus()
-
         }
       },
 
@@ -312,9 +306,7 @@
       },
       
       showUpDownButtons: function(){
-        console.info("show?")
         let show = this.profileStore.showUpDownButtons(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
-        console.info(show)
         return show
       },
 
