@@ -1827,17 +1827,17 @@ const utilsNetwork = {
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
         for (let r of result.hit){
-          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/')){
+          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/') > 0){
             let responseUri = await this.returnRDFType(r.uri + '.madsrdf_raw.jsonld')
             if (responseUri){
               r.heading.rdfType = responseUri
             }
+            
+            // also we need the MARCKeys
+            marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
           }
-
-          // also we need the MARCKeys
-
-          marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
         }
+        
         let marcKeyPromisesResults = await Promise.all(marcKeyPromises);
         for (let marcKeyResult of marcKeyPromisesResults){
           for (let r of result.hit){
@@ -1849,6 +1849,7 @@ const utilsNetwork = {
       }else if (result.hit && result.resultType == 'COMPLEX') {
         // if they are adding a complex value still need to lookup the marc key
         let marcKeyResult = await this.returnMARCKey(result.hit.uri + '.madsrdf_raw.jsonld')
+        
         result.hit.marcKey = marcKeyResult.marcKey
       }
       // console.log("result",result)
