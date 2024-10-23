@@ -16,10 +16,11 @@
     >
 
     <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
-
       <div style="position: relative;">
-
           <div style="position:absolute; right:2em; top:  0.25em; z-index: 100;">
+			  <div class="menu-buttons">
+				<button @click="closeEditor()">Close</button>
+			  </div>
             <button @click="editorModeSwitch('build')" data-tooltip="Build LCSH headings using a lookup list" class="subjectEditorModeButtons simptip-position-left" style="margin-right: 1em; background-color: black; height: 2em; display: inline-flex;">
       <!--         <svg fill="#F2F2F2" width="20px" height="20px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                <g>
@@ -636,6 +637,13 @@ padding-right: 0.25em;
 margin-top: 10px;
 }
 
+.menu-buttons{
+	margin-right: 5px;
+	padding-top: 5px;
+	padding-left: 15px;
+	float: right;
+}
+
 /*
 .left-menu-list-item-has-data::before {
   content: "✓ " !important;
@@ -760,7 +768,35 @@ computed: {
 
 },
 methods: {
-
+	
+  //parse complex headings so we can have complete and broken up headings
+  parseComplexSubject: async function(uri){
+    let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
+    let components = false
+    let subfields = false
+    let marcKey = false
+    for (let el of data){
+      if (el["@id"] == uri){
+        marcKey = el["http://id.loc.gov/ontologies/bflc/marcKey"][0]["@value"]
+        // we're not looking at a GEO heading, so the components will be URIs
+        // GEO won't have URIs, so they can be ignored
+        if(!el["@type"].includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")){
+          components = el["http://www.loc.gov/mads/rdf/v1#componentList"]
+		  break
+        }
+      }
+    }
+	
+    //get the subfields from the marcKey
+    if (marcKey){
+      subfields = marcKey.slice(5)
+      // subfields = subfields.match(/\$./g)
+	  subfields = subfields.match(/\$[axyzv]{1}/g)
+    }
+	
+    return {"components": components, "subfields": subfields, "marcKey": marcKey}
+  },
+  
   /**
    * When loading from an existing subject, the component lookup
    * needs to be build, so the components will have URIs, types,
@@ -2016,21 +2052,134 @@ methods: {
     //remove unused components
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
-    } 
+    } else {
+		// need to break up the complex heading into it's pieces so their URIs are availble
+        let prevItems = 0
+        for (let component in frozenComponents){
+          // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
+			const target = frozenComponents[component]
+			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
+				let uri = target.uri
+				let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
+				
+				let subs
+				subs = target.marcKey.slice(5)
+			    // subfields = subfields.match(/\$./g)
+			    subs = subs.match(/\$[axyzv]{1}/g)
+
+				const complexLabel = target.label
+				//build the new components
+				let id = prevItems
+				let labels = complexLabel.split("--")
+				for (let idx in labels){
+				  let subfield
+				  if (data){
+				    subfield = data["subfields"][idx]
+				  } else if (target.marcKey){
+					  let marcKey = target.marcKey.slice(5)
+					  subfield = marcKey.match(/\$[axyzv]{1}/g)
+					  subfield = subfield[idx]
+				  }
+				  
+				  switch(subfield){
+					case("$a"):
+					  subfield = "madsrdf:Topic"
+					  break
+					case("$x"):
+					  subfield = "madsrdf:Topic"
+					  break
+					case("$v"):
+					  subfield = "madsrdf:GenreForm"
+					  break
+					case("$y"):
+					  subfield = "madsrdf:Temporal"
+					  break
+					case("$z"):
+					  subfield = "madsrdf:Geographic"
+					  break
+					default:
+					  subfield = false
+				  }
+				  
+				  //Override the subfield of the first element based on the marc tag
+				  let tag = target.marcKey.slice(0,3)
+				  if (idx == 0){
+					  switch(tag){
+						  case "151":
+							subfield = "madsrdf:Geographic"
+							break
+						  case "100":
+							subfield = "madsrdf:PersonalName"
+							break
+						  default:
+							subfield = "madsrdf:Topic"
+					  }
+				  }
+				  
+				  //make a marcKey for the component
+				  // We've got the label, subfield and the tag for the first element
+				  let sub
+				  if (data) {
+					sub = data["subfields"][idx]
+				  } else {
+					  sub = subs[idx]
+				  }
+				  if (idx == 0){
+					  tag = tag
+				  } else {
+					  //build the tag from the subfield
+					  switch(sub){
+						case("$v"):
+						  tag = "185"
+						  break
+						case("$y"):
+						  tag = "182"
+						  break
+						case("$z"):
+						  tag = "181"
+						  break
+						default:
+						  tag = "180"
+					  }
+				  }
+				  let marcKey = tag + "  " + sub + labels[idx]
+				
+				  newComponents.splice(id, 0, ({
+					"complex": false,
+					"id": id,
+					"label": labels[idx],
+					"literal": false,
+					"posEnd": labels[idx].length,
+					"posStart": 0,
+					"type": subfield,
+					"uri": data && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
+					"marcKey": marcKey
+				  }))
+				  id++
+				  prevItems++
+				}
+			  
+			} else {
+				newComponents.push(target)
+				prevItems++
+			}
+		}
+	}
 	
 
     if (newComponents.length > 0){
       this.components = newComponents
     }
+	
     this.$emit('subjectAdded', this.components)
   },
 
 
   closeEditor: function(){
-    //after closing always open in `link` mode for consistency
+    //after closing always open in `build` mode
     this.subjectEditorMode = "build"
 	
-	//clear out the compoents and related field so things will start clean if it reopened
+	//clear out the components and related field so things will start clean if it reopened
 	this.cleanState()
 	
     this.$emit('hideSubjectModal', true)
@@ -2063,6 +2212,11 @@ methods: {
     this.typeLookup={}
     this.okayToAdd= false
     this.showTypes= false
+	
+	this.contextData = {nodeMap:{}}
+	this.authorityLookupLocal = null,
+    this.subjectString = ''
+
   },
 
 

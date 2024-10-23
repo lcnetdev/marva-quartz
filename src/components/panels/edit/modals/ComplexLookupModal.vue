@@ -113,7 +113,15 @@
     },
 
     methods: {
-
+	  // Reset stored values
+	  // This is for when the modal is closed, we want to reset things so nothing is preloaded
+	  // and the user starts from zero
+	  reset: function(){
+		  this.activeContext = null
+		  this.activeComplexSearch = []
+		  this.searchValueLocal = null
+          this.authorityLookupLocal = null
+	  },
 
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
@@ -445,7 +453,9 @@
       >
 
         <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
-
+			<div class="menu-buttons">
+				<button @click="reset(); $emit('hideComplexModal')">Close</button>
+			</div>
           <div class="complex-lookup-modal-container-parts">
 
             <div class="complex-lookup-modal-search">
@@ -857,6 +867,12 @@
 .toggle + .toggle-container div:last-child{
    color: black;
    transition: color 0.3s;
+}
+
+.menu-buttons{
+	margin-right: 5px;
+	padding-top: 5px;
+	float: right;
 }
 
 </style>

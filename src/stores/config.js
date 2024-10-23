@@ -6,8 +6,10 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 0,
-    versionMinor: 14,
-    versionPatch: 42,
+
+    versionMinor: 15,
+    versionPatch: 1,
+
 
     regionUrls: {
 
@@ -125,6 +127,7 @@ export const useConfigStore = defineStore('config', {
 
   showUpdateAvailableModal:false,
 
+  showNonLatinBulkModal: false,
 
   scriptshifterLanguages: {},
 
@@ -795,10 +798,10 @@ export const useConfigStore = defineStore('config', {
         "code": "kv-Cyrl"
     },
     "korean_names": {
-        "code": "ko-hang"
+        "code": "ko-Kore"
     },
     "korean_nonames": {
-        "code": "ko-hang"
+        "code": "ko-Kore"
     },
     "koryak_cyrillic": {
         "code": "kpy-Cyrl"
