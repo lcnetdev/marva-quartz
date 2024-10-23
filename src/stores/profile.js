@@ -2413,10 +2413,10 @@ export const useProfileStore = defineStore('profile', {
           let env = config.returnUrls.env
 
           // populate the title
-          // if (type=='Instance'){
-            // let bibId =  this.activeProfile.rt[rt].URI.split("/")[this.activeProfile.rt[rt].URI.split('/').length - 1]
-            // document.title = `Marva | ${bibId}`;
-          // }
+          if (type=='Instance'){
+            let bibId =  this.activeProfile.rt[rt].URI.split("/")[this.activeProfile.rt[rt].URI.split('/').length - 1]
+            document.title = `Marva | ${bibId}`;
+          }
 
           pubResuts.resourceLinks.push({
             'type':type,
