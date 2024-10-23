@@ -2944,7 +2944,100 @@ export const useProfileStore = defineStore('profile', {
       return false
 
     },
-
+    
+    /**
+    * Check if, and which, up down buttons should display in the action button
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @return {array} - the first value says if the "up" button should display, the second if the "down"
+    */
+    showUpDownButtons: function(componentGuid){
+        let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+        
+        let target
+        let items = []
+        
+        if (pt !== false){
+            // loop through all the headings and find the place the headings start
+            let workRtId = null
+            for (let rtId in this.activeProfile.rt){
+              if (rtId.indexOf(":Work") > -1){
+                workRtId = rtId
+                for (let [idx, ptId] of this.activeProfile.rt[rtId].ptOrder.entries()){
+                  if (this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+                    items.push(ptId)
+                    if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
+                        target = ptId
+                    }
+                  }
+                }
+              }
+            }
+        }
+        
+        if (items.length <= 1){
+            return [false, false]
+        } else {
+            let pos = items.indexOf(target)
+            if (pos == 0){
+                return [false, true]
+            } else if (pos == items.length-1){
+                return [true, false]
+            } else {
+                return [true, true]
+            }
+        }
+    },
+    
+    //This is repurposed from `makeSubjectHeadingPrimary`
+    /**
+    * Moves the selected heading up or down
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {string} direction - which way the item should move `up` or `down`
+    * @return {void}
+    */
+    moveUpDown: function(componentGuid, dir){
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      let target
+      
+      if (pt !== false){
+        // loop through all the headings and find the place the headings start
+        let firstHeading = null
+        let workRtId = null
+        for (let rtId in this.activeProfile.rt){
+          if (rtId.indexOf(":Work") > -1){
+            workRtId = rtId
+            for (let ptId of this.activeProfile.rt[rtId].ptOrder){
+              if (this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+                if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
+                        target = ptId
+                    }
+              }
+            }
+          }
+        }
+        
+        if (target){
+          let currentPos = this.activeProfile.rt[workRtId].ptOrder.indexOf(target)
+          let newPos
+          if (dir == "up"){
+              newPos = currentPos-1
+          } else {
+              newPos = currentPos+1
+          }
+          const swapValue =  this.activeProfile.rt[workRtId].ptOrder[newPos]
+          
+          //swap the target with the element in the desired position
+          //delete from current pos
+           this.activeProfile.rt[workRtId].ptOrder.splice(currentPos, 1)
+          //put in it's new position
+           this.activeProfile.rt[workRtId].ptOrder.splice(newPos, 0, target)
+          
+          this.dataChanged()
+        }
+      }
+    },
 
     /**
     * Moves the passed heading the first of the subjects in the PT order
