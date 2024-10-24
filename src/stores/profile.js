@@ -2941,7 +2941,118 @@ export const useProfileStore = defineStore('profile', {
       return false
 
     },
-
+    
+    /**
+    * Check if, and which, up down buttons should display in the action button
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @return {array} - the first value says if the "up" button should display, the second if the "down"
+    */
+    showUpDownButtons: function(componentGuid){
+        let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+        
+        let target
+        let targetType
+        
+        let items
+        let subjItems = []
+        let contribItems = []
+       
+        if (pt !== false){
+            let workRtId = null
+            for (let rtId in this.activeProfile.rt){
+              if (rtId.indexOf(":Work") > -1){
+                workRtId = rtId
+                for (let ptId of this.activeProfile.rt[rtId].ptOrder){
+                  if (this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+                    subjItems.push(ptId)
+                    if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
+                        target = ptId
+                        targetType = "subject"
+                    }
+                  }
+                  if (
+                        this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution' && 
+                        this.activeProfile.rt[rtId].pt[ptId].propertyLabel != "Creator of Work"
+                     ){
+                    contribItems.push(ptId)
+                    if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
+                        target = ptId
+                        targetType = "contribution"
+                    }
+                  }
+                }
+              }
+            }
+        }
+        
+        items = targetType == "subject" ? subjItems : contribItems
+        if (items.length <= 1){
+            return [false, false]
+        } else {
+            let pos = items.indexOf(target)
+            if (pos == 0){
+                return [false, true]
+            } else if (pos == items.length-1){
+                return [true, false]
+            } else if (pos < 0){
+                return [false, false]
+            }else {
+                return [true, true]
+            }
+        }
+    },
+    
+    //This is repurposed from `makeSubjectHeadingPrimary`
+    /**
+    * Moves the selected heading up or down
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {string} dir - which way the item should move `up` or `down`
+    * @return {void}
+    */
+    moveUpDown: function(componentGuid, dir){
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      let target
+      
+      if (pt !== false){
+        let firstHeading = null
+        let workRtId = null
+        for (let rtId in this.activeProfile.rt){
+          if (rtId.indexOf(":Work") > -1){
+            workRtId = rtId
+            for (let ptId of this.activeProfile.rt[rtId].ptOrder){
+              if (
+                    this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' ||
+                    this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution'
+                 ){
+                if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
+                        target = ptId
+                    }
+              }
+            }
+          }
+        }
+        
+        if (target){
+          let currentPos = this.activeProfile.rt[workRtId].ptOrder.indexOf(target)
+          let newPos
+          if (dir == "up"){
+              newPos = currentPos-1
+          } else {
+              newPos = currentPos+1
+          }
+          
+          //swap the target with the element in the desired position
+          //delete from current pos
+           this.activeProfile.rt[workRtId].ptOrder.splice(currentPos, 1)
+          //put in it's new position
+           this.activeProfile.rt[workRtId].ptOrder.splice(newPos, 0, target)
+          
+          this.dataChanged()
+        }
+      }
+    },
 
     /**
     * Moves the passed heading the first of the subjects in the PT order

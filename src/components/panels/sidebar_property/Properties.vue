@@ -33,7 +33,7 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeComponent']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent']),
       ...mapState(usePreferenceStore, ['styleDefault']),
 
       ...mapWritableState(useProfileStore, ['activeComponent']),
@@ -96,16 +96,12 @@
 
 
       },
-
-
-
-    },
-
-    mounted() {
-
-
-
-    }
+      
+      change: function(){
+          // A property was moved. Make the current state savable and update the xml
+          this.dataChanged()
+      }
+    },    
   }
 
 
@@ -162,6 +158,7 @@
                             group="people"
                             @start="drag=true"
                             @end="drag=false"
+                            @change="change"
                             item-key="id">
                             <template #item="{element}">
                               <template v-if="!activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI)">
