@@ -356,8 +356,6 @@ export default {
 
   },
 
-
-
   created: function(){
 
     // this.checkForUserData()
@@ -752,8 +750,6 @@ export default {
       }
 
     },
-
-
   }
 };
 </script>
