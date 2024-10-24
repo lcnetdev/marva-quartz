@@ -2957,6 +2957,7 @@ export const useProfileStore = defineStore('profile', {
         let items
         let subjItems = []
         let contribItems = []
+        let gfItems = []
        
         if (pt !== false){
             let workRtId = null
@@ -2981,12 +2982,27 @@ export const useProfileStore = defineStore('profile', {
                         targetType = "contribution"
                     }
                   }
+                  if (this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/genreForm'){
+                    gfItems.push(ptId)
+                    if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
+                        target = ptId
+                        targetType = "gf"
+                    }
+                  }
                 }
               }
             }
         }
         
-        items = targetType == "subject" ? subjItems : contribItems
+        if (targetType == "subject"){
+            items = subjItems
+        } else if (targetType == "gf"){
+            items = gfItems
+        } else {
+            items = contribItems
+        }
+        
+        
         if (items.length <= 1){
             return [false, false]
         } else {
@@ -3024,7 +3040,8 @@ export const useProfileStore = defineStore('profile', {
             for (let ptId of this.activeProfile.rt[rtId].ptOrder){
               if (
                     this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' ||
-                    this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution'
+                    this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution' ||
+                    this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/genreForm'
                  ){
                 if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
                         target = ptId
