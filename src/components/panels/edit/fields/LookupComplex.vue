@@ -77,7 +77,7 @@
                           <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type" :type="avl.type"/>
                         </div>
                         <div class="selected-value-container-title">
-                          <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
+                          <!-- <span class="material-icons check-mark">check_circle_outline</span> -->                           
                           <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
                           <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
                         </div>
@@ -98,8 +98,9 @@
 
 
 
-          <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
+          <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">            
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
+              
               <div v-for="(avl,idx) in complexLookupValues" class="selected-value-container">
                 <div class="selected-value-container-auth">
                   <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type" :type="avl.type"/>
@@ -111,11 +112,13 @@
                     <span v-else>{{avl.label}}</span> -->
                     <span v-if="avl.source && avl.source=='FAST'" style="font-weight: bold;">(FAST) </span>
                     <a href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
-                    <span class="uncontrolled" v-if="avl.isLiteral">
+                    <ValidationIcon :value="avl" />
+                    <!-- <span class="uncontrolled" v-if="avl.isLiteral">
                       (uncontrolled)
                     </span>
                     <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style="">
-                    </span>
+                    </span> -->
+
                   </span>
                   <span v-else-if="avl.needsDereference" style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
                   <span v-else-if="avl.uneditable" style="padding-right: 0.3em; font-weight: bold">{{ avl.label }} (Uneditable)</span>
@@ -193,6 +196,7 @@ import SubjectEditor from "@/components/panels/edit/modals/SubjectEditor.vue";
 import LabelDereference from "@/components/panels/edit/fields/helpers/LabelDereference.vue";
 import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
 import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.vue";
+import ValidationIcon from "@/components/panels/edit/fields/helpers/ValidationIcon.vue";
 
 
 import { useProfileStore } from '@/stores/profile'
@@ -213,7 +217,8 @@ export default {
     SubjectEditor,
     LabelDereference,
     AuthTypeIcon,
-    ActionButton
+    ActionButton,
+    ValidationIcon
 
     // Keypress: () => import('vue-keypress'),
     // EditSubjectEditor,
