@@ -591,8 +591,10 @@
     },
 
     mounted: async function(){
-
       this.refreshSavedRecords()
+	  
+	  //reset the title
+	  document.title = `Marva`;
 
     },
 

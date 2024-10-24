@@ -490,7 +490,7 @@ const utilsNetwork = {
     */
     fetchContextData: async function(uri){
           let returnUrls = useConfigStore().returnUrls
-
+          
           if ((uri.startsWith('http://id.loc.gov') || uri.startsWith('https://id.loc.gov')) && uri.match(/(authorities|vocabularies)/)) {
             var jsonuri = uri + '.madsrdf_raw.jsonld';
 
@@ -511,12 +511,25 @@ const utilsNetwork = {
 
 
           //if we are in production use preprod
-          if (returnUrls.env == 'production' || returnUrls.env == 'staging'){
+          if (returnUrls.env == 'production'){
             jsonuri = jsonuri.replace('http://id.', 'https://preprod-8080.id.')
             jsonuri = jsonuri.replace('https://id.', 'https://preprod-8080.id.')
-
           }
 
+          // rewrite the url to the config if we are using staging
+          if (returnUrls.env == 'staging' && !returnUrls.dev){
+            let stageUrlPrefix = returnUrls.id.split('loc.gov/')[0]
+
+
+            // console.log('stageUrlPrefix',stageUrlPrefix)
+
+            jsonuri = jsonuri.replace('http://id.', stageUrlPrefix)
+            jsonuri = jsonuri.replace('https://id.', stageUrlPrefix)
+          }
+          // console.log(jsonuri)
+          // console.log(returnUrls)
+
+          
 
           // unless we are in a dev or public mode
 
@@ -1827,17 +1840,17 @@ const utilsNetwork = {
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
         for (let r of result.hit){
-          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/')){
+          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/') > 0){
             let responseUri = await this.returnRDFType(r.uri + '.madsrdf_raw.jsonld')
             if (responseUri){
               r.heading.rdfType = responseUri
             }
+            
+            // also we need the MARCKeys
+            marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
           }
-
-          // also we need the MARCKeys
-
-          marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
         }
+        
         let marcKeyPromisesResults = await Promise.all(marcKeyPromises);
         for (let marcKeyResult of marcKeyPromisesResults){
           for (let r of result.hit){
@@ -1849,6 +1862,7 @@ const utilsNetwork = {
       }else if (result.hit && result.resultType == 'COMPLEX') {
         // if they are adding a complex value still need to lookup the marc key
         let marcKeyResult = await this.returnMARCKey(result.hit.uri + '.madsrdf_raw.jsonld')
+        
         result.hit.marcKey = marcKeyResult.marcKey
       }
       // console.log("result",result)
