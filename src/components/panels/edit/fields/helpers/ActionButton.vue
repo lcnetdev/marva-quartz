@@ -66,29 +66,27 @@
             <hr>
         </template>
         
-        <template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[0]">
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-u`" @click="moveUp()">
-            <span class="button-shortcut-label">u</span>
-            Move Up
-          </button>
-        </template>
-        
-        <template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[1]">
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-d`" @click="moveDown()">
-            <span class="button-shortcut-label">d</span>
-            Move Down
-          </button>
-        </template>
-
-
         <template v-if="type=='lookupSimple'">
 
 
         </template>
 
         <template v-if="type=='lookupComplex'">
-
-
+            <!-- template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.parentId.includes(':Form') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[0]" -->
+            <template v-if="showUpDownButtons()[0]">
+              <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-u`" @click="moveUp()">
+                <span class="button-shortcut-label">u</span>
+                Move Up
+              </button>
+            </template>
+            
+            <!-- <template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.parentId.includes(':Form') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[1]"> -->
+            <template v-if="showUpDownButtons()[1]">
+              <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-d`" @click="moveDown()">
+                <span class="button-shortcut-label">d</span>
+                Move Down
+              </button>
+            </template>
         </template>
 
 
@@ -307,6 +305,7 @@
       
       showUpDownButtons: function(){
         let show = this.profileStore.showUpDownButtons(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
+
         return show
       },
 
