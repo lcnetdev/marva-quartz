@@ -32,7 +32,6 @@
           Delete Component
         </button>
 
-
         <template v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic'">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-4`" @click="makeSubjectHeadingPrimary()">
             <span class="button-shortcut-label">4</span>
@@ -55,7 +54,6 @@
               Set Language
             </button><br>
 
-
             <template v-for="(lang,index) in scriptShifterOptionsForMenu">
 
                 <button   style="width:100%"   class="" :id="`action-button-command-${fieldGuid}-${index + 7}`"  @click="$emit('actionButtonCommand', 'trans', {lang:lang.lang,dir:lang.dir, fieldGuid: fieldGuid} )">
@@ -65,14 +63,21 @@
                 </button>
 
             </template>
-
-
-
-
-
-
             <hr>
-
+        </template>
+        
+        <template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[0]">
+          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-u`" @click="moveUp()">
+            <span class="button-shortcut-label">u</span>
+            Move Up
+          </button>
+        </template>
+        
+        <template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[1]">
+          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-d`" @click="moveDown()">
+            <span class="button-shortcut-label">d</span>
+            Move Down
+          </button>
         </template>
 
 
@@ -228,18 +233,14 @@
 
       processShortcutKeypress(event){
 
-        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9','-'].indexOf(event.key) > -1){
+        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9','-', 'u', 'd'].indexOf(event.key) > -1){
 
           let buttonToClick = document.getElementById(`action-button-command-${this.fieldGuid}-${event.key}`)
           if (buttonToClick){
             buttonToClick.click()
             this.isMenuShown=false
             this.sendFocusHome()
-
-
-
           }
-
         }
       },
 
@@ -249,7 +250,6 @@
           document.querySelector(`[data-guid='${this.structure["@guid"]}']`).focus()
         }else if (document.querySelector(`[data-guid='${this.fieldGuid}']`)){
           document.querySelector(`[data-guid='${this.fieldGuid}']`).focus()
-
         }
       },
 
@@ -296,6 +296,18 @@
       makeSubjectHeadingPrimary: function(){
         this.profileStore.makeSubjectHeadingPrimary(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
 
+      },
+      
+      moveUp: function(){
+        this.profileStore.moveUpDown(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], "up") 
+      },
+      moveDown: function(){
+        this.profileStore.moveUpDown(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], "down") 
+      },
+      
+      showUpDownButtons: function(){
+        let show = this.profileStore.showUpDownButtons(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
+        return show
       },
 
       openRemark(){

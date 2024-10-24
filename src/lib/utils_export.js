@@ -1179,7 +1179,6 @@ const utilsExport = {
 
 
 
-
 		// also just build a basic version tosave
 		for (let URI in tleLookup['Work']){
 			let theWork = (new XMLSerializer()).serializeToString(tleLookup['Work'][URI])
@@ -1187,7 +1186,6 @@ const utilsExport = {
 			theWork = xmlParser.parseFromString(theWork, "text/xml").children[0];
 			rdfBasic.appendChild(theWork)
 		}
-
 		for (let URI in tleLookup['Hub']){
 			let theHub = (new XMLSerializer()).serializeToString(tleLookup['Hub'][URI])
 			// theHub = theHub.replace(/\sxmlns:[a-z]+="http.*?"/g,'')
@@ -1314,7 +1312,6 @@ const utilsExport = {
 			console.warn('no title found for db')
 		}
 
-
 		if (rdfBasic.getElementsByTagName("bf:PrimaryContribution").length>0){
 			if (rdfBasic.getElementsByTagName("bf:PrimaryContribution")[0].getElementsByTagName("rdfs:label").length>0){
 				xmlVoidDataContributor = rdfBasic.getElementsByTagName("bf:PrimaryContribution")[0].getElementsByTagName("rdfs:label")[0].innerHTML
@@ -1326,7 +1323,7 @@ const utilsExport = {
 				} else {
 					console.warn('no PrimaryContribution or Contribution found for db')
 				}
-			}else{
+			} else{
 				console.warn('no PrimaryContribution or Contribution found for db')
 			}
 		}

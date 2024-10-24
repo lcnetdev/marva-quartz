@@ -269,7 +269,7 @@ const utilsProfile = {
   * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
   * @return {void} - doesn't return anything it works on the reference to the pt.userValue updating the orginal
   */
-  setTypesForBlankNode: async function(pt, propertyPath){    
+  setTypesForBlankNode: async function(pt, propertyPath){
     let pointer = pt.userValue
     let pointerParent = null
     let parentP = null
@@ -286,8 +286,6 @@ const utilsProfile = {
           type = await utilsRDF.suggestTypeNetwork(p)
         }
         if (type !== false){
-
-
 
           // first we test to see if the type is a literal (the type returned, not the property of the value), if so then we
           // don't need to set the type, as its not a blank node, just a nested property

@@ -490,7 +490,7 @@ const utilsNetwork = {
     */
     fetchContextData: async function(uri){
           let returnUrls = useConfigStore().returnUrls
-
+          
           if ((uri.startsWith('http://id.loc.gov') || uri.startsWith('https://id.loc.gov')) && uri.match(/(authorities|vocabularies)/)) {
             var jsonuri = uri + '.madsrdf_raw.jsonld';
 
@@ -511,12 +511,25 @@ const utilsNetwork = {
 
 
           //if we are in production use preprod
-          if (returnUrls.env == 'production' || returnUrls.env == 'staging'){
+          if (returnUrls.env == 'production'){
             jsonuri = jsonuri.replace('http://id.', 'https://preprod-8080.id.')
             jsonuri = jsonuri.replace('https://id.', 'https://preprod-8080.id.')
-
           }
 
+          // rewrite the url to the config if we are using staging
+          if (returnUrls.env == 'staging' && !returnUrls.dev){
+            let stageUrlPrefix = returnUrls.id.split('loc.gov/')[0]
+
+
+            // console.log('stageUrlPrefix',stageUrlPrefix)
+
+            jsonuri = jsonuri.replace('http://id.', stageUrlPrefix)
+            jsonuri = jsonuri.replace('https://id.', stageUrlPrefix)
+          }
+          // console.log(jsonuri)
+          // console.log(returnUrls)
+
+          
 
           // unless we are in a dev or public mode
 
