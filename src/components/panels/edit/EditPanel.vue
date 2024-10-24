@@ -230,6 +230,24 @@
           
           this.profileStore.setPropertyVisible(profile,event.target.value)
           event.target.value = "home"
+        },
+        
+        
+        //Add the BibId to the title
+        populateTitle: function(){
+            let eId = this.activeProfile.eId
+            for (let rt in this.activeProfile.rt){
+              let type = rt.split(':').slice(-1)[0]
+              let url = this.activeProfile.rt[rt].URI
+
+              // populate the title
+              if (type=='Instance'){
+                let bibId =  url.split("/")[url.split('/').length - 1]
+                if (eId != bibId){
+                    document.title = `Marva | ${bibId}`;
+                }
+              }
+            }
         }
 
 
@@ -274,27 +292,15 @@
 
 
     mounted: function(){
-		// Add the ID to the title
-		let eId = this.activeProfile.eId
-		for (let rt in this.activeProfile.rt){
-          let type = rt.split(':').slice(-1)[0]
-          let url = this.activeProfile.rt[rt].URI
-
-          // populate the title
-          if (type=='Instance'){
-            let bibId =  url.split("/")[url.split('/').length - 1]
-			if (eId != bibId){
-				document.title = `Marva | ${bibId}`;
-			}
-          }
-		}
-		
-			
-		// populate the title
-          // if (type=='Instance'){
-            // let bibId =  this.activeProfile.rt[rt].URI.split("/")[this.activeProfile.rt[rt].URI.split('/').length - 1]
-            // document.title = `Marva | ${bibId}`;
-          // }
+        //populate when loading from a search
+        this.populateTitle()
+    },
+    
+    updated: function(){
+		// Add the ID to the title when loading from "Your Records"
+        if (document.title == "Marva"){
+            this.populateTitle()
+        }
     }
 
   }
