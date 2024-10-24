@@ -232,6 +232,8 @@
           event.target.value = "home"
         },
         
+        
+        //Add the BibId to the title
         populateTitle: function(){
             let eId = this.activeProfile.eId
             for (let rt in this.activeProfile.rt){
