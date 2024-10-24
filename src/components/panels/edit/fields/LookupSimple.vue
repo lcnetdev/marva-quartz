@@ -27,7 +27,7 @@
                 <span class="uncontrolled" v-if="avl.isLiteral"> (uncontrolled)</span></span>
               <!-- <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span> -->
 
-              <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+              <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span></span>
                 
               <a href="#" class="inline-remove-x" @click="removeValue(idx)" style="">x</a>
           </template>
@@ -74,9 +74,9 @@
 
                 <div class="lookup-fake-input-entities" style="display:inline-block;">
                   <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">                    
-                      <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span>
+                      <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
                       
-                      <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+                      <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span></span>
 
                       <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
                   </div>
@@ -95,8 +95,8 @@
             <div class="lookup-fake-input-entities">
               <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
 
-                <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span>
-                  <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+                <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
+                  <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span></span>
                   <span @click="removeValue(idx)" v-if="!avl.uneditable" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
                   <span v-else>(uneditable)</span>
               </div>
@@ -1219,11 +1219,11 @@ export default {
 
 .selected-value-icon{
 /*  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;*/
-  padding-right: 0.3em;
-  margin-left: 5px;
-  border-left: 1px solid black;
-  padding: 0px 7px;
-  font-size: 1em;
+  /* padding-right: 0.3em; */
+  /* margin-left: 5px; */
+  /* border-left: 1px solid black; */
+  /* padding: 0px 7px; */
+  /* font-size: 1em; */
 }
 
 

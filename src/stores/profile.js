@@ -1395,6 +1395,8 @@ export const useProfileStore = defineStore('profile', {
     },
 
 
+
+
     /**
     * Sets a literal value of field
     *
@@ -3671,7 +3673,57 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+    /**
+    * returns the validation status of the heading used
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {string} fieldGuid - the guid of the field
+    */
+    returnValidationType: function(fieldGuid){
 
+      let fieldValue=null
+      
+      for (let rt of this.activeProfile.rtOrder){
+        for (let pt of this.activeProfile.rt[rt].ptOrder){
+          fieldValue = utilsProfile.returnGuidLocation(this.activeProfile.rt[rt].pt[pt].userValue,fieldGuid)
+          if (fieldValue){break} 
+        }
+        if (fieldValue){break}
+      }
+      if (fieldValue){
+
+        // if it has a component list then check all the components
+        if (fieldValue['http://www.loc.gov/mads/rdf/v1#componentList'] && fieldValue['http://www.loc.gov/mads/rdf/v1#componentList'].length>0){
+
+          let allHasURI = true
+          let firstHasURI = false
+          for (let c of fieldValue['http://www.loc.gov/mads/rdf/v1#componentList']){
+            if (!c['@id']){ allHasURI=false}
+          }
+          if (fieldValue['http://www.loc.gov/mads/rdf/v1#componentList'][0] && fieldValue['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@id']){
+            firstHasURI=true
+          }
+  
+          
+          if (allHasURI){return ['done_all','All components authorized']}
+          if (firstHasURI){return ['warning','FIRST component authorized']}
+          
+          return ['help','No authorized components found']
+        }
+
+
+
+        
+
+      }
+
+      return ['report','Not Checked']
+
+      
+
+
+      
+    },
 
 
 
