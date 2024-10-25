@@ -108,6 +108,18 @@
           💀 Break Record 💀
           </button>
         </template>
+        
+        
+            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}--`" @click="copyComponent()">
+                <span class="button-shortcut-label">c</span>
+                Copy<span class="material-icons action-button-icon">content_copy</span>
+              </button>
+              
+            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}--`" @click="pasteComponent()">
+                <span class="button-shortcut-label">p</span>
+                Paste<span class="material-icons action-button-icon">content_paste</span>
+              </button>
+        
 
 
 
@@ -396,6 +408,51 @@
 
       addComponent: function(){
 
+      },
+      
+      
+      copyComponent: async function(){
+          let stucture = this.profileStore.returnStructureByComponentGuid(this.guid)
+          let userValue = JSON.stringify(stucture.userValue)
+          
+          console.info("userValue", userValue)
+          
+          const type = "text/plain"
+          const blob = new Blob([userValue], {type})
+          
+          console.info("blob: ", blob)
+          
+          const data = [new ClipboardItem({[type]: blob})]
+          
+          console.info("data: ", data)
+          
+          await navigator.clipboard.write(data)
+          
+      },
+      
+      
+      pasteComponent: async function(){
+          let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+          const clipboardContents = await navigator.clipboard.read();
+          
+          console.info("clipboardContents", clipboardContents)
+          
+          for (let item of clipboardContents){
+              console.info("item: ", item)
+              if (!item.types.includes("text/plain")) {
+                throw new Error("Clipboard does not contain text data.");
+              }
+              
+              let blob = await item.getType("text/plain")
+              
+              console.info("blob: ", blob)
+              
+              const incomingValue = await blob.text()
+              
+              structure.userValue = JSON.parse(incomingValue)
+              
+              this.profileStore.dataChanged()
+          }
       },
 
       // /**
