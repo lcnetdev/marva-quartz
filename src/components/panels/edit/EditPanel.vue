@@ -67,7 +67,9 @@
 
                       <template v-if="this.dualEdit == false">
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
-                          <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
+                          <div class="component-label" >
+                            <input type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                            {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                             <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
                           </div>
                         </template>

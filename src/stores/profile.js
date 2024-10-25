@@ -3735,11 +3735,28 @@ export const useProfileStore = defineStore('profile', {
       }
 
       return ['report','Not Checked']
-
-      
-
-
-      
+    },
+    
+    copySelected: async function(){
+        let components = []
+        let compontGuids = []
+        let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
+        copyTargets.forEach((item) => compontGuids.push(item.id))
+        
+        for (const guid of compontGuids){
+            let component = utilsProfile.returnPt(this.activeProfile, guid)
+            console.info("component: ", component)
+            let componentString = JSON.stringify(component)
+            components.push(componentString)
+        }
+        
+        //copy it
+        let value = components.join(" ;;; ")
+        const type = "text/plain"
+        const blob = new Blob([value], {type})
+        const data = [new ClipboardItem({[type]: blob})]
+        await navigator.clipboard.write(data)
+        
     },
 
 

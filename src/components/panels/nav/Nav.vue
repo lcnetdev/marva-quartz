@@ -318,6 +318,18 @@
               }
             }
           )
+          
+          menu.push(
+            {
+              text: "Copy Selected",
+              icon: "content_copy",
+              click: () => {
+                this.$nextTick(()=>{
+                  this.profileStore.copySelected()
+                })
+              }
+            }
+          )
 
 
 
