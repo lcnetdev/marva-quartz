@@ -3324,7 +3324,7 @@ export const useProfileStore = defineStore('profile', {
 
       //Ensure that the component is going to the right place by checking the structure.parentID
       // the parentId of different kinds of titles don't include `work` or `instance`, so check the RT in the profile
-      let rt = utilsProfile.getRtTypeFromGuid(this.activeProfile, componentGuid)
+      // let rt = utilsProfile.getRtTypeFromGuid(this.activeProfile, componentGuid)
       let actionTarget = null
       if (structure.parentId.includes("Instance") || rt.includes("Instance")) {
         actionTarget = "Instance"
