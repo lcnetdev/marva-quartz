@@ -330,6 +330,18 @@
               }
             }
           )
+          
+          menu.push(
+            {
+              text: "Paste Selected",
+              icon: "content_paste",
+              click: () => {
+                this.$nextTick(()=>{
+                  this.profileStore.pasteSelected()
+                })
+              }
+            }
+          )
 
 
 
