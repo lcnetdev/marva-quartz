@@ -43,7 +43,7 @@ export default {
     useIcon(){
 
       if (this.value && this.value.URI){
-        return ['verified','Authorized Value']
+        return ['verified','Linked']
       }else{
         return this.profileStore.returnValidationType( this.value['@guid'])
       }

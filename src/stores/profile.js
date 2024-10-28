@@ -3722,10 +3722,10 @@ export const useProfileStore = defineStore('profile', {
           }
   
           
-          if (allHasURI){return ['done_all','All components authorized']}
-          if (firstHasURI){return ['warning','FIRST component authorized']}
+          if (allHasURI){return ['done_all','Linked']}
+          if (firstHasURI){return ['warning','Partially Linked']}
           
-          return ['help','No authorized components found']
+          return ['help','No Partial Link']
         }
 
 
@@ -3734,7 +3734,7 @@ export const useProfileStore = defineStore('profile', {
 
       }
 
-      return ['report','Not Checked']
+      return ['report','No Link']
 
       
 
