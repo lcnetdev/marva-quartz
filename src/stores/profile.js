@@ -3895,24 +3895,33 @@ export const useProfileStore = defineStore('profile', {
         for (let rt in profile["rt"]){
             let frozenPts = JSON.parse(JSON.stringify(profile["rt"][rt]["pt"]))
             
+            console.info("rt: ", rt)
+            
             for (let pt in frozenPts){
                 let current = profile["rt"][rt]["pt"][pt]
-                let targetURI = newComponent.propertyURI
-                let targetLabel = newComponent.propertyLabel
                 
-                // console.info("current: ", current)
+                if (rt == newComponent.parentId){
+                    console.info("parent: ", current.parentId)
+                    console.info("new: ", newComponent.parentId)
                 
-                if (current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
-                    if (Object.keys(current.userValue).length == 1){
-                        current.userValue = newComponent.userValue
-                        break
-                    } else {
-                        let guid = current["@guid"]
-                        let structure = this.returnStructureByComponentGuid(guid)
-                        let newPt = await this.duplicateComponentGetId(guid, structure)
-                        
-                        profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
-                        break
+                
+                    let targetURI = newComponent.propertyURI
+                    let targetLabel = newComponent.propertyLabel
+
+                    // console.info("current: ", current)
+
+                    if (current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
+                        if (Object.keys(current.userValue).length == 1){
+                            current.userValue = newComponent.userValue
+                            break
+                        } else {
+                            let guid = current["@guid"]
+                            let structure = this.returnStructureByComponentGuid(guid)
+                            let newPt = await this.duplicateComponentGetId(guid, structure)
+                            
+                            profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
+                            break
+                        }
                     }
                 }
             }
