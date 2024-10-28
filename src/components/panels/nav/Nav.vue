@@ -333,6 +333,18 @@
           
           menu.push(
             {
+              text: "Select All",
+              icon: "select_all",
+              click: () => {
+                this.$nextTick(()=>{
+                  this.selectAll()
+                })
+              }
+            }
+          )
+          
+          menu.push(
+            {
               text: "Paste Selected",
               icon: "content_paste",
               click: () => {
@@ -400,6 +412,17 @@
         this.layoutActiveFilter = layout
 
 
+      },
+      
+      selectAll: function(){
+          let checkBoxes = document.getElementsByClassName("copy-selection")
+          checkBoxes.forEach((el) => {
+              if (el.checked){
+                  el.checked = false
+              } else {
+                  el.checked = true
+              }
+          })
       }
 
 
