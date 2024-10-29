@@ -631,7 +631,7 @@ export const usePreferenceStore = defineStore('preference', {
 
 
 
-
+      //general
       '--c-general-icon-instance-color' : {
           desc: 'The color of the instance icon.',
           descShort: 'Instance icon color',
@@ -658,6 +658,15 @@ export const usePreferenceStore = defineStore('preference', {
           unit: null,
           group: 'General',
           range: null
+      },
+      '--c-general-copy-mode' : {
+          desc: 'Set if copy mode should be on or off by default.',
+          descShort: 'Copy mode default',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'General',
+          range: [true,false]
       },
 
 
@@ -862,6 +871,9 @@ export const usePreferenceStore = defineStore('preference', {
       this.loadPreferences()
 
       this.buildDiacriticSettings()
+      
+      //set copyMode from preferences
+      this.copyMode = this.styleDefault['--c-general-copy-mode'].value
 
         // fetch(this.configStore.returnUrls.scriptshifter + 'languages', {
         //   method: 'GET'
