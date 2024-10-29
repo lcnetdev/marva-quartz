@@ -233,9 +233,7 @@
         },
         
         
-        //Add the BibId to the title
-        populateTitle: function(){
-            let eId = this.activeProfile.eId
+        getBibId: function(){
             for (let rt in this.activeProfile.rt){
               let type = rt.split(':').slice(-1)[0]
               let url = this.activeProfile.rt[rt].URI
@@ -243,11 +241,22 @@
               // populate the title
               if (type=='Instance'){
                 let bibId =  url.split("/")[url.split('/').length - 1]
-                if (eId != bibId){
-                    document.title = `Marva | ${bibId}`;
-                }
+                return bibId
               }
             }
+            
+            return false
+        },
+        
+        //Add the BibId to the title
+        populateTitle: function(){
+            let eId = this.activeProfile.eId
+            let bibId = this.getBibId()
+            
+            if (bibId && eId != bibId){
+                document.title = `Marva | ${bibId}`;
+            }
+              
         }
 
 
@@ -297,8 +306,10 @@
     },
     
     updated: function(){
+        let bibId = this.getBibId()
 		// Add the ID to the title when loading from "Your Records"
-        if (document.title == "Marva"){
+        
+        if (!document.title.includes(bibId)){
             this.populateTitle()
         }
     }
