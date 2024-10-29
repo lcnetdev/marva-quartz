@@ -146,11 +146,12 @@
             
           )
           
+          menuButtonSubMenu.push({ is: 'separator'}) 
           menuButtonSubMenu.push(
             {
               text: 'Copy Mode [' + this.preferenceStore.copyMode + ']',
               click: () => { this.preferenceStore.toggleCopyMode() },
-              icon: this.preferenceStore.copyMode ? "✅" : "❌"
+              icon: this.preferenceStore.copyMode ? "✔️" : "❌"
             }
           )
           
