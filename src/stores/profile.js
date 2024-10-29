@@ -895,6 +895,14 @@ export const useProfileStore = defineStore('profile', {
       // let lastProperty = propertyPath.at(-1).propertyURI
       // // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      
+      //should be safe to delete the cache when swaping templates
+      if (Object.keys(cachePt).includes(componentGuid)){
+          delete cachePt[componentGuid]
+      }
+      for (let guid of Object.keys(cacheGuid)){
+          cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+      }
 
       if (pt !== false){
 
