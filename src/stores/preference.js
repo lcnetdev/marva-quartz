@@ -53,7 +53,8 @@ export const usePreferenceStore = defineStore('preference', {
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},
-
+    
+    copyMode: false,
 
     panelDisplay:{
 
@@ -1080,6 +1081,11 @@ export const usePreferenceStore = defineStore('preference', {
 
 
     },
+    
+    // turn copy mode on/off
+    toggleCopyMode: function(){
+        this.copyMode = !this.copyMode
+    }
 
     /**
     * Take a url and rewrites it to match the url pattern of the current enviornment

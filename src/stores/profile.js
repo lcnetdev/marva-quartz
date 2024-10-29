@@ -3525,7 +3525,6 @@ export const useProfileStore = defineStore('profile', {
           this.insertDefaultValuesComponent(newPt['@guid'], structure)
         }
         
-        console.info("structure: ", structure)
         // they changed something
         this.dataChanged()
         
@@ -3856,6 +3855,12 @@ export const useProfileStore = defineStore('profile', {
         let components = []
         let compontGuids = []
         let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
+        
+        if  (copyTargets.length == 0){
+            console.warn("nothing to copy")
+            return false
+        }
+        
         copyTargets.forEach((item) => compontGuids.push(item.id))
         
         for (const guid of compontGuids){
@@ -3869,7 +3874,10 @@ export const useProfileStore = defineStore('profile', {
         const type = "text/plain"
         const blob = new Blob([value], {type})
         const data = [new ClipboardItem({[type]: blob})]
+        
         await navigator.clipboard.write(data)
+        
+        return true
     },
     
     //loop through the copied data and change all the "@guid"s
@@ -3890,25 +3898,15 @@ export const useProfileStore = defineStore('profile', {
         this.changeGuid(newComponent)
         let profile = this.activeProfile
         
-        console.info("profile: ", profile)
-        
         for (let rt in profile["rt"]){
             let frozenPts = JSON.parse(JSON.stringify(profile["rt"][rt]["pt"]))
-            
-            console.info("rt: ", rt)
-            
+
             for (let pt in frozenPts){
                 let current = profile["rt"][rt]["pt"][pt]
                 
                 if (rt == newComponent.parentId){
-                    console.info("parent: ", current.parentId)
-                    console.info("new: ", newComponent.parentId)
-                
-                
                     let targetURI = newComponent.propertyURI
                     let targetLabel = newComponent.propertyLabel
-
-                    // console.info("current: ", current)
 
                     if (current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
                         if (Object.keys(current.userValue).length == 1){
@@ -3933,12 +3931,12 @@ export const useProfileStore = defineStore('profile', {
         const clipboardContents = await navigator.clipboard.read();
         
         for (let item of clipboardContents){
+            
               if (!item.types.includes("text/plain")) {
                 throw new Error("Clipboard does not contain text data.");
               }
               
               let blob = await item.getType("text/plain")
-              
               const incomingValue = await blob.text()
               
               data = incomingValue.split(";;;")
@@ -3947,15 +3945,7 @@ export const useProfileStore = defineStore('profile', {
         for (let item of data){
               const dataJson = JSON.parse(item)
               this.parseActive(dataJson)
-              
-              //TODO: parse through the active profile for components that match the data
-              // If they are empty, move the data over to It
-              // otherwise, create a duplicate component and move the data over
-              //this.profileStore.dataChanged()
         }
-        
-          
-          
     },
 
 

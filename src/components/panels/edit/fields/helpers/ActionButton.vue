@@ -110,15 +110,22 @@
         </template>
         
         
-            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}--`" @click="copyComponent()">
+        <template v-if="preferenceStore.copyMode">
+            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-c`" @click="copyComponent()">
                 <span class="button-shortcut-label">c</span>
                 Copy<span class="material-icons action-button-icon">content_copy</span>
-              </button>
+            </button>
               
-            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}--`" @click="pasteComponent()">
+            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-p`" @click="pasteComponent()">
                 <span class="button-shortcut-label">p</span>
                 Paste<span class="material-icons action-button-icon">content_paste</span>
-              </button>
+            </button>
+            
+            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-r`" @click="repeatComponent()">
+                <span class="button-shortcut-label">r</span>
+                Repeat Component<span class="material-icons action-button-icon">repeat</span>
+            </button>
+        </template>
         
 
 
@@ -243,7 +250,7 @@
 
       processShortcutKeypress(event){
 
-        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9','-', 'u', 'd'].indexOf(event.key) > -1){
+        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9','-','u','d','c','p','r'].indexOf(event.key) > -1){
 
           let buttonToClick = document.getElementById(`action-button-command-${this.fieldGuid}-${event.key}`)
           if (buttonToClick){
@@ -432,7 +439,6 @@
           console.info("data: ", data)
           
           await navigator.clipboard.write(data)
-          
       },
       
       
@@ -475,6 +481,13 @@
               
               this.profileStore.dataChanged()
           }
+      },
+      
+      repeatComponent: async function(){
+          await this.copyComponent()
+          await this.profileStore.pasteSelected()
+          
+          this.profileStore.dataChanged()
       },
 
       // /**

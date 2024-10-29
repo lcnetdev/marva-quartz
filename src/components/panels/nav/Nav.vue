@@ -145,6 +145,26 @@
             }
             
           )
+          
+          menuButtonSubMenu.push(
+            {
+              text: 'Copy Mode [' + this.preferenceStore.copyMode + ']',
+              click: () => { this.preferenceStore.toggleCopyMode() },
+              icon: this.preferenceStore.copyMode ? "✅" : "❌"
+            }
+          )
+          
+          menuButtonSubMenu.push(
+            {
+              text: "Paste Selected",
+              icon: "content_paste",
+              click: () => {
+                this.$nextTick(()=>{
+                  this.profileStore.pasteSelected()
+                })
+              }
+            }
+          )
         }
 
         if (!this.disable.includes('Menu')){
@@ -319,44 +339,33 @@
             }
           )
           
-          menu.push(
-            {
-              text: "Copy Selected",
-              icon: "content_copy",
-              click: () => {
-                this.$nextTick(()=>{
-                  this.profileStore.copySelected()
-                })
-              }
-            }
-          )
+          if (this.preferenceStore.copyMode){
+              menu.push(
+                {
+                  text: "Copy Selected",
+                  icon: "content_copy",
+                  click: () => {
+                    this.$nextTick(()=>{
+                      this.profileStore.copySelected()
+                    })
+                  }
+                }
+              )
+          }
           
-          menu.push(
-            {
-              text: "Select All",
-              icon: "select_all",
-              click: () => {
-                this.$nextTick(()=>{
-                  this.selectAll()
-                })
-              }
-            }
-          )
-          
-          menu.push(
-            {
-              text: "Paste Selected",
-              icon: "content_paste",
-              click: () => {
-                this.$nextTick(()=>{
-                  this.profileStore.pasteSelected()
-                })
-              }
-            }
-          )
-
-
-
+          if (this.preferenceStore.copyMode){
+              menu.push(
+                {
+                  text: "Select All",
+                  icon: "select_all",
+                  click: () => {
+                    this.$nextTick(()=>{
+                      this.selectAll()
+                    })
+                  }
+                }
+              )
+          }
         }
 
 
@@ -423,13 +432,7 @@
                   el.checked = true
               }
           })
-      }
-
-
-
-
-
-
+      },
     },
 
     created() {
