@@ -89,7 +89,6 @@
             </template>
         </template>
 
-
         <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
           <span class="button-shortcut-label">0</span>
           Debug
@@ -100,7 +99,6 @@
             View Documentation<span class="material-icons action-button-icon">open_in_new</span>
           </button>
         </template>
-
 
         <template v-if="catInitals.toLowerCase().indexOf('matt') > -1">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="breakRecord()">
@@ -125,10 +123,6 @@
                 Repeat Component<span class="material-icons action-button-icon">repeat</span>
             </button>
         </template>
-        
-
-
-
 
       </div>
       <!--

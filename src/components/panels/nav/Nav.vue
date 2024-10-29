@@ -341,6 +341,7 @@
           )
           
           if (this.preferenceStore.copyMode){
+              menu.push({ is: "separator" })
               menu.push(
                 {
                   text: "Copy Selected",
