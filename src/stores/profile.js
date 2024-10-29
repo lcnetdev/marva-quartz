@@ -3447,16 +3447,31 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
         let profile
         let propertyPosition
+        
+        let key = pt.propertyURI.replace('http://','').replace('https://','').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"_") + '__' + ((pt.propertyLabel) ? pt.propertyLabel.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g,'_').toLowerCase() : "plabel")
+        
+        let lastPosition = 0
         for (let r of this.activeProfile.rtOrder){
           propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
-
+          
+          //find the last position in the order of related components so we can insert
+          // the new components at the end of that list
+          for (let idx in this.activeProfile.rt[r].ptOrder){
+              let item = this.activeProfile.rt[r].ptOrder[idx]
+              
+              if (item.includes(key)){
+                  lastPosition = idx
+              }
+          }
+          
+          
           if (propertyPosition != -1 && (r.includes(actionTarget) || actionTarget == null)){
             profile = r
             break
           }
         }
 
-        let key = pt.propertyURI.replace('http://','').replace('https://','').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"_") + '__' + ((pt.propertyLabel) ? pt.propertyLabel.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g,'_').toLowerCase() : "plabel")
+        
         let newPropertyId = key + '_'+ (+ new Date())
 
 
@@ -3519,7 +3534,8 @@ export const useProfileStore = defineStore('profile', {
         }
         
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
-        this.activeProfile.rt[profile].ptOrder.splice(propertyPosition+1, 0, newPropertyId);
+        this.activeProfile.rt[profile].ptOrder.splice(Number(lastPosition)+1, 0, newPropertyId);
+        
 
         if (structure){
           this.insertDefaultValuesComponent(newPt['@guid'], structure)
@@ -3898,8 +3914,12 @@ export const useProfileStore = defineStore('profile', {
         this.changeGuid(newComponent)
         let profile = this.activeProfile
         
+        console.info("profile: ", profile)
+        
         for (let rt in profile["rt"]){
             let frozenPts = JSON.parse(JSON.stringify(profile["rt"][rt]["pt"]))
+            
+            let order = profile["rt"][rt]["ptOrder"]
 
             for (let pt in frozenPts){
                 let current = profile["rt"][rt]["pt"][pt]

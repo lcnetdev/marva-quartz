@@ -151,7 +151,7 @@
             {
               text: 'Copy Mode [' + this.preferenceStore.copyMode + ']',
               click: () => { this.preferenceStore.toggleCopyMode() },
-              icon: this.preferenceStore.copyMode ? "✔️" : "❌"
+              icon: this.preferenceStore.copyMode ? "content_copy" : "block"
             }
           )
           
@@ -349,8 +349,6 @@
                   click: () => {
                     this.$nextTick(()=>{
                       this.profileStore.copySelected()
-                      console.info("??!?")
-                      window.alert("!!!")
                     })
                   }
                 }
