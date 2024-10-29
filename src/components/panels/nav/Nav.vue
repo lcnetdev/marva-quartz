@@ -348,6 +348,8 @@
                   click: () => {
                     this.$nextTick(()=>{
                       this.profileStore.copySelected()
+                      console.info("??!?")
+                      window.alert("!!!")
                     })
                   }
                 }

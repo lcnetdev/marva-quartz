@@ -109,8 +109,7 @@
           </button>
         </template>
         
-        
-        <template v-if="preferenceStore.copyMode">
+        <template v-if="preferenceStore.copyMode && showCopyPasteButtons()">
             <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-c`" @click="copyComponent()">
                 <span class="button-shortcut-label">c</span>
                 Copy<span class="material-icons action-button-icon">content_copy</span>
@@ -187,6 +186,7 @@
       ...mapStores(usePreferenceStore),
       ...mapStores(useProfileStore),
       ...mapState(usePreferenceStore, ['scriptShifterOptions','catInitals']),
+      ...mapState(useProfileStore, ['activeProfile']),
 
 
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
@@ -275,8 +275,6 @@
         if (this.popperKeyboardShortcutElement){
           this.popperKeyboardShortcutElement.removeEventListener('keyup',this.processShortcutKeypress)
         }
-
-
       },
 
       showDebug: function() {
@@ -417,6 +415,15 @@
 
       },
       
+      showCopyPasteButtons: function(){
+          let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+          let label = structure.propertyLabel
+          
+          if (label.includes("Admin")){
+              return false
+          }
+          return true
+      },
       
       copyComponent: async function(){
           let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
