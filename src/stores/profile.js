@@ -1898,7 +1898,7 @@ export const useProfileStore = defineStore('profile', {
 
     * @return {void}
     */
-    setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null){
+    setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -1952,12 +1952,38 @@ export const useProfileStore = defineStore('profile', {
           blankNode['@type'] = type
 
 
-          blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = [
-            {
-              '@guid': short.generate(),
-              'http://www.w3.org/2000/01/rdf-schema#label' : label
+          if (!Array.isArray(label)){
+            label = [label]
+          }
+
+          for (let aLabelNode of label){
+            if (!blankNode['http://www.w3.org/2000/01/rdf-schema#label']){
+              blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = []
             }
-          ]
+            if (typeof aLabelNode == 'string'){
+              blankNode['http://www.w3.org/2000/01/rdf-schema#label'].push(
+                {
+                  '@guid': short.generate(),
+                  'http://www.w3.org/2000/01/rdf-schema#label' : aLabelNode
+                }
+              )              
+            }else if (aLabelNode['@value']){
+              let aNode = {
+                '@guid': short.generate(),
+                'http://www.w3.org/2000/01/rdf-schema#label' : aLabelNode['@value']
+              }
+              if (aLabelNode['@language']){
+                aNode['@language']=aLabelNode['@language']
+              }              
+              blankNode['http://www.w3.org/2000/01/rdf-schema#label'].push(aNode)
+
+            }else{
+              console.error("Cannot understand response from context extaction for label:",label)
+            }
+          }
+
+
+
 
           //Add gacs code to user data
           if (nodeMap["GAC(s)"]){
@@ -1969,14 +1995,52 @@ export const useProfileStore = defineStore('profile', {
               }
             ]
           }
-          if (nodeMap["marcKey"]){
-            blankNode["http://id.loc.gov/ontologies/bflc/marcKey"] = [
-              {
-                '@guid': short.generate(),
-                'http://id.loc.gov/ontologies/bflc/marcKey': nodeMap["marcKey"][0]
-              }
-            ]
+
+
+
+          if (!Array.isArray(marcKey)){
+            marcKey = [marcKey]
           }
+
+          for (let aMarcKeyNode of marcKey){
+            if (!blankNode['http://id.loc.gov/ontologies/bflc/marcKey']){
+              blankNode['http://id.loc.gov/ontologies/bflc/marcKey'] = []
+            }
+            if (typeof aMarcKeyNode == 'string'){
+              blankNode['http://id.loc.gov/ontologies/bflc/marcKey'].push(
+                {
+                  '@guid': short.generate(),
+                  'http://id.loc.gov/ontologies/bflc/marcKey' : aMarcKeyNode
+                }
+              )              
+            }else if (aMarcKeyNode['@value']){
+              let aNode = {
+                '@guid': short.generate(),
+                'http://id.loc.gov/ontologies/bflc/marcKey' : aMarcKeyNode['@value']
+              }
+              if (aMarcKeyNode['@language']){
+                aNode['@language']=aMarcKeyNode['@language']
+              }              
+              blankNode['http://id.loc.gov/ontologies/bflc/marcKey'].push(aNode)
+
+            }else{
+              console.error("Cannot understand response from context extaction for marcKey:",marcKey)
+            }
+          }
+
+
+          // if (nodeMap["marcKey"]){
+          //   blankNode["http://id.loc.gov/ontologies/bflc/marcKey"] = [
+          //     {
+          //       '@guid': short.generate(),
+          //       'http://id.loc.gov/ontologies/bflc/marcKey': nodeMap["marcKey"][0]
+          //     }
+          //   ]
+          // }
+
+
+
+
         }else{
           let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
 
