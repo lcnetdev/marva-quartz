@@ -421,22 +421,12 @@
       copyComponent: async function(){
           let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
           let propertyUri = structure.propertyURI
-          console.info("structure: ", structure)
-          
-          console.info("userValue", structure.userValue)
           
           let value = JSON.stringify(structure)
           
-          console.info("value", value)
-          
           const type = "text/plain"
           const blob = new Blob([value], {type})
-          
-          console.info("blob: ", blob)
-          
           const data = [new ClipboardItem({[type]: blob})]
-          
-          console.info("data: ", data)
           
           await navigator.clipboard.write(data)
       },
@@ -445,39 +435,20 @@
       pasteComponent: async function(){
           let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
           
-          console.info("structure: ", structure)
-          
           const clipboardContents = await navigator.clipboard.read();
           
-          console.info("clipboardContents", clipboardContents)
-          
           for (let item of clipboardContents){
-              console.info("item: ", item)
               if (!item.types.includes("text/plain")) {
                 throw new Error("Clipboard does not contain text data.");
               }
               
               let blob = await item.getType("text/plain")
-              
-              console.info("blob: ", blob)
-              
               const incomingValue = await blob.text()
-              
-              console.info("incomingValue", incomingValue)
-              
               const incomingData = JSON.parse(incomingValue)
-              
-              console.info("incomingData", incomingData)
-              console.info("structure", structure)
-              
-              console.info("incomingData type", incomingData.propertyURI)
-              console.info("structure type", structure.propertyURI)
               
               //need to go through the incoming data and update the guid's
               // need a way to match the incoming data to the structure -- propertyURI?
               structure.userValue = incomingData.userValue
-              
-              
               
               this.profileStore.dataChanged()
           }
