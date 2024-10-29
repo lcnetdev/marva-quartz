@@ -911,6 +911,7 @@
   right: 20px;
   top: 5px;
   position: absolute;
+  z-index: 100000;
 
 }
 
