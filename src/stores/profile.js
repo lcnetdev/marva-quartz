@@ -94,6 +94,7 @@ export const useProfileStore = defineStore('profile', {
       componentPropertyPath:null
     },
 
+    mostCommonNonLatinScript: null,
 
     // bf:title component/predicate for example, value will be the structure object for this component
 
@@ -3551,9 +3552,12 @@ export const useProfileStore = defineStore('profile', {
     */
     dataChanged:  function(){
       this.activeProfileSaved = false
-
+      
+      
       window.clearTimeout(dataChangedTimeout)
-      dataChangedTimeout = window.setTimeout(()=>{
+      dataChangedTimeout = window.setTimeout(()=>{        
+        this.setMostCommonNonLatinScript()
+        // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
         // console.log("CHANGED 1!!!")
       },500)
@@ -3812,6 +3816,38 @@ export const useProfileStore = defineStore('profile', {
 
       
     },
+
+    /**
+    * Will look at the literals being used on the record and pick the most common script found
+    * used to help pick the correct auth labels to include in the access points,
+    * will set this.mostCommonNonLatinScript
+    * @return {void}
+    */
+    setMostCommonNonLatinScript(){
+
+      let literals = this.returnAllNonLatinLiterals()
+      let allScriptsFound = []
+      for (let l of literals){
+        if (l.node && l.node['@language'] && l.node['@language'].indexOf('-')>-1){
+          let lang = l.node['@language'].split("-")[1].toLowerCase()
+          if (lang != 'latn'){
+            allScriptsFound.push(lang)
+          }
+        }
+      }
+
+      if (allScriptsFound.length>0){
+        // get mode
+        let mostCommong = allScriptsFound.sort((a,b) => allScriptsFound.filter(v => v===a).length - allScriptsFound.filter(v => v===b).length).pop();
+        // capitalize
+        mostCommong = String(mostCommong).charAt(0).toUpperCase() + String(mostCommong).slice(1)
+        this.mostCommonNonLatinScript=mostCommong
+      }else{
+        this.mostCommonNonLatinScript = null
+      }
+
+      
+    }
 
 
 
