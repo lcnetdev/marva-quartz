@@ -3874,6 +3874,8 @@ export const useProfileStore = defineStore('profile', {
         
         if  (copyTargets.length == 0){
             console.warn("nothing to copy")
+            alert("Nothing selected to copy. Select the fields you would like to copy.")
+                
             return false
         }
         
@@ -3892,6 +3894,8 @@ export const useProfileStore = defineStore('profile', {
         const data = [new ClipboardItem({[type]: blob})]
         
         await navigator.clipboard.write(data)
+        
+        alert("Data copied.")
         
         return true
     },
