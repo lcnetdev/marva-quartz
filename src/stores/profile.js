@@ -1078,6 +1078,7 @@ export const useProfileStore = defineStore('profile', {
 
         pt.hasData = true
         pt.userModified = true
+        pt.dataLoaded = false
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
@@ -1446,6 +1447,7 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
         pt.hasData = true
         pt.userModified = true
+        pt.dataLoaded = false
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode
@@ -1937,6 +1939,7 @@ export const useProfileStore = defineStore('profile', {
 
         pt.hasData = true
         pt.userModified = true
+        pt.dataLoaded = false
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
@@ -2100,6 +2103,7 @@ export const useProfileStore = defineStore('profile', {
 
             pt.hasData = true
             pt.userModified = true
+            pt.dataLoaded = false
 
             if (pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] &&
@@ -3749,11 +3753,36 @@ export const useProfileStore = defineStore('profile', {
       }
 
       return ['report','No Link']
-
+    },
+    
+    
+    
+    //Check if the component's userValue is empty
+    isEmptyComponent: function(component){
       
-
-
+      let emptyArray = new Array("@root")
+      let userValue = component.userValue
       
+      // if there is only a @root
+      if (JSON.stringify(Object.keys(userValue)) == JSON.stringify(emptyArray)){
+          return true
+      } else {
+          // if the children only have "@..." properties
+          for (let key in userValue){
+              if (!key.startsWith("@")){
+                  let result = false
+                  try{
+                      result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
+                  } catch(err) {
+                      console.info("error: ", err)
+                  }
+                  return result
+                  
+              }
+          }
+      }
+      
+      return false
     },
 
 

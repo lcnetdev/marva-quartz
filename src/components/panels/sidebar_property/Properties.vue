@@ -34,7 +34,7 @@
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent']),
-      ...mapState(usePreferenceStore, ['styleDefault']),
+      ...mapState(usePreferenceStore, ['styleDefault', 'isEmptyComponent']),
 
       ...mapWritableState(useProfileStore, ['activeComponent']),
 
@@ -102,15 +102,19 @@
           this.dataChanged()
       },
       
+      
       // if the component has data, and from where
       hasData: function(component){
           let userValue = component.userValue
           let emptyArray = new Array("@root")
           let dataLoaded = component.dataLoaded
           
-          console.info(component.propertyLabel, "[", dataLoaded,"]", ": ", component)
+          // console.info(component.propertyLabel, "[", dataLoaded,"]", ": ", component)
+          //console.info(JSON.stringify(Object.keys(component.userValue)), "--" ,JSON.stringify(emptyArray))
           
-          if (component.userModified){
+          if (this.profileStore.isEmptyComponent(component)){
+            return false  
+          } else if (component.userModified){
             return "user"
           } else if (dataLoaded){
               return "system"
