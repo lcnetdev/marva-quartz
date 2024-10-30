@@ -3914,20 +3914,18 @@ export const useProfileStore = defineStore('profile', {
     },
 
     //parse the activeProfile and insert the copied data where appropriate
-    parseActive: async function(newComponent){
+    parseActiveInsert: async function(newComponent){
         this.changeGuid(newComponent)
         let profile = this.activeProfile
-        
-        console.info("profile: ", profile)
-        
+
         for (let rt in profile["rt"]){
             let frozenPts = JSON.parse(JSON.stringify(profile["rt"][rt]["pt"]))
-            
+
             let order = profile["rt"][rt]["ptOrder"]
 
             for (let pt in frozenPts){
                 let current = profile["rt"][rt]["pt"][pt]
-                
+
                 if (rt == newComponent.parentId){
                     let targetURI = newComponent.propertyURI
                     let targetLabel = newComponent.propertyLabel
@@ -3940,7 +3938,7 @@ export const useProfileStore = defineStore('profile', {
                             let guid = current["@guid"]
                             let structure = this.returnStructureByComponentGuid(guid)
                             let newPt = await this.duplicateComponentGetId(guid, structure)
-                            
+
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
                             break
                         }
@@ -3968,7 +3966,7 @@ export const useProfileStore = defineStore('profile', {
         
         for (let item of data){
               const dataJson = JSON.parse(item)
-              this.parseActive(dataJson)
+              this.parseActiveInsert(dataJson)
         }
     },
 
