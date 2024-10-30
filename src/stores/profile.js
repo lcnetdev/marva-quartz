@@ -3693,12 +3693,17 @@ export const useProfileStore = defineStore('profile', {
         for (let pt of this.activeProfile.rt[rt].ptOrder){
           let ptObj = this.activeProfile.rt[rt].pt[pt]
           
+          // we don't care about literals inside specific types of properties 
+          // like agent or headings
+          if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) >-1){
+            continue
+          } 
+
 
           process(ptObj, function (obj,key,value) {
               // e.g.
               // console.log(obj,key);
               if (!latinRegex.test(value)){
-                console.log("VALUIE ==",value)
                 nonLatinNodes.push({
                   ptObj:ptObj,
                   node: obj,
