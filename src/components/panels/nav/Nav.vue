@@ -359,7 +359,7 @@
               menu.push(
                 {
                   text: !this.allSelected ? "Select All" : "Deselect All",
-                  icon: "select_all",
+                  icon: !this.allSelected ? "select_all" : "deselect",
                   click: () => {
                     this.$nextTick(()=>{
                       this.selectAll()
