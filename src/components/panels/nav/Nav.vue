@@ -143,13 +143,12 @@
               text: 'Add Secondary Instance',
               click: () => { this.profileStore.createSecondaryInstance() }
             }
-            
           )
           
-          menuButtonSubMenu.push({ is: 'separator'}) 
+          menuButtonSubMenu.push({ is: 'separator'})
           menuButtonSubMenu.push(
             {
-              text: 'Copy Mode [' + this.preferenceStore.copyMode + ']',
+              text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
               click: () => { this.preferenceStore.toggleCopyMode() },
               icon: this.preferenceStore.copyMode ? "content_copy" : "block"
             }
