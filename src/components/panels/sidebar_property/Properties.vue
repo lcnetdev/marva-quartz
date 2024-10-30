@@ -102,6 +102,7 @@
           this.dataChanged()
       },
       
+      // if the component has data, and from where
       hasData: function(component){
           let userValue = component.userValue
           let emptyArray = new Array("@root")
@@ -109,10 +110,13 @@
           
           console.info(component.propertyLabel, "[", dataLoaded,"]", ": ", component)
           
-          if (JSON.stringify(Object.keys(userValue)) === JSON.stringify(emptyArray)){
+          if (component.userModified){
+            return "user"
+          } else if (dataLoaded){
+              return "system"
+          } else {
               return false
           }
-          return true
       },
     },    
   }
@@ -175,7 +179,7 @@
                             item-key="id">
                             <template #item="{element}">
                               <template v-if="!activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI)">
-                                <li @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" :class="['sidebar-property-li sidebar-property-li-empty', {populated: (hasData(activeProfile.rt[profileName].pt[element]))}]">
+                                <li @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}]">
                                   <a href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
                                       <span v-if="activeProfile.rt[profileName].pt[element].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'">
@@ -496,8 +500,16 @@
   stroke:rgb(0,0,0)
 }
 
-li.populated:before {
-    content: '✓';
+li.system-populated:before {
+    font-family: 'Material Icons';
+    content: 'radio_button_unchecked';
+    color: white !important;
+}
+
+li.user-populated:before {
+    font-family: 'Material Icons';
+    content: 'task_alt';
+    //content: '✓';
     color: white !important;
 }
 

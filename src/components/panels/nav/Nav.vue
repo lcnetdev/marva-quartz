@@ -146,6 +146,16 @@
             
           )
         }
+        
+        menuButtonSubMenu.push({ is: 'separator'})            
+          menuButtonSubMenu.push(
+            {
+              text: 'Help',
+              click: () => { console.info("open help modal") },
+              icon: "help"
+            }
+            
+          )
 
         if (!this.disable.includes('Menu')){
           menu.push(

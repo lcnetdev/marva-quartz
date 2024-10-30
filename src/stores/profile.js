@@ -1077,6 +1077,7 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
 
         pt.hasData = true
+        pt.userModified = true
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
@@ -1444,6 +1445,7 @@ export const useProfileStore = defineStore('profile', {
       // console.log(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral)
       if (pt !== false){
         pt.hasData = true
+        pt.userModified = true
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode
@@ -1934,6 +1936,7 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
 
         pt.hasData = true
+        pt.userModified = true
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
@@ -2096,6 +2099,7 @@ export const useProfileStore = defineStore('profile', {
             }
 
             pt.hasData = true
+            pt.userModified = true
 
             if (pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] &&
