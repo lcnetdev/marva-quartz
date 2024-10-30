@@ -39,7 +39,7 @@
     components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal },
     data() {
       return {
-
+        allSelected: false,
       }
     },
     props:{
@@ -157,7 +157,7 @@
           
           menuButtonSubMenu.push(
             {
-              text: "Paste Selected",
+              text: "Paste Content",
               icon: "content_paste",
               click: () => {
                 this.$nextTick(()=>{
@@ -358,7 +358,7 @@
           if (this.preferenceStore.copyMode){
               menu.push(
                 {
-                  text: "Select All",
+                  text: !this.allSelected ? "Select All" : "Deselect All",
                   icon: "select_all",
                   click: () => {
                     this.$nextTick(()=>{
@@ -427,11 +427,13 @@
       
       selectAll: function(){
           let checkBoxes = document.getElementsByClassName("copy-selection")
+          this.allSelected = !this.allSelected
+          
           checkBoxes.forEach((el) => {
-              if (el.checked){
-                  el.checked = false
-              } else {
+              if (this.allSelected){
                   el.checked = true
+              } else {
+                  el.checked = false
               }
           })
       },
