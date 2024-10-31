@@ -39,7 +39,7 @@
     components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal },
     data() {
       return {
-
+        allSelected: false,
       }
     },
     props:{
@@ -143,7 +143,27 @@
               text: 'Add Secondary Instance',
               click: () => { this.profileStore.createSecondaryInstance() }
             }
-            
+          )
+          
+          menuButtonSubMenu.push({ is: 'separator'})
+          menuButtonSubMenu.push(
+            {
+              text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
+              click: () => { this.preferenceStore.toggleCopyMode() },
+              icon: this.preferenceStore.copyMode ? "content_copy" : "block"
+            }
+          )
+          
+          menuButtonSubMenu.push(
+            {
+              text: "Paste Content",
+              icon: "content_paste",
+              click: () => {
+                this.$nextTick(()=>{
+                  this.profileStore.pasteSelected()
+                })
+              }
+            }
           )
         }
 
@@ -318,9 +338,36 @@
               }
             }
           )
-
-
-
+          
+          if (this.preferenceStore.copyMode){
+              menu.push({ is: "separator" })
+              menu.push(
+                {
+                  text: "Copy Selected",
+                  icon: "content_copy",
+                  id: "copy-selected-button",
+                  click: () => {
+                    this.$nextTick(()=>{
+                      this.profileStore.copySelected()
+                    })
+                  }
+                }
+              )
+          }
+          
+          if (this.preferenceStore.copyMode){
+              menu.push(
+                {
+                  text: !this.allSelected ? "Select All" : "Deselect All",
+                  icon: !this.allSelected ? "select_all" : "deselect",
+                  click: () => {
+                    this.$nextTick(()=>{
+                      this.selectAll()
+                    })
+                  }
+                }
+              )
+          }
         }
 
 
@@ -376,13 +423,20 @@
         this.layoutActiveFilter = layout
 
 
-      }
-
-
-
-
-
-
+      },
+      
+      selectAll: function(){
+          let checkBoxes = document.getElementsByClassName("copy-selection")
+          this.allSelected = !this.allSelected
+          
+          checkBoxes.forEach((el) => {
+              if (this.allSelected){
+                  el.checked = true
+              } else {
+                  el.checked = false
+              }
+          })
+      },
     },
 
     created() {
