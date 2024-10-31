@@ -6,8 +6,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 0,
-    versionMinor: 15,
-    versionPatch: 5,
+    versionMinor: 16,
+    versionPatch: 0,
 
 
 
@@ -128,6 +128,8 @@ export const useConfigStore = defineStore('config', {
   showUpdateAvailableModal:false,
 
   showNonLatinBulkModal: false,
+  showNonLatinAgentModal: false,
+  
 
   scriptshifterLanguages: {},
 
@@ -220,6 +222,13 @@ export const useConfigStore = defineStore('config', {
     'http://id.loc.gov/ontologies/bibframe/classificationPortion'
 
   ],
+
+  excludeFromNonLatinLiteralCheck: [
+    'http://id.loc.gov/ontologies/bibframe/subject',
+    'http://id.loc.gov/ontologies/bibframe/contribution'
+
+  ],
+
 
 
   layouts: {

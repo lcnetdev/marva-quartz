@@ -8,6 +8,8 @@ import ScriptshifterConfigModal from "@/components/panels/edit/modals/Scriptshif
 import DiacriticsConfigModal from "@/components/panels/edit/modals/DiacriticsConfigModal.vue";
 import TextMacroModal from "@/components/panels/edit/modals/TextMacroModal.vue";
 import NonLatinBulkModal from "@/components/panels/edit/modals/NonLatinBulkModal.vue";
+import NonLatinAgentModal from "@/components/panels/edit/modals/NonLatinAgentModal.vue";
+
 
 
 
@@ -37,7 +39,8 @@ export default {
     DiacriticsConfigModal,
     UpdateAvailableModal,
     TextMacroModal,
-    NonLatinBulkModal
+    NonLatinBulkModal,
+    NonLatinAgentModal
 
   },
   data() {
@@ -56,7 +59,7 @@ export default {
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal']),
-    ...mapWritableState(useConfigStore, ['showUpdateAvailableModal','showNonLatinBulkModal']),
+    ...mapWritableState(useConfigStore, ['showUpdateAvailableModal','showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
     showLocalPreferenceModal: {
@@ -148,6 +151,10 @@ export default {
     <NonLatinBulkModal v-model="showNonLatinBulkModal"  />
   </template>
 
+  <template v-if="showNonLatinAgentModal==true">
+    <NonLatinAgentModal v-model="showNonLatinAgentModal"  />
+  </template>
+  
   
   
 

@@ -94,6 +94,8 @@ export const useProfileStore = defineStore('profile', {
       componentPropertyPath:null
     },
 
+    mostCommonNonLatinScript: null,
+    nonLatinScriptAgents: {},
 
     // bf:title component/predicate for example, value will be the structure object for this component
 
@@ -1910,7 +1912,7 @@ export const useProfileStore = defineStore('profile', {
 
     * @return {void}
     */
-    setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null){
+    setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -1966,12 +1968,38 @@ export const useProfileStore = defineStore('profile', {
           blankNode['@type'] = type
 
 
-          blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = [
-            {
-              '@guid': short.generate(),
-              'http://www.w3.org/2000/01/rdf-schema#label' : label
+          if (!Array.isArray(label)){
+            label = [label]
+          }
+
+          for (let aLabelNode of label){
+            if (!blankNode['http://www.w3.org/2000/01/rdf-schema#label']){
+              blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = []
             }
-          ]
+            if (typeof aLabelNode == 'string'){
+              blankNode['http://www.w3.org/2000/01/rdf-schema#label'].push(
+                {
+                  '@guid': short.generate(),
+                  'http://www.w3.org/2000/01/rdf-schema#label' : aLabelNode
+                }
+              )              
+            }else if (aLabelNode['@value']){
+              let aNode = {
+                '@guid': short.generate(),
+                'http://www.w3.org/2000/01/rdf-schema#label' : aLabelNode['@value']
+              }
+              if (aLabelNode['@language']){
+                aNode['@language']=aLabelNode['@language']
+              }              
+              blankNode['http://www.w3.org/2000/01/rdf-schema#label'].push(aNode)
+
+            }else{
+              console.error("Cannot understand response from context extaction for label:",label)
+            }
+          }
+
+
+
 
           //Add gacs code to user data
           if (nodeMap["GAC(s)"]){
@@ -1983,14 +2011,52 @@ export const useProfileStore = defineStore('profile', {
               }
             ]
           }
-          if (nodeMap["marcKey"]){
-            blankNode["http://id.loc.gov/ontologies/bflc/marcKey"] = [
-              {
-                '@guid': short.generate(),
-                'http://id.loc.gov/ontologies/bflc/marcKey': nodeMap["marcKey"][0]
-              }
-            ]
+
+
+
+          if (!Array.isArray(marcKey)){
+            marcKey = [marcKey]
           }
+
+          for (let aMarcKeyNode of marcKey){
+            if (!blankNode['http://id.loc.gov/ontologies/bflc/marcKey']){
+              blankNode['http://id.loc.gov/ontologies/bflc/marcKey'] = []
+            }
+            if (typeof aMarcKeyNode == 'string'){
+              blankNode['http://id.loc.gov/ontologies/bflc/marcKey'].push(
+                {
+                  '@guid': short.generate(),
+                  'http://id.loc.gov/ontologies/bflc/marcKey' : aMarcKeyNode
+                }
+              )              
+            }else if (aMarcKeyNode['@value']){
+              let aNode = {
+                '@guid': short.generate(),
+                'http://id.loc.gov/ontologies/bflc/marcKey' : aMarcKeyNode['@value']
+              }
+              if (aMarcKeyNode['@language']){
+                aNode['@language']=aMarcKeyNode['@language']
+              }              
+              blankNode['http://id.loc.gov/ontologies/bflc/marcKey'].push(aNode)
+
+            }else{
+              console.error("Cannot understand response from context extaction for marcKey:",marcKey)
+            }
+          }
+
+
+          // if (nodeMap["marcKey"]){
+          //   blankNode["http://id.loc.gov/ontologies/bflc/marcKey"] = [
+          //     {
+          //       '@guid': short.generate(),
+          //       'http://id.loc.gov/ontologies/bflc/marcKey': nodeMap["marcKey"][0]
+          //     }
+          //   ]
+          // }
+
+
+
+
         }else{
           let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
 
@@ -3633,9 +3699,16 @@ export const useProfileStore = defineStore('profile', {
     */
     dataChanged:  function(){
       this.activeProfileSaved = false
-
+      
+      
       window.clearTimeout(dataChangedTimeout)
-      dataChangedTimeout = window.setTimeout(()=>{
+      dataChangedTimeout = window.setTimeout(()=>{        
+        this.setMostCommonNonLatinScript()
+        // also store it in the active profile
+        this.activeProfile.mostCommonNonLatinScript = this.mostCommonNonLatinScript
+        this.activeProfile.nonLatinScriptAgents = this.nonLatinScriptAgents
+        console.log("this.activeProfilethis.activeProfilethis.activeProfile",this.activeProfile)
+        // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
         // console.log("CHANGED 1!!!")
       },500)
@@ -3741,7 +3814,7 @@ export const useProfileStore = defineStore('profile', {
     *
     * @return {array}
     */
-    returnAllNonLatinLiterals:  function(){
+    returnAllNonLatinLiterals:  function(onlyAccessPoints=false){
 
       function process (obj, func) {
         
@@ -3775,12 +3848,29 @@ export const useProfileStore = defineStore('profile', {
         for (let pt of this.activeProfile.rt[rt].ptOrder){
           let ptObj = this.activeProfile.rt[rt].pt[pt]
           
+          // we don't care about literals inside specific types of properties 
+          // like agent or headings but we also use this function to grab the ones specificly for agents and headings
+          if (onlyAccessPoints){
+
+            if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) == -1){
+              continue
+            } 
+
+          }else{
+            
+            if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) >-1){
+              continue
+            } 
+
+          }
+
+
+
 
           process(ptObj, function (obj,key,value) {
               // e.g.
               // console.log(obj,key);
               if (!latinRegex.test(value)){
-                console.log("VALUIE ==",value)
                 nonLatinNodes.push({
                   ptObj:ptObj,
                   node: obj,
@@ -3799,8 +3889,83 @@ export const useProfileStore = defineStore('profile', {
       return nonLatinNodes
     },
 
-    
+    returnAllNonLatinAgentOptions: function(){
 
+      let nonLatin = this.returnAllNonLatinLiterals(true)
+      let nonLatinMap = {}
+
+      for (let nl of nonLatin){
+        let ptFound = null
+        for (let rt of this.activeProfile.rtOrder){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){            
+            if ( JSON.stringify(this.activeProfile.rt[rt].pt[pt].userValue).indexOf(nl.node['@guid'])>-1){
+              ptFound=this.activeProfile.rt[rt].pt[pt]
+            }
+            if (ptFound){break} 
+          }
+          if (ptFound){break}
+        }
+
+        // grab the guid as the key
+        if (ptFound){
+            if (!nonLatinMap[ptFound['@guid']]){ 
+              nonLatinMap[ptFound['@guid']] = {
+                scripts: [],
+                '@guid' : ptFound['@guid'],
+                nonLatin: this.returnLatinLabelForPt(ptFound)
+              }
+           }          
+          nonLatinMap[ptFound['@guid']].scripts.push(nl.node['@language'].split("-")[1])
+          
+        }
+        // unique array
+        nonLatinMap[ptFound['@guid']].scripts = [...new Set(nonLatinMap[ptFound['@guid']].scripts)];
+
+      }
+
+
+      return nonLatinMap
+  
+  
+    },    
+
+
+    returnLatinLabelForPt: function(pt){
+
+      let nonLatinFound = null
+
+      function process (obj, func) {     
+        if (nonLatinFound){return}   
+        if (obj && obj.userValue){
+          obj = obj.userValue
+        }
+        if (Array.isArray(obj)){
+          obj.forEach(function (child) {
+            process(child, func);
+          });
+        }else if (typeof obj == 'object' && obj !== null){
+          for (let k in obj){
+            if (Array.isArray(obj[k])){
+              process(obj[k], func);
+            }else{
+              if (!k.startsWith('@')){
+                func(obj,k,obj[k]);
+              }
+            }
+          }
+        }
+      }
+
+      process(pt, function (obj,key,value) {
+        if (key == 'http://www.w3.org/2000/01/rdf-schema#label'){
+          if (!obj['@language']){
+            nonLatinFound = obj['http://www.w3.org/2000/01/rdf-schema#label']
+          }
+        }        
+      });
+
+      return nonLatinFound
+    },
 
     /**
     * Set lang of literal value
@@ -4025,7 +4190,42 @@ export const useProfileStore = defineStore('profile', {
       return false
     },
 
+    /**
+    * Will look at the literals being used on the record and pick the most common script found
+    * used to help pick the correct auth labels to include in the access points,
+    * will set this.mostCommonNonLatinScript
+    * @return {String}
+    */
+    setMostCommonNonLatinScript(){
+
+      let literals = this.returnAllNonLatinLiterals()
+      let allScriptsFound = []
+      for (let l of literals){
+        if (l.node && l.node['@language'] && l.node['@language'].indexOf('-')>-1){
+          let lang = l.node['@language'].split("-")[1].toLowerCase()
+          if (lang != 'latn'){
+            allScriptsFound.push(lang)
+          }
+        }
+      }
+
+      if (allScriptsFound.length>0){
+        // get mode
+        let mostCommong = allScriptsFound.sort((a,b) => allScriptsFound.filter(v => v===a).length - allScriptsFound.filter(v => v===b).length).pop();
+        // capitalize
+        mostCommong = String(mostCommong).charAt(0).toUpperCase() + String(mostCommong).slice(1)
+        this.mostCommonNonLatinScript=mostCommong
+      }else{
+        this.mostCommonNonLatinScript = null
+      }
+
+      return this.mostCommonNonLatinScript
+    }
 
 
-  }
+
+  },
+
+
+
 })

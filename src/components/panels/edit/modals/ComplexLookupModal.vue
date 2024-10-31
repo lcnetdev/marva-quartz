@@ -113,15 +113,15 @@
     },
 
     methods: {
-	  // Reset stored values
-	  // This is for when the modal is closed, we want to reset things so nothing is preloaded
-	  // and the user starts from zero
-	  reset: function(){
-		  this.activeContext = null
-		  this.activeComplexSearch = []
-		  this.searchValueLocal = null
-          this.authorityLookupLocal = null
-	  },
+      // Reset stored values
+      // This is for when the modal is closed, we want to reset things so nothing is preloaded
+      // and the user starts from zero
+      reset: function(){
+        this.activeContext = null
+        this.activeComplexSearch = []
+        this.searchValueLocal = null
+            this.authorityLookupLocal = null
+      },
 
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
@@ -210,6 +210,39 @@
           this.selectChange()
         }
       },
+
+      returnContextTitle(title){
+
+        if (!Array.isArray(title)){
+          title=[title]
+        }
+        if (title[0] && typeof title[0] == 'string'){ return title[0]}
+
+        let noLang = title.filter((v)=>{ if (v['@language']){return false}else{return true} })
+        if (noLang && noLang[0] && noLang[0]['@value']){ return noLang[0]['@value']}
+        
+        return 'ERROR - Cannot find label'
+
+      },
+      returnNonLatinAuthLabels(title){
+
+        if (!Array.isArray(title)){
+          title=[title]
+        }
+        if (title[0] && typeof title[0] == 'string'){ return []}
+
+        let hasLang = title.filter((v)=>{ if (v['@language']){return true}else{return false} })
+        let results = []
+        for (let l of hasLang){
+          results.push(`${l['@value']} @ ${l['@language']}`)
+        }
+
+
+        return results
+
+      },
+
+
 
 
       selectNav: function(event){
@@ -459,7 +492,7 @@
 
         <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
 			<div class="menu-buttons">
-				<button @click="reset(); $emit('hideComplexModal')">Close</button>
+				<button @click="reset(); $emit('hideComplexModal')">x</button>
 			</div>
           <div class="complex-lookup-modal-container-parts">
 
@@ -536,7 +569,7 @@
 
               <template v-if="activeContext !== null">
 
-                  <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.type"><AuthTypeIcon v-if="activeContext.type" :type="activeContext.type"></AuthTypeIcon></span>{{activeContext.title}}</h3>
+                  <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.type"><AuthTypeIcon v-if="activeContext.type" :type="activeContext.type"></AuthTypeIcon></span>{{returnContextTitle(activeContext.title)}}</h3>
 
 
                   <div class="complex-lookup-modal-display-type-buttons">
@@ -558,13 +591,18 @@
 
                   </div>
 
+                  <div v-if="returnNonLatinAuthLabels(activeContext.title).length>0">
+                    <div class="modal-context-data-title modal-context-data-title-add-gap">Non-Latin Authoritative Labels:</div>
+                    <ul>
+                      <li class="modal-context-data-li" v-for="(v,idx) in returnNonLatinAuthLabels(activeContext.title)" v-bind:key="'auth' + idx">{{v}}</li>
+                    </ul>
+                  </div>
+
                   <div v-if="activeContext.variant && activeContext.variant.length>0">
                     <div class="modal-context-data-title modal-context-data-title-add-gap">Variants:</div>
                     <ul>
                       <li class="modal-context-data-li" v-for="(v,idx) in activeContext.variant" v-bind:key="'var' + idx">{{v}}</li>
                     </ul>
-
-
                   </div>
 
                   <div v-for="key in Object.keys(activeContext.nodeMap)" :key="key">
@@ -875,9 +913,11 @@
 }
 
 .menu-buttons{
-	margin-right: 5px;
-	padding-top: 5px;
-	float: right;
+  right: 20px;
+  top: 5px;
+  position: absolute;
+  z-index: 100000;
+
 }
 
 </style>

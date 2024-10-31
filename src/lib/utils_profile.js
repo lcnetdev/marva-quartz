@@ -719,21 +719,72 @@ const utilsProfile = {
             return instanceURIbasedOnWork + '-' + String(instanceCount).padStart(4, '0');
         }
     }
-},
+  },
 
 
-// Get the RT type that a component ID is in
-getRtTypeFromGuid: function(profile, target){
-       for (let rt in profile["rt"]){
-           for (let pt in profile["rt"][rt]["pt"]){
-               if (profile["rt"][rt]["pt"][pt]["@guid"] == target){
-                   return rt
-               }
-           }
-       }
-       
-       return false
-},
+  // Get the RT type that a component ID is in
+  getRtTypeFromGuid: function(profile, target){
+        for (let rt in profile["rt"]){
+            for (let pt in profile["rt"][rt]["pt"]){
+                if (profile["rt"][rt]["pt"][pt]["@guid"] == target){
+                    return rt
+                }
+            }
+        }
+        
+        return false
+  },
+
+  
+
+  /**
+  * This will select the best possbile script to use based on the ones avaiable to use
+  * It does some logic around things like Kore or Japn etc.
+  *
+  * @param {string} scriptWanted - requested script
+  * @param {array} scriptOptions - array of script strings
+  * @return {object} - the profile
+  */
+
+  pickBestNonLatinScriptOption: function(scriptWanted, scriptOptions){
+
+    // if we have that script then tell them to use it
+    for (let sO of scriptOptions){
+      if (scriptWanted.toLowerCase().trim() == sO.toLowerCase().trim()){
+        return sO
+      }
+    }
+
+
+    // if we don't check some logic here
+    // from https://en.wikipedia.org/wiki/ISO_15924
+    if (scriptWanted.toLowerCase() == 'kore'){
+        // if it is korean and we have Hani or Hang then use those
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hang') > -1){ return 'Hang'}
+    }
+    if (scriptWanted.toLowerCase() == 'hanb'){
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('bopo') > -1){ return 'Bopo'}
+    }
+    if (scriptWanted.toLowerCase() == 'hrkt'){
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hira') > -1){ return 'Hira'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('kana') > -1){ return 'Kana'}
+    }
+    if (scriptWanted.toLowerCase() == 'jamo'){
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hang') > -1){ return 'Hang'}
+    }
+
+    if (scriptWanted.toLowerCase() == 'jpan'){
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hira') > -1){ return 'Hira'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('kana') > -1){ return 'Kana'}
+    }
+
+    return false
+  },
+
+
 
 
 

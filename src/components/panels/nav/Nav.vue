@@ -58,12 +58,7 @@
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive']),
       ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal']),
-      ...mapWritableState(useConfigStore, ['showNonLatinBulkModal']),
-
-
-
-      
-
+      ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
       panelTitleProperties(){
@@ -185,12 +180,20 @@
 
 
             }, icon:"🗄️" },
+
+            { is: 'separator'},
             {
               text: "Non-Latin Literals",
               // active: this.happy,
               click: () => { this.showNonLatinBulkModal = true }
+            },
+            {
+              text: "Non-Latin Agents",
+              // active: this.happy,
+              click: () => { this.showNonLatinAgentModal = true }
             }
 
+            
 
 
           ] }

@@ -121,9 +121,23 @@
                         // toAdd.label = value2['@id'].split('/').pop()
                         for (let labelUri of ['http://www.w3.org/2000/01/rdf-schema#label','http://www.loc.gov/mads/rdf/v1#authoritativeLabel', 'http://id.loc.gov/ontologies/bibframe/code']){
                           if (value2[labelUri]){
+
+                            let hasLang = false
                             for (let vl of value2[labelUri]){
-                              toAdd.label.push(vl[labelUri])
+                              if (vl['@language']){hasLang=true}
                             }
+
+                            for (let vl of value2[labelUri]){
+                              if (hasLang){
+                                if (!vl['@language']){
+                                  toAdd.label.push(vl[labelUri])
+                                }
+                              }else{
+                                toAdd.label.push(vl[labelUri])
+                              }
+                              
+                            }
+
                           }
                         }
                         results.push(toAdd)
