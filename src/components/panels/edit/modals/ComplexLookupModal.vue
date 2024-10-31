@@ -294,10 +294,10 @@
         this.activeContext = {
             "contextValue": true,
             "source": [],
-            "type": (toLoad != null && toLoad.literal) ? "Literal Value" : null,
+            "type": (toLoad !== null && toLoad.literal) ? "Literal Value" : null,
             "variant": [],
-            "uri": (toLoad.literal) ? null : toLoad.uri,
-            "title": toLoad.label,
+            "uri": (toLoad == null || toLoad.literal) ? null : toLoad.uri,
+            "title": toLoad !== null ? toLoad.label : "",
             "contributor": [],
             "date": null,
             "genreForm": null,
@@ -311,8 +311,13 @@
           return false
         }
 
-        let results = await utilsNetwork.returnContext(toLoad.uri)
-        results.loading = false
+        let results = null
+        try {
+            results = await utilsNetwork.returnContext(toLoad.uri)
+            results.loading = false
+        } catch {
+            results = null
+        }
 
         // if this happens it means they selected something else very quickly
         // so don't go on and set it to this context, because its no longer the one they have selected
