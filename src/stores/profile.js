@@ -897,6 +897,14 @@ export const useProfileStore = defineStore('profile', {
       // let lastProperty = propertyPath.at(-1).propertyURI
       // // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      
+      //should be safe to delete the cache when swaping templates
+      if (Object.keys(cachePt).includes(componentGuid)){
+          delete cachePt[componentGuid]
+      }
+      for (let guid of Object.keys(cacheGuid)){
+          cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+      }
 
       if (pt !== false){
 
@@ -1071,6 +1079,8 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
 
         pt.hasData = true
+        pt.userModified = true
+        pt.dataLoaded = false
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
@@ -1438,6 +1448,8 @@ export const useProfileStore = defineStore('profile', {
       // console.log(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral)
       if (pt !== false){
         pt.hasData = true
+        pt.userModified = true
+        pt.dataLoaded = false
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode
@@ -1928,6 +1940,8 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
 
         pt.hasData = true
+        pt.userModified = true
+        pt.dataLoaded = false
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
@@ -2154,6 +2168,8 @@ export const useProfileStore = defineStore('profile', {
             }
 
             pt.hasData = true
+            pt.userModified = true
+            pt.dataLoaded = false
 
             if (pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] &&
@@ -3489,6 +3505,136 @@ export const useProfileStore = defineStore('profile', {
 
       }
     },
+    
+    /**
+    * Duplicate / create new component with a given userValue
+    *
+    * @param {string} componentGuid - the guid of the component (the parent of all fields)
+    * @param {object} structure - structure of the component(?)s
+    * @param {object} incomingUserValue - the incoming userValue to set
+    * @return {string} the id ofthe newPropertyId 
+    */
+    duplicateComponentGetId: async function(componentGuid, structure){
+      let createEmpty = true
+
+      // locate the correct pt to work on in the activeProfile
+      let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      //Ensure that the component is going to the right place by checking the structure.parentID
+      let actionTarget = null
+      if (structure.parentId.includes("Instance")) {
+        actionTarget = "Instance"
+      } else if (structure.parentId.includes("Work")) {
+        actionTarget = "Work"
+      }
+
+      if (pt !== false){
+        let profile
+        let propertyPosition
+        
+        let key = pt.propertyURI.replace('http://','').replace('https://','').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"_") + '__' + ((pt.propertyLabel) ? pt.propertyLabel.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g,'_').toLowerCase() : "plabel")
+        
+        let lastPosition = 0
+        for (let r of this.activeProfile.rtOrder){
+          propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
+          
+          //find the last position in the order of related components so we can insert
+          // the new components at the end of that list
+          for (let idx in this.activeProfile.rt[r].ptOrder){
+              let item = this.activeProfile.rt[r].ptOrder[idx]
+              
+              if (item.includes(key)){
+                  lastPosition = idx
+              }
+          }
+          
+          
+          if (propertyPosition != -1 && (r.includes(actionTarget) || actionTarget == null)){
+            profile = r
+            break
+          }
+        }
+
+        
+        let newPropertyId = key + '_'+ (+ new Date())
+
+
+        let newPt = JSON.parse(JSON.stringify(pt))
+        newPt.id = newPropertyId
+        newPt['@guid'] = short.generate()
+
+
+        // console.log("Lookign at this PT", pt)
+        // console.log(this.activeProfile)
+        // console.log(propertyPosition)
+        // console.log(key,newPropertyId)
+        if (createEmpty){
+
+
+          // store.state.activeUndoLog.push(`Added another property ${exportXML.namespaceUri(activeProfile.rt[profile].pt[id].propertyURI)}`)
+
+          // console.log(activeProfile.rt[profile].pt[newPropertyId])
+          // console.log(profile,newPropertyId)
+          newPt.userValue = {
+              '@guid': short.generate(),
+              '@root' : newPt.propertyURI
+
+          }
+          
+          if (newPt.activeType){
+            newPt.userValue[newPt.propertyURI] = [
+              {
+                '@type': newPt.activeType
+              }
+            ]
+          }
+
+
+
+
+          // we also want to add any default values in if it is just a empty new property and not duping
+          let idPropertyId = newPt.propertyURI
+          let baseURI = newPt.propertyURI
+          // let defaults = null
+          let defaultsProperty
+
+          let useProfile = profile
+          // if the profile is a multiple, like lc:RT:bf2:Monograph:Item-0 split off the -0 for it to find it in the RT lookup
+          if (!this.rtLookup[useProfile]){
+              if (useProfile.includes('-')){
+                  useProfile = useProfile.split('-')[0]
+              }
+          }
+          // first check the top level
+          if (this.rtLookup[useProfile]){
+              defaultsProperty = this.rtLookup[useProfile].propertyTemplates.filter((x)=>{ return (x.propertyURI === idPropertyId) ? true : false})
+              if (defaultsProperty.length>0){
+                  defaultsProperty=defaultsProperty[0]
+
+              }
+          }
+        }else{
+          // doesn't support duplicating components yet
+        }
+        
+        this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
+        this.activeProfile.rt[profile].ptOrder.splice(Number(lastPosition)+1, 0, newPropertyId);
+        
+
+        if (structure){
+          this.insertDefaultValuesComponent(newPt['@guid'], structure)
+        }
+        
+        // they changed something
+        this.dataChanged()
+        
+        return newPropertyId
+
+      }else{
+        console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
+        return false
+      }
+    },
 
     /**
     * Delete existing component
@@ -3902,11 +4048,146 @@ export const useProfileStore = defineStore('profile', {
       }
 
       return ['report','No Link']
+    },
+    
+    copySelected: async function(){
+        let components = []
+        let compontGuids = []
+        let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
+        
+        if  (copyTargets.length == 0){
+            console.warn("nothing to copy")
+            alert("Nothing selected to copy. Select the fields you would like to copy.")
+                
+            return false
+        }
+        
+        copyTargets.forEach((item) => compontGuids.push(item.id))
+        
+        for (const guid of compontGuids){
+            let component = utilsProfile.returnPt(this.activeProfile, guid)
+            let componentString = JSON.stringify(component)
+            components.push(componentString)
+        }
+        
+        //copy it
+        let value = components.join(" ;;; ")
+        const type = "text/plain"
+        const blob = new Blob([value], {type})
+        const data = [new ClipboardItem({[type]: blob})]
+        
+        await navigator.clipboard.write(data)
+        
+        //Add checkmark
+        let button = document.getElementById("copy-selected-button")
+        button.children[0].innerHTML = "check"
+        
+        //wait a few seconds and remove the check mark
+        setTimeout(function(){
+            button.children[0].innerHTML = "content_copy"
+        }, 2000)
+        
+        return true
+    },
+    
+    //loop through the copied data and change all the "@guid"s
+    changeGuid: function(data){
+        for (let key of Object.keys(data)){
+            if (key == "@guid"){
+                data[key] = short.generate()
+            } else if(Array.isArray(data[key])) {
+                this.changeGuid(data[key])
+            } else if (typeof data[key] == "object"){
+                this.changeGuid(data[key])
+            }
+        }
+    },
 
+    //parse the activeProfile and insert the copied data where appropriate
+    parseActiveInsert: async function(newComponent){
+        this.changeGuid(newComponent)
+        let profile = this.activeProfile
+
+        for (let rt in profile["rt"]){
+            let frozenPts = JSON.parse(JSON.stringify(profile["rt"][rt]["pt"]))
+
+            let order = profile["rt"][rt]["ptOrder"]
+
+            for (let pt in frozenPts){
+                let current = profile["rt"][rt]["pt"][pt]
+
+                if (rt == newComponent.parentId){
+                    let targetURI = newComponent.propertyURI
+                    let targetLabel = newComponent.propertyLabel
+
+                    if (current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
+                        if (Object.keys(current.userValue).length == 1){
+                            current.userValue = newComponent.userValue
+                            break
+                        } else {
+                            let guid = current["@guid"]
+                            let structure = this.returnStructureByComponentGuid(guid)
+                            let newPt = await this.duplicateComponentGetId(guid, structure)
+
+                            profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
+                            break
+                        }
+                    }
+                }
+            }
+        }
+    },
+    
+    pasteSelected: async function(){
+        let data
+        const clipboardContents = await navigator.clipboard.read();
+        
+        for (let item of clipboardContents){
+            
+              if (!item.types.includes("text/plain")) {
+                throw new Error("Clipboard does not contain text data.");
+              }
+              
+              let blob = await item.getType("text/plain")
+              const incomingValue = await blob.text()
+              
+              data = incomingValue.split(";;;")
+            }
+        
+        for (let item of data){
+              const dataJson = JSON.parse(item)
+              this.parseActiveInsert(dataJson)
+        }
+    },
+    
+    
+    
+    //Check if the component's userValue is empty
+    isEmptyComponent: function(component){
       
-
-
+      let emptyArray = new Array("@root")
+      let userValue = component.userValue
       
+      // if there is only a @root
+      if (JSON.stringify(Object.keys(userValue)) == JSON.stringify(emptyArray)){
+          return true
+      } else {
+          // if the children only have "@..." properties
+          for (let key in userValue){
+              if (!key.startsWith("@")){
+                  let result = false
+                  try{
+                      result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
+                  } catch(err) {
+                      console.info("error: ", err)
+                  }
+                  return result
+                  
+              }
+          }
+      }
+      
+      return false
     },
 
     /**

@@ -89,7 +89,6 @@
             </template>
         </template>
 
-
         <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
           <span class="button-shortcut-label">0</span>
           Debug
@@ -101,16 +100,29 @@
           </button>
         </template>
 
-
         <template v-if="catInitals.toLowerCase().indexOf('matt') > -1">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="breakRecord()">
           <span class="button-shortcut-label">2</span>
           💀 Break Record 💀
           </button>
         </template>
-
-
-
+        
+        <template v-if="preferenceStore.copyMode && showCopyPasteButtons()">
+            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-c`" @click="copyComponent()">
+                <span class="button-shortcut-label">c</span>
+                Copy<span class="material-icons action-button-icon">content_copy</span>
+            </button>
+              
+            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-p`" @click="pasteComponent()">
+                <span class="button-shortcut-label">p</span>
+                Paste<span class="material-icons action-button-icon">content_paste</span>
+            </button>
+            
+            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-r`" @click="repeatComponent()">
+                <span class="button-shortcut-label">r</span>
+                Repeat Component<span class="material-icons action-button-icon">repeat</span>
+            </button>
+        </template>
 
       </div>
       <!--
@@ -168,6 +180,7 @@
       ...mapStores(usePreferenceStore),
       ...mapStores(useProfileStore),
       ...mapState(usePreferenceStore, ['scriptShifterOptions','catInitals']),
+      ...mapState(useProfileStore, ['activeProfile']),
 
 
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
@@ -231,7 +244,7 @@
 
       processShortcutKeypress(event){
 
-        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9','-', 'u', 'd'].indexOf(event.key) > -1){
+        if (event && event.key && ['0','1','2','3','4','5','6','7','8','9','-','u','d','c','p','r'].indexOf(event.key) > -1){
 
           let buttonToClick = document.getElementById(`action-button-command-${this.fieldGuid}-${event.key}`)
           if (buttonToClick){
@@ -256,8 +269,6 @@
         if (this.popperKeyboardShortcutElement){
           this.popperKeyboardShortcutElement.removeEventListener('keyup',this.processShortcutKeypress)
         }
-
-
       },
 
       showDebug: function() {
@@ -396,6 +407,59 @@
 
       addComponent: function(){
 
+      },
+      
+      showCopyPasteButtons: function(){
+          let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+          let label = structure.propertyLabel
+          
+          if (label.includes("Admin")){
+              return false
+          }
+          return true
+      },
+      
+      copyComponent: async function(){
+          let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+          let propertyUri = structure.propertyURI
+          
+          let value = JSON.stringify(structure)
+          
+          const type = "text/plain"
+          const blob = new Blob([value], {type})
+          const data = [new ClipboardItem({[type]: blob})]
+          
+          await navigator.clipboard.write(data)
+      },
+      
+      
+      pasteComponent: async function(){
+          let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+          
+          const clipboardContents = await navigator.clipboard.read();
+          
+          for (let item of clipboardContents){
+              if (!item.types.includes("text/plain")) {
+                throw new Error("Clipboard does not contain text data.");
+              }
+              
+              let blob = await item.getType("text/plain")
+              const incomingValue = await blob.text()
+              const incomingData = JSON.parse(incomingValue)
+              
+              //need to go through the incoming data and update the guid's
+              // need a way to match the incoming data to the structure -- propertyURI?
+              structure.userValue = incomingData.userValue
+              
+              this.profileStore.dataChanged()
+          }
+      },
+      
+      repeatComponent: async function(){
+          await this.copyComponent()
+          await this.profileStore.pasteSelected()
+          
+          this.profileStore.dataChanged()
       },
 
       // /**

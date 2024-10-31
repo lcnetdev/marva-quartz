@@ -1602,7 +1602,7 @@ const utilsExport = {
     // console.log(strXmlFormatted)
     // console.log("------")
     // console.log(strXmlBasic)
-
+        
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,
