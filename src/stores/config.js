@@ -127,6 +127,8 @@ export const useConfigStore = defineStore('config', {
   showUpdateAvailableModal:false,
 
   showNonLatinBulkModal: false,
+  showNonLatinAgentModal: false,
+  
 
   scriptshifterLanguages: {},
 

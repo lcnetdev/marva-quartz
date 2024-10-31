@@ -95,6 +95,7 @@ export const useProfileStore = defineStore('profile', {
     },
 
     mostCommonNonLatinScript: null,
+    nonLatinScriptAgents: {},
 
     // bf:title component/predicate for example, value will be the structure object for this component
 
@@ -3557,6 +3558,10 @@ export const useProfileStore = defineStore('profile', {
       window.clearTimeout(dataChangedTimeout)
       dataChangedTimeout = window.setTimeout(()=>{        
         this.setMostCommonNonLatinScript()
+        // also store it in the active profile
+        this.activeProfile.mostCommonNonLatinScript = this.mostCommonNonLatinScript
+        this.activeProfile.nonLatinScriptAgents = this.nonLatinScriptAgents
+        console.log("this.activeProfilethis.activeProfilethis.activeProfile",this.activeProfile)
         // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
         // console.log("CHANGED 1!!!")
@@ -3663,7 +3668,7 @@ export const useProfileStore = defineStore('profile', {
     *
     * @return {array}
     */
-    returnAllNonLatinLiterals:  function(){
+    returnAllNonLatinLiterals:  function(onlyAccessPoints=false){
 
       function process (obj, func) {
         
@@ -3698,10 +3703,22 @@ export const useProfileStore = defineStore('profile', {
           let ptObj = this.activeProfile.rt[rt].pt[pt]
           
           // we don't care about literals inside specific types of properties 
-          // like agent or headings
-          if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) >-1){
-            continue
-          } 
+          // like agent or headings but we also use this function to grab the ones specificly for agents and headings
+          if (onlyAccessPoints){
+
+            if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) == -1){
+              continue
+            } 
+
+          }else{
+            
+            if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) >-1){
+              continue
+            } 
+
+          }
+
+
 
 
           process(ptObj, function (obj,key,value) {
@@ -3726,8 +3743,83 @@ export const useProfileStore = defineStore('profile', {
       return nonLatinNodes
     },
 
-    
+    returnAllNonLatinAgentOptions: function(){
 
+      let nonLatin = this.returnAllNonLatinLiterals(true)
+      let nonLatinMap = {}
+
+      for (let nl of nonLatin){
+        let ptFound = null
+        for (let rt of this.activeProfile.rtOrder){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){            
+            if ( JSON.stringify(this.activeProfile.rt[rt].pt[pt].userValue).indexOf(nl.node['@guid'])>-1){
+              ptFound=this.activeProfile.rt[rt].pt[pt]
+            }
+            if (ptFound){break} 
+          }
+          if (ptFound){break}
+        }
+
+        // grab the guid as the key
+        if (ptFound){
+            if (!nonLatinMap[ptFound['@guid']]){ 
+              nonLatinMap[ptFound['@guid']] = {
+                scripts: [],
+                '@guid' : ptFound['@guid'],
+                nonLatin: this.returnLatinLabelForPt(ptFound)
+              }
+           }          
+          nonLatinMap[ptFound['@guid']].scripts.push(nl.node['@language'].split("-")[1])
+          
+        }
+        // unique array
+        nonLatinMap[ptFound['@guid']].scripts = [...new Set(nonLatinMap[ptFound['@guid']].scripts)];
+
+      }
+
+
+      return nonLatinMap
+  
+  
+    },    
+
+
+    returnLatinLabelForPt: function(pt){
+
+      let nonLatinFound = null
+
+      function process (obj, func) {     
+        if (nonLatinFound){return}   
+        if (obj && obj.userValue){
+          obj = obj.userValue
+        }
+        if (Array.isArray(obj)){
+          obj.forEach(function (child) {
+            process(child, func);
+          });
+        }else if (typeof obj == 'object' && obj !== null){
+          for (let k in obj){
+            if (Array.isArray(obj[k])){
+              process(obj[k], func);
+            }else{
+              if (!k.startsWith('@')){
+                func(obj,k,obj[k]);
+              }
+            }
+          }
+        }
+      }
+
+      process(pt, function (obj,key,value) {
+        if (key == 'http://www.w3.org/2000/01/rdf-schema#label'){
+          if (!obj['@language']){
+            nonLatinFound = obj['http://www.w3.org/2000/01/rdf-schema#label']
+          }
+        }        
+      });
+
+      return nonLatinFound
+    },
 
     /**
     * Set lang of literal value
@@ -3821,7 +3913,7 @@ export const useProfileStore = defineStore('profile', {
     * Will look at the literals being used on the record and pick the most common script found
     * used to help pick the correct auth labels to include in the access points,
     * will set this.mostCommonNonLatinScript
-    * @return {void}
+    * @return {String}
     */
     setMostCommonNonLatinScript(){
 
@@ -3846,10 +3938,13 @@ export const useProfileStore = defineStore('profile', {
         this.mostCommonNonLatinScript = null
       }
 
-      
+      return this.mostCommonNonLatinScript
     }
 
 
 
-  }
+  },
+
+
+
 })

@@ -6,6 +6,7 @@ import {usePreferenceStore} from "../stores/preference";
 import utilsRDF from './utils_rdf';
 import utilsMisc from './utils_misc';
 import utilsNetwork from './utils_network';
+import utilsProfile from './utils_profile';
 
 import { parse as parseEDTF } from 'edtf'
 
@@ -221,7 +222,6 @@ const utilsExport = {
 
 		// doesnt work :(
 		// p.removeAttributeNS("http://www.w3.org/2000/xmlns/", 'xmlns:rdfs')
-
 		return p
 	},
 
@@ -585,11 +585,111 @@ const utilsExport = {
 					}
 				}
 
+				let mostCommonScript = useProfileStore().setMostCommonNonLatinScript()
 
-				// console.log('userValue',userValue)
-				// console.log('ptObj.propertyURI',ptObj.propertyURI)
-				// console.log('ptObj.userValue[ptObj.propertyURI]',ptObj.userValue[ptObj.propertyURI])
-				// console.log(ptObj.userValue[ptObj.propertyURI][0])
+				
+				// in bf->marc conversion it builds 880s and 600s based off of the presenece of 
+				// multiple auth labels one with no @lang tag and ones that do have it
+				// check specific properties for now? (10/2024)
+				if (mostCommonScript && [
+					'http://id.loc.gov/ontologies/bibframe/contribution'
+				].indexOf(ptObj.propertyURI)>-1){
+
+					// recusrive function to go through each key in the userValue and keep going till we find labels or marckeys 
+					// the two properties that make 880s work
+					let process = function(obj, func) {      
+						if (Array.isArray(obj)){
+							obj.forEach(function (child) {
+							process(child, func);
+							});
+						}else if (typeof obj == 'object' && obj !== null){
+							for (let k in obj){
+							if (Array.isArray(obj[k])){
+								console.log("Doing key", k)
+								// we only care about these properties
+								if (k == 'http://www.w3.org/2000/01/rdf-schema#label' || k == 'http://id.loc.gov/ontologies/bflc/marcKey'){
+									func(k,obj[k])
+								}else{
+									process(obj[k], func);
+								}
+							}
+							}
+						}				
+					}
+
+					process(ptObj.userValue, function (property,ary) {
+						// does it have multiple values?
+						if (ary.length>1){
+							let nonLatinAgent = useProfileStore().returnAllNonLatinAgentOptions()[ptObj['@guid']]
+							let keepLang = []
+							if (nonLatinAgent){
+								let useLang = utilsProfile.pickBestNonLatinScriptOption(mostCommonScript, nonLatinAgent.scripts)
+								if (useLang){
+									keepLang.push(useLang)
+								}
+							}
+							// if we have a language then great, also check the manual setting
+							if (profile.nonLatinScriptAgents){
+								if (profile.nonLatinScriptAgents[ptObj['@guid']]){									
+									keepLang = [profile.nonLatinScriptAgents[ptObj['@guid']]]
+								}
+							}
+							if (keepLang.length==0){
+								console.warn("No non-latin agent access point was able to be selected for this agent!", ptObj)
+							}
+
+							let toRemove = []
+							for (var i = 0; i < ary.length; i++) { 
+								let value = ary[i]
+								// no lang tag? good, thats the authorized latin script one
+								if (!value['@language']){ 
+									continue
+								}else{
+									// it has a language tag? is it one of the ones we want to keep?
+									let keepIt = false
+									for (let l of keepLang){
+										console.log(value['@language'].toLowerCase(), value['@language'].toLowerCase().indexOf('-' + l.toLowerCase()))
+										if (value['@language'].toLowerCase().indexOf('-' + l.toLowerCase()) >-1){
+											keepIt = true
+										}
+									}
+									if (!keepIt){
+										toRemove.push(value['@language'])
+									}
+								}
+							}
+							for (let l of toRemove){
+								let indexToDel = ary.map((v)=>{return v['@language']}).indexOf(l)
+								ary.splice(indexToDel,1)
+							}
+							console.log('toRemovetoRemovetoRemovetoRemove',ary)
+
+
+							// for (let value of ary){
+							// 	// no lang tag? good, thats the authorized latin script one
+							// 	if (!value['@language']){ 
+							// 		continue
+							// 	}else{
+							// 		// it has a language tag? is it one of the ones we want to keep?
+							// 		let keepIt = false
+							// 		console.log("keepLangkeepLangkeepLang",keepLang)
+
+							// 		for (let l of keepLang){
+							// 			console.log(value['@language'].toLowerCase(), value['@language'].toLowerCase().indexOf('-' + l.toLowerCase()))
+							// 			if (value['@language'].toLowerCase().indexOf('-' + l.toLowerCase()) >-1){
+							// 				keepIt = true
+							// 			}
+							// 		}
+							// 		if (!keepIt){
+							// 			value['@nonLatinExcludeFlag'] = true
+							// 		}
+							// 	}
+							// }
+
+						}
+					});
+				}
+
 
 				xmlLog.push(['Set userValue to:', JSON.parse(JSON.stringify(userValue)) ])
 
