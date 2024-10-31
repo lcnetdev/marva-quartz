@@ -586,12 +586,11 @@ const utilsExport = {
 				}
 
 				let mostCommonScript = useProfileStore().setMostCommonNonLatinScript()
-
 				
 				// in bf->marc conversion it builds 880s and 600s based off of the presenece of 
 				// multiple auth labels one with no @lang tag and ones that do have it
 				// check specific properties for now? (10/2024)
-				if (mostCommonScript && [
+				if ([
 					'http://id.loc.gov/ontologies/bibframe/contribution'
 				].indexOf(ptObj.propertyURI)>-1){
 
@@ -605,7 +604,6 @@ const utilsExport = {
 						}else if (typeof obj == 'object' && obj !== null){
 							for (let k in obj){
 							if (Array.isArray(obj[k])){
-								console.log("Doing key", k)
 								// we only care about these properties
 								if (k == 'http://www.w3.org/2000/01/rdf-schema#label' || k == 'http://id.loc.gov/ontologies/bflc/marcKey'){
 									func(k,obj[k])
@@ -619,7 +617,7 @@ const utilsExport = {
 
 					process(ptObj.userValue, function (property,ary) {
 						// does it have multiple values?
-						if (ary.length>1){
+						if (ary.length>1 && mostCommonScript){
 							let nonLatinAgent = useProfileStore().returnAllNonLatinAgentOptions()[ptObj['@guid']]
 							let keepLang = []
 							if (nonLatinAgent){
@@ -648,7 +646,7 @@ const utilsExport = {
 									// it has a language tag? is it one of the ones we want to keep?
 									let keepIt = false
 									for (let l of keepLang){
-										console.log(value['@language'].toLowerCase(), value['@language'].toLowerCase().indexOf('-' + l.toLowerCase()))
+										
 										if (value['@language'].toLowerCase().indexOf('-' + l.toLowerCase()) >-1){
 											keepIt = true
 										}
@@ -662,29 +660,23 @@ const utilsExport = {
 								let indexToDel = ary.map((v)=>{return v['@language']}).indexOf(l)
 								ary.splice(indexToDel,1)
 							}
-							console.log('toRemovetoRemovetoRemovetoRemove',ary)
 
 
-							// for (let value of ary){
-							// 	// no lang tag? good, thats the authorized latin script one
-							// 	if (!value['@language']){ 
-							// 		continue
-							// 	}else{
-							// 		// it has a language tag? is it one of the ones we want to keep?
-							// 		let keepIt = false
-							// 		console.log("keepLangkeepLangkeepLang",keepLang)
+						}else if (ary.length>1 && !mostCommonScript){
 
-							// 		for (let l of keepLang){
-							// 			console.log(value['@language'].toLowerCase(), value['@language'].toLowerCase().indexOf('-' + l.toLowerCase()))
-							// 			if (value['@language'].toLowerCase().indexOf('-' + l.toLowerCase()) >-1){
-							// 				keepIt = true
-							// 			}
-							// 		}
-							// 		if (!keepIt){
-							// 			value['@nonLatinExcludeFlag'] = true
-							// 		}
-							// 	}
-							// }
+							// there isn't a non-latin script in the record, so remove all the non-latin properties
+							let toRemove = []
+							for (var i = 0; i < ary.length; i++) { 
+								let value = ary[i]
+								if (value['@language']){
+									toRemove.push(value['@language'])
+								}
+							}
+							for (let l of toRemove){
+								let indexToDel = ary.map((v)=>{return v['@language']}).indexOf(l)
+								ary.splice(indexToDel,1)
+							}
+
 
 						}
 					});
