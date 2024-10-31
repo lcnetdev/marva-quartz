@@ -722,6 +722,20 @@ const utilsProfile = {
 },
 
 
+// Get the RT type that a component ID is in
+getRtTypeFromGuid: function(profile, target){
+       for (let rt in profile["rt"]){
+           for (let pt in profile["rt"][rt]["pt"]){
+               if (profile["rt"][rt]["pt"][pt]["@guid"] == target){
+                   return rt
+               }
+           }
+       }
+       
+       return false
+},
+
+
 
 }
 

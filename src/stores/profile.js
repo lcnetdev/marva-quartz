@@ -895,6 +895,14 @@ export const useProfileStore = defineStore('profile', {
       // let lastProperty = propertyPath.at(-1).propertyURI
       // // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      
+      //should be safe to delete the cache when swaping templates
+      if (Object.keys(cachePt).includes(componentGuid)){
+          delete cachePt[componentGuid]
+      }
+      for (let guid of Object.keys(cacheGuid)){
+          cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+      }
 
       if (pt !== false){
 
@@ -1069,6 +1077,8 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
 
         pt.hasData = true
+        pt.userModified = true
+        pt.dataLoaded = false
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
@@ -1436,6 +1446,8 @@ export const useProfileStore = defineStore('profile', {
       // console.log(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral)
       if (pt !== false){
         pt.hasData = true
+        pt.userModified = true
+        pt.dataLoaded = false
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode
@@ -1926,6 +1938,8 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
 
         pt.hasData = true
+        pt.userModified = true
+        pt.dataLoaded = false
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
@@ -2088,6 +2102,8 @@ export const useProfileStore = defineStore('profile', {
             }
 
             pt.hasData = true
+            pt.userModified = true
+            pt.dataLoaded = false
 
             if (pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] &&
@@ -3323,10 +3339,12 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       //Ensure that the component is going to the right place by checking the structure.parentID
+      // the parentId of different kinds of titles don't include `work` or `instance`, so check the RT in the profile
+      let rt = utilsProfile.getRtTypeFromGuid(this.activeProfile, componentGuid)
       let actionTarget = null
-      if (structure.parentId.includes("Instance")) {
+      if (structure.parentId.includes("Instance") || rt.includes("Instance")) {
         actionTarget = "Instance"
-      } else if (structure.parentId.includes("Work")) {
+      } else if (structure.parentId.includes("Work") || rt.includes("Work")) {
         actionTarget = "Work"
       }
 
@@ -3852,10 +3870,10 @@ export const useProfileStore = defineStore('profile', {
           }
   
           
-          if (allHasURI){return ['done_all','All components authorized']}
-          if (firstHasURI){return ['warning','FIRST component authorized']}
+          if (allHasURI){return ['done_all','Linked']}
+          if (firstHasURI){return ['warning','Partially Linked']}
           
-          return ['help','No authorized components found']
+          return ['help','No Partial Link']
         }
 
 
@@ -3864,7 +3882,7 @@ export const useProfileStore = defineStore('profile', {
 
       }
 
-      return ['report','Not Checked']
+      return ['report','No Link']
     },
     
     copySelected: async function(){
@@ -3975,6 +3993,36 @@ export const useProfileStore = defineStore('profile', {
               const dataJson = JSON.parse(item)
               this.parseActiveInsert(dataJson)
         }
+    },
+    
+    
+    
+    //Check if the component's userValue is empty
+    isEmptyComponent: function(component){
+      
+      let emptyArray = new Array("@root")
+      let userValue = component.userValue
+      
+      // if there is only a @root
+      if (JSON.stringify(Object.keys(userValue)) == JSON.stringify(emptyArray)){
+          return true
+      } else {
+          // if the children only have "@..." properties
+          for (let key in userValue){
+              if (!key.startsWith("@")){
+                  let result = false
+                  try{
+                      result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
+                  } catch(err) {
+                      console.info("error: ", err)
+                  }
+                  return result
+                  
+              }
+          }
+      }
+      
+      return false
     },
 
 

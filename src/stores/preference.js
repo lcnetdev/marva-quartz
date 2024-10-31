@@ -628,7 +628,15 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Complex Lookup',
           range: [true,false]
       },
-
+      '--b-edit-complex-use-value-icons' : {
+        desc: 'Show icons in the value.',
+        descShort: 'Show icons in value',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Complex Lookup',
+        range: [true,false]
+    },
 
 
       //general

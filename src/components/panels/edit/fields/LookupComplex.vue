@@ -18,7 +18,7 @@
 
           <a href="#" class="inline-auth-link" @click="searchValue = avl.label; textInputEvent()">
             <span v-if="avl.type" class="complex-lookup-inline-mode">
-              <span class="complex-lookup-inline-mode-icon"><AuthTypeIcon  :small="true" :type="avl.type"/></span>
+              <span v-if="preferenceStore.returnValue('--b-edit-complex-use-value-icons')" class="complex-lookup-inline-mode-icon"><AuthTypeIcon  :small="true" :type="avl.type"/></span>
             </span>
             <span v-if="!avl.needsDereference" style="">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="" style=""><span class="material-icons check-mark inline-mode-validation-icon">check_circle_outline</span></span></span>
             <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class=""><span class="material-icons check-mark inline-mode-validation-icon">check_circle_outline</span></span></span>
@@ -74,7 +74,7 @@
                     <div class="lookup-fake-input-entities" style="display: inline; padding-left: 5px;">
                       <div v-for="(avl,idx) in complexLookupValues" class="selected-value-container">
                         <div class="selected-value-container-auth">
-                          <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type" :type="avl.type"/>
+                          <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')" " :type="avl.type"/>
                         </div>
                         <div class="selected-value-container-title">
                           <!-- <span class="material-icons check-mark">check_circle_outline</span> -->                           
@@ -96,14 +96,14 @@
 
 
 
-
-
+         
+          
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">            
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
               
               <div v-for="(avl,idx) in complexLookupValues" class="selected-value-container">
                 <div class="selected-value-container-auth">
-                  <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type" :type="avl.type"/>
+                  <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')"  :type="avl.type"/>
                 </div>
                 <div class="selected-value-container-title">
                   <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
