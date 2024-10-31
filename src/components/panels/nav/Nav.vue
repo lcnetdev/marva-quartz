@@ -345,6 +345,7 @@
                 {
                   text: "Copy Selected",
                   icon: "content_copy",
+                  id: "copy-selected-button",
                   click: () => {
                     this.$nextTick(()=>{
                       this.profileStore.copySelected()

@@ -3895,7 +3895,14 @@ export const useProfileStore = defineStore('profile', {
         
         await navigator.clipboard.write(data)
         
-        alert("Data copied.")
+        //Add checkmark
+        let button = document.getElementById("copy-selected-button")
+        button.children[0].innerHTML = "check"
+        
+        //wait a few seconds and remove the check mark
+        setTimeout(function(){
+            button.children[0].innerHTML = "content_copy"
+        }, 2000)
         
         return true
     },
