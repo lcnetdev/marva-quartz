@@ -209,8 +209,9 @@
                           <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input">
                         </form>
 
+                        !!{{ components }}!!
                         <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
-						  {{c.label}}
+						  {{c.label}} 
                         </div>
                       </div>
                     </div>
@@ -780,11 +781,15 @@ methods: {
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
     let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
+    
+    console.info("data: ", data)
+    
     let components = false
     let subfields = false
     let marcKey = false
     for (let el of data){
       if (el["@id"] == uri){
+        console.info("el: ", el)
         marcKey = el["http://id.loc.gov/ontologies/bflc/marcKey"][0]["@value"]
         // we're not looking at a GEO heading, so the components will be URIs
         // GEO won't have URIs, so they can be ignored
@@ -814,45 +819,96 @@ methods: {
    */
   buildLookupComponents: function(incomingSubjects){
 
-    this.typeLookup = []
-    for (let subjIdx in incomingSubjects){
-      this.componetLookup[subjIdx] = {}
-      let type = incomingSubjects[subjIdx]["@type"]
+    console.info("building component for: ", incomingSubjects, " -- ", Array.isArray(incomingSubjects))
+    this.typeLookup = {}
+    
+    if (typeof incomingSubjects == "undefined"){
+        return
+    }
+    
+    let lookUp
+    
+    // The subject is made of multiple parts
+    if (Array.isArray(incomingSubjects)){
+        for (let subjIdx in incomingSubjects){
+          this.componetLookup[subjIdx] = {}
+          let type = incomingSubjects[subjIdx]["@type"]
 
-      let lookUp
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
+            this.typeLookup[subjIdx] = 'madsrdf:Topic'
+          }
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
+            this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
+          }
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic")){
+            this.typeLookup[subjIdx] = 'madsrdf:Geographic'
+          }
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
+            this.typeLookup[subjIdx] = 'madsrdf:Temporal'
+          }
 
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
-        this.typeLookup[subjIdx] = 'madsrdf:Topic'
-      }
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
-        this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
-      }
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic")){
-        this.typeLookup[subjIdx] = 'madsrdf:Geographic'
-      }
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
-        this.typeLookup[subjIdx] = 'madsrdf:Temporal'
-      }
+          if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
+            lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+          } else {
+            lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
+          }
+          try {
+              console.info("incomingSubjects[subjIdx][lookUp][0][lookUp]: ", incomingSubjects[subjIdx][lookUp][0][lookUp])
+              
+              console.info("incomingSubjects[subjIdx][lookUp][0][lookUp]: ", incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("--", "‑‑"))
+            let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("--", "‑‑")
+            
+            console.info("label: ", label)
+            
+            //Set up componentLookup, so the component builder can give them URIs
+            this.componetLookup[subjIdx][label] = {
+              label: incomingSubjects[subjIdx][lookUp][0][lookUp],
+              literal: incomingSubjects[subjIdx]["@id"] ? false : true,
+              uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null,
+              type: this.typeLookup[subjIdx],
+              marcKey: incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"] ? incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"] : ""
+            }
 
-      if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
-        lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
-      } else {
-        lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
-      }
-      try {
-        let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("--", "‑‑")
-        //Set up componentLookup, so the component builder can give them URIs
-        this.componetLookup[subjIdx][label] = {
-          label: incomingSubjects[subjIdx][lookUp][0][lookUp],
-          literal: incomingSubjects[subjIdx]["@id"] ? false : true,
-          uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null,
-          type: this.typeLookup[subjIdx],
-		  marcKey: incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"]
+          } catch(err){
+            console.error(err)
+          }
         }
+    } else {
+        // dealing with a complex subject
+        this.componetLookup[0] = {}
+        let type = incomingSubjects["@type"]
 
-      } catch(err){
-        console.error(err)
-      }
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
+            this.typeLookup[0] = 'madsrdf:Topic'
+        }
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
+            this.typeLookup[0] = 'madsrdf:GenreForm'
+        }
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic")){
+            this.typeLookup[0] = 'madsrdf:Geographic'
+        }
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
+            this.typeLookup[0] = 'madsrdf:Temporal'
+        }
+        
+        if (Object.keys(incomingSubjects).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
+            lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+        } else {
+            lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
+        }
+        try {
+            let label = incomingSubjects[lookUp][0][lookUp].replaceAll("--", "‑‑")
+            //Set up componentLookup, so the component builder can give them URIs
+            this.componetLookup[0][label] = {
+                label: incomingSubjects[lookUp][0][lookUp],
+                literal: incomingSubjects["@id"] ? false : true,
+                uri: incomingSubjects["@id"] ? incomingSubjects["@id"] : null,
+                type: this.typeLookup[0],
+                marcKey: incomingSubjects["http://id.loc.gov/ontologies/bflc/marcKey"] ? incomingSubjects["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"] : ""
+            }
+        } catch(err){
+            console.error(err)
+        }
     }
   },
   
@@ -1338,7 +1394,7 @@ methods: {
       that.pickLookup[k].picked = false
       if (searchString.toLowerCase() == that.pickLookup[k].label.toLowerCase() && !that.pickLookup[k].literal ){
         // if the labels are the same for the current one selected don't overide it
-        if (that.pickLookup[k].label.replaceAll('‑','-') == that.activeComponent.label.replaceAll('‑','-') && that.activeComponent.uri){
+        if (that.activeComponent && that.pickLookup[k].label.replaceAll('‑','-') == that.activeComponent.label.replaceAll('‑','-') && that.activeComponent.uri){
           if (that.activeComponent.uri == that.pickLookup[k].uri){
             that.pickPostion=k
             that.pickLookup[k].picked=true
@@ -1919,7 +1975,9 @@ methods: {
         }
 
         // always make the first one the topic
-        this.components[0].type = 'madsrdf:Topic'
+        try {
+            this.components[0].type = 'madsrdf:Topic'
+        } catch {}
 
         this.updateAvctiveTypeSelected()
         this.validateOkayToAdd()
@@ -2070,8 +2128,9 @@ methods: {
 		  
 		  // we need to check the types of each element to make sure they really are the same terms
 		  let targetContext = await utilsNetwork.returnContext(target.uri)
-      
-		  let marcKey = targetContext.nodeMap.marcKey[0].slice(5)
+          
+          //TODO: look up the URIs for the split up complex term
+		  let marcKey = targetContext.marcKey[0]["@value"].slice(5)
 
 		  if (marcKey == componentTypes){
 			//the entire built subject can be replaced by 1 term
@@ -2085,6 +2144,7 @@ methods: {
 			  "posStart": 0,
 			  "type": "madsrdf:Topic",
 			  "uri": target.uri,
+              "marcKey": targetContext.marcKey[0]["@value"]
 			})
 		  }
       }
@@ -2098,6 +2158,7 @@ methods: {
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
     } else {
+        console.info("breaking the complex subject")
 		// need to break up the complex heading into it's pieces so their URIs are availble
         let prevItems = 0
         for (let component in frozenComponents){
@@ -2106,12 +2167,16 @@ methods: {
 			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
 				let uri = target.uri
 				let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
+                
+                data = await this.parseComplexSubject(uri)
 				
 				let subs
 				subs = target.marcKey.slice(5)
 			    // subfields = subfields.match(/\$./g)
 			    subs = subs.match(/\$[axyzv]{1}/g)
-
+                
+                console.info("target:", target)
+                
 				const complexLabel = target.label
 				//build the new components
 				let id = prevItems
@@ -2198,7 +2263,9 @@ methods: {
 					"posStart": 0,
 					"type": subfield,
 					"uri": data && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
-					"marcKey": marcKey
+					"marcKey": marcKey,
+                    "fromComplex": true,
+                    "complexMarcKey": target.marcKey
 				  }))
 				  id++
 				  prevItems++
@@ -2216,7 +2283,7 @@ methods: {
       this.components = newComponents
     }
     
-    
+    console.info("!!final components: ", JSON.parse(JSON.stringify(this.components)))
     this.$emit('subjectAdded', this.components)
   },
 
@@ -2503,11 +2570,21 @@ updated: function() {
     incomingSubjects = false
   } else if (profileData) {
     try {
-      incomingSubjects = profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"]
+        console.info("userValue: ", profileData["userValue"])
+      if (
+            profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"] 
+            && !profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bflc/marcKey"]
+      ){
+        incomingSubjects = profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"]
+      } else {
+          incomingSubjects = profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]
+      }
     } catch(err){
       incomingSubjects = false
     }
   }
+  
+  console.info("incoming subjects: ", incomingSubjects)
 
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
@@ -2549,7 +2626,7 @@ updated: function() {
             //Select the context that matches the incoming value
             for (const pos in list){
               let label = list[pos].label
-              if (label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
+              if (this.authorityLookupLocal && label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
                 try{
                   let idx = 0
                   if (this.isLiteral == true) {
