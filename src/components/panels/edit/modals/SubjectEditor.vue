@@ -909,7 +909,7 @@ methods: {
       let literal = null
 	    let marcKey = null
       let nonLatinLabel = null
-      let nonLatinMarkKey = null
+      let nonLatinMarcKey = null
 
 
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
@@ -924,7 +924,7 @@ methods: {
         uri = this.componetLookup[id][ss].uri
 		    marcKey = this.componetLookup[id][ss].marcKey
         nonLatinLabel = this.componetLookup[id][ss].nonLatinTitle
-        nonLatinMarkKey = this.componetLookup[id][ss].nonLatinMarcKey
+        nonLatinMarcKey = this.componetLookup[id][ss].nonLatinMarcKey
 
       }
 
@@ -943,7 +943,7 @@ methods: {
         posEnd: activePosStart + ss.length,
 		    marcKey: marcKey,
         nonLatinLabel:nonLatinLabel,
-        nonLatinMarkKey:nonLatinMarkKey,
+        nonLatinMarcKey:nonLatinMarcKey,
       })
 
       // increase the start length by the length of the string and also add 2 for the "--"
