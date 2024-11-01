@@ -146,15 +146,13 @@
 
 
       window.setTimeout(()=>{
-        console.log(this.profileStore)
-        console.log(this.profileStore.returnAllNonLatinLiterals())
-
+        
         
         this.nonLatinAgents = this.profileStore.returnAllNonLatinAgentOptions()
-        console.log(this.nonLatinAgents)
+        
 
         for (let key in this.nonLatinAgents){
-          console.log(key)
+        
           if (this.nonLatinScriptAgents[key]){
             this.localMap[key] = this.nonLatinScriptAgents[key]
           }else{
@@ -164,7 +162,7 @@
         }
 
 
-      },1000)
+      },100)
 
 
 
@@ -212,6 +210,7 @@
             <div v-if="Object.keys(nonLatinAgents).length == 0">No Non-Latin Agents/Headings Found.</div>
             
             <div v-for="nlA in nonLatinAgents" class="non-latin-access-point">
+              <div style="color: #636363;">{{ nlA.propertyURI.replace("http://id.loc.gov/ontologies/bibframe/",'bf:') }}</div>
               <div>{{ nlA.nonLatin }}</div>
               Use script to build access points:<select @change="scriptChange" :data-key="nlA['@guid']" v-model="localMap[nlA['@guid']]">
                 <option v-for="s in nlA.scripts">{{s}}</option>

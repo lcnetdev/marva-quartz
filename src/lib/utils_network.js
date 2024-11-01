@@ -388,6 +388,8 @@ const utilsNetwork = {
                     total: r.count
                   }
 
+
+
                   if (hitAdd.label=='' && hitAdd.suggestLabel.includes('DEPRECATED')){
                     hitAdd.label  = hitAdd.suggestLabel.split('(DEPRECATED')[0] + ' DEPRECATED'
                     hitAdd.depreciated = true
@@ -834,7 +836,6 @@ const utilsNetwork = {
             genreForm: null,
             nodeMap:{},
           };
-          console.log('data.uri',data.uri,data)
           if (data.uri.includes('wikidata.org')){
             if (data.entities){
               let qid = Object.keys(data.entities)[0]
@@ -909,7 +910,6 @@ const utilsNetwork = {
             }
             // console.log(uriIdPart)
           }else{
-            console.log("data",data)
             // if it is in jsonld format
             if (data['@graph']){
               data = data['@graph'];
@@ -917,8 +917,7 @@ const utilsNetwork = {
 
             var nodeMap = {};
 
-            data.forEach(function(n){
-              console.log(n)
+            data.forEach(function(n){              
               if (n['http://www.loc.gov/mads/rdf/v1#birthDate']){
                 nodeMap['Birth Date'] = n['http://www.loc.gov/mads/rdf/v1#birthDate'].map(function(d){ return d['@value']})
               }
@@ -976,7 +975,6 @@ const utilsNetwork = {
               }
 
             })
-            console.log(nodeMap)
             
             // pull out the labels
             data.forEach(function(n){
@@ -1153,8 +1151,6 @@ const utilsNetwork = {
               delete results.nodeMap[k]
             }
           })
-
-          console.log('results',results)
 
           return results;
         },

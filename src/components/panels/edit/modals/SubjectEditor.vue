@@ -137,6 +137,14 @@
                     <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + contextData.type"><AuthTypeIcon v-if="contextData.type" :type="contextData.type"></AuthTypeIcon></span>{{contextData.title}}</h3>
                     <div class="modal-context-data-title">{{contextData.type}}</div>
                     <a style="color:#2c3e50" :href="contextData.uri" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
+                   
+                    <div v-if="contextData.nonLatinTitle && contextData.nonLatinTitle.length>0">
+                      <div class="modal-context-data-title">Non-Latin Auth Label:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.nonLatinTitle" v-bind:key="'var' + idx">{{v['@value']}}{{ v['@language'] }}</li>
+                      </ul>
+                    </div>
+                   
                     <div v-if="contextData.variant && contextData.variant.length>0">
                       <div class="modal-context-data-title">Variants:</div>
                       <ul>
@@ -899,20 +907,25 @@ methods: {
       let uri = null
       let type = null
       let literal = null
-	  let marcKey = null
+	    let marcKey = null
+      let nonLatinLabel = null
+      let nonLatinMarkKey = null
 
 
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
-		  // Zero out for geographic, because the terms won't be linked when reopengin
-		  // TODO: revisit this
-		if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
+        // Zero out for geographic, because the terms won't be linked when reopengin
+        // TODO: revisit this
+		    if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
           literal = this.componetLookup[id][ss].literal = false
           uri = this.componetLookup[id][ss].uri = null
         }
 		
         literal = this.componetLookup[id][ss].literal
         uri = this.componetLookup[id][ss].uri
-		marcKey = this.componetLookup[id][ss].marcKey
+		    marcKey = this.componetLookup[id][ss].marcKey
+        nonLatinLabel = this.componetLookup[id][ss].nonLatinTitle
+        nonLatinMarkKey = this.componetLookup[id][ss].nonLatinMarcKey
+
       }
 
       if (this.typeLookup[id]){
@@ -928,7 +941,9 @@ methods: {
         literal:literal,
         posStart: activePosStart,
         posEnd: activePosStart + ss.length,
-		marcKey: marcKey
+		    marcKey: marcKey,
+        nonLatinLabel:nonLatinLabel,
+        nonLatinMarkKey:nonLatinMarkKey,
       })
 
       // increase the start length by the length of the string and also add 2 for the "--"
@@ -1435,12 +1450,40 @@ methods: {
 
     this.contextRequestInProgress = true
     this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
-	//save the marcKey
-	if (this.contextData.nodeMap.marcKey){
-		this.pickLookup[this.pickPostion].marcKey = this.contextData.nodeMap.marcKey[0]
-	}
-    this.contextRequestInProgress = false
-  },
+
+    // for backwards compability
+    if (this.contextData.nodeMap.marcKey && this.contextData.nodeMap.marcKey[0]){
+      this.pickLookup[this.pickPostion].marcKey = this.contextData.nodeMap.marcKey[0]
+    }
+
+    // we will modify our local context data here to make things easier
+    if (Array.isArray(this.contextData.title)){
+      // first grab the non-latin auth labels
+      this.contextData.nonLatinTitle = JSON.parse(JSON.stringify(this.contextData.title.filter((v)=>{ return (v['@language']) })))
+      this.pickLookup[this.pickPostion].nonLatinTitle = this.contextData.nonLatinTitle
+
+      // return the first label with no language tag
+      this.contextData.title = this.contextData.title.filter((v)=>{ return (!v['@language']) })[0]
+      if (this.contextData.title && this.contextData.title['@value']){
+        this.contextData.title = this.contextData.title['@value']
+      }
+    }
+
+    //save the marcKey
+    if (Array.isArray(this.contextData.marcKey)){
+      // first grab the non-latin auth labels
+      this.contextData.nonLatinMarcKey = JSON.parse(JSON.stringify(this.contextData.marcKey.filter((v)=>{ return (v['@language']) })))
+      this.pickLookup[this.pickPostion].nonLatinMarcKey = this.contextData.nonLatinMarcKey
+      // return the first label with no language tag
+      this.contextData.marcKey = this.contextData.marcKey.filter((v)=>{ return (!v['@language']) })[0]
+      if (this.contextData.marcKey && this.contextData.marcKey['@value']){
+        this.contextData.marcKey = this.contextData.marcKey['@value']
+        this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
+      }
+    }
+
+      this.contextRequestInProgress = false
+    },
 
   /** Clear the current selection so that hovering will update the preview again */
   clearSelected: function(){
@@ -1529,7 +1572,7 @@ methods: {
       }
 
     }else{
-      console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
+      // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
 
       // take the subject string and split
       let splitString = this.subjectString.split('--')
@@ -1555,7 +1598,7 @@ methods: {
       this.pickLookup[this.pickPostion].picked=true
 
 
-      console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
+      // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
       //Need something to prevent recursion
       if (update == true){
         this.subjectStringChanged()
@@ -1619,7 +1662,7 @@ methods: {
     }else if (this.searchMode == 'GEO' && event.key == "-"){
       if (this.components.length>0){
         let lastC = this.components[this.components.length-1]
-        console.log(lastC)
+        
         // if the last component has a URI then it was just selected
         // so we are not in the middle of a indirect heading, we are about to type it
         // so let them put in normal --
@@ -1637,14 +1680,14 @@ methods: {
 
       let start = event.target.selectionStart
       let end = event.target.selectionEnd
-      console.log(this.subjectString.substring(0,start),'|',this.subjectString.substring(end,this.subjectString.length))
+      // console.log(this.subjectString.substring(0,start),'|',this.subjectString.substring(end,this.subjectString.length))
 
       this.subjectString = this.subjectString.substring(0,start) + '‑' + this.subjectString.substring(end,this.subjectString.length)
       this.subjectString=this.subjectString.trim()
 
 
       this.$nextTick(() => {
-          console.log(start,end)
+          // console.log(start,end)
           event.target.setSelectionRange(start+1,end+1)
 
       })
@@ -1900,7 +1943,7 @@ methods: {
 
     let sendResults = []
 
-    console.log(this.linkModeResults)
+    // console.log(this.linkModeResults)
 
 
     if (this.linkModeResults){
@@ -1938,7 +1981,7 @@ methods: {
 
     }
 
-    console.log("sendResults",sendResults)
+    // console.log("sendResults",sendResults)
 
     this.$emit('subjectAdded', sendResults)
 
@@ -1959,7 +2002,7 @@ methods: {
 
 // -----------
 
-    console.log("ADDDD")
+    // console.log("ADDDD")
 // complex: false
 // id: 2
 // label: "20th century"
@@ -1996,7 +2039,7 @@ methods: {
     //remove any existing thesaurus label, so it has the most current
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
-    console.log('this.components',this.components)
+    // console.log('this.components',JSON.parse(JSON.stringify(this.components)))
     // remove our werid hyphens before we send it back
     for (let c of this.components){
       c.label = c.label.replaceAll('‑','-')
@@ -2013,20 +2056,21 @@ methods: {
     let match = false
     const componentCount = this.components.length
     const componentCheck = this.components.length > 0 ? this.components.map((component) => component.label).join("--") : false
-	let componentTypes 
-	try {
-		componentTypes = this.components.length > 0 ? this.components.map((component) => component.marcKey.slice(5)).join("") : false
-	} catch {
-		componentTypes = false
-	}
+    let componentTypes 
+    try {
+      componentTypes = this.components.length > 0 ? this.components.map((component) => component.marcKey.slice(5)).join("") : false
+    } catch {
+      componentTypes = false
+    }
+    
 	
-	
-    for (let el in this.searchResults["subjectsComplex"]){
+    for (let el in this.searchResults["subjectsComplex"]){      
       let target = this.searchResults["subjectsComplex"][el]
       if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
 		  
 		  // we need to check the types of each element to make sure they really are the same terms
 		  let targetContext = await utilsNetwork.returnContext(target.uri)
+      
 		  let marcKey = targetContext.nodeMap.marcKey[0].slice(5)
 
 		  if (marcKey == componentTypes){
@@ -2049,6 +2093,7 @@ methods: {
     let newComponents = []
 
     const frozenComponents = JSON.parse(JSON.stringify(this.components))
+    
     //remove unused components
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
@@ -2170,7 +2215,8 @@ methods: {
     if (newComponents.length > 0){
       this.components = newComponents
     }
-	
+    
+    
     this.$emit('subjectAdded', this.components)
   },
 
@@ -2288,7 +2334,7 @@ methods: {
         let id = 0
         let activePosStart = 0
 
-        console.log("userValue['http://www.loc.gov/mads/rdf/v1#componentList']",userValue['http://www.loc.gov/mads/rdf/v1#componentList'])
+        
         for (let component of userValue['http://www.loc.gov/mads/rdf/v1#componentList']){
 
           let label = ''
@@ -2416,7 +2462,7 @@ methods: {
 
 
 
-      console.log("linkModeValue",linkModeValue)
+      // console.log("linkModeValue",linkModeValue)
 
 
       this.linkModeString=linkModeValue
