@@ -2238,8 +2238,8 @@ export const useProfileStore = defineStore('profile', {
                   }
                 }
 
-                if (subjectComponents[0].nonLatinMarkKey && subjectComponents[0].nonLatinMarkKey.length>0){
-                  for (let nlMK of subjectComponents[0].nonLatinMarkKey){
+                if (subjectComponents[0].nonLatinMarcKey && subjectComponents[0].nonLatinMarcKey.length>0){
+                  for (let nlMK of subjectComponents[0].nonLatinMarcKey){
                     currentUserValuePos["http://id.loc.gov/ontologies/bflc/marcKey"].push(
                       {
                         "@guid": short.generate(),
@@ -2297,8 +2297,8 @@ export const useProfileStore = defineStore('profile', {
                         'http://id.loc.gov/ontologies/bflc/marcKey': c.marcKey
                       }]
 
-                      if (c.nonLatinMarkKey && c.nonLatinMarkKey.length>0){
-                        for (let nlMK of c.nonLatinMarkKey){
+                      if (c.nonLatinMarcKey && c.nonLatinMarcKey.length>0){
+                        for (let nlMK of c.nonLatinMarcKey){
                           compo["http://id.loc.gov/ontologies/bflc/marcKey"].push(
                             {
                               "@guid": short.generate(),
