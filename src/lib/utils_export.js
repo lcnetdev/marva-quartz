@@ -591,7 +591,8 @@ const utilsExport = {
 				// multiple auth labels one with no @lang tag and ones that do have it
 				// check specific properties for now? (10/2024)
 				if ([
-					'http://id.loc.gov/ontologies/bibframe/contribution'
+					'http://id.loc.gov/ontologies/bibframe/contribution',
+					'http://id.loc.gov/ontologies/bibframe/subject'
 				].indexOf(ptObj.propertyURI)>-1){
 
 					// recusrive function to go through each key in the userValue and keep going till we find labels or marckeys 
@@ -605,7 +606,7 @@ const utilsExport = {
 							for (let k in obj){
 							if (Array.isArray(obj[k])){
 								// we only care about these properties
-								if (k == 'http://www.w3.org/2000/01/rdf-schema#label' || k == 'http://id.loc.gov/ontologies/bflc/marcKey'){
+								if (k == 'http://www.w3.org/2000/01/rdf-schema#label' || k == 'http://id.loc.gov/ontologies/bflc/marcKey' || k == 'http://www.loc.gov/mads/rdf/v1#authoritativeLabel'){
 									func(k,obj[k])
 								}else{
 									process(obj[k], func);

@@ -2217,6 +2217,40 @@ export const useProfileStore = defineStore('profile', {
 
                 }
 
+                // add in the non latin if present
+                if (subjectComponents[0].nonLatinLabel && subjectComponents[0].nonLatinLabel.length>0){
+                  for (let nlL of subjectComponents[0].nonLatinLabel){
+
+                    currentUserValuePos["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"].push(
+                      {
+                        "@guid": short.generate(),
+                        "@language": nlL['@language'],
+                        "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": nlL['@value']
+                      }
+                    )
+                    currentUserValuePos["http://www.w3.org/2000/01/rdf-schema#label"].push(
+                      {
+                        "@guid": short.generate(),
+                        "@language": nlL['@language'],
+                        "http://www.w3.org/2000/01/rdf-schema#label": nlL['@value']
+                      }
+                    )
+                  }
+                }
+
+                if (subjectComponents[0].nonLatinMarkKey && subjectComponents[0].nonLatinMarkKey.length>0){
+                  for (let nlMK of subjectComponents[0].nonLatinMarkKey){
+                    currentUserValuePos["http://id.loc.gov/ontologies/bflc/marcKey"].push(
+                      {
+                        "@guid": short.generate(),
+                        "@language": nlMK['@language'],
+                        "http://id.loc.gov/ontologies/bflc/marcKey": nlMK['@value']
+                      }
+                    )                    
+                  }
+                }
+
+
 
                 // store.state.activeUndoLog.push(`Added subject heading ${subjectComponents[0].label}`)
 
@@ -2258,12 +2292,34 @@ export const useProfileStore = defineStore('profile', {
                     }
 
                     if (c.marcKey){
-
                       compo['http://id.loc.gov/ontologies/bflc/marcKey'] = [{
                         "@guid": short.generate(),
                         'http://id.loc.gov/ontologies/bflc/marcKey': c.marcKey
                       }]
 
+                      if (c.nonLatinMarkKey && c.nonLatinMarkKey.length>0){
+                        for (let nlMK of c.nonLatinMarkKey){
+                          compo["http://id.loc.gov/ontologies/bflc/marcKey"].push(
+                            {
+                              "@guid": short.generate(),
+                              "@language": nlMK['@language'],
+                              "http://id.loc.gov/ontologies/bflc/marcKey": nlMK['@value']
+                            }
+                          )                    
+                        }
+                      }
+                    }
+
+                    if (c.nonLatinLabel && c.nonLatinLabel.length>0){
+                      for (let nlL of c.nonLatinLabel){
+                        compo["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"].push(
+                          {
+                            "@guid": short.generate(),
+                            "@language": nlL['@language'],
+                            "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": nlL['@value']
+                          }
+                        )
+                      }
                     }
 
                     currentUserValuePos["http://www.loc.gov/mads/rdf/v1#componentList"].push(compo)
@@ -3912,6 +3968,7 @@ export const useProfileStore = defineStore('profile', {
               nonLatinMap[ptFound['@guid']] = {
                 scripts: [],
                 '@guid' : ptFound['@guid'],
+                'propertyURI': ptFound.propertyURI,
                 nonLatin: this.returnLatinLabelForPt(ptFound)
               }
            }          
