@@ -1604,6 +1604,13 @@ const utilsExport = {
     // console.log("------")
     // console.log(strXmlBasic)
         
+        let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
+        
+        strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
+        
+        
+        console.info("xml: ", strBf2MarcXmlElBib)
+        
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,
@@ -1614,12 +1621,127 @@ const utilsExport = {
 			voidContributor:xmlVoidDataContributor,
 			componentXmlLookup:componentXmlLookup
 		}
-
-
-
-
-
   },
+  
+    //This was handled in the `add()` of `SubjectEditor.vue`, but there are some situtations where don't work as intended
+    //  namely, complex subjects that have subdivisions
+    splitComplexSubjects: function(data){
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(data, "application/xml")
+
+        console.info("xml: ", xml)
+
+        let subjects = xml.getElementsByTagName("bf:subject")
+
+        console.info("subjects: ", subjects)
+
+        for (let subject of subjects){
+            // subject = parser.parseFromString(subject.innerHTML, "application/xml")
+
+            let componentList = subject.getElementsByTagName("madsrdf:componentList")
+            
+            if (componentList.length > 0){
+                const clone = componentList[0].cloneNode(true)
+                let labels = []
+                let marcKeys = []
+
+                clone.getElementsByTagName("madsrdf:authoritativeLabel").forEach((label) => {
+                    labels.push(label.innerHTML)
+                })
+
+                clone.getElementsByTagName("bflc:marcKey").forEach((key) => {
+                    marcKeys.push(key.innerHTML)
+                })
+
+                for (let label in labels){
+                    
+                    //save the element incase it needs to be re-added
+                    const frozenElement = clone.children[label]
+                    
+                    //remove the existing element
+                    componentList[0].children[0].remove()
+                    
+                    if (labels[label].includes("--")){
+                        
+                        let newElements = []
+                        let marcKey = marcKeys[label]
+
+                        let tag = marcKey.slice(0,3)
+                        let subfields = marcKey.slice(5)
+                        subfields = subfields.match(/\$[axyzv]{1}/g)
+
+                        let terms = labels[label].split("--")
+                        //Determine the tag for the new element
+                        for (let term in terms){
+                            if (term != 0){
+                                switch(subfields[terms]){
+                                    case("$v"):
+                                    tag = "185"
+                                    break
+                                case("$y"):
+                                    tag = "182"
+                                    break
+                                case("$z"):
+                                    tag = "181"
+                                    break
+                                default:
+                                    tag = "180"
+                                }
+                            }
+
+                            //Get the type for the new element, this will be that parent element
+                            let type
+                            switch(subfields[term]){
+                                case("$x"):
+                                    type = "madsrdf:Topic"
+                                    break
+                                case("$v"):
+                                    type = "madsrdf:GenreForm"
+                                    break
+                                case("$y"):
+                                    type = "madsrdf:Temporal"
+                                    break
+                                case("$z"):
+                                    type = "madsrdf:Geographic"
+                                    break
+                                case("$a"):
+                                default:
+                                    type = "madsrdf:Topic"
+                            }
+                            let typeElement = document.createElement(type)
+
+                            //Add the auth label
+                            let authLabelElement = document.createElementNS("http://www.loc.gov/mads/rdf/v1#", "madsrdf:authoritativeLabel")
+                            authLabelElement.innerHTML = terms[term]
+                            
+                            //Add the marcKey
+                            
+                            let marcKeyElement = document.createElementNS("http://id.loc.gov/ontologies/bflc/", "bflc:marcKey")
+                            marcKeyElement.innerHTML = tag + "  " + subfields[term] + terms[term]
+                            
+                            typeElement.appendChild(authLabelElement)
+                            typeElement.appendChild(marcKeyElement)
+                            
+                            console.info("appending new element: ", typeElement)
+                            componentList[0].appendChild(typeElement)
+                        }
+                    } else {
+                        //it's a term that doesn't need to be split, be we'll readd it to ensure the pieces are in the correct order
+                        
+                        componentList[0].appendChild(frozenElement)
+                        
+                    }
+                }
+            }
+        
+        }
+        
+        let xmlString = (new XMLSerializer()).serializeToString(xml)
+        
+        console.info("string: ", xmlString)
+        
+        return xml
+    },
 }
 
 
