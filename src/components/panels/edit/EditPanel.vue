@@ -31,7 +31,10 @@
 
                   <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
-                    <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}</div>
+                    <div class="component-label" >
+                        <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                        {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
+                    </div>
                     <Main
                       :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
                       :level="0"
@@ -77,7 +80,9 @@
                     </template>
                     <template v-if="this.dualEdit == true">
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && profileName.indexOf(':Instance') == -1">
-                          <div class="component-label" >{{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
+                          <div class="component-label" >
+                          <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                            {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                             <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
                           </div>
                         </template>
