@@ -1642,6 +1642,10 @@ const utilsExport = {
             
             if (componentList.length > 0){
                 const clone = componentList[0].cloneNode(true)
+                
+                console.info("clone: ", clone)
+                console.info("clone children: ", clone.children)
+                    
                 let labels = []
                 let marcKeys = []
 
@@ -1652,23 +1656,31 @@ const utilsExport = {
                 clone.getElementsByTagName("bflc:marcKey").forEach((key) => {
                     marcKeys.push(key.innerHTML)
                 })
-
+                
+                console.info("looking at ", labels, " -- ", marcKeys)
+                
                 for (let label in labels){
-                    
                     //save the element incase it needs to be re-added
-                    const frozenElement = clone.children[label]
+                    console.info("freezing: ", labels[label])
+                    const frozenElement = componentList[0].children[0] //clone.children[label]
                     
+                    console.info("frozen: ", frozenElement)
+                    
+                    console.info("children: ", componentList[0].children)
+                    console.info("removing: ", componentList[0].children[0])
                     //remove the existing element
                     componentList[0].children[0].remove()
                     
-                    if (labels[label].includes("--")){
+                    if (labels[label].includes("--") && !marcKeys[label].includes("$z") ){
                         
                         let newElements = []
                         let marcKey = marcKeys[label]
 
-                        let tag = marcKey.slice(0,3)
+                        let tag = marcKey.slice(0, 3)
                         let subfields = marcKey.slice(5)
                         subfields = subfields.match(/\$[axyzv]{1}/g)
+                        
+                        console.info("subfields: ", subfields)
 
                         let terms = labels[label].split("--")
                         //Determine the tag for the new element
