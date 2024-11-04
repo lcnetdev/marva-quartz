@@ -1643,9 +1643,6 @@ const utilsExport = {
             if (componentList.length > 0){
                 const clone = componentList[0].cloneNode(true)
                 
-                console.info("clone: ", clone)
-                console.info("clone children: ", clone.children)
-                    
                 let labels = []
                 let marcKeys = []
 
@@ -1657,17 +1654,10 @@ const utilsExport = {
                     marcKeys.push(key.innerHTML)
                 })
                 
-                console.info("looking at ", labels, " -- ", marcKeys)
-                
                 for (let label in labels){
                     //save the element incase it needs to be re-added
-                    console.info("freezing: ", labels[label])
                     const frozenElement = componentList[0].children[0] //clone.children[label]
                     
-                    console.info("frozen: ", frozenElement)
-                    
-                    console.info("children: ", componentList[0].children)
-                    console.info("removing: ", componentList[0].children[0])
                     //remove the existing element
                     componentList[0].children[0].remove()
                     
@@ -1727,18 +1717,16 @@ const utilsExport = {
                             authLabelElement.innerHTML = terms[term]
                             
                             //Add the marcKey
-                            
                             let marcKeyElement = document.createElementNS("http://id.loc.gov/ontologies/bflc/", "bflc:marcKey")
                             marcKeyElement.innerHTML = tag + "  " + subfields[term] + terms[term]
                             
                             typeElement.appendChild(authLabelElement)
                             typeElement.appendChild(marcKeyElement)
                             
-                            console.info("appending new element: ", typeElement)
                             componentList[0].appendChild(typeElement)
                         }
                     } else {
-                        //it's a term that doesn't need to be split, be we'll readd it to ensure the pieces are in the correct order
+                        //it's a term that doesn't need to be split, be we'll re-add it to ensure the pieces are in the correct order
                         
                         componentList[0].appendChild(frozenElement)
                         

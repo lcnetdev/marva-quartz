@@ -833,6 +833,9 @@ methods: {
         for (let subjIdx in incomingSubjects){
           this.componetLookup[subjIdx] = {}
           let type = incomingSubjects[subjIdx]["@type"]
+          
+          console.info("array type: ", type, type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))
+          console.info("subjIdx", subjIdx)
 
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
             this.typeLookup[subjIdx] = 'madsrdf:Topic'
@@ -840,7 +843,8 @@ methods: {
           if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
             this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
           }
-          if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic")){
+          if ( type.includes("http://www.loc.gov/mads/rdf/v1#Geographic") || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")){
+              console.info("!!!!!!!!!")
             this.typeLookup[subjIdx] = 'madsrdf:Geographic'
           }
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
@@ -877,6 +881,8 @@ methods: {
         // dealing with a complex subject
         this.componetLookup[0] = {}
         let type = incomingSubjects["@type"]
+        
+        console.info("else type: ", type)
 
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
             this.typeLookup[0] = 'madsrdf:Topic'
@@ -884,7 +890,7 @@ methods: {
         if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
             this.typeLookup[0] = 'madsrdf:GenreForm'
         }
-        if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic")){
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic" || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))){
             this.typeLookup[0] = 'madsrdf:Geographic'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
@@ -910,6 +916,9 @@ methods: {
             console.error(err)
         }
     }
+    
+    console.info("this.typeLookup!!: ", this.typeLookup)
+    console.info("finished lookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
   },
   
   /**
@@ -920,9 +929,10 @@ methods: {
    */
   buildComponents: function(searchString){
     let subjectStringSplit = searchString.split('--')
-
+    
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
+    
     if (componentLookUpCount > 0){ //We are dealing with a hierarchical GEO and need to stitch some terms together
       if (componentLookUpCount < subjectStringSplit.length){
         let target = false
@@ -932,24 +942,26 @@ methods: {
               target = this.componetLookup[i][j].label.replaceAll("-", "‑")
               targetIndex = i  // needs this to ensure the target will go into the search string in the right place
             }
+            
+            let matchIndx = []
+            if (target){
+              for (let i in subjectStringSplit){
+                if (target.includes(subjectStringSplit[i])){
+                  matchIndx.push(i)
+                }
+              }
+              
+              //remove them
+              for (let i = matchIndx.length-1; i >=0; i--){
+                subjectStringSplit.splice(matchIndx[i], 1)
+              }
+              // add the combined terms
+              // subjectStringSplit.push(target)
+              subjectStringSplit.splice(targetIndex, 0, target)
+            }            
           }
         }
-        let matchIndx = []
-        if (target){
-          for (let i in subjectStringSplit){
-            if (target.includes(subjectStringSplit[i])){
-              matchIndx.push(i)
-            }
-          }
-          //remove them
-          for (let i = matchIndx.length-1; i >=0; i--){
-            subjectStringSplit.splice(matchIndx[i], 1)
-          }
-          // add the combined terms
-          // subjectStringSplit.push(target)
-          subjectStringSplit.splice(targetIndex, 0, target)
-        }
-      } 
+      }
     }
 
     // clear the current
@@ -971,19 +983,24 @@ methods: {
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
         // Zero out for geographic, because the terms won't be linked when reopengin
         // TODO: revisit this
-		    if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
-          literal = this.componetLookup[id][ss].literal = false
-          uri = this.componetLookup[id][ss].uri = null
-        }
+		    //if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
+          //literal = this.componetLookup[id][ss].literal = false
+          //uri = this.componetLookup[id][ss].uri = null
+        //}
+        
+        console.info(this.componetLookup)
+        console.info("building component for ", this.componetLookup[id][ss])
 		
         literal = this.componetLookup[id][ss].literal
         uri = this.componetLookup[id][ss].uri
-		    marcKey = this.componetLookup[id][ss].marcKey
+		marcKey = this.componetLookup[id][ss].marcKey
         nonLatinLabel = this.componetLookup[id][ss].nonLatinTitle
         nonLatinMarcKey = this.componetLookup[id][ss].nonLatinMarcKey
 
       }
-
+      
+      console.info("this.typeLookup", this.typeLookup)
+    
       if (this.typeLookup[id]){
         type = this.typeLookup[id]
       }
@@ -1007,6 +1024,8 @@ methods: {
 
       id++
     }
+    
+    console.info("finished components:", this.components)
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
@@ -2158,6 +2177,8 @@ methods: {
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
     } 
+    
+        //The following was used to split up complex headings, but has been moved to the XML export functio
       // else {
         // console.info("breaking the complex subject")
 		// // need to break up the complex heading into it's pieces so their URIs are availble
