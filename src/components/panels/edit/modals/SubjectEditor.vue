@@ -782,14 +782,11 @@ methods: {
   parseComplexSubject: async function(uri){
     let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
     
-    console.info("data: ", data)
-    
     let components = false
     let subfields = false
     let marcKey = false
     for (let el of data){
       if (el["@id"] == uri){
-        console.info("el: ", el)
         marcKey = el["http://id.loc.gov/ontologies/bflc/marcKey"][0]["@value"]
         // we're not looking at a GEO heading, so the components will be URIs
         // GEO won't have URIs, so they can be ignored
@@ -818,8 +815,6 @@ methods: {
    * @param {obj} incomingSubjects - the existing subject data
    */
   buildLookupComponents: function(incomingSubjects){
-
-    console.info("building component for: ", incomingSubjects, " -- ", Array.isArray(incomingSubjects))
     this.typeLookup = {}
     
     if (typeof incomingSubjects == "undefined"){
@@ -833,9 +828,6 @@ methods: {
         for (let subjIdx in incomingSubjects){
           this.componetLookup[subjIdx] = {}
           let type = incomingSubjects[subjIdx]["@type"]
-          
-          console.info("array type: ", type, type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))
-          console.info("subjIdx", subjIdx)
 
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
             this.typeLookup[subjIdx] = 'madsrdf:Topic'
@@ -844,7 +836,6 @@ methods: {
             this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
           }
           if ( type.includes("http://www.loc.gov/mads/rdf/v1#Geographic") || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")){
-              console.info("!!!!!!!!!")
             this.typeLookup[subjIdx] = 'madsrdf:Geographic'
           }
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
@@ -857,12 +848,7 @@ methods: {
             lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
           }
           try {
-              console.info("incomingSubjects[subjIdx][lookUp][0][lookUp]: ", incomingSubjects[subjIdx][lookUp][0][lookUp])
-              
-              console.info("incomingSubjects[subjIdx][lookUp][0][lookUp]: ", incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("--", "‑‑"))
             let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("--", "‑‑")
-            
-            console.info("label: ", label)
             
             //Set up componentLookup, so the component builder can give them URIs
             this.componetLookup[subjIdx][label] = {
@@ -881,8 +867,6 @@ methods: {
         // dealing with a complex subject
         this.componetLookup[0] = {}
         let type = incomingSubjects["@type"]
-        
-        console.info("else type: ", type)
 
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
             this.typeLookup[0] = 'madsrdf:Topic'
@@ -916,9 +900,6 @@ methods: {
             console.error(err)
         }
     }
-    
-    console.info("this.typeLookup!!: ", this.typeLookup)
-    console.info("finished lookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
   },
   
   /**
@@ -981,16 +962,6 @@ methods: {
 
 
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        // Zero out for geographic, because the terms won't be linked when reopengin
-        // TODO: revisit this
-		    //if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
-          //literal = this.componetLookup[id][ss].literal = false
-          //uri = this.componetLookup[id][ss].uri = null
-        //}
-        
-        console.info(this.componetLookup)
-        console.info("building component for ", this.componetLookup[id][ss])
-		
         literal = this.componetLookup[id][ss].literal
         uri = this.componetLookup[id][ss].uri
 		marcKey = this.componetLookup[id][ss].marcKey
@@ -998,9 +969,7 @@ methods: {
         nonLatinMarcKey = this.componetLookup[id][ss].nonLatinMarcKey
 
       }
-      
-      console.info("this.typeLookup", this.typeLookup)
-    
+
       if (this.typeLookup[id]){
         type = this.typeLookup[id]
       }
@@ -1024,8 +993,6 @@ methods: {
 
       id++
     }
-    
-    console.info("finished components:", this.components)
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
@@ -2305,7 +2272,6 @@ methods: {
       this.components = newComponents
     }
     
-    console.info("!!final components: ", JSON.parse(JSON.stringify(this.components)))
     this.$emit('subjectAdded', this.components)
   },
 
@@ -2592,7 +2558,6 @@ updated: function() {
     incomingSubjects = false
   } else if (profileData) {
     try {
-        console.info("userValue: ", profileData["userValue"])
       if (
             profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"] 
             && !profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bflc/marcKey"]
@@ -2606,8 +2571,6 @@ updated: function() {
     }
   }
   
-  console.info("incoming subjects: ", incomingSubjects)
-
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
   if (this.searchValue && this.components.length != this.searchValue.split("--") && !this.searchValue.endsWith('-')){

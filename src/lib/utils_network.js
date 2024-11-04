@@ -250,7 +250,7 @@ const utilsNetwork = {
         return  data;
       }catch(err){
         //alert("There was an error retriving the record from:",url)
-        console.error(err);
+        console.error("There was an error retriving the record from ", url, ". Likely from the search being aborted because the user was typing.");
 
         return false
         // Handle errors here

@@ -1608,9 +1608,6 @@ const utilsExport = {
         
         strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
         
-        
-        console.info("xml: ", strBf2MarcXmlElBib)
-        
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,
@@ -1629,11 +1626,7 @@ const utilsExport = {
         const parser = new DOMParser();
         const xml = parser.parseFromString(data, "application/xml")
 
-        console.info("xml: ", xml)
-
         let subjects = xml.getElementsByTagName("bf:subject")
-
-        console.info("subjects: ", subjects)
 
         for (let subject of subjects){
             // subject = parser.parseFromString(subject.innerHTML, "application/xml")
@@ -1670,8 +1663,6 @@ const utilsExport = {
                         let subfields = marcKey.slice(5)
                         subfields = subfields.match(/\$[axyzv]{1}/g)
                         
-                        console.info("subfields: ", subfields)
-
                         let terms = labels[label].split("--")
                         //Determine the tag for the new element
                         for (let term in terms){
@@ -1735,10 +1726,6 @@ const utilsExport = {
             }
         
         }
-        
-        let xmlString = (new XMLSerializer()).serializeToString(xml)
-        
-        console.info("string: ", xmlString)
         
         return xml
     },
