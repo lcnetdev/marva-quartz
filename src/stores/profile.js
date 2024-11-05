@@ -4176,8 +4176,8 @@ export const useProfileStore = defineStore('profile', {
                 if (rt == newComponent.parentId){
                     let targetURI = newComponent.propertyURI
                     let targetLabel = newComponent.propertyLabel
-
-                    if (current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
+                    
+                    if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
                         if (Object.keys(current.userValue).length == 1){
                             current.userValue = newComponent.userValue
                             break
