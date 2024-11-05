@@ -2143,7 +2143,6 @@ methods: {
       Array(componentCount).fill(0).map((i) => this.components.shift())
     } 
     else {
-        console.info("breaking the complex subject")
 		// need to break up the complex heading into it's pieces so their URIs are availble
         let prevItems = 0
         for (let component in frozenComponents){
@@ -2159,9 +2158,6 @@ methods: {
 				subs = target.marcKey.slice(5)
 			    // subfields = subfields.match(/\$./g)
 			    subs = subs.match(/\$[axyzv]{1}/g)
-                
-                console.info("target:", target)
-                
 				const complexLabel = target.label
 				// build the new components
 				let id = prevItems
@@ -2566,8 +2562,6 @@ updated: function() {
       incomingSubjects = false
     }
   }
-  
-  console.info("incoming: ", incomingSubjects)
   
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
