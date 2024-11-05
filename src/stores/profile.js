@@ -4236,7 +4236,7 @@ export const useProfileStore = defineStore('profile', {
                   try{
                       result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
                   } catch(err) {
-                      console.info("error: ", err)
+                      console.error("error: Checking if component is empty")
                   }
                   return result
                   

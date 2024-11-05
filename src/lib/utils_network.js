@@ -250,7 +250,7 @@ const utilsNetwork = {
         return  data;
       }catch(err){
         //alert("There was an error retriving the record from:",url)
-        console.error(err);
+        console.error("There was an error retriving the record from ", url, ". Likely from the search being aborted because the user was typing.");
 
         return false
         // Handle errors here
@@ -360,12 +360,12 @@ const utilsNetwork = {
             //Config only allows 25 results, this will add something to the results
             // to let the user know there are more names.
             let overflow = 0
-            if (r.hits.length < r.count){
+            if (r.hits && r.hits.length < r.count){
               // It looks like the count is 1 more than the number of hits, why?
               overflow = (r.count - r.hits.length)
             }
 
-            if (searchPayload.processor == 'lcAuthorities'){
+            if (r.hits && searchPayload.processor == 'lcAuthorities'){
                 // process the results as a LC suggest service
                 // console.log("URL",url)
                 // console.log("r",r)
@@ -413,7 +413,7 @@ const utilsNetwork = {
                 //   }
                 // }
 
-            }else if (searchPayload.processor == 'wikidataAPI'){
+            }else if (r.hits && searchPayload.processor == 'wikidataAPI'){
 
                 for (let hit of r.search){
                   results.push({

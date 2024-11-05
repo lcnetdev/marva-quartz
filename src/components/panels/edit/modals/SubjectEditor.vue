@@ -208,9 +208,8 @@
                         <form autocomplete="off" style="height: 3em;">
                           <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input">
                         </form>
-
                         <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
-						  {{c.label}}
+						  {{c.label}} 
                         </div>
                       </div>
                     </div>
@@ -780,6 +779,7 @@ methods: {
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
     let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
+    
     let components = false
     let subfields = false
     let marcKey = false
@@ -813,46 +813,90 @@ methods: {
    * @param {obj} incomingSubjects - the existing subject data
    */
   buildLookupComponents: function(incomingSubjects){
+    this.typeLookup = {}
+    
+    if (typeof incomingSubjects == "undefined"){
+        return
+    }
+    
+    let lookUp
+    
+    // The subject is made of multiple parts
+    if (Array.isArray(incomingSubjects)){
+        for (let subjIdx in incomingSubjects){
+          this.componetLookup[subjIdx] = {}
+          let type = incomingSubjects[subjIdx]["@type"]
 
-    this.typeLookup = []
-    for (let subjIdx in incomingSubjects){
-      this.componetLookup[subjIdx] = {}
-      let type = incomingSubjects[subjIdx]["@type"]
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
+            this.typeLookup[subjIdx] = 'madsrdf:Topic'
+          }
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
+            this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
+          }
+          if ( type.includes("http://www.loc.gov/mads/rdf/v1#Geographic") || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")){
+            this.typeLookup[subjIdx] = 'madsrdf:Geographic'
+          }
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
+            this.typeLookup[subjIdx] = 'madsrdf:Temporal'
+          }
 
-      let lookUp
+          if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
+            lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+          } else {
+            lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
+          }
+          try {
+            let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("--", "‑‑")
+            
+            //Set up componentLookup, so the component builder can give them URIs
+            this.componetLookup[subjIdx][label] = {
+              label: incomingSubjects[subjIdx][lookUp][0][lookUp],
+              literal: incomingSubjects[subjIdx]["@id"] ? false : true,
+              uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null,
+              type: this.typeLookup[subjIdx],
+              marcKey: incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"] ? incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"] : ""
+            }
 
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
-        this.typeLookup[subjIdx] = 'madsrdf:Topic'
-      }
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
-        this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
-      }
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic")){
-        this.typeLookup[subjIdx] = 'madsrdf:Geographic'
-      }
-      if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
-        this.typeLookup[subjIdx] = 'madsrdf:Temporal'
-      }
-
-      if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
-        lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
-      } else {
-        lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
-      }
-      try {
-        let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("--", "‑‑")
-        //Set up componentLookup, so the component builder can give them URIs
-        this.componetLookup[subjIdx][label] = {
-          label: incomingSubjects[subjIdx][lookUp][0][lookUp],
-          literal: incomingSubjects[subjIdx]["@id"] ? false : true,
-          uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null,
-          type: this.typeLookup[subjIdx],
-		  marcKey: incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"]
+          } catch(err){
+            console.error(err)
+          }
         }
+    } else {
+        // dealing with a complex subject
+        this.componetLookup[0] = {}
+        let type = incomingSubjects["@type"]
 
-      } catch(err){
-        console.error(err)
-      }
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
+            this.typeLookup[0] = 'madsrdf:Topic'
+        }
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
+            this.typeLookup[0] = 'madsrdf:GenreForm'
+        }
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic" || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))){
+            this.typeLookup[0] = 'madsrdf:Geographic'
+        }
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
+            this.typeLookup[0] = 'madsrdf:Temporal'
+        }
+        
+        if (Object.keys(incomingSubjects).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
+            lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+        } else {
+            lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
+        }
+        try {
+            let label = incomingSubjects[lookUp][0][lookUp].replaceAll("--", "‑‑")
+            //Set up componentLookup, so the component builder can give them URIs
+            this.componetLookup[0][label] = {
+                label: incomingSubjects[lookUp][0][lookUp],
+                literal: incomingSubjects["@id"] ? false : true,
+                uri: incomingSubjects["@id"] ? incomingSubjects["@id"] : null,
+                type: this.typeLookup[0],
+                marcKey: incomingSubjects["http://id.loc.gov/ontologies/bflc/marcKey"] ? incomingSubjects["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"] : ""
+            }
+        } catch(err){
+            console.error(err)
+        }
     }
   },
   
@@ -864,9 +908,10 @@ methods: {
    */
   buildComponents: function(searchString){
     let subjectStringSplit = searchString.split('--')
-
+    
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
+    
     if (componentLookUpCount > 0){ //We are dealing with a hierarchical GEO and need to stitch some terms together
       if (componentLookUpCount < subjectStringSplit.length){
         let target = false
@@ -876,24 +921,26 @@ methods: {
               target = this.componetLookup[i][j].label.replaceAll("-", "‑")
               targetIndex = i  // needs this to ensure the target will go into the search string in the right place
             }
+            
+            let matchIndx = []
+            if (target){
+              for (let i in subjectStringSplit){
+                if (target.includes(subjectStringSplit[i])){
+                  matchIndx.push(i)
+                }
+              }
+              
+              //remove them
+              for (let i = matchIndx.length-1; i >=0; i--){
+                subjectStringSplit.splice(matchIndx[i], 1)
+              }
+              // add the combined terms
+              // subjectStringSplit.push(target)
+              subjectStringSplit.splice(targetIndex, 0, target)
+            }            
           }
         }
-        let matchIndx = []
-        if (target){
-          for (let i in subjectStringSplit){
-            if (target.includes(subjectStringSplit[i])){
-              matchIndx.push(i)
-            }
-          }
-          //remove them
-          for (let i = matchIndx.length-1; i >=0; i--){
-            subjectStringSplit.splice(matchIndx[i], 1)
-          }
-          // add the combined terms
-          // subjectStringSplit.push(target)
-          subjectStringSplit.splice(targetIndex, 0, target)
-        }
-      } 
+      }
     }
 
     // clear the current
@@ -913,16 +960,9 @@ methods: {
 
 
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        // Zero out for geographic, because the terms won't be linked when reopengin
-        // TODO: revisit this
-		    if (this.componetLookup[id][ss]["type"] == "madsrdf:Geographic"){
-          literal = this.componetLookup[id][ss].literal = false
-          uri = this.componetLookup[id][ss].uri = null
-        }
-		
         literal = this.componetLookup[id][ss].literal
         uri = this.componetLookup[id][ss].uri
-		    marcKey = this.componetLookup[id][ss].marcKey
+		marcKey = this.componetLookup[id][ss].marcKey
         nonLatinLabel = this.componetLookup[id][ss].nonLatinTitle
         nonLatinMarcKey = this.componetLookup[id][ss].nonLatinMarcKey
 
@@ -1338,7 +1378,7 @@ methods: {
       that.pickLookup[k].picked = false
       if (searchString.toLowerCase() == that.pickLookup[k].label.toLowerCase() && !that.pickLookup[k].literal ){
         // if the labels are the same for the current one selected don't overide it
-        if (that.pickLookup[k].label.replaceAll('‑','-') == that.activeComponent.label.replaceAll('‑','-') && that.activeComponent.uri){
+        if (that.activeComponent && that.pickLookup[k].label.replaceAll('‑','-') == that.activeComponent.label.replaceAll('‑','-') && that.activeComponent.uri){
           if (that.activeComponent.uri == that.pickLookup[k].uri){
             that.pickPostion=k
             that.pickLookup[k].picked=true
@@ -1919,7 +1959,9 @@ methods: {
         }
 
         // always make the first one the topic
-        this.components[0].type = 'madsrdf:Topic'
+        try {
+            this.components[0].type = 'madsrdf:Topic'
+        } catch {}
 
         this.updateAvctiveTypeSelected()
         this.validateOkayToAdd()
@@ -2070,8 +2112,9 @@ methods: {
 		  
 		  // we need to check the types of each element to make sure they really are the same terms
 		  let targetContext = await utilsNetwork.returnContext(target.uri)
-      
-		  let marcKey = targetContext.nodeMap.marcKey[0].slice(5)
+          
+          //TODO: look up the URIs for the split up complex term
+		  let marcKey = targetContext.marcKey[0]["@value"].slice(5)
 
 		  if (marcKey == componentTypes){
 			//the entire built subject can be replaced by 1 term
@@ -2085,6 +2128,7 @@ methods: {
 			  "posStart": 0,
 			  "type": "madsrdf:Topic",
 			  "uri": target.uri,
+              "marcKey": targetContext.marcKey[0]["@value"]
 			})
 		  }
       }
@@ -2097,7 +2141,8 @@ methods: {
     //remove unused components
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
-    } else {
+    } 
+    else {
 		// need to break up the complex heading into it's pieces so their URIs are availble
         let prevItems = 0
         for (let component in frozenComponents){
@@ -2106,14 +2151,15 @@ methods: {
 			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
 				let uri = target.uri
 				let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
+                
+                data = await this.parseComplexSubject(uri)
 				
 				let subs
 				subs = target.marcKey.slice(5)
 			    // subfields = subfields.match(/\$./g)
 			    subs = subs.match(/\$[axyzv]{1}/g)
-
 				const complexLabel = target.label
-				//build the new components
+				// build the new components
 				let id = prevItems
 				let labels = complexLabel.split("--")
 				for (let idx in labels){
@@ -2146,7 +2192,7 @@ methods: {
 					  subfield = false
 				  }
 				  
-				  //Override the subfield of the first element based on the marc tag
+				  // Override the subfield of the first element based on the marc tag
 				  let tag = target.marcKey.slice(0,3)
 				  if (idx == 0){
 					  switch(tag){
@@ -2161,7 +2207,7 @@ methods: {
 					  }
 				  }
 				  
-				  //make a marcKey for the component
+				  // make a marcKey for the component
 				  // We've got the label, subfield and the tag for the first element
 				  let sub
 				  if (data) {
@@ -2172,7 +2218,7 @@ methods: {
 				  if (idx == 0){
 					  tag = tag
 				  } else {
-					  //build the tag from the subfield
+					  // build the tag from the subfield
 					  switch(sub){
 						case("$v"):
 						  tag = "185"
@@ -2198,7 +2244,9 @@ methods: {
 					"posStart": 0,
 					"type": subfield,
 					"uri": data && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
-					"marcKey": marcKey
+					"marcKey": marcKey,
+                    "fromComplex": true,
+                    "complexMarcKey": target.marcKey
 				  }))
 				  id++
 				  prevItems++
@@ -2215,7 +2263,6 @@ methods: {
     if (newComponents.length > 0){
       this.components = newComponents
     }
-    
     
     this.$emit('subjectAdded', this.components)
   },
@@ -2503,12 +2550,19 @@ updated: function() {
     incomingSubjects = false
   } else if (profileData) {
     try {
-      incomingSubjects = profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"]
+      if (
+            profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"] 
+            && !profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bflc/marcKey"]
+      ){
+        incomingSubjects = profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"]
+      } else {
+          incomingSubjects = profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]
+      }
     } catch(err){
       incomingSubjects = false
     }
   }
-
+  
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
   if (this.searchValue && this.components.length != this.searchValue.split("--") && !this.searchValue.endsWith('-')){
@@ -2549,7 +2603,7 @@ updated: function() {
             //Select the context that matches the incoming value
             for (const pos in list){
               let label = list[pos].label
-              if (label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
+              if (this.authorityLookupLocal && label.replace(/\W/g, ' ') == this.authorityLookupLocal.replace(/\W/g, ' ')){
                 try{
                   let idx = 0
                   if (this.isLiteral == true) {
