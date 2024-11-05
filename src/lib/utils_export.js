@@ -1604,9 +1604,8 @@ const utilsExport = {
     // console.log("------")
     // console.log(strXmlBasic)
         
-        let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
-        
-        strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
+        // let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
+        // strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
         
 		return {
 			xmlDom: rdf,
@@ -1620,8 +1619,9 @@ const utilsExport = {
 		}
   },
   
-    //This was handled in the `add()` of `SubjectEditor.vue`, but there are some situtations where don't work as intended
+    //This was handled in the `add()` of `SubjectEditor.vue`, but there are some situtations where that don't work as intended
     //  namely, complex subjects that have subdivisions
+    // !! This is not being used, incase having the profile in Marva be different from the XML causes issues somewhere
     splitComplexSubjects: function(data){
         const parser = new DOMParser();
         const xml = parser.parseFromString(data, "application/xml")

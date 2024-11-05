@@ -2142,128 +2142,126 @@ methods: {
     if (match){
       Array(componentCount).fill(0).map((i) => this.components.shift())
     } 
-    
-        //The following was used to split up complex headings, but has been moved to the XML export functio
-      // else {
-        // console.info("breaking the complex subject")
-		// // need to break up the complex heading into it's pieces so their URIs are availble
-        // let prevItems = 0
-        // for (let component in frozenComponents){
-          // // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
-			// const target = frozenComponents[component]
-			// if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
-				// let uri = target.uri
-				// let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
+    else {
+        console.info("breaking the complex subject")
+		// need to break up the complex heading into it's pieces so their URIs are availble
+        let prevItems = 0
+        for (let component in frozenComponents){
+          // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
+			const target = frozenComponents[component]
+			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
+				let uri = target.uri
+				let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
                 
-                // data = await this.parseComplexSubject(uri)
+                data = await this.parseComplexSubject(uri)
 				
-				// let subs
-				// subs = target.marcKey.slice(5)
-			    // // subfields = subfields.match(/\$./g)
-			    // subs = subs.match(/\$[axyzv]{1}/g)
+				let subs
+				subs = target.marcKey.slice(5)
+			    // subfields = subfields.match(/\$./g)
+			    subs = subs.match(/\$[axyzv]{1}/g)
                 
-                // console.info("target:", target)
+                console.info("target:", target)
                 
-				// const complexLabel = target.label
-				// // build the new components
-				// let id = prevItems
-				// let labels = complexLabel.split("--")
-				// for (let idx in labels){
-				  // let subfield
-				  // if (data){
-				    // subfield = data["subfields"][idx]
-				  // } else if (target.marcKey){
-					  // let marcKey = target.marcKey.slice(5)
-					  // subfield = marcKey.match(/\$[axyzv]{1}/g)
-					  // subfield = subfield[idx]
-				  // }
+				const complexLabel = target.label
+				// build the new components
+				let id = prevItems
+				let labels = complexLabel.split("--")
+				for (let idx in labels){
+				  let subfield
+				  if (data){
+				    subfield = data["subfields"][idx]
+				  } else if (target.marcKey){
+					  let marcKey = target.marcKey.slice(5)
+					  subfield = marcKey.match(/\$[axyzv]{1}/g)
+					  subfield = subfield[idx]
+				  }
 				  
-				  // switch(subfield){
-					// case("$a"):
-					  // subfield = "madsrdf:Topic"
-					  // break
-					// case("$x"):
-					  // subfield = "madsrdf:Topic"
-					  // break
-					// case("$v"):
-					  // subfield = "madsrdf:GenreForm"
-					  // break
-					// case("$y"):
-					  // subfield = "madsrdf:Temporal"
-					  // break
-					// case("$z"):
-					  // subfield = "madsrdf:Geographic"
-					  // break
-					// default:
-					  // subfield = false
-				  // }
+				  switch(subfield){
+					case("$a"):
+					  subfield = "madsrdf:Topic"
+					  break
+					case("$x"):
+					  subfield = "madsrdf:Topic"
+					  break
+					case("$v"):
+					  subfield = "madsrdf:GenreForm"
+					  break
+					case("$y"):
+					  subfield = "madsrdf:Temporal"
+					  break
+					case("$z"):
+					  subfield = "madsrdf:Geographic"
+					  break
+					default:
+					  subfield = false
+				  }
 				  
-				  // // Override the subfield of the first element based on the marc tag
-				  // let tag = target.marcKey.slice(0,3)
-				  // if (idx == 0){
-					  // switch(tag){
-						  // case "151":
-							// subfield = "madsrdf:Geographic"
-							// break
-						  // case "100":
-							// subfield = "madsrdf:PersonalName"
-							// break
-						  // default:
-							// subfield = "madsrdf:Topic"
-					  // }
-				  // }
+				  // Override the subfield of the first element based on the marc tag
+				  let tag = target.marcKey.slice(0,3)
+				  if (idx == 0){
+					  switch(tag){
+						  case "151":
+							subfield = "madsrdf:Geographic"
+							break
+						  case "100":
+							subfield = "madsrdf:PersonalName"
+							break
+						  default:
+							subfield = "madsrdf:Topic"
+					  }
+				  }
 				  
-				  // // make a marcKey for the component
-				  // // We've got the label, subfield and the tag for the first element
-				  // let sub
-				  // if (data) {
-					// sub = data["subfields"][idx]
-				  // } else {
-					  // sub = subs[idx]
-				  // }
-				  // if (idx == 0){
-					  // tag = tag
-				  // } else {
-					  // // build the tag from the subfield
-					  // switch(sub){
-						// case("$v"):
-						  // tag = "185"
-						  // break
-						// case("$y"):
-						  // tag = "182"
-						  // break
-						// case("$z"):
-						  // tag = "181"
-						  // break
-						// default:
-						  // tag = "180"
-					  // }
-				  // }
-				  // let marcKey = tag + "  " + sub + labels[idx]
+				  // make a marcKey for the component
+				  // We've got the label, subfield and the tag for the first element
+				  let sub
+				  if (data) {
+					sub = data["subfields"][idx]
+				  } else {
+					  sub = subs[idx]
+				  }
+				  if (idx == 0){
+					  tag = tag
+				  } else {
+					  // build the tag from the subfield
+					  switch(sub){
+						case("$v"):
+						  tag = "185"
+						  break
+						case("$y"):
+						  tag = "182"
+						  break
+						case("$z"):
+						  tag = "181"
+						  break
+						default:
+						  tag = "180"
+					  }
+				  }
+				  let marcKey = tag + "  " + sub + labels[idx]
 				
-				  // newComponents.splice(id, 0, ({
-					// "complex": false,
-					// "id": id,
-					// "label": labels[idx],
-					// "literal": false,
-					// "posEnd": labels[idx].length,
-					// "posStart": 0,
-					// "type": subfield,
-					// "uri": data && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
-					// "marcKey": marcKey,
-                    // "fromComplex": true,
-                    // "complexMarcKey": target.marcKey
-				  // }))
-				  // id++
-				  // prevItems++
-				// }
+				  newComponents.splice(id, 0, ({
+					"complex": false,
+					"id": id,
+					"label": labels[idx],
+					"literal": false,
+					"posEnd": labels[idx].length,
+					"posStart": 0,
+					"type": subfield,
+					"uri": data && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
+					"marcKey": marcKey,
+                    "fromComplex": true,
+                    "complexMarcKey": target.marcKey
+				  }))
+				  id++
+				  prevItems++
+				}
 			  
-			// } else {
-				// newComponents.push(target)
-				// prevItems++
-			// }
-		// }
-	// }
+			} else {
+				newComponents.push(target)
+				prevItems++
+			}
+		}
+	}
 	
 
     if (newComponents.length > 0){
@@ -2568,6 +2566,8 @@ updated: function() {
       incomingSubjects = false
     }
   }
+  
+  console.info("incoming: ", incomingSubjects)
   
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
