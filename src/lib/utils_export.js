@@ -592,7 +592,9 @@ const utilsExport = {
 				// check specific properties for now? (10/2024)
 				if ([
 					'http://id.loc.gov/ontologies/bibframe/contribution',
-					'http://id.loc.gov/ontologies/bibframe/subject'
+					'http://id.loc.gov/ontologies/bibframe/subject',
+					'http://id.loc.gov/ontologies/bibframe/geographicCoverage'
+
 				].indexOf(ptObj.propertyURI)>-1){
 
 					// recusrive function to go through each key in the userValue and keep going till we find labels or marckeys 
