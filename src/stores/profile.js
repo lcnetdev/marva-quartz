@@ -4178,12 +4178,6 @@ export const useProfileStore = defineStore('profile', {
                             let structure = this.returnStructureByComponentGuid(guid)
                             let newPt = await this.duplicateComponentGetId(guid, structure, rt)
                             
-                            console.info("rt: ", rt)
-                            console.info("newPt: ", newPt)
-                            console.info("profile: ", profile)
-                            
-                            console.info('profile["rt"][rt]["pt"][newPt]: ', profile["rt"][rt]["pt"][newPt])
-
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
                             break
                         }
