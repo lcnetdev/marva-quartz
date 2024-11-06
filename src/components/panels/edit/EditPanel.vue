@@ -21,7 +21,7 @@
           <template v-if="profileName.includes(':Instance')"> 
                 <div> 
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
-                    <button class="instanceDeleteButton" v-if="showInstanceDeleteButton(profileName)" @click="showDeleteInstanceModal()">Delete Instance</button>
+                    <button class="instanceDeleteButton" v-if="showInstanceDeleteButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
                 </div>
           </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
@@ -59,7 +59,7 @@
         <template v-if="profileName.includes(':Instance')"> 
             <div> 
                 <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
-                <button class="instanceDeleteButton" v-if="showInstanceDeleteButton(profileName)" @click="showDeleteInstanceModal()">Delete Instance</button>
+                <button class="instanceDeleteButton" v-if="showInstanceDeleteButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
             </div>
         </template>
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
@@ -288,10 +288,15 @@
             return isInstance && notFirstInstance
         },
         
-        showDeleteInstanceModal: function(){
-            console.info("Prompt for instance deletion")
+        showDeleteInstanceModal: function(profileName){
             if (window.confirm("Do you really want to delete this instance?")){
-                console.info("really delete")
+                
+                // remove from rtOrder
+                const targetIndex = this.activeProfile.rtOrder.indexOf(profileName)                
+                this.activeProfile.rtOrder.splice(targetIndex, 1)
+                
+                // remove the profile
+                delete this.activeProfile.rt[profileName]
             }
         },
         
