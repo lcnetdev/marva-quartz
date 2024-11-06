@@ -3787,11 +3787,12 @@ export const useProfileStore = defineStore('profile', {
 
 
     /**
-    * Build a new seconary instance
+    * Build a new instance
     *
+    * @param lccn {string} the lccn for the new instance. If there isn't one, this is a secondary instance
     * @return {void}
     */
-    createSecondaryInstance:  function(){
+    createInstance:  function(lccn=false){
 
 
       // find the RT for the instance of this profile orginally
@@ -3843,12 +3844,6 @@ export const useProfileStore = defineStore('profile', {
         // update the parentId
         this.activeProfile.rt[newRdId].pt[pt].parentId = this.activeProfile.rt[newRdId].pt[pt].parentId.replace(instanceName,newRdId)
         this.activeProfile.rt[newRdId].pt[pt].parent = this.activeProfile.rt[newRdId].pt[pt].parent.replace(instanceName,newRdId)
-
-
-
-
-
-
       }
 
 
@@ -3858,9 +3853,13 @@ export const useProfileStore = defineStore('profile', {
 
       this.activeProfile.rt[newRdId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
       this.activeProfile.rt[newRdId].instanceOf = workUri
-
-      this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
-
+      
+      if (!lccn){
+        this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
+      } else {
+          this.activeProfile.rt[newRdId]['URL'] = lccn
+      }
+      
       this.dataChanged()
 
     },

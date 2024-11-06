@@ -136,7 +136,7 @@
           menuButtonSubMenu.push(
             {
               text: 'Add Secondary Instance',
-              click: () => { this.profileStore.createSecondaryInstance() }
+              click: () => { this.profileStore.createInstance() }
             }
           )
           
