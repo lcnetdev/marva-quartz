@@ -136,7 +136,7 @@
           menuButtonSubMenu.push(
             {
               text: 'Add Secondary Instance',
-              click: () => { this.profileStore.createInstance() }
+              click: () => { this.instancePrompt() }
             }
           )
           
@@ -440,6 +440,15 @@
               }
           })
       },
+      
+      instancePrompt: function(){
+          let lccn = prompt("Enter an LCCN, or leave it blank if you want to create a Secondary Instance.")
+          
+          if (lccn == ""){
+              lccn = false
+          }
+          this.profileStore.createInstance(lccn)
+      }
     },
 
     created() {

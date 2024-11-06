@@ -3857,7 +3857,7 @@ export const useProfileStore = defineStore('profile', {
       if (!lccn){
         this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
       } else {
-          this.activeProfile.rt[newRdId]['URL'] = lccn
+          this.activeProfile.rt[newRdId]['URI'] = "http://id.loc.gov/resources/instances/" + lccn
       }
       
       this.dataChanged()
