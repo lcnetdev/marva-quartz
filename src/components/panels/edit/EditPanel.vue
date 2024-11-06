@@ -20,7 +20,7 @@
           <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
           <template v-if="profileName.includes(':Instance')"> 
                 <div> 
-                    <span class="instanceIdentifer">Instance ID: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                    <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                     <button class="instanceDeleteButton" v-if="showInstanceDeleteButton(profileName)" @click="showDeleteInstanceModal()">Delete Instance</button>
                 </div>
           </template>
@@ -58,7 +58,7 @@
       <template v-if="instanceMode == false">
         <template v-if="profileName.includes(':Instance')"> 
             <div> 
-                <span class="instanceIdentifer">Instance ID: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                 <button class="instanceDeleteButton" v-if="showInstanceDeleteButton(profileName)" @click="showDeleteInstanceModal()">Delete Instance</button>
             </div>
         </template>
@@ -271,8 +271,8 @@
               
         },
         
-        //only if the profile is an instance, but not if it's the first instance
         showInstanceDeleteButton: function(profileName){
+            //only if the profile is an instance, but not if it's the first instance
             const isInstance = profileName.includes(":Instance")
             let notFirstInstance
             
@@ -284,8 +284,7 @@
             if (instanceID != workID){
                 notFirstInstance = true
             }
-            
-            
+
             return isInstance && notFirstInstance
         },
         
@@ -295,6 +294,21 @@
                 console.info("really delete")
             }
         },
+        
+        instanceLabel: function(profileName){ 
+            console.info("Getting label")
+            console.info("this.activeProfile: ", this.activeProfile)
+            console.info("profileName: ", profileName)
+            try{
+                if (this.activeProfile.rt[profileName]["@type"].includes("Secondary")){
+                    return "Secondary Instance"
+                }
+                return "Instance"
+            } catch(err){
+                return "Instance"
+            }
+        }
+        
 
 
 
