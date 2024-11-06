@@ -17,9 +17,13 @@
     :key="profileName"
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
 
-
           <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
-
+          <template v-if="profileName.includes(':Instance')"> 
+                <div> 
+                    <span class="instanceIdentifer">Instance ID: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                    <button class="instanceDeleteButton" v-if="showInstanceDeleteButton(profileName)" @click="showDeleteInstanceModal()">Delete Instance</button>
+                </div>
+          </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
               <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
@@ -52,7 +56,12 @@
 
           </template>
       <template v-if="instanceMode == false">
-
+        <template v-if="profileName.includes(':Instance')"> 
+            <div> 
+                <span class="instanceIdentifer">Instance ID: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                <button class="instanceDeleteButton" v-if="showInstanceDeleteButton(profileName)" @click="showDeleteInstanceModal()">Delete Instance</button>
+            </div>
+        </template>
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
           <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
 
@@ -110,8 +119,6 @@
                         :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
                         :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
 
-
-
                           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
                             <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                           </template>
@@ -120,12 +127,9 @@
                     </template>
                   </template>
                 </template>
-
               </template>
             </template>
-
         </template>
-
       </template>
 
 
@@ -265,7 +269,32 @@
                 document.title = `Marva | ${bibId}`;
             }
               
-        }
+        },
+        
+        //only if the profile is an instance, but not if it's the first instance
+        showInstanceDeleteButton: function(profileName){
+            const isInstance = profileName.includes(":Instance")
+            let notFirstInstance
+            
+            const work = this.activeProfile.rtOrder.filter((name) => name.includes(":Work"))[0]
+            const workID = this.activeProfile.rt[work].URI.split("/").at(-1)
+
+            
+            const instanceID = this.activeProfile.rt[profileName].URI.split("/").at(-1)
+            if (instanceID != workID){
+                notFirstInstance = true
+            }
+            
+            
+            return isInstance && notFirstInstance
+        },
+        
+        showDeleteInstanceModal: function(){
+            console.info("Prompt for instance deletion")
+            if (window.confirm("Do you really want to delete this instance?")){
+                console.info("really delete")
+            }
+        },
 
 
 
@@ -393,6 +422,14 @@
   font-size: 0.85em;
 }
 
+.instanceIdentifer {
+    font-weight: bold;
+}
+
+.instanceDeleteButton {
+    float: right;
+    margin: 5px;
+}
 
 
 </style>
