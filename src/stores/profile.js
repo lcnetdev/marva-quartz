@@ -1938,7 +1938,6 @@ export const useProfileStore = defineStore('profile', {
       }
 	  
       if (pt !== false){
-
         pt.hasData = true
         pt.userModified = true
         pt.dataLoaded = false
@@ -2085,7 +2084,7 @@ export const useProfileStore = defineStore('profile', {
         this.dataChanged()
 
       }else{
-        console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
+        console.error('setValueComplex: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
 
 

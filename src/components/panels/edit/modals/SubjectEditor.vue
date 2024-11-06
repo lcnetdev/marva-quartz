@@ -815,7 +815,7 @@ methods: {
   buildLookupComponents: function(incomingSubjects){
     this.typeLookup = {}
     
-    if (typeof incomingSubjects == "undefined"){
+    if (!incomingSubjects || typeof incomingSubjects == "undefined"){
         return
     }
     
@@ -864,7 +864,7 @@ methods: {
     } else {
         // dealing with a complex subject
         this.componetLookup[0] = {}
-        let type = incomingSubjects["@type"]
+        let type = incomingSubjects["@type"] ? incomingSubjects["@type"] : ""
 
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
             this.typeLookup[0] = 'madsrdf:Topic'
