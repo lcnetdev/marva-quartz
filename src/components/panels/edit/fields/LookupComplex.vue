@@ -527,7 +527,7 @@ export default {
     */
     setComplexValue: function(contextValue){
       delete contextValue.typeFull
-      this.profileStore.setValueComplex(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
+      this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
       this.searchValue=''
       this.displayModal=false
 
@@ -741,7 +741,7 @@ export default {
       // store the label to pass as a prop
       this.authorityLookup = label
       this.searchValue = label
-
+        
       if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
         this.displayModal = true
       } else {
@@ -753,7 +753,6 @@ export default {
 	  
         this.displaySubjectModal = true
       }
-
     },
   }
 };
