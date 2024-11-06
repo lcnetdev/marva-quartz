@@ -3463,7 +3463,6 @@ export const useProfileStore = defineStore('profile', {
       //Ensure that the component is going to the right place by checking the structure.parentID
       // the parentId of different kinds of titles don't include `work` or `instance`, so check the RT in the profile
       let rt = utilsProfile.getRtTypeFromGuid(this.activeProfile, componentGuid)
-      console.info("rt: ", rt)
       let actionTarget = null
       if (structure.parentId.includes("Instance") || rt.includes("Instance")) {
         actionTarget = "Instance"
@@ -3478,9 +3477,7 @@ export const useProfileStore = defineStore('profile', {
           propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
 
           if (propertyPosition != -1 && (r.includes(rt) || actionTarget == null)){
-            console.info("setting profile to use")
-            console.info("r: ", r)
-            
+
             profile = r
             break
           }
