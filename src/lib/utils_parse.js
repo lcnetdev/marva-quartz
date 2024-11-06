@@ -343,7 +343,21 @@ const utilsParse = {
     // not currently used
   },
 
-
+  updateAdditionalInstanceParentValues: function(profile, instanceName, newRdId){
+  // when a record comes in with multiple (secondary) instances, each instance will have the 
+  // same parent and parentId, so all of there components will match. This causes issues with
+  // navigation, but not anywhere else?
+  // adapted from `profile.createSecondaryInstance()` to have parent properties be unique and correct
+        for (let pt in profile.pt){
+            profile.pt[pt]['@guid'] = short.generate()
+            // update the parentId
+            profile.pt[pt].parentId = profile.pt[pt].parentId.replace(instanceName, newRdId)
+            profile.pt[pt].parent = profile.pt[pt].parent.replace(instanceName, newRdId)
+        }
+        
+        return profile
+  },
+  
   transformRts: async function(profile){
     let toDeleteNoData = []
 
@@ -361,7 +375,10 @@ const utilsParse = {
 
 
     [...Array(this.hasInstance - totalInstanceRts)].forEach((_, i) => {
-      profile.rt[useInstanceRtName + '_'+(i+1)] = JSON.parse(JSON.stringify(useInstanceRt))
+      let key = useInstanceRtName + '_'+(i+1)
+      let updatedProfile = this.updateAdditionalInstanceParentValues(JSON.parse(JSON.stringify(useInstanceRt)), useInstanceRtName, key)
+
+      profile.rt[key] = JSON.parse(JSON.stringify(updatedProfile))
       profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
     });
 
@@ -446,10 +463,7 @@ const utilsParse = {
           }else if(instanceOf.attributes['rdf:about']){
             profile.rt[pkey].instanceOf = instanceOf.attributes['rdf:about'].value
           }
-
-
         }
-
       }
 
       // find itemOf
