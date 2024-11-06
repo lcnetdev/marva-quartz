@@ -57,7 +57,7 @@
           </template>
       <template v-if="instanceMode == false">
         <template v-if="profileName.includes(':Instance')"> 
-            <div> 
+            <div class="instanceInfoWrapper"> 
                 <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                 <button class="instanceDeleteButton" v-if="showInstanceDeleteButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
             </div>
@@ -430,13 +430,17 @@
   font-size: 0.85em;
 }
 
+div.instanceInfoWrapper {
+    padding: 5px;
+}
+
 .instanceIdentifer {
     font-weight: bold;
 }
 
 .instanceDeleteButton {
     float: right;
-    margin: 5px;
+    margin-right: 5px;
 }
 
 
