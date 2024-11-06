@@ -131,11 +131,11 @@
         ]
 
 
-        if (this.$route.path.startsWith('/edit/')){      
+        if (this.$route.path.startsWith('/edit/')){
           menuButtonSubMenu.push({ is: 'separator'})            
           menuButtonSubMenu.push(
             {
-              text: 'Add Secondary Instance',
+              text: 'Add Instance',
               click: () => { this.instancePrompt() }
             }
           )
