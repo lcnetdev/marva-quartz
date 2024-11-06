@@ -268,18 +268,17 @@
             if (bibId && eId != bibId){
                 document.title = `Marva | ${bibId}`;
             }
-              
         },
-        
+
+        //only able to delete the instances they create?
         showInstanceDeleteButton: function(profileName){
             //only if the profile is an instance, but not if it's the first instance
             const isInstance = profileName.includes(":Instance")
             let notFirstInstance
-            
+
             const work = this.activeProfile.rtOrder.filter((name) => name.includes(":Work"))[0]
             const workID = this.activeProfile.rt[work].URI.split("/").at(-1)
 
-            
             const instanceID = this.activeProfile.rt[profileName].URI.split("/").at(-1)
             if (instanceID != workID){
                 notFirstInstance = true
@@ -290,7 +289,6 @@
         
         showDeleteInstanceModal: function(profileName){
             if (window.confirm("Do you really want to delete this instance?")){
-                
                 // remove from rtOrder
                 const targetIndex = this.activeProfile.rtOrder.indexOf(profileName)                
                 this.activeProfile.rtOrder.splice(targetIndex, 1)
@@ -300,10 +298,7 @@
             }
         },
         
-        instanceLabel: function(profileName){ 
-            console.info("Getting label")
-            console.info("this.activeProfile: ", this.activeProfile)
-            console.info("profileName: ", profileName)
+        instanceLabel: function(profileName){
             try{
                 if (this.activeProfile.rt[profileName]["@type"].includes("Secondary")){
                     return "Secondary Instance"
@@ -313,13 +308,7 @@
                 return "Instance"
             }
         }
-        
-
-
-
     },
-
-
 
     watch:{
 
