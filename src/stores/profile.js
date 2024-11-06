@@ -3570,7 +3570,7 @@ export const useProfileStore = defineStore('profile', {
     * @param {object} incomingUserValue - the incoming userValue to set
     * @return {string} the id ofthe newPropertyId 
     */
-    duplicateComponentGetId: async function(componentGuid, structure){
+    duplicateComponentGetId: async function(componentGuid, structure, profileName){
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
@@ -3605,10 +3605,7 @@ export const useProfileStore = defineStore('profile', {
           }
           
           
-          if (propertyPosition != -1 && (r.includes(actionTarget) || actionTarget == null)){
-            profile = r
-            break
-          }
+          profile = profileName
         }
 
         
@@ -4183,7 +4180,13 @@ export const useProfileStore = defineStore('profile', {
                         } else {
                             let guid = current["@guid"]
                             let structure = this.returnStructureByComponentGuid(guid)
-                            let newPt = await this.duplicateComponentGetId(guid, structure)
+                            let newPt = await this.duplicateComponentGetId(guid, structure, rt)
+                            
+                            console.info("rt: ", rt)
+                            console.info("newPt: ", newPt)
+                            console.info("profile: ", profile)
+                            
+                            console.info('profile["rt"][rt]["pt"][newPt]: ', profile["rt"][rt]["pt"][newPt])
 
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
                             break
