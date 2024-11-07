@@ -1,8 +1,13 @@
 <template>
 
 
-  <div v-if="componentType != 'META'" :class="[{'component': (level == 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode'))}]" :id="`edit_${parentId}_${id}`">
+  <div v-if="componentType != 'META'" :style="'background-color: ' + returnBackgroundColor + ';'" :class="[{'component': (level == 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode'))}]" :id="`edit_${parentId}_${id}`">
+    
+    
     <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} id: {{id}} -->
+     <!-- {{ structure.preferenceId }} {{ guid }} -->
+     <!-- {{ preferenceId }} -->
+       <!-- {{ userModified }} -->
     <Ref
       v-if="componentType === 'REF'"
       :propertyPath="buildPropertyPath(propertyPath)"
@@ -389,8 +394,13 @@ export default {
         }else{
           return this.inheritedStructure
         }
-
       },
+      preferenceId(store) {
+        return store.returnPreferenceIdByGUID(this.guid);
+      },
+      userModified(store) {
+        return store.returnUserModifiedIdByGUID(this.guid);
+      }      
     }),
 
 
@@ -438,6 +448,33 @@ export default {
       return type
 
 
+
+    },
+
+    returnBackgroundColor(){
+
+      let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
+
+
+      let id = this.preferenceId
+      
+      if (colors[id]){
+
+        if (this.userModified){
+          if (colors[id]['edited']){
+            return colors[id]['edited']
+          }
+        }
+        if (colors[id]['default']){
+            return colors[id]['default']
+          }
+
+
+      }
+
+
+      
+      return 'white'
 
     }
 

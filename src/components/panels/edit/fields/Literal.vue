@@ -31,8 +31,7 @@
 
   </template>
 
-  <template v-else>
-
+  <template v-else>    
     <div class="lookup-fake-input" v-if="showField" >
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues">
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
@@ -43,7 +42,7 @@
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
           </template>
           <form autocomplete="off" >
-            <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == true">
+            <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-editortcode-display-mode') == true">
 
               <div class="bfcode-display-mode-holder">
                 <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
@@ -354,7 +353,9 @@ export default {
 
       for (let key of Object.keys(this.$refs)){
         if (key.startsWith('input_')){
-          this.$refs[key][0].style.height =  this.$refs[key][0].scrollHeight + "px"
+          if (this.$refs[key] && this.$refs[key][0]){
+            this.$refs[key][0].style.height =  this.$refs[key][0].scrollHeight + "px"
+          }
         }
       }
 
@@ -660,12 +661,8 @@ export default {
             textRange.select();
         }
 
-
-
-
-
-
       }
+      this.expandHeightToContent()
     },
 
 
@@ -890,6 +887,9 @@ export default {
 fieldset{
   border: solid 1px rgb(133, 133, 133);
 }
+.literal-textarea{
+  background-color: transparent;
+}
 
 .lcc-action-zone{
   background-color: whitesmoke;
@@ -1009,6 +1009,9 @@ textarea{
 
 .lookup-fake-input{
   min-height: 2em;
+  background-color: transparent;
+  
+  
 }
 
 textarea:focus-within{
