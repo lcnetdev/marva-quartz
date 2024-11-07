@@ -225,7 +225,7 @@ export const useConfigStore = defineStore('config', {
 
   excludeFromNonLatinLiteralCheck: [
     'http://id.loc.gov/ontologies/bibframe/subject',
-    'http://id.loc.gov/ontologies/bibframe/contribution'
+    'http://id.loc.gov/ontologies/bibframe/contribution',
     'http://id.loc.gov/ontologies/bibframe/geographicCoverage'
 
   ],
