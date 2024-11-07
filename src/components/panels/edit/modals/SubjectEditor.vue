@@ -181,7 +181,7 @@
                     <div v-if="contextData.marcKey && contextData.marcKey.length>0">
                       <div class="modal-context-data-title">MARC Key:</div>
                       <ul>
-                        <li class="modal-context-data-li" v-bind:key="contextData.marcKey">{{ contextData.marcKey }}</li>
+                        <li class="modal-context-data-li" v-bind:key="contextData.marcKey">{{ Array.isArray(contextData.marcKey) ? contextData.marcKey[0]["@value"] : contextData.marcKey }}</li>
                       </ul>
                     </div>
 
