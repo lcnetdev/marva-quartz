@@ -4143,20 +4143,27 @@ export const useProfileStore = defineStore('profile', {
     
     //loop through the copied data and change all the "@guid"s
     changeGuid: function(data){
-        for (let key of Object.keys(data)){
-            if (key == "@guid"){
-                data[key] = short.generate()
-            } else if(Array.isArray(data[key])) {
-                this.changeGuid(data[key])
-            } else if (typeof data[key] == "object"){
-                this.changeGuid(data[key])
+        try{
+            for (let key of Object.keys(data)){
+                if (key == "@guid"){
+                    data[key] = short.generate()
+                } else if(Array.isArray(data[key])) {
+                    this.changeGuid(data[key])
+                } else if (typeof data[key] == "object"){
+                    this.changeGuid(data[key])
+                }
             }
+        } catch {
+
         }
     },
 
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent){
         const matchGuid = newComponent["@guid"]
+        
+        console.info("newComponent: ", newComponent)
+
         this.changeGuid(newComponent)
         let profile = this.activeProfile
 
