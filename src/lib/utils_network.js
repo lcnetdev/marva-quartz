@@ -1039,7 +1039,6 @@ const utilsNetwork = {
 
 
             data.forEach((n)=>{
-
               var citation = '';
               var variant = '';
               // var seeAlso = '';
@@ -1151,7 +1150,7 @@ const utilsNetwork = {
               delete results.nodeMap[k]
             }
           })
-
+        
           return results;
         },
 
@@ -2663,15 +2662,11 @@ const utilsNetwork = {
     * @return {array} - results from API
     */
     searchShelfList: async function(search, details, dir){
-        console.info("search: ", search)
       if (!dir){
         dir ='ascending'
       }
 
       let urlSearch = "lds/browse.xqy?bq=" + search +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
-      
-      console.info("url: ", useConfigStore().returnUrls.shelfListing + urlSearch)
-      
       
       // try{
         //let req = await fetch(useConfigStore().returnUrls.shelfListing + `browse/class/${dir}/${search}.json` )
