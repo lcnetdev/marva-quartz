@@ -4150,10 +4150,30 @@ export const useProfileStore = defineStore('profile', {
 
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent){
+        
+        console.info("newComponent: ", newComponent)
+        
         this.changeGuid(newComponent)
         let profile = this.activeProfile
+        
+        console.info("profile: ", profile)
+        
+        // handle pasting into a profileRT that doesn't exist in the new profile
+        // This is for when the source is an additional Instance, that doesn't exist in
+        // in the title
+        let targetRt
+        if (!profile.rtOrder.includes(newComponent.parentId)){
+            if (newComponent.parentId.includes("_")){
+                targetRt = newComponent.parentId.split("_").at(0)
+            } else {
+                targetRt = newComponent.parentId
+            }
+        } else {
+            targetRt = newComponent.parentId
+        }
 
         for (let rt in profile["rt"]){
+            console.info("rt: ", rt)
             let frozenPts = JSON.parse(JSON.stringify(profile["rt"][rt]["pt"]))
 
             let order = profile["rt"][rt]["ptOrder"]
@@ -4161,7 +4181,7 @@ export const useProfileStore = defineStore('profile', {
             for (let pt in frozenPts){
                 let current = profile["rt"][rt]["pt"][pt]
 
-                if (rt == newComponent.parentId){
+                if (rt == targetRt){
                     let targetURI = newComponent.propertyURI
                     let targetLabel = newComponent.propertyLabel
                     
