@@ -43,7 +43,7 @@
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
           </template>
           <form autocomplete="off" >
-            <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == true">
+            <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-editortcode-display-mode') == true">
 
               <div class="bfcode-display-mode-holder">
                 <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
@@ -354,7 +354,9 @@ export default {
 
       for (let key of Object.keys(this.$refs)){
         if (key.startsWith('input_')){
-          this.$refs[key][0].style.height =  this.$refs[key][0].scrollHeight + "px"
+          if (this.$refs[key] && this.$refs[key][0]){
+            this.$refs[key][0].style.height =  this.$refs[key][0].scrollHeight + "px"
+          }
         }
       }
 
@@ -660,12 +662,8 @@ export default {
             textRange.select();
         }
 
-
-
-
-
-
       }
+      this.expandHeightToContent()
     },
 
 
