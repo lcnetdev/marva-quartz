@@ -456,8 +456,7 @@ export const useProfileStore = defineStore('profile', {
                               pt.userValue =  {'@root':pt.propertyURI}
                               pt.valueConstraint.valueTemplateRefs = pt.valueConstraint.valueTemplateRefs.filter((v)=>{return (v.length>0)})
                               pt['@guid'] = short.generate()
-                              pt.canBeHidden = true
-                              console.log("ITS PT",pt)
+                              pt.canBeHidden = true                             
 
                               if (pt.type === 'literal-lang'){
                                   this.profiles[p.json.Profile.id].rt[rt.id].hasLiteralLangFields = true

@@ -2,9 +2,11 @@
   import { usePreferenceStore } from '@/stores/preference'
   import { useConfigStore } from '@/stores/config'
   import { useProfileStore } from '@/stores/profile'
+  import { ColorPicker } from "vue3-colorpicker";
+  import "vue3-colorpicker/style.css";
 
-  import utilsProfile from '@/lib/utils_profile'
 
+  
   
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
@@ -16,6 +18,7 @@
     components: {
       VueFinalModal,
       VueDragResize,
+      ColorPicker
       
     },
 
@@ -29,15 +32,6 @@
         initalHeight: 700,
         initalLeft: 400,
 
-        selectedScript:"",
-        selectedLang:"",
-
-        bulkOptions: [],
-        nonLatinAgents:{},
-
-        localMap: {},
-
-
 
 
       }
@@ -50,23 +44,10 @@
       ...mapStores(useConfigStore),      
       ...mapStores(useProfileStore),      
 
+      ...mapState(useProfileStore, ['activeProfile']),
+
+      ...mapWritableState(usePreferenceStore, ['showFieldColorsModal']),     
       
-      ...mapWritableState(useConfigStore, ['showNonLatinAgentModal']),     
-      ...mapWritableState(useProfileStore, ['nonLatinScriptAgents']),     
-
-
-      
-
-      defaultScript(){
-
-        try{
-          return this.profileStore.setMostCommonNonLatinScript()
-        }catch{
-          return false
-        }
-
-      },
-
 
     },
 
@@ -97,6 +78,20 @@
           // this.profileStore.setBulkLang(nl.ptObj['@guid'],nl.node['@guid'],lang)
 
         },
+
+        changeColor(event, id, type){
+
+          console.log(event, id, type)
+          
+        },
+
+
+        returnColor(id, type){
+
+       
+          return 0
+
+        },
         
 
 
@@ -110,23 +105,8 @@
             event.stopPropagation()
           }
         },
-        bestScript(options){
+       
 
-          if (this.defaultScript){
-            return utilsProfile.pickBestNonLatinScriptOption(this.defaultScript, options)  
-          }else{
-            return null
-          }
-
-          
-
-        },
-
-        scriptChange(event){
-          //when they change update the profile storage of it
-          this.nonLatinScriptAgents[event.target.dataset.key] = this.localMap[event.target.dataset.key]
-          this.profileStore.dataChanged()
-        }
 
     
 
@@ -145,24 +125,24 @@
 
 
 
-      window.setTimeout(()=>{
+      // window.setTimeout(()=>{
         
         
-        this.nonLatinAgents = this.profileStore.returnAllNonLatinAgentOptions()
+      //   this.nonLatinAgents = this.profileStore.returnAllNonLatinAgentOptions()
         
 
-        for (let key in this.nonLatinAgents){
+      //   for (let key in this.nonLatinAgents){
         
-          if (this.nonLatinScriptAgents[key]){
-            this.localMap[key] = this.nonLatinScriptAgents[key]
-          }else{
-            this.localMap[key] = utilsProfile.pickBestNonLatinScriptOption(this.defaultScript, this.nonLatinAgents[key].scripts)   
-          }
+      //     if (this.nonLatinScriptAgents[key]){
+      //       this.localMap[key] = this.nonLatinScriptAgents[key]
+      //     }else{
+      //       this.localMap[key] = utilsProfile.pickBestNonLatinScriptOption(this.defaultScript, this.nonLatinAgents[key].scripts)   
+      //     }
 
-        }
+      //   }
 
 
-      },100)
+      // },100)
 
 
 
@@ -197,30 +177,35 @@
           <div id="non-latin-bulk-content" ref="nonLatinBulkContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
             
             <div class="menu-buttons">
-              <button class="close-button" @pointerup="showNonLatinAgentModal=false">X</button>
+              <button class="close-button" @pointerup="showFieldColorsModal=false">X</button>
             </div>
 
-            <div>
-              The system will build Access Points using values found in the script: <span style="font-size: 1.25em;"> {{ defaultScript }}</span>
-            </div>
-            <div style="margin: 1em 0 1em;">
-              You can override which script to use to build specific access points below:
-            </div>
+            <table style="width: 100%;">
+              <template v-for="rt in activeProfile.rtOrder">
+                {{ }}
+                <tr>
+                  <td>{{ rt.split(":").slice(-1)[0]  }}</td>
+                  <td>Default Color</td>
+                  <td>Data Changed Color</td>
+                </tr>
+                <tr v-for="pt in activeProfile.rt[rt].pt">
+                  <td>{{ pt.propertyLabel }}</td>
+                  <td> 
+                    <color-picker :pureColor="returnColor(pt.preferenceId,'default')" :format="'hex8'" @update:pureColor="changeColor($event,pt.preferenceId,'default')" />
+                    <!-- <color-picker :pureColor="'2c3e5023'" :format="'hex8'" @update:pureColor="" /> -->
 
-            <div v-if="Object.keys(nonLatinAgents).length == 0">No Non-Latin Agents/Headings Found.</div>
-            
-            <div v-for="nlA in nonLatinAgents" class="non-latin-access-point">
-              <div style="color: #636363;">{{ nlA.propertyURI.replace("http://id.loc.gov/ontologies/bibframe/",'bf:') }}</div>
-              <div>{{ nlA.nonLatin }}</div>
-              Use script to build access points:<select @change="scriptChange" :data-key="nlA['@guid']" v-model="localMap[nlA['@guid']]">
-                <option v-for="s in nlA.scripts">{{s}}</option>
-              </select>
-              <div v-if="!bestScript(nlA.scripts)" style="color:red">Could not find the correct script to use for this access point!</div>
-            </div>
+                  </td>
+                  <td>
+                    <color-picker :pureColor="'2c3e5023'" :format="'hex8'" @update:pureColor="" />
+                  </td>
+                </tr>
 
-            
-            
+                <tr ><td style="padding: 1em 0 1em 0;" colspan="3"><hr></td></tr>
+              </template>
+              
 
+
+            </table>
 
 
 
@@ -231,7 +216,7 @@
     </VueFinalModal>
 
 
-
+    
 
 </template>
 <style>
@@ -246,12 +231,6 @@
 <style scoped>
 
 
-.non-latin-access-point{
-  border: solid 2px lightgray;
-  border-radius: 1em;
-  padding: 1em;
-  margin: 1em 0 1em;
-}
 
   .checkbox-option{
     width: 20px;

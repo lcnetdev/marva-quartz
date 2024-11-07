@@ -34,6 +34,8 @@ export const usePreferenceStore = defineStore('preference', {
 
     showDiacriticConfigModal:false,
 
+    showFieldColorsModal: true,
+
     diacriticPacks: {
       macroExpress: diacrticsVoyagerMacroExpress,
       voyager: diacrticsVoyagerNative,
