@@ -31,8 +31,7 @@
 
   </template>
 
-  <template v-else>
-
+  <template v-else>    
     <div class="lookup-fake-input" v-if="showField" >
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues">
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
@@ -888,6 +887,9 @@ export default {
 fieldset{
   border: solid 1px rgb(133, 133, 133);
 }
+.literal-textarea{
+  background-color: transparent;
+}
 
 .lcc-action-zone{
   background-color: whitesmoke;
@@ -1007,6 +1009,9 @@ textarea{
 
 .lookup-fake-input{
   min-height: 2em;
+  background-color: transparent;
+  
+  
 }
 
 textarea:focus-within{

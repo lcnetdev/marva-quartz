@@ -135,6 +135,40 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
+    /**
+    * Can be used to return the structure of the component by passing the GUID
+    * It doesn't care what profile it is in it will loop through all of them to find the unique GUID
+    * @param {string} guid - the guid of the component
+    * @return {object}
+    */
+    returnPreferenceIdByGUID: (state) => {
+      return (guid) => {
+        for (let rt in state.activeProfile.rt){
+          for (let pt in state.activeProfile.rt[rt].pt){
+            if (state.activeProfile.rt[rt].pt[pt]['@guid'] === guid){
+              return state.activeProfile.rt[rt].pt[pt].preferenceId
+            }
+          }
+        }
+      }
+    },
+
+    returnUserModifiedIdByGUID: (state) => {
+      return (guid) => {
+        for (let rt in state.activeProfile.rt){
+          for (let pt in state.activeProfile.rt[rt].pt){
+            if (state.activeProfile.rt[rt].pt[pt]['@guid'] === guid){
+              return state.activeProfile.rt[rt].pt[pt].userModified
+            }
+          }
+        }
+      }
+    },
+
+
+    
+
+
   },
   actions: {
 

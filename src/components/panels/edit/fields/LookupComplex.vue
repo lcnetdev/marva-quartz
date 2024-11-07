@@ -841,7 +841,7 @@ export default {
 
 .lookup-fake-input{
   display: flex;
-  background-color: white;
+  background-color: transparent;
   padding: 0.1em;
 }
 

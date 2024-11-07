@@ -32,6 +32,8 @@
         initalHeight: 700,
         initalLeft: 400,
 
+        updateCounnter: 0,
+
 
 
       }
@@ -79,21 +81,55 @@
 
         },
 
-        changeColor(event, id, type){
+        changeColor(color, id, type){
 
-          console.log(event, id, type)
+          console.log(color, id, type)
+
+          let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
+
+          if (!colors[id]){
+            colors[id] ={}
+          }
+          if (!colors[id][type]){
+            colors[id][type] = null
+          }
+
+          colors[id][type] = color
+
+          this.preferenceStore.setValue('--o-edit-general-field-colors',colors)
           
         },
 
 
         returnColor(id, type){
 
-       
-          return 0
+          
+          let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
+
+          if (colors[id] && colors[id][type]){ return colors[id][type]}
+          
+          
+          return null
 
         },
         
+        resetColor(id, type){
 
+          
+          let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
+          if (colors[id] && colors[id][type]){
+            delete colors[id][type]
+          }
+          if (Object.keys(colors[id]).length==0){
+            delete colors[id]
+          }
+          console.log(colors)
+          this.preferenceStore.setValue('--o-edit-general-field-colors',colors)
+
+          this.updateCounnter++
+          return null
+
+        },
 
            
 
@@ -191,12 +227,20 @@
                 <tr v-for="pt in activeProfile.rt[rt].pt">
                   <td>{{ pt.propertyLabel }}</td>
                   <td> 
-                    <color-picker :pureColor="returnColor(pt.preferenceId,'default')" :format="'hex8'" @update:pureColor="changeColor($event,pt.preferenceId,'default')" />
+                    <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor(pt.preferenceId,'default')" :format="'hex8'" @update:pureColor="changeColor($event,pt.preferenceId,'default')" />
                     <!-- <color-picker :pureColor="'2c3e5023'" :format="'hex8'" @update:pureColor="" /> -->
-
+                    <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor(pt.preferenceId,'default')" v-if="returnColor(pt.preferenceId,'default') !== null">
+                      restart_alt
+                    </button>
                   </td>
                   <td>
-                    <color-picker :pureColor="'2c3e5023'" :format="'hex8'" @update:pureColor="" />
+
+                    <color-picker :key="updateCounnter + '--edited-color'" :pureColor="returnColor(pt.preferenceId,'edited')" :format="'hex8'" @update:pureColor="changeColor($event,pt.preferenceId,'edited')" />
+                    <!-- <color-picker :pureColor="'2c3e5023'" :format="'hex8'" @update:pureColor="" /> -->
+                    <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor(pt.preferenceId,'edited')" v-if="returnColor(pt.preferenceId,'edited') !== null">
+                      restart_alt
+                    </button>
+
                   </td>
                 </tr>
 
@@ -229,6 +273,14 @@
 </style>
 
 <style scoped>
+
+.reset-icon{
+  display: inline-block;
+  vertical-align: middle;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
 
 
 

@@ -1073,6 +1073,7 @@ export default {
 .inline-lookup-input{
   outline: none;
   border: none;
+  background-color: transparent;
 
 
 }
@@ -1138,6 +1139,7 @@ export default {
 
 .lookup-fake-input{
   display: flex;
+  background-color: transparent;
 }
 
 
