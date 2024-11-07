@@ -134,7 +134,12 @@
                 <div :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
                   <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                   <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
-                    <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + contextData.type"><AuthTypeIcon v-if="contextData.type" :type="contextData.type"></AuthTypeIcon></span>{{contextData.title}}</h3>
+                    <h3 v-if="contextData.title">
+                        <span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + contextData.type">
+                            <AuthTypeIcon v-if="contextData.type" :type="contextData.type"></AuthTypeIcon>
+                        </span>
+                        {{Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
+                    </h3>
                     <div class="modal-context-data-title">{{contextData.type}}</div>
                     <a style="color:#2c3e50" :href="contextData.uri" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
                    
@@ -170,6 +175,13 @@
                       <div class="modal-context-data-title">Sources:</div>
                       <ul>
                         <li class="modal-context-data-li" v-for="v in contextData.source" v-bind:key="v">{{v}}</li>
+                      </ul>
+                    </div>
+                    
+                    <div v-if="contextData.marcKey && contextData.marcKey.length>0">
+                      <div class="modal-context-data-title">MARC Key:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-bind:key="contextData.marcKey">{{ contextData.marcKey }}</li>
                       </ul>
                     </div>
 
@@ -1490,7 +1502,7 @@ methods: {
 
     this.contextRequestInProgress = true
     this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
-
+    
     // for backwards compability
     if (this.contextData.nodeMap.marcKey && this.contextData.nodeMap.marcKey[0]){
       this.pickLookup[this.pickPostion].marcKey = this.contextData.nodeMap.marcKey[0]
@@ -1499,11 +1511,11 @@ methods: {
     // we will modify our local context data here to make things easier
     if (Array.isArray(this.contextData.title)){
       // first grab the non-latin auth labels
-      this.contextData.nonLatinTitle = JSON.parse(JSON.stringify(this.contextData.title.filter((v)=>{ return (v['@language']) })))
+      this.contextData.nonLatinTitle = JSON.parse(JSON.stringify(this.contextData.title.filter((v)=>{ return (v['@language'] != "en" ? v['@language'] : "") })))
       this.pickLookup[this.pickPostion].nonLatinTitle = this.contextData.nonLatinTitle
 
       // return the first label with no language tag
-      this.contextData.title = this.contextData.title.filter((v)=>{ return (!v['@language']) })[0]
+      this.contextData.title = this.contextData.title.filter((v)=>{ return (v['@language'] == "en" || !v['@language']) })[0]
       if (this.contextData.title && this.contextData.title['@value']){
         this.contextData.title = this.contextData.title['@value']
       }
