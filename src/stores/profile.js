@@ -2435,7 +2435,6 @@ export const useProfileStore = defineStore('profile', {
     */
     marcPreview: async function(){
       let xml = await utilsExport.buildXML(this.activeProfile)
-
       let preview = null
       if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')){
         preview = await utilsNetwork.marcPreview(xml.bf2Marc, false)
@@ -3602,8 +3601,7 @@ export const useProfileStore = defineStore('profile', {
                   lastPosition = idx
               }
           }
-          
-          
+
           if (propertyPosition != -1 && (r.includes(actionTarget) || actionTarget == null)){
             profile = r
             break
@@ -3644,9 +3642,6 @@ export const useProfileStore = defineStore('profile', {
             ]
           }
 
-
-
-
           // we also want to add any default values in if it is just a empty new property and not duping
           let idPropertyId = newPt.propertyURI
           let baseURI = newPt.propertyURI
@@ -3673,7 +3668,7 @@ export const useProfileStore = defineStore('profile', {
         }
         
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
-        this.activeProfile.rt[profile].ptOrder.splice(Number(lastPosition)+1, 0, newPropertyId);
+        this.activeProfile.rt[profile].ptOrder.splice(Number(propertyPosition)+1, 0, newPropertyId);
         
 
         if (structure){
@@ -4161,6 +4156,7 @@ export const useProfileStore = defineStore('profile', {
 
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent){
+        const matchGuid = newComponent["@guid"]
         this.changeGuid(newComponent)
         let profile = this.activeProfile
 
@@ -4182,8 +4178,8 @@ export const useProfileStore = defineStore('profile', {
                             break
                         } else {
                             let guid = current["@guid"]
-                            let structure = this.returnStructureByComponentGuid(guid)
-                            let newPt = await this.duplicateComponentGetId(guid, structure)
+                            let structure = this.returnStructureByComponentGuid(matchGuid)
+                            let newPt = await this.duplicateComponentGetId(matchGuid, structure)
 
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
                             break
