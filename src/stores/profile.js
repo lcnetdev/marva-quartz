@@ -4012,7 +4012,10 @@ export const useProfileStore = defineStore('profile', {
                 nonLatin: this.returnLatinLabelForPt(ptFound)
               }
            }          
-          nonLatinMap[ptFound['@guid']].scripts.push(nl.node['@language'].split("-")[1])
+          if (nl && nl.node  && nl.node['@language']){
+            nonLatinMap[ptFound['@guid']].scripts.push(nl.node['@language'].split("-")[1])
+          }
+
           
         }
         // unique array
