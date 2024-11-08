@@ -139,27 +139,6 @@
               click: () => { this.profileStore.createSecondaryInstance() }
             }
           )
-          
-          menuButtonSubMenu.push({ is: 'separator'})
-          menuButtonSubMenu.push(
-            {
-              text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
-              click: () => { this.preferenceStore.toggleCopyMode() },
-              icon: this.preferenceStore.copyMode ? "content_copy" : "block"
-            }
-          )
-          
-          menuButtonSubMenu.push(
-            {
-              text: "Paste Content",
-              icon: "content_paste",
-              click: () => {
-                this.$nextTick(()=>{
-                  this.profileStore.pasteSelected()
-                })
-              }
-            }
-          )
         }
 
         if (!this.disable.includes('Menu')){
@@ -173,12 +152,11 @@
 
         if (!this.disable.includes('Tools')){
           menu.push(
-          { text: "Tools",  menu: [
+          { text: "Tools",  
+            menu: [
             { text: "Shelf Listing Browser", click: () => {
               this.activeShelfListData = {}
               this.showShelfListingModal = true
-
-
             }, icon:"🗄️" },
 
             { is: 'separator'},
@@ -191,11 +169,23 @@
               text: "Non-Latin Agents",
               // active: this.happy,
               click: () => { this.showNonLatinAgentModal = true }
-            }
-
+            },
             
-
-
+            { is: 'separator'},
+            {
+              text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
+              click: () => { this.preferenceStore.toggleCopyMode() },
+              icon: this.preferenceStore.copyMode ? "content_copy" : "block"
+            },
+            {
+              text: "Paste Content",
+              icon: "content_paste",
+              click: () => {
+                this.$nextTick(()=>{
+                  this.profileStore.pasteSelected()
+                })
+              }
+            }
           ] }
           )
           
@@ -356,9 +346,19 @@
                   }
                 }
               )
-          }
+              
+              menu.push(
+                {
+                  text: "Paste Content",
+                  icon: "content_paste",
+                  click: () => {
+                    this.$nextTick(()=>{
+                      this.profileStore.pasteSelected()
+                    })
+                  }
+                }
+              )
           
-          if (this.preferenceStore.copyMode){
               menu.push(
                 {
                   text: !this.allSelected ? "Select All" : "Deselect All",
