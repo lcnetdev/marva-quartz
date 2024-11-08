@@ -9,6 +9,7 @@ import DiacriticsConfigModal from "@/components/panels/edit/modals/DiacriticsCon
 import TextMacroModal from "@/components/panels/edit/modals/TextMacroModal.vue";
 import NonLatinBulkModal from "@/components/panels/edit/modals/NonLatinBulkModal.vue";
 import NonLatinAgentModal from "@/components/panels/edit/modals/NonLatinAgentModal.vue";
+import FieldColorsModal from "@/components/panels/edit/modals/FieldColorsModal.vue";
 
 
 
@@ -40,7 +41,8 @@ export default {
     UpdateAvailableModal,
     TextMacroModal,
     NonLatinBulkModal,
-    NonLatinAgentModal
+    NonLatinAgentModal,
+    FieldColorsModal
 
   },
   data() {
@@ -58,7 +60,7 @@ export default {
     ...mapWritableState(useProfileStore, ['showShelfListingModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
-    ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
     ...mapWritableState(useConfigStore, ['showUpdateAvailableModal','showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -155,6 +157,10 @@ export default {
     <NonLatinAgentModal v-model="showNonLatinAgentModal"  />
   </template>
   
+  <template v-if="showFieldColorsModal==true">
+    <FieldColorsModal v-model="showFieldColorsModal"  />
+  </template>
+
   
   
 
