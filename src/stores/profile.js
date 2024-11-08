@@ -2481,7 +2481,6 @@ export const useProfileStore = defineStore('profile', {
     */
     marcPreview: async function(){
       let xml = await utilsExport.buildXML(this.activeProfile)
-
       let preview = null
       if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')){
         preview = await utilsNetwork.marcPreview(xml.bf2Marc, false)
@@ -3648,8 +3647,7 @@ export const useProfileStore = defineStore('profile', {
                   lastPosition = idx
               }
           }
-          
-          
+
           if (propertyPosition != -1 && (r.includes(actionTarget) || actionTarget == null)){
             profile = r
             break
@@ -3690,9 +3688,6 @@ export const useProfileStore = defineStore('profile', {
             ]
           }
 
-
-
-
           // we also want to add any default values in if it is just a empty new property and not duping
           let idPropertyId = newPt.propertyURI
           let baseURI = newPt.propertyURI
@@ -3719,7 +3714,7 @@ export const useProfileStore = defineStore('profile', {
         }
         
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
-        this.activeProfile.rt[profile].ptOrder.splice(Number(lastPosition)+1, 0, newPropertyId);
+        this.activeProfile.rt[profile].ptOrder.splice(Number(propertyPosition)+1, 0, newPropertyId);
         
 
         if (structure){
@@ -4194,19 +4189,24 @@ export const useProfileStore = defineStore('profile', {
     
     //loop through the copied data and change all the "@guid"s
     changeGuid: function(data){
-        for (let key of Object.keys(data)){
-            if (key == "@guid"){
-                data[key] = short.generate()
-            } else if(Array.isArray(data[key])) {
-                this.changeGuid(data[key])
-            } else if (typeof data[key] == "object"){
-                this.changeGuid(data[key])
+        try{
+            for (let key of Object.keys(data)){
+                if (key == "@guid"){
+                    data[key] = short.generate()
+                } else if(Array.isArray(data[key])) {
+                    this.changeGuid(data[key])
+                } else if (typeof data[key] == "object"){
+                    this.changeGuid(data[key])
+                }
             }
+        } catch {
+
         }
     },
 
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent){
+        const matchGuid = newComponent["@guid"]
         this.changeGuid(newComponent)
         let profile = this.activeProfile
 
@@ -4228,9 +4228,10 @@ export const useProfileStore = defineStore('profile', {
                             break
                         } else {
                             let guid = current["@guid"]
-                            let structure = this.returnStructureByComponentGuid(guid)
-                            let newPt = await this.duplicateComponentGetId(guid, structure)
-
+                            let structure = this.returnStructureByComponentGuid(matchGuid)
+                            let newPt = await this.duplicateComponentGetId(matchGuid, structure)
+                            
+                            profile["rt"][rt]["pt"][newPt].userModified = true
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
                             break
                         }
