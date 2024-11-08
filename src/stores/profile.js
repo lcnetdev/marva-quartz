@@ -3781,7 +3781,7 @@ export const useProfileStore = defineStore('profile', {
     * @param lccn {string} the lccn for the new instance. If there isn't one, this is a secondary instance
     * @return {void}
     */
-    createInstance:  function(lccn=false){
+    createInstance:  function(secondary=false){
 
 
       // find the RT for the instance of this profile orginally
@@ -3843,10 +3843,8 @@ export const useProfileStore = defineStore('profile', {
       this.activeProfile.rt[newRdId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
       this.activeProfile.rt[newRdId].instanceOf = workUri
       
-      if (!lccn){
+      if (secondary){
         this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
-      } else {
-          this.activeProfile.rt[newRdId]['URI'] = "http://id.loc.gov/resources/instances/" + lccn
       }
       
       this.dataChanged()

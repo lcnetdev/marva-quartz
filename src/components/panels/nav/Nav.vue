@@ -135,8 +135,12 @@
           menuButtonSubMenu.push({ is: 'separator'})            
           menuButtonSubMenu.push(
             {
-              text: 'Add Instance',
-              click: () => { this.instancePrompt() }
+              text: 'Add Additional Instance',
+              click: () => { this.profileStore.createInstance(false) }
+            },
+            {
+              text: 'Add Secondary Instance',
+              click: () => { this.profileStore.createInstance(true) }//this.instancePrompt() }
             }
           )
           
