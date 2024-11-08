@@ -29,14 +29,14 @@
         </bf:language>
         <bf:illustrativeContent>
             <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/map">
-                <rdfs:label>Maps</rdfs:label>
+                <rdfs:label>maps</rdfs:label>
                 <bf:code>map</bf:code>
             </bf:Illustration>
         </bf:illustrativeContent>
         <bf:geographicCoverage>
             <bf:GeographicCoverage rdf:about="http://id.loc.gov/vocabulary/geographicAreas/e-uk-st">
                 <rdfs:label xml:lang="en">Scotland</rdfs:label>
-                <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">e-uk-st</bf:code>
+                <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">e-uk-st</bf:code>
             </bf:GeographicCoverage>
         </bf:geographicCoverage>
         <bf:classification>
@@ -82,7 +82,7 @@
                 </bf:agent>
                 <bf:role>
                     <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
-                        <rdfs:label>Contributor</rdfs:label>
+                        <rdfs:label>contributor</rdfs:label>
                         <bf:code>ctb</bf:code>
                     </bf:Role>
                 </bf:role>
@@ -113,6 +113,7 @@
                     <madsrdf:Geographic rdf:about="http://id.loc.gov/authorities/subjects/sh85059893">
                         <rdfs:label xml:lang="en">Hebrides (Scotland)</rdfs:label>
                         <bflc:marcKey>151  $aHebrides (Scotland)</bflc:marcKey>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">e-uk-st</bf:code>
                     </madsrdf:Geographic>
                     <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh99001278">
                         <rdfs:label xml:lang="en">Description and travel</rdfs:label>
@@ -133,6 +134,7 @@
         <bf:subject>
             <bf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh85118819">
                 <rdfs:label xml:lang="en">Scotland--Description and travel--Early works to 1800</rdfs:label>
+                <bflc:marcKey>151  $aScotland$xDescription and travel$vEarly works to 1800</bflc:marcKey>
                 <madsrdf:componentList rdf:parseType="Collection">
                     <madsrdf:Geographic>
                         <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
@@ -162,7 +164,6 @@
                         </madsrdf:elementList>
                     </madsrdf:GenreForm>
                 </madsrdf:componentList>
-                <bflc:marcKey>151  $aScotland$xDescription and travel$vEarly works to 1800</bflc:marcKey>
             </bf:Topic>
         </bf:subject>
         <bf:subject>
@@ -257,7 +258,7 @@
                                 </bf:agent>
                                 <bf:role>
                                     <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
-                                        <rdfs:label>Contributor</rdfs:label>
+                                        <rdfs:label>contributor</rdfs:label>
                                         <bf:code>ctb</bf:code>
                                     </bf:Role>
                                 </bf:role>
@@ -273,7 +274,6 @@
                                 <bf:mainTitle>Boswell's journal of a tour to the Hebrides with Samuel Johnson, LL.D.</bf:mainTitle>
                             </bf:VariantTitle>
                         </bf:title>
-                        <bflc:marcKey>1001 $aBoswell, James,$d1740-1795.$tJournal of a tour to the Hebrides with Samuel Johnson, LL.D.</bflc:marcKey>
                     </bf:Hub>
                 </bf:associatedResource>
             </bf:Relation>
@@ -359,7 +359,7 @@
                     </bf:Agent>
                 </bf:agent>
                 <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-02T17:16:16.229642-04:00</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:25:56.444451-05:00</bf:date>
             </bf:AdminMetadata>
         </bf:adminMetadata>
         <bf:adminMetadata>
@@ -546,7 +546,7 @@
                     </bf:Agent>
                 </bf:agent>
                 <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-02T17:16:16.229642-04:00</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:25:56.444451-05:00</bf:date>
             </bf:AdminMetadata>
         </bf:adminMetadata>
         <bf:adminMetadata>
