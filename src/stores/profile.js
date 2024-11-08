@@ -4161,9 +4161,6 @@ export const useProfileStore = defineStore('profile', {
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent){
         const matchGuid = newComponent["@guid"]
-        
-        console.info("newComponent: ", newComponent)
-
         this.changeGuid(newComponent)
         let profile = this.activeProfile
 
@@ -4187,7 +4184,8 @@ export const useProfileStore = defineStore('profile', {
                             let guid = current["@guid"]
                             let structure = this.returnStructureByComponentGuid(matchGuid)
                             let newPt = await this.duplicateComponentGetId(matchGuid, structure)
-
+                            
+                            profile["rt"][rt]["pt"][newPt].userModified = true
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
                             break
                         }
