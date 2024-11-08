@@ -1,2 +1,642 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:bf="http://id.loc.gov/ontologies/bibframe/" xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/" xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pmo="http://performedmusicontology.org/ontology/" xmlns:streams="info:lc/streams#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/"><bf:Work rdf:about="http://id.loc.gov/resources/works/23882742"><bflc:aap>Scheffer, Janie, 1992- White-tailed deer</bflc:aap><bflc:aap-normalized>schefferjanie1992whitetaileddeer</bflc:aap-normalized><rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Text"/><rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Monograph"/><bf:language><bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng"><rdfs:label xml:lang="en">English</rdfs:label><bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code></bf:Language></bf:language><bf:intendedAudience><bf:IntendedAudience rdf:about="http://id.loc.gov/vocabulary/maudience/juv"><rdfs:label>Juvenile</rdfs:label><bf:code>juv</bf:code></bf:IntendedAudience></bf:intendedAudience><bf:supplementaryContent><bf:SupplementaryContent rdf:about="http://id.loc.gov/vocabulary/msupplcont/bibliography"><rdfs:label>bibliography</rdfs:label><bf:code>bibliography</bf:code></bf:SupplementaryContent></bf:supplementaryContent><bf:supplementaryContent><bf:SupplementaryContent rdf:about="http://id.loc.gov/vocabulary/msupplcont/index"><rdfs:label>index</rdfs:label><bf:code>index</bf:code></bf:SupplementaryContent></bf:supplementaryContent><bf:contribution><bf:Contribution><rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/><bf:agent><bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2022056380"><rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/><rdfs:label>Scheffer, Janie, 1992-</rdfs:label><bflc:marcKey>1001 $aScheffer, Janie,$d1992-</bflc:marcKey></bf:Agent></bf:agent><bf:role><bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut"><rdfs:label>Author</rdfs:label><bf:code>aut</bf:code></bf:Role></bf:role></bf:Contribution></bf:contribution><bf:title><bf:Title><bf:mainTitle>White-tailed deer</bf:mainTitle></bf:Title></bf:title><bf:content><bf:Content rdf:about="http://id.loc.gov/vocabulary/contentTypes/txt"><rdfs:label>text</rdfs:label><bf:code>txt</bf:code></bf:Content></bf:content><bf:summary><bf:Summary><rdfs:label>"Relevant images match informative text in this introduction to white-tailed deer. Intended for students in kindergarten through third grade"-- Provided by publisher.</rdfs:label></bf:Summary></bf:summary><bf:intendedAudience><bf:IntendedAudience><rdfs:label>Ages 5-8 Bellwether Media</rdfs:label></bf:IntendedAudience></bf:intendedAudience><bf:intendedAudience><bf:IntendedAudience><rdfs:label>Grades 2-3 Bellwether Media</rdfs:label></bf:IntendedAudience></bf:intendedAudience><dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/works"/><bf:relation><bf:Relation><bf:relationship rdf:resource="http://id.loc.gov/ontologies/bibframe/hasSeries"/><bf:associatedResource><bf:Series><rdf:type rdf:resource="http://id.loc.gov/ontologies/bflc/Uncontrolled"/><bf:status><bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/t"><rdfs:label>transcribed</rdfs:label><bf:code>t</bf:code></bf:Status></bf:status><bf:title><bf:Title><bf:mainTitle>Blastoff! Readers: The Ultimate Animal Library</bf:mainTitle></bf:Title></bf:title></bf:Series></bf:associatedResource></bf:Relation></bf:relation><bf:relation><bf:Relation><bf:relationship><bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/otherphysicalformat"><rdfs:label>other physical format</rdfs:label><bf:code>otherphysicalformat</bf:code></bf:Relationship></bf:relationship><bf:relationship><bf:Relationship rdf:about="http://id.loc.gov/entities/relationships/onlineversion"><rdfs:label>Online version</rdfs:label></bf:Relationship></bf:relationship><bf:associatedResource><bf:Work><bflc:aap>Scheffer, Janie, 1992- White-tailed deer</bflc:aap><bflc:aap-normalized>schefferjanie1992whitetaileddeer</bflc:aap-normalized><bf:title><bf:Title><bf:mainTitle>White-tailed deer</bf:mainTitle></bf:Title></bf:title><bf:contribution><bf:PrimaryContribution><bf:agent><bf:Agent><rdfs:label>Scheffer, Janie, 1992-</rdfs:label></bf:Agent></bf:agent></bf:PrimaryContribution></bf:contribution><bf:hasInstance><bf:Instance><bf:title><bf:Title><bf:mainTitle>White-tailed deer</bf:mainTitle></bf:Title></bf:title><bf:provisionActivityStatement>Minneapolis, MN : Bellwether Media, 2025</bf:provisionActivityStatement><bf:identifiedBy><bf:Isbn><rdf:value>9798893043433</rdf:value></bf:Isbn></bf:identifiedBy><bf:identifiedBy><bf:Lccn><rdf:value> 2024038365</rdf:value><bf:assigner><madsrdf:CorporateName rdf:about="http://id.loc.gov/vocabulary/organizations/dlc"><rdfs:label>United States, Library of Congress</rdfs:label><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code></madsrdf:CorporateName></bf:assigner></bf:Lccn></bf:identifiedBy></bf:Instance></bf:hasInstance></bf:Work></bf:associatedResource></bf:Relation></bf:relation><bf:hasInstance rdf:resource="http://id.loc.gov/resources/instances/23882742"/><bf:adminMetadata><bf:AdminMetadata><bf:status><bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n"><rdfs:label>new</rdfs:label><bf:code>n</bf:code></bf:Status></bf:status><bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2024-10-02</bf:date><bf:agent><bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc"><rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/><rdfs:label>United States, Library of Congress</rdfs:label><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code></bf:Agent></bf:agent></bf:AdminMetadata></bf:adminMetadata><bf:adminMetadata><bf:AdminMetadata><bf:status><bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c"><rdfs:label>changed</rdfs:label><bf:code>c</bf:code></bf:Status></bf:status><bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-02T17:37:07</bf:date><bf:agent><bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc"><rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/><rdfs:label>United States, Library of Congress</rdfs:label><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code></bf:Agent></bf:agent></bf:AdminMetadata></bf:adminMetadata><bf:adminMetadata><bf:AdminMetadata><bf:status><bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c"><rdfs:label>changed</rdfs:label><bf:code>c</bf:code></bf:Status></bf:status><bf:agent><bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc"><rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/><rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code></bf:Agent></bf:agent><bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/><bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-03T14:21:05.405924-04:00</bf:date></bf:AdminMetadata></bf:adminMetadata><bf:adminMetadata><bf:AdminMetadata><bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-4-0/"/><bflc:encodingLevel><bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/8"><rdfs:label>prepublication</rdfs:label><bf:code>8</bf:code></bflc:EncodingLevel></bflc:encodingLevel><bf:descriptionConventions><bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd"><rdfs:label>ISBD: International standard bibliographic description</rdfs:label><bf:code>isbd</bf:code></bf:DescriptionConventions></bf:descriptionConventions><bf:identifiedBy><bf:Local><rdf:value>23882742</rdf:value><bf:assigner><bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc"><rdfs:label>United States, Library of Congress</rdfs:label><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code></bf:Organization></bf:assigner></bf:Local></bf:identifiedBy><lclocal:d906>=906     $a 0 $b ibc $c orignew $d 1 $e ecip $f 20 $g y-gencatlg</lclocal:d906><lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x policy default</lclocal:d925><lclocal:d955>=955     $b rq07 2024-10-02</lclocal:d955><bf:descriptionLanguage><bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng"><rdfs:label xml:lang="en">English</rdfs:label><bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code></bf:Language></bf:descriptionLanguage><bf:descriptionConventions><bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda"><rdfs:label>Resource description and access</rdfs:label><bf:code>rda</bf:code></bf:DescriptionConventions></bf:descriptionConventions><bf:note><bf:Note><rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/><rdfs:label>040  $aDLC$beng$erda$cDLC</rdfs:label></bf:Note></bf:note><bf:descriptionAuthentication><bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/pcc"><rdfs:label>Program for Cooperative Cataloging</rdfs:label><bf:code>pcc</bf:code></bf:DescriptionAuthentication></bf:descriptionAuthentication></bf:AdminMetadata></bf:adminMetadata></bf:Work><bf:Instance rdf:about="http://id.loc.gov/resources/instances/23882742"><bf:issuance><bf:Issuance rdf:about="http://id.loc.gov/vocabulary/issuance/mono"><rdfs:label>single unit</rdfs:label><bf:code>mono</bf:code></bf:Issuance></bf:issuance><bf:provisionActivity><bf:ProvisionActivity><rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Publication"/><bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2025</bf:date><bf:place><bf:Place rdf:about="http://id.loc.gov/vocabulary/countries/mnu"><rdfs:label xml:lang="en">Minnesota</rdfs:label><bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">mnu</bf:code></bf:Place></bf:place><bflc:simplePlace>Minneapolis, MN</bflc:simplePlace><bflc:simpleAgent>Bellwether Media</bflc:simpleAgent><bflc:simpleDate>2025</bflc:simpleDate></bf:ProvisionActivity></bf:provisionActivity><bf:publicationStatement>Minneapolis, MN: Bellwether Media, 2025</bf:publicationStatement><bf:identifiedBy><bf:Lccn><rdf:value>  2024038364</rdf:value></bf:Lccn></bf:identifiedBy><bf:identifiedBy><bf:Isbn><rdf:value>9798893042467</rdf:value><bf:qualifier>library binding</bf:qualifier></bf:Isbn></bf:identifiedBy><bf:identifiedBy><bf:Isbn><rdf:value>9798893043433</rdf:value><bf:status><bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/cancinv"><rdfs:label>canceled or invalid</rdfs:label><bf:code>cancinv</bf:code></bf:Status></bf:status><bf:qualifier>ebook</bf:qualifier></bf:Isbn></bf:identifiedBy><bf:responsibilityStatement>by Janie Scheffer</bf:responsibilityStatement><bf:title><bf:Title><bf:mainTitle>White-tailed deer</bf:mainTitle></bf:Title></bf:title><bflc:projectedProvisionDate>2501</bflc:projectedProvisionDate><bf:extent><bf:Extent><rdfs:label>pages cm</rdfs:label></bf:Extent></bf:extent><bf:media><bf:Media rdf:about="http://id.loc.gov/vocabulary/mediaTypes/n"><rdfs:label>unmediated</rdfs:label><bf:code>n</bf:code></bf:Media></bf:media><bf:carrier><bf:Carrier rdf:about="http://id.loc.gov/vocabulary/carriers/nc"><rdfs:label>volume</rdfs:label><bf:code>nc</bf:code></bf:Carrier></bf:carrier><bf:supplementaryContent><bf:SupplementaryContent><rdfs:label>Includes bibliographical references and index.</rdfs:label></bf:SupplementaryContent></bf:supplementaryContent><dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/instances"/><bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/23882742"/><bf:adminMetadata><bf:AdminMetadata><bf:status><bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n"><rdfs:label>new</rdfs:label><bf:code>n</bf:code></bf:Status></bf:status><bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2024-10-02</bf:date><bf:agent><bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc"><rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/><rdfs:label>United States, Library of Congress</rdfs:label><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code></bf:Agent></bf:agent></bf:AdminMetadata></bf:adminMetadata><bf:adminMetadata><bf:AdminMetadata><bf:status><bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c"><rdfs:label>changed</rdfs:label><bf:code>c</bf:code></bf:Status></bf:status><bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-02T17:37:07</bf:date><bf:agent><bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc"><rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/><rdfs:label>United States, Library of Congress</rdfs:label><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code></bf:Agent></bf:agent></bf:AdminMetadata></bf:adminMetadata><bf:adminMetadata><bf:AdminMetadata><bf:status><bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c"><rdfs:label>changed</rdfs:label><bf:code>c</bf:code></bf:Status></bf:status><bf:agent><bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc"><rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/><rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code></bf:Agent></bf:agent><bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/><bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-03T14:21:05.405924-04:00</bf:date></bf:AdminMetadata></bf:adminMetadata><bf:adminMetadata><bf:AdminMetadata><bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-4-0/"/><bflc:encodingLevel><bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/8"><rdfs:label>prepublication</rdfs:label><bf:code>8</bf:code></bflc:EncodingLevel></bflc:encodingLevel><bf:descriptionConventions><bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd"><rdfs:label>ISBD: International standard bibliographic description</rdfs:label><bf:code>isbd</bf:code></bf:DescriptionConventions></bf:descriptionConventions><bf:identifiedBy><bf:Local><rdf:value>23882742</rdf:value><bf:assigner><bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc"><rdfs:label>United States, Library of Congress</rdfs:label><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code><bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code></bf:Organization></bf:assigner></bf:Local></bf:identifiedBy><lclocal:d906>=906     $a 0 $b ibc $c orignew $d 1 $e ecip $f 20 $g y-gencatlg</lclocal:d906><lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x policy default</lclocal:d925><lclocal:d955>=955     $b rq07 2024-10-02</lclocal:d955><bf:descriptionLanguage><bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng"><rdfs:label xml:lang="en">English</rdfs:label><bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code></bf:Language></bf:descriptionLanguage><bf:descriptionConventions><bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda"><rdfs:label>Resource description and access</rdfs:label><bf:code>rda</bf:code></bf:DescriptionConventions></bf:descriptionConventions><bf:note><bf:Note><rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/><rdfs:label>040  $aDLC$beng$erda$cDLC</rdfs:label></bf:Note></bf:note><bf:descriptionAuthentication><bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/pcc"><rdfs:label>Program for Cooperative Cataloging</rdfs:label><bf:code>pcc</bf:code></bf:DescriptionAuthentication></bf:descriptionAuthentication></bf:AdminMetadata></bf:adminMetadata></bf:Instance></rdf:RDF>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:bf="http://id.loc.gov/ontologies/bibframe/"
+    xmlns:bflc="http://id.loc.gov/ontologies/bflc/"
+    xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/"
+    xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:pmo="http://performedmusicontology.org/ontology/"
+    xmlns:streams="info:lc/streams#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/">
+    <bf:Work rdf:about="http://id.loc.gov/resources/works/23882742">
+        <bflc:aap>Scheffer, Janie, 1992- White-tailed deer</bflc:aap>
+        <bflc:aap-normalized>schefferjanie1992whitetaileddeer</bflc:aap-normalized>
+        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Text"/>
+        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Monograph"/>
+        <bf:language>
+            <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                <rdfs:label xml:lang="en">English</rdfs:label>
+                <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+            </bf:Language>
+        </bf:language>
+        <bf:intendedAudience>
+            <bf:IntendedAudience rdf:about="http://id.loc.gov/vocabulary/maudience/juv">
+                <rdfs:label>juvenile</rdfs:label>
+                <bf:code>juv</bf:code>
+            </bf:IntendedAudience>
+        </bf:intendedAudience>
+        <bf:classification>
+            <bf:ClassificationLcc>
+                <bf:classificationPortion>QL737.U55</bf:classificationPortion>
+                <bf:itemPortion>S324 2025</bf:itemPortion>
+                <bf:assigner>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:assigner>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/uba">
+                        <rdfs:label>used by assigner</rdfs:label>
+                        <bf:code>uba</bf:code>
+                    </bf:Status>
+                </bf:status>
+            </bf:ClassificationLcc>
+        </bf:classification>
+        <bf:classification>
+            <bf:ClassificationDdc>
+                <bf:classificationPortion>599.65/2</bf:classificationPortion>
+                <bf:source>
+                    <bf:Source>
+                        <bf:code>23/eng</bf:code>
+                    </bf:Source>
+                </bf:source>
+                <bf:edition>full</bf:edition>
+                <bf:assigner>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:assigner>
+            </bf:ClassificationDdc>
+        </bf:classification>
+        <bf:contribution>
+            <bf:Contribution>
+                <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2022056380">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                        <rdfs:label>Scheffer, Janie, 1992-</rdfs:label>
+                        <bflc:marcKey>1001 $aScheffer, Janie,$d1992-</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                        <rdfs:label>author</rdfs:label>
+                        <bf:code>aut</bf:code>
+                    </bf:Role>
+                </bf:role>
+            </bf:Contribution>
+        </bf:contribution>
+        <bf:title>
+            <bf:Title>
+                <bf:mainTitle>White-tailed deer</bf:mainTitle>
+            </bf:Title>
+        </bf:title>
+        <bf:content>
+            <bf:Content rdf:about="http://id.loc.gov/vocabulary/contentTypes/txt">
+                <rdfs:label>text</rdfs:label>
+                <bf:code>txt</bf:code>
+            </bf:Content>
+        </bf:content>
+        <bf:supplementaryContent>
+            <bf:SupplementaryContent rdf:about="http://id.loc.gov/vocabulary/msupplcont/bibliography">
+                <rdfs:label>bibliography</rdfs:label>
+                <bf:code>bibliography</bf:code>
+            </bf:SupplementaryContent>
+        </bf:supplementaryContent>
+        <bf:supplementaryContent>
+            <bf:SupplementaryContent rdf:about="http://id.loc.gov/vocabulary/msupplcont/index">
+                <rdfs:label>index</rdfs:label>
+                <bf:code>index</bf:code>
+            </bf:SupplementaryContent>
+        </bf:supplementaryContent>
+        <bf:intendedAudience>
+            <bf:IntendedAudience>
+                <rdfs:label>Juvenile</rdfs:label>
+            </bf:IntendedAudience>
+        </bf:intendedAudience>
+        <bf:intendedAudience>
+            <bf:IntendedAudience>
+                <rdfs:label>Grades 2-3 Bellwether Media</rdfs:label>
+            </bf:IntendedAudience>
+        </bf:intendedAudience>
+        <bf:intendedAudience>
+            <bf:IntendedAudience>
+                <rdfs:label>Ages 5-8 Bellwether Media</rdfs:label>
+            </bf:IntendedAudience>
+        </bf:intendedAudience>
+        <bf:summary>
+            <bf:Summary>
+                <rdfs:label>Relevant images match informative text in this introduction to white-tailed deer. Intended for students in kindergarten through third grade"-- Provided by publisher.</rdfs:label>
+            </bf:Summary>
+        </bf:summary>
+        <bf:subject>
+            <bf:Topic>
+                <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject"/>
+                <rdfs:label>White-tailed deer--Juvenile literature</rdfs:label>
+                <madsrdf:authoritativeLabel>White-tailed deer--Juvenile literature</madsrdf:authoritativeLabel>
+                <madsrdf:isMemberOfMADSScheme>
+                    <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </madsrdf:MADSScheme>
+                </madsrdf:isMemberOfMADSScheme>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh85146522">
+                        <rdfs:label xml:lang="en">White-tailed deer</rdfs:label>
+                        <bflc:marcKey>150 0$aWhite-tailed deer</bflc:marcKey>
+                    </madsrdf:Topic>
+                    <madsrdf:GenreForm>
+                        <madsrdf:authoritativeLabel>Juvenile literature</madsrdf:authoritativeLabel>
+                    </madsrdf:GenreForm>
+                </madsrdf:componentList>
+                <bflc:aap-normalized>whitetaileddeerjuvenileliterature</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </bf:Topic>
+        </bf:subject>
+        <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/works"/>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship rdf:resource="http://id.loc.gov/ontologies/bibframe/hasSeries"/>
+                <bf:associatedResource>
+                    <bf:Series>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bflc/Uncontrolled"/>
+                        <bf:status>
+                            <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/t">
+                                <rdfs:label>transcribed</rdfs:label>
+                                <bf:code>t</bf:code>
+                            </bf:Status>
+                        </bf:status>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>Blastoff! Readers: The Ultimate Animal Library</bf:mainTitle>
+                            </bf:Title>
+                        </bf:title>
+                    </bf:Series>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship rdf:resource="http://id.loc.gov/ontologies/bibframe/hasEquivalent"/>
+                <bf:associatedResource>
+                    <bf:Instance rdf:about="http://id.loc.gov/resources/instances/23882742">
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>White-tailed deer</bf:mainTitle>
+                            </bf:Title>
+                        </bf:title>
+                        <bf:publicationStatement>Minneapolis, MN: Bellwether Media, Inc, 2025</bf:publicationStatement>
+                    </bf:Instance>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship rdf:resource="http://id.loc.gov/ontologies/bibframe/instanceOf"/>
+                <bf:associatedResource>
+                    <bf:Work rdf:about="http://id.loc.gov/resources/works/23882742">
+                        <rdfs:label>Scheffer, Janie, 1992- White-tailed deer</rdfs:label>
+                        <bf:contribution>
+                            <bf:Contribution>
+                                <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+                                <bf:agent>
+                                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2022056380">
+                                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                                        <rdfs:label>Scheffer, Janie, 1992-</rdfs:label>
+                                        <bflc:marcKey>1001 $aScheffer, Janie,$d1992-</bflc:marcKey>
+                                    </bf:Agent>
+                                </bf:agent>
+                                <bf:role>
+                                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                                        <rdfs:label>author</rdfs:label>
+                                        <bf:code>aut</bf:code>
+                                    </bf:Role>
+                                </bf:role>
+                            </bf:Contribution>
+                        </bf:contribution>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>White-tailed deer</bf:mainTitle>
+                            </bf:Title>
+                        </bf:title>
+                    </bf:Work>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship>
+                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/otherphysicalformat">
+                        <rdfs:label>other physical format</rdfs:label>
+                        <bf:code>otherphysicalformat</bf:code>
+                    </bf:Relationship>
+                </bf:relationship>
+                <bf:relationship>
+                    <bf:Relationship rdf:about="http://id.loc.gov/entities/relationships/onlineversion">
+                        <rdfs:label>Online version</rdfs:label>
+                    </bf:Relationship>
+                </bf:relationship>
+                <bf:associatedResource>
+                    <bf:Work rdf:about="http://id.loc.gov/resources/works/23888920">
+                        <rdfs:label>Scheffer, Janie, 1992- White-tailed deer</rdfs:label>
+                        <bf:contribution>
+                            <bf:Contribution>
+                                <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+                                <bf:agent>
+                                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2022056380">
+                                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                                        <rdfs:label>Scheffer, Janie, 1992-</rdfs:label>
+                                        <bflc:marcKey>1001 $aScheffer, Janie,$d1992-</bflc:marcKey>
+                                    </bf:Agent>
+                                </bf:agent>
+                                <bf:role>
+                                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                                        <rdfs:label>author</rdfs:label>
+                                        <bf:code>aut</bf:code>
+                                    </bf:Role>
+                                </bf:role>
+                            </bf:Contribution>
+                        </bf:contribution>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>White-tailed deer</bf:mainTitle>
+                            </bf:Title>
+                        </bf:title>
+                    </bf:Work>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
+        <bf:hasInstance rdf:resource="http://id.loc.gov/resources/instances/23882742"/>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                        <rdfs:label>new</rdfs:label>
+                        <bf:code>n</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2024-10-02</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-09T13:42:13</bf:date>
+                <bf:descriptionModifier>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Organization>
+                </bf:descriptionModifier>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-09T13:27:31</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/bibframe2marc/releases/tag/v2.8.0"/>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:34:23.314993-05:00</bf:date>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-4-0/"/>
+                <bflc:encodingLevel>
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/8">
+                        <rdfs:label>prepublication</rdfs:label>
+                        <bf:code>8</bf:code>
+                    </bflc:EncodingLevel>
+                </bflc:encodingLevel>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+                        <rdfs:label>ISBD: International standard bibliographic description</rdfs:label>
+                        <bf:code>isbd</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:identifiedBy>
+                    <bf:Local>
+                        <rdf:value>23882742</rdf:value>
+                        <bf:assigner>
+                            <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                <rdfs:label>United States, Library of Congress</rdfs:label>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                            </bf:Organization>
+                        </bf:assigner>
+                    </bf:Local>
+                </bf:identifiedBy>
+                <lclocal:d906>=906     $a 7 $b cbc $c orignew $d 1 $e ecip $f 20 $g y-gencatlg</lclocal:d906>
+                <lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x policy default</lclocal:d925>
+                <lclocal:d955>=955     $b rq07 2024-10-02 $i rq07 2024-10-09 $w rq07 2024-10-09 (Telework)</lclocal:d955>
+                <bf:descriptionLanguage>
+                    <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                        <rdfs:label xml:lang="en">English</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+                    </bf:Language>
+                </bf:descriptionLanguage>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+                        <rdfs:label>Resource description and access</rdfs:label>
+                        <bf:code>rda</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:note>
+                    <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+                        <rdfs:label>040  $aDLC$beng$erda$cDLC$dDLC$dDLC-MRC</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+                <bf:descriptionAuthentication>
+                    <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/pcc">
+                        <rdfs:label>Program for Cooperative Cataloging</rdfs:label>
+                        <bf:code>pcc</bf:code>
+                    </bf:DescriptionAuthentication>
+                </bf:descriptionAuthentication>
+                <lclocal:d985>=985     $e BIBFRAME Prod $d 2024-10-09T13:27:30</lclocal:d985>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+    </bf:Work>
+    <bf:Instance rdf:about="http://id.loc.gov/resources/instances/23882742">
+        <bf:provisionActivity>
+            <bf:ProvisionActivity>
+                <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Publication"/>
+                <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2025</bf:date>
+                <bf:place>
+                    <bf:Place rdf:about="http://id.loc.gov/vocabulary/countries/mnu">
+                        <rdfs:label xml:lang="en">Minnesota</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">mnu</bf:code>
+                    </bf:Place>
+                </bf:place>
+                <bflc:simplePlace>Minneapolis, MN</bflc:simplePlace>
+                <bflc:simpleAgent>Bellwether Media, Inc</bflc:simpleAgent>
+                <bflc:simpleDate>2025</bflc:simpleDate>
+            </bf:ProvisionActivity>
+        </bf:provisionActivity>
+        <bf:publicationStatement>Minneapolis, MN: Bellwether Media, Inc, 2025</bf:publicationStatement>
+        <bf:identifiedBy>
+            <bf:Lccn>
+                <rdf:value>  2024038364</rdf:value>
+            </bf:Lccn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Isbn>
+                <rdf:value>9798893043433</rdf:value>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/cancinv">
+                        <rdfs:label>canceled or invalid</rdfs:label>
+                        <bf:code>cancinv</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:qualifier>ebook</bf:qualifier>
+            </bf:Isbn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Isbn>
+                <rdf:value>9798893042467</rdf:value>
+                <bf:qualifier>library binding</bf:qualifier>
+            </bf:Isbn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Local>
+                <rdf:value>23882742</rdf:value>
+                <bf:assigner>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:assigner>
+            </bf:Local>
+        </bf:identifiedBy>
+        <bf:responsibilityStatement>by Janie Scheffer</bf:responsibilityStatement>
+        <bf:title>
+            <bf:Title>
+                <bf:mainTitle>White-tailed deer</bf:mainTitle>
+            </bf:Title>
+        </bf:title>
+        <bflc:projectedProvisionDate>2501</bflc:projectedProvisionDate>
+        <bf:extent>
+            <bf:Extent>
+                <rdfs:label>pages cm.</rdfs:label>
+            </bf:Extent>
+        </bf:extent>
+        <bf:issuance>
+            <bf:Issuance rdf:about="http://id.loc.gov/vocabulary/issuance/mono">
+                <rdfs:label>single unit</rdfs:label>
+                <bf:code>mono</bf:code>
+            </bf:Issuance>
+        </bf:issuance>
+        <bf:media>
+            <bf:Media rdf:about="http://id.loc.gov/vocabulary/mediaTypes/n">
+                <rdfs:label>unmediated</rdfs:label>
+                <bf:code>n</bf:code>
+            </bf:Media>
+        </bf:media>
+        <bf:carrier>
+            <bf:Carrier rdf:about="http://id.loc.gov/vocabulary/carriers/nc">
+                <rdfs:label>volume</rdfs:label>
+                <bf:code>nc</bf:code>
+            </bf:Carrier>
+        </bf:carrier>
+        <bf:note>
+            <bf:Note>
+                <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/biblio"/>
+                <rdfs:label>Includes bibliographical references and index.</rdfs:label>
+            </bf:Note>
+        </bf:note>
+        <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/instances"/>
+        <bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/23882742"/>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                        <rdfs:label>new</rdfs:label>
+                        <bf:code>n</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2024-10-02</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-09T13:42:13</bf:date>
+                <bf:descriptionModifier>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Organization>
+                </bf:descriptionModifier>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-09T13:27:31</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/bibframe2marc/releases/tag/v2.8.0"/>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:34:23.314993-05:00</bf:date>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-4-0/"/>
+                <bflc:encodingLevel>
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/8">
+                        <rdfs:label>prepublication</rdfs:label>
+                        <bf:code>8</bf:code>
+                    </bflc:EncodingLevel>
+                </bflc:encodingLevel>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+                        <rdfs:label>ISBD: International standard bibliographic description</rdfs:label>
+                        <bf:code>isbd</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:identifiedBy>
+                    <bf:Local>
+                        <rdf:value>23882742</rdf:value>
+                        <bf:assigner>
+                            <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                <rdfs:label>United States, Library of Congress</rdfs:label>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                            </bf:Organization>
+                        </bf:assigner>
+                    </bf:Local>
+                </bf:identifiedBy>
+                <lclocal:d906>=906     $a 7 $b cbc $c orignew $d 1 $e ecip $f 20 $g y-gencatlg</lclocal:d906>
+                <lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x policy default</lclocal:d925>
+                <lclocal:d955>=955     $b rq07 2024-10-02 $i rq07 2024-10-09 $w rq07 2024-10-09 (Telework)</lclocal:d955>
+                <bf:descriptionLanguage>
+                    <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                        <rdfs:label xml:lang="en">English</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+                    </bf:Language>
+                </bf:descriptionLanguage>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+                        <rdfs:label>Resource description and access</rdfs:label>
+                        <bf:code>rda</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:note>
+                    <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+                        <rdfs:label>040  $aDLC$beng$erda$cDLC$dDLC$dDLC-MRC</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+                <bf:descriptionAuthentication>
+                    <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/pcc">
+                        <rdfs:label>Program for Cooperative Cataloging</rdfs:label>
+                        <bf:code>pcc</bf:code>
+                    </bf:DescriptionAuthentication>
+                </bf:descriptionAuthentication>
+                <lclocal:d985>=985     $e BIBFRAME Prod $d 2024-10-09T13:27:30</lclocal:d985>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+    </bf:Instance>
+</rdf:RDF>
