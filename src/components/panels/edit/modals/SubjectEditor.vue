@@ -920,7 +920,6 @@ methods: {
    */
   buildComponents: function(searchString){
     let subjectStringSplit = searchString.split('--')
-    
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
     
@@ -929,8 +928,9 @@ methods: {
         let target = false
         for (let i in this.componetLookup){
           for (let j in this.componetLookup[i]) {
+
             if (this.componetLookup[i][j].label.includes("--")){
-              target = this.componetLookup[i][j].label.replaceAll("-", "‑")
+              target = this.componetLookup[i][j].label.replaceAll("--", "‑‑")
               targetIndex = i  // needs this to ensure the target will go into the search string in the right place
             }
             
@@ -2527,7 +2527,7 @@ methods: {
       this.linkModeString=linkModeValue
 
       this.subjectString=completeLabel
-
+        
       this.subjectStringChanged()
       this.updateAvctiveTypeSelected()
 
@@ -2574,13 +2574,13 @@ updated: function() {
       incomingSubjects = false
     }
   }
-  
+
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
   if (this.searchValue && this.components.length != this.searchValue.split("--") && !this.searchValue.endsWith('-')){
     this.buildLookupComponents(incomingSubjects)
     this.buildComponents(this.searchValue)
-
+    
     this.initialLoad = false
     this.subjectStringChanged()
     this.activeComponentIndex = 0

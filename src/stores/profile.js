@@ -135,6 +135,40 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
+    /**
+    * Can be used to return the structure of the component by passing the GUID
+    * It doesn't care what profile it is in it will loop through all of them to find the unique GUID
+    * @param {string} guid - the guid of the component
+    * @return {object}
+    */
+    returnPreferenceIdByGUID: (state) => {
+      return (guid) => {
+        for (let rt in state.activeProfile.rt){
+          for (let pt in state.activeProfile.rt[rt].pt){
+            if (state.activeProfile.rt[rt].pt[pt]['@guid'] === guid){
+              return state.activeProfile.rt[rt].pt[pt].preferenceId
+            }
+          }
+        }
+      }
+    },
+
+    returnUserModifiedIdByGUID: (state) => {
+      return (guid) => {
+        for (let rt in state.activeProfile.rt){
+          for (let pt in state.activeProfile.rt[rt].pt){
+            if (state.activeProfile.rt[rt].pt[pt]['@guid'] === guid){
+              return state.activeProfile.rt[rt].pt[pt].userModified
+            }
+          }
+        }
+      }
+    },
+
+
+    
+
+
   },
   actions: {
 
@@ -430,7 +464,6 @@ export const useProfileStore = defineStore('profile', {
 
 
       // -------- end HACKKCKCKCKCK
-
       profileData.forEach((p)=>{
 
 
@@ -446,6 +479,7 @@ export const useProfileStore = defineStore('profile', {
               // now make obj of all the properties in each top level
               // for example monograph -> work -> title
               if (p.json.Profile.resourceTemplates){
+                  
                   p.json.Profile.resourceTemplates.forEach((rt)=>{
                       this.profiles[p.json.Profile.id].rtOrder.push(rt.id)
                       this.profiles[p.json.Profile.id].rt[rt.id] = {ptOrder:[],pt:{}}
@@ -456,12 +490,25 @@ export const useProfileStore = defineStore('profile', {
                               pt.userValue =  {'@root':pt.propertyURI}
                               pt.valueConstraint.valueTemplateRefs = pt.valueConstraint.valueTemplateRefs.filter((v)=>{return (v.length>0)})
                               pt['@guid'] = short.generate()
-                              pt.canBeHidden = true
+                              pt.canBeHidden = true                             
 
                               if (pt.type === 'literal-lang'){
                                   this.profiles[p.json.Profile.id].rt[rt.id].hasLiteralLangFields = true
                               }
 
+                              // try to make a profile wide unique identifier to hang preferences off of for that property
+                              let propUniqueId = null
+                              if (pt.valueConstraint && pt.valueConstraint.valueDataType && pt.valueConstraint.valueDataType.dataTypeURI){
+                                propUniqueId = pt.propertyURI + "|" + pt.valueConstraint.valueDataType.dataTypeURI
+                              }else if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length>0 ){
+                                propUniqueId = pt.propertyURI + "|" + pt.valueConstraint.valueTemplateRefs[0]
+                              }else if (pt.valueConstraint && pt.valueConstraint.useValuesFrom && pt.valueConstraint.useValuesFrom.length>0 ){
+                                propUniqueId = pt.propertyURI + "|" + pt.valueConstraint.useValuesFrom[0]
+                              }else{
+                                propUniqueId = pt.propertyURI + "|" + pt.parentId
+                              }                              
+                              
+                              pt.preferenceId = propUniqueId
                               let key = pt.propertyURI.replace('http://','').replace('https://','').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"_") + '__' + ((pt.propertyLabel) ? pt.propertyLabel.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g,'_').toLowerCase() : "plabel")
                               this.profiles[p.json.Profile.id].rt[rt.id].ptOrder.push(key)
                               this.profiles[p.json.Profile.id].rt[rt.id].pt[key] = pt
@@ -481,7 +528,6 @@ export const useProfileStore = defineStore('profile', {
               })
           }
       })
-
 
       // make a copy of the obj to cut refs to the orginal
       // this.profiles = Object.assign({}, this.profiles)
@@ -2435,7 +2481,6 @@ export const useProfileStore = defineStore('profile', {
     */
     marcPreview: async function(){
       let xml = await utilsExport.buildXML(this.activeProfile)
-
       let preview = null
       if (!usePreferenceStore().returnValue('--b-edit-main-splitpane-opac-marc-html')){
         preview = await utilsNetwork.marcPreview(xml.bf2Marc, false)
@@ -3594,10 +3639,9 @@ export const useProfileStore = defineStore('profile', {
               if (item.includes(key)){
                   lastPosition = idx
               }
-          }
-          
-          
+          }          
           profile = profileName
+
         }
 
         
@@ -3634,9 +3678,6 @@ export const useProfileStore = defineStore('profile', {
             ]
           }
 
-
-
-
           // we also want to add any default values in if it is just a empty new property and not duping
           let idPropertyId = newPt.propertyURI
           let baseURI = newPt.propertyURI
@@ -3663,7 +3704,7 @@ export const useProfileStore = defineStore('profile', {
         }
         
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
-        this.activeProfile.rt[profile].ptOrder.splice(Number(lastPosition)+1, 0, newPropertyId);
+        this.activeProfile.rt[profile].ptOrder.splice(Number(propertyPosition)+1, 0, newPropertyId);
         
 
         if (structure){
@@ -3757,7 +3798,6 @@ export const useProfileStore = defineStore('profile', {
         this.dataChangedTimestamp = Date.now()
         // console.log("CHANGED 1!!!")
       },500)
-
     },
 
 
@@ -4135,20 +4175,23 @@ export const useProfileStore = defineStore('profile', {
     
     //loop through the copied data and change all the "@guid"s
     changeGuid: function(data){
-        for (let key of Object.keys(data)){
-            if (key == "@guid"){
-                data[key] = short.generate()
-            } else if(Array.isArray(data[key])) {
-                this.changeGuid(data[key])
-            } else if (typeof data[key] == "object"){
-                this.changeGuid(data[key])
+        try{
+            for (let key of Object.keys(data)){
+                if (key == "@guid"){
+                    data[key] = short.generate()
+                } else if(Array.isArray(data[key])) {
+                    this.changeGuid(data[key])
+                } else if (typeof data[key] == "object"){
+                    this.changeGuid(data[key])
+                }
             }
+        } catch {
+
         }
     },
 
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent){
-        
         this.changeGuid(newComponent)
         let profile = this.activeProfile
         
@@ -4188,6 +4231,7 @@ export const useProfileStore = defineStore('profile', {
                             let newPt = await this.duplicateComponentGetId(guid, structure, rt)
                             
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
+                            profile["rt"][rt]["pt"][newPt].userModified = true
                             break
                         }
                     }

@@ -451,9 +451,9 @@
               const incomingValue = await blob.text()
               const incomingData = JSON.parse(incomingValue)
               
-              //need to go through the incoming data and update the guid's
-              // need a way to match the incoming data to the structure -- propertyURI?
               structure.userValue = incomingData.userValue
+              structure.userModified = true
+              
               
               this.profileStore.dataChanged()
           }

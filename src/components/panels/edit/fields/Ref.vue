@@ -6,13 +6,13 @@
     <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
 
 
-      <select style="display: inline; width: 20px; border-color:whitesmoke;" @change="templateChange($event)">
+      <select style="display: inline; width: 20px; border-color:whitesmoke; background-color: transparent;" @change="templateChange($event)">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
 
     </template>
     <template v-else>
-      <select @change="templateChange($event)">
+      <select @change="templateChange($event)" style=" background-color: transparent;">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
 

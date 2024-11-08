@@ -129,7 +129,7 @@
                     <bf:Instance rdf:about="http://id.loc.gov/resources/instances/23679002">
                         <bf:title>
                             <bf:Title>
-                                <bf:mainTitle>The Routledge handbook of Christianity and culture XXXXXX</bf:mainTitle>
+                                <bf:mainTitle>The Routledge handbook of Christianity and culture</bf:mainTitle>
                                 <bflc:nonSortNum>4</bflc:nonSortNum>
                             </bf:Title>
                         </bf:title>
@@ -182,13 +182,7 @@
                                 </bf:agent>
                                 <bf:role>
                                     <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
-                                        <rdfs:label>Author</rdfs:label>
-                                        <bf:code>aut</bf:code>
-                                    </bf:Role>
-                                </bf:role>
-                                <bf:role>
-                                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
-                                        <rdfs:label>Author</rdfs:label>
+                                        <rdfs:label>author</rdfs:label>
                                         <bf:code>aut</bf:code>
                                     </bf:Role>
                                 </bf:role>
@@ -282,7 +276,7 @@
                     </bf:Agent>
                 </bf:agent>
                 <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-03T13:57:44.090684-04:00</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:33:47.925751-05:00</bf:date>
             </bf:AdminMetadata>
         </bf:adminMetadata>
         <bf:adminMetadata>
@@ -435,11 +429,12 @@
                 <bf:code>nc</bf:code>
             </bf:Carrier>
         </bf:carrier>
-        <bf:supplementaryContent>
-            <bf:SupplementaryContent>
+        <bf:note>
+            <bf:Note>
+                <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/biblio"/>
                 <rdfs:label>Includes bibliographical references.</rdfs:label>
-            </bf:SupplementaryContent>
-        </bf:supplementaryContent>
+            </bf:Note>
+        </bf:note>
         <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/instances"/>
         <bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/23679002"/>
         <bf:adminMetadata>
@@ -520,7 +515,7 @@
                     </bf:Agent>
                 </bf:agent>
                 <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-03T13:57:44.090684-04:00</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:33:47.925751-05:00</bf:date>
             </bf:AdminMetadata>
         </bf:adminMetadata>
         <bf:adminMetadata>

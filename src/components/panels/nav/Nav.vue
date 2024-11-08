@@ -56,7 +56,7 @@
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
       ...mapState(useConfigStore, ['layouts']),
-      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive']),
+      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal']),
       ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
@@ -143,27 +143,6 @@
               click: () => { this.profileStore.createInstance(true) }//this.instancePrompt() }
             }
           )
-          
-          menuButtonSubMenu.push({ is: 'separator'})
-          menuButtonSubMenu.push(
-            {
-              text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
-              click: () => { this.preferenceStore.toggleCopyMode() },
-              icon: this.preferenceStore.copyMode ? "content_copy" : "block"
-            }
-          )
-          
-          menuButtonSubMenu.push(
-            {
-              text: "Paste Content",
-              icon: "content_paste",
-              click: () => {
-                this.$nextTick(()=>{
-                  this.profileStore.pasteSelected()
-                })
-              }
-            }
-          )
         }
 
         if (!this.disable.includes('Menu')){
@@ -177,12 +156,11 @@
 
         if (!this.disable.includes('Tools')){
           menu.push(
-          { text: "Tools",  menu: [
+          { text: "Tools",  
+            menu: [
             { text: "Shelf Listing Browser", click: () => {
               this.activeShelfListData = {}
               this.showShelfListingModal = true
-
-
             }, icon:"🗄️" },
 
             { is: 'separator'},
@@ -195,11 +173,23 @@
               text: "Non-Latin Agents",
               // active: this.happy,
               click: () => { this.showNonLatinAgentModal = true }
-            }
-
+            },
             
-
-
+            { is: 'separator'},
+            {
+              text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
+              click: () => { this.preferenceStore.toggleCopyMode() },
+              icon: this.preferenceStore.copyMode ? "content_copy" : "block"
+            },
+            {
+              text: "Paste Content",
+              icon: "content_paste",
+              click: () => {
+                this.$nextTick(()=>{
+                  this.profileStore.pasteSelected()
+                })
+              }
+            }
           ] }
           )
           
@@ -237,7 +227,10 @@
               { text: 'Diacritic Macros', click: () => this.showDiacriticConfigModal = true, icon: 'keyboard' },
               { text: 'Text Macros', click: () => this.showTextMacroModal = true, icon: 'abc' },
 
+              { text: 'Field Colors', click: () => this.showFieldColorsModal = true, icon: '🌈' },
 
+
+              
 
 
 
@@ -360,9 +353,19 @@
                   }
                 }
               )
-          }
+              
+              menu.push(
+                {
+                  text: "Paste Content",
+                  icon: "content_paste",
+                  click: () => {
+                    this.$nextTick(()=>{
+                      this.profileStore.pasteSelected()
+                    })
+                  }
+                }
+              )
           
-          if (this.preferenceStore.copyMode){
               menu.push(
                 {
                   text: !this.allSelected ? "Select All" : "Deselect All",

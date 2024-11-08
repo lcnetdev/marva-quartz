@@ -55,11 +55,13 @@
                         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
                         <rdfs:label>Yi, Yu-ri, 1990-</rdfs:label>
                         <bflc:marcKey>1001 $aYi, Yu-ri,$d1990-</bflc:marcKey>
+                        <rdfs:label xml:lang="zxx-kore">이 유리, 1990-</rdfs:label>
+                        <bflc:marcKey xml:lang="zxx-kore">4001 $a이 유리,$d1990-</bflc:marcKey>
                     </bf:Agent>
                 </bf:agent>
                 <bf:role>
                     <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
-                        <rdfs:label>Author</rdfs:label>
+                        <rdfs:label>author</rdfs:label>
                         <bf:code>aut</bf:code>
                     </bf:Role>
                 </bf:role>
@@ -76,11 +78,13 @@
                                 <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
                                 <rdfs:label>Yi, Yu-ri, 1990-</rdfs:label>
                                 <bflc:marcKey>1001 $aYi, Yu-ri,$d1990-</bflc:marcKey>
+                                <rdfs:label xml:lang="zxx-kore">이 유리, 1990-</rdfs:label>
+                                <bflc:marcKey xml:lang="zxx-kore">4001 $a이 유리,$d1990-</bflc:marcKey>
                             </bf:Agent>
                         </bf:agent>
                         <bf:role>
                             <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
-                                <rdfs:label>Contributor</rdfs:label>
+                                <rdfs:label>contributor</rdfs:label>
                                 <bf:code>ctb</bf:code>
                             </bf:Role>
                         </bf:role>
@@ -91,13 +95,12 @@
                         <bf:mainTitle>Wehasŭ sonyŏn (Compilation)</bf:mainTitle>
                     </bf:Title>
                 </bf:title>
-                <bflc:marcKey>1001 $aYi, Yu-ri,$d1990-$tWehasŭ sonyŏn (Compilation)</bflc:marcKey>
             </bf:Hub>
         </bf:expressionOf>
         <bf:title>
             <bf:Title>
                 <bf:mainTitle>Wehasŭ sonyŏn</bf:mainTitle>
-                <bf:mainTitle xml:lang="ko-hang">웨하스 소년</bf:mainTitle>
+                <bf:mainTitle xml:lang="ko-kore">웨하스 소년</bf:mainTitle>
             </bf:Title>
         </bf:title>
         <bf:content>
@@ -108,7 +111,7 @@
         </bf:content>
         <bf:tableOfContents>
             <bf:TableOfContents>
-                <rdfs:label xml:lang="ko-hang">가꾸는 이 의 즐거움 -- 돌이키는 하루 -- 5분 동안 -- 투데이즈 무드 -- 웨하스 소년 -- 시간 뜨개질 -- 보석 모기 -- 버섯 의 나라 에서 -- 한편, 다른 우주 에서는 -- 삼두 고양이 -- 다른 이야기 -- 기쁨 목걸이 -- 따개비 -- 새해 다짐.</rdfs:label>
+                <rdfs:label xml:lang="ko-kore">가꾸는 이 의 즐거움 -- 돌이키는 하루 -- 5분 동안 -- 투데이즈 무드 -- 웨하스 소년 -- 시간 뜨개질 -- 보석 모기 -- 버섯 의 나라 에서 -- 한편, 다른 우주 에서는 -- 삼두 고양이 -- 다른 이야기 -- 기쁨 목걸이 -- 따개비 -- 새해 다짐.</rdfs:label>
             </bf:TableOfContents>
         </bf:tableOfContents>
         <bf:genreForm>
@@ -121,14 +124,9 @@
         <bf:relation>
             <bf:Relation>
                 <bf:relationship>
-                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/relatedwork">
-                        <rdfs:label>related work</rdfs:label>
-                        <bf:code>relatedwork</bf:code>
-                    </bf:Relationship>
-                </bf:relationship>
-                <bf:relationship>
-                    <bf:Relationship rdf:about="http://id.loc.gov/entities/relationships/containerof">
-                        <rdfs:label>Container of</rdfs:label>
+                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/part">
+                        <rdfs:label>part</rdfs:label>
+                        <bf:code>part</bf:code>
                     </bf:Relationship>
                 </bf:relationship>
                 <bf:associatedResource>
@@ -142,11 +140,13 @@
                                         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
                                         <rdfs:label>Yi, Yu-ri, 1990-</rdfs:label>
                                         <bflc:marcKey>1001 $aYi, Yu-ri,$d1990-</bflc:marcKey>
+                                        <rdfs:label xml:lang="zxx-kore">이 유리, 1990-</rdfs:label>
+                                        <bflc:marcKey xml:lang="zxx-kore">4001 $a이 유리,$d1990-</bflc:marcKey>
                                     </bf:Agent>
                                 </bf:agent>
                                 <bf:role>
                                     <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
-                                        <rdfs:label>Contributor</rdfs:label>
+                                        <rdfs:label>contributor</rdfs:label>
                                         <bf:code>ctb</bf:code>
                                     </bf:Role>
                                 </bf:role>
@@ -159,11 +159,13 @@
                                         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
                                         <rdfs:label>Yi, Yu-ri, 1990-</rdfs:label>
                                         <bflc:marcKey>1001 $aYi, Yu-ri,$d1990-</bflc:marcKey>
+                                        <rdfs:label xml:lang="zxx-kore">이 유리, 1990-</rdfs:label>
+                                        <bflc:marcKey xml:lang="zxx-kore">4001 $a이 유리,$d1990-</bflc:marcKey>
                                     </bf:Agent>
                                 </bf:agent>
                                 <bf:role>
                                     <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
-                                        <rdfs:label>Contributor</rdfs:label>
+                                        <rdfs:label>contributor</rdfs:label>
                                         <bf:code>ctb</bf:code>
                                     </bf:Role>
                                 </bf:role>
@@ -179,7 +181,6 @@
                                 <bf:mainTitle xml:lang="ko-Latn">가꾸는 이 의 즐거움</bf:mainTitle>
                             </bf:VariantTitle>
                         </bf:title>
-                        <bflc:marcKey>1001 $aYi, Yu-ri,$d1990-$tKakkunŭn i ŭi chŭlgŏum.</bflc:marcKey>
                     </bf:Hub>
                 </bf:associatedResource>
             </bf:Relation>
@@ -187,14 +188,9 @@
         <bf:relation>
             <bf:Relation>
                 <bf:relationship>
-                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/relatedwork">
-                        <rdfs:label>related work</rdfs:label>
-                        <bf:code>relatedwork</bf:code>
-                    </bf:Relationship>
-                </bf:relationship>
-                <bf:relationship>
-                    <bf:Relationship rdf:about="http://id.loc.gov/entities/relationships/containerof">
-                        <rdfs:label>Container of</rdfs:label>
+                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/part">
+                        <rdfs:label>part</rdfs:label>
+                        <bf:code>part</bf:code>
                     </bf:Relationship>
                 </bf:relationship>
                 <bf:associatedResource>
@@ -208,11 +204,13 @@
                                         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
                                         <rdfs:label>Yi, Yu-ri, 1990-</rdfs:label>
                                         <bflc:marcKey>1001 $aYi, Yu-ri,$d1990-</bflc:marcKey>
+                                        <rdfs:label xml:lang="zxx-kore">이 유리, 1990-</rdfs:label>
+                                        <bflc:marcKey xml:lang="zxx-kore">4001 $a이 유리,$d1990-</bflc:marcKey>
                                     </bf:Agent>
                                 </bf:agent>
                                 <bf:role>
                                     <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
-                                        <rdfs:label>Contributor</rdfs:label>
+                                        <rdfs:label>contributor</rdfs:label>
                                         <bf:code>ctb</bf:code>
                                     </bf:Role>
                                 </bf:role>
@@ -225,11 +223,13 @@
                                         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
                                         <rdfs:label>Yi, Yu-ri, 1990-</rdfs:label>
                                         <bflc:marcKey>1001 $aYi, Yu-ri,$d1990-</bflc:marcKey>
+                                        <rdfs:label xml:lang="zxx-kore">이 유리, 1990-</rdfs:label>
+                                        <bflc:marcKey xml:lang="zxx-kore">4001 $a이 유리,$d1990-</bflc:marcKey>
                                     </bf:Agent>
                                 </bf:agent>
                                 <bf:role>
                                     <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
-                                        <rdfs:label>Contributor</rdfs:label>
+                                        <rdfs:label>contributor</rdfs:label>
                                         <bf:code>ctb</bf:code>
                                     </bf:Role>
                                 </bf:role>
@@ -245,7 +245,6 @@
                                 <bf:mainTitle xml:lang="ko-Latn">웨하스 소년</bf:mainTitle>
                             </bf:VariantTitle>
                         </bf:title>
-                        <bflc:marcKey>1001 $aYi, Yu-ri,$d1990-$tWehasŭ sonyŏn.</bflc:marcKey>
                     </bf:Hub>
                 </bf:associatedResource>
             </bf:Relation>
@@ -309,7 +308,7 @@
                     </bf:Agent>
                 </bf:agent>
                 <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-09-27T16:27:45.947774-04:00</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:35:00.754258-05:00</bf:date>
             </bf:AdminMetadata>
         </bf:adminMetadata>
         <bf:adminMetadata>
@@ -388,15 +387,15 @@
                     </bf:Place>
                 </bf:place>
                 <bflc:simplePlace>Sŏul-si</bflc:simplePlace>
-                <bflc:simplePlace xml:lang="ko-hang">서울시</bflc:simplePlace>
+                <bflc:simplePlace xml:lang="ko-kore">서울시</bflc:simplePlace>
                 <bflc:simpleAgent>Maum Sanch'aek</bflc:simpleAgent>
-                <bflc:simpleAgent xml:lang="ko-hang">마음 산책</bflc:simpleAgent>
+                <bflc:simpleAgent xml:lang="ko-kore">마음 산책</bflc:simpleAgent>
                 <bflc:simpleDate>2024</bflc:simpleDate>
-                <bflc:simpleDate xml:lang="ko-hang">2024</bflc:simpleDate>
+                <bflc:simpleDate xml:lang="ko-kore">2024</bflc:simpleDate>
             </bf:ProvisionActivity>
         </bf:provisionActivity>
         <bf:publicationStatement>Sŏul-si: Maum Sanch'aek, 2024</bf:publicationStatement>
-        <bflc:publicationStatement xml:lang="ko-hang">서울시: 마음 산책, 2024</bflc:publicationStatement>
+        <bf:publicationStatement xml:lang="ko-kore">서울시: 마음 산책, 2024</bf:publicationStatement>
         <bf:identifiedBy>
             <bf:Lccn>
                 <rdf:value>  2024398050</rdf:value>
@@ -411,12 +410,12 @@
             <bf:Title>
                 <bf:mainTitle>Wehasŭ sonyŏn</bf:mainTitle>
                 <bf:subtitle>Yi Yu-ri tchalbŭn sosŏl</bf:subtitle>
-                <bf:mainTitle xml:lang="ko-hang">웨하스 소년</bf:mainTitle>
-                <bf:subtitle xml:lang="ko-hang">이 유리 짧은 소설</bf:subtitle>
+                <bf:mainTitle xml:lang="ko-kore">웨하스 소년</bf:mainTitle>
+                <bf:subtitle xml:lang="ko-kore">이 유리 짧은 소설</bf:subtitle>
             </bf:Title>
         </bf:title>
         <bf:editionStatement>1-p'an</bf:editionStatement>
-        <bf:editionStatement xml:lang="ko-hang">1판</bf:editionStatement>
+        <bf:editionStatement xml:lang="ko-kore">1판</bf:editionStatement>
         <bf:extent>
             <bf:Extent>
                 <rdfs:label>216 pages</rdfs:label>
@@ -495,7 +494,7 @@
                     </bf:Agent>
                 </bf:agent>
                 <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-09-27T16:27:45.947774-04:00</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:35:00.754258-05:00</bf:date>
             </bf:AdminMetadata>
         </bf:adminMetadata>
         <bf:adminMetadata>
