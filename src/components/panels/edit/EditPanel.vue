@@ -270,21 +270,9 @@
             }
         },
 
-        //only able to delete the instances they create?
+        //only able to delete the instances they create
         showInstanceDeleteButton: function(profileName){
-            //only if the profile is an instance, but not if it's the first instance
-            const isInstance = profileName.includes(":Instance")
-            let notFirstInstance
-
-            const work = this.activeProfile.rtOrder.filter((name) => name.includes(":Work"))[0]
-            const workID = this.activeProfile.rt[work].URI.split("/").at(-1)
-
-            const instanceID = this.activeProfile.rt[profileName].URI.split("/").at(-1)
-            if (instanceID != workID){
-                notFirstInstance = true
-            }
-
-            return isInstance && notFirstInstance
+            return this.activeProfile.rt[profileName].deletable
         },
         
         showDeleteInstanceModal: function(profileName){

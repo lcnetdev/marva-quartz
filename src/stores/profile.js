@@ -3887,6 +3887,8 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
       }
       
+      this.activeProfile.rt[newRdId].deletable = true
+      
       this.dataChanged()
 
     },
