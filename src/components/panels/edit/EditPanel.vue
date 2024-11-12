@@ -59,7 +59,7 @@
         <template v-if="profileName.includes(':Instance')"> 
             <div class="instanceInfoWrapper"> 
                 <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
-                <button class="instanceDeleteButton" v-if="showInstanceDeleteButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
+                <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
             </div>
         </template>
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
