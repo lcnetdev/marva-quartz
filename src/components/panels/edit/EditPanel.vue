@@ -190,7 +190,7 @@
 
       // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged']),
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
 
       activeResourceName(){
@@ -283,6 +283,7 @@
                 
                 // remove the profile
                 delete this.activeProfile.rt[profileName]
+                this.profileStore.dataChanged()
             }
         },
         
