@@ -21,7 +21,7 @@
           <template v-if="profileName.includes(':Instance')"> 
                 <div> 
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
-                    <button class="instanceDeleteButton" v-if="showInstanceDeleteButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
+                    <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
                 </div>
           </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
@@ -271,7 +271,7 @@
         },
 
         //only able to delete the instances they create
-        showInstanceDeleteButton: function(profileName){
+        showDeleteInstanceButton: function(profileName){
             return this.activeProfile.rt[profileName].deletable
         },
         
