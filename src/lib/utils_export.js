@@ -441,6 +441,8 @@ const utilsExport = {
     let orginalProfile = profile
 	// cut the ref to the orginal
 	profile = JSON.parse(JSON.stringify(profile))
+    
+    console.info("profile: ", profile)
 
 	let xmlParser = returnDOMParser()
 
@@ -687,9 +689,7 @@ const utilsExport = {
 
 
 				xmlLog.push(['Set userValue to:', JSON.parse(JSON.stringify(userValue)) ])
-
-
-
+                
 				if (this.ignoreProperties.indexOf(ptObj.propertyURI) > -1){
 					xmlLog.push(`Skpping it because it is in the ignoreProperties list`)
 					continue
@@ -733,6 +733,7 @@ const utilsExport = {
 
 
 				// does it even have any userValues?
+                console.info("userValue", JSON.parse(JSON.stringify(userValue)), " -- ", this.hasUserValue(userValue))
 				if (this.hasUserValue(userValue)){
 					// keep track of what resource teplates we used in this record
 					if (xmlVoidDataRtsUsed.indexOf(rt)==-1){
@@ -744,6 +745,7 @@ const utilsExport = {
 
 					// is it a Blank node
 					if (this.isBnode(userValue)){
+                        console.info("isBNode", userValue)
 						// this.debug(ptObj.propertyURI,'root level element, is bnode', userValue)
 						xmlLog.push(`Root level bnode: ${ptObj.propertyURI}`)
 
@@ -785,7 +787,6 @@ const utilsExport = {
 
 
 							let value1FirstLoop = true
-                            console.info("userValue", userValue)
 							// loop through the value array of each of them
 							for (let value1 of userValue[key1]){
 
@@ -999,6 +1000,7 @@ const utilsExport = {
 						componentXmlLookup[`${rt}-${pt}`] = formatXML(pLvl1.outerHTML)
 
 					}else{
+                        console.info("not bNode", userValue)
 						// this.debug(ptObj.propertyURI, 'root level element does not look like a bnode', userValue)
 						xmlLog.push(`Root level does not look like a bnode: ${ptObj.propertyURI}`)
 						let userValueArray = userValue
@@ -1077,7 +1079,7 @@ const utilsExport = {
 
 								console.error("Does not have URI, ERROR")
 							}else if (await utilsRDF.suggestTypeNetwork(ptObj.propertyURI) == 'http://www.w3.org/2000/01/rdf-schema#Literal'){
-
+                                    console.info("literal???", ptObj)
 								// console.log("Top level literal HERE!",userValue)
 								// its just a top level literal property
 								// loop through its keys and make the values
@@ -1116,8 +1118,8 @@ const utilsExport = {
 									}
 								}
 								componentXmlLookup[`${rt}-${pt}`] = allXMLFragments
-							}else if (await utilsRDF.suggestTypeNetwork(ptObj.propertyURI) == 'http://www.w3.org/2000/01/rdf-schema#Resource'){
-
+							}else if (ptObj.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator" && await utilsRDF.suggestTypeNetwork(ptObj.propertyURI) == 'http://www.w3.org/2000/01/rdf-schema#Resource'){
+                                    console.info("resource???", ptObj)
 								// if it is a marked in the profile as a literal and has expected value of rdf:Resource flatten it to a string literal
 								let allXMLFragments = ''
 								for (let key1 of Object.keys(userValue).filter(k => (!k.includes('@') ? true : false ) )){
@@ -1141,6 +1143,7 @@ const utilsExport = {
 								}
 								componentXmlLookup[`${rt}-${pt}`] = allXMLFragments
 							}else if (userValue['@id']){
+                                console.info("There's a ID")
 								// it has a URI at least, so make that
 								let p = this.createElByBestNS(ptObj.propertyURI)
 								p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
