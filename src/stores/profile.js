@@ -2074,7 +2074,7 @@ export const useProfileStore = defineStore('profile', {
                   'http://id.loc.gov/ontologies/bflc/marcKey' : aMarcKeyNode
                 }
               )              
-            }else if (aMarcKeyNode['@value']){
+            }else if (aMarcKeyNode && aMarcKeyNode['@value']){
               let aNode = {
                 '@guid': short.generate(),
                 'http://id.loc.gov/ontologies/bflc/marcKey' : aMarcKeyNode['@value']
