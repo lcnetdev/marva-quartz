@@ -1843,100 +1843,106 @@ export const useProfileStore = defineStore('profile', {
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
       
+      console.info("pt", JSON.parse(JSON.stringify(pt)))
+      console.info("valueLocation", valueLocation)
+      console.info("deepestLevelURI", deepestLevelURI)
+      
       if (valueLocation){
 
         let values = []
     
         for (let v of valueLocation){
-          let URI = null
-          let label = null
 
+              let URI = null
+              let label = null
 
-          if (v['@id']){
-            URI = v['@id']
-          }
+              if (v['@id']){
+                URI = v['@id']
+              }
 
+              for (let lP of LABEL_PREDICATES){
+                  console.info("lP", lP)
+                  if (v[lP] && v[lP][0][lP]){
+                      label = v[lP][0][lP]
+                      break
+                  }
+              }
 
-          for (let lP of LABEL_PREDICATES){
-                if (v[lP][0] && v[lP] != null && v[lP] && v[lP][0][lP]){
-                  label = v[lP][0][lP]
-                  break
-                }
-          }
-
-          // look for bf:title -> bf:mainTitle
-          if (!label){
-            for (let lP1 of LABEL_PREDICATES){
-              for (let lP2 of LABEL_PREDICATES){
-                if (v[lP1][0] && v[lP1] && v[lP1][0][lP2] && v[lP1][0][lP2][0][lP2]){
-                  label = v[lP1][0][lP2][0][lP2]
-                  break
+              // look for bf:title -> bf:mainTitle
+              if (!label){
+                for (let lP1 of LABEL_PREDICATES){
+                    console.info("lP1", lP1)
+                  for (let lP2 of LABEL_PREDICATES){
+                      console.info("lP2", lP2)
+                    if (v[lP1][0][lP2] && v[lP1][0][lP2][0][lP2]){
+                      label = v[lP1][0][lP2][0][lP2]
+                      break
+                    }
+                  }
                 }
               }
+
+              let source = null
+              if (URI && URI.indexOf('/fast/') >1){
+                source = 'FAST'
+              }
+              let uneditable = false
+
+              // if we don't have a URI for a work don't let them edit it
+              if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bibframe/Work'){
+                uneditable = true
+              }
+              if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bflc/Uncontrolled'){
+                uneditable = true
+              }
+              if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bibframe/Uncontrolled'){
+                uneditable = true
+              }
+
+              // if it is deepHierarchy then then we are copy pasting what came into the system and they cann change it anyway.
+              if (pt.deepHierarchy){uneditable=true}
+
+              if (URI && label){
+                values.push({
+                  '@guid':v['@guid'],
+                  URI: URI,
+                  label: label,
+                  source: source,
+                  needsDereference: false,
+                  isLiteral: false,
+                  uneditable: uneditable,
+                  type:v['@type']
+                })
+              }else if (URI && !label){
+                values.push({
+                  '@guid':v['@guid'],
+                  URI: URI,
+                  label: label,
+                  source: source,
+                  needsDereference: true,
+                  isLiteral: false,
+                  uneditable: uneditable,
+                  type:v['@type']
+                })
+              }else if (!URI && label){
+
+                values.push({
+                  '@guid':v['@guid'],
+                  URI: URI,
+                  label: label,
+                  source: source,
+                  needsDereference: false,
+                  uneditable: uneditable,
+                  isLiteral: true,
+                  type:v['@type']
+                })
+              }
+
             }
-          }
-
-          let source = null
-          if (URI && URI.indexOf('/fast/') >1){
-            source = 'FAST'
-          }
-          let uneditable = false
-
-          // if we don't have a URI for a work don't let them edit it
-          if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bibframe/Work'){
-            uneditable = true
-          }
-          if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bflc/Uncontrolled'){
-            uneditable = true
-          }
-          if (!URI && label && v['@type'] && v['@type'] == 'http://id.loc.gov/ontologies/bibframe/Uncontrolled'){
-            uneditable = true
-          }
-
-          // if it is deepHierarchy then then we are copy pasting what came into the system and they cann change it anyway.
-          if (pt.deepHierarchy){uneditable=true}
-
-          if (URI && label){
-            values.push({
-              '@guid':v['@guid'],
-              URI: URI,
-              label: label,
-              source: source,
-              needsDereference: false,
-              isLiteral: false,
-              uneditable: uneditable,
-              type:v['@type']
-            })
-          }else if (URI && !label){
-            values.push({
-              '@guid':v['@guid'],
-              URI: URI,
-              label: label,
-              source: source,
-              needsDereference: true,
-              isLiteral: false,
-              uneditable: uneditable,
-              type:v['@type']
-            })
-          }else if (!URI && label){
-
-            values.push({
-              '@guid':v['@guid'],
-              URI: URI,
-              label: label,
-              source: source,
-              needsDereference: false,
-              uneditable: uneditable,
-              isLiteral: true,
-              type:v['@type']
-            })
-          }
-
+          
+            return values
         }
-      
-        return values
 
-      }
 
       // if valueLocation is false then it did not find anytihng meaning its empty, return empty array
       return []
