@@ -328,10 +328,16 @@ export default {
 
 
     complexLookupValues(){
-
-
-      let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
-      return values
+        
+        let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
+        return values
+          
+      // try{
+          // let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
+          // return values
+      // } catch {
+          // return false
+      // }
 
     },
 
@@ -526,6 +532,7 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
+        console.info("contextValue: ", contextValue)
       delete contextValue.typeFull
       this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
       this.searchValue=''

@@ -1839,16 +1839,15 @@ export const useProfileStore = defineStore('profile', {
 
       // console.log("propertyPath=",propertyPath)
 
-
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
+      
       if (valueLocation){
 
         let values = []
-
+    
         for (let v of valueLocation){
-
           let URI = null
           let label = null
 
@@ -1859,17 +1858,17 @@ export const useProfileStore = defineStore('profile', {
 
 
           for (let lP of LABEL_PREDICATES){
-            if (v[lP] && v[lP][0][lP]){
-              label = v[lP][0][lP]
-              break
-            }
+                if (v[lP][0] && v[lP] != null && v[lP] && v[lP][0][lP]){
+                  label = v[lP][0][lP]
+                  break
+                }
           }
 
           // look for bf:title -> bf:mainTitle
           if (!label){
             for (let lP1 of LABEL_PREDICATES){
               for (let lP2 of LABEL_PREDICATES){
-                if (v[lP1] && v[lP1][0][lP2] && v[lP1][0][lP2][0][lP2]){
+                if (v[lP1][0] && v[lP1] && v[lP1][0][lP2] && v[lP1][0][lP2][0][lP2]){
                   label = v[lP1][0][lP2][0][lP2]
                   break
                 }
@@ -1934,6 +1933,7 @@ export const useProfileStore = defineStore('profile', {
           }
 
         }
+      
         return values
 
       }
@@ -1959,6 +1959,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
+
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -1967,6 +1968,7 @@ export const useProfileStore = defineStore('profile', {
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      
 	  
       if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
@@ -1993,12 +1995,15 @@ export const useProfileStore = defineStore('profile', {
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
-          console.log('buildBlankNodeResult',buildBlankNodeResult)
-
           pt = buildBlankNodeResult[0]
 		  
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
+          
+          //empty out the blankNode's existing data so it only has the new data
+          for (let key of Object.keys(blankNode).filter((k) => !k.startsWith("@"))){
+              blankNode[key] = []
+          }
 
           // set the URI
           // if its null then we are adding a literal
@@ -2043,9 +2048,6 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
-
-
-
           //Add gacs code to user data
           if (nodeMap["GAC(s)"]){
             blankNode["http://www.loc.gov/mads/rdf/v1#code"] = [
@@ -2056,8 +2058,6 @@ export const useProfileStore = defineStore('profile', {
               }
             ]
           }
-
-
 
           if (!Array.isArray(marcKey)){
             marcKey = [marcKey]
@@ -2132,7 +2132,6 @@ export const useProfileStore = defineStore('profile', {
       }else{
         console.error('setValueComplex: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
-
 
       console.log("pt is ",pt)
     },
