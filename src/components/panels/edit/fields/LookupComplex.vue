@@ -328,10 +328,15 @@ export default {
 
 
     complexLookupValues(){
-
-
-      let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
-      return values
+          
+      try{
+          let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
+          return values
+      } catch(err) {
+          // this can run into an error when populating an empty complexValue field
+          // It mostly doesn't seem to matter, but might as well catch
+          return []
+      }
 
     },
 

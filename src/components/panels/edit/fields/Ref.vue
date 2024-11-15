@@ -284,11 +284,11 @@ export default {
 			  let template = this.structure.valueConstraint.valueTemplateRefs[idx]
 			  if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
 				  let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
-				  if (target){
-					  let type = target[0]["@type"]
-					  if (type && this.rtLookup[template].resourceURI === type){
-						useId = template
-					  }
+				  if (target){                      
+                      let type = target[0]["@type"]
+                      if (type && this.rtLookup[template].resourceURI === type){
+                        useId = template
+                      }
 				  }
 			  }
 		  }
