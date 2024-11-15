@@ -352,7 +352,7 @@ const utilsProfile = {
   */
   returnValueFromPropertyPath: function(pt,propertyPath){
         
-         let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator"))
+         let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
         
       let deepestLevel
       if (propertyPath[propertyPath.length-1]){
@@ -365,10 +365,14 @@ const utilsProfile = {
       
       if (isLocator){
           console.info("    returnValueFromPropertyPath")
-          console.info("        pointer1: ", pointer)
+          console.info("        pointer 1: ", pointer)
       }
       
+      // The note in the supplementaryContent is not in the propertyPath
+      //    
       for (let p of propertyPath){
+          
+          if (isLocator){ console.info("        looking at ", p) }
 
         // the property path has two parts
         // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
@@ -382,7 +386,7 @@ const utilsProfile = {
               console.warn("Expecting there to be at least one value here: ", pt, p, propertyPath)
             }
             
-            if (isLocator){ console.info("        pointer2: ", pointer) }
+            if (isLocator){ console.info("        pointer 2: ", pointer) }
 
             // if this is the last level then return the whole array, if we are continuing
             // down the hiearchy then just select the first element, as we don't support multiple values at the early levels
@@ -395,6 +399,7 @@ const utilsProfile = {
           }else{
 
             console.error("Expecting Array in this userValue property:",pt,p,propertyPath)
+            if (isLocator){ console.info("        returning false 1") }
             return false
 
           }
@@ -402,6 +407,7 @@ const utilsProfile = {
         }else{
           // the level doesn't exist here, we were unable to traverse the whole hierachy
           // whihch means the value is not set, so we retun false to say it failed
+          if (isLocator){ console.info("        returning false 2") }
           return false
 
         }
@@ -409,6 +415,7 @@ const utilsProfile = {
 
       }
 
+        if (isLocator){ console.info("        returning: ", JSON.parse(JSON.stringify(pointer))) }
       return pointer
 
 

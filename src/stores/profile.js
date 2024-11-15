@@ -1678,9 +1678,16 @@ export const useProfileStore = defineStore('profile', {
     */
     returnLiteralValueFromProfile: function(componentGuid, propertyPath){
         
-        let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator"))
+        let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
         if (isLocator){
             propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
+            
+            //The propertyPath for supplementaryContent's note is missing the note. It jumps straight to the label
+            if (propertyPath.some((pp) => pp.propertyURI.includes("supplementaryContent")) && propertyPath.at(-1).propertyURI == "http://www.w3.org/2000/01/rdf-schema#label"){
+                propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
+                propertyPath.at(-1).level = 2
+                
+            }
             
             console.info("looking at locator")
             console.info("    componentGuid: ", componentGuid)
@@ -1695,7 +1702,7 @@ export const useProfileStore = defineStore('profile', {
             console.info("    pt: ", pt)
             console.info("    valueLocation: ", valueLocation)
             console.info("    deepestLevelURI: ", deepestLevelURI)
-        }
+      }
 
       // console.log(propertyPath[0], deepestLevelURI)
       // console.log('pt',pt)
