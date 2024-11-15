@@ -4289,7 +4289,6 @@ export const useProfileStore = defineStore('profile', {
     
     //Check if the component's userValue is empty
     isEmptyComponent: function(component){
-      
       let emptyArray = new Array("@root")
       let userValue = component.userValue
       
@@ -4302,12 +4301,16 @@ export const useProfileStore = defineStore('profile', {
               if (!key.startsWith("@")){
                   let result = false
                   try{
-                      result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
+                      if (component.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
+                          result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
+                      } else {
+                          result = !Object.keys(userValue[key][0]).some((childKey) => childKey.startsWith("@id"))
+                      }
                   } catch(err) {
                       console.error("error: Checking if component is empty")
                   }
-                  return result
                   
+                  return result
               }
           }
       }
