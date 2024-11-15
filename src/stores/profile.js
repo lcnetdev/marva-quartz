@@ -1677,10 +1677,25 @@ export const useProfileStore = defineStore('profile', {
     * @return {array} - an array of objs representing the literals
     */
     returnLiteralValueFromProfile: function(componentGuid, propertyPath){
+        
+        let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator"))
+        if (isLocator){
+            propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
+            
+            console.info("looking at locator")
+            console.info("    componentGuid: ", componentGuid)
+            console.info("    propertyPath: ", propertyPath)
+        }
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
+      
+      if (isLocator){
+            console.info("    pt: ", pt)
+            console.info("    valueLocation: ", valueLocation)
+            console.info("    deepestLevelURI: ", deepestLevelURI)
+        }
 
       // console.log(propertyPath[0], deepestLevelURI)
       // console.log('pt',pt)
@@ -1700,6 +1715,12 @@ export const useProfileStore = defineStore('profile', {
             values.push({
               '@guid':v['@guid'],
               value: unescape(v[deepestLevelURI]),
+              '@language' : (v['@language']) ? v['@language'] : null,
+            })
+          } else if (isLocator){
+              values.push({
+              '@guid':v['@guid'],
+              value: unescape(v["@id"]),
               '@language' : (v['@language']) ? v['@language'] : null,
             })
           }else{

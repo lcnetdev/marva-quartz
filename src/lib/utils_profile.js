@@ -351,7 +351,9 @@ const utilsProfile = {
   * @return {array} - will return the value array at the end of the property path if it exists
   */
   returnValueFromPropertyPath: function(pt,propertyPath){
-
+        
+         let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator"))
+        
       let deepestLevel
       if (propertyPath[propertyPath.length-1]){
         deepestLevel = propertyPath[propertyPath.length-1].level
@@ -360,6 +362,12 @@ const utilsProfile = {
       }
 
       let pointer = pt.userValue
+      
+      if (isLocator){
+          console.info("    returnValueFromPropertyPath")
+          console.info("        pointer1: ", pointer)
+      }
+      
       for (let p of propertyPath){
 
         // the property path has two parts
@@ -373,6 +381,8 @@ const utilsProfile = {
             if (pointer[p.propertyURI].length === 0){
               console.warn("Expecting there to be at least one value here: ", pt, p, propertyPath)
             }
+            
+            if (isLocator){ console.info("        pointer2: ", pointer) }
 
             // if this is the last level then return the whole array, if we are continuing
             // down the hiearchy then just select the first element, as we don't support multiple values at the early levels
