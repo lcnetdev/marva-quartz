@@ -1550,7 +1550,7 @@ methods: {
         out.push("Auth Hd")
       } else if (collections.includes("GenreFormSubdivisions")){
         out.push("GnFrm")
-      } else if (collections.includes("GeographicSubdivisions") || collections.includes("SubdivideGeographically")){
+      } else if (collections.includes("GeographicSubdivisions")){
         out.push("GeoSubDiv")
       } else if (collections.includes("Subdivisions")){
         out.push("SubDiv")
