@@ -897,7 +897,8 @@ const utilsExport = {
 											bnodeLvl1.setAttributeNS(this.namespace.rdf, 'rdf:about', value1['@id'])
 										}
 									}
-									if (keys.length>0){
+                                    
+                                    if (keys.length>0){
 										for (let key2 of keys){
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 												// its a label or some other literal

@@ -2049,13 +2049,16 @@ export const useProfileStore = defineStore('profile', {
 
           //Add gacs code to user data
           if (nodeMap["GAC(s)"]){
-            blankNode["http://www.loc.gov/mads/rdf/v1#code"] = [
-              {
-                '@guid': short.generate(),
-                "@gacs": "http://id.loc.gov/datatypes/codes/gac",
-                'http://www.loc.gov/mads/rdf/v1#code': nodeMap["GAC(s)"][0]
-              }
-            ]
+            blankNode["http://www.loc.gov/mads/rdf/v1#code"] = []
+            for (let code in nodeMap["GAC(s)"]){
+                blankNode["http://www.loc.gov/mads/rdf/v1#code"].push(
+                  {
+                    '@guid': short.generate(),
+                    "@gacs": "http://id.loc.gov/datatypes/codes/gac",
+                    'http://www.loc.gov/mads/rdf/v1#code': nodeMap["GAC(s)"][code]
+                  }
+                )
+            }
           }
 
           if (!Array.isArray(marcKey)){
