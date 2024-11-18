@@ -2049,13 +2049,16 @@ export const useProfileStore = defineStore('profile', {
 
           //Add gacs code to user data
           if (nodeMap["GAC(s)"]){
-            blankNode["http://www.loc.gov/mads/rdf/v1#code"] = [
-              {
-                '@guid': short.generate(),
-                "@gacs": "http://id.loc.gov/datatypes/codes/gac",
-                'http://www.loc.gov/mads/rdf/v1#code': nodeMap["GAC(s)"][0]
-              }
-            ]
+            blankNode["http://www.loc.gov/mads/rdf/v1#code"] = []
+            for (let code in nodeMap["GAC(s)"]){
+                blankNode["http://www.loc.gov/mads/rdf/v1#code"].push(
+                  {
+                    '@guid': short.generate(),
+                    "@gacs": "http://id.loc.gov/datatypes/codes/gac",
+                    'http://www.loc.gov/mads/rdf/v1#code': nodeMap["GAC(s)"][code]
+                  }
+                )
+            }
           }
 
           if (!Array.isArray(marcKey)){
@@ -3518,7 +3521,8 @@ export const useProfileStore = defineStore('profile', {
         for (let r of this.activeProfile.rtOrder){
           propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
 
-          if (propertyPosition != -1 && (r.includes(actionTarget) || actionTarget == null)){
+          if (propertyPosition != -1 && (r.includes(rt) || actionTarget == null)){
+
             profile = r
             break
           }
@@ -3612,19 +3616,11 @@ export const useProfileStore = defineStore('profile', {
     * @param {object} incomingUserValue - the incoming userValue to set
     * @return {string} the id ofthe newPropertyId 
     */
-    duplicateComponentGetId: async function(componentGuid, structure){
+    duplicateComponentGetId: async function(componentGuid, structure, profileName){
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
-      //Ensure that the component is going to the right place by checking the structure.parentID
-      let actionTarget = null
-      if (structure.parentId.includes("Instance")) {
-        actionTarget = "Instance"
-      } else if (structure.parentId.includes("Work")) {
-        actionTarget = "Work"
-      }
 
       if (pt !== false){
         let profile
@@ -3644,12 +3640,9 @@ export const useProfileStore = defineStore('profile', {
               if (item.includes(key)){
                   lastPosition = idx
               }
-          }
+          }          
+          profile = profileName
 
-          if (propertyPosition != -1 && (r.includes(actionTarget) || actionTarget == null)){
-            profile = r
-            break
-          }
         }
 
         
@@ -3806,7 +3799,6 @@ export const useProfileStore = defineStore('profile', {
         this.dataChangedTimestamp = Date.now()
         // console.log("CHANGED 1!!!")
       },500)
-
     },
 
 
@@ -3825,11 +3817,12 @@ export const useProfileStore = defineStore('profile', {
 
 
     /**
-    * Build a new seconary instance
+    * Build a new instance
     *
+    * @param lccn {string} the lccn for the new instance. If there isn't one, this is a secondary instance
     * @return {void}
     */
-    createSecondaryInstance:  function(){
+    createInstance:  function(secondary=false){
 
 
       // find the RT for the instance of this profile orginally
@@ -3881,12 +3874,6 @@ export const useProfileStore = defineStore('profile', {
         // update the parentId
         this.activeProfile.rt[newRdId].pt[pt].parentId = this.activeProfile.rt[newRdId].pt[pt].parentId.replace(instanceName,newRdId)
         this.activeProfile.rt[newRdId].pt[pt].parent = this.activeProfile.rt[newRdId].pt[pt].parent.replace(instanceName,newRdId)
-
-
-
-
-
-
       }
 
 
@@ -3896,9 +3883,13 @@ export const useProfileStore = defineStore('profile', {
 
       this.activeProfile.rt[newRdId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
       this.activeProfile.rt[newRdId].instanceOf = workUri
-
-      this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
-
+      
+      if (secondary){
+        this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
+      }
+      
+      this.activeProfile.rt[newRdId].deletable = true
+      
       this.dataChanged()
 
     },
@@ -4207,9 +4198,22 @@ export const useProfileStore = defineStore('profile', {
 
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent){
-        const matchGuid = newComponent["@guid"]
         this.changeGuid(newComponent)
         let profile = this.activeProfile
+        
+        // handle pasting into a profileRT that doesn't exist in the new profile
+        // This is for when the source is an additional Instance, that doesn't exist in
+        // in the title
+        let targetRt
+        if (!profile.rtOrder.includes(newComponent.parentId)){
+            if (newComponent.parentId.includes("_")){
+                targetRt = newComponent.parentId.split("_").at(0)
+            } else {
+                targetRt = newComponent.parentId
+            }
+        } else {
+            targetRt = newComponent.parentId
+        }
 
         for (let rt in profile["rt"]){
             let frozenPts = JSON.parse(JSON.stringify(profile["rt"][rt]["pt"]))
@@ -4219,21 +4223,21 @@ export const useProfileStore = defineStore('profile', {
             for (let pt in frozenPts){
                 let current = profile["rt"][rt]["pt"][pt]
 
-                if (rt == newComponent.parentId){
+                if (rt == targetRt){
                     let targetURI = newComponent.propertyURI
                     let targetLabel = newComponent.propertyLabel
-                    
+
                     if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
                         if (Object.keys(current.userValue).length == 1){
                             current.userValue = newComponent.userValue
                             break
                         } else {
                             let guid = current["@guid"]
-                            let structure = this.returnStructureByComponentGuid(matchGuid)
-                            let newPt = await this.duplicateComponentGetId(matchGuid, structure)
+                            let structure = this.returnStructureByComponentGuid(guid)
+                            let newPt = await this.duplicateComponentGetId(guid, structure, rt)
                             
-                            profile["rt"][rt]["pt"][newPt].userModified = true
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
+                            profile["rt"][rt]["pt"][newPt].userModified = true
                             break
                         }
                     }

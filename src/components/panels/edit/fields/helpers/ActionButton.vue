@@ -390,6 +390,10 @@
 
         // if it's part of a group with members that have defaults, and that group isn't the whole thing
         let parentId = this.structure.parentId
+        
+        if (parentId.includes("_")){
+            parentId = parentId.split("_")[0]
+        }
 
         if (!parentId.endsWith("Work") && !parentId.endsWith("Instance") && !parentId.endsWith("Hub") && !parentId.endsWith("Item")){
           for (let sibling of this.profileStore.rtLookup[parentId].propertyTemplates){
