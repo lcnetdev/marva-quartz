@@ -1466,6 +1466,8 @@ export const useProfileStore = defineStore('profile', {
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
         
+        
+        
         //TODO: get the electronic locator fields working when entering data
         console.info("  literal: ")
         console.info("  literal: componentGuid", componentGuid)
@@ -1483,8 +1485,14 @@ export const useProfileStore = defineStore('profile', {
         if (propertyPath.some((pp) => pp.propertyURI.includes("supplementaryContent")) && propertyPath.at(-1).propertyURI == "http://www.w3.org/2000/01/rdf-schema#label"){
             propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
             propertyPath.at(-1).level = 2
-
         }
+        
+        // for the electronic locator, the path ends with `sameAs`, but it just gets in the way
+        let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
+        if (isLocator){
+            propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
+        }
+        
 
 
       let lastProperty = propertyPath.at(-1).propertyURI
@@ -1602,6 +1610,9 @@ export const useProfileStore = defineStore('profile', {
 
         // and now add in the literal value into the correct property
         blankNode[lastProperty] = value
+        if (isLocator){
+            blankNode["@id"] = value
+        }
 		
         // if we just set an empty value, remove the value property, and if there are no other values, remvoe the entire property
         if (value.trim() === ''){
