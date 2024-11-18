@@ -1610,7 +1610,12 @@ export const useProfileStore = defineStore('profile', {
 
         // and now add in the literal value into the correct property
         blankNode[lastProperty] = value
-        if (isLocator){
+        
+        console.info("blankNode: ", JSON.parse(JSON.stringify(blankNode)))
+        console.info("keys: ", Object.keys(blankNode))
+        console.info("locator?", Object.keys(blankNode).some((key) => key == "http://id.loc.gov/ontologies/bibframe/electronicLocator"))
+        
+        if (isLocator && Object.keys(blankNode).some((key) => key == "http://id.loc.gov/ontologies/bibframe/electronicLocator")){
             blankNode["@id"] = value
         }
 		
