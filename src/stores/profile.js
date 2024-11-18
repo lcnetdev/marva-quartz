@@ -1467,9 +1467,25 @@ export const useProfileStore = defineStore('profile', {
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
         
         //TODO: get the electronic locator fields working when entering data
+        console.info("  literal: ")
+        console.info("  literal: componentGuid", componentGuid)
+        console.info("  literal: fieldGuid", fieldGuid)
+        console.info("  literal: propertyPath", propertyPath)
+        console.info("  literal: value", value)
+        console.info("  literal: lang", lang)
+        console.info("  literal: repeatedLiteral", repeatedLiteral)
         
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
+      
+      
+      //The propertyPath for supplementaryContent's note is missing the note. It jumps straight to the label
+        if (propertyPath.some((pp) => pp.propertyURI.includes("supplementaryContent")) && propertyPath.at(-1).propertyURI == "http://www.w3.org/2000/01/rdf-schema#label"){
+            propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
+            propertyPath.at(-1).level = 2
+
+        }
+
 
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
