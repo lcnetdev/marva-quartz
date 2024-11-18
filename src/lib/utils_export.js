@@ -182,7 +182,19 @@ const utilsExport = {
   * @return {boolean}
   */
 	createLiteral: function(property,userValue){
+        console.info("            creating literal", property, "--", userValue)
         let p = this.createElByBestNS(property)
+        
+        //ignore electronicLocator, after setting the id
+        // Otherwise, the "literal," which is really a URI, will update the ID and the value in the tags
+        if (property == "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
+            // does it also have a URI?
+            if (userValue['@id']){
+                p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
+            }
+            return p
+        }
+        
 		// it should be stored under the same key
 		if (userValue[property]){
 			// one last sanity check, don't make empty literals
@@ -195,7 +207,7 @@ const utilsExport = {
 		if (userValue['@id']){
 			p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
 		}
-
+        
 		if (!this.checkForEDTFDatatype){ this.checkForEDTFDatatype = useConfigStore().checkForEDTFDatatype}
 
 		if (userValue['@datatype']){
@@ -813,6 +825,7 @@ const utilsExport = {
                                             //instead of appending
                                             // do this at lvl1?
                                             
+                                            console.info(">>>>> setting namespace", value1[key2])
                                             //set the rdf:resource at pLvl2
                                             pLvl2.setAttributeNS(this.namespace.rdf, 'rdf:resource', value1[key2])           //here!
                                             
@@ -917,6 +930,8 @@ const utilsExport = {
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 												// its a label or some other literal
                                                 if (pLvl1.tagName == "bf:electronicLocator"){  // handle url of instance when typing
+                                                    console.info("##### setting namespace", value1[key2])
+                                                
                                                      pLvl1.setAttributeNS(this.namespace.rdf, 'rdf:resource', value1[key2])
                                                      bnodeLvl1.remove()
                                                 } else {

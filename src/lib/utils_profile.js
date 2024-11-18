@@ -352,7 +352,7 @@ const utilsProfile = {
   */
   returnValueFromPropertyPath: function(pt,propertyPath){
         
-         let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
+      let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
         
       let deepestLevel
       if (propertyPath[propertyPath.length-1]){
