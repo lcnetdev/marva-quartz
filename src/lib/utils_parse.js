@@ -529,9 +529,7 @@ const utilsParse = {
         xml = this.sniffNoteType(xml)
       }
 
-
-
-
+      
 
       let sucessfulProperties  = []
       let sucessfulElements  = []
@@ -1585,7 +1583,9 @@ const utilsParse = {
 
               let newKey = `${k}_${counter}`
               let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
-              profile.rt[pkey].ptOrder.splice(currentpos+1, 0, newKey);
+              let newpos = currentpos - 1
+              if (newpos <0){newpos=0}
+              profile.rt[pkey].ptOrder.splice(newpos, 0, newKey);
               populateData.id = newKey
               pt[newKey] = populateData
 
