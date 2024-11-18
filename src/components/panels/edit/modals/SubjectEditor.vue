@@ -1550,7 +1550,7 @@ methods: {
         out.push("Auth Hd")
       } else if (collections.includes("GenreFormSubdivisions")){
         out.push("GnFrm")
-      } else if (collections.includes("GeographicSubdivisions") || collections.includes("SubdivideGeographically")){
+      } else if (collections.includes("GeographicSubdivisions")){
         out.push("GeoSubDiv")
       } else if (collections.includes("Subdivisions")){
         out.push("SubDiv")
@@ -1574,6 +1574,7 @@ methods: {
     }
 
     this.getContext()
+    
     if (this.contextData){
       this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
     }
@@ -1765,8 +1766,25 @@ methods: {
       if (this.activeTypes[this.activeComponent.type]){
         this.activeTypes[this.activeComponent.type].selected=true
       }
-    }
+    } else if (this.activeComponent.type == null && this.activeComponent.marcKey != null){ //fall back on the marcKey, this can be null if the selection is too fast?
+        let subfield = this.activeComponent.marcKey.slice(5, 7)
+        switch(subfield){
+            case("$v"):
+              subfield = "madsrdf:GenreForm"
+              break
+            case("$y"):
+              subfield = "madsrdf:Temporal"
+              break
+            case("$z"):
+              subfield = "madsrdf:Geographic"
+              break
+            default:
+              subfield = "madsrdf:Topic"
+        }
 
+        this.activeTypes[subfield].selected=true
+        this.activeComponent.type = subfield
+    }
 
   },
 
@@ -1955,25 +1973,19 @@ methods: {
 
             if (this.localContextCache[x.uri].type === 'GenreForm'){
               x.type = 'madsrdf:GenreForm'
-            }
-            if (this.localContextCache[x.uri].type === 'Temporal'){
+            } else if (this.localContextCache[x.uri].type === 'Temporal'){
               x.type = 'madsrdf:Temporal'
-            }
-            if (this.localContextCache[x.uri].type === 'Geographic'){
+            } else if (this.localContextCache[x.uri].type === 'Geographic'){
               x.type = 'madsrdf:Geographic'
-            }
-            if (this.localContextCache[x.uri].type === 'Topic'){
+            } else if (this.localContextCache[x.uri].type === 'Topic'){
               x.type = 'madsrdf:Topic'
+            } else {
+                x.type = 'madsrdf:Topic'
             }
 
           }
 
         }
-
-        // always make the first one the topic
-        try {
-            this.components[0].type = 'madsrdf:Topic'
-        } catch {}
 
         this.updateAvctiveTypeSelected()
         this.validateOkayToAdd()
@@ -2103,7 +2115,7 @@ methods: {
       // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
       if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]){
         c.type = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
-      }
+      } 
     }
 
     // If the individual components together, match a complex subject, switch'em so the user ends up with a controlled term
@@ -2160,6 +2172,7 @@ methods: {
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
 			const target = frozenComponents[component]
+            
 			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
 				let uri = target.uri
 				let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
