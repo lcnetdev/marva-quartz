@@ -131,12 +131,16 @@
         ]
 
 
-        if (this.$route.path.startsWith('/edit/')){      
+        if (this.$route.path.startsWith('/edit/')){
           menuButtonSubMenu.push({ is: 'separator'})            
           menuButtonSubMenu.push(
             {
+              text: 'Add Additional Instance',
+              click: () => { this.profileStore.createInstance(false) }
+            },
+            {
               text: 'Add Secondary Instance',
-              click: () => { this.profileStore.createSecondaryInstance() }
+              click: () => { this.profileStore.createInstance(true) }
             }
           )
         }
@@ -443,6 +447,7 @@
               }
           })
       },
+      
     },
 
     created() {

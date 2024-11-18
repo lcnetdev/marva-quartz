@@ -286,7 +286,6 @@
                   <tbody>
                   
                     <template v-for="r in results">
-                    
                       <template  v-if="r.selected == undefined">
                         <tr :class="[{nuba: r.notused == 'nuba'}]">
                           <td>{{ r.term }}</td>
