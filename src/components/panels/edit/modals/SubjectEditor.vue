@@ -1766,7 +1766,7 @@ methods: {
       if (this.activeTypes[this.activeComponent.type]){
         this.activeTypes[this.activeComponent.type].selected=true
       }
-    } else if (this.activeComponent.type == null){ //fall back on the marcKey, this can be null if the selection is too fast?
+    } else if (this.activeComponent.type == null && this.activeComponent.marcKey != null){ //fall back on the marcKey, this can be null if the selection is too fast?
         let subfield = this.activeComponent.marcKey.slice(5, 7)
         switch(subfield){
             case("$v"):
