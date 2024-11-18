@@ -187,13 +187,13 @@ const utilsExport = {
         
         //ignore electronicLocator, after setting the id
         // Otherwise, the "literal," which is really a URI, will update the ID and the value in the tags
-        if (property == "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
-            // does it also have a URI?
-            if (userValue['@id']){
-                p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
-            }
-            return p
-        }
+        // if (property == "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
+            // //does it also have a URI?
+            // if (userValue['@id']){
+                // p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
+            // }
+            // return p
+        // }
         
 		// it should be stored under the same key
 		if (userValue[property]){
@@ -926,6 +926,7 @@ const utilsExport = {
 										}
 									}
 									if (keys.length>0){
+                                        console.info("####keys", keys)
 										for (let key2 of keys){
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 												// its a label or some other literal

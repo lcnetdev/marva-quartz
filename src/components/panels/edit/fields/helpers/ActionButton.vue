@@ -383,6 +383,8 @@
       },
 
       hasDefaultValues: function(){
+          // console.info("this.structure", this.structure.propertyLabel)
+          // console.info("this.structure", this.structure)
         // if the selected item has defaults
         if (this.structure.valueConstraint.defaults.length > 0){
           return true
@@ -390,9 +392,13 @@
 
         // if it's part of a group with members that have defaults, and that group isn't the whole thing
         let parentId = this.structure.parentId
+        // console.info("parentId", parentId)
+        // console.info("this.profileStore.rtLookup[parentId]: ", this.profileStore.rtLookup[parentId])
 
         if (!parentId.endsWith("Work") && !parentId.endsWith("Instance") && !parentId.endsWith("Hub") && !parentId.endsWith("Item")){
+            
           for (let sibling of this.profileStore.rtLookup[parentId].propertyTemplates){
+              // console.info("sibling: ", sibling.propertyLabel)
             if (sibling.valueConstraint.defaults.length > 0){
               return true
             }

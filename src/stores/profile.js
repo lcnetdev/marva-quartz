@@ -3402,6 +3402,9 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
+      console.info("inserting defaults")
+      console.info("componentGuid: ", componentGuid)
+      console.info("structure: ", structure)
     // console.log(componentGuid)
     // console.log("structure",structure)
 

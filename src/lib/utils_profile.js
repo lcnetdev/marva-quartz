@@ -399,7 +399,9 @@ const utilsProfile = {
           }else{
 
             console.error("Expecting Array in this userValue property:",pt,p,propertyPath)
-            if (isLocator){ console.info("        returning false 1") }
+            if (isLocator){ 
+                console.info("        returning false 1") 
+            }
             return false
 
           }
@@ -407,7 +409,10 @@ const utilsProfile = {
         }else{
           // the level doesn't exist here, we were unable to traverse the whole hierachy
           // whihch means the value is not set, so we retun false to say it failed
-          if (isLocator){ console.info("        returning false 2") }
+          if (isLocator){ 
+            console.info("        returning false 2") 
+            console.info("        pointer[", p.propertyURI, "]: ", pointer[p.propertyURI])
+         }
           return false
 
         }
