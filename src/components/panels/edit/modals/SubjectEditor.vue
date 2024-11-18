@@ -1970,11 +1970,6 @@ methods: {
 
         }
 
-        // always make the first one the topic
-        try {
-            this.components[0].type = 'madsrdf:Topic'
-        } catch {}
-
         this.updateAvctiveTypeSelected()
         this.validateOkayToAdd()
       },400)
@@ -2103,7 +2098,7 @@ methods: {
       // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
       if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]){
         c.type = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
-      }
+      } 
     }
 
     // If the individual components together, match a complex subject, switch'em so the user ends up with a controlled term
@@ -2160,6 +2155,7 @@ methods: {
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
 			const target = frozenComponents[component]
+            
 			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
 				let uri = target.uri
 				let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
