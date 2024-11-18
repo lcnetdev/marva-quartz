@@ -1574,6 +1574,7 @@ methods: {
     }
 
     this.getContext()
+    
     if (this.contextData){
       this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
     }
@@ -1765,8 +1766,25 @@ methods: {
       if (this.activeTypes[this.activeComponent.type]){
         this.activeTypes[this.activeComponent.type].selected=true
       }
-    }
+    } else if (this.activeComponent.type == null){ //fall back on the marcKey, this can be null if the selection is too fast?
+        let subfield = this.activeComponent.marcKey.slice(5, 7)
+        switch(subfield){
+            case("$v"):
+              subfield = "madsrdf:GenreForm"
+              break
+            case("$y"):
+              subfield = "madsrdf:Temporal"
+              break
+            case("$z"):
+              subfield = "madsrdf:Geographic"
+              break
+            default:
+              subfield = "madsrdf:Topic"
+        }
 
+        this.activeTypes[subfield].selected=true
+        this.activeComponent.type = subfield
+    }
 
   },
 
@@ -1955,15 +1973,14 @@ methods: {
 
             if (this.localContextCache[x.uri].type === 'GenreForm'){
               x.type = 'madsrdf:GenreForm'
-            }
-            if (this.localContextCache[x.uri].type === 'Temporal'){
+            } else if (this.localContextCache[x.uri].type === 'Temporal'){
               x.type = 'madsrdf:Temporal'
-            }
-            if (this.localContextCache[x.uri].type === 'Geographic'){
+            } else if (this.localContextCache[x.uri].type === 'Geographic'){
               x.type = 'madsrdf:Geographic'
-            }
-            if (this.localContextCache[x.uri].type === 'Topic'){
+            } else if (this.localContextCache[x.uri].type === 'Topic'){
               x.type = 'madsrdf:Topic'
+            } else {
+                x.type = 'madsrdf:Topic'
             }
 
           }
