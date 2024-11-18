@@ -3351,7 +3351,7 @@ export const useProfileStore = defineStore('profile', {
 
     // locate the correct pt to work on in the activeProfile
     let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
+    
     //Delete related items from the cache, loading from the cache
     // sometimes causes errors after inserting defaults
     if (Object.keys(cachePt).includes(componentGuid)){
@@ -3375,13 +3375,14 @@ export const useProfileStore = defineStore('profile', {
       if (structure){
 
         if (structure.parentId){
-          if (structure.parentId.endsWith("Work") || structure.parentId.endsWith("Instance") || structure.parentId.endsWith("Hub") || structure.parentId.endsWith("Item")){
+          if (structure.parentId.endsWith("Work") || structure.parentId.includes("Instance") || structure.parentId.endsWith("Hub") || structure.parentId.endsWith("Item")){
             isParentTop = true
           }
-
+          
           let defaultsProperty = false
           if (this.rtLookup[structure.parentId]){
               for (let p of this.rtLookup[structure.parentId].propertyTemplates){
+                  
                 // dose it have a default value?
                 if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
                   if (p.valueConstraint.valueTemplateRefs && p.valueConstraint.valueTemplateRefs.length>0){
@@ -3454,9 +3455,8 @@ export const useProfileStore = defineStore('profile', {
                         if (blankNodeType){
                           value['@type'] = blankNodeType
                         }
-
                       }
-
+                      
                       // if we're not working at the top level, just add the default values
                       if (!isParentTop){
                         userValue[p.propertyURI].push(value)
@@ -3863,17 +3863,17 @@ export const useProfileStore = defineStore('profile', {
 
       instanceCount++
       // console.log('instanceCount',instanceCount)
-      let newRdId = instanceName+'_'+instanceCount
+      let newRtId = instanceName +'_'+instanceCount
       instanceRt.isNew = true
-      this.activeProfile.rt[newRdId] = instanceRt
-      this.activeProfile.rtOrder.push(newRdId)
+      this.activeProfile.rt[newRtId] = instanceRt
+      this.activeProfile.rtOrder.push(newRtId)
 
       // give it all new guids
-      for (let pt in this.activeProfile.rt[newRdId].pt){
-        this.activeProfile.rt[newRdId].pt[pt]['@guid'] = short.generate()
+      for (let pt in this.activeProfile.rt[newRtId].pt){
+        this.activeProfile.rt[newRtId].pt[pt]['@guid'] = short.generate()
         // update the parentId
-        this.activeProfile.rt[newRdId].pt[pt].parentId = this.activeProfile.rt[newRdId].pt[pt].parentId.replace(instanceName,newRdId)
-        this.activeProfile.rt[newRdId].pt[pt].parent = this.activeProfile.rt[newRdId].pt[pt].parent.replace(instanceName,newRdId)
+        this.activeProfile.rt[newRtId].pt[pt].parentId = this.activeProfile.rt[newRtId].pt[pt].parentId.replace(instanceName, newRtId)
+        this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(instanceName, newRtId)
       }
 
 
@@ -3881,14 +3881,17 @@ export const useProfileStore = defineStore('profile', {
       // setup the new instance's properies
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
-      this.activeProfile.rt[newRdId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
-      this.activeProfile.rt[newRdId].instanceOf = workUri
+      this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
+      this.activeProfile.rt[newRtId].instanceOf = workUri
       
       if (secondary){
-        this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
+        this.activeProfile.rt[newRtId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
       }
       
-      this.activeProfile.rt[newRdId].deletable = true
+      this.activeProfile.rt[newRtId].deletable = true
+      
+      //Add to rtLookup, with a copy of an instance as the value
+      this.rtLookup[newRtId] = this.rtLookup[instanceName]
       
       this.dataChanged()
 
