@@ -3022,15 +3022,12 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
         let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
-
 
         if (uv && uv['@type'] && uv['@type'] == 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
 
         // this is a LCC field then
-
           // we need to gather info from the component and the rest of the work to build links/suggestions
 
 
@@ -3049,7 +3046,7 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-
+          
 
           if (titleNonSort && titleNonSort.trim().length >0 && title){
             if (isNaN(parseInt(titleNonSort)) == false ){
@@ -3099,6 +3096,13 @@ export const useProfileStore = defineStore('profile', {
 
 
         if (pt && pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' && Object.keys(pt.userValue).length == 1){
+
+          if (titleNonSort && titleNonSort.trim().length >0 && title){
+            if (isNaN(parseInt(titleNonSort)) == false ){
+              titleNonSort = parseInt(titleNonSort)
+              title = title.substr(titleNonSort).trim()
+            }
+          }
 
           // it is a new record, so there is no info but the LCC classification is by default so populate the other stuff
           return {
