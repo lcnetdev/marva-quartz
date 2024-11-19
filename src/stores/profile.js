@@ -84,6 +84,10 @@ export const useProfileStore = defineStore('profile', {
     showPostModal: false,
     showRecoveryModal: false,
     showValidateModal: false,
+    showHubStubCreateModal: false,
+    activeHubStubData:{
+
+    },
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
@@ -2896,11 +2900,11 @@ export const useProfileStore = defineStore('profile', {
     * used in the interface rendering
     * @return {boolean}
     */
-    returnLccInfo: function(componentGuid, structure){
+    returnLccInfo: function(componentGuid){
 
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
+      console.log(pt)
       let classNumber = null
       let classGuid = null
 
@@ -2926,7 +2930,7 @@ export const useProfileStore = defineStore('profile', {
           if (work){ break }
         }
       }
-
+      console.log("work",work)
       if (work){
 
         for (let ptId in work.pt){
@@ -2993,7 +2997,20 @@ export const useProfileStore = defineStore('profile', {
                         {
                         let agent = contributorUserValue['http://id.loc.gov/ontologies/bibframe/agent'][0]
                         if (agent && agent['http://www.w3.org/2000/01/rdf-schema#label'] && agent['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && agent['http://www.w3.org/2000/01/rdf-schema#label'][0] && agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-                            contributors.push({type:type,label:agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']})
+                          console.log("agentagentagentagent",agent)  
+                          let agentData = {type:type,label:agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']}
+                          if (agent['@id']){
+                            agentData['@id'] = agent['@id']
+                          }else{
+                            agentData['@id'] = null
+                          }
+                          if (agent['http://id.loc.gov/ontologies/bflc/marcKey']){
+                            agentData['http://id.loc.gov/ontologies/bflc/marcKey'] = agent['http://id.loc.gov/ontologies/bflc/marcKey']
+                          }else{
+                            agentData['http://id.loc.gov/ontologies/bflc/marcKey'] = null
+                          }
+
+                          contributors.push(agentData)
                         }
                     }
                 }
@@ -3098,7 +3115,7 @@ export const useProfileStore = defineStore('profile', {
       }else{
 
 
-        if (pt && pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' && Object.keys(pt.userValue).length == 1){
+        if (pt && (pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' || pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation') && Object.keys(pt.userValue).length == 1){
 
           // it is a new record, so there is no info but the LCC classification is by default so populate the other stuff
           return {
