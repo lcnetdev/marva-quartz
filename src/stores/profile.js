@@ -1469,6 +1469,7 @@ export const useProfileStore = defineStore('profile', {
         
         
         //TODO: get the electronic locator fields working when entering data
+        // for supplementary content note, it updates the URI, but also populates the <bf:electronicLocator>...</...>
         console.info("  literal: ")
         console.info("  literal: componentGuid", componentGuid)
         console.info("  literal: fieldGuid", fieldGuid)
