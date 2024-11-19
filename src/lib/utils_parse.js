@@ -1583,7 +1583,14 @@ const utilsParse = {
 
               let newKey = `${k}_${counter}`
               let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
-              let newpos = currentpos - 1
+              let newpos 
+              
+              if (['http://id.loc.gov/ontologies/bibframe/identifiedBy', 'http://id.loc.gov/ontologies/bibframe/subject'].indexOf(pt[k].propertyURI) >-1){
+                newpos= currentpos - 1
+              }else{
+                newpos= currentpos + 1
+              }
+
               if (newpos <0){newpos=0}
               profile.rt[pkey].ptOrder.splice(newpos, 0, newKey);
               populateData.id = newKey
