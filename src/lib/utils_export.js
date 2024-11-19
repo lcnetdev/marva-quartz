@@ -796,7 +796,9 @@ const utilsExport = {
 
 							let value1FirstLoop = true
 							// loop through the value array of each of them
+                            console.info("key1", key1)
 							for (let value1 of userValue[key1]){
+                                console.info("value1", value1)
 
 								if (!value1FirstLoop && this.needsNewPredicate(key1)){
 									// we are going to make a new predicate, same type but not the same one as the last one was attached to
@@ -927,13 +929,14 @@ const utilsExport = {
 									}
 									if (keys.length>0){
                                         console.info("####keys", keys)
+                                        console.info("####userValue", userValue)
 										for (let key2 of keys){
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 												// its a label or some other literal
                                                 if (pLvl1.tagName == "bf:electronicLocator"){  // handle url of instance when typing
-                                                    console.info("##### setting namespace", value1[key2])
+                                                    console.info("##### setting namespace", userValue[key1])
                                                 
-                                                     pLvl1.setAttributeNS(this.namespace.rdf, 'rdf:resource', value1[key2])
+                                                     pLvl1.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1])
                                                      bnodeLvl1.remove()
                                                 } else {
                                                     let p2 = this.createLiteral(key2, value1)
