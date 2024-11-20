@@ -1465,7 +1465,14 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
-        
+        console.info("setValueLiteral")
+        console.info("componentGuid: ", componentGuid)
+        console.info("fieldGuid: ", fieldGuid)
+        console.info("propertyPath: ", propertyPath)
+        console.info("value: ", value)
+        console.info("lang: ", lang)
+        console.info("repeatedLiteral: ", repeatedLiteral)
+      
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       
@@ -1478,7 +1485,7 @@ export const useProfileStore = defineStore('profile', {
       }
         
       // for the electronic locator, the path ends with `sameAs`, but it just gets in the way, toss it
-      let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
+      let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent") || pp.propertyURI.includes("tableOfContents"))
       if (isLocator){
           propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
       }
@@ -1697,7 +1704,7 @@ export const useProfileStore = defineStore('profile', {
     */
     returnLiteralValueFromProfile: function(componentGuid, propertyPath){
         
-        let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
+        let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent") || pp.propertyURI.includes("tableOfContents") )
         if (isLocator){
             // `sameAs` gets in the way for the electronicLocator, toss it
             propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -1708,6 +1715,11 @@ export const useProfileStore = defineStore('profile', {
                 propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
                 propertyPath.at(-1).level = 2
             }
+            // For table of contents, there's also an intermediate piece missing?
+            // if (propertyPath.some((pp) => pp.propertyURI.includes("tableOfContents"))){
+                // propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/TableOfContents" })
+                // propertyPath.at(-1).level = 2
+            // }
         }
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
