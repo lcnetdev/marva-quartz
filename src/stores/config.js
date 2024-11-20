@@ -86,7 +86,7 @@ export const useConfigStore = defineStore('config', {
         ldpjs : 'https://bibframe.org/marva/api-production/',
         util  :  'https://bibframe.org/marva/util/',
         utilLang  :  'https://bibframe.org/marva/util-lang/',
-        scriptshifter  :  'https://bibframe.org/marva/scriptshifter/',
+        scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate',
         bfdb : 'https://id.loc.gov/',
