@@ -397,6 +397,7 @@ const utilsProfile = {
       }
       
       if (isLocator){ 
+        // deleting this avoids the creation of a "rdf:Resource" tag for "URL of Instance"
         delete pointer[0]["@type"]
       }
       
