@@ -392,8 +392,11 @@
 
         // if it's part of a group with members that have defaults, and that group isn't the whole thing
         let parentId = this.structure.parentId
-        // console.info("parentId", parentId)
-        // console.info("this.profileStore.rtLookup[parentId]: ", this.profileStore.rtLookup[parentId])
+        
+        if (parentId.includes("_")){
+            parentId = parentId.split("_")[0]
+        }
+
 
         if (!parentId.endsWith("Work") && !parentId.endsWith("Instance") && !parentId.endsWith("Hub") && !parentId.endsWith("Item")){
             

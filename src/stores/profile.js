@@ -2095,13 +2095,16 @@ export const useProfileStore = defineStore('profile', {
 
           //Add gacs code to user data
           if (nodeMap["GAC(s)"]){
-            blankNode["http://www.loc.gov/mads/rdf/v1#code"] = [
-              {
-                '@guid': short.generate(),
-                "@gacs": "http://id.loc.gov/datatypes/codes/gac",
-                'http://www.loc.gov/mads/rdf/v1#code': nodeMap["GAC(s)"][0]
-              }
-            ]
+            blankNode["http://www.loc.gov/mads/rdf/v1#code"] = []
+            for (let code in nodeMap["GAC(s)"]){
+                blankNode["http://www.loc.gov/mads/rdf/v1#code"].push(
+                  {
+                    '@guid': short.generate(),
+                    "@gacs": "http://id.loc.gov/datatypes/codes/gac",
+                    'http://www.loc.gov/mads/rdf/v1#code': nodeMap["GAC(s)"][code]
+                  }
+                )
+            }
           }
 
           if (!Array.isArray(marcKey)){
@@ -3065,15 +3068,12 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
         let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
-
 
         if (uv && uv['@type'] && uv['@type'] == 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
 
         // this is a LCC field then
-
           // we need to gather info from the component and the rest of the work to build links/suggestions
 
 
@@ -3092,7 +3092,7 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-
+          
 
           if (titleNonSort && titleNonSort.trim().length >0 && title){
             if (isNaN(parseInt(titleNonSort)) == false ){
@@ -3142,6 +3142,13 @@ export const useProfileStore = defineStore('profile', {
 
 
         if (pt && pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' && Object.keys(pt.userValue).length == 1){
+
+          if (titleNonSort && titleNonSort.trim().length >0 && title){
+            if (isNaN(parseInt(titleNonSort)) == false ){
+              titleNonSort = parseInt(titleNonSort)
+              title = title.substr(titleNonSort).trim()
+            }
+          }
 
           // it is a new record, so there is no info but the LCC classification is by default so populate the other stuff
           return {
@@ -3394,7 +3401,7 @@ export const useProfileStore = defineStore('profile', {
 
     // locate the correct pt to work on in the activeProfile
     let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
+    
     //Delete related items from the cache, loading from the cache
     // sometimes causes errors after inserting defaults
     if (Object.keys(cachePt).includes(componentGuid)){
@@ -3418,13 +3425,14 @@ export const useProfileStore = defineStore('profile', {
       if (structure){
 
         if (structure.parentId){
-          if (structure.parentId.endsWith("Work") || structure.parentId.endsWith("Instance") || structure.parentId.endsWith("Hub") || structure.parentId.endsWith("Item")){
+          if (structure.parentId.endsWith("Work") || structure.parentId.includes("Instance") || structure.parentId.endsWith("Hub") || structure.parentId.endsWith("Item")){
             isParentTop = true
           }
-
+          
           let defaultsProperty = false
           if (this.rtLookup[structure.parentId]){
               for (let p of this.rtLookup[structure.parentId].propertyTemplates){
+                  
                 // dose it have a default value?
                 if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
                   if (p.valueConstraint.valueTemplateRefs && p.valueConstraint.valueTemplateRefs.length>0){
@@ -3497,9 +3505,8 @@ export const useProfileStore = defineStore('profile', {
                         if (blankNodeType){
                           value['@type'] = blankNodeType
                         }
-
                       }
-
+                      
                       // if we're not working at the top level, just add the default values
                       if (!isParentTop){
                         userValue[p.propertyURI].push(value)
@@ -3564,7 +3571,8 @@ export const useProfileStore = defineStore('profile', {
         for (let r of this.activeProfile.rtOrder){
           propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
 
-          if (propertyPosition != -1 && (r.includes(actionTarget) || actionTarget == null)){
+          if (propertyPosition != -1 && (r.includes(rt) || actionTarget == null)){
+
             profile = r
             break
           }
@@ -3658,19 +3666,11 @@ export const useProfileStore = defineStore('profile', {
     * @param {object} incomingUserValue - the incoming userValue to set
     * @return {string} the id ofthe newPropertyId 
     */
-    duplicateComponentGetId: async function(componentGuid, structure){
+    duplicateComponentGetId: async function(componentGuid, structure, profileName){
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
-      //Ensure that the component is going to the right place by checking the structure.parentID
-      let actionTarget = null
-      if (structure.parentId.includes("Instance")) {
-        actionTarget = "Instance"
-      } else if (structure.parentId.includes("Work")) {
-        actionTarget = "Work"
-      }
 
       if (pt !== false){
         let profile
@@ -3690,12 +3690,9 @@ export const useProfileStore = defineStore('profile', {
               if (item.includes(key)){
                   lastPosition = idx
               }
-          }
+          }          
+          profile = profileName
 
-          if (propertyPosition != -1 && (r.includes(actionTarget) || actionTarget == null)){
-            profile = r
-            break
-          }
         }
 
         
@@ -3852,7 +3849,6 @@ export const useProfileStore = defineStore('profile', {
         this.dataChangedTimestamp = Date.now()
         // console.log("CHANGED 1!!!")
       },500)
-
     },
 
 
@@ -3871,11 +3867,12 @@ export const useProfileStore = defineStore('profile', {
 
 
     /**
-    * Build a new seconary instance
+    * Build a new instance
     *
+    * @param lccn {string} the lccn for the new instance. If there isn't one, this is a secondary instance
     * @return {void}
     */
-    createSecondaryInstance:  function(){
+    createInstance:  function(secondary=false){
 
 
       // find the RT for the instance of this profile orginally
@@ -3916,23 +3913,17 @@ export const useProfileStore = defineStore('profile', {
 
       instanceCount++
       // console.log('instanceCount',instanceCount)
-      let newRdId = instanceName+'_'+instanceCount
+      let newRtId = instanceName +'_'+instanceCount
       instanceRt.isNew = true
-      this.activeProfile.rt[newRdId] = instanceRt
-      this.activeProfile.rtOrder.push(newRdId)
+      this.activeProfile.rt[newRtId] = instanceRt
+      this.activeProfile.rtOrder.push(newRtId)
 
       // give it all new guids
-      for (let pt in this.activeProfile.rt[newRdId].pt){
-        this.activeProfile.rt[newRdId].pt[pt]['@guid'] = short.generate()
+      for (let pt in this.activeProfile.rt[newRtId].pt){
+        this.activeProfile.rt[newRtId].pt[pt]['@guid'] = short.generate()
         // update the parentId
-        this.activeProfile.rt[newRdId].pt[pt].parentId = this.activeProfile.rt[newRdId].pt[pt].parentId.replace(instanceName,newRdId)
-        this.activeProfile.rt[newRdId].pt[pt].parent = this.activeProfile.rt[newRdId].pt[pt].parent.replace(instanceName,newRdId)
-
-
-
-
-
-
+        this.activeProfile.rt[newRtId].pt[pt].parentId = this.activeProfile.rt[newRtId].pt[pt].parentId.replace(instanceName, newRtId)
+        this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(instanceName, newRtId)
       }
 
 
@@ -3940,11 +3931,18 @@ export const useProfileStore = defineStore('profile', {
       // setup the new instance's properies
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
-      this.activeProfile.rt[newRdId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
-      this.activeProfile.rt[newRdId].instanceOf = workUri
-
-      this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
-
+      this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
+      this.activeProfile.rt[newRtId].instanceOf = workUri
+      
+      if (secondary){
+        this.activeProfile.rt[newRtId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
+      }
+      
+      this.activeProfile.rt[newRtId].deletable = true
+      
+      //Add to rtLookup, with a copy of an instance as the value
+      this.rtLookup[newRtId] = this.rtLookup[instanceName]
+      
       this.dataChanged()
 
     },
@@ -4253,9 +4251,22 @@ export const useProfileStore = defineStore('profile', {
 
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent){
-        const matchGuid = newComponent["@guid"]
         this.changeGuid(newComponent)
         let profile = this.activeProfile
+        
+        // handle pasting into a profileRT that doesn't exist in the new profile
+        // This is for when the source is an additional Instance, that doesn't exist in
+        // in the title
+        let targetRt
+        if (!profile.rtOrder.includes(newComponent.parentId)){
+            if (newComponent.parentId.includes("_")){
+                targetRt = newComponent.parentId.split("_").at(0)
+            } else {
+                targetRt = newComponent.parentId
+            }
+        } else {
+            targetRt = newComponent.parentId
+        }
 
         for (let rt in profile["rt"]){
             let frozenPts = JSON.parse(JSON.stringify(profile["rt"][rt]["pt"]))
@@ -4265,21 +4276,21 @@ export const useProfileStore = defineStore('profile', {
             for (let pt in frozenPts){
                 let current = profile["rt"][rt]["pt"][pt]
 
-                if (rt == newComponent.parentId){
+                if (rt == targetRt){
                     let targetURI = newComponent.propertyURI
                     let targetLabel = newComponent.propertyLabel
-                    
+
                     if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
                         if (Object.keys(current.userValue).length == 1){
                             current.userValue = newComponent.userValue
                             break
                         } else {
                             let guid = current["@guid"]
-                            let structure = this.returnStructureByComponentGuid(matchGuid)
-                            let newPt = await this.duplicateComponentGetId(matchGuid, structure)
+                            let structure = this.returnStructureByComponentGuid(guid)
+                            let newPt = await this.duplicateComponentGetId(guid, structure, rt)
                             
-                            profile["rt"][rt]["pt"][newPt].userModified = true
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
+                            profile["rt"][rt]["pt"][newPt].userModified = true
                             break
                         }
                     }

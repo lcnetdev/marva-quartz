@@ -529,9 +529,7 @@ const utilsParse = {
         xml = this.sniffNoteType(xml)
       }
 
-
-
-
+      
 
       let sucessfulProperties  = []
       let sucessfulElements  = []
@@ -1585,7 +1583,16 @@ const utilsParse = {
 
               let newKey = `${k}_${counter}`
               let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
-              profile.rt[pkey].ptOrder.splice(currentpos+1, 0, newKey);
+              let newpos 
+              
+              if (['http://id.loc.gov/ontologies/bibframe/identifiedBy', 'http://id.loc.gov/ontologies/bibframe/subject'].indexOf(pt[k].propertyURI) >-1){
+                newpos= currentpos - 1
+              }else{
+                newpos= currentpos + 1
+              }
+
+              if (newpos <0){newpos=0}
+              profile.rt[pkey].ptOrder.splice(newpos, 0, newKey);
               populateData.id = newKey
               pt[newKey] = populateData
 

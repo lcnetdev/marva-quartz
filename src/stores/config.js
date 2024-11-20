@@ -7,8 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 16,
-    versionPatch: 12,
-
+    versionPatch: 16,
 
 
     regionUrls: {
@@ -23,7 +22,7 @@ export const useConfigStore = defineStore('config', {
         publish : 'http://localhost:9401/util/publish/staging',
         validate: 'http://localhost:5200/validate',
         bfdb : 'https://preprod-8230.id.loc.gov/',
-        shelfListing: 'https://preprod-8300.id.loc.gov/',
+        shelfListing: 'https://preprod-8230.id.loc.gov/',
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
         starting: 'http://localhost:9401/util/profiles/starting/prod',
 
@@ -49,7 +48,7 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
         validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
-        shelfListing: 'https://preprod-8300.id.loc.gov/',
+        shelfListing: 'https://preprod-8230.id.loc.gov/',
         // bfdb : 'https://preprod-8210.id.loc.gov/',
         bfdb : 'https://preprod-8300.id.loc.gov/',
         profiles : '/bfe2/util/profiles/profile/stage',
@@ -68,7 +67,7 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter  :  'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://editor.id.loc.gov/bfe2/util/publish/production',
-        shelfListing: 'https://preprod-8300.id.loc.gov/',
+        shelfListing: 'https://preprod-8230.id.loc.gov/',
         validate: 'https://editor.id.loc.gov/bfe2/util/validate',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         bfdbGPO : 'https://preprod-8210.id.loc.gov/',
@@ -87,7 +86,7 @@ export const useConfigStore = defineStore('config', {
         ldpjs : 'https://bibframe.org/marva/api-production/',
         util  :  'https://bibframe.org/marva/util/',
         utilLang  :  'https://bibframe.org/marva/util-lang/',
-        scriptshifter  :  'https://bibframe.org/marva/scriptshifter/',
+        scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate',
         bfdb : 'https://id.loc.gov/',
