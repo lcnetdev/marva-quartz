@@ -198,18 +198,12 @@ const utilsExport = {
 	createLiteral: function(property,userValue){
         let p = this.createElByBestNS(property)
         
-        //ignore electronicLocator, after setting the id
-        // Otherwise, the "literal," which is really a URI, will update the ID and the value in the tags
-        // if (property == "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
-            // // does it also have a URI?
-            // if (userValue['@id']){
-                // p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
-            // }
-            // return p
-        // }
         
 		// it should be stored under the same key
 		if (userValue[property] && property != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
+            // without this exception, an edit to an incoming URL in SupplementaryContentNote's "Electronic Location" will update the "rdf:resource"
+            // but will also add it to the inside of the tag.
+
 			// one last sanity check, don't make empty literals
 			if (userValue[property].trim()==''){
 				return false
@@ -838,18 +832,13 @@ const utilsExport = {
 
 										xmlLog.push(`Creating lvl 3 property: ${pLvl3.tagName} for ${key2}`)
                                         
-                                        //Handles Supplementary Content
-                                        if (typeof value1[key2] == "string" && key2 == "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
-                                            //instead of appending
-                                            // do this at lvl1?
+                                        // another change makes this unnecessary
+                                        // if (typeof value1[key2] == "string" && key2 == "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
+                                            // pLvl2.setAttributeNS(this.namespace.rdf, 'rdf:resource', value1[key2])
                                             
-                                            console.info(">>>>> setting namespace", value1[key2])
-                                            //set the rdf:resource at pLvl2
-                                            pLvl2.setAttributeNS(this.namespace.rdf, 'rdf:resource', value1[key2])           //here!
-                                            
-                                            //delete bnodeLvl2, it's not needed
-                                            bnodeLvl2.remove()
-                                        }else {
+                                            // delete bnodeLvl2, it's not needed
+                                            // bnodeLvl2.remove()
+                                        // }else {
                                             for (let value2 of value1[key2]){
                                                 if (this.isBnode(value2)){
                                                     // more nested bnode
@@ -929,7 +918,7 @@ const utilsExport = {
                                                     }
                                                 }
                                             }
-                                        }
+                                        // }
 									}
 								}else{
 									xmlLog.push(`It's value at lvl is not a bnode, looping through and adding a literal value`)
@@ -949,14 +938,14 @@ const utilsExport = {
 										for (let key2 of keys){
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 												// its a label or some other literal
-                                                if (pLvl1.tagName == "bf:electronicLocator"){  // handle url of instance when typing
-                                                     pLvl1.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1])
-                                                     bnodeLvl1.remove()
-                                                } else {
+                                                // if (pLvl1.tagName == "bf:electronicLocator"){  // handle `url of instance` when typing
+                                                     // pLvl1.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1])
+                                                     // bnodeLvl1.remove()
+                                                // } else {
                                                     let p2 = this.createLiteral(key2, value1)
                                                     xmlLog.push(`Creating literal ${JSON.stringify(value1)}`)
                                                     if (p2!==false) bnodeLvl1.appendChild(p2);
-                                                }
+                                                //}
 											}else if (Array.isArray(value1[key2])){
 												for (let arrayValue of value1[key2]){
 													let keysLevel2 = Object.keys(arrayValue).filter(k => (!k.includes('@') ? true : false ) )
@@ -1136,7 +1125,7 @@ const utilsExport = {
 									}
 								}
 								componentXmlLookup[`${rt}-${pt}`] = allXMLFragments
-                            //Exception for electronicLocator so it is handled by in the next block
+                            //Exception for electronicLocator so it is handled by in the next block, otherwise, it won't appear in the XML
 							}else if (ptObj.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator" && await utilsRDF.suggestTypeNetwork(ptObj.propertyURI) == 'http://www.w3.org/2000/01/rdf-schema#Resource'){
 								// if it is a marked in the profile as a literal and has expected value of rdf:Resource flatten it to a string literal
 								let allXMLFragments = ''

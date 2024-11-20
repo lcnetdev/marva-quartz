@@ -1468,8 +1468,6 @@ export const useProfileStore = defineStore('profile', {
         
         
         
-        //TODO: get the electronic locator fields working when entering data
-        // for supplementary content note, it updates the URI, but also populates the <bf:electronicLocator>...</...>
         console.info("  literal: ")
         console.info("  literal: componentGuid", componentGuid)
         console.info("  literal: fieldGuid", fieldGuid)
@@ -1477,24 +1475,23 @@ export const useProfileStore = defineStore('profile', {
         console.info("  literal: value", value)
         console.info("  literal: lang", lang)
         console.info("  literal: repeatedLiteral", repeatedLiteral)
-        
+
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       
       
       //The propertyPath for supplementaryContent's note is missing the note. It jumps straight to the label
-        if (propertyPath.some((pp) => pp.propertyURI.includes("supplementaryContent")) && propertyPath.at(-1).propertyURI == "http://www.w3.org/2000/01/rdf-schema#label"){
-            propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
-            propertyPath.at(-1).level = 2
-        }
+      // so insert it so XML can get built
+      if (propertyPath.some((pp) => pp.propertyURI.includes("supplementaryContent")) && propertyPath.at(-1).propertyURI == "http://www.w3.org/2000/01/rdf-schema#label"){
+          propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
+          propertyPath.at(-1).level = 2
+      }
         
-        // for the electronic locator, the path ends with `sameAs`, but it just gets in the way
-        let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
-        if (isLocator){
-            propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
-        }
-        
-
+      // for the electronic locator, the path ends with `sameAs`, but it just gets in the way, toss it
+      let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
+      if (isLocator){
+          propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
+      }
 
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
@@ -1611,7 +1608,7 @@ export const useProfileStore = defineStore('profile', {
 
         // and now add in the literal value into the correct property
         blankNode[lastProperty] = value
-
+        // for electronicLocators, update the ID, so the XML can get built correctly
         if (isLocator && Object.keys(blankNode).some((key) => key == "http://id.loc.gov/ontologies/bibframe/electronicLocator")){
             blankNode["@id"] = value
         }
@@ -1712,13 +1709,14 @@ export const useProfileStore = defineStore('profile', {
         
         let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
         if (isLocator){
+            // `sameAs` gets in the way for the electronicLocator, toss it
             propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
             
             //The propertyPath for supplementaryContent's note is missing the note. It jumps straight to the label
+            //  fix the propertyPath so the XML can get built correctly
             if (propertyPath.some((pp) => pp.propertyURI.includes("supplementaryContent")) && propertyPath.at(-1).propertyURI == "http://www.w3.org/2000/01/rdf-schema#label"){
                 propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
                 propertyPath.at(-1).level = 2
-                
             }
             
             console.info("looking at locator")
@@ -1756,7 +1754,7 @@ export const useProfileStore = defineStore('profile', {
               value: unescape(v[deepestLevelURI]),
               '@language' : (v['@language']) ? v['@language'] : null,
             })
-          } else if (isLocator){
+          } else if (isLocator){ //for electronicLocator, incoming records have the value in `@id`
               values.push({
               '@guid':v['@guid'],
               value: unescape(v["@id"]),
@@ -4343,6 +4341,8 @@ export const useProfileStore = defineStore('profile', {
               if (!key.startsWith("@")){
                   let result = false
                   try{
+                      // this makes sure that the propertiesPanel will have the correct symbol when the incoming data
+                      //  has an populate electronicLocator
                       if (component.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
                           result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
                       } else {

@@ -363,17 +363,9 @@ const utilsProfile = {
 
       let pointer = pt.userValue
       
-      if (isLocator){
-          console.info("    returnValueFromPropertyPath")
-          console.info("        pointer 1: ", pointer)
-      }
-      
       // The note in the supplementaryContent is not in the propertyPath
       //    
       for (let p of propertyPath){
-          
-          if (isLocator){ console.info("        looking at ", p) }
-
         // the property path has two parts
         // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
 
@@ -385,8 +377,6 @@ const utilsProfile = {
             if (pointer[p.propertyURI].length === 0){
               console.warn("Expecting there to be at least one value here: ", pt, p, propertyPath)
             }
-            
-            if (isLocator){ console.info("        pointer 2: ", pointer) }
 
             // if this is the last level then return the whole array, if we are continuing
             // down the hiearchy then just select the first element, as we don't support multiple values at the early levels
@@ -399,20 +389,12 @@ const utilsProfile = {
           }else{
 
             console.error("Expecting Array in this userValue property:",pt,p,propertyPath)
-            if (isLocator){ 
-                console.info("        returning false 1") 
-            }
+
             return false
 
           }
 
         }else{
-          // the level doesn't exist here, we were unable to traverse the whole hierachy
-          // whihch means the value is not set, so we retun false to say it failed
-          if (isLocator){ 
-            console.info("        returning false 2") 
-            console.info("        pointer[", p.propertyURI, "]: ", pointer[p.propertyURI])
-         }
           return false
 
         }
@@ -421,12 +403,7 @@ const utilsProfile = {
       }
         if (isLocator){ 
             console.info("        returning: ", JSON.parse(JSON.stringify(pointer))) 
-            // strip out key == "id.loc.gov/ontologies/bibframe/electronicLocator"?
-            //delete pointer[0]["http://id.loc.gov/ontologies/bibframe/electronicLocator"]
-            // pointer[0]["http://id.loc.gov/ontologies/bibframe/electronicLocator"] = ""
             delete pointer[0]["@type"]
-            
-            console.info("        pointer  with deletions?: ", pointer)
         }
         
       return pointer
