@@ -1711,11 +1711,6 @@ export const useProfileStore = defineStore('profile', {
                 propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
                 propertyPath.at(-1).level = 2
             }
-            // For table of contents, there's also an intermediate piece missing?
-            // if (propertyPath.some((pp) => pp.propertyURI.includes("tableOfContents"))){
-                // propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/TableOfContents" })
-                // propertyPath.at(-1).level = 2
-            // }
         }
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
