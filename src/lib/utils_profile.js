@@ -352,29 +352,9 @@ const utilsProfile = {
   */
   returnValueFromPropertyPath: function(pt,propertyPath){
         
-      let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent") || pp.propertyURI.includes("tableOfContents"))
-      
-      if (isLocator){
-          console.info("====================")
-          console.info("pt", pt)
-          console.info("label", pt.propertyLabel)
-          console.info("propertyPath", propertyPath)
-          
-          for (let pp of propertyPath){
-              if (pp.propertyURI.includes("http://www.w3.org/1999/02/22-rdf-syntax-ns#value")){
-                  pp.propertyURI = "http://id.loc.gov/ontologies/bibframe/electronicLocator"
-              }
-          }
-          
-      } 
-      // else {
-          // console.info("====================")
-          // console.info("label", pt.propertyLabel)
-          // console.info("userValue", pt.userValue)
-          // console.info("propertyPath", propertyPath)
-          // console.info("pt", pt)
-      // }
-      
+      // this needs to include a check for "supplementaryContent", so the note will populate in the form
+      let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent") )
+            
       let deepestLevel
       if (propertyPath[propertyPath.length-1]){
         deepestLevel = propertyPath[propertyPath.length-1].level
@@ -384,16 +364,9 @@ const utilsProfile = {
 
       let pointer = pt.userValue
       
-      if (isLocator){
-          console.info("pointer", pointer)
-      } 
-      
       // The note in the supplementaryContent is not in the propertyPath
       //    
       for (let p of propertyPath){
-          if (isLocator){
-              console.info("p", p)
-          } 
         // the property path has two parts
         // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
 
@@ -415,12 +388,10 @@ const utilsProfile = {
             }
           } else {
             console.error("Expecting Array in this userValue property:",pt,p,propertyPath)
-            if (isLocator){ console.info("    returning false 1") }
             return false
           }
 
         }else{
-            if (isLocator){ console.info("    returning false 2") }
             return false
         }
       }
@@ -429,7 +400,6 @@ const utilsProfile = {
         delete pointer[0]["@type"]
       }
       
-      if (isLocator){ console.info("    returning ", pointer) }
       return pointer
 
 
