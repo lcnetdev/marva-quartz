@@ -419,8 +419,16 @@ const utilsProfile = {
 
 
       }
-
-        if (isLocator){ console.info("        returning: ", JSON.parse(JSON.stringify(pointer))) }
+        if (isLocator){ 
+            console.info("        returning: ", JSON.parse(JSON.stringify(pointer))) 
+            // strip out key == "id.loc.gov/ontologies/bibframe/electronicLocator"?
+            //delete pointer[0]["http://id.loc.gov/ontologies/bibframe/electronicLocator"]
+            // pointer[0]["http://id.loc.gov/ontologies/bibframe/electronicLocator"] = ""
+            delete pointer[0]["@type"]
+            
+            console.info("        pointer  with deletions?: ", pointer)
+        }
+        
       return pointer
 
 

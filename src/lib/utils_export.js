@@ -160,10 +160,24 @@ const utilsExport = {
 			bnode.appendChild(rdftype)
 			return bnode
 		}else{
-
+            console.info("property", property)
+            console.info("userValue", userValue) //TODO: this is where the extra tag is getting built, where's this getting called?
+            
+            // throw an error, to see what the calling function is
+            // var callerName;
+            // try { throw new Error(); }
+            // catch (e) { 
+                // var re = /(\w+)@|at (\w+) \(/g, st = e.stack, m;
+                // re.exec(st), m = re.exec(st);
+                // callerName = m[1] || m[2];
+                // console.info(e)
+            // }
+            // console.info(callerName);
+    
 			// just normally make it
 			let bnode = this.createElByBestNS(userValue['@type'])
 			if (userValue['@id']){
+                console.info("setting the thing?")
 				bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])
 			}
 			if (userValue['@parseType']){
@@ -182,7 +196,6 @@ const utilsExport = {
   * @return {boolean}
   */
 	createLiteral: function(property,userValue){
-        console.info("            creating literal", property, "--", userValue)
         let p = this.createElByBestNS(property)
         
         //ignore electronicLocator, after setting the id
@@ -758,7 +771,11 @@ const utilsExport = {
 						xmlLog.push(`Root level bnode: ${ptObj.propertyURI}`)
 
 						let pLvl1 = this.createElByBestNS(ptObj.propertyURI)
+                        
+                        console.info("creating blank node: ", userValue, "--", ptObj.propertyURI)
 						let bnodeLvl1 = this.createBnode(userValue, ptObj.propertyURI)
+                        console.info("pLvl1", pLvl1)
+                        console.info("bnode: 1", bnodeLvl1)
                         
 						xmlLog.push(`Created lvl 1 predicate: ${pLvl1.tagName} and bnode: ${bnodeLvl1.tagName}`)
 
@@ -796,9 +813,7 @@ const utilsExport = {
 
 							let value1FirstLoop = true
 							// loop through the value array of each of them
-                            console.info("key1", key1)
 							for (let value1 of userValue[key1]){
-                                console.info("value1", value1)
 
 								if (!value1FirstLoop && this.needsNewPredicate(key1)){
 									// we are going to make a new predicate, same type but not the same one as the last one was attached to
@@ -810,6 +825,7 @@ const utilsExport = {
 								// is it a bnode?  createElByBestNS
 								if (this.isBnode(value1)){
 									// yes
+                                    console.info("creating bNode: ", value1, "--", key1)
 									let bnodeLvl2 = this.createBnode(value1,key1)
                                     
 									pLvl2.appendChild(bnodeLvl2)
@@ -838,6 +854,7 @@ const utilsExport = {
                                                 if (this.isBnode(value2)){
                                                     // more nested bnode
                                                     // one more level
+                                                    console.info("creating bNode2: ", value2, "--", key2)
                                                     let bnodeLvl3 = this.createBnode(value2,key2)
                                                     pLvl3.appendChild(bnodeLvl3)
                                                     bnodeLvl2.appendChild(pLvl3)
@@ -849,6 +866,7 @@ const utilsExport = {
                                                         for (let value3 of value2[key3]){
                                                             if (this.isBnode(value3)){
                                                                 // one more level
+                                                                console.info("creating bNode3: ", value3, "--", key3)
                                                                 let bnodeLvl4 = this.createBnode(value3,key3)
                                                                 pLvl4.appendChild(bnodeLvl4)
                                                                 bnodeLvl3.appendChild(pLvl4)
@@ -928,14 +946,10 @@ const utilsExport = {
 										}
 									}
 									if (keys.length>0){
-                                        console.info("####keys", keys)
-                                        console.info("####userValue", userValue)
 										for (let key2 of keys){
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 												// its a label or some other literal
                                                 if (pLvl1.tagName == "bf:electronicLocator"){  // handle url of instance when typing
-                                                    console.info("##### setting namespace", userValue[key1])
-                                                
                                                      pLvl1.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1])
                                                      bnodeLvl1.remove()
                                                 } else {
