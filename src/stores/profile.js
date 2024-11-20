@@ -1466,16 +1466,6 @@ export const useProfileStore = defineStore('profile', {
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
         
-        
-        
-        console.info("  literal: ")
-        console.info("  literal: componentGuid", componentGuid)
-        console.info("  literal: fieldGuid", fieldGuid)
-        console.info("  literal: propertyPath", propertyPath)
-        console.info("  literal: value", value)
-        console.info("  literal: lang", lang)
-        console.info("  literal: repeatedLiteral", repeatedLiteral)
-
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       
@@ -1718,21 +1708,11 @@ export const useProfileStore = defineStore('profile', {
                 propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
                 propertyPath.at(-1).level = 2
             }
-            
-            console.info("looking at locator")
-            console.info("    componentGuid: ", componentGuid)
-            console.info("    propertyPath: ", propertyPath)
         }
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
-      
-      if (isLocator){
-            console.info("    pt: ", pt)
-            console.info("    valueLocation: ", valueLocation)
-            console.info("    deepestLevelURI: ", deepestLevelURI)
-      }
 
       // console.log(propertyPath[0], deepestLevelURI)
       // console.log('pt',pt)
@@ -3401,9 +3381,6 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
-      console.info("inserting defaults")
-      console.info("componentGuid: ", componentGuid)
-      console.info("structure: ", structure)
     // console.log(componentGuid)
     // console.log("structure",structure)
 

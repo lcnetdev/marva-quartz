@@ -382,29 +382,22 @@ const utilsProfile = {
             // down the hiearchy then just select the first element, as we don't support multiple values at the early levels
             if (p.level !== deepestLevel){
               pointer = pointer[p.propertyURI][0]
-            }else{
+            } else {
               pointer = pointer[p.propertyURI]
             }
-
-          }else{
-
+          } else {
             console.error("Expecting Array in this userValue property:",pt,p,propertyPath)
-
             return false
-
           }
 
         }else{
           return false
-
         }
-
-
       }
-        if (isLocator){ 
-            console.info("        returning: ", JSON.parse(JSON.stringify(pointer))) 
-            delete pointer[0]["@type"]
-        }
+      
+      if (isLocator){ 
+        delete pointer[0]["@type"]
+      }
         
       return pointer
 
