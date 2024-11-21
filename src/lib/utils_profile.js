@@ -351,10 +351,7 @@ const utilsProfile = {
   * @return {array} - will return the value array at the end of the property path if it exists
   */
   returnValueFromPropertyPath: function(pt,propertyPath){
-        
-      // this needs to include a check for "supplementaryContent", so the note will populate in the form
-      let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent") )
-            
+
       let deepestLevel
       if (propertyPath[propertyPath.length-1]){
         deepestLevel = propertyPath[propertyPath.length-1].level
@@ -363,10 +360,8 @@ const utilsProfile = {
       }
 
       let pointer = pt.userValue
-      
-      // The note in the supplementaryContent is not in the propertyPath
-      //    
       for (let p of propertyPath){
+
         // the property path has two parts
         // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
 
@@ -383,24 +378,27 @@ const utilsProfile = {
             // down the hiearchy then just select the first element, as we don't support multiple values at the early levels
             if (p.level !== deepestLevel){
               pointer = pointer[p.propertyURI][0]
-            } else {
+            }else{
               pointer = pointer[p.propertyURI]
             }
-          } else {
+
+          }else{
+
             console.error("Expecting Array in this userValue property:",pt,p,propertyPath)
             return false
+
           }
 
         }else{
-            return false
+          // the level doesn't exist here, we were unable to traverse the whole hierachy
+          // whihch means the value is not set, so we retun false to say it failed
+          return false
+
         }
+
+
       }
-      
-      if (isLocator){ 
-        // deleting this avoids the creation of a "rdf:Resource" tag for "URL of Instance"
-        delete pointer[0]["@type"]
-      }
-      
+
       return pointer
 
 
