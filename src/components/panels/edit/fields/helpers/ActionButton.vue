@@ -383,6 +383,8 @@
       },
 
       hasDefaultValues: function(){
+          // console.info("this.structure", this.structure.propertyLabel)
+          // console.info("this.structure", this.structure)
         // if the selected item has defaults
         if (this.structure.valueConstraint.defaults.length > 0){
           return true
@@ -395,8 +397,11 @@
             parentId = parentId.split("_")[0]
         }
 
+
         if (!parentId.endsWith("Work") && !parentId.endsWith("Instance") && !parentId.endsWith("Hub") && !parentId.endsWith("Item")){
+            
           for (let sibling of this.profileStore.rtLookup[parentId].propertyTemplates){
+              // console.info("sibling: ", sibling.propertyLabel)
             if (sibling.valueConstraint.defaults.length > 0){
               return true
             }
