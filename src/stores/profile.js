@@ -3661,12 +3661,13 @@ export const useProfileStore = defineStore('profile', {
     * @param {object} incomingUserValue - the incoming userValue to set
     * @return {string} the id ofthe newPropertyId 
     */
-    duplicateComponentGetId: async function(componentGuid, structure, profileName){
+    duplicateComponentGetId: async function(componentGuid, structure, profileName, predecessor){
+        
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
+      
       if (pt !== false){
         let profile
         let propertyPosition
@@ -3674,8 +3675,12 @@ export const useProfileStore = defineStore('profile', {
         let key = pt.propertyURI.replace('http://','').replace('https://','').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"_") + '__' + ((pt.propertyLabel) ? pt.propertyLabel.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g,'_').toLowerCase() : "plabel")
         
         let lastPosition = 0
+        
         for (let r of this.activeProfile.rtOrder){
-          propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
+            let tempPosition = JSON.parse(JSON.stringify(this.activeProfile.rt[r].ptOrder)).indexOf(predecessor)
+            if (tempPosition > 0){
+                propertyPosition = tempPosition
+            }
           
           //find the last position in the order of related components so we can insert
           // the new components at the end of that list
@@ -3689,10 +3694,8 @@ export const useProfileStore = defineStore('profile', {
           profile = profileName
 
         }
-
         
         let newPropertyId = key + '_'+ (+ new Date())
-
 
         let newPt = JSON.parse(JSON.stringify(pt))
         newPt.id = newPropertyId
@@ -4264,7 +4267,7 @@ export const useProfileStore = defineStore('profile', {
         }
 
         for (let rt in profile["rt"]){
-            let frozenPts = JSON.parse(JSON.stringify(profile["rt"][rt]["pt"]))
+            let frozenPts = profile["rt"][rt]["pt"]
 
             let order = profile["rt"][rt]["ptOrder"]
 
@@ -4280,9 +4283,9 @@ export const useProfileStore = defineStore('profile', {
                             current.userValue = newComponent.userValue
                             break
                         } else {
-                            let guid = current["@guid"]
+                            const guid = current["@guid"]
                             let structure = this.returnStructureByComponentGuid(guid)
-                            let newPt = await this.duplicateComponentGetId(guid, structure, rt)
+                            let newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
                             
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
                             profile["rt"][rt]["pt"][newPt].userModified = true
@@ -4319,16 +4322,19 @@ export const useProfileStore = defineStore('profile', {
     
     
     //Check if the component's userValue is empty
-    isEmptyComponent: function(component){
-      let emptyArray = new Array("@root")
-      let userValue = component.userValue
+
+    isEmptyComponent: function(c){
+      const component = c
+      const emptyArray = new Array("@root")
+      const userValue = JSON.parse(JSON.stringify(component["userValue"]))
+
       
       // if there is only a @root
-      if (JSON.stringify(Object.keys(userValue)) == JSON.stringify(emptyArray)){
+      if (JSON.stringify(Object.keys(component.userValue)) == JSON.stringify(emptyArray)){
           return true
       } else {
           // if the children only have "@..." properties
-          for (let key in userValue){
+          for (let key in component.userValue){
               if (!key.startsWith("@")){
                   let result = false
                   try{
