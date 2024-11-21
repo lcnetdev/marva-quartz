@@ -375,7 +375,7 @@ const utilsNetwork = {
                   if(searchPayload.subjectSearch == true){
                     context = await this.returnContext(hit.uri)
                   }
-
+                  
                   let hitAdd = {
                     collections: context ? context.nodeMap["MADS Collection"] : [],
                     label: hit.aLabel,
@@ -654,11 +654,10 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     extractContextDataWorksHubs: async function(data){
-
       let returnUrls = useConfigStore().returnUrls
 
 
-      var results = { contextValue: true, source: [], type: null, typeFull: null, aap:null, variant : [], uri: data.uri, title: null, contributor:[], date:null, genreForm: null, nodeMap:{}};
+      var results = { contextValue: true, source: [], type: null, typeFull: null, aap:null, variant : [], uri: data.uri, title: null, contributor:[], date:null, genreForm: null, nodeMap:{}, marcKey: null};
 
       if (data.uri.includes('/works/')){
         results.type = 'Work'
@@ -691,6 +690,7 @@ const utilsNetwork = {
               //add the marcKey to the nodeMap, so nothing needs to happen downstream
               if (k == 'http://id.loc.gov/ontologies/bflc/marcKey'){
                 results.nodeMap["marcKey"] = [val[k][0]['@value']]
+                results.marcKey = [val[k][0]['@value']]
               }
               //find the title
               if (k == 'http://www.w3.org/2000/01/rdf-schema#label'){

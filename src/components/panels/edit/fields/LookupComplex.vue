@@ -568,7 +568,6 @@ export default {
     },
 
     textInputEvent: function(event){
-
       // remove the existing value if it was deleted
       if (this.$refs.lookupInput.innerHTML.trim() == ""){
         this.authorityLookup = null
@@ -611,7 +610,6 @@ export default {
               this.marcDeliminatedLCSHModeSearching = false
               let sendResults = []
               if (this.marcDeliminatedLCSHModeResults.resultType != 'ERROR'){
-
                 if (this.marcDeliminatedLCSHModeResults.resultType && this.marcDeliminatedLCSHModeResults.resultType==='COMPLEX'){
                   sendResults.push({
                     complex: true,
