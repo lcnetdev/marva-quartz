@@ -4345,7 +4345,33 @@ export const useProfileStore = defineStore('profile', {
       }
 
       return this.mostCommonNonLatinScript
-    }
+    },
+
+    /**
+    * Return the URL to use for lookups for various types of lookups based on the active profile
+    * A way to get a URL to a lookup without having to hardcode it
+    * @param {string} property - the proerty short version name, like bf:language
+    * @return {String}
+    */
+    returnProfileLookupUrl(property){
+
+      for (let rt of this.activeProfile.rtOrder){
+        for (let pt of this.activeProfile.rt[rt].ptOrder){
+          let purl = utilsParse.namespaceUri(this.activeProfile.rt[rt].pt[pt].propertyURI)
+
+          if (purl == property){
+            console.log(this.activeProfile.rt[rt].pt[pt]) 
+            if (this.activeProfile.rt[rt].pt[pt].valueConstraint && this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom && this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom.length>0){
+              return this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom[0]
+            }
+          }
+
+          
+        }
+      }
+      return false
+    },
+
 
 
 

@@ -74,6 +74,7 @@
         let options = []
         // add in the the defaul search ALL of everything possible
         //options.push({label: 'All', urls:null, processor:null})
+        console.log("this.structure.valueConstraint",this.structure.valueConstraint)
         this.structure.valueConstraint.useValuesFrom.forEach((l)=>{
           if (this.lookupConfig[l]){
             this.lookupConfig[l].modes.forEach((mode)=>{

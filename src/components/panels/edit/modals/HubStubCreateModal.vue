@@ -2,16 +2,21 @@
   import { usePreferenceStore } from '@/stores/preference'
   import { useConfigStore } from '@/stores/config'
   import { useProfileStore } from '@/stores/profile'  
+  import ComplexLookupModal from "@/components/panels/edit/modals/ComplexLookupModal.vue";
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
   import VueDragResize from 'vue3-drag-resize'
   
 
+  import utilsNetwork from '@/lib/utils_network';
+
+
   export default {
     components: {
       VueFinalModal,
       VueDragResize,     
+      ComplexLookupModal,
     },
 
     data() {
@@ -23,6 +28,15 @@
 
         initalHeight: 400,
         initalLeft: 400,
+
+
+        hubTitle:"",
+        hubCreator:null,
+        hubLang: null,
+
+        langsLookup:[],
+
+        displayModal:false,
 
 
 
@@ -65,10 +79,11 @@
 
         },
 
-        xxxxx(){
+        setPContributor(value){
 
-          // this.profileStore.setBulkLang(nl.ptObj['@guid'],nl.node['@guid'],lang)
-
+          console.log(value)
+          this.displayModal=false
+          
         },
 
       
@@ -101,27 +116,18 @@
 
     async mounted() {
 
-
-
-      // window.setTimeout(()=>{
-        
-        
-      //   this.nonLatinAgents = this.profileStore.returnAllNonLatinAgentOptions()
-        
-
-      //   for (let key in this.nonLatinAgents){
-        
-      //     if (this.nonLatinScriptAgents[key]){
-      //       this.localMap[key] = this.nonLatinScriptAgents[key]
-      //     }else{
-      //       this.localMap[key] = utilsProfile.pickBestNonLatinScriptOption(this.defaultScript, this.nonLatinAgents[key].scripts)   
-      //     }
-
-      //   }
-
-
-      // },100)
-
+      // ask for the url to use from the active profile for the bf:language property then request it and load the results
+      let useLookupUrl = this.profileStore.returnProfileLookupUrl("bf:language") 
+      let langs = await utilsNetwork.loadSimpleLookup(useLookupUrl)
+      this.langsLookup=[]
+      for (let langUri in langs){
+        if (langUri != 'metadata'){
+          this.langsLookup.push({
+            uri:langUri,
+            label:langs[langUri][0]
+          })
+        }
+      }
 
 
     }
@@ -159,8 +165,19 @@
               <button class="close-button" @pointerup="showHubStubCreateModal=false">X</button>
             </div>
             <h3>Create Quick Hub</h3>
-            <input type="title" placeholder="Title">
+            <input type="text" v-model="hubTitle" class="title" placeholder="Title">
+            <template v-if="activeHubStubData && activeHubStubData.title && activeHubStubData.title.trim() != ''">
+              <button class="title-button" @click="hubTitle=activeHubStubData.title"><span class="material-icons">arrow_upward</span><span class="title-button-copy">Use "{{ activeHubStubData.title }}"</span></button>
+            </template>
+            
+            <button @click="displayModal=true">Add Primary Contributor</button>
+            <template v-if="displayModal">
+              <ComplexLookupModal ref="complexLookupModal" :searchValue="''" :authorityLookup="''" @emitComplexValue="setPContributor" @hideComplexModal="searchValue='';displayModal=false;" :structure="{valueConstraint:{useValuesFrom:['http://preprod.id.loc.gov/authorities/names']}}" v-model="displayModal"/>
+            </template>
 
+
+            
+            
             {{activeHubStubData}}
           </div>
 
@@ -183,6 +200,17 @@
 
 <style scoped>
 
+
+  .title{
+    font-size: 1.35em;
+    width:100%;
+  }
+  .title-button{
+    margin-left: 1em;
+  }
+  .title-button-copy{
+    vertical-align: super;
+  }
 
   .checkbox-option{
     width: 20px;
