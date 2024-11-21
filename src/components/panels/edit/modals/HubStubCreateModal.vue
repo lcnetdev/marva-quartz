@@ -31,12 +31,19 @@
 
 
         hubTitle:"",
-        hubCreator:null,
+        hubCreator:{
+          label: null,
+          marcKey: null,
+          uri: null
+        },
         hubLang: null,
 
         langsLookup:[],
+        selectedLang: 'na',
 
         displayModal:false,
+
+
 
 
 
@@ -79,10 +86,62 @@
 
         },
 
+
+        useWorkCreator(){
+          
+          if (this.activeHubStubData && this.activeHubStubData.contributors && this.activeHubStubData.contributors[0]){
+            let c = this.activeHubStubData.contributors[0]
+
+            this.hubCreator.label = c.label
+            if (c['http://id.loc.gov/ontologies/bflc/marcKey'] && c['http://id.loc.gov/ontologies/bflc/marcKey'][0]&& c['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']){
+              this.hubCreator.marcKey = c['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+            }
+            this.hubCreator.uri = c['@id']
+
+          }
+
+        },
+
         setPContributor(value){
 
           console.log(value)
           this.displayModal=false
+
+          this.hubCreator.label = null
+          this.hubCreator.marcKey = null
+          this.hubCreator.uri = null
+          
+          
+
+          if (value.title){
+            if (Array.isArray(value.title)){
+              this.hubCreator.label = value.title.filter((v)=> {return (!v['@language'])})[0]
+              if (typeof this.hubCreator.label == 'object' && this.hubCreator.label['@value']){
+                this.hubCreator.label = this.hubCreator.label['@value']
+              }
+            }else{
+              this.hubCreator.label = value.title
+            }
+          }
+          
+          if (value.marcKey){
+            if (Array.isArray(value.marcKey)){
+              this.hubCreator.marcKey = value.marcKey.filter((v)=> {return (!v['@language'])})[0]
+              if (typeof this.hubCreator.marcKey == 'object' && this.hubCreator.marcKey['@value']){
+                this.hubCreator.marcKey = this.hubCreator.marcKey['@value']
+              }
+
+            }else{
+              this.hubCreator.marcKey = value.marcKey
+            }
+          }
+            
+          
+          this.hubCreator.uri = value.uri
+
+
+          console.log(this.hubCreator)
+
           
         },
 
@@ -127,7 +186,15 @@
             label:langs[langUri][0]
           })
         }
-      }
+      } 
+
+      
+      this.$nextTick(()=>{
+
+        this.$refs['hub-title'].focus()
+        this.$refs['hub-title'].focus()
+      })
+      
 
 
     }
@@ -164,21 +231,42 @@
             <div class="menu-buttons">
               <button class="close-button" @pointerup="showHubStubCreateModal=false">X</button>
             </div>
-            <h3>Create Quick Hub</h3>
-            <input type="text" v-model="hubTitle" class="title" placeholder="Title">
-            <template v-if="activeHubStubData && activeHubStubData.title && activeHubStubData.title.trim() != ''">
-              <button class="title-button" @click="hubTitle=activeHubStubData.title"><span class="material-icons">arrow_upward</span><span class="title-button-copy">Use "{{ activeHubStubData.title }}"</span></button>
-            </template>
-            
-            <button @click="displayModal=true">Add Primary Contributor</button>
-            <template v-if="displayModal">
-              <ComplexLookupModal ref="complexLookupModal" :searchValue="''" :authorityLookup="''" @emitComplexValue="setPContributor" @hideComplexModal="searchValue='';displayModal=false;" :structure="{valueConstraint:{useValuesFrom:['http://preprod.id.loc.gov/authorities/names']}}" v-model="displayModal"/>
-            </template>
+            <h3 style="margin-bottom: 1em;">Create Quick Hub</h3>
+            <div style="display: flex; margin-bottom: 1em;">
+              <div style="flex-grow: 1;">
+                <input type="text" ref="hub-title" v-model="hubTitle" class="title" placeholder="Hub Title">
+              </div>
+              <div style="flex-shrink: 1;">
+               <button class="title-button" @click="hubTitle=activeHubStubData.title"><span class="material-icons" style="font-size: 20px;">arrow_back</span><span class="title-button-copy">Paste Work Title</span></button>
+  
+              </div>
+              <template v-if="activeHubStubData && activeHubStubData.title && activeHubStubData.title.trim() != ''">
+              </template>
+            </div>
 
+            <div style="margin-bottom: 1em;">
+              <span class="creator-label" v-if="!hubCreator.label">[No Hub Creator]</span>
+              <span class="creator-label" v-if="hubCreator.label">{{hubCreator.label  }}</span>
+              <button @click="displayModal=true" style="line-height: 1.75em;" v-if="!hubCreator.label">Select Creator</button>
+              <button @click="hubCreator.label=null;hubCreator.uri=null;hubCreator.marcKey=null;" style="line-height: 1.75em;" v-if="hubCreator.label">Remove</button>
 
-            
-            
-            {{activeHubStubData}}
+              <button v-if="!hubCreator.label" class="title-button" @click="useWorkCreator()" style="vertical-align: bottom"><span class="material-icons" style="font-size: 20px;">arrow_back</span><span class="title-button-copy">Paste Work Creator</span></button>
+
+              <template v-if="displayModal">
+                <ComplexLookupModal ref="complexLookupModal" :searchValue="''" :authorityLookup="''" @emitComplexValue="setPContributor" @hideComplexModal="searchValue='';displayModal=false;" :structure="{valueConstraint:{useValuesFrom:['http://preprod.id.loc.gov/authorities/names']}}" v-model="displayModal"/>
+              </template>
+              
+
+            </div>
+            <select v-model="selectedLang">
+              <option value="na">No Hub Language Selected</option>
+              <option v-for="l in langsLookup" :value="l.uri.split('/')[5]">{{ l.label }}</option>
+            </select>
+
+            <hr>
+            <div>
+              Fill out the above information to create a Hub Stub. You would create a Hub for resources that you would not normally create a MARC Authority record for. Once you click create you will be provided a link to further edit the Hub if you wish.
+            </div>
           </div>
 
 
@@ -200,6 +288,22 @@
 
 <style scoped>
 
+
+  hr{
+    margin-top: 2em;
+    margin-bottom: 2em;
+  }
+select{
+  font-size: 1.35em;
+}
+
+
+  .creator-label{
+    background-color: whitesmoke;
+    font-family: monospace;
+    padding: 0.2em;
+    margin-right: 0.2em;
+  }
 
   .title{
     font-size: 1.35em;
