@@ -173,6 +173,13 @@ export const useProfileStore = defineStore('profile', {
   actions: {
 
 
+    resetLocalComponentCache(){
+      cachePt = {}
+      cacheGuid = {}
+      dataChangedTimeout = null
+    },
+
+
     /**
     * The main first process that takes the raw profiles and processes them for use
     *
