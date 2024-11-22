@@ -218,7 +218,10 @@
         }
         if (title[0] && typeof title[0] == 'string'){ return title[0]}
 
-        let noLang = title.filter((v)=>{ if (v['@language']){return false}else{return true} })
+        //let noLang = title.filter((v)=>{ if (v['@language']){return false}else{return true} })
+        //GenreForm seem to have the lang tag even when there is only English values
+        let noLang = title.filter((v)=> typeof v['@language'] == "undefined" || (v['@language'] && v['@language'] == "en") )
+
         if (noLang && noLang[0] && noLang[0]['@value']){ return noLang[0]['@value']}
         
         return 'ERROR - Cannot find label'
@@ -231,7 +234,8 @@
         }
         if (title[0] && typeof title[0] == 'string'){ return []}
 
-        let hasLang = title.filter((v)=>{ if (v['@language']){return true}else{return false} })
+        let hasLang = title.filter((v)=>{ if (v['@language'] && v['@language'] != "en"){return true}else{return false} })
+        
         let results = []
         for (let l of hasLang){
           results.push(`${l['@value']} @ ${l['@language']}`)
