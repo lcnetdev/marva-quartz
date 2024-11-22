@@ -550,10 +550,7 @@
                     </option>
 
 
-
-
-
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + r.label + ((r.literal) ? ' [Literal]' : '')">
+                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + r.suggestLabel + ((r.literal) ? ' [Literal]' : '')">
                     </option>
                   </select>
 

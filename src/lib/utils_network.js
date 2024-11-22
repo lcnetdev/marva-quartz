@@ -2126,11 +2126,14 @@ const utilsNetwork = {
 
       let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
       let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
-
-
+        
+      let childrenSubject = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&-memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let childrenSubjectComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
+      let childrenSubjectSubdivision = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       let searchValHierarchicalGeographic = searchVal.replaceAll('‑','-') //.split(' ').join('--')
-
+        
+        console.info("childrenSubject: ", childrenSubject)
 
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count=4').replace("<OFFSET>", "1")
 
@@ -2188,6 +2191,28 @@ const utilsNetwork = {
         subjectSearch: true,
         signal: this.controllers.controllerSubjectsComplex.signal,
       }
+      
+      let searchPayloadChildrenSubjects = {
+        processor: 'lcAuthorities',
+        url: [childrenSubject],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerSubjectsSimple.signal,
+      }
+      let searchPayloadChildrenSubjectsComplex = {
+        processor: 'lcAuthorities',
+        url: [childrenSubjectComplex],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerSubjectsComplex.signal,
+      }
+      let searchPayloadChildrenSubjectsSubdivision = {
+        processor: 'lcAuthorities',
+        url: [childrenSubjectSubdivision],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerPayloadSubjectsSimpleSubdivision.signal,
+      }
 
 
       let searchPayloadHierarchicalGeographic = {
@@ -2243,6 +2268,10 @@ const utilsNetwork = {
       let resultsWorksKeyword=[]
       let resultsHubsAnchored=[]
       let resultsHubsKeyword=[]
+      
+      let resultsChildrenSubjects = []
+      let resultsChildrenSubjectsComplex = []
+      let resultsChildrenSubjectsSubdivisions = []
 
       if (mode == "LCSHNAF"){
         [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
@@ -2253,7 +2282,14 @@ const utilsNetwork = {
             this.searchComplex(searchPayloadSubjectsComplex),
             this.searchComplex(searchPayloadHierarchicalGeographic)
         ]);
-
+        
+      } else if (mode == "CHILD"){
+        [resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
+            this.searchComplex(searchPayloadChildrenSubjects),
+            this.searchComplex(searchPayloadChildrenSubjectsComplex),
+            this.searchComplex(searchPayloadChildrenSubjectsSubdivision)
+        ]);
+        
       }else if (mode == "GEO"){
 
         [resultsHierarchicalGeographic] = await Promise.all([
@@ -2284,6 +2320,9 @@ const utilsNetwork = {
       resultsNamesSubdivision = resultsNamesSubdivision.filter((r) => {return (!r.literal)})
       if (resultsSubjectsComplex.length>0){
         resultsSubjectsComplex.pop()
+      }
+      if (resultsChildrenSubjectsComplex.length>0){
+        resultsChildrenSubjectsComplex.pop()
       }
 
 
@@ -2334,7 +2373,9 @@ const utilsNetwork = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': resultsSubjectsComplex,
         'names': pos == 0 ? resultsNames : resultsNamesSubdivision,
-        'hierarchicalGeographic':  pos == 0 ? [] : resultsHierarchicalGeographic
+        'hierarchicalGeographic':  pos == 0 ? [] : resultsHierarchicalGeographic,
+        'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
+        'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
       }
 
       this.subjectSearchActive = false
