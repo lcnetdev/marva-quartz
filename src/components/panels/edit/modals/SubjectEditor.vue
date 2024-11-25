@@ -87,9 +87,10 @@
 
 
                   <button @click="searchModeSwitch('LCSHNAF')" :data-tooltip="'Shortcut: CTRL+ALT+1'" :class="['simptip-position-bottom',{'active':(searchMode==='LCSHNAF')}]">LCSH/NAF</button>
-                  <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button>
-                  <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button>
-                  <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
+                  <button @click="searchModeSwitch('CHILD')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='CHILD')}]">Children's Subjects</button>
+                  <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button>
+                  <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button>
+                  <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+5'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
 
                 </div>
 
@@ -108,7 +109,8 @@
                         </div>
                       <hr>
                     </div>
-
+                    
+                    <!-- LCSH -->
                     <div v-if="searchResults && searchResults.subjectsComplex.length>0">
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
@@ -119,6 +121,23 @@
 
                     <div v-if="searchResults && searchResults.subjectsSimple.length>0">
                       <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
+                        {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
+                        <span v-if="!subject.literal"> ({{ this.buildAddtionalInfo(subject.collections) }})</span>
+                      </div>
+                    </div>
+                    
+                    
+                    <!-- ChildrenSubjects -->
+                    <div v-if="searchResults && searchResults.subjectsChildrenComplex.length>0">
+                      <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
+                        {{subjectC.suggestLabel}}<span></span>
+                        <span v-if="subjectC.collections"> ({{ this.buildAddtionalInfo(subjectC.collections) }})</span>
+                      </div>
+                      <hr>
+                    </div>
+                    
+                  <div v-if="searchResults && searchResults.subjectsChildren.length>0">
+                      <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> ({{ this.buildAddtionalInfo(subject.collections) }})</span>
                       </div>
@@ -1281,6 +1300,10 @@ methods: {
 
   // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
   searchApis: debounce(async (searchString, searchStringFull, that) => {
+      console.info("searchApis")
+      console.info("searchString: ", searchString)
+      console.info("searchStringFull: ", searchStringFull)
+      console.info("that: ", that)
     that.pickCurrent = null //reset the current selection when the search changes
 
     that.searchResults=null
@@ -1377,9 +1400,20 @@ methods: {
     for (let x in that.searchResults.subjectsComplex){
       that.pickLookup[x] = that.searchResults.subjectsComplex[x]
     }
+    
+    console.info("results: ", that.searchResults)
+    
+    for (let x in that.searchResults.subjectsChildrenComplex){
+      that.pickLookup[x] = that.searchResults.subjectsChildrenComplex[x]
+    }
 
     for (let x in that.searchResults.subjectsSimple){
       that.pickLookup[parseInt(x)+parseInt(that.searchResults.subjectsComplex.length)] = that.searchResults.subjectsSimple[x]
+    }
+    
+    for (let x in that.searchResults.subjectsChildren){
+        console.info("adding child subject to pickup")
+      that.pickLookup[parseInt(x)+parseInt(that.searchResults.subjectsChildrenComplex.length)] = that.searchResults.subjectsChildren[x]
     }
 
     for (let x in that.searchResults.names){
@@ -1414,6 +1448,9 @@ methods: {
     if (that.pickLookup[that.pickPostion] && !that.pickLookup[that.pickPostion].literal){
       that.contextRequestInProgress = true
       that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
+      
+      console.info("contextData: ", that.contextData)
+      
       // keep a local copy of it for looking up subject type
       if (that.contextData){
         that.localContextCache[that.contextData.uri] = JSON.parse(JSON.stringify(that.contextData))
@@ -1554,6 +1591,8 @@ methods: {
         out.push("GeoSubDiv")
       } else if (collections.includes("Subdivisions")){
         out.push("SubDiv")
+      } else if (collections.includes("LCSH_Childrens")){
+          out.push("ChldSubj")
       }
 
       return out.join(", ")
@@ -1563,6 +1602,9 @@ methods: {
   },
 
   loadContext: async function(pickPostion){
+      console.info("loadContext")
+      console.info("pickPostion: ", pickPostion)
+      console.info("this.pickLookup: ", this.pickLookup)
     if (this.pickCurrent == null) {
       this.pickPostion = pickPostion
     } else {
@@ -2102,6 +2144,7 @@ methods: {
 
 
   add: async function(){
+      console.info("Adding subject", this.components)
     //remove any existing thesaurus label, so it has the most current
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2130,7 +2173,7 @@ methods: {
     }
     
 	
-    for (let el in this.searchResults["subjectsComplex"]){      
+    for (let el in this.searchResults["subjectsComplex"]){   
       let target = this.searchResults["subjectsComplex"][el]
       if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
 		  
@@ -2173,17 +2216,25 @@ methods: {
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
 			const target = frozenComponents[component]
             
-			if (!['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) && target.complex){			  
+            console.info("target: ", target)
+            console.info("label: ", target.label)
+			
+            if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || target.uri.includes("childrensSubjects/sj")) && target.complex){
 				let uri = target.uri
 				let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
-                
+
+                console.info("parsing")
                 data = await this.parseComplexSubject(uri)
+                console.info("finished: ", data)
 				
 				let subs
 				subs = target.marcKey.slice(5)
 			    // subfields = subfields.match(/\$./g)
 			    subs = subs.match(/\$[axyzv]{1}/g)
 				const complexLabel = target.label
+                
+                console.info("complexLabel: ", complexLabel)
+                
 				// build the new components
 				let id = prevItems
 				let labels = complexLabel.split("--")

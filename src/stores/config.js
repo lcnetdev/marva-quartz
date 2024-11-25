@@ -7,8 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 16,
-    versionPatch: 19,
-
+    versionPatch: 20,
 
     regionUrls: {
 
@@ -310,8 +309,13 @@ export const useConfigStore = defineStore('config', {
 
 
   lookupConfig: {
-
-    "http://id.loc.gov/authorities/childrensSubjects" : {"name":"childrensSubjects", "type":"complex", "modes":[]},
+    "http://id.loc.gov/authorities/childrensSubjects" : {
+            "name":"childrensSubjects", "type":"complex", "modes":[
+                {
+                    'LCSHAC All':{"url":"https://id.loc.gov/authorities/childrensSubjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
+                }
+            ]
+     },
     "http://id.loc.gov/authorities/demographicTerms" : {"name":"demographicTerms", "type":"complex", "modes":[
       {
       'LCDGT All':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
