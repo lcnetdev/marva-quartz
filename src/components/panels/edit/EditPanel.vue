@@ -272,7 +272,8 @@
 
         //only able to delete the instances they create
         showDeleteInstanceButton: function(profileName){
-            return this.activeProfile.rt[profileName].deletable
+          //return this.activeProfile.rt[profileName].deletable // this property is removed when the record is saved
+          return true
         },
         
         showDeleteInstanceModal: function(profileName){
