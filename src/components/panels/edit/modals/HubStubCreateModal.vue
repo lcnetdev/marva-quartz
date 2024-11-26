@@ -97,6 +97,7 @@
               this.hubCreator.marcKey = c['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
             }
             this.hubCreator.uri = c['@id']
+            this.hubCreator.typeFull = c['@type']
 
           }
 
@@ -104,13 +105,13 @@
 
         setPContributor(value){
 
-          console.log(value)
+
           this.displayModal=false
 
           this.hubCreator.label = null
           this.hubCreator.marcKey = null
           this.hubCreator.uri = null
-          
+          this.hubCreator.typeFull = null
           
 
           if (value.title){
@@ -135,13 +136,23 @@
               this.hubCreator.marcKey = value.marcKey
             }
           }
-            
+          if (value.typeFull){
+            if (Array.isArray(value.typeFull)){
+              this.hubCreator.typeFull = value.typeFull.filter((v)=> {return (!v['@language'])})[0]
+              if (typeof this.hubCreator.typeFull == 'object' && this.hubCreator.typeFull['@value']){
+                this.hubCreator.typeFull = this.hubCreator.typeFull['@value']
+              }
+
+            }else{
+              this.hubCreator.typeFull = value.typeFull
+            }
+          }            
           
           this.hubCreator.uri = value.uri
 
 
-          console.log(this.hubCreator)
 
+          
           
         },
 
@@ -156,6 +167,14 @@
           if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT' || tagName === 'SPAN'|| tagName === 'TD') {
             event.stopPropagation()
           }
+        },
+
+        buildHub(){
+
+          this.profileStore.buildPostHubStub(this.hubCreator,this.hubTitle,this.hubLang)
+
+
+
         },
        
 
@@ -237,7 +256,7 @@
                 <input type="text" ref="hub-title" v-model="hubTitle" class="title" placeholder="Hub Title">
               </div>
               <div style="flex-shrink: 1;">
-               <button class="title-button" @click="hubTitle=activeHubStubData.title"><span class="material-icons" style="font-size: 20px;">arrow_back</span><span class="title-button-copy">Paste Work Title</span></button>
+               <button v-if="activeHubStubData && activeHubStubData.title" class="title-button" @click="hubTitle=activeHubStubData.title"><span class="material-icons" style="font-size: 20px;">arrow_back</span><span class="title-button-copy">Use Work Title</span></button>
   
               </div>
               <template v-if="activeHubStubData && activeHubStubData.title && activeHubStubData.title.trim() != ''">
@@ -250,7 +269,7 @@
               <button @click="displayModal=true" style="line-height: 1.75em;" v-if="!hubCreator.label">Select Creator</button>
               <button @click="hubCreator.label=null;hubCreator.uri=null;hubCreator.marcKey=null;" style="line-height: 1.75em;" v-if="hubCreator.label">Remove</button>
 
-              <button v-if="!hubCreator.label" class="title-button" @click="useWorkCreator()" style="vertical-align: bottom"><span class="material-icons" style="font-size: 20px;">arrow_back</span><span class="title-button-copy">Paste Work Creator</span></button>
+              <button v-if="!hubCreator.label && activeHubStubData && activeHubStubData.contributors && activeHubStubData.contributors[0]" class="title-button" @click="useWorkCreator()" style="vertical-align: bottom"><span class="material-icons" style="font-size: 20px;">arrow_back</span><span class="title-button-copy">Use Work Creator</span></button>
 
               <template v-if="displayModal">
                 <ComplexLookupModal ref="complexLookupModal" :searchValue="''" :authorityLookup="''" @emitComplexValue="setPContributor" @hideComplexModal="searchValue='';displayModal=false;" :structure="{valueConstraint:{useValuesFrom:['http://preprod.id.loc.gov/authorities/names']}}" v-model="displayModal"/>
@@ -258,15 +277,22 @@
               
 
             </div>
-            <select v-model="selectedLang">
+            <select v-model="hubLang">
               <option value="na">No Hub Language Selected</option>
-              <option v-for="l in langsLookup" :value="l.uri.split('/')[5]">{{ l.label }}</option>
+              <option v-for="l in langsLookup" :value="l.uri">{{ l.label }}</option>
             </select>
 
             <hr>
             <div>
               Fill out the above information to create a Hub Stub. You would create a Hub for resources that you would not normally create a MARC Authority record for. Once you click create you will be provided a link to further edit the Hub if you wish.
             </div>
+
+            <div style="display: flex; padding: 1.5em;">
+              <div style="flex:1; text-align: center;"><button style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;" @click="buildHub">Create Hub</button></div>
+              <div style="flex:1; text-align: center"><button style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Cancel</button></div>
+
+            </div>
+            
           </div>
 
 

@@ -3004,6 +3004,13 @@ export const useProfileStore = defineStore('profile', {
                           }else{
                             agentData['@id'] = null
                           }
+                          if (agent['@type']){
+                            agentData['@type'] = agent['@type']
+                          }else{
+                            agentData['@type'] = null
+                          }
+
+
                           if (agent['http://id.loc.gov/ontologies/bflc/marcKey']){
                             agentData['http://id.loc.gov/ontologies/bflc/marcKey'] = agent['http://id.loc.gov/ontologies/bflc/marcKey']
                           }else{
@@ -4372,7 +4379,32 @@ export const useProfileStore = defineStore('profile', {
       return false
     },
 
+    /**
+    * Builds and posts a Hub Stub
+    * 
+    * @param {object} hubCreatorObj - obj with creator label, uri,marcKey
+    * @param {string} title - title string
+    * @param {string} langUri - uri to language
 
+    * @return {String}
+    */
+    async buildPostHubStub(hubCreatorObj,title,langUri){
+
+      console.log("hubCreatorObj",hubCreatorObj)
+      let xml = utilsExport.createHubStubXML(hubCreatorObj,title,langUri)
+
+      console.log(xml)
+      let eid = 'e' + decimalTranslator.new()
+      eid = eid.substring(0,8)
+
+      // pass a fake activeprofile with id == Hub to trigger hub protocols 
+      let pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
+      console.log(pubResuts.status)
+      
+
+    },
+
+    
 
 
   },
