@@ -787,6 +787,33 @@ const utilsProfile = {
   },
 
 
+  /**
+  * Small string normalization combining the title an contributor to build a AAP
+  *
+  * @param {string} contributor - contriubtor name to use
+  * @param {string} title - title to use
+  * @return {string} - the AAP
+  */
+  returnAap: function(contributor,title){
+    if (!contributor || !title){
+        return false
+    }
+
+    let aap = `${contributor}${title}`
+    // remove trailing spaces
+    aap = aap.trim()
+    // remove semicolin if it ends in one
+    if (aap.endsWith(';')){
+        aap=aap.slice(0, -1)
+    }
+    aap = aap.toLowerCase()
+    //remove all spaces
+    aap = aap.replace(/\s/g, '')
+    // remove commas periods hyphens
+    aap = aap.replace(/[.,-]/g, '')
+    return aap
+},
+
 
 
 

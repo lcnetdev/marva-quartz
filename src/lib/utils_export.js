@@ -2,6 +2,7 @@ import {useConfigStore} from "../stores/config";
 import {useProfileStore} from "../stores/profile";
 import {usePreferenceStore} from "../stores/preference";
 
+
 // import short from 'short-uuid'
 import utilsRDF from './utils_rdf';
 import utilsMisc from './utils_misc';
@@ -9,6 +10,9 @@ import utilsNetwork from './utils_network';
 import utilsProfile from './utils_profile';
 
 import { parse as parseEDTF } from 'edtf'
+
+import { md5 } from "hash-wasm";
+
 
 const escapeHTML = str => str.replace(/[&<>'"]/g,
   tag => ({
@@ -1542,7 +1546,7 @@ const utilsExport = {
 
 		let strXmlBasic = (new XMLSerializer()).serializeToString(rdfBasic)
 		let strXml = (new XMLSerializer()).serializeToString(rdf)
-
+		console.log(strXml)
     /*
         kefo note
         In FF, only strXmlBasic has any real content.  The other two -
@@ -1734,6 +1738,145 @@ const utilsExport = {
         
         return xml
     },
+
+
+	/**
+	 * Builds the Hub Stub XML to be sent off to post
+	 *
+	* @param {object} hubCreatorObj - obj with creator label, uri,marcKey
+	* @param {string} title - title string
+	* @param {string} langUri - uri to language
+	 * @return {string}
+	 */
+	createHubStubXML: async function(hubCreatorObj,title,langUri){
+
+		
+		console.log(hubCreatorObj,title,langUri)
+
+
+		// we are creating the xml in two formats, create the root node for both
+		let rdf = document.createElementNS(this.namespace.rdf, "RDF");
+		let rdfBasic = document.createElementNS(this.namespace.rdf, "RDF");
+
+		// just add all the namespaces into the root element
+		for (let ns of Object.keys(this.namespace)){
+			rdf.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:${ns}`, this.namespace[ns])
+			rdfBasic.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:${ns}`, this.namespace[ns])
+		}
+
+		if (!hubCreatorObj) return false
+		if (!hubCreatorObj.label || !hubCreatorObj.marcKey ||!hubCreatorObj.uri) return false
+		if (!title) return false
+
+		console.log("hubCreatorObj",hubCreatorObj)
+
+		let aap = utilsProfile.returnAap(hubCreatorObj.label,title)
+		let aapHash = await md5(aap)
+		aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
+		let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
+
+
+		// da hub
+		let elHub = document.createElementNS(this.namespace.bf ,'bf:Hub')
+		
+		// uri
+		elHub.setAttributeNS(this.namespace.rdf, 'rdf:about', hubUri)
+		let elTitleProperty = document.createElementNS(this.namespace.bf ,'bf:title')
+		let elTitleClass = document.createElementNS(this.namespace.bf ,'bf:Title')
+		let elMainTitle = document.createElementNS(this.namespace.bf ,'bf:mainTitle')
+		elMainTitle.innerHTML = title
+
+		// attach
+		elTitleClass.appendChild(elMainTitle)
+		elTitleProperty.appendChild(elTitleClass)
+		elHub.appendChild(elTitleProperty)
+
+
+
+		// the creator
+		let elContributionProperty = document.createElementNS(this.namespace.bf ,'bf:contribution')
+		let elContributionClass = document.createElementNS(this.namespace.bf ,'bf:Contribution')
+
+		let rdftype = this.createElByBestNS('rdf:type')
+		rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution')
+
+		elContributionClass.appendChild(rdftype)
+		elContributionProperty.appendChild(elContributionClass)
+
+		let elAgentProperty = document.createElementNS(this.namespace.bf ,'bf:agent')
+		let elAgentClass = document.createElementNS(this.namespace.bf ,'bf:Agent')
+		elAgentProperty.appendChild(elAgentClass)
+
+		// let elAgentType = document.createElementNS(this.namespace.bf ,'bf:agent')
+		let AgentRdftype = this.createElByBestNS('rdf:type')
+		AgentRdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', hubCreatorObj.typeFull)
+
+		elAgentClass.appendChild(AgentRdftype)
+		let elAgentLabel = document.createElementNS(this.namespace.rdfs ,'rdfs:label')
+		elAgentLabel.innerHTML = hubCreatorObj.label
+		elAgentClass.appendChild(elAgentLabel)
+
+		let elAgentMarcKey = document.createElementNS(this.namespace.bflc ,'bflc:marcKey')
+		elAgentMarcKey.innerHTML = hubCreatorObj.marcKey
+		elAgentClass.appendChild(elAgentMarcKey)
+
+		elContributionClass.appendChild(elAgentProperty)
+
+		elHub.appendChild(elContributionProperty)
+		
+		
+		rdf.appendChild(elHub)
+
+
+
+
+
+		// <bf:Hub >
+		// 	<bflc:aap >Filosofia e scienza nell'età moderna</bflc:aap>
+		// 	<bflc:aap-normalized >filosofiaescienzanell'etàmoderna</bflc:aap-normalized>
+		// 	<rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Series" />
+		// 	<bf:title >
+		// 	<bf:Title >
+		// 	<bf:mainTitle >Filosofia e scienza nell'età moderna</bf:mainTitle>
+		// 	<bf:partNumber >1</bf:partNumber>
+		// 	<bf:partName >Studi</bf:partName>
+		// 	</bf:Title>
+		// 	</bf:title>
+		// 	<bflc:marcKey >440 0$aFilosofia e scienza nell'età moderna.$n1,$pStudi ;$v68</bflc:marcKey>
+		// 	</bf:Hub> 
+
+
+{/* <bf:contribution>
+<bf:Contribution>
+<rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+<bf:agent>
+<bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n79021164">
+<rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+<rdfs:label>Twain, Mark, 1835-1910</rdfs:label>
+<bflc:marcKey>1001 $aTwain, Mark,$d1835-1910</bflc:marcKey>
+</bf:Agent>
+</bf:agent>
+<bf:role>
+<bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
+<rdfs:label>contributor</rdfs:label>
+<bf:code>ctb</bf:code>
+</bf:Role>
+</bf:role>
+</bf:Contribution>
+</bf:contribution> */}
+
+
+
+		
+		console.log(aap)
+		console.log(aapHash)
+		console.log(hubUri)
+		let xml = (new XMLSerializer()).serializeToString(rdf)
+
+		console.log(xml)
+		return xml
+
+	}
 }
 
 

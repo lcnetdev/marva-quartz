@@ -84,6 +84,10 @@ export const useProfileStore = defineStore('profile', {
     showPostModal: false,
     showRecoveryModal: false,
     showValidateModal: false,
+    showHubStubCreateModal: false,
+    activeHubStubData:{
+
+    },
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
@@ -2944,11 +2948,11 @@ export const useProfileStore = defineStore('profile', {
     * used in the interface rendering
     * @return {boolean}
     */
-    returnLccInfo: function(componentGuid, structure){
+    returnLccInfo: function(componentGuid){
 
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
+      console.log(pt)
       let classNumber = null
       let classGuid = null
 
@@ -2974,7 +2978,7 @@ export const useProfileStore = defineStore('profile', {
           if (work){ break }
         }
       }
-
+      console.log("work",work)
       if (work){
 
         for (let ptId in work.pt){
@@ -3041,7 +3045,27 @@ export const useProfileStore = defineStore('profile', {
                         {
                         let agent = contributorUserValue['http://id.loc.gov/ontologies/bibframe/agent'][0]
                         if (agent && agent['http://www.w3.org/2000/01/rdf-schema#label'] && agent['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && agent['http://www.w3.org/2000/01/rdf-schema#label'][0] && agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-                            contributors.push({type:type,label:agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']})
+                          console.log("agentagentagentagent",agent)  
+                          let agentData = {type:type,label:agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']}
+                          if (agent['@id']){
+                            agentData['@id'] = agent['@id']
+                          }else{
+                            agentData['@id'] = null
+                          }
+                          if (agent['@type']){
+                            agentData['@type'] = agent['@type']
+                          }else{
+                            agentData['@type'] = null
+                          }
+
+
+                          if (agent['http://id.loc.gov/ontologies/bflc/marcKey']){
+                            agentData['http://id.loc.gov/ontologies/bflc/marcKey'] = agent['http://id.loc.gov/ontologies/bflc/marcKey']
+                          }else{
+                            agentData['http://id.loc.gov/ontologies/bflc/marcKey'] = null
+                          }
+
+                          contributors.push(agentData)
                         }
                     }
                 }
@@ -3143,7 +3167,7 @@ export const useProfileStore = defineStore('profile', {
       }else{
 
 
-        if (pt && pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' && Object.keys(pt.userValue).length == 1){
+        if (pt && (pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' || pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation') && Object.keys(pt.userValue).length == 1){
 
           if (titleNonSort && titleNonSort.trim().length >0 && title){
             if (isNaN(parseInt(titleNonSort)) == false ){
@@ -4394,8 +4418,59 @@ export const useProfileStore = defineStore('profile', {
       }
 
       return this.mostCommonNonLatinScript
-    }
+    },
 
+    /**
+    * Return the URL to use for lookups for various types of lookups based on the active profile
+    * A way to get a URL to a lookup without having to hardcode it
+    * @param {string} property - the proerty short version name, like bf:language
+    * @return {String}
+    */
+    returnProfileLookupUrl(property){
+
+      for (let rt of this.activeProfile.rtOrder){
+        for (let pt of this.activeProfile.rt[rt].ptOrder){
+          let purl = utilsParse.namespaceUri(this.activeProfile.rt[rt].pt[pt].propertyURI)
+
+          if (purl == property){
+            console.log(this.activeProfile.rt[rt].pt[pt]) 
+            if (this.activeProfile.rt[rt].pt[pt].valueConstraint && this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom && this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom.length>0){
+              return this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom[0]
+            }
+          }
+
+          
+        }
+      }
+      return false
+    },
+
+    /**
+    * Builds and posts a Hub Stub
+    * 
+    * @param {object} hubCreatorObj - obj with creator label, uri,marcKey
+    * @param {string} title - title string
+    * @param {string} langUri - uri to language
+
+    * @return {String}
+    */
+    async buildPostHubStub(hubCreatorObj,title,langUri){
+
+      console.log("hubCreatorObj",hubCreatorObj)
+      let xml = utilsExport.createHubStubXML(hubCreatorObj,title,langUri)
+
+      console.log(xml)
+      let eid = 'e' + decimalTranslator.new()
+      eid = eid.substring(0,8)
+
+      // pass a fake activeprofile with id == Hub to trigger hub protocols 
+      let pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
+      console.log(pubResuts.status)
+      
+
+    },
+
+    
 
 
   },

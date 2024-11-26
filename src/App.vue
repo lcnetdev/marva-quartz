@@ -10,6 +10,8 @@ import TextMacroModal from "@/components/panels/edit/modals/TextMacroModal.vue";
 import NonLatinBulkModal from "@/components/panels/edit/modals/NonLatinBulkModal.vue";
 import NonLatinAgentModal from "@/components/panels/edit/modals/NonLatinAgentModal.vue";
 import FieldColorsModal from "@/components/panels/edit/modals/FieldColorsModal.vue";
+import HubStubCreateModal from "@/components/panels/edit/modals/HubStubCreateModal.vue";
+
 
 
 
@@ -42,7 +44,8 @@ export default {
     TextMacroModal,
     NonLatinBulkModal,
     NonLatinAgentModal,
-    FieldColorsModal
+    FieldColorsModal,
+    HubStubCreateModal
 
   },
   data() {
@@ -57,7 +60,7 @@ export default {
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
     ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal']),
-    ...mapWritableState(useProfileStore, ['showShelfListingModal']),
+    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
@@ -160,10 +163,12 @@ export default {
   <template v-if="showFieldColorsModal==true">
     <FieldColorsModal v-model="showFieldColorsModal"  />
   </template>
-
+  <template v-if="showHubStubCreateModal==true">
+    <HubStubCreateModal v-model="showHubStubCreateModal"  />
+  </template>
   
   
-
+  
 </template>
 
 
