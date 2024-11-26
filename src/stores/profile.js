@@ -4391,7 +4391,7 @@ export const useProfileStore = defineStore('profile', {
     async buildPostHubStub(hubCreatorObj,title,langUri){
 
       console.log("hubCreatorObj",hubCreatorObj)
-      let xml = utilsExport.createHubStubXML(hubCreatorObj,title,langUri)
+      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langUri)
 
       console.log(xml)
       let eid = 'e' + decimalTranslator.new()
