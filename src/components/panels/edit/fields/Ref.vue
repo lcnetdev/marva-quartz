@@ -18,8 +18,6 @@
     </template>
   </template>
 
-  Template: {{ thisRtTemplate.id }}<br><br>
-
   <Main v-for="(pt,idx) in thisRtTemplate.propertyTemplates"
     :level="level"
     :propertyPath="propertyPath"
@@ -221,7 +219,6 @@ export default {
 
 
     thisRtTemplate(){
-      console.info("picking the Rt Template")
       if (this.manualOverride !== null){
         for (let tmpid of this.structure.valueConstraint.valueTemplateRefs){
           console.log('tmpid',tmpid)
@@ -234,17 +231,9 @@ export default {
         return true
       }
 
-      console.info("this.structure.valueConstraint.valueTemplateRefs", this.structure.valueConstraint.valueTemplateRefs)
       // // grab the first component from the struecture, but there might be mutluple ones
       let useId = this.structure.valueConstraint.valueTemplateRefs[0]
       let foundBetter = false
-
-      console.info("useId: ", useId)
-      console.info("structure: ", this.structure)
-      // try { throw new Error(); }
-      // catch (e) {
-      //     console.info(e)
-      // }
 
       let userValue = this.structure.userValue
 
@@ -257,14 +246,10 @@ export default {
       if (userValue['@type']){
         // loop thrugh all the refs and see if there is a URI that matches it better
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
-          console.info("    tmpid: ", tmpid)
-          console.info("    userValue: ", userValue)
-          console.info("    this.rtLookup[tmpid]: ", this.rtLookup[tmpid])
           if (foundBetter) return false
           if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
             useId = tmpid
             foundBetter = true
-            console.info("        foundBetter: ", useId)
           }
 
           for (let key in userValue){
@@ -311,7 +296,6 @@ export default {
         if (this.rtLookup[useId]){
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
 
-          console.info("USE: ", use)
           return use
           // this.multiTemplateSelect = use.resourceLabel
           // this.multiTemplateSelectURI = useId
@@ -401,12 +385,9 @@ export default {
   methods: {
 
     templateChange(event){
-      console.info("Changing Template")
-      console.info(this.thisRtTemplate)
       let nextRef = this.allRtTemplate.filter((v)=>{ return (v.id === event.target.value) })[0]
       let thisRef = this.thisRtTemplate
 
-      console.info("set this and next")
       //If the selection is for Children's Subjects, use manual override
       if(nextRef.id == "lc:RT:bf2:Topic:Childrens:Components"){
         this.manualOverride = "lc:RT:bf2:Topic:Childrens:Components"
@@ -415,7 +396,6 @@ export default {
       }
 
       this.profileStore.changeRefTemplate(this.guid, this.propertyPath, nextRef, thisRef)
-      console.info("finished with template change")
     }
 
 

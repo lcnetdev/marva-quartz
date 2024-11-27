@@ -951,11 +951,13 @@ export const useProfileStore = defineStore('profile', {
     */
 
     changeRefTemplate: function(componentGuid, propertyPath, nextRef, thisRef){
-      console.info("thisRef: ", thisRef)
-      console.info("nextRef: ", nextRef)
       // let lastProperty = propertyPath.at(-1).propertyURI
       // // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      console.info("pt: ", JSON.parse(JSON.stringify(pt)))
+      console.info("nextRef: ", nextRef)
+      console.info("thisRef: ", thisRef)
 
       //should be safe to delete the cache when swaping templates
       if (Object.keys(cachePt).includes(componentGuid)){
@@ -965,11 +967,7 @@ export const useProfileStore = defineStore('profile', {
           cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
       }
 
-      console.info("pt: ", JSON.parse(JSON.stringify(pt)))
-
       if (pt !== false){
-
-        console.info("nextRef resourceURI", nextRef.resourceURI)
         pt.activeType = nextRef.resourceURI
         let baseURI = pt.propertyURI
 
@@ -978,8 +976,9 @@ export const useProfileStore = defineStore('profile', {
             pt.userValue[baseURI]=[{}]
         }
         let userValue = pt.userValue[baseURI][0]
-        // always remove the @id
-        if (userValue['@id']){
+        console.info("userValue: ", JSON.parse(JSON.stringify(userValue)))
+        // always remove the @id, except for subjects. Without it, things won't be linked after swapping
+        if (userValue['@id'] && !thisRef.id.includes(":Components")){
             delete userValue['@id']
         }
 
@@ -1006,19 +1005,32 @@ export const useProfileStore = defineStore('profile', {
         // if there are properties in the old template that are not in the new one then we need to remove them from the userValue
         let possibleProperties = nextRef.propertyTemplates.map((p) => {return p.propertyURI})
 
+        // The subject properties need to be updated, or the data will be erased
+        if (thisRef.id.includes(":Components")){
+          possibleProperties = ["@id", "http://www.w3.org/2000/01/rdf-schema#label", "http://id.loc.gov/ontologies/bibframe/source", "http://id.loc.gov/ontologies/bflc/marcKey", "http://www.loc.gov/mads/rdf/v1#authoritativeLabel", "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
+        }
+
+        console.info("possiblePropertys: ", possibleProperties)
+        console.info("this properties: ", thisRef.propertyTemplates.map((p) => {return p.propertyURI}))
+
         if (!pt.refTemplateUserValue){
             pt.refTemplateUserValue = {}
         }
 
         for (let key in userValue){
+          console.info("key: ", key)
           //For contributions, keep the keys for agent role so the data persists
           if (!key.startsWith('@') && !["http://id.loc.gov/ontologies/bibframe/agent", "http://id.loc.gov/ontologies/bibframe/role"].includes(key)){
             if (possibleProperties.indexOf(key)==-1){
                 // this property has no place in the ref template we are about to switch to
                 // so store them over in the refTemplateUserValue for later if needed
-                pt.refTemplateUserValue[key] =JSON.parse(JSON.stringify(userValue[key]))
+                pt.refTemplateUserValue[key] = JSON.parse(JSON.stringify(userValue[key]))
                 delete userValue[key]
             }
+          } else if (key == "@id"){ //for subjects, keep the "@id"
+            console.info("URL?")
+            pt.refTemplateUserValue[key] = JSON.parse(JSON.stringify(userValue[key]))
+            delete userValue[key]
           }
         }
 
@@ -1027,6 +1039,7 @@ export const useProfileStore = defineStore('profile', {
 
         for (let pp of possibleProperties){
             if (pt.refTemplateUserValue[pp]){
+              console.info("pt.refTemplateUserValue[pp]", pt.refTemplateUserValue[pp])
                 // don't use http://id.loc.gov/ontologies/bibframe/assigner aka source
                 // kind of a hackish thing, but the source is really not transferable between
                 // differnt types of classifications so leave it out, it will get populated with the default so
@@ -1037,8 +1050,6 @@ export const useProfileStore = defineStore('profile', {
                 delete pt.refTemplateUserValue[pp]
             }
         }
-
-        console.info("final pt: ", JSON.parse(JSON.stringify(pt)))
 
         // also check to see if there are default values in the orignal profile that we might need to over write with if they are switching
 

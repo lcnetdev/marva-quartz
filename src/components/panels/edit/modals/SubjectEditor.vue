@@ -2596,7 +2596,6 @@ mounted: function(){},
 
 
 updated: function() {
-  console.info("updated", this.searchType)
   // preselect the search type, if a children's subject
   if (this.searchType.includes("Childrens")){
     this.searchMode = "CHILD"
