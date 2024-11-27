@@ -375,7 +375,7 @@ const utilsNetwork = {
                   if(searchPayload.subjectSearch == true){
                     context = await this.returnContext(hit.uri)
                   }
-                  
+
                   let hitAdd = {
                     collections: context ? context.nodeMap["MADS Collection"] : [],
                     label: hit.aLabel,
@@ -492,7 +492,7 @@ const utilsNetwork = {
     */
     fetchContextData: async function(uri){
           let returnUrls = useConfigStore().returnUrls
-          
+
           if ((uri.startsWith('http://id.loc.gov') || uri.startsWith('https://id.loc.gov')) && uri.match(/(authorities|vocabularies)/)) {
             var jsonuri = uri + '.madsrdf_raw.jsonld';
 
@@ -531,7 +531,7 @@ const utilsNetwork = {
           // console.log(jsonuri)
           // console.log(returnUrls)
 
-          
+
 
           // unless we are in a dev or public mode
 
@@ -917,7 +917,7 @@ const utilsNetwork = {
 
             var nodeMap = {};
 
-            data.forEach(function(n){              
+            data.forEach(function(n){
               if (n['http://www.loc.gov/mads/rdf/v1#birthDate']){
                 nodeMap['Birth Date'] = n['http://www.loc.gov/mads/rdf/v1#birthDate'].map(function(d){ return d['@value']})
               }
@@ -975,7 +975,7 @@ const utilsNetwork = {
               }
 
             })
-            
+
             // pull out the labels
             data.forEach(function(n){
 
@@ -1090,7 +1090,7 @@ const utilsNetwork = {
                 marcKey = JSON.parse(JSON.stringify(n['http://id.loc.gov/ontologies/bflc/marcKey']))
               }
 
-              
+
               if (n['@id'] && n['@id'] == data.uri && n['@type']){
                   n['@type'].forEach((t)=>{
                       if (results.type===null){
@@ -1118,7 +1118,7 @@ const utilsNetwork = {
               if (marcKey && marcKey.length>0){
                 results.marcKey = marcKey
               }
-              
+
 
 
               if (n['@type'] && n['@type'] == 'http://id.loc.gov/ontologies/bibframe/Title'){
@@ -1150,7 +1150,7 @@ const utilsNetwork = {
               delete results.nodeMap[k]
             }
           })
-        
+
           return results;
         },
 
@@ -1299,7 +1299,7 @@ const utilsNetwork = {
         }
 
         lcsh = lcsh.replace(secondDollarZ,collapsedDollarZ)
-		
+
 		//if there is a space before the hyphens remove it. It prevents matches
 		if (lcsh.includes(" --")){
 			lcsh = lcsh.replace(" --", "--")
@@ -1935,12 +1935,12 @@ const utilsNetwork = {
             if (responseUri){
               r.heading.rdfType = responseUri
             }
-            
+
             // also we need the MARCKeys
             marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
           }
         }
-        
+
         let marcKeyPromisesResults = await Promise.all(marcKeyPromises);
         for (let marcKeyResult of marcKeyPromisesResults){
           for (let r of result.hit){
@@ -1952,7 +1952,7 @@ const utilsNetwork = {
       }else if (result.hit && result.resultType == 'COMPLEX') {
         // if they are adding a complex value still need to lookup the marc key
         let marcKeyResult = await this.returnMARCKey(result.hit.uri + '.madsrdf_raw.jsonld')
-        
+
         result.hit.marcKey = marcKeyResult.marcKey
       }
       // console.log("result",result)
@@ -2126,14 +2126,12 @@ const utilsNetwork = {
 
       let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
       let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
-        
+
       let childrenSubject = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&-memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
       let childrenSubjectComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
       let childrenSubjectSubdivision = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       let searchValHierarchicalGeographic = searchVal.replaceAll('‑','-') //.split(' ').join('--')
-        
-        console.info("childrenSubject: ", childrenSubject)
 
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count=4').replace("<OFFSET>", "1")
 
@@ -2191,7 +2189,7 @@ const utilsNetwork = {
         subjectSearch: true,
         signal: this.controllers.controllerSubjectsComplex.signal,
       }
-      
+
       let searchPayloadChildrenSubjects = {
         processor: 'lcAuthorities',
         url: [childrenSubject],
@@ -2268,7 +2266,7 @@ const utilsNetwork = {
       let resultsWorksKeyword=[]
       let resultsHubsAnchored=[]
       let resultsHubsKeyword=[]
-      
+
       let resultsChildrenSubjects = []
       let resultsChildrenSubjectsComplex = []
       let resultsChildrenSubjectsSubdivisions = []
@@ -2282,14 +2280,14 @@ const utilsNetwork = {
             this.searchComplex(searchPayloadSubjectsComplex),
             this.searchComplex(searchPayloadHierarchicalGeographic)
         ]);
-        
+
       } else if (mode == "CHILD"){
         [resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
             this.searchComplex(searchPayloadChildrenSubjects),
             this.searchComplex(searchPayloadChildrenSubjectsComplex),
             this.searchComplex(searchPayloadChildrenSubjectsSubdivision)
         ]);
-        
+
       }else if (mode == "GEO"){
 
         [resultsHierarchicalGeographic] = await Promise.all([
@@ -2708,7 +2706,7 @@ const utilsNetwork = {
       }
 
       let urlSearch = "lds/browse.xqy?bq=" + search +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
-      
+
       // try{
         //let req = await fetch(useConfigStore().returnUrls.shelfListing + `browse/class/${dir}/${search}.json` )
         let req = await fetch(useConfigStore().returnUrls.shelfListing + urlSearch )
