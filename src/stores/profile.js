@@ -978,7 +978,7 @@ export const useProfileStore = defineStore('profile', {
         let userValue = pt.userValue[baseURI][0]
         console.info("userValue: ", JSON.parse(JSON.stringify(userValue)))
         // always remove the @id, except for subjects. Without it, things won't be linked after swapping
-        if (userValue['@id'] && !thisRef.id.includes(":Components")){
+        if (userValue['@id'] && !(thisRef.id.includes(":Components") || thisRef.id.includes("Topic"))){
             delete userValue['@id']
         }
 
@@ -1006,8 +1006,8 @@ export const useProfileStore = defineStore('profile', {
         let possibleProperties = nextRef.propertyTemplates.map((p) => {return p.propertyURI})
 
         // The subject properties need to be updated, or the data will be erased
-        if (thisRef.id.includes(":Components")){
-          possibleProperties = ["@id", "http://www.w3.org/2000/01/rdf-schema#label", "http://id.loc.gov/ontologies/bibframe/source", "http://id.loc.gov/ontologies/bflc/marcKey", "http://www.loc.gov/mads/rdf/v1#authoritativeLabel", "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
+        if (thisRef.id.includes(":Components") || thisRef.id.includes("Topic")){
+          possibleProperties = ["@id", "http://www.loc.gov/mads/rdf/v1#componentList", "http://www.w3.org/2000/01/rdf-schema#label", "http://id.loc.gov/ontologies/bibframe/source", "http://id.loc.gov/ontologies/bflc/marcKey", "http://www.loc.gov/mads/rdf/v1#authoritativeLabel", "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
         }
 
         console.info("possiblePropertys: ", possibleProperties)
