@@ -969,6 +969,7 @@ export const useProfileStore = defineStore('profile', {
 
       if (pt !== false){
 
+        console.info("nextRef resourceURI", nextRef.resourceURI)
         pt.activeType = nextRef.resourceURI
         let baseURI = pt.propertyURI
 
@@ -982,11 +983,10 @@ export const useProfileStore = defineStore('profile', {
             delete userValue['@id']
         }
 
-
-		// keep PrimaryContribution
-		if (!["http://id.loc.gov/ontologies/bibframe/PrimaryContribution"].includes(userValue['@type'])){
-			userValue['@type'] = nextRef.resourceURI
-		}
+        // keep PrimaryContribution
+        if (!["http://id.loc.gov/ontologies/bibframe/PrimaryContribution"].includes(userValue['@type'])){
+          userValue['@type'] = nextRef.resourceURI
+        }
 
         // store the other properies as well
         if (!pt.refTemplateUserValueKeys){
@@ -1011,16 +1011,15 @@ export const useProfileStore = defineStore('profile', {
         }
 
         for (let key in userValue){
-			//For contributions, keep the keys for agent role so the data persists
-			if (!key.startsWith('@') && !["http://id.loc.gov/ontologies/bibframe/agent", "http://id.loc.gov/ontologies/bibframe/role"].includes(key)){
-                if (possibleProperties.indexOf(key)==-1){
-                    //
-                    // this property has no place in the ref template we are about to switch to
-                    // so store them over in the refTemplateUserValue for later if needed
-                    pt.refTemplateUserValue[key] =JSON.parse(JSON.stringify(userValue[key]))
-                    delete userValue[key]
-                }
+          //For contributions, keep the keys for agent role so the data persists
+          if (!key.startsWith('@') && !["http://id.loc.gov/ontologies/bibframe/agent", "http://id.loc.gov/ontologies/bibframe/role"].includes(key)){
+            if (possibleProperties.indexOf(key)==-1){
+                // this property has no place in the ref template we are about to switch to
+                // so store them over in the refTemplateUserValue for later if needed
+                pt.refTemplateUserValue[key] =JSON.parse(JSON.stringify(userValue[key]))
+                delete userValue[key]
             }
+          }
         }
 
         // see if there are any properties stored in refTemplateUserValue that
@@ -1038,6 +1037,8 @@ export const useProfileStore = defineStore('profile', {
                 delete pt.refTemplateUserValue[pp]
             }
         }
+
+        console.info("final pt: ", JSON.parse(JSON.stringify(pt)))
 
         // also check to see if there are default values in the orignal profile that we might need to over write with if they are switching
 

@@ -178,7 +178,7 @@
 
 
   </template>
-  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal"/>
+  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal" :searchType="searchType" />
   <SubjectEditor ref="subjectEditorModal" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" />
 
 </template>
@@ -667,7 +667,6 @@ export default {
 
 			this.authorityLookup = this.searchValue.trim()
 			this.searchValue = this.searchValue.trim()
-            console.info("opening modal")
             let selection = document.getElementById(this.guid)
             let selected = selection.options[selection.selectedIndex].value
             this.searchType = selected
@@ -752,11 +751,15 @@ export default {
       if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
         this.displayModal = true
       } else {
-		// we're opening the subject builder, turn this off
-		this.marcDeliminatedLCSHMode = false
-		this.marcDeliminatedLCSHModeSearching = false
-		this.marcDeliminatedLCSHModeTimeout = null
-		this.marcDeliminatedLCSHModeResults = []
+        // we're opening the subject builder, turn this off
+        this.marcDeliminatedLCSHMode = false
+        this.marcDeliminatedLCSHModeSearching = false
+        this.marcDeliminatedLCSHModeTimeout = null
+        this.marcDeliminatedLCSHModeResults = []
+
+        let selection = document.getElementById(this.guid)
+        let selected = selection.options[selection.selectedIndex].value
+        this.searchType = selected
 
         this.displaySubjectModal = true
       }
