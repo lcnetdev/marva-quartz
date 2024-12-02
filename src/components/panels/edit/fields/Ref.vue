@@ -12,14 +12,10 @@
 
     </template>
     <template v-else>
-      <select @change="templateChange($event)" style=" background-color: transparent;">
+      <select :id="structure['@guid']" @change="templateChange($event)" style=" background-color: transparent;">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
-
-
     </template>
-
-
   </template>
 
   <Main v-for="(pt,idx) in thisRtTemplate.propertyTemplates"
@@ -245,13 +241,13 @@ export default {
       if (userValue[this.structure.propertyURI] && userValue[this.structure.propertyURI][0]){
         userValue = this.structure.userValue[this.structure.propertyURI][0]
       }
-	  
+
       // do we have user data and a possible @type to use
       if (userValue['@type']){
         // loop thrugh all the refs and see if there is a URI that matches it better
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
           if (foundBetter) return false
-          if (this.rtLookup[tmpid].resourceURI === userValue['@type']){
+          if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
             useId = tmpid
             foundBetter = true
           }
@@ -273,22 +269,22 @@ export default {
 		  //	if there's a template that might be even better-er
 		  // But, we're only going to look deeper for bf:contribution
 
-		  let parentUserValue 
+		  let parentUserValue
 		  try {
 			  parentUserValue = this.$parent.$parent.structure.userValue
 	      } catch {
 			  parentUserValue = null
 		  }
-		  
+
 		  for (let idx in this.structure.valueConstraint.valueTemplateRefs){
 			  let template = this.structure.valueConstraint.valueTemplateRefs[idx]
 			  if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
 				  let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
 				  if (target){
-					  let type = target[0]["@type"]
-					  if (type && this.rtLookup[template].resourceURI === type){
-						useId = template
-					  }
+                      let type = target[0]["@type"]
+                      if (type && this.rtLookup[template].resourceURI === type){
+                        useId = template
+                      }
 				  }
 			  }
 		  }
@@ -299,7 +295,7 @@ export default {
       // if (this.parentStructure && this.parentStructure.indexOf(useId) ==-1){
         if (this.rtLookup[useId]){
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
-		  
+
           return use
           // this.multiTemplateSelect = use.resourceLabel
           // this.multiTemplateSelectURI = useId
@@ -391,7 +387,14 @@ export default {
     templateChange(event){
       let nextRef = this.allRtTemplate.filter((v)=>{ return (v.id === event.target.value) })[0]
       let thisRef = this.thisRtTemplate
-	  
+
+      //If the selection is for Children's Subjects, use manual override
+      if(nextRef.id == "lc:RT:bf2:Topic:Childrens:Components"){
+        this.manualOverride = "lc:RT:bf2:Topic:Childrens:Components"
+      } else {
+        this.manualOverride = null
+      }
+
       this.profileStore.changeRefTemplate(this.guid, this.propertyPath, nextRef, thisRef)
     }
 

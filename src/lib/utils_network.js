@@ -492,7 +492,7 @@ const utilsNetwork = {
     */
     fetchContextData: async function(uri){
           let returnUrls = useConfigStore().returnUrls
-          
+
           if ((uri.startsWith('http://id.loc.gov') || uri.startsWith('https://id.loc.gov')) && uri.match(/(authorities|vocabularies)/)) {
             var jsonuri = uri + '.madsrdf_raw.jsonld';
 
@@ -531,7 +531,7 @@ const utilsNetwork = {
           // console.log(jsonuri)
           // console.log(returnUrls)
 
-          
+
 
           // unless we are in a dev or public mode
 
@@ -654,11 +654,10 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     extractContextDataWorksHubs: async function(data){
-
       let returnUrls = useConfigStore().returnUrls
 
 
-      var results = { contextValue: true, source: [], type: null, typeFull: null, aap:null, variant : [], uri: data.uri, title: null, contributor:[], date:null, genreForm: null, nodeMap:{}};
+      var results = { contextValue: true, source: [], type: null, typeFull: null, aap:null, variant : [], uri: data.uri, title: null, contributor:[], date:null, genreForm: null, nodeMap:{}, marcKey: null};
 
       if (data.uri.includes('/works/')){
         results.type = 'Work'
@@ -691,6 +690,7 @@ const utilsNetwork = {
               //add the marcKey to the nodeMap, so nothing needs to happen downstream
               if (k == 'http://id.loc.gov/ontologies/bflc/marcKey'){
                 results.nodeMap["marcKey"] = [val[k][0]['@value']]
+                results.marcKey = [val[k][0]['@value']]
               }
               //find the title
               if (k == 'http://www.w3.org/2000/01/rdf-schema#label'){
@@ -917,7 +917,7 @@ const utilsNetwork = {
 
             var nodeMap = {};
 
-            data.forEach(function(n){              
+            data.forEach(function(n){
               if (n['http://www.loc.gov/mads/rdf/v1#birthDate']){
                 nodeMap['Birth Date'] = n['http://www.loc.gov/mads/rdf/v1#birthDate'].map(function(d){ return d['@value']})
               }
@@ -975,7 +975,7 @@ const utilsNetwork = {
               }
 
             })
-            
+
             // pull out the labels
             data.forEach(function(n){
 
@@ -1090,7 +1090,7 @@ const utilsNetwork = {
                 marcKey = JSON.parse(JSON.stringify(n['http://id.loc.gov/ontologies/bflc/marcKey']))
               }
 
-              
+
               if (n['@id'] && n['@id'] == data.uri && n['@type']){
                   n['@type'].forEach((t)=>{
                       if (results.type===null){
@@ -1118,7 +1118,7 @@ const utilsNetwork = {
               if (marcKey && marcKey.length>0){
                 results.marcKey = marcKey
               }
-              
+
 
 
               if (n['@type'] && n['@type'] == 'http://id.loc.gov/ontologies/bibframe/Title'){
@@ -1150,7 +1150,7 @@ const utilsNetwork = {
               delete results.nodeMap[k]
             }
           })
-        
+
           return results;
         },
 
@@ -1299,7 +1299,7 @@ const utilsNetwork = {
         }
 
         lcsh = lcsh.replace(secondDollarZ,collapsedDollarZ)
-		
+
 		//if there is a space before the hyphens remove it. It prevents matches
 		if (lcsh.includes(" --")){
 			lcsh = lcsh.replace(" --", "--")
@@ -1935,12 +1935,12 @@ const utilsNetwork = {
             if (responseUri){
               r.heading.rdfType = responseUri
             }
-            
+
             // also we need the MARCKeys
             marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
           }
         }
-        
+
         let marcKeyPromisesResults = await Promise.all(marcKeyPromises);
         for (let marcKeyResult of marcKeyPromisesResults){
           for (let r of result.hit){
@@ -1952,7 +1952,7 @@ const utilsNetwork = {
       }else if (result.hit && result.resultType == 'COMPLEX') {
         // if they are adding a complex value still need to lookup the marc key
         let marcKeyResult = await this.returnMARCKey(result.hit.uri + '.madsrdf_raw.jsonld')
-        
+
         result.hit.marcKey = marcKeyResult.marcKey
       }
       // console.log("result",result)
@@ -2127,10 +2127,11 @@ const utilsNetwork = {
       let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
       let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
 
-
+      let childrenSubject = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&-memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let childrenSubjectComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
+      let childrenSubjectSubdivision = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       let searchValHierarchicalGeographic = searchVal.replaceAll('‑','-') //.split(' ').join('--')
-
 
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count=4').replace("<OFFSET>", "1")
 
@@ -2189,6 +2190,28 @@ const utilsNetwork = {
         signal: this.controllers.controllerSubjectsComplex.signal,
       }
 
+      let searchPayloadChildrenSubjects = {
+        processor: 'lcAuthorities',
+        url: [childrenSubject],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerSubjectsSimple.signal,
+      }
+      let searchPayloadChildrenSubjectsComplex = {
+        processor: 'lcAuthorities',
+        url: [childrenSubjectComplex],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerSubjectsComplex.signal,
+      }
+      let searchPayloadChildrenSubjectsSubdivision = {
+        processor: 'lcAuthorities',
+        url: [childrenSubjectSubdivision],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerPayloadSubjectsSimpleSubdivision.signal,
+      }
+
 
       let searchPayloadHierarchicalGeographic = {
         processor: 'lcAuthorities',
@@ -2244,6 +2267,10 @@ const utilsNetwork = {
       let resultsHubsAnchored=[]
       let resultsHubsKeyword=[]
 
+      let resultsChildrenSubjects = []
+      let resultsChildrenSubjectsComplex = []
+      let resultsChildrenSubjectsSubdivisions = []
+
       if (mode == "LCSHNAF"){
         [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
             this.searchComplex(searchPayloadNames),
@@ -2252,6 +2279,13 @@ const utilsNetwork = {
             this.searchComplex(searchPayloadSubjectsSimpleSubdivision),
             this.searchComplex(searchPayloadSubjectsComplex),
             this.searchComplex(searchPayloadHierarchicalGeographic)
+        ]);
+
+      } else if (mode == "CHILD"){
+        [resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
+            this.searchComplex(searchPayloadChildrenSubjects),
+            this.searchComplex(searchPayloadChildrenSubjectsComplex),
+            this.searchComplex(searchPayloadChildrenSubjectsSubdivision)
         ]);
 
       }else if (mode == "GEO"){
@@ -2284,6 +2318,9 @@ const utilsNetwork = {
       resultsNamesSubdivision = resultsNamesSubdivision.filter((r) => {return (!r.literal)})
       if (resultsSubjectsComplex.length>0){
         resultsSubjectsComplex.pop()
+      }
+      if (resultsChildrenSubjectsComplex.length>0){
+        resultsChildrenSubjectsComplex.pop()
       }
 
 
@@ -2334,7 +2371,9 @@ const utilsNetwork = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': resultsSubjectsComplex,
         'names': pos == 0 ? resultsNames : resultsNamesSubdivision,
-        'hierarchicalGeographic':  pos == 0 ? [] : resultsHierarchicalGeographic
+        'hierarchicalGeographic':  pos == 0 ? [] : resultsHierarchicalGeographic,
+        'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
+        'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
       }
 
       this.subjectSearchActive = false
@@ -2667,7 +2706,7 @@ const utilsNetwork = {
       }
 
       let urlSearch = "lds/browse.xqy?bq=" + search +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
-      
+
       // try{
         //let req = await fetch(useConfigStore().returnUrls.shelfListing + `browse/class/${dir}/${search}.json` )
         let req = await fetch(useConfigStore().returnUrls.shelfListing + urlSearch )
@@ -2753,7 +2792,6 @@ const utilsNetwork = {
         return false
 
       }
-
 
       let ourVer = useConfigStore().versionMajor + (useConfigStore().versionMinor * 0.1) + (useConfigStore().versionPatch* 0.01)
       let curVer = content.major + (content.minor* 0.1) + (content.patch* 0.01)

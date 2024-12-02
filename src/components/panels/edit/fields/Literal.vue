@@ -42,7 +42,7 @@
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
           </template>
           <form autocomplete="off" >
-            <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-editortcode-display-mode') == true">
+            <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == true">
 
               <div class="bfcode-display-mode-holder">
                 <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
@@ -582,7 +582,7 @@ export default {
           if (this.diacriticUse.length>0){
             for (let macro of this.diacriticUseValues){
               if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
-                console.log("run this macro", macro)
+                // console.log("run this macro", macro)
                 event.preventDefault()
 
                 this.runMacroExpressMacro(event)
@@ -783,7 +783,7 @@ export default {
         let data = this.profileStore.returnLccInfo(this.guid, this.structure)
         if (data.contributors && data.contributors.length>0){
           data.contributors[0].secondLetterLabel = data.contributors[0].label.substring(1)
-        }
+        }        
         return data
       }
       return false
@@ -824,7 +824,7 @@ export default {
     //     this.lccFeatureData = this.profileStore.returnLccInfo(this.guid, this.structure)
     //   }
     // }
-    dataChangedTimestamp(newVal, oldVal) {
+    dataChangedTimestamp(newVal, oldVal) {      
       this.lccFeatureDataCounter++
     }
 

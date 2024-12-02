@@ -77,7 +77,7 @@
                           <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')" " :type="avl.type"/>
                         </div>
                         <div class="selected-value-container-title">
-                          <!-- <span class="material-icons check-mark">check_circle_outline</span> -->                           
+                          <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
                           <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
                           <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
                         </div>
@@ -96,11 +96,11 @@
 
 
 
-         
-          
-          <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">            
+
+
+          <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
-              
+
               <div v-for="(avl,idx) in complexLookupValues" class="selected-value-container">
                 <div class="selected-value-container-auth">
                   <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')"  :type="avl.type"/>
@@ -178,9 +178,8 @@
 
 
   </template>
-
-  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal"/>
-  <SubjectEditor ref="subjectEditorModal" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
+  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal" :searchType="searchType" />
+  <SubjectEditor ref="subjectEditorModal" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" />
 
 </template>
 
@@ -261,7 +260,9 @@ export default {
       marcDeliminatedLCSHMode: false,
       marcDeliminatedLCSHModeSearching: false,
       marcDeliminatedLCSHModeTimeout: null,
-      marcDeliminatedLCSHModeResults: []
+      marcDeliminatedLCSHModeResults: [],
+
+      searchType: "", // the type of search this is
 
 
       // lookups: this.structure.valueConstraint.useValuesFrom,
@@ -329,9 +330,14 @@ export default {
 
     complexLookupValues(){
 
-
-      let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
-      return values
+      try{
+          let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
+          return values
+      } catch(err) {
+          // this can run into an error when populating an empty complexValue field
+          // It mostly doesn't seem to matter, but might as well catch
+          return []
+      }
 
     },
 
@@ -563,7 +569,6 @@ export default {
     },
 
     textInputEvent: function(event){
-
       // remove the existing value if it was deleted
       if (this.$refs.lookupInput.innerHTML.trim() == ""){
         this.authorityLookup = null
@@ -606,7 +611,6 @@ export default {
               this.marcDeliminatedLCSHModeSearching = false
               let sendResults = []
               if (this.marcDeliminatedLCSHModeResults.resultType != 'ERROR'){
-
                 if (this.marcDeliminatedLCSHModeResults.resultType && this.marcDeliminatedLCSHModeResults.resultType==='COMPLEX'){
                   sendResults.push({
                     complex: true,
@@ -660,10 +664,12 @@ export default {
 			this.marcDeliminatedLCSHModeSearching = false
 			this.marcDeliminatedLCSHModeTimeout = null
 			this.marcDeliminatedLCSHModeResults = []
-			
+
 			this.authorityLookup = this.searchValue.trim()
 			this.searchValue = this.searchValue.trim()
-			
+            let selection = document.getElementById(this.guid)
+            let selected = selection.options[selection.selectedIndex].value
+            this.searchType = selected
             this.displaySubjectModal=true
             this.$nextTick(() => {
               this.$refs.subjectEditorModal.focusInput()
@@ -741,16 +747,20 @@ export default {
       // store the label to pass as a prop
       this.authorityLookup = label
       this.searchValue = label
-        
+
       if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
         this.displayModal = true
       } else {
-		// we're opening the subject builder, turn this off
-		this.marcDeliminatedLCSHMode = false
-		this.marcDeliminatedLCSHModeSearching = false
-		this.marcDeliminatedLCSHModeTimeout = null
-		this.marcDeliminatedLCSHModeResults = []
-	  
+        // we're opening the subject builder, turn this off
+        this.marcDeliminatedLCSHMode = false
+        this.marcDeliminatedLCSHModeSearching = false
+        this.marcDeliminatedLCSHModeTimeout = null
+        this.marcDeliminatedLCSHModeResults = []
+
+        let selection = document.getElementById(this.guid)
+        let selected = selection.options[selection.selectedIndex].value
+        this.searchType = selected
+
         this.displaySubjectModal = true
       }
     },

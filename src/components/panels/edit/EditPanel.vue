@@ -17,9 +17,13 @@
     :key="profileName"
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
 
-
           <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
-
+          <template v-if="profileName.includes(':Instance')"> 
+                <div> 
+                    <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                    <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
+                </div>
+          </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
               <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
@@ -52,7 +56,12 @@
 
           </template>
       <template v-if="instanceMode == false">
-
+        <template v-if="profileName.includes(':Instance')"> 
+            <div class="instanceInfoWrapper"> 
+                <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
+            </div>
+        </template>
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
           <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
 
@@ -110,8 +119,6 @@
                         :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
                         :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
 
-
-
                           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
                             <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                           </template>
@@ -120,12 +127,9 @@
                     </template>
                   </template>
                 </template>
-
               </template>
             </template>
-
         </template>
-
       </template>
 
 
@@ -186,7 +190,7 @@
 
       // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged']),
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
 
       activeResourceName(){
@@ -264,14 +268,37 @@
             if (bibId && eId != bibId){
                 document.title = `Marva | ${bibId}`;
             }
-              
+        },
+
+        //only able to delete the instances they create
+        showDeleteInstanceButton: function(profileName){
+          //return this.activeProfile.rt[profileName].deletable // this property is removed when the record is saved
+          return true
+        },
+        
+        showDeleteInstanceModal: function(profileName){
+            if (window.confirm("Do you really want to delete this instance?")){
+                // remove from rtOrder
+                const targetIndex = this.activeProfile.rtOrder.indexOf(profileName)                
+                this.activeProfile.rtOrder.splice(targetIndex, 1)
+                
+                // remove the profile
+                delete this.activeProfile.rt[profileName]
+                this.profileStore.dataChanged()
+            }
+        },
+        
+        instanceLabel: function(profileName){
+            try{
+                if (this.activeProfile.rt[profileName]["@type"].includes("Secondary")){
+                    return "Secondary Instance"
+                }
+                return "Instance"
+            } catch(err){
+                return "Instance"
+            }
         }
-
-
-
     },
-
-
 
     watch:{
 
@@ -393,6 +420,18 @@
   font-size: 0.85em;
 }
 
+div.instanceInfoWrapper {
+    padding: 5px;
+}
+
+.instanceIdentifer {
+    font-weight: bold;
+}
+
+.instanceDeleteButton {
+    float: right;
+    margin-right: 5px;
+}
 
 
 </style>

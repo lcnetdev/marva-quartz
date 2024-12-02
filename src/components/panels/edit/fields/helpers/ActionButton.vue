@@ -71,6 +71,7 @@
 
         </template>
 
+        
         <template v-if="type=='lookupComplex'">
             <!-- template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.parentId.includes(':Form') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[0]" -->
             <template v-if="showUpDownButtons()[0]">
@@ -89,6 +90,13 @@
             </template>
         </template>
 
+        <template v-if="showBuildHubStub()">
+              <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildHubStub()">
+                Create Hub
+              </button>
+        </template>
+
+
         <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
           <span class="button-shortcut-label">0</span>
           Debug
@@ -99,6 +107,7 @@
             View Documentation<span class="material-icons action-button-icon">open_in_new</span>
           </button>
         </template>
+        
 
         <template v-if="catInitals.toLowerCase().indexOf('matt') > -1">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="breakRecord()">
@@ -227,6 +236,27 @@
     },
 
     methods: {
+
+
+      showBuildHubStub(){
+
+
+        let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/relation"){
+          return true
+        }
+        
+
+        return false
+      },
+
+
+      buildHubStub(){
+        console.log(this.guid)
+        let info = this.profileStore.returnLccInfo(this.guid)
+        this.profileStore.activeHubStubData = info
+        this.profileStore.showHubStubCreateModal = true
+      },
 
       shortCutPressed: function(){
 
@@ -390,6 +420,10 @@
 
         // if it's part of a group with members that have defaults, and that group isn't the whole thing
         let parentId = this.structure.parentId
+        
+        if (parentId.includes("_")){
+            parentId = parentId.split("_")[0]
+        }
 
         if (!parentId.endsWith("Work") && !parentId.endsWith("Instance") && !parentId.endsWith("Hub") && !parentId.endsWith("Item")){
           for (let sibling of this.profileStore.rtLookup[parentId].propertyTemplates){

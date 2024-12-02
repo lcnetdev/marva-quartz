@@ -219,7 +219,6 @@
             <h3>Preferences -   <select @change="loadPrefGroup($event)"><option v-for="group in possilbleGroups" :selected="showPrefModalGroup==group">{{group}}</option></select></h3>
             <button class="close-button" @pointerup="preferenceStore.togglePrefModal()">X</button>
 
-
             <div v-for="option in renderProperties" :key="showPrefModalGroup+ '_' +option.id">
 
               <div class="option">
