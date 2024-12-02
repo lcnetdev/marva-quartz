@@ -606,8 +606,12 @@ export default {
 
               this.marcDeliminatedLCSHMode = true
 
+              //Get the type of search
+              let selection = document.getElementById(this.guid)
+              let selected = selection.options[selection.selectedIndex].value
+              this.searchType = selected
 
-              this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue)
+              this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue, this.searchType)
               this.marcDeliminatedLCSHModeSearching = false
               let sendResults = []
               if (this.marcDeliminatedLCSHModeResults.resultType != 'ERROR'){
@@ -659,14 +663,14 @@ export default {
 
 
           }else{
-			// we're opening the subject builder, turn this off
-			this.marcDeliminatedLCSHMode = false
-			this.marcDeliminatedLCSHModeSearching = false
-			this.marcDeliminatedLCSHModeTimeout = null
-			this.marcDeliminatedLCSHModeResults = []
+            // we're opening the subject builder, turn this off
+            this.marcDeliminatedLCSHMode = false
+            this.marcDeliminatedLCSHModeSearching = false
+            this.marcDeliminatedLCSHModeTimeout = null
+            this.marcDeliminatedLCSHModeResults = []
 
-			this.authorityLookup = this.searchValue.trim()
-			this.searchValue = this.searchValue.trim()
+            this.authorityLookup = this.searchValue.trim()
+            this.searchValue = this.searchValue.trim()
             let selection = document.getElementById(this.guid)
             let selected = selection.options[selection.selectedIndex].value
             this.searchType = selected
@@ -674,8 +678,6 @@ export default {
             this.$nextTick(() => {
               this.$refs.subjectEditorModal.focusInput()
             })
-
-
           }
 
 

@@ -36,6 +36,7 @@ const utilsNetwork = {
       "controllerHierarchicalGeographicLCSH": new AbortController(),
       "controllerGeographicLCSH": new AbortController(),
       "controllerGeographicLCNAF": new AbortController(),
+      "controllerCyak": new AbortController(),
     },
     subjectSearchActive: false,
 
@@ -1250,7 +1251,7 @@ const utilsNetwork = {
     * @return {subjectLinkModeResolveLCSHResult} - A {@link subjectLinkModeResolveLCSHResult} result
     */
 
-    subjectLinkModeResolveLCSH: async function(lcsh){
+    subjectLinkModeResolveLCSH: async function(lcsh, searchType=null){
       if (this.subjectSearchActive){
         for (let controller in this.controllers){
           this.controllers[controller].abort()
@@ -1421,6 +1422,7 @@ const utilsNetwork = {
         searchValue: complexHeading
       }
 
+
       for (let heading of headings){
 
         let foundHeading = false
@@ -1453,6 +1455,10 @@ const utilsNetwork = {
 
         let subjectUrlGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
         let subjectUrlGeographicLCNAF = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+
+        let subjectChildren = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
+        let childrenSubjectSubdivision = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+
 
         searchVal = decodeURIComponent(searchVal)
 
@@ -1536,6 +1542,20 @@ const utilsNetwork = {
           signal: this.controllers.controllerHubsAnchored.signal
         }
 
+        let searchPayloadChildren = {
+          processor: 'lcAuthorities',
+          url: [subjectChildren],
+          searchValue: searchVal,
+          signal: this.controllers.controllerCyak.signal
+        }
+
+        let searchPayloadChildrenSub = {
+          processor: 'lcAuthorities',
+          url: [childrenSubjectSubdivision],
+          searchValue: searchVal,
+          signal: this.controllers.controllerCyak.signal
+        }
+
         let resultsNames =[]
         let resultsNamesSubdivision =[]
 
@@ -1552,6 +1572,9 @@ const utilsNetwork = {
         let resultsGeographicLCNAF =[]
         let resultsGeographicLCSH =[]
 
+        let resultsChildren = []
+        let resultsChildrenSubDiv = []
+
 
         let resultsGenre=[]
 
@@ -1559,7 +1582,7 @@ const utilsNetwork = {
         // if it is a primary heading then we need to search LCNAF, HUBS, WORKS, and simple subjects, and do the whole thing with complex subjects
         if (heading.primary){
           // resultsNames = await this.searchComplex(searchPayloadNames)
-          [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic,resultsHierarchicalGeographicLCSH, resultsWorksAnchored, resultsHubsAnchored] = await Promise.all([
+          [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic,resultsHierarchicalGeographicLCSH, resultsWorksAnchored, resultsHubsAnchored, resultsChildren, resultsChildrenSubDiv] = await Promise.all([
               this.searchComplex(searchPayloadNames),
               this.searchComplex(searchPayloadNamesSubdivision),
               this.searchComplex(searchPayloadSubjectsSimple),
@@ -1568,8 +1591,13 @@ const utilsNetwork = {
               this.searchComplex(searchPayloadHierarchicalGeographic),
               this.searchComplex(searchPayloadHierarchicalGeographicLCSH),
               this.searchComplex(searchPayloadWorksAnchored),
-              this.searchComplex(searchPayloadHubsAnchored)
+              this.searchComplex(searchPayloadHubsAnchored),
+              this.searchComplex(searchPayloadChildren),
+              this.searchComplex(searchPayloadChildrenSub),
           ]);
+
+          console.info("searchPayloadChildren: ", searchPayloadChildren)
+          console.info("resultsChildren: ", resultsChildren)
 
           // console.log("searchPayloadSubjectsSimpleSubdivision",searchPayloadSubjectsSimpleSubdivision)
           // console.log("resultsPayloadSubjectsSimpleSubdivision",resultsPayloadSubjectsSimpleSubdivision)
@@ -1584,6 +1612,8 @@ const utilsNetwork = {
           resultsWorksAnchored = resultsWorksAnchored.filter((r)=>{ return (!r.literal) })
           resultsHubsAnchored = resultsHubsAnchored.filter((r)=>{ return (!r.literal) })
           resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
+          resultsChildren = resultsChildren.filter((r)=>{ return (!r.literal) })
+          resultsChildrenSubDiv = resultsChildrenSubDiv.filter((r)=>{ return (!r.literal) })
 
           // console.log("Yeeth")
           // console.log("resultsNames",resultsNames)
@@ -1635,20 +1665,38 @@ const utilsNetwork = {
 
           // console.log("resultsSubjectsSimple",resultsSubjectsSimple)
 
-          // if not see if we matched a simple subject that is not a subdivison
-          if (resultsSubjectsSimple.length>0){
-            for (let r of resultsSubjectsSimple){
-              // lower case, remove end space, make double whitespace into one and remove any punctuation
-              if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '') || heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.vlabel.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
-                result.resultType = 'PRECOORD-LCSH'
-                if (!result.hit){ result.hit = [] }
-                r.heading = heading
-                result.hit.push(r)
-                foundHeading = true
-                break
+          // see if there is a match for CYAK
+          if (searchType.includes(":Topic:Childrens:")){
+            if (resultsChildren.length>0){
+              for (let r of resultsChildren){
+                // lower case, remove end space, make double whitespace into one and remove any punctuation
+                if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '') || heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.vlabel.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
+                  result.resultType = 'PRECOORD-LCSH'
+                  if (!result.hit){ result.hit = [] }
+                  r.heading = heading
+                  result.hit.push(r)
+                  foundHeading = true
+                  break
+                }
               }
+              if (foundHeading){ continue }
             }
-            if (foundHeading){ continue }
+          } else {
+            // if not see if we matched a simple subject that is not a subdivison
+            if (resultsSubjectsSimple.length>0){
+              for (let r of resultsSubjectsSimple){
+                // lower case, remove end space, make double whitespace into one and remove any punctuation
+                if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '') || heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.vlabel.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
+                  result.resultType = 'PRECOORD-LCSH'
+                  if (!result.hit){ result.hit = [] }
+                  r.heading = heading
+                  result.hit.push(r)
+                  foundHeading = true
+                  break
+                }
+              }
+              if (foundHeading){ continue }
+            }
           }
 
           // see if we matched a LCNAF name as primary compontant
@@ -1830,6 +1878,21 @@ const utilsNetwork = {
               if (foundHeading){ continue }
             }
 
+            //CYAK subdivisions
+            if (resultsPayloadSubjectsSimpleSubdivision.length>0 && searchType.includes(":Topic:Childrens:")){
+              for (let r of resultsChildrenSubDiv){
+                // lower case, remove end space, make double whitespace into one and remove any punctuation
+                if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
+                  r.heading = heading
+                  result.hit.push(r)
+
+
+                  foundHeading = true
+                }
+              }
+              if (foundHeading){ continue }
+
+
             if (!foundHeading){
               // wasn't found, we need to make it a literal
               result.hit.push(        {
@@ -1958,6 +2021,9 @@ const utilsNetwork = {
       // console.log("result",result)
 
       this.subjectSearchActive = false
+
+      console.info("result: ", result)
+
       return result
     },
 
