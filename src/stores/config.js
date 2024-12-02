@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 16,
-    versionPatch: 21,
+    versionPatch: 22,
 
     regionUrls: {
 
@@ -128,7 +128,7 @@ export const useConfigStore = defineStore('config', {
 
   showNonLatinBulkModal: false,
   showNonLatinAgentModal: false,
-  
+
 
   scriptshifterLanguages: {},
 

@@ -1012,7 +1012,7 @@ export const useProfileStore = defineStore('profile', {
         for (let key in userValue){
           //For contributions, keep the keys for agent role so the data persists
           if (!key.startsWith('@') && !["http://id.loc.gov/ontologies/bibframe/agent", "http://id.loc.gov/ontologies/bibframe/role"].includes(key)){
-            if (possibleProperties.indexOf(key)==-1){
+            if (possibleProperties.indexOf(key) == -1){
                 // this property has no place in the ref template we are about to switch to
                 // so store them over in the refTemplateUserValue for later if needed
                 pt.refTemplateUserValue[key] = JSON.parse(JSON.stringify(userValue[key]))
