@@ -123,7 +123,6 @@ const utilsProfile = {
   * @return {object|boolean} - will return the obj or false if not found
   */
   returnPt: function(profile,guid){
-
       for (let rt in profile.rt){
         for (let pt in profile.rt[rt].pt){
           if (profile.rt[rt].pt[pt]['@guid'] === guid){
@@ -258,7 +257,6 @@ const utilsProfile = {
       }
 
       this.setTypesForBlankNode(pt,propertyPath)
-      console.log("Return pointer to blank node now")
       return [pt, pointer['@guid']]
   },
 
@@ -273,6 +271,8 @@ const utilsProfile = {
   */
   setTypesForBlankNode: async function(pt, propertyPath){
     let pointer = pt.userValue
+    let pointerParent = null
+    let parentP = null
     for (let p of propertyPath){
 
       p = p.propertyURI
@@ -281,26 +281,61 @@ const utilsProfile = {
         // we may or maynot need to create a @type for this level, depending on what type of property it is,
         // so test first the property info in the profile
         let type = utilsRDF.suggestTypeProfile(p,pt)
-
-
         if (type === false){
           // did not find it in the profile, look to the network
           type = await utilsRDF.suggestTypeNetwork(p)
         }
         if (type !== false){
-          // first we test to see if the type is a literal, if so then we
+
+          // first we test to see if the type is a literal (the type returned, not the property of the value), if so then we
           // don't need to set the type, as its not a blank node, just a nested property
           if (utilsRDF.isUriALiteral(type) === false){
             // if it doesn't yet have a type then go ahead and set it
-            if (!pointer[p][0]['@type']){
+			// OR if the suggested type is PrimaryContribution, override the existing type
+            if (!pointer[p][0]['@type'] || type.includes("PrimaryContribution")){
               pointer[p][0]['@type'] = type
             }
           }else{
-            // nothing to do, its a literal
+            // if it is a literal the profiles may in a covoluated way hold the @type for its parent blank node so check that
+            let possibleParentType = utilsRDF.suggestTypeProfileForLiteralParent(p,pt)
+
+            // console.log("But its parent is probably a", possibleParentType)
+            // console.log(pointerParent)
+            // console.log(parentP)
+
+            if (possibleParentType && pointerParent && pointerParent[parentP] && pointerParent[parentP][0] ){
+              if (pointerParent[parentP][0]['@type']){
+                // if it does have a type then check to see if they are different than what this process suggests
+                if (pointerParent[parentP][0]['@type'] != possibleParentType){
+                  // they are different so check if one is sub classed of the other
+                  let isSubClassOf = await utilsRDF.isSubClassOf(possibleParentType,pointerParent[parentP][0]['@type'])
+                  if (isSubClassOf){
+
+                    // overwrite the parent with the more specific class
+                    pointerParent[parentP][0]['@type'] = possibleParentType
+
+                  }else{
+                    // if it is here it means that the process doesn't think the parent node is the correct @type, but it might not be right, so warn for now
+                    console.warn("-------------------------")
+                    console.warn("It looks like ", JSON.stringify(pointerParent[parentP][0]['@type'],null,2))
+                    console.warn("Should not have the type ",pointerParent[parentP][0]['@type'])
+                    console.warn("But instead it should have", possibleParentType)
+                    console.warn("-------------------------")  
+                  }
+                }
+              }
+              
+            }
           }
+
+      
+
+
         }else{
           console.error("Could not find type for this property", p, 'of', propertyPath, 'in', pt)
         }
+        pointerParent = pointer
+        parentP = p
         pointer = pointer[p][0]
       }else{
         console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
@@ -317,7 +352,12 @@ const utilsProfile = {
   */
   returnValueFromPropertyPath: function(pt,propertyPath){
 
-      let deepestLevel = propertyPath[propertyPath.length-1].level
+      let deepestLevel
+      if (propertyPath[propertyPath.length-1]){
+        deepestLevel = propertyPath[propertyPath.length-1].level
+      }else{
+        return false
+      }
 
       let pointer = pt.userValue
       for (let p of propertyPath){
@@ -372,7 +412,6 @@ const utilsProfile = {
   * @return {object} - will return the userValue pruned
   */
   pruneUserValue: function(userValue){
-
     for (let key in userValue){
 
       if (Array.isArray(userValue[key])){
@@ -421,11 +460,8 @@ const utilsProfile = {
   * @return {object} - the profile
   */
   loadRecordFromBackend: async function(recordId){
-    console.log(recordId)
     let xml = await utilsNetwork.loadSavedRecord(recordId)
-    console.log(xml)
     let meta = this.returnMetaFromSavedXML(xml)
-    console.log(meta.xml)
 
 
 
@@ -501,7 +537,7 @@ const utilsProfile = {
 
     transformResults = this.reorderRTOrder(transformResults)
 
-    console.log("transformResults",transformResults)
+
     return transformResults
 
 
@@ -639,6 +675,115 @@ const utilsProfile = {
           user:user
       }
   },
+
+
+  suggestURI: function(profile,type,URI){
+    // for items find the instance URI and then count up the items and add it as a suffix to the instance URI pattern
+    if (type === 'bf:Item'){
+        for (let rtId in profile.rt){
+            if (profile.rt[rtId].URI == URI){
+                let newURI = profile.rt[rtId].URI.replace('/instances/','/items/')
+                let itemCount = 0
+                for (let rtId2 in profile.rt){
+                    if (rtId2.includes(":Item")){
+                        itemCount++
+                    }
+                }
+                let itemCountLabel = String(itemCount).padStart(4, '0');
+                newURI = newURI + '-' + itemCountLabel
+                return newURI
+            }
+        }
+    }
+
+
+    if (type === 'bf:Instance'){
+        let instanceURIbasedOnWork = URI.replace('/works/','/instances/')
+        // let workID = URI.split('/').slice(-1)[0]
+        // if there are no instances yet, make a new instance and just use the work's URI
+        let instanceCount = 0
+        // let workUriUsed = false
+        for (let rtId2 in profile.rt){
+            if (rtId2.includes(":Instance")){
+                instanceCount++
+                if (profile.rt.URI == instanceURIbasedOnWork){
+                    // workUriUsed=true
+                }
+            }
+        }
+        // if there are no instances yet use the instanceURIbasedOnWork
+        if (instanceCount==0){
+            return instanceURIbasedOnWork
+        }else{
+            // there are already instances, so use the work id but append a suffix to it
+            return instanceURIbasedOnWork + '-' + String(instanceCount).padStart(4, '0');
+        }
+    }
+  },
+
+
+  // Get the RT type that a component ID is in
+  getRtTypeFromGuid: function(profile, target){
+        for (let rt in profile["rt"]){
+            for (let pt in profile["rt"][rt]["pt"]){
+                if (profile["rt"][rt]["pt"][pt]["@guid"] == target){
+                    return rt
+                }
+            }
+        }
+        
+        return false
+  },
+
+  
+
+  /**
+  * This will select the best possbile script to use based on the ones avaiable to use
+  * It does some logic around things like Kore or Japn etc.
+  *
+  * @param {string} scriptWanted - requested script
+  * @param {array} scriptOptions - array of script strings
+  * @return {object} - the profile
+  */
+
+  pickBestNonLatinScriptOption: function(scriptWanted, scriptOptions){
+
+    // if we have that script then tell them to use it
+    for (let sO of scriptOptions){
+      if (scriptWanted.toLowerCase().trim() == sO.toLowerCase().trim()){
+        return sO
+      }
+    }
+
+
+    // if we don't check some logic here
+    // from https://en.wikipedia.org/wiki/ISO_15924
+    if (scriptWanted.toLowerCase() == 'kore'){
+        // if it is korean and we have Hani or Hang then use those
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
+        if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hang') > -1){ return 'Hang'}
+    }
+    if (scriptWanted.toLowerCase() == 'hanb'){
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('bopo') > -1){ return 'Bopo'}
+    }
+    if (scriptWanted.toLowerCase() == 'hrkt'){
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hira') > -1){ return 'Hira'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('kana') > -1){ return 'Kana'}
+    }
+    if (scriptWanted.toLowerCase() == 'jamo'){
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hang') > -1){ return 'Hang'}
+    }
+
+    if (scriptWanted.toLowerCase() == 'jpan'){
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hani') > -1){ return 'Hani'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('hira') > -1){ return 'Hira'}
+      if (scriptOptions.map((v)=>{return v.toLowerCase()}).indexOf('kana') > -1){ return 'Kana'}
+    }
+
+    return false
+  },
+
 
 
 

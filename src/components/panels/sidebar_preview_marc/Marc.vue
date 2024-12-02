@@ -11,7 +11,7 @@
 
     data() {
       return {
-        previewData : {default:null,versions:[]},
+        previewData : {default:null, versions:[]},
         timeout: null,
         firstLoad: true,
         selected: null
@@ -105,7 +105,8 @@
       <template v-for="ver in previewData.versions">
         <div v-if="ver.default">
           <div class="version-number">{{ ver.version  }}</div>
-          <pre>
+          <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-opac-marc-html')" v-html="ver.marcRecord"></div>
+          <pre v-else>
             <code>
 {{ ver.marcRecord }}
             </code>
@@ -196,7 +197,26 @@ li{
   stroke:rgb(0,0,0)
 }
 
+/** MARC preview formatting */
+:deep() .marc.record{
+  font-family: monospace;
+}
 
+:deep() .marc.indicators {
+  white-space: pre;
+}
+
+
+:deep() .marc.subfield.subfield-0 .subfield-value,
+:deep() .marc.subfield.subfield-1 .subfield-value{
+  width: 4.5em;
+  display: inline-block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.5);
+  vertical-align: bottom;
+}
 
 
 </style>

@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@jobinsjp/vue3-datatable": "^1.0.15",
+    "edtf": "^4.6.0",
     "floating-vue": "^2.0.0-beta.20",
     "html-escaper": "^3.0.3",
     "javascript-time-ago": "^2.5.10",

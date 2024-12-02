@@ -26,6 +26,11 @@
 
         showPack: 'macroExpress',
 
+        disableVoyagerModeValue: false,
+        enabledMacros: [],
+
+        enabledChecks: {},
+
 
       }
     },
@@ -33,7 +38,7 @@
       // other computed properties
       // ...
       // gives access to this.counterStore and this.userStore
-      // ...mapStores(usePreferenceStore),
+      ...mapStores(usePreferenceStore),
       ...mapStores(useConfigStore),
 
       
@@ -115,40 +120,61 @@
         },
 
 
-        updateLocalStorage(event){
+        // updateLocalStorage(event){
 
-          console.log(this.scriptshifterLanguages)
+        //   console.log(this.scriptshifterLanguages)
 
 
-          let current = window.localStorage.getItem('marva-scriptShifterOptions')
+        //   let current = window.localStorage.getItem('marva-scriptShifterOptions')
 
-          if (current){
-            current = JSON.parse(current)
+        //   if (current){
+        //     current = JSON.parse(current)
+        //   }else{
+        //     current = {}
+        //   }
+
+        //   for (let x in this.scriptshifterLanguages){
+        //     if (this.scriptshifterLanguages[x].s2r || this.scriptshifterLanguages[x].r2s ){
+        //       current[x] = this.scriptshifterLanguages[x]
+        //     }else{
+        //       if (current[x]){
+        //         delete current[x]
+        //       }
+        //     }
+        //   }
+
+        //   window.localStorage.setItem('marva-scriptShifterOptions',JSON.stringify(current))
+        //   this.scriptShifterOptions = JSON.parse(JSON.stringify(current))
+        // },  
+
+
+        enabled: function(event){
+
+          if (this.enabledMacros.indexOf(event.target.getAttribute('name')) >-1){
+            this.enabledMacros = this.enabledMacros.filter((v) => { return (v != event.target.getAttribute('name') )})
           }else{
-            current = {}
+            this.enabledMacros.push(event.target.getAttribute('name'))
           }
 
-          for (let x in this.scriptshifterLanguages){
-            if (this.scriptshifterLanguages[x].s2r || this.scriptshifterLanguages[x].r2s ){
-              current[x] = this.scriptshifterLanguages[x]
-            }else{
-              if (current[x]){
-                delete current[x]
-              }
-            }
-          }
+          this.preferenceStore.setValue('--c-diacritics-enabled-macros',this.enabledMacros )
 
-          window.localStorage.setItem('marva-scriptShifterOptions',JSON.stringify(current))
-          this.scriptShifterOptions = JSON.parse(JSON.stringify(current))
-        },  
+          this.preferenceStore.buildDiacriticSettings()
+        },
 
 
-        enabled: function(event,something){
+        
 
-          console.log()
+        disableVoyagerMode(){
 
 
-        }
+          
+          this.preferenceStore.setValue('--b-diacritics-disable-voyager-mode',this.disableVoyagerModeValue )
+
+          
+
+
+        },
+
 
         
 
@@ -157,11 +183,7 @@
 
     created(){
 
- 
-
-      // this.$nextTick(()=>{
-
-      //   this.getLangs()
+       // this.$nextTick(()=>{
 
       // })
 
@@ -169,7 +191,15 @@
 
     async mounted() {
 
-     
+      this.disableVoyagerModeValue = this.preferenceStore.returnValue('--b-diacritics-disable-voyager-mode')
+
+      this.enabledMacros = this.preferenceStore.returnValue('--c-diacritics-enabled-macros')
+
+      console.log("this.enabledMacros",this.enabledMacros)
+
+      for (let x of this.enabledMacros){
+        this.enabledChecks[x] = true
+      }
 
 
     }
@@ -184,7 +214,7 @@
 
     <VueFinalModal
       display-directive="show"
-      :hide-overlay="true"
+      :hide-overlay="false"
       :overlay-transition="'vfm-fade'"
 
       
@@ -218,7 +248,7 @@
               <div>
                 <input type="radio" id="dewey" v-model="showPack" name="usePack" value="voyagerMode" />
                 <label for="dewey">Voyager Diacritic Entry Mode Shortcuts</label>
-                <div style="padding-left: 2em; font-style: italic;">This mode you press Control+e to put the input into diacritic mode, then press one of the short cuts. It is always activated</div>
+                <div style="padding-left: 2em; font-style: italic;">This mode you press Control+e to put the input into diacritic mode, then press one of the short cuts. It is always activated unless you disable it.</div>
               </div>
 
               
@@ -239,7 +269,7 @@
                 <tbody>
                   <template v-for="(val,idx) in diacriticPacks.macroExpress">
                     <tr v-for="macro in val">
-                      <td><input type="checkbox" :name="idx + '-' + macro.unicode" @change="enabled($event)"></td>
+                      <td><input type="checkbox" :name="idx + '-' + macro.unicode" @change="enabled" v-model="enabledChecks[idx + '-' + macro.unicode]"></td>
                       <td class="char-example"  v-html="returnExampleChar(macro)"></td>                      
                       <td><span class="char-combo">{{ macro.combo }}</span></td>
                       <td><span v-if="macro.name">{{ macro.name }}</span> <span v-if="macro.nick"> ({{ macro.nick }})</span></td>
@@ -251,6 +281,18 @@
             </template>
 
             <template v-if="showPack == 'voyagerMode'">
+
+
+              <div class="disable-voyager-container">
+
+                <div class="disable-voyager-container-check"><input type="checkbox" name="disable-voyager-mode" id="disable-voyager-mode" v-model="disableVoyagerModeValue" @change="disableVoyagerMode($event)"></div>
+                <div><label for="disable-voyager-mode">Disable Voyager Diacritic mode</label></div>
+
+
+
+              </div>
+
+
               <table>
                 <thead>
 
@@ -367,6 +409,24 @@
     cursor: pointer;
   }
 
+  .disable-voyager-container{
+    margin-top: 1em;
+    margin-bottom: 1em;
+    display: flex;
+    align-items: center;
+  }
 
+
+  .disable-voyager-container div{
+    flex: 1;
+  }
+  .disable-voyager-container-check{
+    flex: 0 !important;
+    padding-right: 1em;
+  }
+
+
+
+  
 
 </style>

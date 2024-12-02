@@ -33,8 +33,8 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeComponent']),
-      ...mapState(usePreferenceStore, ['styleDefault']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent']),
+      ...mapState(usePreferenceStore, ['styleDefault', 'isEmptyComponent']),
 
       ...mapWritableState(useProfileStore, ['activeComponent']),
 
@@ -96,16 +96,33 @@
 
 
       },
-
-
-
-    },
-
-    mounted() {
-
-
-
-    }
+      
+      change: function(){
+          // A property was moved. Make the current state savable and update the xml
+          this.dataChanged()
+      },
+      
+      
+      // if the component has data, and from where
+      hasData: function(component){
+          let userValue = component.userValue
+          let emptyArray = new Array("@root")
+          let dataLoaded = component.dataLoaded
+          
+          // console.info(component.propertyLabel, "[", dataLoaded,"]", ": ", component)
+          //console.info(JSON.stringify(Object.keys(component.userValue)), "--" ,JSON.stringify(emptyArray))
+          
+          if (this.profileStore.isEmptyComponent(component)){
+            return false  
+          } else if (component.userModified){
+            return "user"
+          } else if (dataLoaded){
+              return "system"
+          } else {
+              return false
+          }
+      },
+    },    
   }
 
 
@@ -162,16 +179,19 @@
                             group="people"
                             @start="drag=true"
                             @end="drag=false"
+                            @change="change"
                             item-key="id">
                             <template #item="{element}">
                               <template v-if="!activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI)">
-                                <li @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-li sidebar-property-li-empty">
+                                <li @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}]">
                                   <a href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
                                       <span v-if="activeProfile.rt[profileName].pt[element].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'">
                                         [SH]: {{ returnSubjectHeadingLabel(activeProfile.rt[profileName].pt[element]) }}
                                       </span>
-                                      <span v-else>{{activeProfile.rt[profileName].pt[element].propertyLabel}}</span>
+                                      <span v-else>
+                                        {{activeProfile.rt[profileName].pt[element].propertyLabel}}
+                                      </span>
                                       
                                       
 
@@ -484,7 +504,18 @@
   stroke:rgb(0,0,0)
 }
 
+li.system-populated:before {
+    font-family: 'Material Icons';
+    content: 'radio_button_unchecked';
+    color: white !important;
+}
 
+li.user-populated:before {
+    font-family: 'Material Icons';
+    content: 'task_alt';
+    //content: '✓';
+    color: white !important;
+}
 
 
 </style>

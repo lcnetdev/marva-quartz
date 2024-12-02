@@ -233,7 +233,7 @@
   import "@jobinsjp/vue3-datatable/dist/style.css"
 
 
-  TimeAgo.addDefaultLocale(en)
+  if (TimeAgo.getDefaultLocale() != 'en'){TimeAgo.addDefaultLocale(en)}
   const timeAgo = new TimeAgo('en-US')
 
   const decimalTranslator = short("0123456789");
@@ -554,6 +554,33 @@
       },
 
 
+     async refreshSavedRecords(){
+
+
+
+        let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
+
+          let lccnLookup = {}
+
+          // in this view we want to remove any records that are repeats, so only show the latest LCCN being edited
+          this.continueRecords = []
+          for (let r of records){
+            if (r.lccn && r.lccn != '' && r.lccn !== null){
+              if (!lccnLookup[r.lccn]){
+                this.continueRecords.push(r)
+                lccnLookup[r.lccn]=true
+              }
+            }else{
+              // no LCCN just add it
+              this.continueRecords.push(r)
+            }
+
+          }
+
+
+      },
+
+
 
 
 
@@ -562,31 +589,23 @@
 
 
     },
+
+    mounted: async function(){
+      this.refreshSavedRecords()
+	  
+	  //reset the title
+	  document.title = `Marva`;
+
+    },
+
+
+
     created: async function(){
 
+      this.refreshSavedRecords()
 
-
-      let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
-
-      let lccnLookup = {}
-
-      // in this view we want to remove any records that are repeats, so only show the latest LCCN being edited
-      this.continueRecords = []
-      for (let r of records){
-        if (r.lccn && r.lccn != '' && r.lccn !== null){
-          if (!lccnLookup[r.lccn]){
-            this.continueRecords.push(r)
-            lccnLookup[r.lccn]=true
-          }
-        }else{
-          // no LCCN just add it
-          this.continueRecords.push(r)
-        }
-
-      }
-
+      // this is checking to see if the route is available to load the passed URL to it
       let inerval = window.setInterval(()=>{
-
           if (this.$route && this.$route.query && this.$route.query.url){
 
             this.urlToLoad = this.$route.query.url
@@ -594,21 +613,6 @@
             window.clearInterval(inerval)
 
           }
-
-
-
-          // if (this.$router.currentRoute && this.$router.currentRoute.query && this.$router.currentRoute.query.url){
-          //   let url = this.$router.currentRoute.query.url
-          //   if (this.$router.currentRoute && this.$router.currentRoute.query && this.$router.currentRoute.query.action && this.$router.currentRoute.query.action == 'loadwork'){
-          //     url = url.replace('.jsonld','.rdf')
-          //   }
-          //   if (this.$router.currentRoute && this.$router.currentRoute.query && this.$router.currentRoute.query.action && this.$router.currentRoute.query.action == 'loadibc'){
-          //     url = url.replace('.jsonld','.xml')
-          //   }
-          //   this.instanceEditorLink = url
-          //   this.testInstance()
-          //   window.clearInterval(inerval)
-          // }
         },500)
 
 

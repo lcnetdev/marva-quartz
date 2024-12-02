@@ -1,20 +1,26 @@
 <template>
-  <span :data-tooltip="useLabel" class="simptip-position-right" v-for="icon in useIcon" >
-    <span  :class="['material-icons-outlined',icon]">{{icon}}</span>  
-  </span>  
+
+<span class="simptip-position-right" :data-tooltip="useIcon[1]">
+    <span :class="['material-icons',useIcon[0]]"  >{{useIcon[0]}}</span>
+
+  </span>
+  <!-- <span>{{value}}</span>   -->
 </template>
 
 <script>
 
+import { useProfileStore } from '@/stores/profile'
+import { mapStores,  } from 'pinia'
+
+
 
 export default {
-  name: "AuthTypeIcon",
+  name: "ValidationIcon",
   components: {
   },
 
   props: {
-    type: String,
-    passClass:String,
+    value: Object
 
   },
 
@@ -31,90 +37,22 @@ export default {
 
   computed: {
 
-    useLabel(){
-      let type = this.type
+    ...mapStores(useProfileStore),
 
-      type = type.replace('http://www.loc.gov/mads/rdf/v1#','')     
-
-      if (type == 'PersonalName') return "Personal Name"
-      if (type == 'CorporateName') return "Corporate Name"
-      if (type == 'NameTitle') return "Name Title"
-      if (type == 'Title') return "Title"
-      if (type == 'ConferenceName') return "Conference Name"
-      if (type == 'Geographic') return "Geographic"
-      if (type == 'GenreForm') return "Genre Form"
-      if (type == 'ComplexSubject') return "Complex Subject"
-      if (type == 'Topic') return "Topic Subject"
-
-      if (type == 'Authority') return iconSubjectComplex
-
-      if (type == 'http://id.loc.gov/ontologies/bibframe/Person') return "Personal Name"
-      if (type == 'http://id.loc.gov/ontologies/bibframe/Place') return "Geographic"
-      if (type == 'http://id.loc.gov/ontologies/bibframe/Topic') return "Topic Subject"
-      if (type == 'http://id.loc.gov/ontologies/bibframe/Organization') return  "Corporate Name"
-      if (type == 'http://id.loc.gov/ontologies/bibframe/GenreForm') return "Genre Form"
-
-      if (type == 'http://id.loc.gov/ontologies/bibframe/Agent') return "Personal Name"
-
-    },
-    
 
     useIcon(){
 
-
-      const iconPersonal = ['person_2']
-      const iconCorporate = ['corporate_fare']
-      const iconTitle = ['title']
-      const iconNameTitle = ['title','person_2']
-      const iconConference = ['meeting_room']
-      const iconGeographic = ['map']
-      const iconGenre = ['bookmark']
-      const iconSubjectComplex = ['topic']
-      const iconSubjectTopic = ['topic','title']
-
-
-
-      
- 
-      if (this.type && typeof this.type === 'string'){
-        let type = this.type
-
-        type = type.replace('http://www.loc.gov/mads/rdf/v1#','')
-
-        if (type == 'PersonalName') return iconPersonal
-        if (type == 'CorporateName') return iconCorporate
-        if (type == 'NameTitle') return iconNameTitle
-        if (type == 'Title') return iconTitle
-        if (type == 'ConferenceName') return iconConference
-        if (type == 'Geographic') return iconGeographic
-        if (type == 'GenreForm') return iconGenre
-        if (type == 'ComplexSubject') return iconSubjectComplex
-        if (type == 'Topic') return iconSubjectTopic
-
-        if (type == 'Authority') return iconSubjectComplex
-
-
-        if (type == 'http://id.loc.gov/ontologies/bibframe/Person') return iconPersonal
-        if (type == 'http://id.loc.gov/ontologies/bibframe/Place') return iconGeographic
-        if (type == 'http://id.loc.gov/ontologies/bibframe/Topic') return iconSubjectTopic
-        if (type == 'http://id.loc.gov/ontologies/bibframe/Organization') return iconCorporate
-        if (type == 'http://id.loc.gov/ontologies/bibframe/GenreForm') return iconGenre
-
-
-
-        if (type == 'http://id.loc.gov/ontologies/bibframe/Agent') return iconPersonal
-
-
-        // if (result.label == 'xxxxxx') return iconPersonal
-        // if (result.label == 'xxxxxx') return iconPersonal
-
-
+      if (this.value && this.value.URI){
+        return ['verified','Linked']
+      }else{
+        return this.profileStore.returnValidationType( this.value['@guid'])
       }
 
-      // console.log("no icon slected", this.type )
-      return []
+      return [null,null]
 
     }, 
+
+    
 
 
   },
@@ -122,8 +60,6 @@ export default {
 
 
   methods:{
-
-
 
 
   }
@@ -134,11 +70,41 @@ export default {
 
 <style scoped>
 
-/*A custom class passed to style the icon to the context it is being used*/
-.complex-lookup-inline{
-  
+.verified {
+    color: green;
+    font-size: 1.5em;
+    font-weight: bold;
+    vertical-align: middle;
+    padding-left: 5px;
+}
+.warning {
+    color: green;
+    font-size: 1.5em;
+    font-weight: bold;
+    vertical-align: middle;
+    padding-left: 5px;
+}
+.done_all {
+    color: green;
+    font-size: 1.5em;
+    font-weight: bold;
+    vertical-align: middle;
+    padding-left: 5px;
+}
 
-  
+.help{
+  color: orange;
+  font-size: 1.5em;
+  font-weight: bold;
+  vertical-align: middle;
+  padding-left: 5px;
+}
+.report{
+  color: rebeccapurple;
+  font-size: 1.5em;
+  font-weight: bold;
+  vertical-align: middle;
+  padding-left: 5px;
 }
 
 
@@ -640,7 +606,6 @@ export default {
 .simptip-warning.simptip-position-bottom.half-arrow:before {
   border-right: 7px solid #e67e22;
 }
-
 
 </style>
 

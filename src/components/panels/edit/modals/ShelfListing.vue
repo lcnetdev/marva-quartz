@@ -16,7 +16,7 @@
     components: {
       VueFinalModal,
       VueDragResize,
-      
+
     },
 
     data() {
@@ -33,10 +33,17 @@
 
         classNumber: null,
         cutterNumber:null,
+        displaySubjects: false,
+        contributor:null,
+        title:null,
+        subj:null,
+        date:null,
+        countParam:null,
 
+        hitCount: 10,
         results: [],
 
-
+        idbase: useConfigStore().returnUrls.id
 
 
       }
@@ -49,8 +56,8 @@
       ...mapStores(useConfigStore),
       ...mapStores(useProfileStore),
 
-      
-      
+
+
       // ...mapWritableState(usePreferenceStore, ['literalLangGuid']),
       ...mapWritableState(useProfileStore, ['showShelfListingModal','activeShelfListData']),
 
@@ -58,23 +65,23 @@
       /**
       * Returns the current scripts defined in th embdeded data
       * @return {array} results - array of scripts
-      */  
+      */
       xxxxx(){
 
 
       },
-    
+
 
 
     },
 
     watch: {
 
-      
+
     },
 
     methods: {
-        
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -86,6 +93,9 @@
 
         },
 
+        scrollTo: function() {
+            this.$refs.moreButton.scrollIntoView({ behavior: 'smooth' });
+        },
 
 
         onSelectElement (event) {
@@ -99,14 +109,14 @@
         async save(){
 
 
-          // using the 
+          // using the
 
           if (this.classNumber && this.classNumber.trim() != ''){
             if (!this.activeShelfListData.classGuid){
               this.activeShelfListData.classGuid = short.generate()
-            } 
+            }
 
-            // the open button lives in the item portion of the number so we don't have the class portion, but they will always be siblings so just modify the path 
+            // the open button lives in the item portion of the number so we don't have the class portion, but they will always be siblings so just modify the path
             // so it matches to where the class property path is
             let classPropertyPath = JSON.parse(JSON.stringify(this.activeShelfListData.componentPropertyPath))
             console.log(classPropertyPath)
@@ -127,7 +137,7 @@
             await this.profileStore.setValueLiteral(this.activeShelfListData.componentGuid,this.activeShelfListData.cutterGuid,this.activeShelfListData.componentPropertyPath,this.cutterNumber)
           }
 
-          
+
 
           this.showShelfListingModal=false
 
@@ -136,45 +146,61 @@
 
 
         async search(){
-
           if (!this.classNumber){this.classNumber=''}
           if (!this.cutterNumber){this.cutterNumber=''}
+
+
+          const contributor = this.contributor ? "&sp-name="+this.contributor : ""
+          const title = this.title ? "&sp-title="+this.title  : ""
+          const subj = this.subj ? "&sp-subject="+this.subj  : ""
+          const date = this.date ? "&sp-date="+this.date : ""
+          const countParam = this.hitCount ? "&count="+this.hitCount : ""
+            
+
+            console.info("this.classNumber.trim(): '", this.classNumber.trim(), "'")
+            console.info("this.cutterNumber.trim(): '", this.cutterNumber.trim(), "'")
+
           this.results = []
           this.searching=true
-          this.results =  await utilsNetwork.searchShelfList(this.classNumber.trim() + '' + this.cutterNumber.trim())
-
+          this.results =  await utilsNetwork.searchShelfList(
+            this.classNumber.trim() + '' + this.cutterNumber.trim(),
+            contributor + title + subj + date + countParam
+          )
           this.searching=false
+          this.$nextTick(() => {
+            this.scrollTo();
+          });
 
           //       altsubject
-          // : 
+          // :
           // "Railroad trains"
           // creator
-          // : 
+          // :
           // ""
           // frequency
-          // : 
+          // :
           // ""
           // lookup
-          // : 
+          // :
           // "/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20C66%202016"
           // pubdate
-          // : 
+          // :
           // "2016"
           // subject
-          // : 
+          // :
           // "Railroad trains--Juvenile literature"
           // term
-          // : 
+          // :
           // "TF148 C66 2016"
           // title
-          // : 
+          // :
           // "Trains"
 
 
 
         },
 
-       
+
 
 
     },
@@ -185,17 +211,20 @@
     },
 
     async mounted() {
-
       this.classNumber = this.activeShelfListData.class
       this.cutterNumber = this.activeShelfListData.cutter
+      this.contributor = this.activeShelfListData.contributor
+      this.title = this.activeShelfListData.title
+      this.subj = this.activeShelfListData.firstSubject
+      this.date = this.activeShelfListData.date
       if ((this.classNumber && this.classNumber != '') || (this.cutterNumber && this.cutterNumber != '')){
         this.search()
       }
-      
+
     }
   }
 
-  
+
 
 </script>
 
@@ -207,7 +236,7 @@
       :hide-overlay="true"
       :overlay-transition="'vfm-fade'"
 
-      
+
     >
         <VueDragResize
           :is-active="true"
@@ -222,15 +251,19 @@
         >
           <div id="shelf-listing-content" ref="shelfListingContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
 
-            
+
             <div class="menu-buttons">
               <button class="close-button"   @pointerup="showShelfListingModal=false">X</button>
             </div>
 
             <div class="shelf-listing-work-area">
-              <input v-model="classNumber" class="number-input" placeholder="Class" @keyup="search" type="text" />
-              <input v-model="cutterNumber" class="number-input" @keyup="search" placeholder="Cutter" type="text" />
+              <input v-model="classNumber" class="number-input" placeholder="Class" @keyup="hitCount=10; search()" type="text" />
+              <input v-model="cutterNumber" class="number-input" @keyup="hitCount=10; search()" placeholder="Cutter" type="text" />
               <button class="number-input" @click="save" :disabled="(!activeShelfListData.componentGuid)">Save</button>
+
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <input type="checkbox" id="showSubjects" v-model="displaySubjects" v-on:change="search" />
+              <label for="showSubjects">&nbsp;Show Subjects</label>
 
               <div class="serach-results-container">
                 <h2 v-if="searching == true"><span class="material-icons icon">search</span>Searching...</h2>
@@ -241,59 +274,50 @@
                   <thead v-if="results.length>0">
                     <tr>
                       <td>Number</td>
-                      <td>Contributor</td>
+                      <td>Main Author, Creator, etc.</td>
+                      <td>Uniform Title</td>
                       <td>Title</td>
+                      <td v-if="displaySubjects">Subject</td>
                       <td>Date</td>
                       <td> </td>
 
                     </tr>
                   </thead>
                   <tbody>
-
+                  
                     <template v-for="r in results">
-                      <template  v-if="r.title.trim() != 'Class would appear here.'">
-                        <tr>
+                    
+                      <template  v-if="r.selected == undefined">
+                        <tr :class="[{nuba: r.notused == 'nuba'}]">
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
+                          <td>{{ r.uniformtitle }}</td>
                           <td>{{ r.title }}</td>
+                          <td v-if="displaySubjects">{{ r.subject }}</td>
                           <td>{{ r.pubdate }}</td>
-                          <td><a style="color: inherit; text-decoration: none;" target="_blank" :href="r.lookup">view</a></td>
+                          <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.idbase + 'resources/works/' + r.bibid">view</a></td>
                         </tr>
                       </template>
 
-                      <template  v-if="r.title.trim() == 'Class would appear here.'">
+                      <template  v-if="r.selected != undefined && r.selected.trim() == 'selected'">
                         <tr style="background-color: yellow;">
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
-
+                          <td>{{ r.uniformtitle }}</td>
                           <td>{{ r.title }}</td>
+                          <td v-if="displaySubjects">{{ r.subject }}</td>
                           <td>{{ r.pubdate }}</td>
-                          <td></td>
+                          <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.idbase + 'resources/works/' + r.bibid">view</a></td>
                         </tr>
                       </template>
-
-                  
-                                    
-
-
                     </template>
-
-
-                    
-
-
-
-
                   </tbody>
-
-
                 </table>
+                <button v-if="searching==false && results.length > 0" class="number-input" ref="moreButton" @click="hitCount += 20; search()">Next 20</button>
               </div>
-              
 
             </div>
 
-            
           </div>
 
 
@@ -324,7 +348,7 @@
   }
   .shelf-listing-work-area{
     clear: both;
-    
+
   }
   .shelf-listing-modal{
     background-color: white;
@@ -343,6 +367,11 @@
     border:dashed 1px black;
   }
 
+  thead tr td{
+    text-align: left;
+    font-weight: bolder;
+
+  }
   th{
     text-align: left;
     font-weight: bold;
@@ -358,7 +387,7 @@
   #shelf-listing-content{
     padding: 1em;
     background-color: white;
-    overflow-y: scroll;
+    overflow-y: scroll !important;
   }
 
   .checkbox-option{
@@ -370,7 +399,7 @@
     width: 25px;
     height: 25px;
   }
-  
+
 
   .option{
     display: flex;
@@ -385,9 +414,9 @@
     font-size: 0.8em;
     color:gray;
   }
-  
+
   .menu-buttons{
-    
+
     position: relative;
     z-index: 100;
   }
@@ -399,6 +428,10 @@
     border-radius: 5px;
     border: solid 1px black;
     cursor: pointer;
+  }
+  
+  .nuba {
+      background-color: lightgray;
   }
 
 

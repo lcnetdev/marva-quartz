@@ -18,8 +18,8 @@ const returnDOMParser = function(){
 
 const XMLParser = returnDOMParser()
 
-
-
+// will be set below when used, so we only need to set it once
+let rtLookup = null
 
 import utilsNetwork from './utils_network';
 
@@ -73,15 +73,16 @@ const utilsRDF = {
 
   /**
   * returns a Class type basedon the predicate from the the profiles
-  * @param {string} URI - the string URI to test
+  * @param {string} propertyURI - the string URI to test
   * @param {obj} pt - the pt template from the profile
-  * @param {obj} rtLookup - the rtLookup from the processed profiles
   * @return {string} URI - the uri of the type
   */
   suggestTypeProfile: function(propertyURI,pt){
 
       // grab the rtLookup from the profile store
-      let rtLookup = useProfileStore().rtLookup
+      if (!rtLookup){
+        rtLookup= useProfileStore().rtLookup
+      } 
 
       // if the component itself has it set then just return it we dont need to dig around
       if (propertyURI == pt.propertyURI){
@@ -117,7 +118,6 @@ const utilsRDF = {
           }
 
           possibleTypes = [...new Set(possibleTypes)];
-          // console.log("possibleTypes",possibleTypes)
           if (possibleTypes.length == 1){
               return possibleTypes[0]
           }
@@ -129,8 +129,7 @@ const utilsRDF = {
           if (!pt.userValue[pt.propertyURI]){
               lookForResourceURI = true
           }else{
-              if (pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){
-                  console.log(pt.userValue[pt.propertyURI])
+              if (pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){                  
                   if (!pt.userValue[pt.propertyURI][0]['@type']){
                       lookForResourceURI = true
                   }
@@ -153,9 +152,81 @@ const utilsRDF = {
           }
       }
 
+      
       return false
 
   },
+
+  /**
+  * 
+  * 
+  * @param {string} propertyURI - the string URI to test
+  * @param {obj} pt - the pt template from the profile
+  * @return {string} URI - the uri of the type
+  */
+  suggestTypeProfileForLiteralParent: function(propertyURI,pt){
+
+      // grab the rtLookup from the profile store
+      if (!rtLookup){
+        rtLookup= useProfileStore().rtLookup
+      } 
+      // only do this on templates that have one reference templates for now (may need to expand)
+      if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length==1){
+        let valueTemplateRef = pt.valueConstraint.valueTemplateRefs[0]
+        // look through the pts of that template for the property, this will keep going recursivly if there are nested templates in the valueTemplateRefs
+        let possibleTypePt = this.searchForProperty(valueTemplateRef,propertyURI)
+        if (possibleTypePt && possibleTypePt.template.resourceURI){
+          return possibleTypePt.template.resourceURI
+        }
+      }
+
+
+
+  },
+
+  /**
+  * Searches through rtLookup recursivly looking for a property that matches in the resource template hierarchy at some level
+  * once it it finds it at whatever level return that template to see if it has resourceURI on it to help @type things
+  * @param {string} valueTemplateRef - the resource tempalte names like lc:bf2:something:else
+  * @param {string} propertyUri - the property we are looking for
+  * @return {object}  - an obj with the template from rtLookup and the pt from rtLookup of the match
+  */
+  searchForProperty: function(valueTemplateRef,propertyUri){
+      // grab the rtLookup from the profile store
+      if (!rtLookup){
+        rtLookup= useProfileStore().rtLookup
+      } 
+
+      let template = rtLookup[valueTemplateRef]
+      let foundProperty = null
+      let foundValueTemplateRefs = []
+      if (template && template.propertyTemplates){
+        for (let t of template.propertyTemplates){
+          if (t.propertyURI == propertyUri){
+            foundProperty = {template:template,pt:t}
+            break
+          }
+          if (t.valueConstraint && t.valueConstraint.valueTemplateRefs){
+            foundValueTemplateRefs = foundValueTemplateRefs.concat(t.valueConstraint.valueTemplateRefs)
+          }
+        }
+      }
+      if (foundProperty){
+        return foundProperty
+      }else{
+        for (let lookfor of foundValueTemplateRefs){
+          foundProperty = this.searchForProperty(lookfor,propertyUri)
+          if (foundProperty){
+            return foundProperty
+          }
+        }
+      }
+
+
+
+
+  },
+
 
   /**
   * returns a Class type basedon the range returned from the ontology
@@ -180,7 +251,11 @@ const utilsRDF = {
     if (propertyURI==='http://www.loc.gov/mads/rdf/v1#componentList'){
       return 'http://www.w3.org/1999/02/22-rdf-syntax-ns#List'
     }
+    if (propertyURI==='http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
+      return 'http://www.w3.org/2000/01/rdf-schema#Resource'
+    }
 
+    
 
 
     // at this point we have a well cached lookup of the whole onotlogy in localstorage
@@ -195,6 +270,17 @@ const utilsRDF = {
       range=range[0]
       if (range.attributes['rdf:resource']){
         result = range.attributes['rdf:resource'].value
+      }
+    }else{
+      // check if it has a rdfs:subPropertyOf, if it does then we can ask for that
+      let subPropertyOf = prop.getElementsByTagName("rdfs:subPropertyOf")
+      if (subPropertyOf.length>0){
+        if (subPropertyOf[0].attributes['rdf:resource']){          
+          let subPropertyResult = await this.suggestTypeNetwork(subPropertyOf[0].attributes['rdf:resource'].value)
+          if (subPropertyResult){
+            return subPropertyResult
+          }
+        }
       }
     }
 
@@ -346,6 +432,30 @@ const utilsRDF = {
 
   },
 
+
+  /**
+  * Ask it if the first param URI is a subclass of the second param URI
+  * @param {string} propertyURI - the string URI to test
+  * @param {string} possibleParentClassPropertyURI - the string URI to test if propertyURI is a subclass of it
+  * @return {boolean} - true it is or false it isn't
+  */
+  isSubClassOf: async function(propertyURI,possibleParentClassPropertyURI){
+    // ask for the property
+    let propXml = await this.fetchOntology(propertyURI)
+    let prop = XMLParser.parseFromString(propXml, "text/xml");
+    let subclassOf = prop.getElementsByTagName("rdfs:subClassOf")
+    let result = null
+    if (subclassOf.length>0){
+      subclassOf=subclassOf[0]
+      if (subclassOf.attributes['rdf:resource']){
+        result = subclassOf.attributes['rdf:resource'].value
+      }
+    }
+    if (result == possibleParentClassPropertyURI){
+      return true
+    }
+    return false
+  }
 
 
 

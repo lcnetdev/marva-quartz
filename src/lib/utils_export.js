@@ -6,9 +6,11 @@ import {usePreferenceStore} from "../stores/preference";
 import utilsRDF from './utils_rdf';
 import utilsMisc from './utils_misc';
 import utilsNetwork from './utils_network';
+import utilsProfile from './utils_profile';
 
+import { parse as parseEDTF } from 'edtf'
 
-const escapeHTML = str => str.replace(/[&<>'"]/g, 
+const escapeHTML = str => str.replace(/[&<>'"]/g,
   tag => ({
       '&': '&amp;',
       '<': '&lt;',
@@ -53,6 +55,8 @@ const returnDOMParser = function(){
 
 const utilsExport = {
 
+
+  checkForEDTFDatatype: null,
   lastGoodXMLBuildProfile: null,
   lastGoodXMLBuildProfileTimestamp: null,
 
@@ -191,8 +195,19 @@ const utilsExport = {
 		if (userValue['@id']){
 			p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
 		}
+
+		if (!this.checkForEDTFDatatype){ this.checkForEDTFDatatype = useConfigStore().checkForEDTFDatatype}
+
 		if (userValue['@datatype']){
 			p.setAttributeNS(this.namespace.rdf, 'rdf:datatype', userValue['@datatype'])
+		}else if (this.checkForEDTFDatatype.indexOf(property) >-1)  {
+			let dataType = false
+			// try to parse the value if it parses use the edtf data type
+			try { parseEDTF(userValue[property]); dataType = "http://id.loc.gov/datatypes/edtf" } catch { dataType = false }
+			if (dataType){
+				p.setAttributeNS(this.namespace.rdf, 'rdf:datatype', dataType)
+			}
+
 		}
 		if (userValue['@language']){
 			p.setAttribute('xml:lang', userValue['@language'])
@@ -204,9 +219,9 @@ const utilsExport = {
 			p.setAttribute('rdf:datatype', userValue['@gacs'])
 		}
 
+
 		// doesnt work :(
 		// p.removeAttributeNS("http://www.w3.org/2000/xmlns/", 'xmlns:rdfs')
-
 		return p
 	},
 
@@ -256,6 +271,19 @@ const utilsExport = {
 				return true
 			}
 		}
+		// this part looks to see if maybe it is an array of literals, like a top level propert like Statement of Work, etc.
+		if (Array.isArray(userValue)){
+			let allHaveCorrectKeys = true;
+			for (let v of userValue){
+				for (let key in v){
+					if (!key.startsWith('@') && !key.startsWith('http://') && !key.startsWith('https://')){
+						allHaveCorrectKeys = false
+					}
+				}
+			}
+			if (allHaveCorrectKeys){ return true }
+		}
+
 		return false
 	},
 
@@ -330,10 +358,10 @@ const utilsExport = {
 		return false
 	}
 
-	console.log(profile)
+
 
 	// if we are in dev mode let the error bubble, but otherwise catch the error and try to recover
-	if (useConfigStore().returnUrls.dev === false){
+	if (useConfigStore().returnUrls.dev === true){
 
 		return await this.buildXMLProcess(profile)
 
@@ -347,7 +375,7 @@ const utilsExport = {
 			return xmlObj
 		} catch (error) {
 			console.warn("XML Parsing Error:")
-			console.warn(error)			
+			console.warn(error)
 
 			useProfileStore().triggerBadXMLBuildRecovery(this.lastGoodXMLBuildProfile, this.lastGoodXMLBuildProfileTimestamp)
 
@@ -368,7 +396,7 @@ const utilsExport = {
 			----------------
 			XML Creation Log
 			----------------
-			
+
 			----End Creation Log----
 
 
@@ -377,7 +405,7 @@ const utilsExport = {
 			****************
 			${(profile.xmlSource) ? profile.xmlSource : 'No Source Found'}
 			***End Source***
-			`			
+			`
 
 			utilsNetwork.sendErrorReportLog(errorReport,filename,profileAsJson)
 
@@ -502,9 +530,7 @@ const utilsExport = {
 
 			xmlLog.push(`Looping through the PTs`)
 
-
 			for (let pt of profile.rt[rt].ptOrder){
-
         		// extract the pt, this is the individual component like a <mainTitle>
 				let ptObj = profile.rt[rt].pt[pt]
 				if (ptObj.deleted){
@@ -527,8 +553,25 @@ const utilsExport = {
 				let userValue
 
         		// the uservalue could be stored in a few places depending on the nesting
-				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){
+				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){					
 					userValue = ptObj.userValue[ptObj.propertyURI][0]
+					// it might be a top level literal, if so we don't want to exclude additonal literals that might be added
+					// so look to see if the node we got only has a guid and literal value, and if so look if there are more of them as siblings
+					// and select that if so
+					let nonGuidProps = Object.keys(ptObj.userValue[ptObj.propertyURI][0]).filter(k => (!k.includes('@') ? true : false ))
+					if (nonGuidProps.length==1){
+						if (typeof ptObj.userValue[ptObj.propertyURI][0][nonGuidProps[0]] == 'string' || typeof ptObj.userValue[ptObj.propertyURI][0][nonGuidProps[0]] == 'number'){
+							// console.log("It is a top level literal")
+							// does it have more than one?
+							if (ptObj.userValue[ptObj.propertyURI].length > 1){
+								// console.log("It is a multi-top-level-literal!")
+								// set it to the sibling group not the individual
+								userValue = ptObj.userValue[ptObj.propertyURI]
+								// console.log("SETTING userValue to the group!",userValue)
+							}
+						}						
+					}
+					
 				}else if (ptObj.userValue[ptObj.propertyURI]){
 					userValue = ptObj.userValue[ptObj.propertyURI]
 				}else{
@@ -542,11 +585,106 @@ const utilsExport = {
 					}
 				}
 
+				let mostCommonScript = useProfileStore().setMostCommonNonLatinScript()
+				
+				// in bf->marc conversion it builds 880s and 600s based off of the presenece of 
+				// multiple auth labels one with no @lang tag and ones that do have it
+				// check specific properties for now? (10/2024)
+				if ([
+					'http://id.loc.gov/ontologies/bibframe/contribution',
+					'http://id.loc.gov/ontologies/bibframe/subject',
+					'http://id.loc.gov/ontologies/bibframe/geographicCoverage'
 
-				// console.log(userValue)
-				// console.log('ptObj.propertyURI',ptObj.propertyURI)
-				// console.log('ptObj.userValue[ptObj.propertyURI]',ptObj.userValue[ptObj.propertyURI])
-				// console.log(ptObj.userValue[ptObj.propertyURI][0])
+				].indexOf(ptObj.propertyURI)>-1){
+
+					// recusrive function to go through each key in the userValue and keep going till we find labels or marckeys 
+					// the two properties that make 880s work
+					let process = function(obj, func) {      
+						if (Array.isArray(obj)){
+							obj.forEach(function (child) {
+							process(child, func);
+							});
+						}else if (typeof obj == 'object' && obj !== null){
+							for (let k in obj){
+							if (Array.isArray(obj[k])){
+								// we only care about these properties
+								if (k == 'http://www.w3.org/2000/01/rdf-schema#label' || k == 'http://id.loc.gov/ontologies/bflc/marcKey' || k == 'http://www.loc.gov/mads/rdf/v1#authoritativeLabel'){
+									func(k,obj[k])
+								}else{
+									process(obj[k], func);
+								}
+							}
+							}
+						}				
+					}
+
+					process(ptObj.userValue, function (property,ary) {
+						// does it have multiple values?
+						if (ary.length>1 && mostCommonScript){
+							let nonLatinAgent = useProfileStore().returnAllNonLatinAgentOptions()[ptObj['@guid']]
+							let keepLang = []
+							if (nonLatinAgent){
+								let useLang = utilsProfile.pickBestNonLatinScriptOption(mostCommonScript, nonLatinAgent.scripts)
+								if (useLang){
+									keepLang.push(useLang)
+								}
+							}
+							// if we have a language then great, also check the manual setting
+							if (profile.nonLatinScriptAgents){
+								if (profile.nonLatinScriptAgents[ptObj['@guid']]){									
+									keepLang = [profile.nonLatinScriptAgents[ptObj['@guid']]]
+								}
+							}
+							if (keepLang.length==0){
+								console.warn("No non-latin agent access point was able to be selected for this agent!", ptObj)
+							}
+
+							let toRemove = []
+							for (var i = 0; i < ary.length; i++) { 
+								let value = ary[i]
+								// no lang tag? good, thats the authorized latin script one
+								if (!value['@language']){ 
+									continue
+								}else{
+									// it has a language tag? is it one of the ones we want to keep?
+									let keepIt = false
+									for (let l of keepLang){
+										
+										if (value['@language'].toLowerCase().indexOf('-' + l.toLowerCase()) >-1){
+											keepIt = true
+										}
+									}
+									if (!keepIt){
+										toRemove.push(value['@language'])
+									}
+								}
+							}
+							for (let l of toRemove){
+								let indexToDel = ary.map((v)=>{return v['@language']}).indexOf(l)
+								ary.splice(indexToDel,1)
+							}
+
+
+						}else if (ary.length>1 && !mostCommonScript){
+
+							// there isn't a non-latin script in the record, so remove all the non-latin properties
+							let toRemove = []
+							for (var i = 0; i < ary.length; i++) { 
+								let value = ary[i]
+								if (value['@language']){
+									toRemove.push(value['@language'])
+								}
+							}
+							for (let l of toRemove){
+								let indexToDel = ary.map((v)=>{return v['@language']}).indexOf(l)
+								ary.splice(indexToDel,1)
+							}
+
+
+						}
+					});
+				}
+
 
 				xmlLog.push(['Set userValue to:', JSON.parse(JSON.stringify(userValue)) ])
 
@@ -647,6 +785,7 @@ const utilsExport = {
 							let value1FirstLoop = true
 							// loop through the value array of each of them
 							for (let value1 of userValue[key1]){
+
 								if (!value1FirstLoop && this.needsNewPredicate(key1)){
 									// we are going to make a new predicate, same type but not the same one as the last one was attached to
 									pLvl2 = this.createElByBestNS(key1)
@@ -662,7 +801,7 @@ const utilsExport = {
 									bnodeLvl1.appendChild(pLvl2)
 									xmlLog.push(`Creating bnode lvl 2 for it ${bnodeLvl2.tagName}`)
 
-                  // now loop through its properties and see whats nested
+                  					// now loop through its properties and see whats nested
 									for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 										let pLvl3 = this.createElByBestNS(key2)
 										xmlLog.push(`Creating lvl 3 property: ${pLvl3.tagName} for ${key2}`)
@@ -758,10 +897,8 @@ const utilsExport = {
 											bnodeLvl1.setAttributeNS(this.namespace.rdf, 'rdf:about', value1['@id'])
 										}
 									}
-
 									if (keys.length>0){
 										for (let key2 of keys){
-
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
 												// its a label or some other literal
 												let p2 = this.createLiteral(key2, value1)
@@ -840,6 +977,7 @@ const utilsExport = {
 						if (!Array.isArray(userValue)){
 							userValueArray = [userValue]
 						}
+						
 
 						// but it might be a bnode, but with only a URI
 						for (let userValue of userValueArray){
@@ -912,7 +1050,7 @@ const utilsExport = {
 								console.error("Does not have URI, ERROR")
 							}else if (await utilsRDF.suggestTypeNetwork(ptObj.propertyURI) == 'http://www.w3.org/2000/01/rdf-schema#Literal'){
 
-
+								// console.log("Top level literal HERE!",userValue)
 								// its just a top level literal property
 								// loop through its keys and make the values
 								let allXMLFragments = ''
@@ -1008,7 +1146,7 @@ const utilsExport = {
 					xmlLog.push(`Skpping it because hasUserValue == false`)
 				}
 			}
-
+			
 
 			// add in the admindata
 			// if (orginalProfile.rt[rt].adminMetadataData){
@@ -1101,6 +1239,7 @@ const utilsExport = {
 		let bf_AdminMetadtat = this.createElByBestNS("bf:AdminMetadata")
 		let bf_status = this.createElByBestNS("bf:status")
 		let bf_Status = this.createElByBestNS("bf:Status")
+
 		bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/c')
 		let bf_StatusLabel = this.createElByBestNS("rdfs:label")
 		bf_StatusLabel.innerHTML="changed"
@@ -1135,7 +1274,6 @@ const utilsExport = {
 
 
 
-
 		// also just build a basic version tosave
 		for (let URI in tleLookup['Work']){
 			let theWork = (new XMLSerializer()).serializeToString(tleLookup['Work'][URI])
@@ -1143,7 +1281,6 @@ const utilsExport = {
 			theWork = xmlParser.parseFromString(theWork, "text/xml").children[0];
 			rdfBasic.appendChild(theWork)
 		}
-
 		for (let URI in tleLookup['Hub']){
 			let theHub = (new XMLSerializer()).serializeToString(tleLookup['Hub'][URI])
 			// theHub = theHub.replace(/\sxmlns:[a-z]+="http.*?"/g,'')
@@ -1270,7 +1407,6 @@ const utilsExport = {
 			console.warn('no title found for db')
 		}
 
-
 		if (rdfBasic.getElementsByTagName("bf:PrimaryContribution").length>0){
 			if (rdfBasic.getElementsByTagName("bf:PrimaryContribution")[0].getElementsByTagName("rdfs:label").length>0){
 				xmlVoidDataContributor = rdfBasic.getElementsByTagName("bf:PrimaryContribution")[0].getElementsByTagName("rdfs:label")[0].innerHTML
@@ -1282,7 +1418,7 @@ const utilsExport = {
 				} else {
 					console.warn('no PrimaryContribution or Contribution found for db')
 				}
-			}else{
+			} else{
 				console.warn('no PrimaryContribution or Contribution found for db')
 			}
 		}
@@ -1469,7 +1605,10 @@ const utilsExport = {
     // console.log(strXmlFormatted)
     // console.log("------")
     // console.log(strXmlBasic)
-
+        
+        // let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
+        // strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
+        
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,
@@ -1480,12 +1619,118 @@ const utilsExport = {
 			voidContributor:xmlVoidDataContributor,
 			componentXmlLookup:componentXmlLookup
 		}
-
-
-
-
-
   },
+  
+    //This was handled in the `add()` of `SubjectEditor.vue`, but there are some situtations where that don't work as intended
+    //  namely, complex subjects that have subdivisions
+    // !! This is not being used, incase having the profile in Marva be different from the XML causes issues somewhere
+    splitComplexSubjects: function(data){
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(data, "application/xml")
+
+        let subjects = xml.getElementsByTagName("bf:subject")
+
+        for (let subject of subjects){
+            // subject = parser.parseFromString(subject.innerHTML, "application/xml")
+
+            let componentList = subject.getElementsByTagName("madsrdf:componentList")
+            
+            if (componentList.length > 0){
+                const clone = componentList[0].cloneNode(true)
+                
+                let labels = []
+                let marcKeys = []
+
+                clone.getElementsByTagName("madsrdf:authoritativeLabel").forEach((label) => {
+                    labels.push(label.innerHTML)
+                })
+
+                clone.getElementsByTagName("bflc:marcKey").forEach((key) => {
+                    marcKeys.push(key.innerHTML)
+                })
+                
+                for (let label in labels){
+                    //save the element incase it needs to be re-added
+                    const frozenElement = componentList[0].children[0] //clone.children[label]
+                    
+                    //remove the existing element
+                    componentList[0].children[0].remove()
+                    
+                    if (labels[label].includes("--") && !marcKeys[label].includes("$z") ){
+                        
+                        let newElements = []
+                        let marcKey = marcKeys[label]
+
+                        let tag = marcKey.slice(0, 3)
+                        let subfields = marcKey.slice(5)
+                        subfields = subfields.match(/\$[axyzv]{1}/g)
+                        
+                        let terms = labels[label].split("--")
+                        //Determine the tag for the new element
+                        for (let term in terms){
+                            if (term != 0){
+                                switch(subfields[terms]){
+                                    case("$v"):
+                                    tag = "185"
+                                    break
+                                case("$y"):
+                                    tag = "182"
+                                    break
+                                case("$z"):
+                                    tag = "181"
+                                    break
+                                default:
+                                    tag = "180"
+                                }
+                            }
+
+                            //Get the type for the new element, this will be that parent element
+                            let type
+                            switch(subfields[term]){
+                                case("$x"):
+                                    type = "madsrdf:Topic"
+                                    break
+                                case("$v"):
+                                    type = "madsrdf:GenreForm"
+                                    break
+                                case("$y"):
+                                    type = "madsrdf:Temporal"
+                                    break
+                                case("$z"):
+                                    type = "madsrdf:Geographic"
+                                    break
+                                case("$a"):
+                                default:
+                                    type = "madsrdf:Topic"
+                            }
+                            let typeElement = document.createElement(type)
+
+                            //Add the auth label
+                            let authLabelElement = document.createElementNS("http://www.loc.gov/mads/rdf/v1#", "madsrdf:authoritativeLabel")
+                            authLabelElement.innerHTML = terms[term]
+                            
+                            //Add the marcKey
+                            let marcKeyElement = document.createElementNS("http://id.loc.gov/ontologies/bflc/", "bflc:marcKey")
+                            marcKeyElement.innerHTML = tag + "  " + subfields[term] + terms[term]
+                            
+                            typeElement.appendChild(authLabelElement)
+                            typeElement.appendChild(marcKeyElement)
+                            
+                            componentList[0].appendChild(typeElement)
+                        }
+                    } else {
+                        //it's a term that doesn't need to be split, be we'll re-add it to ensure the pieces are in the correct order
+                        
+                        componentList[0].appendChild(frozenElement)
+                        
+                    }
+                }
+            }
+        
+        }
+        
+        return xml
+    },
 }
 
 

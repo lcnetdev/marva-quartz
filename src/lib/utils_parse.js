@@ -251,15 +251,84 @@ const utilsParse = {
   sniffWorkRelationType(xml){
     for (let child of xml.children){
       if (child.tagName == 'bf:relation'){
-       if (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1){
+      
+        // let hasUncontrolled = false
+        // if (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1){ hasUncontrolled = true }
+        // if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){ hasUncontrolled = true }
+        
+        // let hasSeriesProperty = false
+        // if (child.innerHTML.indexOf("bf:hasSeries")>-1){ hasSeriesProperty = true }
+
+        // let hasWork = false
+        // if (child.innerHTML.indexOf("bf:Work")>-1) { hasWork = true}
+
+        // let hasHub = false
+        // if (child.innerHTML.indexOf("bf:Hub")>-1) { hasHub = true}
+
+        // let hasSeries = false
+        // if (child.innerHTML.indexOf("bf:Series")>-1){ hasSeries = true }
+
+        // let hasAssociatedResource = false
+        // if (child.innerHTML.indexOf("bf:associatedResource")>-1) { hasAssociatedResource = true}
+
+        // if (hasSeriesProperty && hasAssociatedResource && hasSeries){
+        //   child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+        // }else if (hasAssociatedResource && (hasWork || hasHub) && hasSeriesProperty ){
+        //   child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
+        // }else if (hasUncontrolled && hasAssociatedResource && hasWork){
+        //   child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+        // }
+
+        // console.log(child)
+        // console.log('hasUncontrolled',hasUncontrolled)
+        // console.log('hasSeriesProperty',hasSeriesProperty)
+        // console.log('hasWork',hasWork)
+        // console.log('hasHub',hasHub)
+        // console.log('hasSeries',hasSeries)
+        // console.log('hasAssociatedResource',hasAssociatedResource)
+
+        
+
+        
+
+      // old Logic
+       if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-       } else if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){
+       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+       }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
+          child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1){
+          child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
        } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
+       } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
        } else if (child.innerHTML.indexOf("bf:Work")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
        }else{
+          // leave blank?
+        }
+
+
+
+      }
+    }
+    return xml
+  },
+
+  /**
+  * Takes the XML marks any bf:note properties with hints to use in the parsing of it
+  *
+  * @param {Node} xml - the XML payload
+  * @return {Node}
+  */
+  sniffNoteType(xml){
+    for (let child of xml.children){
+      if (child.tagName == 'bf:note'){
+        if ( child.innerHTML.indexOf("bf:language")>-1){
+          child.setAttribute('local:pthint', 'lc:RT:bf2:LangNote')
+        }else{
           // leave blank?
         }
       }
@@ -267,12 +336,28 @@ const utilsParse = {
     return xml
   },
 
+  
+
 
   specialTransforms: {
     // not currently used
   },
 
-
+  updateAdditionalInstanceParentValues: function(profile, instanceName, newRdId){
+  // when a record comes in with multiple (secondary) instances, each instance will have the 
+  // same parent and parentId, so all of there components will match. This causes issues with
+  // navigation, but not anywhere else?
+  // adapted from `profile.createSecondaryInstance()` to have parent properties be unique and correct
+        for (let pt in profile.pt){
+            profile.pt[pt]['@guid'] = short.generate()
+            // update the parentId
+            profile.pt[pt].parentId = profile.pt[pt].parentId.replace(instanceName, newRdId)
+            profile.pt[pt].parent = profile.pt[pt].parent.replace(instanceName, newRdId)
+        }
+        
+        return profile
+  },
+  
   transformRts: async function(profile){
     let toDeleteNoData = []
 
@@ -290,7 +375,10 @@ const utilsParse = {
 
 
     [...Array(this.hasInstance - totalInstanceRts)].forEach((_, i) => {
-      profile.rt[useInstanceRtName + '_'+(i+1)] = JSON.parse(JSON.stringify(useInstanceRt))
+      let key = useInstanceRtName + '_'+(i+1)
+      let updatedProfile = this.updateAdditionalInstanceParentValues(JSON.parse(JSON.stringify(useInstanceRt)), useInstanceRtName, key)
+
+      profile.rt[key] = JSON.parse(JSON.stringify(updatedProfile))
       profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
     });
 
@@ -375,10 +463,7 @@ const utilsParse = {
           }else if(instanceOf.attributes['rdf:about']){
             profile.rt[pkey].instanceOf = instanceOf.attributes['rdf:about'].value
           }
-
-
         }
-
       }
 
       // find itemOf
@@ -441,6 +526,7 @@ const utilsParse = {
       // first try to give hints to which PT to use based on some rules we are using at LC
       if (tle == "bf:Work"){
         xml = this.sniffWorkRelationType(xml)
+        xml = this.sniffNoteType(xml)
       }
 
 
@@ -485,6 +571,8 @@ const utilsParse = {
               // check to see if this pt has that hint value in the valueConstraint  valueTemplateRefs
               if (ptk.valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
                 // it matches, so use this one for sure
+                // make sure to remove the hint attribute
+                e.removeAttribute('local:pthint')
                 el.push(e)
               }else{
                 // if it doesn't match that might mean there is a better match further in the pts or it could mean it will never match
@@ -502,6 +590,7 @@ const utilsParse = {
                   continue
                 }else{
                   // we did not find a place to put this el, so we need to add it here
+                  e.removeAttribute('local:pthint')
                   el.push(e)
                 }
               }
@@ -621,6 +710,14 @@ const utilsParse = {
               }
             }
 
+            // do a deepHierarchy check here to see if it is a very nested bf:relation property if so we will mark it here
+            if (ptk.propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation'){              
+              if (e.innerHTML.indexOf("bf:hasInstance")>-1){
+                ptk.deepHierarchy=true
+              }
+
+            }
+
             // start populating the data
             let populateData = null
             populateData = JSON.parse(JSON.stringify(ptk))
@@ -632,6 +729,11 @@ const utilsParse = {
             // if (this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)]){
             //   populateData.valueConstraint.valueTemplateRefs.push(this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)])
             // }
+
+
+
+
+
 
 
             // we want all userValues to includ the root predicate property

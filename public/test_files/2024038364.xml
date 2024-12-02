@@ -10,9 +10,9 @@
     xmlns:streams="info:lc/streams#"
     xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:foaf="http://xmlns.com/foaf/0.1/">
-    <bf:Work rdf:about="http://id.loc.gov/resources/works/23354934">
-        <bflc:aap>Serby, Pat, 1951- The Serby saga</bflc:aap>
-        <bflc:aap-normalized>serbypat1951theserbysaga</bflc:aap-normalized>
+    <bf:Work rdf:about="http://id.loc.gov/resources/works/23882742">
+        <bflc:aap>Scheffer, Janie, 1992- White-tailed deer</bflc:aap>
+        <bflc:aap-normalized>schefferjanie1992whitetaileddeer</bflc:aap-normalized>
         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Text"/>
         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Monograph"/>
         <bf:language>
@@ -21,34 +21,16 @@
                 <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
             </bf:Language>
         </bf:language>
-        <bf:illustrativeContent>
-            <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/ill">
-                <rdfs:label>illustrations</rdfs:label>
-                <bf:code>ill</bf:code>
-            </bf:Illustration>
-        </bf:illustrativeContent>
-        <bf:supplementaryContent>
-            <bf:SupplementaryContent rdf:about="http://id.loc.gov/vocabulary/msupplcont/bibliography">
-                <rdfs:label>bibliography</rdfs:label>
-                <bf:code>bibliography</bf:code>
-            </bf:SupplementaryContent>
-        </bf:supplementaryContent>
-        <bf:geographicCoverage>
-            <bf:GeographicCoverage rdf:about="http://id.loc.gov/vocabulary/geographicAreas/n-us-ny">
-                <rdfs:label xml:lang="en">New York (State)</rdfs:label>
-                <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">n-us-ny</bf:code>
-            </bf:GeographicCoverage>
-        </bf:geographicCoverage>
-        <bf:geographicCoverage>
-            <bf:GeographicCoverage rdf:about="http://id.loc.gov/vocabulary/geographicAreas/e-uk">
-                <rdfs:label xml:lang="en">Great Britain</rdfs:label>
-                <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">e-uk---</bf:code>
-            </bf:GeographicCoverage>
-        </bf:geographicCoverage>
+        <bf:intendedAudience>
+            <bf:IntendedAudience rdf:about="http://id.loc.gov/vocabulary/maudience/juv">
+                <rdfs:label>juvenile</rdfs:label>
+                <bf:code>juv</bf:code>
+            </bf:IntendedAudience>
+        </bf:intendedAudience>
         <bf:classification>
             <bf:ClassificationLcc>
-                <bf:classificationPortion>CS71</bf:classificationPortion>
-                <bf:itemPortion>.S4835 2024</bf:itemPortion>
+                <bf:classificationPortion>QL737.U55</bf:classificationPortion>
+                <bf:itemPortion>S324 2025</bf:itemPortion>
                 <bf:assigner>
                     <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
                         <rdfs:label>United States, Library of Congress</rdfs:label>
@@ -67,10 +49,10 @@
         </bf:classification>
         <bf:classification>
             <bf:ClassificationDdc>
-                <bf:classificationPortion>929.20973</bf:classificationPortion>
+                <bf:classificationPortion>599.65/2</bf:classificationPortion>
                 <bf:source>
                     <bf:Source>
-                        <bf:code>23/eng/20240826</bf:code>
+                        <bf:code>23/eng</bf:code>
                     </bf:Source>
                 </bf:source>
                 <bf:edition>full</bf:edition>
@@ -88,10 +70,10 @@
             <bf:Contribution>
                 <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
                 <bf:agent>
-                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2024042983">
+                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2022056380">
                         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
-                        <rdfs:label>Serby, Pat, 1951-</rdfs:label>
-                        <bflc:marcKey>1001 $aSerby, Pat,$d1951-</bflc:marcKey>
+                        <rdfs:label>Scheffer, Janie, 1992-</rdfs:label>
+                        <bflc:marcKey>1001 $aScheffer, Janie,$d1992-</bflc:marcKey>
                     </bf:Agent>
                 </bf:agent>
                 <bf:role>
@@ -104,8 +86,7 @@
         </bf:contribution>
         <bf:title>
             <bf:Title>
-                <bf:mainTitle>The Serby saga</bf:mainTitle>
-                <bflc:nonSortNum>4</bflc:nonSortNum>
+                <bf:mainTitle>White-tailed deer</bf:mainTitle>
             </bf:Title>
         </bf:title>
         <bf:content>
@@ -114,117 +95,58 @@
                 <bf:code>txt</bf:code>
             </bf:Content>
         </bf:content>
-        <bf:content>
-            <bf:Content rdf:about="http://id.loc.gov/vocabulary/contentTypes/sti">
-                <rdfs:label>still image</rdfs:label>
-                <bf:code>sti</bf:code>
-            </bf:Content>
-        </bf:content>
-        <bf:illustrativeContent>
-            <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/ill">
-                <rdfs:label>illustrations</rdfs:label>
-                <bf:code>ill</bf:code>
-            </bf:Illustration>
-        </bf:illustrativeContent>
         <bf:supplementaryContent>
             <bf:SupplementaryContent rdf:about="http://id.loc.gov/vocabulary/msupplcont/bibliography">
                 <rdfs:label>bibliography</rdfs:label>
                 <bf:code>bibliography</bf:code>
             </bf:SupplementaryContent>
         </bf:supplementaryContent>
-        <bf:tableOfContents>
-            <bf:TableOfContents>
-                <rdfs:label>The Jewish condition in Odessa -- The journey to America -- Young Samuel -- David the entrepreneur -- The Metzger family -- The marriage of Horty and Dave -- Growing up Jewish in 1950's Brooklyn -- The New York garment center -- Holiday wear factory -- The good life -- The man David Serby -- The times were a changing -- Our next generation -- When disco was king -- After the Berlin Wall came down - Yearly summer travel to Europe -- The day that will live in infamy -- A tribute to a remarkable man at the Friars Club -- The Friars Club -- Jennifer coming into her own -- Immigration from Russia after the fall of Communism -- The Great Recession -- Tough new world 2012.</rdfs:label>
-            </bf:TableOfContents>
-        </bf:tableOfContents>
-        <bf:subject>
-            <bf:Person rdf:about="http://id.loc.gov/rwo/agents/n2024045279">
-                <rdfs:label>Serby, David, 1917-2006</rdfs:label>
-                <bflc:marcKey>1001 $aSerby, David,$d1917-2006</bflc:marcKey>
-            </bf:Person>
-        </bf:subject>
-        <bf:subject>
-            <bf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh2008106135">
-                <rdfs:label xml:lang="en">Jews--New York (State)--New York--Biography</rdfs:label>
-                <bflc:marcKey>150  $aJews$zNew York (State)$zNew York$vBiography</bflc:marcKey>
-                <madsrdf:componentList rdf:parseType="Collection">
-                    <madsrdf:Topic>
-                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
-                        <madsrdf:authoritativeLabel xml:lang="en">Jews</madsrdf:authoritativeLabel>
-                        <madsrdf:elementList rdf:parseType="Collection">
-                            <madsrdf:TopicElement>
-                                <madsrdf:elementValue xml:lang="en">Jews</madsrdf:elementValue>
-                            </madsrdf:TopicElement>
-                        </madsrdf:elementList>
-                    </madsrdf:Topic>
-                    <madsrdf:Geographic>
-                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
-                        <madsrdf:authoritativeLabel xml:lang="en">New York (State)</madsrdf:authoritativeLabel>
-                        <madsrdf:elementList rdf:parseType="Collection">
-                            <madsrdf:GeographicElement>
-                                <madsrdf:elementValue xml:lang="en">New York (State)</madsrdf:elementValue>
-                            </madsrdf:GeographicElement>
-                        </madsrdf:elementList>
-                    </madsrdf:Geographic>
-                    <madsrdf:Geographic>
-                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
-                        <madsrdf:authoritativeLabel xml:lang="en">New York</madsrdf:authoritativeLabel>
-                        <madsrdf:elementList rdf:parseType="Collection">
-                            <madsrdf:GeographicElement>
-                                <madsrdf:elementValue xml:lang="en">New York</madsrdf:elementValue>
-                            </madsrdf:GeographicElement>
-                        </madsrdf:elementList>
-                    </madsrdf:Geographic>
-                    <madsrdf:GenreForm>
-                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
-                        <madsrdf:authoritativeLabel xml:lang="en">Biography</madsrdf:authoritativeLabel>
-                        <madsrdf:elementList rdf:parseType="Collection">
-                            <madsrdf:GenreFormElement>
-                                <madsrdf:elementValue xml:lang="en">Biography</madsrdf:elementValue>
-                            </madsrdf:GenreFormElement>
-                        </madsrdf:elementList>
-                    </madsrdf:GenreForm>
-                </madsrdf:componentList>
-            </bf:Topic>
-        </bf:subject>
-        <bf:subject>
-            <bf:Topic>
-                <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Topic"/>
-                <rdfs:label>Serby family</rdfs:label>
-                <madsrdf:authoritativeLabel>Serby family</madsrdf:authoritativeLabel>
-                <madsrdf:isMemberOfMADSScheme>
-                    <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
-                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
-                    </madsrdf:MADSScheme>
-                </madsrdf:isMemberOfMADSScheme>
-                <bflc:aap-normalized>serbyfamily</bflc:aap-normalized>
-                <bf:source>
-                    <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
-                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
-                    </bf:Source>
-                </bf:source>
-            </bf:Topic>
-        </bf:subject>
+        <bf:supplementaryContent>
+            <bf:SupplementaryContent rdf:about="http://id.loc.gov/vocabulary/msupplcont/index">
+                <rdfs:label>index</rdfs:label>
+                <bf:code>index</bf:code>
+            </bf:SupplementaryContent>
+        </bf:supplementaryContent>
+        <bf:intendedAudience>
+            <bf:IntendedAudience>
+                <rdfs:label>Juvenile</rdfs:label>
+            </bf:IntendedAudience>
+        </bf:intendedAudience>
+        <bf:intendedAudience>
+            <bf:IntendedAudience>
+                <rdfs:label>Grades 2-3 Bellwether Media</rdfs:label>
+            </bf:IntendedAudience>
+        </bf:intendedAudience>
+        <bf:intendedAudience>
+            <bf:IntendedAudience>
+                <rdfs:label>Ages 5-8 Bellwether Media</rdfs:label>
+            </bf:IntendedAudience>
+        </bf:intendedAudience>
+        <bf:summary>
+            <bf:Summary>
+                <rdfs:label>Relevant images match informative text in this introduction to white-tailed deer. Intended for students in kindergarten through third grade"-- Provided by publisher.</rdfs:label>
+            </bf:Summary>
+        </bf:summary>
         <bf:subject>
             <bf:Topic>
                 <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject"/>
-                <madsrdf:authoritativeLabel>Serby, Samuel, 1893-1973--Family</madsrdf:authoritativeLabel>
+                <rdfs:label>White-tailed deer--Juvenile literature</rdfs:label>
+                <madsrdf:authoritativeLabel>White-tailed deer--Juvenile literature</madsrdf:authoritativeLabel>
                 <madsrdf:isMemberOfMADSScheme>
                     <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
                         <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
                     </madsrdf:MADSScheme>
                 </madsrdf:isMemberOfMADSScheme>
                 <madsrdf:componentList rdf:parseType="Collection">
-                    <madsrdf:PersonalName rdf:about="http://id.loc.gov/rwo/agents/n2024042993">
-                        <rdfs:label>Serby, Samuel, 1893-1973</rdfs:label>
-                        <bflc:marcKey>1001 $aSerby, Samuel,$d1893-1973</bflc:marcKey>
-                    </madsrdf:PersonalName>
-                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh00005743">
-                        <rdfs:label xml:lang="en">Family</rdfs:label>
-                        <bflc:marcKey>180  $xFamily</bflc:marcKey>
+                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh85146522">
+                        <rdfs:label xml:lang="en">White-tailed deer</rdfs:label>
+                        <bflc:marcKey>150 0$aWhite-tailed deer</bflc:marcKey>
                     </madsrdf:Topic>
+                    <madsrdf:GenreForm>
+                        <madsrdf:authoritativeLabel>Juvenile literature</madsrdf:authoritativeLabel>
+                    </madsrdf:GenreForm>
                 </madsrdf:componentList>
-                <bflc:aap-normalized>serbysamuel18931973family</bflc:aap-normalized>
+                <bflc:aap-normalized>whitetaileddeerjuvenileliterature</bflc:aap-normalized>
                 <bf:source>
                     <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
                         <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
@@ -232,92 +154,39 @@
                 </bf:source>
             </bf:Topic>
         </bf:subject>
-        <bf:subject>
-            <bf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh2008108454">
-                <rdfs:label xml:lang="en">New York (N.Y.)--Biography</rdfs:label>
-                <bflc:marcKey>151  $aNew York (N.Y.)$vBiography</bflc:marcKey>
-                <madsrdf:componentList rdf:parseType="Collection">
-                    <madsrdf:Geographic>
-                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
-                        <madsrdf:authoritativeLabel xml:lang="en">New York (N.Y.)</madsrdf:authoritativeLabel>
-                        <madsrdf:elementList rdf:parseType="Collection">
-                            <madsrdf:GeographicElement>
-                                <madsrdf:elementValue xml:lang="en">New York (N.Y.)</madsrdf:elementValue>
-                            </madsrdf:GeographicElement>
-                        </madsrdf:elementList>
-                    </madsrdf:Geographic>
-                    <madsrdf:GenreForm>
-                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
-                        <madsrdf:authoritativeLabel xml:lang="en">Biography</madsrdf:authoritativeLabel>
-                        <madsrdf:elementList rdf:parseType="Collection">
-                            <madsrdf:GenreFormElement>
-                                <madsrdf:elementValue xml:lang="en">Biography</madsrdf:elementValue>
-                            </madsrdf:GenreFormElement>
-                        </madsrdf:elementList>
-                    </madsrdf:GenreForm>
-                </madsrdf:componentList>
-                <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">n-us-ny</bf:code>
-            </bf:Topic>
-        </bf:subject>
-        <bf:subject>
-            <bf:Topic>
-                <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject"/>
-                <rdfs:label>Odesa (Ukraine)--Biography</rdfs:label>
-                <madsrdf:authoritativeLabel>Odesa (Ukraine)--Biography</madsrdf:authoritativeLabel>
-                <madsrdf:isMemberOfMADSScheme>
-                    <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
-                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
-                    </madsrdf:MADSScheme>
-                </madsrdf:isMemberOfMADSScheme>
-                <madsrdf:componentList rdf:parseType="Collection">
-                    <madsrdf:Geographic rdf:about="http://id.loc.gov/rwo/agents/n79139057">
-                        <rdfs:label>Odesa (Ukraine)</rdfs:label>
-                        <bflc:marcKey>151  $aOdesa (Ukraine)</bflc:marcKey>
-                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">e-un---</bf:code>
-                    </madsrdf:Geographic>
-                    <madsrdf:GenreForm>
-                        <madsrdf:authoritativeLabel>Biography</madsrdf:authoritativeLabel>
-                    </madsrdf:GenreForm>
-                </madsrdf:componentList>
-                <bflc:aap-normalized>odesa(ukraine)biography</bflc:aap-normalized>
-                <bf:source>
-                    <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
-                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
-                    </bf:Source>
-                </bf:source>
-            </bf:Topic>
-        </bf:subject>
-        <bf:genreForm>
-            <bf:GenreForm rdf:about="http://id.loc.gov/authorities/genreForms/gf2014026100">
-                <rdfs:label xml:lang="en">Family histories</rdfs:label>
-                <bflc:marcKey>155  $aFamily histories</bflc:marcKey>
-            </bf:GenreForm>
-        </bf:genreForm>
-        <bf:genreForm>
-            <bf:GenreForm rdf:about="http://id.loc.gov/authorities/genreForms/gf2014026049">
-                <rdfs:label xml:lang="en">Biographies</rdfs:label>
-                <bflc:marcKey>155  $aBiographies</bflc:marcKey>
-            </bf:GenreForm>
-        </bf:genreForm>
-        <bf:genreForm>
-            <bf:GenreForm rdf:about="http://id.loc.gov/authorities/genreForms/gf2014026106">
-                <rdfs:label xml:lang="en">Genealogical tables</rdfs:label>
-                <bflc:marcKey>155  $aGenealogical tables</bflc:marcKey>
-            </bf:GenreForm>
-        </bf:genreForm>
         <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/works"/>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship rdf:resource="http://id.loc.gov/ontologies/bibframe/hasSeries"/>
+                <bf:associatedResource>
+                    <bf:Series>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bflc/Uncontrolled"/>
+                        <bf:status>
+                            <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/t">
+                                <rdfs:label>transcribed</rdfs:label>
+                                <bf:code>t</bf:code>
+                            </bf:Status>
+                        </bf:status>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>Blastoff! Readers: The Ultimate Animal Library</bf:mainTitle>
+                            </bf:Title>
+                        </bf:title>
+                    </bf:Series>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
         <bf:relation>
             <bf:Relation>
                 <bf:relationship rdf:resource="http://id.loc.gov/ontologies/bibframe/hasEquivalent"/>
                 <bf:associatedResource>
-                    <bf:Instance rdf:about="http://id.loc.gov/resources/instances/23354934">
+                    <bf:Instance rdf:about="http://id.loc.gov/resources/instances/23882742">
                         <bf:title>
                             <bf:Title>
-                                <bf:mainTitle>The Serby saga</bf:mainTitle>
-                                <bflc:nonSortNum>4</bflc:nonSortNum>
+                                <bf:mainTitle>White-tailed deer</bf:mainTitle>
                             </bf:Title>
                         </bf:title>
-                        <bf:publicationStatement>Bloomington, IN: Archway Publishing, [2024]</bf:publicationStatement>
+                        <bf:publicationStatement>Minneapolis, MN: Bellwether Media, Inc, 2025</bf:publicationStatement>
                     </bf:Instance>
                 </bf:associatedResource>
             </bf:Relation>
@@ -326,16 +195,16 @@
             <bf:Relation>
                 <bf:relationship rdf:resource="http://id.loc.gov/ontologies/bibframe/instanceOf"/>
                 <bf:associatedResource>
-                    <bf:Work rdf:about="http://id.loc.gov/resources/works/23354934">
-                        <rdfs:label>Serby, Pat, 1951- The Serby saga</rdfs:label>
+                    <bf:Work rdf:about="http://id.loc.gov/resources/works/23882742">
+                        <rdfs:label>Scheffer, Janie, 1992- White-tailed deer</rdfs:label>
                         <bf:contribution>
                             <bf:Contribution>
                                 <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
                                 <bf:agent>
-                                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2024042983">
+                                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2022056380">
                                         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
-                                        <rdfs:label>Serby, Pat, 1951-</rdfs:label>
-                                        <bflc:marcKey>1001 $aSerby, Pat,$d1951-</bflc:marcKey>
+                                        <rdfs:label>Scheffer, Janie, 1992-</rdfs:label>
+                                        <bflc:marcKey>1001 $aScheffer, Janie,$d1992-</bflc:marcKey>
                                     </bf:Agent>
                                 </bf:agent>
                                 <bf:role>
@@ -348,15 +217,57 @@
                         </bf:contribution>
                         <bf:title>
                             <bf:Title>
-                                <bf:mainTitle>The Serby saga</bf:mainTitle>
-                                <bflc:nonSortNum>4</bflc:nonSortNum>
+                                <bf:mainTitle>White-tailed deer</bf:mainTitle>
                             </bf:Title>
                         </bf:title>
                     </bf:Work>
                 </bf:associatedResource>
             </bf:Relation>
         </bf:relation>
-        <bf:hasInstance rdf:resource="http://id.loc.gov/resources/instances/23354934"/>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship>
+                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/otherphysicalformat">
+                        <rdfs:label>other physical format</rdfs:label>
+                        <bf:code>otherphysicalformat</bf:code>
+                    </bf:Relationship>
+                </bf:relationship>
+                <bf:relationship>
+                    <bf:Relationship rdf:about="http://id.loc.gov/entities/relationships/onlineversion">
+                        <rdfs:label>Online version</rdfs:label>
+                    </bf:Relationship>
+                </bf:relationship>
+                <bf:associatedResource>
+                    <bf:Work rdf:about="http://id.loc.gov/resources/works/23888920">
+                        <rdfs:label>Scheffer, Janie, 1992- White-tailed deer</rdfs:label>
+                        <bf:contribution>
+                            <bf:Contribution>
+                                <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+                                <bf:agent>
+                                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2022056380">
+                                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                                        <rdfs:label>Scheffer, Janie, 1992-</rdfs:label>
+                                        <bflc:marcKey>1001 $aScheffer, Janie,$d1992-</bflc:marcKey>
+                                    </bf:Agent>
+                                </bf:agent>
+                                <bf:role>
+                                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                                        <rdfs:label>author</rdfs:label>
+                                        <bf:code>aut</bf:code>
+                                    </bf:Role>
+                                </bf:role>
+                            </bf:Contribution>
+                        </bf:contribution>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>White-tailed deer</bf:mainTitle>
+                            </bf:Title>
+                        </bf:title>
+                    </bf:Work>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
+        <bf:hasInstance rdf:resource="http://id.loc.gov/resources/instances/23882742"/>
         <bf:adminMetadata>
             <bf:AdminMetadata>
                 <bf:status>
@@ -365,7 +276,7 @@
                         <bf:code>n</bf:code>
                     </bf:Status>
                 </bf:status>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2023-10-18</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2024-10-02</bf:date>
                 <bf:agent>
                     <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
                         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
@@ -385,11 +296,14 @@
                         <bf:code>c</bf:code>
                     </bf:Status>
                 </bf:status>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-08-26T14:04:46</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-09T13:42:13</bf:date>
                 <bf:descriptionModifier>
-                    <bf:Agent>
-                        <bf:code>DLCMRC</bf:code>
-                    </bf:Agent>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Organization>
                 </bf:descriptionModifier>
             </bf:AdminMetadata>
         </bf:adminMetadata>
@@ -401,7 +315,7 @@
                         <bf:code>c</bf:code>
                     </bf:Status>
                 </bf:status>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-08-26T13:55:44</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-09T13:27:31</bf:date>
                 <bf:agent>
                     <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
                         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
@@ -411,7 +325,7 @@
                         <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
                     </bf:Agent>
                 </bf:agent>
-                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/bibframe2marc/releases/tag/v2.7.0"/>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/bibframe2marc/releases/tag/v2.8.0"/>
             </bf:AdminMetadata>
         </bf:adminMetadata>
         <bf:adminMetadata>
@@ -432,16 +346,16 @@
                     </bf:Agent>
                 </bf:agent>
                 <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:33:04.830966-05:00</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:34:23.314993-05:00</bf:date>
             </bf:AdminMetadata>
         </bf:adminMetadata>
         <bf:adminMetadata>
             <bf:AdminMetadata>
                 <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-4-0/"/>
                 <bflc:encodingLevel>
-                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/f">
-                        <rdfs:label>full</rdfs:label>
-                        <bf:code>f</bf:code>
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/8">
+                        <rdfs:label>prepublication</rdfs:label>
+                        <bf:code>8</bf:code>
                     </bflc:EncodingLevel>
                 </bflc:encodingLevel>
                 <bf:descriptionConventions>
@@ -452,7 +366,7 @@
                 </bf:descriptionConventions>
                 <bf:identifiedBy>
                     <bf:Local>
-                        <rdf:value>23354934</rdf:value>
+                        <rdf:value>23882742</rdf:value>
                         <bf:assigner>
                             <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
                                 <rdfs:label>United States, Library of Congress</rdfs:label>
@@ -463,9 +377,9 @@
                         </bf:assigner>
                     </bf:Local>
                 </bf:identifiedBy>
-                <lclocal:d906>=906     $a 7 $b cbc $c orignew $d 3 $e epcn $f 20 $g y-gencatlg</lclocal:d906>
-                <lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x Sel/ddw, 2024-03-07</lclocal:d925>
-                <lclocal:d955>=955     $b xd06 2023-10-18 $a xn16 2024-03-15 1 copy rec'd., to USASH $c rf29 2024-03-19 to SUBJECT / 1XX needs NAR $d rf26 2024-08-26 $w rf26 2024-08-26 Copy 1 to Shelf has SP</lclocal:d955>
+                <lclocal:d906>=906     $a 7 $b cbc $c orignew $d 1 $e ecip $f 20 $g y-gencatlg</lclocal:d906>
+                <lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x policy default</lclocal:d925>
+                <lclocal:d955>=955     $b rq07 2024-10-02 $i rq07 2024-10-09 $w rq07 2024-10-09 (Telework)</lclocal:d955>
                 <bf:descriptionLanguage>
                     <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
                         <rdfs:label xml:lang="en">English</rdfs:label>
@@ -481,7 +395,7 @@
                 <bf:note>
                     <bf:Note>
                         <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
-                        <rdfs:label>040  $aDLC$beng$erda$cDLC$dDLC$dDLCMRC</rdfs:label>
+                        <rdfs:label>040  $aDLC$beng$erda$cDLC$dDLC$dDLC-MRC</rdfs:label>
                     </bf:Note>
                 </bf:note>
                 <bf:descriptionAuthentication>
@@ -490,59 +404,53 @@
                         <bf:code>pcc</bf:code>
                     </bf:DescriptionAuthentication>
                 </bf:descriptionAuthentication>
-                <lclocal:d985>=985     $e BIBFRAME Prod $d 2024-08-26T13:55:43</lclocal:d985>
+                <lclocal:d985>=985     $e BIBFRAME Prod $d 2024-10-09T13:27:30</lclocal:d985>
             </bf:AdminMetadata>
         </bf:adminMetadata>
     </bf:Work>
-    <bf:Instance rdf:about="http://id.loc.gov/resources/instances/23354934">
+    <bf:Instance rdf:about="http://id.loc.gov/resources/instances/23882742">
         <bf:provisionActivity>
             <bf:ProvisionActivity>
                 <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Publication"/>
-                <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2024</bf:date>
+                <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2025</bf:date>
                 <bf:place>
-                    <bf:Place rdf:about="http://id.loc.gov/vocabulary/countries/inu">
-                        <rdfs:label xml:lang="en">Indiana</rdfs:label>
-                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">inu</bf:code>
+                    <bf:Place rdf:about="http://id.loc.gov/vocabulary/countries/mnu">
+                        <rdfs:label xml:lang="en">Minnesota</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">mnu</bf:code>
                     </bf:Place>
                 </bf:place>
-                <bflc:simplePlace>Bloomington, IN</bflc:simplePlace>
-                <bflc:simpleAgent>Archway Publishing</bflc:simpleAgent>
-                <bflc:simpleDate>[2024]</bflc:simpleDate>
+                <bflc:simplePlace>Minneapolis, MN</bflc:simplePlace>
+                <bflc:simpleAgent>Bellwether Media, Inc</bflc:simpleAgent>
+                <bflc:simpleDate>2025</bflc:simpleDate>
             </bf:ProvisionActivity>
         </bf:provisionActivity>
-        <bf:publicationStatement>Bloomington, IN: Archway Publishing, [2024]</bf:publicationStatement>
+        <bf:publicationStatement>Minneapolis, MN: Bellwether Media, Inc, 2025</bf:publicationStatement>
         <bf:identifiedBy>
             <bf:Lccn>
-                <rdf:value>  2023920086</rdf:value>
+                <rdf:value>  2024038364</rdf:value>
             </bf:Lccn>
         </bf:identifiedBy>
         <bf:identifiedBy>
             <bf:Isbn>
-                <rdf:value>9781665751988</rdf:value>
+                <rdf:value>9798893043433</rdf:value>
                 <bf:status>
                     <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/cancinv">
                         <rdfs:label>canceled or invalid</rdfs:label>
                         <bf:code>cancinv</bf:code>
                     </bf:Status>
                 </bf:status>
-                <bf:qualifier>e</bf:qualifier>
+                <bf:qualifier>ebook</bf:qualifier>
             </bf:Isbn>
         </bf:identifiedBy>
         <bf:identifiedBy>
             <bf:Isbn>
-                <rdf:value>9781665751971</rdf:value>
-                <bf:qualifier>sc</bf:qualifier>
-            </bf:Isbn>
-        </bf:identifiedBy>
-        <bf:identifiedBy>
-            <bf:Isbn>
-                <rdf:value>9781665751995</rdf:value>
-                <bf:qualifier>hc</bf:qualifier>
+                <rdf:value>9798893042467</rdf:value>
+                <bf:qualifier>library binding</bf:qualifier>
             </bf:Isbn>
         </bf:identifiedBy>
         <bf:identifiedBy>
             <bf:Local>
-                <rdf:value>23354934</rdf:value>
+                <rdf:value>23882742</rdf:value>
                 <bf:assigner>
                     <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
                         <rdfs:label>United States, Library of Congress</rdfs:label>
@@ -553,26 +461,18 @@
                 </bf:assigner>
             </bf:Local>
         </bf:identifiedBy>
-        <bf:responsibilityStatement>Pat Serby</bf:responsibilityStatement>
+        <bf:responsibilityStatement>by Janie Scheffer</bf:responsibilityStatement>
         <bf:title>
             <bf:Title>
-                <bf:mainTitle>The Serby saga</bf:mainTitle>
-                <bflc:nonSortNum>4</bflc:nonSortNum>
+                <bf:mainTitle>White-tailed deer</bf:mainTitle>
             </bf:Title>
         </bf:title>
-        <bf:editionStatement>Second edition</bf:editionStatement>
+        <bflc:projectedProvisionDate>2501</bflc:projectedProvisionDate>
         <bf:extent>
             <bf:Extent>
-                <rdfs:label>xi, 205 pages</rdfs:label>
+                <rdfs:label>pages cm.</rdfs:label>
             </bf:Extent>
         </bf:extent>
-        <bf:note>
-            <bf:Note>
-                <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/physical"/>
-                <rdfs:label>illustrations</rdfs:label>
-            </bf:Note>
-        </bf:note>
-        <bf:dimensions>23 cm</bf:dimensions>
         <bf:issuance>
             <bf:Issuance rdf:about="http://id.loc.gov/vocabulary/issuance/mono">
                 <rdfs:label>single unit</rdfs:label>
@@ -594,11 +494,11 @@
         <bf:note>
             <bf:Note>
                 <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/biblio"/>
-                <rdfs:label>Includes bibliographical references (pages 195-196)</rdfs:label>
+                <rdfs:label>Includes bibliographical references and index.</rdfs:label>
             </bf:Note>
         </bf:note>
         <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/instances"/>
-        <bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/23354934"/>
+        <bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/23882742"/>
         <bf:adminMetadata>
             <bf:AdminMetadata>
                 <bf:status>
@@ -607,7 +507,7 @@
                         <bf:code>n</bf:code>
                     </bf:Status>
                 </bf:status>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2023-10-18</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2024-10-02</bf:date>
                 <bf:agent>
                     <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
                         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
@@ -627,11 +527,14 @@
                         <bf:code>c</bf:code>
                     </bf:Status>
                 </bf:status>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-08-26T14:04:46</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-09T13:42:13</bf:date>
                 <bf:descriptionModifier>
-                    <bf:Agent>
-                        <bf:code>DLCMRC</bf:code>
-                    </bf:Agent>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Organization>
                 </bf:descriptionModifier>
             </bf:AdminMetadata>
         </bf:adminMetadata>
@@ -643,7 +546,7 @@
                         <bf:code>c</bf:code>
                     </bf:Status>
                 </bf:status>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-08-26T13:55:44</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-10-09T13:27:31</bf:date>
                 <bf:agent>
                     <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
                         <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
@@ -653,7 +556,7 @@
                         <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
                     </bf:Agent>
                 </bf:agent>
-                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/bibframe2marc/releases/tag/v2.7.0"/>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/bibframe2marc/releases/tag/v2.8.0"/>
             </bf:AdminMetadata>
         </bf:adminMetadata>
         <bf:adminMetadata>
@@ -674,16 +577,16 @@
                     </bf:Agent>
                 </bf:agent>
                 <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
-                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:33:04.830966-05:00</bf:date>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:34:23.314993-05:00</bf:date>
             </bf:AdminMetadata>
         </bf:adminMetadata>
         <bf:adminMetadata>
             <bf:AdminMetadata>
                 <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-4-0/"/>
                 <bflc:encodingLevel>
-                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/f">
-                        <rdfs:label>full</rdfs:label>
-                        <bf:code>f</bf:code>
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/8">
+                        <rdfs:label>prepublication</rdfs:label>
+                        <bf:code>8</bf:code>
                     </bflc:EncodingLevel>
                 </bflc:encodingLevel>
                 <bf:descriptionConventions>
@@ -694,7 +597,7 @@
                 </bf:descriptionConventions>
                 <bf:identifiedBy>
                     <bf:Local>
-                        <rdf:value>23354934</rdf:value>
+                        <rdf:value>23882742</rdf:value>
                         <bf:assigner>
                             <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
                                 <rdfs:label>United States, Library of Congress</rdfs:label>
@@ -705,9 +608,9 @@
                         </bf:assigner>
                     </bf:Local>
                 </bf:identifiedBy>
-                <lclocal:d906>=906     $a 7 $b cbc $c orignew $d 3 $e epcn $f 20 $g y-gencatlg</lclocal:d906>
-                <lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x Sel/ddw, 2024-03-07</lclocal:d925>
-                <lclocal:d955>=955     $b xd06 2023-10-18 $a xn16 2024-03-15 1 copy rec'd., to USASH $c rf29 2024-03-19 to SUBJECT / 1XX needs NAR $d rf26 2024-08-26 $w rf26 2024-08-26 Copy 1 to Shelf has SP</lclocal:d955>
+                <lclocal:d906>=906     $a 7 $b cbc $c orignew $d 1 $e ecip $f 20 $g y-gencatlg</lclocal:d906>
+                <lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x policy default</lclocal:d925>
+                <lclocal:d955>=955     $b rq07 2024-10-02 $i rq07 2024-10-09 $w rq07 2024-10-09 (Telework)</lclocal:d955>
                 <bf:descriptionLanguage>
                     <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
                         <rdfs:label xml:lang="en">English</rdfs:label>
@@ -723,7 +626,7 @@
                 <bf:note>
                     <bf:Note>
                         <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
-                        <rdfs:label>040  $aDLC$beng$erda$cDLC$dDLC$dDLCMRC</rdfs:label>
+                        <rdfs:label>040  $aDLC$beng$erda$cDLC$dDLC$dDLC-MRC</rdfs:label>
                     </bf:Note>
                 </bf:note>
                 <bf:descriptionAuthentication>
@@ -732,7 +635,7 @@
                         <bf:code>pcc</bf:code>
                     </bf:DescriptionAuthentication>
                 </bf:descriptionAuthentication>
-                <lclocal:d985>=985     $e BIBFRAME Prod $d 2024-08-26T13:55:43</lclocal:d985>
+                <lclocal:d985>=985     $e BIBFRAME Prod $d 2024-10-09T13:27:30</lclocal:d985>
             </bf:AdminMetadata>
         </bf:adminMetadata>
     </bf:Instance>

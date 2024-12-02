@@ -6,9 +6,17 @@ import PreferenceModal from "@/components/general/PreferenceModal.vue";
 import LoginModal from "@/components/panels/nav/LoginModal.vue";
 import ScriptshifterConfigModal from "@/components/panels/edit/modals/ScriptshifterConfigModal.vue";
 import DiacriticsConfigModal from "@/components/panels/edit/modals/DiacriticsConfigModal.vue";
+import TextMacroModal from "@/components/panels/edit/modals/TextMacroModal.vue";
+import NonLatinBulkModal from "@/components/panels/edit/modals/NonLatinBulkModal.vue";
+import NonLatinAgentModal from "@/components/panels/edit/modals/NonLatinAgentModal.vue";
+import FieldColorsModal from "@/components/panels/edit/modals/FieldColorsModal.vue";
+
+
+
 
 import ShelfListingModal from "@/components/panels/edit/modals/ShelfListing.vue";
 
+import UpdateAvailableModal from "@/components/general/UpdateAvailableModal.vue";
 
 
 
@@ -30,6 +38,11 @@ export default {
     ScriptshifterConfigModal,
     ShelfListingModal,
     DiacriticsConfigModal,
+    UpdateAvailableModal,
+    TextMacroModal,
+    NonLatinBulkModal,
+    NonLatinAgentModal,
+    FieldColorsModal
 
   },
   data() {
@@ -47,7 +60,8 @@ export default {
     ...mapWritableState(useProfileStore, ['showShelfListingModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
-    ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal']),
+    ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
+    ...mapWritableState(useConfigStore, ['showUpdateAvailableModal','showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
     showLocalPreferenceModal: {
@@ -94,6 +108,9 @@ export default {
     //},500)
 
 
+    this.configStore.checkVersionOutOfDate()
+
+
 
   }
 }
@@ -125,8 +142,27 @@ export default {
   <template v-if="showShelfListingModal==true">
     <ShelfListingModal v-model="showShelfListingModal"  />
   </template>
+  <template v-if="showUpdateAvailableModal==true">
+    <UpdateAvailableModal v-model="showUpdateAvailableModal"  />
+  </template>
+  <template v-if="showTextMacroModal==true">
+    <TextMacroModal v-model="showTextMacroModal"  />
+  </template>
+  
+  <template v-if="showNonLatinBulkModal==true">
+    <NonLatinBulkModal v-model="showNonLatinBulkModal"  />
+  </template>
 
+  <template v-if="showNonLatinAgentModal==true">
+    <NonLatinAgentModal v-model="showNonLatinAgentModal"  />
+  </template>
+  
+  <template v-if="showFieldColorsModal==true">
+    <FieldColorsModal v-model="showFieldColorsModal"  />
+  </template>
 
+  
+  
 
 </template>
 

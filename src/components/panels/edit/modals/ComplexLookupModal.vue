@@ -33,11 +33,11 @@
         searchValueLocal: null,
         authorityLookupLocal: null,
 
-
         searchTimeout: null,
 
         activeComplexSearch: [],
         activeComplexSearchInProgress: false,
+        controller: new AbortController(),
 
         initalSearchState: true,
 
@@ -47,9 +47,9 @@
         currentPage: 1,
         maxPage: 0,
 
-        activeContext: null
-
-
+        activeContext: null,
+		
+		searchType: "left",
       }
     },
     computed: {
@@ -113,10 +113,24 @@
     },
 
     methods: {
-
+      // Reset stored values
+      // This is for when the modal is closed, we want to reset things so nothing is preloaded
+      // and the user starts from zero
+      reset: function(){
+        this.activeContext = null
+        this.activeComplexSearch = []
+        this.searchValueLocal = null
+            this.authorityLookupLocal = null
+      },
 
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
+        //if there is an ongoing search, abort it
+        if (this.activeComplexSearchInProgress){
+          this.controller.abort()
+          this.controller = new AbortController()
+        }
+
         if (!this.searchValueLocal){ return false}
 
         if (this.searchValueLocal.trim()==''){
@@ -143,7 +157,8 @@
           }
         }
         window.clearTimeout(this.searchTimeout)
-
+		
+		let searchType = this.searchType
         let offset = this.offsetStart
         if (this.activeComplexSearch != []) {
           offset = this.offsetStep * (this.currentPage - 1)
@@ -152,7 +167,8 @@
         let searchPayload = {
           processor: null,
           url: [],
-          searchValue: this.searchValueLocal   //This changed from searchValueLocal, to match what is expected in `utils_network.js`
+          searchValue: this.searchValueLocal,   //This changed from searchValueLocal, to match what is expected in `utils_network.js`
+          signal: this.controller.signal        //Allows canceling the correct call
         }
         // if (this.modeSelect == 'All'){
         //   this.modalSelectOptions.forEach((a)=>{
@@ -171,20 +187,20 @@
                 a.urls
                   .replace('<QUERY>', this.searchValueLocal)
                   .replace('<OFFSET>', offset)
+				  .replace('<TYPE>', searchType)
               )
             }
           })
 
-
+        // wrapping this in setTimeout might not be needed anymore
         this.searchTimeout = window.setTimeout(async ()=>{
           this.activeComplexSearchInProgress = true
           this.activeComplexSearch = []
           this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
           this.activeComplexSearchInProgress = false
-          this.initalSearchState =false;
+          this.initalSearchState =false
         }, 400)
       },
-
 
 
       inputKeydown: function(event){
@@ -194,6 +210,39 @@
           this.selectChange()
         }
       },
+
+      returnContextTitle(title){
+
+        if (!Array.isArray(title)){
+          title=[title]
+        }
+        if (title[0] && typeof title[0] == 'string'){ return title[0]}
+
+        let noLang = title.filter((v)=>{ if (v['@language']){return false}else{return true} })
+        if (noLang && noLang[0] && noLang[0]['@value']){ return noLang[0]['@value']}
+        
+        return 'ERROR - Cannot find label'
+
+      },
+      returnNonLatinAuthLabels(title){
+
+        if (!Array.isArray(title)){
+          title=[title]
+        }
+        if (title[0] && typeof title[0] == 'string'){ return []}
+
+        let hasLang = title.filter((v)=>{ if (v['@language']){return true}else{return false} })
+        let results = []
+        for (let l of hasLang){
+          results.push(`${l['@value']} @ ${l['@language']}`)
+        }
+
+
+        return results
+
+      },
+
+
 
 
       selectNav: function(event){
@@ -231,6 +280,7 @@
               toLoad = this.activeComplexSearch[idx]
               try{
                 this.$refs.selectOptions.selectedIndex = idx
+                break
               } catch(err) {
                 console.log("")
               }
@@ -244,10 +294,10 @@
         this.activeContext = {
             "contextValue": true,
             "source": [],
-            "type": (toLoad != null && toLoad.literal) ? "Literal Value" : null,
+            "type": (toLoad !== null && toLoad.literal) ? "Literal Value" : null,
             "variant": [],
-            "uri": (toLoad.literal) ? null : toLoad.uri,
-            "title": toLoad.label,
+            "uri": (toLoad == null || toLoad.literal) ? null : toLoad.uri,
+            "title": toLoad !== null ? toLoad.label : "",
             "contributor": [],
             "date": null,
             "genreForm": null,
@@ -256,12 +306,18 @@
             "literal": true,
             "loading":true,
           }
+
         if (toLoad && toLoad.literal){
           return false
         }
 
-        let results = await utilsNetwork.returnContext(toLoad.uri)
-        results.loading = false
+        let results = null
+        try {
+            results = await utilsNetwork.returnContext(toLoad.uri)
+            results.loading = false
+        } catch {
+            results = null
+        }
 
         // if this happens it means they selected something else very quickly
         // so don't go on and set it to this context, because its no longer the one they have selected
@@ -275,8 +331,6 @@
 
 
         this.activeContext = results
-
-
       },
 
       rewriteURI: function(uri){
@@ -332,9 +386,22 @@
         }
       },
 
+      forceSearch: function(){
+        //reset the search and do it again
+        this.currentPage = 1
+        this.doSearch()
+      },
+	  
+	  changeSearchType: function(event){ 
+		if (event.target.checked){
+			this.searchType = "keyword"
+		} else {
+			this.searchType = "left"
+		}
+		this.doSearch()
+	  },
+
     },
-
-
 
     updated: function(){
       if (this.authorityLookup == null){
@@ -371,8 +438,19 @@
 
             this.$refs.complexLookupModalDisplay.style.height = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + 'px'
           }
+		  
+		  if (this.$refs.toggle){
+			if (this.$refs.toggle.checked){
+				this.searchType = "keyword"
+			}  else {
+				this.searchType = "left"
+			}
+		  }
         })
       })
+	  
+
+		
     },
 
     mounted() {
@@ -413,16 +491,19 @@
       >
 
         <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
-
+			<div class="menu-buttons">
+				<button @click="reset(); $emit('hideComplexModal')">x</button>
+			</div>
           <div class="complex-lookup-modal-container-parts">
 
             <div class="complex-lookup-modal-search">
 
-
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
-                  <div v-if="(activeComplexSearch && activeComplexSearch[0] && activeComplexSearch[0].total % 25 ) > 0" class="complex-lookup-paging">
+				  </div>
+				  
+                  <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % 25 ) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
                     <span>
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
                         <span class="material-icons pagination">keyboard_double_arrow_left</span>
@@ -430,7 +511,7 @@
                       <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
                         <span class="material-icons pagination">chevron_left</span>
                       </a>
-                      <span class="pagination-label"> Page {{ this.currentPage }} of {{ Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) }} </span>
+                      <span class="pagination-label"> Page {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last Page"}} </span>
                       <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
                         <span class="material-icons pagination">chevron_right</span>
                       </a>
@@ -439,8 +520,15 @@
                       </a>
                     </span>
                   </div>
-                </div>
-
+				  
+				  <div id="container" v-if="modalSelectOptions.length == 10 && modalSelectOptions[8].label == 'NAF Geo SubDiv'">
+					<input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
+					<label for="search-type" class="toggle-container">
+						<div>Left Anchored</div>
+						<div>Keyword</div>
+					</label>
+				  </div>
+				  
               </template>
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === true">
                 <select v-model="modeSelect">
@@ -448,9 +536,9 @@
                 </select>
               </template>
               <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" type="text" />
-
+              <button @click="forceSearch()">Search</button>
+              <hr style="margin-top: 5px;">
               <div>
-
 
                   <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)">
 
@@ -481,7 +569,7 @@
 
               <template v-if="activeContext !== null">
 
-                  <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.type"><AuthTypeIcon v-if="activeContext.type" :type="activeContext.type"></AuthTypeIcon></span>{{activeContext.title}}</h3>
+                  <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.type"><AuthTypeIcon v-if="activeContext.type" :type="activeContext.type"></AuthTypeIcon></span>{{returnContextTitle(activeContext.title)}}</h3>
 
 
                   <div class="complex-lookup-modal-display-type-buttons">
@@ -503,13 +591,18 @@
 
                   </div>
 
+                  <div v-if="returnNonLatinAuthLabels(activeContext.title).length>0">
+                    <div class="modal-context-data-title modal-context-data-title-add-gap">Non-Latin Authoritative Labels:</div>
+                    <ul>
+                      <li class="modal-context-data-li" v-for="(v,idx) in returnNonLatinAuthLabels(activeContext.title)" v-bind:key="'auth' + idx">{{v}}</li>
+                    </ul>
+                  </div>
+
                   <div v-if="activeContext.variant && activeContext.variant.length>0">
                     <div class="modal-context-data-title modal-context-data-title-add-gap">Variants:</div>
                     <ul>
                       <li class="modal-context-data-li" v-for="(v,idx) in activeContext.variant" v-bind:key="'var' + idx">{{v}}</li>
                     </ul>
-
-
                   </div>
 
                   <div v-for="key in Object.keys(activeContext.nodeMap)" :key="key">
@@ -738,6 +831,7 @@
     display: unset;
     float: right;
     width: auto !important;
+	z-index: 1;
   }
 
   .material-icons.pagination{
@@ -756,5 +850,74 @@
   .icon-chevron-right:before {
     content: "\f054";
   }
+
+/* toggle */
+/* https://hudecz.medium.com/how-to-create-a-pure-css-toggle-button-2fcc955a8984 */
+#container{
+	margin-left: 5px;
+}
+
+.toggle {
+	display: none;
+}
+
+.toggle-container {
+   position: relative;
+   display: grid;
+   grid-template-columns: repeat(2, 1fr);
+   width: fit-content;
+   border: 3px solid lightskyblue;
+   border-radius: 20px;
+   background: lightskyblue;
+   font-weight: bold;
+   color: lightskyblue;
+   cursor: pointer;
+}
+
+.toggle-container::before {
+   content: '';
+   position: absolute;
+   width: 50%;
+   height: 100%;
+   left: 0%;
+   border-radius:20px;
+   background: black;
+   transition: all 0.3s;
+}
+
+.toggle-container div {
+   padding: 6px;
+   text-align: center;
+   z-index: 1;
+}
+
+.toggle:checked + .toggle-container::before {
+   left: 50%;
+}
+
+.toggle:checked + .toggle-container div:first-child{
+   color: black;
+   transition: color 0.3s;
+}
+.toggle:checked + .toggle-container div:last-child{
+   color: lightskyblue;
+   transition: color 0.3s;
+}
+.toggle + .toggle-container div:first-child{
+   color: lightskyblue;
+   transition: color 0.3s;
+}
+.toggle + .toggle-container div:last-child{
+   color: black;
+   transition: color 0.3s;
+}
+
+.menu-buttons{
+  right: 20px;
+  top: 5px;
+  position: absolute;
+  z-index: 100000;
+
+}
 
 </style>

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useProfileStore } from './profile'
 import { getCurrentInstance } from 'vue'
 import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyager_macro_express.json"
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
@@ -6,7 +7,7 @@ import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_nati
 
 export const usePreferenceStore = defineStore('preference', {
   state: () => ({
-    
+
 
     // controls showing the modal that is parked in the App.vue
     showPrefModal: false,
@@ -30,21 +31,32 @@ export const usePreferenceStore = defineStore('preference', {
 
     fontFamilies: ['Avenir, Helvetica, Arial, sans-serif','serif','sans-serif','monospace','cursive','fantasy','system-ui','ui-serif','ui-sans-serif','ui-monospace','ui-rounded'],
 
+
     showDiacriticConfigModal:false,
+
+    showFieldColorsModal: false,
 
     diacriticPacks: {
       macroExpress: diacrticsVoyagerMacroExpress,
       voyager: diacrticsVoyagerNative,
     },
 
-    diacriticUse:{},
-    diacriticUseValues:{},
+    diacriticUse:[],
+    diacriticUseValues:[],
+
+    showTextMacroModal: false,
+
+    layoutActive: false,
+
+    layoutActiveFilter: null,
 
 
 
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},
+    
+    copyMode: false,
 
     panelDisplay:{
 
@@ -257,6 +269,15 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Previews',
           range: [true,false]
       },
+      '--b-edit-main-splitpane-opac-marc-html' : {
+        desc: 'Display the MARC preview as HTML instead of plain text',
+        descShort: 'MARC HTML',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Previews',
+        range: [true, false]
+    },
 
 
 
@@ -298,6 +319,16 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: null
         },
+        '--c-edit-main-splitpane-edit-background-color-instance-secondary' : {
+          value:'#f671f696',
+          desc: 'The background color of the secondary instance on edit screen panel.',
+          descShort: 'Secondary Instance Background Color',
+          type: 'color',
+          group: 'Edit Panel',
+          range: null
+        },
+
+
 
 
       '--c-edit-main-splitpane-edit-focused-field-color' : {
@@ -377,6 +408,22 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: [true,false]
       },
+
+
+      // the field color object
+      '--o-edit-general-field-colors' : {
+        desc: 'Field Color Object',
+        descShort: 'Field Color Object',
+        value: {},
+        step: null,
+        type: 'object',
+        unit: null,
+        group: 'Edit Panel',
+        hide: true,
+        range: null
+    },
+
+
 
 
       // the NAV panel
@@ -510,6 +557,9 @@ export const usePreferenceStore = defineStore('preference', {
 
 
 
+
+
+
       '--n-edit-general-action-button-continer-background-color' : {
           value:'#fff',
           desc: 'Background color of the action button menu.',
@@ -599,10 +649,18 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Complex Lookup',
           range: [true,false]
       },
+      '--b-edit-complex-use-value-icons' : {
+        desc: 'Show icons in the value.',
+        descShort: 'Show icons in value',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Complex Lookup',
+        range: [true,false]
+    },
 
 
-
-
+      //general
       '--c-general-icon-instance-color' : {
           desc: 'The color of the instance icon.',
           descShort: 'Instance icon color',
@@ -630,12 +688,168 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'General',
           range: null
       },
+      '--c-general-copy-mode' : {
+          desc: 'Set if copy mode should be on or off by default.',
+          descShort: 'Copy mode default',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'General',
+          range: [true,false]
+      },
+
+
+
+      // diacritics
+
+      '--b-diacritics-disable-voyager-mode' : {
+        desc: 'Do not use Voyager Mode (crtl+e).',
+        descShort: 'Do not use Voyager Mode (crtl+e)',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Diacritics',
+        range: [true,false]
+      },
+
+      '--c-diacritics-enabled-macros' : {
+        value:[],
+        desc: '',
+        descShort: 'List of diacritic macros to use',
+        type: 'other',
+        group: 'Diacritics',
+        range: null
+      },
+      '--o-diacritics-text-macros' : {
+        value:[],
+        desc: '',
+        descShort: 'Text macros to use',
+        type: 'other',
+        group: 'Diacritics',
+        range: null
+      },
+      '--o-literal-lang-bulk-options' : {
+        value:[],
+        desc: '',
+        descShort: 'The lang-script options to use in the bulk tool',
+        type: 'other',
+        group: 'Diacritics',
+        range: null
+      },
+
+
+
+      //Shelflisting
+      '--b-shelflist-link-1-label' : {
+        desc: 'Label for link 1.',
+        descShort: 'Link 1 Label',
+        value: "Cutter Table",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 0
+      },
+      '--b-shelflist-link-1' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 1 URL',
+        value: "http://www.loc.gov/aba/pcc/053/table",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 0
+      },
+
+      '--b-shelflist-link-2-label' : {
+        desc: 'Label for link 2.',
+        descShort: 'Link 2 Label',
+        value: "Biography Table",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 1
+      },
+      '--b-shelflist-link-2' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 2 URL',
+        value: "https://www.loc.gov/aba/publications/FreeCSM/G320.pdf",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 1
+      },
+
+      '--b-shelflist-link-3-label' : {
+        desc: 'Label for link 3.',
+        descShort: 'Link 3 Label',
+        value: "Translation Table",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 2
+      },
+      '--b-shelflist-link-3' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 3 URL',
+        value: "https://www.loc.gov/aba/publications/FreeCSM/G150.pdf",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 2
+      },
+
+      '--b-shelflist-link-4-label' : {
+        desc: 'Label for link 4.',
+        descShort: 'Link 4 Label',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 3
+      },
+      '--b-shelflist-link-4' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 4 URL',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 3
+      },
+
+      '--b-shelflist-link-5-label' : {
+        desc: 'Label for link 5.',
+        descShort: 'Link 5 Label',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 4
+      },
+      '--b-shelflist-link-5' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 5 URL',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 4
+      },
+
+      '--b-shelflist-show-cutter-helpers' : {
+        desc: 'Display cutter tools like author cutter and links',
+        descShort: 'Display cutter tools.',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Shelflisting',
+        range: [true,false]
+    },
+
+      // scriptshifter
+
+      '--b-scriptshifter-capitalize-first-letter' : {
+        desc: 'Capitalize the first letter of the transliterated string.',
+        descShort: 'Capitalize the first letter',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Scriptshifter',
+        range: [true,false]
+      },
+
 
 
     }
-
-
-
   }),
 
   // catInitals: null,
@@ -678,12 +892,17 @@ export const usePreferenceStore = defineStore('preference', {
       if (window.localStorage.getItem('marva-diacriticUse')){
         this.diacriticUse = JSON.parse(window.localStorage.getItem('marva-diacriticUse'))
       }
-      
+
 
 
       this.styleDefaultOrginal = JSON.parse(JSON.stringify(this.styleDefault))
       this.panelDisplayOrginal = JSON.parse(JSON.stringify(this.panelDisplay))
       this.loadPreferences()
+
+      this.buildDiacriticSettings()
+      
+      //set copyMode from preferences
+      this.copyMode = this.styleDefault['--c-general-copy-mode'].value
 
         // fetch(this.configStore.returnUrls.scriptshifter + 'languages', {
         //   method: 'GET'
@@ -745,7 +964,18 @@ export const usePreferenceStore = defineStore('preference', {
           if (prefs.styleDefault[k].group == "Sidebars - OPAC"){
             prefs.styleDefault[k].group = "Sidebars - Previews"
           }
+          if (prefs.styleDefault[k].group == "Shelflisting"){
+            prefs.styleDefault[k].group = "Shelflisting"
+          }
         }
+
+        // if there is a new style in the defaults that is not in their saved prefs.
+        for (let k in this.styleDefault){
+          if (!prefs.styleDefault[k]){
+            prefs.styleDefault[k] = this.styleDefault[k]
+          }
+        }
+
 
         this.styleDefault = prefs.styleDefault
         this.panelDisplay = prefs.panelDisplay
@@ -794,6 +1024,9 @@ export const usePreferenceStore = defineStore('preference', {
       if (!this.styleDefault[propertyName]){
         return false
       }
+
+      //update
+      useProfileStore ().dataChanged()
 
       this.styleDefault[propertyName].value = value
       this.savePreferences()
@@ -859,6 +1092,41 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
 
+    /**
+    * Builds the diacrtic settings to use in the edit panel
+    * @return {void}
+    */
+    buildDiacriticSettings: function(){
+
+      this.diacriticUse = this.returnValue('--c-diacritics-enabled-macros')
+
+
+      this.diacriticUse = [...new Set(this.diacriticUse)];
+
+      console.log(this.diacriticUse)
+
+
+      for (let d in this.diacriticPacks.macroExpress){
+
+        let macros = this.diacriticPacks.macroExpress[d]
+        for (let macro of macros ){
+          let key = d + '-' + macro.unicode
+          if (this.diacriticUse.indexOf(key)>-1){
+            this.diacriticUseValues.push(macro)
+          }
+        }
+
+
+      }
+      console.log(this.diacriticUseValues)
+
+
+    },
+    
+    // turn copy mode on/off
+    toggleCopyMode: function(){
+        this.copyMode = !this.copyMode
+    }
 
     /**
     * Take a url and rewrites it to match the url pattern of the current enviornment

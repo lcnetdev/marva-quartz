@@ -18,7 +18,7 @@
 
           <a href="#" class="inline-auth-link" @click="searchValue = avl.label; textInputEvent()">
             <span v-if="avl.type" class="complex-lookup-inline-mode">
-              <span class="complex-lookup-inline-mode-icon"><AuthTypeIcon  :small="true" :type="avl.type"/></span>
+              <span v-if="preferenceStore.returnValue('--b-edit-complex-use-value-icons')" class="complex-lookup-inline-mode-icon"><AuthTypeIcon  :small="true" :type="avl.type"/></span>
             </span>
             <span v-if="!avl.needsDereference" style="">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="" style=""><span class="material-icons check-mark inline-mode-validation-icon">check_circle_outline</span></span></span>
             <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class=""><span class="material-icons check-mark inline-mode-validation-icon">check_circle_outline</span></span></span>
@@ -56,7 +56,6 @@
   </template>
 
   <template v-else>
-
   <!-- <div>Complext Lookup ({{propertyPath.map((x)=>{return x.propertyURI}).join('->')}})</div> -->
       <form autocomplete="off" v-on:submit.prevent >
 
@@ -75,10 +74,10 @@
                     <div class="lookup-fake-input-entities" style="display: inline; padding-left: 5px;">
                       <div v-for="(avl,idx) in complexLookupValues" class="selected-value-container">
                         <div class="selected-value-container-auth">
-                          <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type" :type="avl.type"/>
+                          <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')" " :type="avl.type"/>
                         </div>
                         <div class="selected-value-container-title">
-                          <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
+                          <!-- <span class="material-icons check-mark">check_circle_outline</span> -->                           
                           <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
                           <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
                         </div>
@@ -97,30 +96,34 @@
 
 
 
-
-
-          <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
+         
+          
+          <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">            
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
+              
               <div v-for="(avl,idx) in complexLookupValues" class="selected-value-container">
                 <div class="selected-value-container-auth">
-                  <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type" :type="avl.type"/>
+                  <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')"  :type="avl.type"/>
                 </div>
                 <div class="selected-value-container-title">
                   <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
-                  <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">
+                  <span v-if="!avl.needsDereference && !avl.uneditable " style="padding-right: 0.3em; font-weight: bold">
                     <!-- <a v-if="!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)" href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
                     <span v-else>{{avl.label}}</span> -->
                     <span v-if="avl.source && avl.source=='FAST'" style="font-weight: bold;">(FAST) </span>
                     <a href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
-                    <span class="uncontrolled" v-if="avl.isLiteral">
+                    <ValidationIcon :value="avl" />
+                    <!-- <span class="uncontrolled" v-if="avl.isLiteral">
                       (uncontrolled)
                     </span>
                     <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style="">
-                    </span>
+                    </span> -->
+
                   </span>
-                  <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+                  <span v-else-if="avl.needsDereference" style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+                  <span v-else-if="avl.uneditable" style="padding-right: 0.3em; font-weight: bold">{{ avl.label }} (Uneditable)</span>
                 </div>
-                <div class="selected-value-container-action">
+                <div class="selected-value-container-action" v-if="!avl.uneditable">
                   <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
                 </div>
               </div>
@@ -129,7 +132,7 @@
             <div class="lookup-fake-input-text">
                 <input   v-on:keydown.enter.prevent="submitField" @keyup="navKey" class="can-select" :data-guid="structure['@guid']" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
                 <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
-            </div>            
+            </div>
           </template>
 
           <Transition name="action">
@@ -140,7 +143,7 @@
 
         </div>
 
-        
+
         <template v-if="configStore.useSubjectEditor.includes(structure.propertyURI)">
 
           <div class="marc-deliminated-lcsh-mode-container" v-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.hit && Array.isArray(marcDeliminatedLCSHModeResults.hit)">
@@ -149,7 +152,7 @@
               <span v-if="heading.literal==true" class="marc-deliminated-lcsh-mode-entity"> <span class="material-icons marc-deliminated-lcsh-mode-icon-warning">warning</span> {{ heading.label }} </span>
             </template>
           </div>
-          
+
           <div class="marc-deliminated-lcsh-mode-container" v-else-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.resultType == 'COMPLEX'">
             <span class="marc-deliminated-lcsh-mode-entity"> <span class="material-icons marc-deliminated-lcsh-mode-icon">check_circle</span> <a :href="marcDeliminatedLCSHModeResults.hit.uri" target="_blank">{{ marcDeliminatedLCSHModeResults.hit.label }}</a></span>
           </div>
@@ -163,11 +166,11 @@
           <div class="marc-deliminated-lcsh-mode-container" v-else-if="marcDeliminatedLCSHModeSearching == true">
 
             Searching...
-            
+
           </div>
 
-          
-          
+
+
 
         </template>
 
@@ -176,8 +179,8 @@
 
   </template>
 
-  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false" :structure="structure" v-model="displayModal"/>
-  <SubjectEditor ref="subjectEditorModal" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
+  <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal"/>
+  <SubjectEditor ref="subjectEditorModal" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal"/>
 
 </template>
 
@@ -193,6 +196,7 @@ import SubjectEditor from "@/components/panels/edit/modals/SubjectEditor.vue";
 import LabelDereference from "@/components/panels/edit/fields/helpers/LabelDereference.vue";
 import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
 import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.vue";
+import ValidationIcon from "@/components/panels/edit/fields/helpers/ValidationIcon.vue";
 
 
 import { useProfileStore } from '@/stores/profile'
@@ -213,7 +217,8 @@ export default {
     SubjectEditor,
     LabelDereference,
     AuthTypeIcon,
-    ActionButton
+    ActionButton,
+    ValidationIcon
 
     // Keypress: () => import('vue-keypress'),
     // EditSubjectEditor,
@@ -247,7 +252,7 @@ export default {
 
       showActionButton: false,
 
-
+      profileData: null,
       searchValue: null,
       authorityLookup: null,
       isLiteral: null,
@@ -355,8 +360,6 @@ export default {
 
 
   },
-
-
 
   created: function(){
 
@@ -524,7 +527,7 @@ export default {
     */
     setComplexValue: function(contextValue){
       delete contextValue.typeFull
-      this.profileStore.setValueComplex(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap)
+      this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
       this.searchValue=''
       this.displayModal=false
 
@@ -582,29 +585,28 @@ export default {
 
 
 
-        
 
 
-        
-        
-          
+
+
+
+
           if (this.searchValue.match(/[$‡|]/)){
 
-            window.clearTimeout(this.marcDeliminatedLCSHModeTimeout)  
+            window.clearTimeout(this.marcDeliminatedLCSHModeTimeout)
             this.marcDeliminatedLCSHModeSearching = true
             this.marcDeliminatedLCSHModeResults = {}
 
             this.marcDeliminatedLCSHModeTimeout = window.setTimeout(async ()=>{
 
               this.marcDeliminatedLCSHMode = true
-              
 
-              
+
               this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue)
               this.marcDeliminatedLCSHModeSearching = false
               let sendResults = []
               if (this.marcDeliminatedLCSHModeResults.resultType != 'ERROR'){
-                  
+
                 if (this.marcDeliminatedLCSHModeResults.resultType && this.marcDeliminatedLCSHModeResults.resultType==='COMPLEX'){
                   sendResults.push({
                     complex: true,
@@ -653,13 +655,21 @@ export default {
 
 
           }else{
-
+			// we're opening the subject builder, turn this off
+			this.marcDeliminatedLCSHMode = false
+			this.marcDeliminatedLCSHModeSearching = false
+			this.marcDeliminatedLCSHModeTimeout = null
+			this.marcDeliminatedLCSHModeResults = []
+			
+			this.authorityLookup = this.searchValue.trim()
+			this.searchValue = this.searchValue.trim()
+			
             this.displaySubjectModal=true
             this.$nextTick(() => {
               this.$refs.subjectEditorModal.focusInput()
             })
 
-            
+
           }
 
 
@@ -676,7 +686,6 @@ export default {
 
 
     hideSubjectModal: function(){
-
       this.displaySubjectModal = false;
       if (this.marcDeliminatedLCSHMode==false){
         this.searchValue = ""
@@ -720,6 +729,7 @@ export default {
     // Open the authority `panel` for an given authority
     openAuthority: function() {
       let label = this.$refs.el[0].innerHTML
+      this.profileData = this.profileStore.returnStructureByGUID(this.guid)
 
       let sibling = this.$refs.el[0].parentNode.childNodes[2]
       if (sibling.className == "uncontrolled") {
@@ -728,31 +738,22 @@ export default {
         this.isLiteral = false
       }
 
-      /* This only gets populated when it's loaded from a record
-      so it can't be used becasuse it won't work with an empty record
-      and if the the value is changed, this underlying data will
-      remain.
-
-      console.log("guid: ", this.guid)
-      console.log(this.profileStore.returnStructureByGUID(this.guid))
-      console.log(this.profileStore.returnStructureByGUID(this.guid).xmlSource)*/
-
       // store the label to pass as a prop
       this.authorityLookup = label
-
-      //Decide which modal to open/ don't support subject
+      this.searchValue = label
+        
       if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
         this.displayModal = true
       } else {
+		// we're opening the subject builder, turn this off
+		this.marcDeliminatedLCSHMode = false
+		this.marcDeliminatedLCSHModeSearching = false
+		this.marcDeliminatedLCSHModeTimeout = null
+		this.marcDeliminatedLCSHModeResults = []
+	  
         this.displaySubjectModal = true
       }
-
-
-      // TODO: how to get the ID to `complexLookupModal` >> `selectChange`?
-
     },
-
-
   }
 };
 </script>
@@ -839,7 +840,7 @@ export default {
 
 .lookup-fake-input{
   display: flex;
-  background-color: white;
+  background-color: transparent;
   padding: 0.1em;
 }
 

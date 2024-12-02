@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia'
+import utilsNetwork from '@/lib/utils_network';
 
 
 export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 0,
-    versionMinor: 13,
-    versionPatch: 12,
+    versionMinor: 16,
+    versionPatch: 6,
+
+
 
     regionUrls: {
 
@@ -25,6 +28,7 @@ export const useConfigStore = defineStore('config', {
         starting: 'http://127.0.0.1:5001/util/profiles/starting/prod',
 
         profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
 
@@ -44,13 +48,13 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
         validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
-        shelfListing: 'https://preprod-8230.id.loc.gov/',
+        shelfListing: 'https://preprod-8300.id.loc.gov/',
         // bfdb : 'https://preprod-8210.id.loc.gov/',
-        bfdb : 'https://preprod-8230.id.loc.gov/',
+        bfdb : 'https://preprod-8300.id.loc.gov/',
         profiles : '/bfe2/util/profiles/profile/stage',
         // profiles: 'https://preprod-3001.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
         starting : '/bfe2/util/profiles/starting/stage',
-        id: 'https://preprod-8299.id.loc.gov/',
+        id: 'https://preprod-8288.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
 
@@ -63,7 +67,7 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter  :  'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://editor.id.loc.gov/bfe2/util/publish/production',
-        shelfListing: 'https://preprod-8230.id.loc.gov/',
+        shelfListing: 'https://preprod-8300.id.loc.gov/',
         validate: 'https://editor.id.loc.gov/bfe2/util/validate',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         bfdbGPO : 'https://preprod-8210.id.loc.gov/',
@@ -135,6 +139,11 @@ export const useConfigStore = defineStore('config', {
   // this value goes into the admin metadata to tell BFDB what type of action to take, this value is when a new work instance is being created
   procInfoNewWorkInstance: "create work",
 
+  showUpdateAvailableModal:false,
+
+  showNonLatinBulkModal: false,
+  showNonLatinAgentModal: false,
+  
 
   scriptshifterLanguages: {},
 
@@ -185,6 +194,12 @@ export const useConfigStore = defineStore('config', {
 
   ],
 
+  checkForEDTFDatatype: [
+    'http://id.loc.gov/ontologies/bibframe/date',
+    'http://id.loc.gov/ontologies/bibframe/copyrightDate',
+    'http://id.loc.gov/ontologies/bibframe/originDate',
+    'http://id.loc.gov/ontologies/bflc/projectedProvisionDate',
+  ],
 
 
   // these are properties that aren't allowed to be both when merging data with template
@@ -222,12 +237,73 @@ export const useConfigStore = defineStore('config', {
 
   ],
 
+  excludeFromNonLatinLiteralCheck: [
+    'http://id.loc.gov/ontologies/bibframe/subject',
+    'http://id.loc.gov/ontologies/bibframe/contribution',
+    'http://id.loc.gov/ontologies/bibframe/geographicCoverage'
+
+  ],
+
+
+
+  layouts: {
+    all: {
+      titles: {
+        label: "Titles",
+        properties: [
+          "http://id.loc.gov/ontologies/bibframe/title"
+        ]
+      },
+      contributors: {
+        label: "Contributors",
+        properties: [
+          "http://id.loc.gov/ontologies/bibframe/contribution"
+        ]
+      },
+      subjects: {
+        label: "Subjects & Class",
+        properties: [
+          "http://id.loc.gov/ontologies/bibframe/subject",
+          "http://id.loc.gov/ontologies/bibframe/classification",
+
+
+        ]
+      }
+
+    }
+
+
+
+
+
+
+  },
+
+
+
+
+
+
 
   // xml files stored in the static file directory
   testData:[
     {lccn:'2001059208',label:"The knitter's handy book of patterns: basic designs in multiple sizes & gauges", idUrl:'https://id.loc.gov/resources/instances/12618072.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
     {lccn:'2021375840',label:"Schooling under control", idUrl:'https://id.loc.gov/resources/instances/21910923.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
     {lccn:'2023920086',label:"The Serby saga (IBC)", idUrl:'https://id.loc.gov/resources/instances/23354934.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+    {lccn:'2024398050',label:"Wehasŭ sonyŏn (Compilation)", idUrl:'https://id.loc.gov/resources/instances/23799873.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    {lccn:'2007052988',label:"A journey to the Western Islands of Scotland", idUrl:'https://id.loc.gov/resources/instances/15146892.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    {lccn:'2023546355',label:"'P'osŭt'ŭ cheguk' ŭi Tong Asia", idUrl:'https://id.loc.gov/resources/instances/23591130.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    {lccn:'2024019569',label:"The Routledge handbook of Christianity and culture", idUrl:'https://id.loc.gov/resources/instances/2024019569.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+
+    {lccn:'2024038364',label:"White-tailed deer", idUrl:'https://id.loc.gov/resources/instances/23882742.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+
+
+
 
     {lccn:'2024591512',label:"The Berkshires, Massachusetts discovery map 2022-2023", idUrl:'https://id.loc.gov/resources/instances/23486403.html', profile:'Cartographic',profileId:'lc:RT:bf2:Cartographic:Instance'},
     {lccn:'2016627557',label:"Wallflower", idUrl:'https://id.loc.gov/resources/instances/2016627557.html', profile:'Audio CD',profileId:'lc:RT:bf2:SoundRecording:Instance'},
@@ -235,6 +311,7 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2023602524',label:"Bones and all", idUrl:'https://id.loc.gov/resources/instances/23150570.html', profile:'Moving Image: BluRay DVD',profileId:'lc:RT:bf2:MIBluRayDVD:Instance'},
     {lccn:'2005264032',label:"Business week", idUrl:'https://id.loc.gov/resources/instances/11138862.html', profile:'Serial',profileId:'lc:RT:bf2:Serial:Instance'},
+    {lccn:'2011263182',label:"San Francisco chronicle", idUrl:'https://id.loc.gov/resources/instances/2011263182.html', profile:'Serial',profileId:'lc:RT:bf2:Serial:Instance'},
 
 
 
@@ -289,16 +366,16 @@ export const useConfigStore = defineStore('config', {
       "processor" : 'lcAuthorities',
       "modes":[
         {
-          'NAF All':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
-          'NAF Personal Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=PersonalName&count=25&offset=<OFFSET>"},
-          'NAF Corporate Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=CorporateName&count=25&offset=<OFFSET>"},
-          'NAF Name/Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=NameTitle&count=25&offset=<OFFSET>"},
-          'NAF Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Title&count=25&offset=<OFFSET>"},
-          'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>"},
-          'NAF Conference Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=25&offset=<OFFSET>"},
+          'NAF All':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype=<TYPE>", "all":true},
+          'NAF Personal Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=PersonalName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Corporate Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=CorporateName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Name/Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=NameTitle&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Title&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Conference Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
 
-          'NAF Auth Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings&count=25&offset=<OFFSET>"},
-          'NAF Geo SubDiv':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions&count=25&offset=<OFFSET>"}
+          'NAF Auth Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Geo SubDiv':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions&count=25&offset=<OFFSET>&searchtype=<TYPE>"}
         }
       ]
 
@@ -372,6 +449,17 @@ export const useConfigStore = defineStore('config', {
       "modes":[
         {
           'All':{"url":"https://preprod-8288.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+        }
+      ]
+    },
+
+    "http://id.loc.gov/authorities/demographicTerms": {
+      "name":"demographicTerms",
+      "type":"complex",
+      "processor" : 'lcAuthorities',
+      "modes":[
+        {
+          'LCDGT All':{"url":"https://preprod-8288.id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>", "all":true},
         }
       ]
     },
@@ -734,10 +822,10 @@ export const useConfigStore = defineStore('config', {
         "code": "kv-Cyrl"
     },
     "korean_names": {
-        "code": "ko-hang"
+        "code": "ko-Kore"
     },
     "korean_nonames": {
-        "code": "ko-hang"
+        "code": "ko-Kore"
     },
     "koryak_cyrillic": {
         "code": "kpy-Cyrl"
@@ -953,6 +1041,23 @@ export const useConfigStore = defineStore('config', {
 
 
     },
+
+    /**
+    * Ask the backend for the current version if out of date flip the flag
+    *
+    * @return {void} -
+    */
+    async checkVersionOutOfDate() {
+
+
+      if (await utilsNetwork.checkVersionOutOfDate()){
+        this.showUpdateAvailableModal = true
+      }
+
+    },
+
+
+
 
 
 

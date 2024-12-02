@@ -1,4 +1,6 @@
 import {useConfigStore} from "../stores/config";
+import {usePreferenceStore} from "../stores/preference";
+
 import short from 'short-uuid'
 const translator = short();
 
@@ -17,6 +19,25 @@ const utilsNetwork = {
     // a cache to keep previosuly requested vocabularies and lookups in memory for use again
     lookupLibrary : {},
 
+    //Controllers to manage searches
+    controllers: {
+      "controllerNames": new AbortController(),
+      "controllerNamesSubdivision": new AbortController(),
+      "controllerSubjectsSimple": new AbortController(),
+      "controllerPayloadSubjectsSimpleSubdivision": new AbortController(),
+      "controllerSubjectsComplex": new AbortController(),
+      "controllerHierarchicalGeographic": new AbortController(),
+      "controllerWorksAnchored": new AbortController(),
+      "controllerWorksKeyword": new AbortController(),
+      "controllerHubsAnchored": new AbortController(),
+      "controllerHubsKeyword": new AbortController(),
+      "controllerTemporal": new AbortController(),
+      "controllerGenre": new AbortController(),
+      "controllerHierarchicalGeographicLCSH": new AbortController(),
+      "controllerGeographicLCSH": new AbortController(),
+      "controllerGeographicLCNAF": new AbortController(),
+    },
+    subjectSearchActive: false,
 
     /**
     * processes the data returned from id vocabularies
@@ -145,13 +166,11 @@ const utilsNetwork = {
     */
 
     loadSimpleLookupKeyword: async function(uris,keyword){
-
       if (!Array.isArray(uris)){
         uris=[uris]
       }
 
       let results = {metadata:{ uri:uris[0]+'KEYWORD', values:{}  }}
-      console.log("results",results)
       for (let uri of uris){
 
 
@@ -197,9 +216,10 @@ const utilsNetwork = {
     * @async
     * @param {string} url - the URL to ask for, if left blank it just pulls in the profiles
     * @param {boolean} json - if defined and true will treat the call as a json request, addding some headers to ask for json
+    * @param {signal} signal - signal that will be used to abort the call if needed
     * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
     */
-    fetchSimpleLookup: async function(url, json) {
+    fetchSimpleLookup: async function(url, json, signal=null) {
       url = url || config.profileUrl
       if (url.includes("id.loc.gov")){
         url = url.replace('http://','https://')
@@ -208,9 +228,9 @@ const utilsNetwork = {
       // if we use the memberOf there might be a id URL in the params, make sure its not https
       url = url.replace('memberOf=https://id.loc.gov/','memberOf=http://id.loc.gov/')
 
-      let options = {}
+      let options = {signal: signal}
       if (json){
-        options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors"}
+        options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors", signal: signal}
       }
       // console.log("url:",url)
       // console.log('options:',options)
@@ -226,10 +246,12 @@ const utilsNetwork = {
         }else{
           data =  await response.json()
         }
+
         return  data;
       }catch(err){
         //alert("There was an error retriving the record from:",url)
-        console.error(err);
+        console.error("There was an error retriving the record from ", url, ". Likely from the search being aborted because the user was typing.");
+
         return false
         // Handle errors here
       }
@@ -282,15 +304,11 @@ const utilsNetwork = {
     /**
     * Looks for instances by LCCN against ID, returns into for them to be displayed and load the resource
     * @param {searchPayload} searchPayload - the {@link searchPayload} to look for
+    * @param {allowAbort} --
     * @return {array} - An array of {@link searchComplexResult} results
     */
     searchComplex: async function(searchPayload){
-
-
       // console.log("searchPayload",searchPayload)
-
-
-
         let returnUrls = useConfigStore().returnUrls
 
         let urlTemplate = searchPayload.url
@@ -337,26 +355,29 @@ const utilsNetwork = {
               url = url.replace('q=?','q=')
             }
 
-
-            let r = await this.fetchSimpleLookup(url)
+            let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
             //Config only allows 25 results, this will add something to the results
             // to let the user know there are more names.
             let overflow = 0
-            if (r.hits.length < r.count){
+            if (r.hits && r.hits.length < r.count){
               // It looks like the count is 1 more than the number of hits, why?
               overflow = (r.count - r.hits.length)
             }
 
-            if (searchPayload.processor == 'lcAuthorities'){
+            if (r.hits && searchPayload.processor == 'lcAuthorities'){
                 // process the results as a LC suggest service
                 // console.log("URL",url)
                 // console.log("r",r)
                 for (let hit of r.hits){
-                  let context = await this.returnContext(hit.uri)
+                  let context = null
+                  // we only need the context for the subject search to have collection information in the output
+                  if(searchPayload.subjectSearch == true){
+                    context = await this.returnContext(hit.uri)
+                  }
 
                   let hitAdd = {
-                    collections: context.nodeMap["MADS Collection"],
+                    collections: context ? context.nodeMap["MADS Collection"] : [],
                     label: hit.aLabel,
                     vlabel: hit.vLabel,
                     suggestLabel: hit.suggestLabel,
@@ -367,15 +388,13 @@ const utilsNetwork = {
                     total: r.count
                   }
 
+
+
                   if (hitAdd.label=='' && hitAdd.suggestLabel.includes('DEPRECATED')){
                     hitAdd.label  = hitAdd.suggestLabel.split('(DEPRECATED')[0] + ' DEPRECATED'
                     hitAdd.depreciated = true
                   }
-
-
                   results.push(hitAdd)
-
-
                 }
 
 
@@ -394,7 +413,7 @@ const utilsNetwork = {
                 //   }
                 // }
 
-            }else if (searchPayload.processor == 'wikidataAPI'){
+            }else if (r.hits && searchPayload.processor == 'wikidataAPI'){
 
                 for (let hit of r.search){
                   results.push({
@@ -452,10 +471,8 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     returnContext: async function(uri){
-
         let d = await this.fetchContextData(uri)
         d.uri = uri
-
         let results
 
         if (uri.includes('resources/works/') || uri.includes('resources/hubs/')){
@@ -475,7 +492,7 @@ const utilsNetwork = {
     */
     fetchContextData: async function(uri){
           let returnUrls = useConfigStore().returnUrls
-
+          
           if ((uri.startsWith('http://id.loc.gov') || uri.startsWith('https://id.loc.gov')) && uri.match(/(authorities|vocabularies)/)) {
             var jsonuri = uri + '.madsrdf_raw.jsonld';
 
@@ -496,12 +513,25 @@ const utilsNetwork = {
 
 
           //if we are in production use preprod
-          if (returnUrls.env == 'production' || returnUrls.env == 'staging'){
+          if (returnUrls.env == 'production'){
             jsonuri = jsonuri.replace('http://id.', 'https://preprod-8080.id.')
             jsonuri = jsonuri.replace('https://id.', 'https://preprod-8080.id.')
-
           }
 
+          // rewrite the url to the config if we are using staging
+          if (returnUrls.env == 'staging' && !returnUrls.dev){
+            let stageUrlPrefix = returnUrls.id.split('loc.gov/')[0]
+
+
+            // console.log('stageUrlPrefix',stageUrlPrefix)
+
+            jsonuri = jsonuri.replace('http://id.', stageUrlPrefix)
+            jsonuri = jsonuri.replace('https://id.', stageUrlPrefix)
+          }
+          // console.log(jsonuri)
+          // console.log(returnUrls)
+
+          
 
           // unless we are in a dev or public mode
 
@@ -523,6 +553,85 @@ const utilsNetwork = {
 
 
           jsonuri = jsonuri.replace('http://id.loc.gov','https://id.loc.gov')
+
+          // let data2 = [  { "@id": "_:b600iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Hatěntir patmwatskʻner, 1963:" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "title page (Markʻ Tʻuēyn)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b399iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b626iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://id.loc.gov/ontologies/RecordInfo#RecordInfo" ], "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [ { "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          //   "@value": "1979-04-18T00:00:00" } ], "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [ { "@type": "http://www.w3.org/2001/XMLSchema#string",
+          //   "@value": "new" } ], "http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [ { "@id": "http://id.loc.gov/vocabulary/organizations/dlc" } ], "http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [ { "@id": "http://id.loc.gov/vocabulary/iso639-2/eng" } ] },  { "@id": "_:b259iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b264iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Touain, Mark, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b270iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b273iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTouain, Mark,$d1835-1910" } ] },  { "@id": "_:b424iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "تواين، مارک" } ] },  { "@id": "_:b509iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Authority" ], "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [ { "@value": "Conte, Louis de, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b515iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b518iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ] },  { "@id": "_:b75iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.w3.org/2004/02/skos/core#Concept" ], "http://www.w3.org/2000/01/rdf-schema#label": [ { "@value": "(lcsh) Wit and humor" } ] },  { "@id": "_:b452iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b463iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "T'ŭwein, Mak'ŭ," } ] },  { "@id": "_:b116iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b180iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Touen, Makū, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b186iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b189iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTouen, Makū,$d1835-1910" } ] },  { "@id": "_:b67iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.w3.org/2004/02/skos/core#Concept" ], "http://www.w3.org/2000/01/rdf-schema#label": [ { "@value": "(lcgft) Literature" } ] },  { "@id": "_:b348iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Hebr",
+          //   "@value": "טווען, מארק, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b354iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b357iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Hebr",
+          //   "@value": "4001 $aטווען, מארק,$d1835-1910" } ] },  { "@id": "_:b245iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b102iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b390iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Tuvāyn, Mārk, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b396iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b399iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTuvāyn, Mārk,$d1835-1910" } ] },  { "@id": "_:b608iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "OCLC, May 13, 2024:" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "(access point: Twain, Mark, 1835-1910; usage: 마크 트웨인 = Mak'u T'ŭwein)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b242iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Make Teviin," } ] },  { "@id": "_:b256iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Твен, Марк," } ] },  { "@id": "_:b485iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Authority" ], "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [ { "@value": "Clemens, Samuel Langhorne, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b491iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b494iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ] },  { "@id": "http://id.loc.gov/rwo/agents/n79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#RWO", "http://id.loc.gov/ontologies/bibframe/Person", "http://xmlns.com/foaf/0.1/Person" ], "http://www.w3.org/2000/01/rdf-schema#label": [ { "@value": "Twain, Mark, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#birthDate": [ { "@type": "http://id.loc.gov/datatypes/edtf/EDTF",
+          //   "@value": "1835-11-30" } ], "http://www.loc.gov/mads/rdf/v1#deathDate": [ { "@type": "http://id.loc.gov/datatypes/edtf/EDTF",
+          //   "@value": "1910-04-21" } ], "http://www.loc.gov/mads/rdf/v1#entityDescriptor": [ { "@id": "_:b54iddOtlocdOtgovauthoritiesnamesn79021164" } ], "http://www.loc.gov/mads/rdf/v1#birthPlace": [ { "@id": "_:b58iddOtlocdOtgovauthoritiesnamesn79021164" } ], "http://www.loc.gov/mads/rdf/v1#associatedLocale": [ { "@id": "_:b62iddOtlocdOtgovauthoritiesnamesn79021164" } ], "http://www.loc.gov/mads/rdf/v1#fieldOfActivity": [ { "@id": "_:b67iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b71iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b75iddOtlocdOtgovauthoritiesnamesn79021164" } ], "http://www.loc.gov/mads/rdf/v1#occupation": [ { "@id": "_:b79iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b83iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b87iddOtlocdOtgovauthoritiesnamesn79021164" } ], "http://www.loc.gov/mads/rdf/v1#associatedLanguage": [ { "@id": "http://id.loc.gov/vocabulary/languages/eng" } ], "http://www.loc.gov/mads/rdf/v1#isIdentifiedByAuthority": [ { "@id": "http://id.loc.gov/authorities/names/n79021164" } ] },  { "@id": "_:b203iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b189iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b270iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Touain, Mark," } ] },  { "@id": "_:b371iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b231iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b477iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "트웨인, 마크," } ] },  { "@id": "_:b158iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b382iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "馬克吐温," } ] },  { "@id": "_:b404iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Tvāyn, Mārk, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b410iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b413iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTvāyn, Mārk,$d1835-1910" } ] },  { "@id": "_:b163iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Tven, M. (Mark), 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b169iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b172iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b175iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTven, M.$q(Mark),$d1835-1910" } ] },  { "@id": "_:b169iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Tven, M." } ] },  { "@id": "_:b410iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Tvāyn, Mārk," } ] },  { "@id": "_:b385iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b429iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Tivāyn, Mārk, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b435iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b438iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTivāyn, Mārk,$d1835-1910" } ] },  { "@id": "_:b71iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.w3.org/2004/02/skos/core#Concept" ], "http://www.w3.org/2000/01/rdf-schema#label": [ { "@value": "(lcgft) Humor" } ] },  { "@id": "_:b466iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b222iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Tuwen, Make, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b228iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b231iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTuwen, Make,$d1835-1910" } ] },  { "@id": "_:b449iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Tʻuēyn, Markʻ," } ] },  { "@id": "_:b471iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Hang",
+          //   "@value": "트웨인, 마크, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b477iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b480iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Hang",
+          //   "@value": "4001 $a트웨인, 마크,$d1835-1910" } ] },  { "@id": "_:b306iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Hebr",
+          //   "@value": "טוויין, מרק, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b312iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b315iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Hebr",
+          //   "@value": "4001 $aטוויין, מרק,$d1835-1910" } ] },  { "@id": "_:b413iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b93iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Tvėn, Mark, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b99iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b102iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTvėn, Mark,$d1835-1910" } ] },  { "@id": "_:b287iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b634iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://id.loc.gov/ontologies/RecordInfo#RecordInfo" ], "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [ { "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          //   "@value": "2024-05-14T08:11:48" } ], "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [ { "@type": "http://www.w3.org/2001/XMLSchema#string",
+          //   "@value": "revised" } ], "http://id.loc.gov/ontologies/RecordInfo#recordContentSource": [ { "@id": "http://id.loc.gov/vocabulary/organizations/hu" } ], "http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging": [ { "@id": "http://id.loc.gov/vocabulary/iso639-2/eng" } ] },  { "@id": "_:b172iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "(Mark)," } ] },  { "@id": "_:b250iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Cyrl",
+          //   "@value": "Твен, Марк, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b256iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b259iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Cyrl",
+          //   "@value": "4001 $aТвен, Марк,$d1835-1910" } ] },  { "@id": "_:b418iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Arab",
+          //   "@value": "تواين، مارک" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b424iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Arab",
+          //   "@value": "4001 $aتواين، مارک" } ] },  { "@id": "_:b443iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Tʻuēyn, Markʻ, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b449iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b452iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTʻuēyn, Markʻ,$d1835-1910" } ] },  { "@id": "_:b107iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Tuėĭn, Mark, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b113iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b116iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTuėĭn, Mark,$d1835-1910" } ] },  { "@id": "_:b320iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Hebr",
+          //   "@value": "טווין, מארק, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b326iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b329iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Hebr",
+          //   "@value": "4001 $aטווין, מארק,$d1835-1910" } ] },  { "@id": "_:b31iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b83iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Occupation" ], "http://www.w3.org/2000/01/rdf-schema#label": [ { "@value": "(lcsh) Lecturers" } ] },  { "@id": "_:b315iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b340iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "טווין, מרק," } ] },  { "@id": "_:b326iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "טווין, מארק," } ] },  { "@id": "_:b334iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Hebr",
+          //   "@value": "טווין, מרק, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b340iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b343iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Hebr",
+          //   "@value": "4001 $aטווין, מרק,$d1835-1910" } ] },  { "@id": "_:b560iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Przygody Huck'a, 1912:" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "t.p. (Marek Twain)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b457iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "T'ŭwein, Mak'ŭ, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b463iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b466iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aT'ŭwein, Mak'ŭ,$d1835-1910" } ] },  { "@id": "_:b144iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b58iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Geographic" ], "http://www.w3.org/2000/01/rdf-schema#label": [ { "@value": "Florida (Mo.)" } ] },  { "@id": "_:b141iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Twayn, Mārk," } ] },  { "@id": "_:b592iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Mājarāhā-yi Hākil Birī Fīn, 1967:" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "t.p. (مارک تواين = Mārk Tuvāyn) t.p. verso (Mark Twain [in rom.])" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "http://id.loc.gov/authorities/names/n79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Authority" ], "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [ { "@value": "Twain, Mark, 1835-1910" }, { "@language": "zxx-Hebr",
+          //   "@value": "טוויין, מארק, 1835-1910" }, { "@language": "zxx-Hani",
+          //   "@value": "馬克吐温, 1835-1910" }, { "@language": "zxx-Hang",
+          //   "@value": "트웨인, 마크, 1835-1910" }, { "@language": "zxx-Arab",
+          //   "@value": "تواين، مارک" }, { "@language": "zxx-Cyrl",
+          //   "@value": "Твен, Марк, 1835-1910" } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Hebr",
+          //   "@value": "4001 $aטוויין, מארק,$d1835-1910" }, { "@language": "zxx-Hani",
+          //   "@value": "4001 $a馬克吐温,$d1835-1910" }, { "@language": "zxx-Hang",
+          //   "@value": "4001 $a트웨인, 마크,$d1835-1910" }, { "@language": "zxx-Arab",
+          //   "@value": "4001 $aتواين، مارک" }, { "@language": "zxx-Cyrl",
+          //   "@value": "4001 $aТвен, Марк,$d1835-1910" }, { "@value": "1001 $aTwain, Mark,$d1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b28iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b31iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://www.loc.gov/mads/rdf/v1#classification": [ { "@id": "_:b36iddOtlocdOtgovauthoritiesnamesn79021164" } ], "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection": [ { "@id": "http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings" }, { "@id": "http://id.loc.gov/authorities/names/collection_LCNAF" } ], "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme": [ { "@id": "http://id.loc.gov/authorities/names" } ], "http://www.loc.gov/mads/rdf/v1#identifiesRWO": [ { "@id": "http://id.loc.gov/rwo/agents/n79021164" } ], "http://www.loc.gov/mads/rdf/v1#hasVariant": [ { "@id": "_:b93iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b107iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b121iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b135iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b149iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b163iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b180iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b194iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b208iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b222iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b236iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b250iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b264iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b278iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b292iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b306iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b320iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b334iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b348iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b362iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b376iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b390iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b404iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b418iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b429iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b443iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b457iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b471iddOtlocdOtgovauthoritiesnamesn79021164" } ], "http://www.loc.gov/mads/rdf/v1#see": [ { "@id": "_:b485iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b497iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b509iddOtlocdOtgovauthoritiesnamesn79021164" } ], "http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority": [ { "@id": "http://viaf.org/viaf/sourceID/LC%7Cn++79021164#skos:Concept" } ], "http://www.loc.gov/mads/rdf/v1#hasSource": [ { "@id": "_:b522iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b530iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b536iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b544iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b552iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b560iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b568iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b576iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b584iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b592iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b600iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b608iddOtlocdOtgovauthoritiesnamesn79021164" } ], "http://www.loc.gov/mads/rdf/v1#editorialNote": [ { "@value": "[Machine-derived non-Latin script reference project.]" }, { "@value": "[Non-Latin script references not evaluated.]" }, { "@value": "[Pseudonym not established: Jean François Alden]" } ], "http://id.loc.gov/vocabulary/identifiers/lccn": [ { "@value": "n 79021164" } ], "http://id.loc.gov/vocabulary/identifiers/local": [ { "@value": "(OCoLC)oca00254964" } ], "http://www.loc.gov/mads/rdf/v1#adminMetadata": [ { "@id": "_:b626iddOtlocdOtgovauthoritiesnamesn79021164" }, { "@id": "_:b634iddOtlocdOtgovauthoritiesnamesn79021164" } ] },  { "@id": "_:b208iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Make Tuwen, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b214iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b217iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4000 $aMake Tuwen,$d1835-1910" } ] },  { "@id": "_:b228iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Tuwen, Make," } ] },  { "@id": "_:b301iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b236iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Make Teviin, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b242iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b245iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4000 $aMake Teviin,$d1835-1910" } ] },  { "@id": "_:b396iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Tuvāyn, Mārk," } ] },  { "@id": "_:b506iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b544iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "DAB, 1930" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "(Clemens, Samuel Langhorne, 1835-1910; better known under pseud. Mark Twain; also used name Quintus Curtius Snodgrass)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b343iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b584iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Vasilopoulo kai zētianopoulo, 1953:" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "t.p. (Mark Touain)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b87iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Occupation" ], "http://www.w3.org/2000/01/rdf-schema#label": [ { "@value": "(lcsh) Humorists" } ] },  { "@id": "_:b354iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "טווען, מארק," } ] },  { "@id": "_:b149iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Tʻu-wen, Ma-kʻo, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b155iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b158iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTʻu-wen, Ma-kʻo,$d1835-1910" } ] },  { "@id": "_:b518iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b576iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Wikipedia, Oct. 18, 2011" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "(b. November 30, 1835 in Florida, Missouri; grew up in Hannibal, Missouri; d. April 21, 1910 in Redding, Connecticut; a writer and lecturer; wrote in genres of fiction, historical fiction, children's literature, non-fiction, travel literature, satire, essay, philosophical literature, social commentary, literary criticism)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b368iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "טוין, מרק," } ] },  { "@id": "_:b36iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://id.loc.gov/ontologies/lcc#ClassNumber" ], "http://www.loc.gov/mads/rdf/v1#code": [ { "@value": "PS1300-PS1348" } ], "http://id.loc.gov/ontologies/bibframe/assigner": [ { "@id": "http://id.loc.gov/vocabulary/organizations/dlc" } ] },  { "@id": "_:b62iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Geographic" ], "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme": [ { "@id": "http://id.loc.gov/authorities/names" } ], "http://www.w3.org/2000/01/rdf-schema#label": [ { "@value": "Redding (Conn.)" } ] },  { "@id": "_:b217iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b362iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Hebr",
+          //   "@value": "טוין, מרק, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b368iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b371iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Hebr",
+          //   "@value": "4001 $aטוין, מרק,$d1835-1910" } ] },  { "@id": "_:b99iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Tvėn, Mark," } ] },  { "@id": "_:b376iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Hani",
+          //   "@value": "馬克吐温, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b382iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b385iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Hani",
+          //   "@value": "4001 $a馬克吐温,$d1835-1910" } ] },  { "@id": "_:b515iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Conte, Louis de," } ] },  { "@id": "_:b357iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b278iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Hebr",
+          //   "@value": "טבןַ, מרק, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b284iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b287iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Hebr",
+          //   "@value": "4001 $aטבןַ, מרק,$d1835-1910" } ] },  { "@id": "_:b494iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b522iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Geviksman, V. A. Print︠s︡ i nishchiĭ, 1984:" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "t.p. (M. Tvena)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b214iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Make Tuwen," } ] },  { "@id": "_:b200iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Twain, Marek," } ] },  { "@id": "_:b186iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Touen, Makū," } ] },  { "@id": "_:b273iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b292iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Hebr",
+          //   "@value": "טוויין, מארק, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b298iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b301iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Hebr",
+          //   "@value": "4001 $aטוויין, מארק,$d1835-1910" } ] },  { "@id": "_:b329iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b530iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Makū Touen tanpenshū, 1961." } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b121iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Tuwayn, Mārk, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b127iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b130iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTuwayn, Mārk,$d1835-1910" } ] },  { "@id": "_:b491iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Clemens, Samuel Langhorne," } ] },  { "@id": "_:b194iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Twain, Marek, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b200iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b203iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTwain, Marek,$d1835-1910" } ] },  { "@id": "_:b130iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b127iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Tuwayn, Mārk," } ] },  { "@id": "_:b135iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Variant" ], "http://www.loc.gov/mads/rdf/v1#variantLabel": [ { "@language": "zxx-Latn",
+          //   "@value": "Twayn, Mārk, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b141iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b144iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ], "http://id.loc.gov/ontologies/bflc/marcKey": [ { "@language": "zxx-Latn",
+          //   "@value": "4001 $aTwayn, Mārk,$d1835-1910" } ] },  { "@id": "_:b175iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b284iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "טבןַ, מרק," } ] },  { "@id": "_:b503iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Snodgrass, Quintus Curtius," } ] },  { "@id": "_:b113iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Tuėĭn, Mark," } ] },  { "@id": "_:b536iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Personal recollections of Joan of Arc, 1923:" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "v. 1-2, t.p. (the Sieur Louis de Conte; Jean François Alden) spine (Mark Twain)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b298iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "טוויין, מארק," } ] },  { "@id": "_:b79iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Occupation" ], "http://www.w3.org/2000/01/rdf-schema#label": [ { "@value": "(lcsh) Authors" } ] },  { "@id": "_:b155iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Tʻu-wen, Ma-kʻo," } ] },  { "@id": "_:b552iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Mark Twain's personal recollections of Joan of Arc, 1997:" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "CIP t.p. (Sieur Louis de Conte) p. vii (Sieur Louis de Conte shared ... initials with Samuel L. Clemens)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b312iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "טוויין, מרק," } ] },  { "@id": "_:b438iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b480iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b497iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#PersonalName", "http://www.loc.gov/mads/rdf/v1#Authority" ], "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [ { "@value": "Snodgrass, Quintus Curtius, 1835-1910" } ], "http://www.loc.gov/mads/rdf/v1#elementList": [ { "@list": [{"@id": "_:b503iddOtlocdOtgovauthoritiesnamesn79021164"}, {"@id": "_:b506iddOtlocdOtgovauthoritiesnamesn79021164"} ] } ] },  { "@id": "_:b435iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Tivāyn, Mārk," } ] },  { "@id": "_:b568iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Alda-bar ȯnggelegsen erin caġ, 1985:" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "v. 1, t.p. (Make Teveiin) colophon (Make Tuwen)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b28iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#FullNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "Twain, Mark," } ] },  { "@id": "_:b54iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.w3.org/2004/02/skos/core#Concept" ], "http://www.w3.org/2000/01/rdf-schema#label": [ { "@value": "Americans" } ] } ]
+
+          // data2.uri = "http://id.loc.gov/authorities/names/n79021164"
+
+          // return data2
+
 
           try{
             let response = await fetch(jsonuri);
@@ -570,7 +679,6 @@ const utilsNetwork = {
 
 
       let instances = []
-
 
       // grab the title
       for (let val of data){
@@ -721,13 +829,13 @@ const utilsNetwork = {
             typeFull: null,
             variant : [],
             uri: data.uri,
-            title: null,
+            title: [],
+            marcKey: [],
             contributor:[],
             date:null,
             genreForm: null,
             nodeMap:{},
           };
-
           if (data.uri.includes('wikidata.org')){
             if (data.entities){
               let qid = Object.keys(data.entities)[0]
@@ -809,7 +917,7 @@ const utilsNetwork = {
 
             var nodeMap = {};
 
-            data.forEach(function(n){
+            data.forEach(function(n){              
               if (n['http://www.loc.gov/mads/rdf/v1#birthDate']){
                 nodeMap['Birth Date'] = n['http://www.loc.gov/mads/rdf/v1#birthDate'].map(function(d){ return d['@value']})
               }
@@ -865,13 +973,9 @@ const utilsNetwork = {
                 nodeMap['Classification'] = n['http://www.loc.gov/mads/rdf/v1#classification'].map(function(d){ return d['@value']})
                 nodeMap['Classification'] = nodeMap['Classification'].filter((v)=>{(v)})
               }
-              if (n['http://id.loc.gov/ontologies/bflc/marcKey']){
-                nodeMap['marcKey'] = n['http://id.loc.gov/ontologies/bflc/marcKey'].map(function(d){
-                  return d['@value']
-                })
-              }
-            })
 
+            })
+            
             // pull out the labels
             data.forEach(function(n){
 
@@ -935,11 +1039,11 @@ const utilsNetwork = {
 
 
             data.forEach((n)=>{
-
               var citation = '';
               var variant = '';
               // var seeAlso = '';
-              var title = '';
+              var title = [];
+              var marcKey = [];
 
               if (n['http://www.loc.gov/mads/rdf/v1#citation-source']) {
                 citation = citation + " Source: " + n['http://www.loc.gov/mads/rdf/v1#citation-source'].map(function (v) { return v['@value'] + ' '; })
@@ -974,11 +1078,20 @@ const utilsNetwork = {
 
 
               if (n['@id'] && n['@id'] == data.uri && n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
-                title = title + n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].map(function (v) { return v['@value'] + ' '; })
+                // don't mush them together anymore add them along with their lang value
+                // title = title + n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].map(function (v) { return v['@value'] + ' '; })
+                // console.log(n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'])
+                title = JSON.parse(JSON.stringify(n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']))
+              }
+              if (n['@id'] && n['@id'] == data.uri && n['http://id.loc.gov/ontologies/bflc/marcKey']){
+                // don't mush them together anymore add them along with their lang value
+                // title = title + n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].map(function (v) { return v['@value'] + ' '; })
+                // console.log(n['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'])
+                marcKey = JSON.parse(JSON.stringify(n['http://id.loc.gov/ontologies/bflc/marcKey']))
               }
 
+              
               if (n['@id'] && n['@id'] == data.uri && n['@type']){
-
                   n['@type'].forEach((t)=>{
                       if (results.type===null){
                           results.type = this.rdfType(t)
@@ -996,11 +1109,17 @@ const utilsNetwork = {
 
               citation = citation.trim()
               variant = variant.trim()
-              title = title.trim()
 
               if (variant != ''){ results.variant.push(variant)}
               if (citation != ''){ results.source.push(citation)}
-              if (title != ''){ results.title = title }
+              if (title && title.length>0){
+                results.title = title
+              }
+              if (marcKey && marcKey.length>0){
+                results.marcKey = marcKey
+              }
+              
+
 
               if (n['@type'] && n['@type'] == 'http://id.loc.gov/ontologies/bibframe/Title'){
                 if (n['bibframe:mainTitle']){
@@ -1031,9 +1150,7 @@ const utilsNetwork = {
               delete results.nodeMap[k]
             }
           })
-
-
-
+        
           return results;
         },
 
@@ -1050,7 +1167,7 @@ const utilsNetwork = {
         rdftype = 'PersonalName';
       } else if (type == 'http://id.loc.gov/ontologies/bibframe/Topic' || type == 'http://www.loc.gov/mads/rdf/v1#Topic') {
         rdftype = 'Topic';
-      } else if (type == 'http://www.loc.gov/mads/rdf/v1#Place' || type == 'http://id.loc.gov/ontologies/bibframe/Place' || type == 'http://www.loc.gov/mads/rdf/v1#Geographic') {
+      } else if (type == 'http://www.loc.gov/mads/rdf/v1#Place' || type == 'http://id.loc.gov/ontologies/bibframe/Place' || type == 'http://www.loc.gov/mads/rdf/v1#Geographic' || type == 'http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic') {
         rdftype = 'Geographic';
       } else if (type == 'http://www.loc.gov/mads/rdf/v1#Temporal'){
         rdftype= 'Temporal';
@@ -1134,6 +1251,13 @@ const utilsNetwork = {
     */
 
     subjectLinkModeResolveLCSH: async function(lcsh){
+      if (this.subjectSearchActive){
+        for (let controller in this.controllers){
+          this.controllers[controller].abort()
+          this.controllers[controller] = new AbortController()
+        }
+      }
+      this.subjectSearchActive = true
 
       let result = {
         resultType: '',
@@ -1175,6 +1299,15 @@ const utilsNetwork = {
         }
 
         lcsh = lcsh.replace(secondDollarZ,collapsedDollarZ)
+		
+		//if there is a space before the hyphens remove it. It prevents matches
+		if (lcsh.includes(" --")){
+			lcsh = lcsh.replace(" --", "--")
+		}
+		//Also remove spaces after the hyphens
+		if (lcsh.includes("-- ")){
+			lcsh = lcsh.replace("-- ", "--")
+		}
 
       }
 
@@ -1299,7 +1432,8 @@ const utilsNetwork = {
         }
 
         let searchVal = heading.label
-
+        //encode the URLs
+        searchVal = encodeURIComponent(searchVal)
 
         // we'll define all this for each one but not nessisarly use all of them
 
@@ -1320,75 +1454,86 @@ const utilsNetwork = {
         let subjectUrlGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
         let subjectUrlGeographicLCNAF = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
+        searchVal = decodeURIComponent(searchVal)
+
         // console.log('subjectUrlSimpleSubdivison',subjectUrlSimpleSubdivison)
         let searchPayloadNames = {
           processor: 'lcAuthorities',
           url: [namesUrl],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerNames.signal
         }
         let searchPayloadNamesSubdivision = {
           processor: 'lcAuthorities',
           url: [namesUrlSubdivision],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerNamesSubdivision.signal
         }
 
         let searchPayloadSubjectsSimple = {
           processor: 'lcAuthorities',
           url: [subjectUrlSimple],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerSubjectsSimple.signal
         }
         let searchPayloadSubjectsSimpleSubdivision = {
           processor: 'lcAuthorities',
           url: [subjectUrlSimpleSubdivison],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerPayloadSubjectsSimpleSubdivision.signal
         }
+
         let searchPayloadTemporal = {
           processor: 'lcAuthorities',
           url: [subjectUrlTemporal],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerTemporal.signal
         }
 
         let searchPayloadGenre = {
           processor: 'lcAuthorities',
           url: [subjectUrlGenre],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerGenre.signal
         }
-
-
-
 
         let searchPayloadHierarchicalGeographic = {
           processor: 'lcAuthorities',
           url: [subjectUrlHierarchicalGeographic],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerHierarchicalGeographic.signal
         }
         let searchPayloadHierarchicalGeographicLCSH = {
           processor: 'lcAuthorities',
           url: [subjectUrlHierarchicalGeographicLCSH],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerHierarchicalGeographicLCSH.signal
         }
-
 
         let searchPayloadGeographicLCSH = {
           processor: 'lcAuthorities',
           url: [subjectUrlGeographicLCSH],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerGeographicLCSH.signal
         }
         let searchPayloadGeographicLCNAF = {
           processor: 'lcAuthorities',
           url: [subjectUrlGeographicLCNAF],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerGeographicLCNAF.signal
         }
 
         let searchPayloadWorksAnchored = {
           processor: 'lcAuthorities',
           url: [worksUrlAnchored],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerWorksAnchored.signal
         }
         let searchPayloadHubsAnchored = {
           processor: 'lcAuthorities',
           url: [hubsUrlAnchored],
-          searchValue: searchVal
+          searchValue: searchVal,
+          signal: this.controllers.controllerHubsAnchored.signal
         }
 
         let resultsNames =[]
@@ -1428,7 +1573,6 @@ const utilsNetwork = {
 
           // console.log("searchPayloadSubjectsSimpleSubdivision",searchPayloadSubjectsSimpleSubdivision)
           // console.log("resultsPayloadSubjectsSimpleSubdivision",resultsPayloadSubjectsSimpleSubdivision)
-
 
           // take out the literal values that are automatically added
           resultsNames = resultsNames.filter((r)=>{ return (!r.literal) })
@@ -1786,17 +1930,17 @@ const utilsNetwork = {
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
         for (let r of result.hit){
-          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/')){
+          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/') > 0){
             let responseUri = await this.returnRDFType(r.uri + '.madsrdf_raw.jsonld')
             if (responseUri){
               r.heading.rdfType = responseUri
             }
+            
+            // also we need the MARCKeys
+            marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
           }
-
-          // also we need the MARCKeys
-
-          marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
         }
+        
         let marcKeyPromisesResults = await Promise.all(marcKeyPromises);
         for (let marcKeyResult of marcKeyPromisesResults){
           for (let r of result.hit){
@@ -1808,9 +1952,12 @@ const utilsNetwork = {
       }else if (result.hit && result.resultType == 'COMPLEX') {
         // if they are adding a complex value still need to lookup the marc key
         let marcKeyResult = await this.returnMARCKey(result.hit.uri + '.madsrdf_raw.jsonld')
+        
         result.hit.marcKey = marcKeyResult.marcKey
       }
       // console.log("result",result)
+
+      this.subjectSearchActive = false
       return result
     },
 
@@ -1951,10 +2098,27 @@ const utilsNetwork = {
     * @return {} -
     */
     subjectSearch: async function(searchVal,complexVal,mode){
+      //encode the URLs
+      searchVal = encodeURIComponent(searchVal)
+      complexVal = encodeURIComponent(complexVal)
 
-      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")
-      let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
-      let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=SimpleType'
+      if (this.subjectSearchActive){
+        for (let controller in this.controllers){
+          this.controllers[controller].abort()
+          this.controllers[controller] = new AbortController()
+        }
+      }
+
+
+      this.subjectSearchActive = true
+      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings'
+      let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+
+      let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
+      let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=SimpleType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
+      let subjectUrlSimpleSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
+      let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
 
       let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
       let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
@@ -1974,61 +2138,105 @@ const utilsNetwork = {
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
       }
 
-
-
+      searchVal = decodeURIComponent(searchVal)
+      complexVal = decodeURIComponent(complexVal)
 
       let searchPayloadNames = {
         processor: 'lcAuthorities',
         url: [namesUrl],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerNames.signal,
+      }
+      let searchPayloadNamesSubdivision = {
+        processor: 'lcAuthorities',
+        url: [namesUrlSubdivision],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerNamesSubdivision.signal,
       }
 
       let searchPayloadSubjectsSimple = {
         processor: 'lcAuthorities',
         url: [subjectUrlSimple],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerSubjectsSimple.signal,
+      }
+      let searchPayloadSubjectsSimpleSubdivision = {
+        processor: 'lcAuthorities',
+        url: [subjectUrlSimpleSubdivison],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerPayloadSubjectsSimpleSubdivision.signal,
+      }
+      let searchPayloadTemporal = {
+        processor: 'lcAuthorities',
+        url: [subjectUrlTemporal],
         searchValue: searchVal
       }
+      let searchPayloadGenre = {
+        processor: 'lcAuthorities',
+        url: [subjectUrlGenre],
+        searchValue: searchVal
+      }
+
       let searchPayloadSubjectsComplex = {
         processor: 'lcAuthorities',
         url: [subjectUrlComplex],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerSubjectsComplex.signal,
       }
 
 
       let searchPayloadHierarchicalGeographic = {
         processor: 'lcAuthorities',
         url: [subjectUrlHierarchicalGeographic],
-        searchValue: searchValHierarchicalGeographic
+        searchValue: searchValHierarchicalGeographic,
+        subjectSearch: true,
+        signal: this.controllers.controllerHierarchicalGeographic.signal,
       }
 
       let searchPayloadWorksAnchored = {
         processor: 'lcAuthorities',
         url: [worksUrlAnchored],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerWorksAnchored.signal,
       }
 
       let searchPayloadWorksKeyword = {
         processor: 'lcAuthorities',
         url: [worksUrlKeyword],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerWorksKeyword.signal,
       }
 
       let searchPayloadHubsAnchored = {
         processor: 'lcAuthorities',
         url: [hubsUrlAnchored],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerHubsAnchored.signal,
       }
 
       let searchPayloadHubsKeyword = {
         processor: 'lcAuthorities',
         url: [hubsUrlKeyword],
-        searchValue: searchVal
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerHubsKeyword.signal,
       }
 
 
 
       let resultsNames =[]
+      let resultsNamesSubdivision =[]
+
       let resultsSubjectsSimple=[]
+      let resultsPayloadSubjectsSimpleSubdivision=[]
       let resultsSubjectsComplex=[]
       let resultsHierarchicalGeographic=[]
       let resultsWorksAnchored=[]
@@ -2037,9 +2245,11 @@ const utilsNetwork = {
       let resultsHubsKeyword=[]
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsSubjectsSimple, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
+        [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic] = await Promise.all([
             this.searchComplex(searchPayloadNames),
+            this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadSubjectsSimple),
+            this.searchComplex(searchPayloadSubjectsSimpleSubdivision),
             this.searchComplex(searchPayloadSubjectsComplex),
             this.searchComplex(searchPayloadHierarchicalGeographic)
         ]);
@@ -2067,12 +2277,11 @@ const utilsNetwork = {
       }
 
 
-
-
       // drop the litearl value from names and complex
       if (resultsNames.length>0){
         resultsNames.pop()
       }
+      resultsNamesSubdivision = resultsNamesSubdivision.filter((r) => {return (!r.literal)})
       if (resultsSubjectsComplex.length>0){
         resultsSubjectsComplex.pop()
       }
@@ -2082,7 +2291,6 @@ const utilsNetwork = {
         resultsSubjectsSimple.push(resultsSubjectsSimple.pop())
         resultsSubjectsSimple.reverse()
       }
-
 
       resultsSubjectsComplex.reverse()
 
@@ -2117,14 +2325,19 @@ const utilsNetwork = {
         resultsSubjectsSimple = resultsHubsAnchored
         resultsSubjectsComplex = resultsHubsKeyword
       }
+
+      //determine position of search and set results accordingly
+      let searchPieces = complexVal.split("--")
+      let pos = searchPieces.indexOf(searchVal)
+
       let results = {
-        'subjectsSimple': resultsSubjectsSimple,
+        'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': resultsSubjectsComplex,
-        'names':resultsNames,
-        'hierarchicalGeographic': resultsHierarchicalGeographic
+        'names': pos == 0 ? resultsNames : resultsNamesSubdivision,
+        'hierarchicalGeographic':  pos == 0 ? [] : resultsHierarchicalGeographic
       }
 
-
+      this.subjectSearchActive = false
       return results
 
     },
@@ -2302,15 +2515,20 @@ const utilsNetwork = {
   * Send off a rdf bibframe xml files in the format <rdf:RDF><bf:Work/><bf:Instance/>...etc...</rdf:RDF>
   * @async
   * @param {string} xml - The xml string
+  * @param {boolean} html - return the response as HTML
   * @return {string} - the MARC in XML response
   */
-  marcPreview: async function(xml){
-    
+  marcPreview: async function(xml, html=false){
     if (!xml){
       return ""
     }
-    
+
     let url = useConfigStore().returnUrls.util + 'marcpreview'
+    if (html) {
+      url = url + '/html'
+    } else {
+      url = url + '/text'
+    }
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
@@ -2353,7 +2571,7 @@ const utilsNetwork = {
       }
 
       try{
-        let req = await fetch(useConfigStore().returnUrls.id + `resources/instances/suggest2?q=${lccn}&searchtype=keyword` )
+        let req = await fetch(useConfigStore().returnUrls.id + `resources/instances/suggest2?q=${lccn}&searchtype=keyword&nocache=${Date.now()}` )
         let results = await req.json()
 
         let returnVal = []
@@ -2387,15 +2605,17 @@ const utilsNetwork = {
     },
 
     /**
-    * Send off a rdf bibframe xml files in the format <rdf:RDF><bf:Work/><bf:Instance/>...etc...</rdf:RDF>
+    * Request string transliteration via the backend scriptshifter API
     * @async
-    * @param {string} xml - The xml string
-    * @return {string} - the MARC in XML response
+    * @param {string} lang - The scriptshifter language code
+    * @param {string} text - The string to send to scriptshifter
+    * @param {boolean} capitalize - ask to caplitalize all the words
+    * @param {string} t_dir - s2r or r2s, not both directions are supported for all languages
+    * @return {object|false} - the response from the service
     */
     scriptShifterRequestTrans: async function(lang,text,capitalize,t_dir){
 
-
-      let url = useConfigStore().returnUrls.scriptshifter + 'trans'
+            let url = useConfigStore().returnUrls.scriptshifter + 'trans'
 
       let r = await fetch(url, {
         method: 'POST',
@@ -2417,24 +2637,18 @@ const utilsNetwork = {
         alert(results)
         return false
       }else{
+
+        results = JSON.parse(results)
+
+        // capitalize the first char if that preference is set true
+        if (results.output){
+          if (usePreferenceStore().returnValue('--b-scriptshifter-capitalize-first-letter')){
+            results.output = results.output.charAt(0).toUpperCase() + results.output.slice(1);
+          }
+        }
         return results
       }
 
-
-
-      // const rawResponse = await fetch(url, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify({rdfxml:xml})
-      // });
-      // const content = await rawResponse.json();
-
-      // console.log(content);
-
-      // return content
 
     },
 
@@ -2443,19 +2657,20 @@ const utilsNetwork = {
     * Do Shelflisting search against BFDB
     *
     * @param {string} search - the call number to search for
+    * @param {details} contributor - the data for contributor, title, subject, and date
     * @param {string} dir - asc or desc
     * @return {array} - results from API
     */
-    searchShelfList: async function(search,dir){
-
-
+    searchShelfList: async function(search, details, dir){
       if (!dir){
-        dir ='asc'
+        dir ='ascending'
       }
 
-
+      let urlSearch = "lds/browse.xqy?bq=" + search +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
+      
       // try{
-        let req = await fetch(useConfigStore().returnUrls.shelfListing + `browse/class/${dir}/${search}.json` )
+        //let req = await fetch(useConfigStore().returnUrls.shelfListing + `browse/class/${dir}/${search}.json` )
+        let req = await fetch(useConfigStore().returnUrls.shelfListing + urlSearch )
         let results = await req.json()
 
         // let results = [{"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20C66%202016", "term":"TF148 C66 2016", "frequency":"", "creator":"", "title":"Trains", "pubdate":"2016", "subject":"Railroad trains--Juvenile literature", "altsubject":"Railroad trains"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.A46%202021", "term":"TF148 .A46 2021", "frequency":"", "creator":"", "title":"Listen up!", "pubdate":"2021", "subject":"Railroad trains--Juvenile literature", "altsubject":"Trains--Ouvrages pour la jeunesse"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.A47%201983", "term":"TF148 .A47 1983", "frequency":"", "creator":"", "title":"Going on a train", "pubdate":"1983", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.A5%201993", "term":"TF148 .A5 1993", "frequency":"", "creator":"", "title":"Trains at work", "pubdate":"1993", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B24%201999", "term":"TF148 .B24 1999", "frequency":"", "creator":"", "title":"The best book of trains", "pubdate":"1999", "subject":"Railroad trains--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B26%201998", "term":"TF148 .B26 1998", "frequency":"", "creator":"", "title":"Amazing trains", "pubdate":"1998", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B27%201986", "term":"TF148 .B27 1986", "frequency":"", "creator":"", "title":"Trains", "pubdate":"1986", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B3%201949", "term":"TF148 .B3 1949", "frequency":"", "creator":"", "title":"A book of trains", "pubdate":"1949", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B45%201984", "term":"TF148 .B45 1984", "frequency":"", "creator":"", "title":"Amazing trains of the world", "pubdate":"1984", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B4594%202018", "term":"TF148 .B4594 2018", "frequency":"", "creator":"", "title":"Trains", "pubdate":"2017", "subject":"Railroad trains--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B48%201990", "term":"TF148 .B48 1990", "frequency":"", "creator":"", "title":"The train book", "pubdate":"1990", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B49%201998", "term":"TF148 .B49 1998", "frequency":"", "creator":"", "title":"Big book of trains", "pubdate":"1998", "subject":"Railroad trains--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B49%202016", "term":"TF148 .B49 2016", "frequency":"", "creator":"", "title":"The big book of trains", "pubdate":"2016", "subject":"Locomotives--Juvenile literature", "altsubject":"Railroad trains--Juvenile literature"}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B55", "term":"TF148 .B55", "frequency":"", "creator":"", "title":"Great trains of the world", "pubdate":"1953", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B69%201995", "term":"TF148 .B69 1995", "frequency":"", "creator":"", "title":"Trains", "pubdate":"1995", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B692%202017", "term":"TF148 .B692 2017", "frequency":"", "creator":"", "title":"Trains", "pubdate":"2017", "subject":"Railroad trains--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B693%202003", "term":"TF148 .B693 2003", "frequency":"", "creator":"", "title":"Railroading", "pubdate":"2003", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B696%201996", "term":"TF148 .B696 1996", "frequency":"", "creator":"", "title":"Freight trains", "pubdate":"1996", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B7", "term":"TF148 .B7", "frequency":"", "creator":"", "title":"Richard learns about railroading", "pubdate":"1969", "subject":"Railroads--Juvenile literature", "altsubject":""}, {"lookup":"/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20.B717%202016", "term":"TF148 .B717 2016", "frequency":"", "creator":"", "title":"Rolling down the Avenue", "pubdate":"2016", "subject":"Street-railroads--Juvenile literature", "altsubject":""}]
@@ -2502,11 +2717,52 @@ const utilsNetwork = {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          log: log, 
+          log: log,
           filename:filename,
           profile: profileAsJson
         })
       });
+
+
+    },
+
+
+
+    checkVersionOutOfDate: async function(){
+
+
+      let versionPath = (useConfigStore().returnUrls.env === 'production') ? 'version/editor' : 'version/editor/stage'
+
+      let url = useConfigStore().returnUrls.util + versionPath + "?blastdacache=" + Date.now()
+      let content
+
+      try{
+
+
+        const rawResponse = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+
+        });
+        content = await rawResponse.json();
+      }catch{
+        // if sometihng network goes wrong just say were not out of date
+        return false
+
+      }
+
+
+      let ourVer = useConfigStore().versionMajor + (useConfigStore().versionMinor * 0.1) + (useConfigStore().versionPatch* 0.01)
+      let curVer = content.major + (content.minor* 0.1) + (content.patch* 0.01)
+      console.log("ourVer:",ourVer,"curVer:",curVer)
+      if (ourVer < curVer){
+        return true
+      }else{
+        return false
+      }
 
 
     },
