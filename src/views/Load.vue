@@ -65,7 +65,7 @@
 
               <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
                 <input placeholder="URL to resource or identifier to search" class="url-to-load" type="text" @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
-                <p>Need to search title or author? Use <a href="https://preprod-8230.id.loc.gov/lds/index.xqy" target="_blank">BFDB</a>.</p>
+                <p>Need to search title or author? Use <a href="https://id.loc.gov" target="_blank">ID.LOC.GOV</a>.</p>
               </form>
 
 
@@ -373,8 +373,9 @@
 
 
         let href = window.location.href.split("/")
-        this.urlToLoad = `/${href[3]}/${href[4]}/test_files/${meta.lccn}.xml`
-        this.urlToLoadIsHttp=true
+        console.log("href[3]:", href[3])
+        this.urlToLoad = `/test_files/${meta.lccn}.xml`
+        this.urlToLoadIsHttp = true
         this.loadUrl(meta.profileId)
       },
 

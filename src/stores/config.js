@@ -109,7 +109,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://id.loc.gov/',
         env: "production",
         publicEndpoints: true,
-        displayLCOnlyFeatures: false
+        displayLCOnlyFeatures: true
         },
 
     },

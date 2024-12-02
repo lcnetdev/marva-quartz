@@ -1571,7 +1571,8 @@ const utilsExport = {
       // get the various pieces
       let almaWorksEl =  rdfBasic.getElementsByTagName("bf:Work")
       let almaInstancesEl =  rdfBasic.getElementsByTagName("bf:Instance")
-      let almaItemsEl =  rdfBasic.getElementsByTagName("bf:Item")
+      let almaItemsEl =  rdfBasic.getElementsByTagName("bf:Item") 
+	  // There is not currently an API for bf:Item in Alma
 
       const doc = document.implementation.createDocument("", "", null);
       // make a new root element
