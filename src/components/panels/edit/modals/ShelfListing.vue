@@ -155,10 +155,6 @@
           const subj = this.subj ? "&sp-subject="+this.subj  : ""
           const date = this.date ? "&sp-date="+this.date : ""
           const countParam = this.hitCount ? "&count="+this.hitCount : ""
-            
-
-            console.info("this.classNumber.trim(): '", this.classNumber.trim(), "'")
-            console.info("this.cutterNumber.trim(): '", this.cutterNumber.trim(), "'")
 
           this.results = []
           this.searching=true
@@ -284,7 +280,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                  
+
                     <template v-for="r in results">
                       <template  v-if="r.selected == undefined">
                         <tr :class="[{nuba: r.notused == 'nuba'}]">
@@ -428,7 +424,7 @@
     border: solid 1px black;
     cursor: pointer;
   }
-  
+
   .nuba {
       background-color: lightgray;
   }
