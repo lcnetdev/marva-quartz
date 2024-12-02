@@ -2793,7 +2793,6 @@ const utilsNetwork = {
 
       }
 
-
       let ourVer = useConfigStore().versionMajor + (useConfigStore().versionMinor * 0.1) + (useConfigStore().versionPatch* 0.01)
       let curVer = content.major + (content.minor* 0.1) + (content.patch* 0.01)
       console.log("ourVer:",ourVer,"curVer:",curVer)
