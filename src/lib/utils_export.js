@@ -1242,15 +1242,12 @@ const utilsExport = {
 		let userInitial = usePreferenceStore().catInitals
 		let catCode = usePreferenceStore().catCode
 		let user = `${userInitial} (${catCode})`
-		console.info("user: ", user)
 		profile.user = user
 		// console.info("userInitial: ", userInitial)
 		// console.info("userCode: ", userCode)
 		// let catCode = profile.user.split(" (")
 		// catCode = catCode[catCode.length-1]
 		// catCode=catCode.split(")")[0]
-
-		console.info("catCode", catCode)
 
 		let bf_adminMetadata = this.createElByBestNS("bf:adminMetadata")
 		let bf_AdminMetadtat = this.createElByBestNS("bf:AdminMetadata")
