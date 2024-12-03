@@ -1596,9 +1596,6 @@ const utilsNetwork = {
               this.searchComplex(searchPayloadChildrenSub),
           ]);
 
-          console.info("searchPayloadChildren: ", searchPayloadChildren)
-          console.info("resultsChildren: ", resultsChildren)
-
           // console.log("searchPayloadSubjectsSimpleSubdivision",searchPayloadSubjectsSimpleSubdivision)
           // console.log("resultsPayloadSubjectsSimpleSubdivision",resultsPayloadSubjectsSimpleSubdivision)
 
@@ -2022,8 +2019,6 @@ const utilsNetwork = {
       // console.log("result",result)
 
       this.subjectSearchActive = false
-
-      console.info("result: ", result)
 
       return result
     },
