@@ -2599,6 +2599,8 @@ updated: function() {
   // preselect the search type, if a children's subject
   if (this.searchType.includes("Childrens")){
     this.searchMode = "CHILD"
+  } else {
+    this.searchMode = "LCSHNAF"
   }
   // this was opened from an existing subject
   let profileData = this.profileData
