@@ -1879,7 +1879,7 @@ const utilsNetwork = {
             }
 
             //CYAK subdivisions
-            if (resultsPayloadSubjectsSimpleSubdivision.length>0 && searchType.includes(":Topic:Childrens:")){
+            if (resultsChildrenSubDiv.length>0 && searchType.includes(":Topic:Childrens:")){
               for (let r of resultsChildrenSubDiv){
                 // lower case, remove end space, make double whitespace into one and remove any punctuation
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
@@ -1891,6 +1891,7 @@ const utilsNetwork = {
                 }
               }
               if (foundHeading){ continue }
+            }
 
 
             if (!foundHeading){
