@@ -37,8 +37,8 @@ let cachePt = {}
 let cacheGuid = {}
 let dataChangedTimeout = null
 
-// const nonLatinRegex = /^[A-z\u00C0-\u00ff\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9]+$/; 
-// const latinRegex = /^[\u3040-\u309F\u30A0-\u30FF]+$/; 
+// const nonLatinRegex = /^[A-z\u00C0-\u00ff\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9]+$/;
+// const latinRegex = /^[\u3040-\u309F\u30A0-\u30FF]+$/;
 const latinRegex = /^[A-z\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9\u0000-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\u2C60-\u2C7F\uA720-\uA7FF]+$/
 
 //https://stackoverflow.com/questions/49562546/how-to-get-all-properties-values-of-a-javascript-nested-objects-without-knowing
@@ -172,11 +172,18 @@ export const useProfileStore = defineStore('profile', {
     },
 
 
-    
+
 
 
   },
   actions: {
+
+
+    resetLocalComponentCache(){
+      cachePt = {}
+      cacheGuid = {}
+      dataChangedTimeout = null
+    },
 
 
     /**
@@ -485,7 +492,7 @@ export const useProfileStore = defineStore('profile', {
               // now make obj of all the properties in each top level
               // for example monograph -> work -> title
               if (p.json.Profile.resourceTemplates){
-                  
+
                   p.json.Profile.resourceTemplates.forEach((rt)=>{
                       this.profiles[p.json.Profile.id].rtOrder.push(rt.id)
                       this.profiles[p.json.Profile.id].rt[rt.id] = {ptOrder:[],pt:{}}
@@ -496,7 +503,7 @@ export const useProfileStore = defineStore('profile', {
                               pt.userValue =  {'@root':pt.propertyURI}
                               pt.valueConstraint.valueTemplateRefs = pt.valueConstraint.valueTemplateRefs.filter((v)=>{return (v.length>0)})
                               pt['@guid'] = short.generate()
-                              pt.canBeHidden = true                             
+                              pt.canBeHidden = true
 
                               if (pt.type === 'literal-lang'){
                                   this.profiles[p.json.Profile.id].rt[rt.id].hasLiteralLangFields = true
@@ -512,8 +519,8 @@ export const useProfileStore = defineStore('profile', {
                                 propUniqueId = pt.propertyURI + "|" + pt.valueConstraint.useValuesFrom[0]
                               }else{
                                 propUniqueId = pt.propertyURI + "|" + pt.parentId
-                              }                              
-                              
+                              }
+
                               pt.preferenceId = propUniqueId
                               let key = pt.propertyURI.replace('http://','').replace('https://','').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"_") + '__' + ((pt.propertyLabel) ? pt.propertyLabel.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g,'_').toLowerCase() : "plabel")
                               this.profiles[p.json.Profile.id].rt[rt.id].ptOrder.push(key)
@@ -949,7 +956,7 @@ export const useProfileStore = defineStore('profile', {
       // let lastProperty = propertyPath.at(-1).propertyURI
       // // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-      
+
       //should be safe to delete the cache when swaping templates
       if (Object.keys(cachePt).includes(componentGuid)){
           delete cachePt[componentGuid]
@@ -959,7 +966,6 @@ export const useProfileStore = defineStore('profile', {
       }
 
       if (pt !== false){
-
         pt.activeType = nextRef.resourceURI
         let baseURI = pt.propertyURI
 
@@ -968,16 +974,15 @@ export const useProfileStore = defineStore('profile', {
             pt.userValue[baseURI]=[{}]
         }
         let userValue = pt.userValue[baseURI][0]
-        // always remove the @id
-        if (userValue['@id']){
+        // always remove the @id, except for subjects. Without it, things won't be linked after swapping
+        if (userValue['@id'] && !(thisRef.id.includes(":Components") || thisRef.id.includes("Topic"))){
             delete userValue['@id']
         }
 
-
-		// keep PrimaryContribution
-		if (!["http://id.loc.gov/ontologies/bibframe/PrimaryContribution"].includes(userValue['@type'])){
-			userValue['@type'] = nextRef.resourceURI
-		}
+        // keep PrimaryContribution
+        if (!["http://id.loc.gov/ontologies/bibframe/PrimaryContribution"].includes(userValue['@type'])){
+          userValue['@type'] = nextRef.resourceURI
+        }
 
         // store the other properies as well
         if (!pt.refTemplateUserValueKeys){
@@ -996,22 +1001,29 @@ export const useProfileStore = defineStore('profile', {
 
         // if there are properties in the old template that are not in the new one then we need to remove them from the userValue
         let possibleProperties = nextRef.propertyTemplates.map((p) => {return p.propertyURI})
-		
+
+        // The subject properties need to be updated, or the data will be erased, is there a better way?
+        if (thisRef.id.includes(":Components") || thisRef.id.includes("Topic")){
+          possibleProperties = ["@id", "http://www.loc.gov/mads/rdf/v1#componentList", "http://www.w3.org/2000/01/rdf-schema#label", "http://id.loc.gov/ontologies/bibframe/source", "http://id.loc.gov/ontologies/bflc/marcKey", "http://www.loc.gov/mads/rdf/v1#authoritativeLabel", "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
+        }
+
         if (!pt.refTemplateUserValue){
             pt.refTemplateUserValue = {}
         }
 
         for (let key in userValue){
-			//For contributions, keep the keys for agent role so the data persists
-			if (!key.startsWith('@') && !["http://id.loc.gov/ontologies/bibframe/agent", "http://id.loc.gov/ontologies/bibframe/role"].includes(key)){
-                if (possibleProperties.indexOf(key)==-1){
-                    //
-                    // this property has no place in the ref template we are about to switch to
-                    // so store them over in the refTemplateUserValue for later if needed
-                    pt.refTemplateUserValue[key] =JSON.parse(JSON.stringify(userValue[key]))
-                    delete userValue[key]
-                }
+          //For contributions, keep the keys for agent role so the data persists
+          if (!key.startsWith('@') && !["http://id.loc.gov/ontologies/bibframe/agent", "http://id.loc.gov/ontologies/bibframe/role"].includes(key)){
+            if (possibleProperties.indexOf(key) == -1){
+                // this property has no place in the ref template we are about to switch to
+                // so store them over in the refTemplateUserValue for later if needed
+                pt.refTemplateUserValue[key] = JSON.parse(JSON.stringify(userValue[key]))
+                delete userValue[key]
             }
+          } else if (key == "@id"){ //for subjects, keep the "@id"
+            pt.refTemplateUserValue[key] = JSON.parse(JSON.stringify(userValue[key]))
+            delete userValue[key]
+          }
         }
 
         // see if there are any properties stored in refTemplateUserValue that
@@ -1029,7 +1041,7 @@ export const useProfileStore = defineStore('profile', {
                 delete pt.refTemplateUserValue[pp]
             }
         }
-		
+
         // also check to see if there are default values in the orignal profile that we might need to over write with if they are switching
 
 
@@ -1474,6 +1486,22 @@ export const useProfileStore = defineStore('profile', {
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
 
+
+      //The propertyPath for supplementaryContent's note is missing the note. It jumps straight to the label
+      // so insert it so XML can get built
+      if (propertyPath.some((pp) => pp.propertyURI.includes("supplementaryContent")) && propertyPath.at(-1).propertyURI == "http://www.w3.org/2000/01/rdf-schema#label"){
+          propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
+          propertyPath.at(-1).level = 2
+      }
+
+      // this needs to include a check for "supplementaryContent", so the note will populate in the form
+      let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent"))
+
+      // for the electronic locator, the path ends with `sameAs`, but it just gets in the way, toss it
+      if (isLocator){
+          propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
+      }
+
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt
@@ -1483,7 +1511,7 @@ export const useProfileStore = defineStore('profile', {
         pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
         cachePt[componentGuid] = pt
       }
-	  
+
 	  //clear the cache if the value was deleted
 	  if (value.trim() == ""){
         if (Object.keys(cachePt).includes(componentGuid)){
@@ -1493,7 +1521,7 @@ export const useProfileStore = defineStore('profile', {
           cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
         }
 	  }
-	  
+
       // console.log("--------pt 1------------")
       // console.log(JSON.stringify(pt,null,2))
       // let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
@@ -1589,7 +1617,11 @@ export const useProfileStore = defineStore('profile', {
 
         // and now add in the literal value into the correct property
         blankNode[lastProperty] = value
-		
+        // for electronicLocators, update the ID, so the XML can get built correctly
+        if (isLocator && Object.keys(blankNode).some((key) => key == "http://id.loc.gov/ontologies/bibframe/electronicLocator")){
+            blankNode["@id"] = value
+        }
+
         // if we just set an empty value, remove the value property, and if there are no other values, remvoe the entire property
         if (value.trim() === ''){
           delete blankNode[lastProperty]
@@ -1611,7 +1643,7 @@ export const useProfileStore = defineStore('profile', {
 
             parent[lastProperty] = keep
 
-            if (parent[lastProperty].length==0){				
+            if (parent[lastProperty].length==0){
               delete parent[lastProperty]
             }
 
@@ -1629,7 +1661,7 @@ export const useProfileStore = defineStore('profile', {
             propertyPath.pop()
             let uv = pt.userValue
             let oldUv = pt.userValue
-			
+
             for (let p of propertyPath){
               uv = uv[p.propertyURI]
               if (Array.isArray(uv)){
@@ -1643,7 +1675,7 @@ export const useProfileStore = defineStore('profile', {
               }
 
               console.log(p.propertyURI,'has',Object.keys(uv).length,'keys')
-			  
+
               // the oldUv so we have a references to where we will be in the next loop so we can delete from the parent obj
               oldUv = oldUv[p.propertyURI]
               if (Array.isArray(oldUv)){
@@ -1684,6 +1716,21 @@ export const useProfileStore = defineStore('profile', {
     */
     returnLiteralValueFromProfile: function(componentGuid, propertyPath){
 
+        // for the electronic locator, the path ends with `sameAs`, but it just gets in the way, toss it
+        let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent") )
+
+        if (isLocator){
+            // `sameAs` gets in the way for the electronicLocator, toss it
+            propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
+
+            //The propertyPath for supplementaryContent's note is missing the note. It jumps straight to the label
+            //  fix the propertyPath so the XML can get built correctly
+            if (propertyPath.some((pp) => pp.propertyURI.includes("supplementaryContent")) && propertyPath.at(-1).propertyURI == "http://www.w3.org/2000/01/rdf-schema#label"){
+                propertyPath.splice(1, 0, { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/note" })
+                propertyPath.at(-1).level = 2
+            }
+        }
+
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
@@ -1706,6 +1753,12 @@ export const useProfileStore = defineStore('profile', {
             values.push({
               '@guid':v['@guid'],
               value: unescape(v[deepestLevelURI]),
+              '@language' : (v['@language']) ? v['@language'] : null,
+            })
+          } else if (isLocator){ //for electronicLocator, incoming records have the value in `@id`
+              values.push({
+              '@guid':v['@guid'],
+              value: unescape(v["@id"]),
               '@language' : (v['@language']) ? v['@language'] : null,
             })
           }else{
@@ -1848,11 +1901,11 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
-      
+
       if (valueLocation){
 
         let values = []
-    
+
         for (let v of valueLocation){
 
               let URI = null
@@ -1938,7 +1991,7 @@ export const useProfileStore = defineStore('profile', {
               }
 
             }
-          
+
             return values
         }
 
@@ -1973,8 +2026,8 @@ export const useProfileStore = defineStore('profile', {
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-      
-	  
+
+
       if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
@@ -1989,7 +2042,7 @@ export const useProfileStore = defineStore('profile', {
           type = await utilsRDF.suggestTypeNetwork(lastProperty)
         }
       }
-	  
+
       if (pt !== false){
         pt.hasData = true
         pt.userModified = true
@@ -2001,10 +2054,10 @@ export const useProfileStore = defineStore('profile', {
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
           pt = buildBlankNodeResult[0]
-		  
+
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
-          
+
           //empty out the blankNode's existing data so it only has the new data
           for (let key of Object.keys(blankNode).filter((k) => !k.startsWith("@"))){
               blankNode[key] = []
@@ -2037,7 +2090,7 @@ export const useProfileStore = defineStore('profile', {
                   '@guid': short.generate(),
                   'http://www.w3.org/2000/01/rdf-schema#label' : aLabelNode
                 }
-              )              
+              )
             }else if (aLabelNode['@value']){
               let aNode = {
                 '@guid': short.generate(),
@@ -2045,7 +2098,7 @@ export const useProfileStore = defineStore('profile', {
               }
               if (aLabelNode['@language']){
                 aNode['@language']=aLabelNode['@language']
-              }              
+              }
               blankNode['http://www.w3.org/2000/01/rdf-schema#label'].push(aNode)
 
             }else{
@@ -2081,7 +2134,7 @@ export const useProfileStore = defineStore('profile', {
                   '@guid': short.generate(),
                   'http://id.loc.gov/ontologies/bflc/marcKey' : aMarcKeyNode
                 }
-              )              
+              )
             }else if (aMarcKeyNode && aMarcKeyNode['@value']){
               let aNode = {
                 '@guid': short.generate(),
@@ -2089,7 +2142,7 @@ export const useProfileStore = defineStore('profile', {
               }
               if (aMarcKeyNode['@language']){
                 aNode['@language']=aMarcKeyNode['@language']
-              }              
+              }
               blankNode['http://id.loc.gov/ontologies/bflc/marcKey'].push(aNode)
 
             }else{
@@ -2298,7 +2351,7 @@ export const useProfileStore = defineStore('profile', {
                         "@language": nlMK['@language'],
                         "http://id.loc.gov/ontologies/bflc/marcKey": nlMK['@value']
                       }
-                    )                    
+                    )
                   }
                 }
 
@@ -2357,7 +2410,7 @@ export const useProfileStore = defineStore('profile', {
                               "@language": nlMK['@language'],
                               "http://id.loc.gov/ontologies/bflc/marcKey": nlMK['@value']
                             }
-                          )                    
+                          )
                         }
                       }
                     }
@@ -2999,7 +3052,7 @@ export const useProfileStore = defineStore('profile', {
                         {
                         let agent = contributorUserValue['http://id.loc.gov/ontologies/bibframe/agent'][0]
                         if (agent && agent['http://www.w3.org/2000/01/rdf-schema#label'] && agent['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && agent['http://www.w3.org/2000/01/rdf-schema#label'][0] && agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-                          console.log("agentagentagentagent",agent)  
+                          console.log("agentagentagentagent",agent)
                           let agentData = {type:type,label:agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']}
                           if (agent['@id']){
                             agentData['@id'] = agent['@id']
@@ -3048,15 +3101,12 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
         let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
-
 
         if (uv && uv['@type'] && uv['@type'] == 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
 
         // this is a LCC field then
-
           // we need to gather info from the component and the rest of the work to build links/suggestions
 
 
@@ -3126,6 +3176,13 @@ export const useProfileStore = defineStore('profile', {
 
         if (pt && (pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' || pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation') && Object.keys(pt.userValue).length == 1){
 
+          if (titleNonSort && titleNonSort.trim().length >0 && title){
+            if (isNaN(parseInt(titleNonSort)) == false ){
+              titleNonSort = parseInt(titleNonSort)
+              title = title.substr(titleNonSort).trim()
+            }
+          }
+
           // it is a new record, so there is no info but the LCC classification is by default so populate the other stuff
           return {
             title: title,
@@ -3152,7 +3209,7 @@ export const useProfileStore = defineStore('profile', {
       return false
 
     },
-    
+
     /**
     * Check if, and which, up down buttons should display in the action button
     *
@@ -3161,15 +3218,15 @@ export const useProfileStore = defineStore('profile', {
     */
     showUpDownButtons: function(componentGuid){
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-        
+
         let target
         let targetType
-        
+
         let items
         let subjItems = []
         let contribItems = []
         let gfItems = []
-       
+
         if (pt !== false){
             let workRtId = null
             for (let rtId in this.activeProfile.rt){
@@ -3184,7 +3241,7 @@ export const useProfileStore = defineStore('profile', {
                     }
                   }
                   if (
-                        this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution' && 
+                        this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution' &&
                         this.activeProfile.rt[rtId].pt[ptId].propertyLabel != "Creator of Work"
                      ){
                     contribItems.push(ptId)
@@ -3204,7 +3261,7 @@ export const useProfileStore = defineStore('profile', {
               }
             }
         }
-        
+
         if (targetType == "subject"){
             items = subjItems
         } else if (targetType == "gf"){
@@ -3212,8 +3269,8 @@ export const useProfileStore = defineStore('profile', {
         } else {
             items = contribItems
         }
-        
-        
+
+
         if (items.length <= 1){
             return [false, false]
         } else {
@@ -3229,7 +3286,7 @@ export const useProfileStore = defineStore('profile', {
             }
         }
     },
-    
+
     //This is repurposed from `makeSubjectHeadingPrimary`
     /**
     * Moves the selected heading up or down
@@ -3241,7 +3298,7 @@ export const useProfileStore = defineStore('profile', {
     moveUpDown: function(componentGuid, dir){
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let target
-      
+
       if (pt !== false){
         let firstHeading = null
         let workRtId = null
@@ -3261,7 +3318,7 @@ export const useProfileStore = defineStore('profile', {
             }
           }
         }
-        
+
         if (target){
           let currentPos = this.activeProfile.rt[workRtId].ptOrder.indexOf(target)
           let newPos
@@ -3270,13 +3327,13 @@ export const useProfileStore = defineStore('profile', {
           } else {
               newPos = currentPos+1
           }
-          
+
           //swap the target with the element in the desired position
           //delete from current pos
            this.activeProfile.rt[workRtId].ptOrder.splice(currentPos, 1)
           //put in it's new position
            this.activeProfile.rt[workRtId].ptOrder.splice(newPos, 0, target)
-          
+
           this.dataChanged()
         }
       }
@@ -3401,13 +3458,14 @@ export const useProfileStore = defineStore('profile', {
       if (structure){
 
         if (structure.parentId){
-          if (structure.parentId.endsWith("Work") || structure.parentId.endsWith("Instance") || structure.parentId.endsWith("Hub") || structure.parentId.endsWith("Item")){
+          if (structure.parentId.endsWith("Work") || structure.parentId.includes("Instance") || structure.parentId.endsWith("Hub") || structure.parentId.endsWith("Item")){
             isParentTop = true
           }
 
           let defaultsProperty = false
           if (this.rtLookup[structure.parentId]){
               for (let p of this.rtLookup[structure.parentId].propertyTemplates){
+
                 // dose it have a default value?
                 if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
                   if (p.valueConstraint.valueTemplateRefs && p.valueConstraint.valueTemplateRefs.length>0){
@@ -3480,7 +3538,6 @@ export const useProfileStore = defineStore('profile', {
                         if (blankNodeType){
                           value['@type'] = blankNodeType
                         }
-
                       }
 
                       // if we're not working at the top level, just add the default values
@@ -3633,16 +3690,17 @@ export const useProfileStore = defineStore('profile', {
 
       }
     },
-    
+
     /**
     * Duplicate / create new component with a given userValue
     *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @param {object} structure - structure of the component(?)s
     * @param {object} incomingUserValue - the incoming userValue to set
-    * @return {string} the id ofthe newPropertyId 
+    * @return {string} the id ofthe newPropertyId
     */
-    duplicateComponentGetId: async function(componentGuid, structure, profileName){
+    duplicateComponentGetId: async function(componentGuid, structure, profileName, predecessor){
+
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
@@ -3651,29 +3709,31 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
         let profile
         let propertyPosition
-        
+
         let key = pt.propertyURI.replace('http://','').replace('https://','').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"_") + '__' + ((pt.propertyLabel) ? pt.propertyLabel.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s+/g,'_').toLowerCase() : "plabel")
-        
+
         let lastPosition = 0
+
         for (let r of this.activeProfile.rtOrder){
-          propertyPosition = this.activeProfile.rt[r].ptOrder.indexOf(pt.id)
-          
+            let tempPosition = JSON.parse(JSON.stringify(this.activeProfile.rt[r].ptOrder)).indexOf(predecessor)
+            if (tempPosition > 0){
+                propertyPosition = tempPosition
+            }
+
           //find the last position in the order of related components so we can insert
           // the new components at the end of that list
           for (let idx in this.activeProfile.rt[r].ptOrder){
               let item = this.activeProfile.rt[r].ptOrder[idx]
-              
+
               if (item.includes(key)){
                   lastPosition = idx
               }
-          }          
+          }
           profile = profileName
 
         }
 
-        
         let newPropertyId = key + '_'+ (+ new Date())
-
 
         let newPt = JSON.parse(JSON.stringify(pt))
         newPt.id = newPropertyId
@@ -3696,7 +3756,7 @@ export const useProfileStore = defineStore('profile', {
               '@root' : newPt.propertyURI
 
           }
-          
+
           if (newPt.activeType){
             newPt.userValue[newPt.propertyURI] = [
               {
@@ -3729,18 +3789,18 @@ export const useProfileStore = defineStore('profile', {
         }else{
           // doesn't support duplicating components yet
         }
-        
+
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
         this.activeProfile.rt[profile].ptOrder.splice(Number(propertyPosition)+1, 0, newPropertyId);
-        
+
 
         if (structure){
           this.insertDefaultValuesComponent(newPt['@guid'], structure)
         }
-        
+
         // they changed something
         this.dataChanged()
-        
+
         return newPropertyId
 
       }else{
@@ -3812,10 +3872,10 @@ export const useProfileStore = defineStore('profile', {
     */
     dataChanged:  function(){
       this.activeProfileSaved = false
-      
-      
+
+
       window.clearTimeout(dataChangedTimeout)
-      dataChangedTimeout = window.setTimeout(()=>{        
+      dataChangedTimeout = window.setTimeout(()=>{
         this.setMostCommonNonLatinScript()
         // also store it in the active profile
         this.activeProfile.mostCommonNonLatinScript = this.mostCommonNonLatinScript
@@ -3889,17 +3949,17 @@ export const useProfileStore = defineStore('profile', {
 
       instanceCount++
       // console.log('instanceCount',instanceCount)
-      let newRdId = instanceName+'_'+instanceCount
+      let newRtId = instanceName +'_'+instanceCount
       instanceRt.isNew = true
-      this.activeProfile.rt[newRdId] = instanceRt
-      this.activeProfile.rtOrder.push(newRdId)
+      this.activeProfile.rt[newRtId] = instanceRt
+      this.activeProfile.rtOrder.push(newRtId)
 
       // give it all new guids
-      for (let pt in this.activeProfile.rt[newRdId].pt){
-        this.activeProfile.rt[newRdId].pt[pt]['@guid'] = short.generate()
+      for (let pt in this.activeProfile.rt[newRtId].pt){
+        this.activeProfile.rt[newRtId].pt[pt]['@guid'] = short.generate()
         // update the parentId
-        this.activeProfile.rt[newRdId].pt[pt].parentId = this.activeProfile.rt[newRdId].pt[pt].parentId.replace(instanceName,newRdId)
-        this.activeProfile.rt[newRdId].pt[pt].parent = this.activeProfile.rt[newRdId].pt[pt].parent.replace(instanceName,newRdId)
+        this.activeProfile.rt[newRtId].pt[pt].parentId = this.activeProfile.rt[newRtId].pt[pt].parentId.replace(instanceName, newRtId)
+        this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(instanceName, newRtId)
       }
 
 
@@ -3907,28 +3967,31 @@ export const useProfileStore = defineStore('profile', {
       // setup the new instance's properies
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
-      this.activeProfile.rt[newRdId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
-      this.activeProfile.rt[newRdId].instanceOf = workUri
-      
+      this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
+      this.activeProfile.rt[newRtId].instanceOf = workUri
+
       if (secondary){
-        this.activeProfile.rt[newRdId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
+        this.activeProfile.rt[newRtId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
       }
-      
-      this.activeProfile.rt[newRdId].deletable = true
-      
+
+      this.activeProfile.rt[newRtId].deletable = true
+
+      //Add to rtLookup, with a copy of an instance as the value
+      this.rtLookup[newRtId] = this.rtLookup[instanceName]
+
       this.dataChanged()
 
     },
 
     /**
-    * 
+    *
     *
     * @return {array}
     */
     returnAllNonLatinLiterals:  function(onlyAccessPoints=false){
 
       function process (obj, func) {
-        
+
         if (obj && obj.userValue){
           obj = obj.userValue
         }
@@ -3958,20 +4021,20 @@ export const useProfileStore = defineStore('profile', {
       for (let rt of this.activeProfile.rtOrder){
         for (let pt of this.activeProfile.rt[rt].ptOrder){
           let ptObj = this.activeProfile.rt[rt].pt[pt]
-          
-          // we don't care about literals inside specific types of properties 
+
+          // we don't care about literals inside specific types of properties
           // like agent or headings but we also use this function to grab the ones specificly for agents and headings
           if (onlyAccessPoints){
 
             if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) == -1){
               continue
-            } 
+            }
 
           }else{
-            
+
             if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) >-1){
               continue
-            } 
+            }
 
           }
 
@@ -4008,30 +4071,30 @@ export const useProfileStore = defineStore('profile', {
       for (let nl of nonLatin){
         let ptFound = null
         for (let rt of this.activeProfile.rtOrder){
-          for (let pt of this.activeProfile.rt[rt].ptOrder){            
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
             if ( JSON.stringify(this.activeProfile.rt[rt].pt[pt].userValue).indexOf(nl.node['@guid'])>-1){
               ptFound=this.activeProfile.rt[rt].pt[pt]
             }
-            if (ptFound){break} 
+            if (ptFound){break}
           }
           if (ptFound){break}
         }
 
         // grab the guid as the key
         if (ptFound){
-            if (!nonLatinMap[ptFound['@guid']]){ 
+            if (!nonLatinMap[ptFound['@guid']]){
               nonLatinMap[ptFound['@guid']] = {
                 scripts: [],
                 '@guid' : ptFound['@guid'],
                 'propertyURI': ptFound.propertyURI,
                 nonLatin: this.returnLatinLabelForPt(ptFound)
               }
-           }          
+           }
           if (nl && nl.node  && nl.node['@language']){
             nonLatinMap[ptFound['@guid']].scripts.push(nl.node['@language'].split("-")[1])
           }
 
-          
+
         }
         // unique array
         nonLatinMap[ptFound['@guid']].scripts = [...new Set(nonLatinMap[ptFound['@guid']].scripts)];
@@ -4040,17 +4103,17 @@ export const useProfileStore = defineStore('profile', {
 
 
       return nonLatinMap
-  
-  
-    },    
+
+
+    },
 
 
     returnLatinLabelForPt: function(pt){
 
       let nonLatinFound = null
 
-      function process (obj, func) {     
-        if (nonLatinFound){return}   
+      function process (obj, func) {
+        if (nonLatinFound){return}
         if (obj && obj.userValue){
           obj = obj.userValue
         }
@@ -4076,7 +4139,7 @@ export const useProfileStore = defineStore('profile', {
           if (!obj['@language']){
             nonLatinFound = obj['http://www.w3.org/2000/01/rdf-schema#label']
           }
-        }        
+        }
       });
 
       return nonLatinFound
@@ -4127,11 +4190,11 @@ export const useProfileStore = defineStore('profile', {
     returnValidationType: function(fieldGuid){
 
       let fieldValue=null
-      
+
       for (let rt of this.activeProfile.rtOrder){
         for (let pt of this.activeProfile.rt[rt].ptOrder){
           fieldValue = utilsProfile.returnGuidLocation(this.activeProfile.rt[rt].pt[pt].userValue,fieldGuid)
-          if (fieldValue){break} 
+          if (fieldValue){break}
         }
         if (fieldValue){break}
       }
@@ -4148,63 +4211,63 @@ export const useProfileStore = defineStore('profile', {
           if (fieldValue['http://www.loc.gov/mads/rdf/v1#componentList'][0] && fieldValue['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@id']){
             firstHasURI=true
           }
-  
-          
+
+
           if (allHasURI){return ['done_all','Linked']}
           if (firstHasURI){return ['warning','Partially Linked']}
-          
+
           return ['help','No Partial Link']
         }
 
 
 
-        
+
 
       }
 
       return ['report','No Link']
     },
-    
+
     copySelected: async function(){
         let components = []
         let compontGuids = []
         let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
-        
+
         if  (copyTargets.length == 0){
             console.warn("nothing to copy")
             alert("Nothing selected to copy. Select the fields you would like to copy.")
-                
+
             return false
         }
-        
+
         copyTargets.forEach((item) => compontGuids.push(item.id))
-        
+
         for (const guid of compontGuids){
             let component = utilsProfile.returnPt(this.activeProfile, guid)
             let componentString = JSON.stringify(component)
             components.push(componentString)
         }
-        
+
         //copy it
         let value = components.join(" ;;; ")
         const type = "text/plain"
         const blob = new Blob([value], {type})
         const data = [new ClipboardItem({[type]: blob})]
-        
+
         await navigator.clipboard.write(data)
-        
+
         //Add checkmark
         let button = document.getElementById("copy-selected-button")
         button.children[0].innerHTML = "check"
-        
+
         //wait a few seconds and remove the check mark
         setTimeout(function(){
             button.children[0].innerHTML = "content_copy"
         }, 2000)
-        
+
         return true
     },
-    
+
     //loop through the copied data and change all the "@guid"s
     changeGuid: function(data){
         try{
@@ -4226,7 +4289,7 @@ export const useProfileStore = defineStore('profile', {
     parseActiveInsert: async function(newComponent){
         this.changeGuid(newComponent)
         let profile = this.activeProfile
-        
+
         // handle pasting into a profileRT that doesn't exist in the new profile
         // This is for when the source is an additional Instance, that doesn't exist in
         // in the title
@@ -4242,7 +4305,7 @@ export const useProfileStore = defineStore('profile', {
         }
 
         for (let rt in profile["rt"]){
-            let frozenPts = JSON.parse(JSON.stringify(profile["rt"][rt]["pt"]))
+            let frozenPts = profile["rt"][rt]["pt"]
 
             let order = profile["rt"][rt]["ptOrder"]
 
@@ -4258,10 +4321,10 @@ export const useProfileStore = defineStore('profile', {
                             current.userValue = newComponent.userValue
                             break
                         } else {
-                            let guid = current["@guid"]
+                            const guid = current["@guid"]
                             let structure = this.returnStructureByComponentGuid(guid)
-                            let newPt = await this.duplicateComponentGetId(guid, structure, rt)
-                            
+                            let newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
+
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
                             profile["rt"][rt]["pt"][newPt].userModified = true
                             break
@@ -4271,56 +4334,64 @@ export const useProfileStore = defineStore('profile', {
             }
         }
     },
-    
+
     pasteSelected: async function(){
         let data
         const clipboardContents = await navigator.clipboard.read();
-        
+
         for (let item of clipboardContents){
-            
+
               if (!item.types.includes("text/plain")) {
                 throw new Error("Clipboard does not contain text data.");
               }
-              
+
               let blob = await item.getType("text/plain")
               const incomingValue = await blob.text()
-              
+
               data = incomingValue.split(";;;")
             }
-        
+
         for (let item of data){
               const dataJson = JSON.parse(item)
               this.parseActiveInsert(dataJson)
         }
     },
-    
-    
-    
+
+
+
     //Check if the component's userValue is empty
-    isEmptyComponent: function(component){
-      
-      let emptyArray = new Array("@root")
-      let userValue = component.userValue
-      
+
+    isEmptyComponent: function(c){
+      const component = c
+      const emptyArray = new Array("@root")
+      const userValue = JSON.parse(JSON.stringify(component["userValue"]))
+
+
       // if there is only a @root
-      if (JSON.stringify(Object.keys(userValue)) == JSON.stringify(emptyArray)){
+      if (JSON.stringify(Object.keys(component.userValue)) == JSON.stringify(emptyArray)){
           return true
       } else {
           // if the children only have "@..." properties
-          for (let key in userValue){
+          for (let key in component.userValue){
               if (!key.startsWith("@")){
                   let result = false
                   try{
-                      result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
+                      // this makes sure that the propertiesPanel will have the correct symbol when the incoming data
+                      //  has an populate electronicLocator
+                      if (component.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
+                          result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
+                      } else {
+                          result = !Object.keys(userValue[key][0]).some((childKey) => childKey.startsWith("@id"))
+                      }
                   } catch(err) {
                       console.error("error: Checking if component is empty")
                   }
+
                   return result
-                  
               }
           }
       }
-      
+
       return false
     },
 
@@ -4369,13 +4440,13 @@ export const useProfileStore = defineStore('profile', {
           let purl = utilsParse.namespaceUri(this.activeProfile.rt[rt].pt[pt].propertyURI)
 
           if (purl == property){
-            console.log(this.activeProfile.rt[rt].pt[pt]) 
+            console.log(this.activeProfile.rt[rt].pt[pt])
             if (this.activeProfile.rt[rt].pt[pt].valueConstraint && this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom && this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom.length>0){
               return this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom[0]
             }
           }
 
-          
+
         }
       }
       return false
@@ -4383,7 +4454,7 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * Builds and posts a Hub Stub
-    * 
+    *
     * @param {object} hubCreatorObj - obj with creator label, uri,marcKey
     * @param {string} title - title string
     * @param {string} langUri - uri to language
@@ -4414,9 +4485,10 @@ export const useProfileStore = defineStore('profile', {
       return pubResuts
 
 
+
     },
 
-    
+
 
 
   },

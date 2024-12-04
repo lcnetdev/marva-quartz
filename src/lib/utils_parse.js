@@ -6,6 +6,8 @@ import short from 'short-uuid'
 import utilsRDF from './utils_rdf';
 
 
+const hashCode = s => s.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
+
 
 const utilsParse = {
 
@@ -558,11 +560,15 @@ const utilsParse = {
 
         // we only want top level elements, not nested things like dupe notes etc.
         let el = []
+        // let elHashOrder = []
         for (let e of xml.children){
 
 
           if (this.UriNamespace(e.tagName) == propertyURI){
 
+            
+            // elHashOrder.push(hashCode((new XMLSerializer()).serializeToString(e)))
+            
 
             // if it has a hint then we need to check if we can find the right pt for it
             if (e.attributes['local:pthint'] && e.attributes['local:pthint'].value){
@@ -596,9 +602,15 @@ const utilsParse = {
               // just add it normally
               el.push(e)
             }
+
+            
           }
         }
 
+
+        // for (let e of el){
+        //   console.log((new XMLSerializer()).serializeToString(e))
+        // }
 
         // Some structural things here to hardcode
         if (propertyURI==='http://id.loc.gov/ontologies/bibframe/Work'){
@@ -643,6 +655,9 @@ const utilsParse = {
           ptk.hasData = true
           ptk.canBeHidden = false
           ptk.deepHierarchy = false
+
+          // holds the ids of all the pts we are about to create so we can do some post processing on them
+          let ptsCreatedThisLoop = []
 
           // loop through all of them
           let counter = 0
@@ -721,6 +736,7 @@ const utilsParse = {
             populateData = JSON.parse(JSON.stringify(ptk))
             // save the source xml for later display
             populateData.xmlSource = e.outerHTML
+            populateData.xmlHash = hashCode(populateData.xmlSource)
 
             populateData['@guid'] = short.generate()
 
@@ -1577,30 +1593,47 @@ const utilsParse = {
             // need to make a new one and add it to the resource template list
             // since each piece of data in the property is its own resource template
 
+
+
             if (counter === 0){
               pt[k] = populateData
+              ptsCreatedThisLoop.push(populateData.id)
             }else{
-
               let newKey = `${k}_${counter}`
               let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
-              let newpos = currentpos - 1
-              if (newpos <0){newpos=0}
+              let newpos = currentpos + 1               
               profile.rt[pkey].ptOrder.splice(newpos, 0, newKey);
               populateData.id = newKey
+              ptsCreatedThisLoop.push(newKey)
               pt[newKey] = populateData
-
             }
+
+
 
 
 
             // do a little sanity check here, loop through and
             userValue = this.removeEmptyBnodes(userValue)
-            
-            
+                       
 
             counter++
 
           }
+
+          // we kept the order of the proerties we created in this array, so whatever order they ended up in the ptOrder rearrange them to match this order we maintained
+          if (ptsCreatedThisLoop.length>1){
+            let posOfFirst = 9999
+            // we need to find the first occurance of the property to know where to start cutting and replacing
+            for (let ptCreated of ptsCreatedThisLoop){             
+              if (profile.rt[pkey].ptOrder.indexOf(ptCreated)<posOfFirst){ posOfFirst = profile.rt[pkey].ptOrder.indexOf(ptCreated)}              
+            }
+            if (posOfFirst != -1 && posOfFirst != 9999){
+              // cut out the old ones and inset the new order
+              profile.rt[pkey].ptOrder.splice(posOfFirst,ptsCreatedThisLoop.length,...ptsCreatedThisLoop)
+            }
+          }
+
+
 
         }
 

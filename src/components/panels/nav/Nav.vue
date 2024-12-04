@@ -112,13 +112,13 @@
         //       //     <span style="font-size:2em; font-weight:bold; position: absolute; width: 100px; left:0;">M</span>
         //       //     `,
         //   })
-        // }  
+        // }
 
 
 
 
 
-        let menuButtonSubMenu = [  
+        let menuButtonSubMenu = [
           { text: "Load Resource", click: () => {
             try{
               this.$nextTick(()=>{
@@ -132,7 +132,7 @@
 
 
         if (this.$route.path.startsWith('/edit/')){
-          menuButtonSubMenu.push({ is: 'separator'})            
+          menuButtonSubMenu.push({ is: 'separator'})
           menuButtonSubMenu.push(
             {
               text: 'Add Additional Instance',
@@ -156,7 +156,7 @@
 
         if (!this.disable.includes('Tools')){
           menu.push(
-          { text: "Tools",  
+          { text: "Tools",
             menu: [
             { text: "Shelf Listing Browser", click: () => {
               this.activeShelfListData = {}
@@ -174,7 +174,7 @@
               // active: this.happy,
               click: () => { this.showNonLatinAgentModal = true }
             },
-            
+
             { is: 'separator'},
             {
               text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
@@ -192,7 +192,7 @@
             }
           ] }
           )
-          
+
 
 
         }
@@ -230,7 +230,7 @@
               { text: 'Field Colors', click: () => this.showFieldColorsModal = true, icon: '🌈' },
 
 
-              
+
 
 
 
@@ -247,9 +247,10 @@
               { text: 'Sidebars - Property', click: () => this.preferenceStore.togglePrefModal('Sidebars - Property')},
               { text: 'Shelflisting', click: () => this.preferenceStore.togglePrefModal('Shelflisting')},
 
-
               { is: 'separator'},
-
+              { text: 'Export Prefs', click: () => this.exportPreferences(), icon: 'download' },
+              { text: 'Import Prefs', click: () => this.importPreferences(), icon: 'upload' },
+              { is: 'separator'},
               { text: 'Reset Prefs', click: () => this.preferenceStore.resetPreferences(), icon: 'restart_alt' },
 
 
@@ -260,7 +261,7 @@
         }
         if (this.$route.path.startsWith('/edit/')){
           menu.push({ is: "separator" })
-          
+
           menu.push(
             {
               text: "",
@@ -273,14 +274,14 @@
                 this.layoutActiveFilter=null
               }
             }
-          )            
+          )
 
            let layoutsMenu = []
-           
+
            for (let l in this.layouts.all ){
 
             layoutsMenu.push({
-              text: this.layouts.all[l].label,              
+              text: this.layouts.all[l].label,
               click: () => {
                 this.activateLayout(this.layouts.all[l])
               }
@@ -293,7 +294,7 @@
             )
 
         }
-        
+
 
         if (this.$route.path.startsWith('/edit/')){
           menu.push({ is: "separator" })
@@ -338,7 +339,7 @@
               }
             }
           )
-          
+
           if (this.preferenceStore.copyMode){
               menu.push({ is: "separator" })
               menu.push(
@@ -353,7 +354,7 @@
                   }
                 }
               )
-              
+
               menu.push(
                 {
                   text: "Paste Content",
@@ -365,7 +366,7 @@
                   }
                 }
               )
-          
+
               menu.push(
                 {
                   text: !this.allSelected ? "Select All" : "Deselect All",
@@ -382,8 +383,8 @@
 
 
 
-        
-          
+
+
 
         menu.push(
 
@@ -426,19 +427,14 @@
       },
 
       activateLayout(layout){
-
-
-        
         this.layoutActive = true
         this.layoutActiveFilter = layout
-
-
       },
-      
+
       selectAll: function(){
           let checkBoxes = document.getElementsByClassName("copy-selection")
           this.allSelected = !this.allSelected
-          
+
           checkBoxes.forEach((el) => {
               if (this.allSelected){
                   el.checked = true
@@ -447,15 +443,84 @@
               }
           })
       },
-      
+
+      exportPreferences: function(){
+        let prefs = null
+        let scriptShifterOptions = null
+        let diacriticUse = null
+
+        let data = {}
+
+        if (window.localStorage.getItem('marva-preferences')){
+          prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
+          data["prefs"] = prefs
+        } else {
+          alert("Couldn't find preferences to export. :(")
+        }
+        if (window.localStorage.getItem('marva-scriptShifterOptions')){
+          scriptShifterOptions = JSON.parse(window.localStorage.getItem('marva-scriptShifterOptions'))
+          data["scriptShifterOptions"] = scriptShifterOptions
+        } else {
+          console.warn("Couldn't find ScriptShifter preferences to export. :(")
+        }
+        if (window.localStorage.getItem('marva-diacriticUse')){
+          diacriticUse = JSON.parse(window.localStorage.getItem('marva-diacriticUse'))
+          data["diacriticUse"] = diacriticUse
+        } else {
+          console.warn("Couldn't find Diacritic preferences to export. :(")
+        }
+
+        let today = new Date()
+        let dd = String(today.getDate()).padStart(2, '0')
+        let mm = String(today.getMonth() + 1).padStart(2, '0')
+        let yyyy = today.getFullYear()
+
+        var temp = document.createElement('a')
+        temp.setAttribute('href', 'data:text/plain; characterset=utf-8,' + encodeURIComponent(JSON.stringify(data)))
+        temp.setAttribute('download', "MarvaPreferences_" + yyyy + mm + dd + ".json")
+        temp.style.display = 'none'
+        document.body.appendChild(temp)
+        temp.click()
+        document.body.removeChild(temp)
+      },
+
+      importPreferences: function(){
+        const that = this
+
+        var temp = document.createElement("input")
+        temp.type = "file"
+        temp.id = "file-input"
+        temp.addEventListener('change', function(e){
+          var file = e.target.files[0]
+          if (!file){ return }
+          let reader = new FileReader()
+
+          reader.onload = function(e){
+            var contents = JSON.parse(e.target.result)
+
+            that.preferenceStore.loadPreferences(contents["prefs"])
+            window.localStorage.setItem('marva-preferences', JSON.stringify(contents["prefs"]))
+            if (contents["scriptShifterOptions"]){
+              that.preferenceStore.scriptShifterOptions = contents["scriptShifterOptions"]
+              window.localStorage.setItem('marva-scriptShifterOptions', JSON.stringify(contents["scriptShifterOptions"]))
+            }
+            if (contents["diacriticUse"]){
+              that.preferenceStore.diacriticUse = contents["diacriticUse"]
+              window.localStorage.setItem('marva-diacriticUse', JSON.stringify(contents["diacriticUse"]))
+            }
+            that.preferenceStore.buildDiacriticSettings()
+          }
+
+          reader.readAsText(file)
+        }, false)
+        document.body.appendChild(temp)
+        temp.click()
+        document.body.removeChild(temp)
+      },
+
     },
 
-    created() {
-
-
-
-
-    }
+    created() {}
   }
 
 

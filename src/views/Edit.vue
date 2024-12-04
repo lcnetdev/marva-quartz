@@ -180,6 +180,7 @@
 
       console.log("Mounted called", this.$route.params.action, this.$route.params.recordId )
       console.log(this.$route.params)
+      this.profileStore.resetLocalComponentCache()      
       if (this.profilesLoaded && this.activeProfile){
 
         if (this.activeProfile.neweId){
@@ -194,11 +195,10 @@
           // otherwise they just got kicked over to the edit screen with an existing record id, load it from the back end to edit
           this.profileStore.loadRecordFromBackend(this.$route.params.recordId)
         }
-
-
-
-
       }
+
+
+      
 
 
 

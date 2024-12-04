@@ -112,7 +112,7 @@
           // console.info(component.propertyLabel, "[", dataLoaded,"]", ": ", component)
           //console.info(JSON.stringify(Object.keys(component.userValue)), "--" ,JSON.stringify(emptyArray))
           
-          if (this.profileStore.isEmptyComponent(component)){
+          if (this.profileStore.isEmptyComponent(JSON.parse(JSON.stringify(component)))){
             return false  
           } else if (component.userModified){
             return "user"
