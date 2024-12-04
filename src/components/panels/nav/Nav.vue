@@ -445,24 +445,43 @@
       },
 
       exportPreferences: function(){
+        let prefs = null
+        let scriptShifterOptions = null
+        let diacriticUse = null
+
+        let data = {}
+
         if (window.localStorage.getItem('marva-preferences')){
-          let prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
-
-          let today = new Date()
-          let dd = String(today.getDate()).padStart(2, '0')
-          let mm = String(today.getMonth() + 1).padStart(2, '0')
-          let yyyy = today.getFullYear()
-
-          var temp = document.createElement('a')
-          temp.setAttribute('href', 'data:text/plain; characterset=utf-8,' + encodeURIComponent(JSON.stringify(prefs)))
-          temp.setAttribute('download', "MarvaPreferences_" + yyyy + mm + dd + ".json")
-          temp.style.display = 'none'
-          document.body.appendChild(temp)
-          temp.click()
-          document.body.removeChild(temp)
+          prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
+          data["prefs"] = prefs
         } else {
           alert("Couldn't find preferences to export. :(")
         }
+        if (window.localStorage.getItem('marva-scriptShifterOptions')){
+          scriptShifterOptions = JSON.parse(window.localStorage.getItem('marva-scriptShifterOptions'))
+          data["scriptShifterOptions"] = scriptShifterOptions
+        } else {
+          console.warn("Couldn't find ScriptShifter preferences to export. :(")
+        }
+        if (window.localStorage.getItem('marva-diacriticUse')){
+          diacriticUse = JSON.parse(window.localStorage.getItem('marva-diacriticUse'))
+          data["diacriticUse"] = diacriticUse
+        } else {
+          console.warn("Couldn't find Diacritic preferences to export. :(")
+        }
+
+        let today = new Date()
+        let dd = String(today.getDate()).padStart(2, '0')
+        let mm = String(today.getMonth() + 1).padStart(2, '0')
+        let yyyy = today.getFullYear()
+
+        var temp = document.createElement('a')
+        temp.setAttribute('href', 'data:text/plain; characterset=utf-8,' + encodeURIComponent(JSON.stringify(data)))
+        temp.setAttribute('download', "MarvaPreferences_" + yyyy + mm + dd + ".json")
+        temp.style.display = 'none'
+        document.body.appendChild(temp)
+        temp.click()
+        document.body.removeChild(temp)
       },
 
       importPreferences: function(){
@@ -477,8 +496,15 @@
           let reader = new FileReader()
 
           reader.onload = function(e){
-            var contents = e.target.result
-            that.preferenceStore.loadPreferences(contents)
+            var contents = JSON.parse(e.target.result)
+
+            that.preferenceStore.loadPreferences(contents["prefs"])
+            if (contents["scriptShifterOptions"]){
+              that.preferenceStore.scriptShifterOptions = contents["scriptShifterOptions"]
+            }
+            if (contents["diacriticUse"]){
+              that.preferenceStore.diacriticUse = contents["diacriticUse"]
+            }
             that.preferenceStore.buildDiacriticSettings()
           }
 
@@ -491,12 +517,7 @@
 
     },
 
-    created() {
-
-
-
-
-    }
+    created() {}
   }
 
 

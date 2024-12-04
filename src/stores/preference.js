@@ -964,8 +964,9 @@ export const usePreferenceStore = defineStore('preference', {
         if (!data){
           prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
         } else {
-          prefs = JSON.parse(data)
+          prefs = data
         }
+        console.info("DATA: ", data)
 
         // TEMP - 10/24 remove eventually
         for (let k in prefs.styleDefault){
