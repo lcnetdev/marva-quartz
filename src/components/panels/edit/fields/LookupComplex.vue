@@ -137,7 +137,7 @@
 
           <Transition name="action">
             <div class="lookup-action" v-if="showActionButton && myGuid == activeField">
-              <action-button :type="'lookupComplex'" :id="`action-button-${structure['@guid']}`" :structure="structure" :guid="guid" @action-button-command="actionButtonCommand" />
+              <action-button :type="'lookupComplex'" :id="`action-button-${structure['@guid']}`" :structure="structure" :guid="guid" :propertyPath="propertyPath" @action-button-command="actionButtonCommand" />
             </div>
           </Transition>
 
