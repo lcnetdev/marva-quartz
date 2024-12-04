@@ -1821,6 +1821,28 @@ const utilsExport = {
 		elContributionClass.appendChild(elAgentProperty)
 
 		elHub.appendChild(elContributionProperty)
+
+
+		let elLanguageProperty = document.createElementNS(this.namespace.bf ,'bf:language')
+		let elLanguageClass = document.createElementNS(this.namespace.bf ,'bf:Language')
+		elLanguageClass.setAttributeNS(this.namespace.rdf, 'rdf:about', langUri)
+
+		let elCodeProperty = document.createElementNS(this.namespace.bf ,'bf:code')
+		elCodeProperty.innerHTML = langUri.split("/").pop();
+		elLanguageClass.appendChild(elCodeProperty)
+		elLanguageProperty.appendChild(elLanguageClass)
+		elHub.appendChild(elLanguageProperty)
+
+
+		// // uri
+		// let elTitleProperty = document.createElementNS(this.namespace.bf ,'bf:title')
+		// let elTitleClass = document.createElementNS(this.namespace.bf ,'bf:Title')
+
+
+
+
+
+
 		
 		
 		rdf.appendChild(elHub)

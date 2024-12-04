@@ -113,6 +113,7 @@
           this.hubCreator.uri = null
           this.hubCreator.typeFull = null
           
+          console.log("value",value)
 
           if (value.title){
             if (Array.isArray(value.title)){
@@ -152,7 +153,7 @@
 
 
 
-          
+          console.log(this.hubCreator)
           
         },
 
