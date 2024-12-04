@@ -259,8 +259,8 @@
               </tr>
               <td class="rt-name">Set Mandatory Field Color</td>
               <td>
-                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('req','default')" :format="'hex8'" @update:pureColor="changeColor($event,'req','default')" />
-                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('req','default')" v-if="returnColor('req','default') !== null">
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('req','req')" :format="'hex8'" @update:pureColor="changeColor($event,'req','req')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('req','req')" v-if="returnColor('req','req') !== null">
                     restart_alt
                   </button>
                 </td>
