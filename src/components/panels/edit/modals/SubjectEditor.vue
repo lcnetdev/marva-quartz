@@ -114,7 +114,7 @@
                     <div v-if="searchResults && searchResults.subjectsComplex.length>0">
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
-                        <span v-if="subjectC.collections"> ({{ this.buildAddtionalInfo(subjectC.collections) }})</span>
+                        <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
                       </div>
                       <hr>
                     </div>
@@ -122,7 +122,7 @@
                     <div v-if="searchResults && searchResults.subjectsSimple.length>0">
                       <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
-                        <span v-if="!subject.literal"> ({{ this.buildAddtionalInfo(subject.collections) }})</span>
+                        <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
                       </div>
                     </div>
 
@@ -1576,18 +1576,22 @@ methods: {
     if (collections){
       let out = []
       if (collections.includes("LCSHAuthorizedHeadings") || collections.includes("NamesAuthorizedHeadings")){
-        out.push("Auth Hd")
+        out.push("(Auth Hd)")
       } else if (collections.includes("GenreFormSubdivisions")){
-        out.push("GnFrm")
+        out.push("(GnFrm)")
       } else if (collections.includes("GeographicSubdivisions")){
-        out.push("GeoSubDiv")
+        out.push("(GeoSubDiv)")
       } else if (collections.includes("Subdivisions")){
-        out.push("SubDiv")
+        out.push("(SubDiv)")
       } else if (collections.includes("LCSH_Childrens")){
-          out.push("ChldSubj")
+          out.push("(ChldSubj)")
       }
 
-      return out.join(", ")
+      if (collections.includes("LCNAF")){
+          out.push("[LCNAF]")
+      }
+
+      return out.join(" ")
     } else {
       return ""
     }

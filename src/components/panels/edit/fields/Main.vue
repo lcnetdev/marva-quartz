@@ -455,11 +455,12 @@ export default {
 
       let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
 
+      console.info("this.preferenceId", this.preferenceId)
+      console.info("this.mandatory", this)
 
       let id = this.preferenceId
 
       if (colors[id]){
-
         if (this.userModified){
           if (colors[id]['edited']){
             return colors[id]['edited']
@@ -468,8 +469,6 @@ export default {
         if (colors[id]['default']){
             return colors[id]['default']
           }
-
-
       }
 
 
