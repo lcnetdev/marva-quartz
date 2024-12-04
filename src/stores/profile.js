@@ -86,6 +86,8 @@ export const useProfileStore = defineStore('profile', {
     showValidateModal: false,
     showHubStubCreateModal: false,
     activeHubStubData:{
+    },
+    activeHubStubComponent:{
 
     },
     showShelfListingModal: false,
@@ -4385,22 +4387,32 @@ export const useProfileStore = defineStore('profile', {
     * @param {object} hubCreatorObj - obj with creator label, uri,marcKey
     * @param {string} title - title string
     * @param {string} langUri - uri to language
-
     * @return {String}
     */
-    async buildPostHubStub(hubCreatorObj,title,langUri){
+    async buildPostHubStub(hubCreatorObj,title,langUri,catCode){
 
       console.log("hubCreatorObj",hubCreatorObj)
-      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langUri)
+      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langUri,catCode)
 
       console.log(xml)
       let eid = 'e' + decimalTranslator.new()
       eid = eid.substring(0,8)
 
       // pass a fake activeprofile with id == Hub to trigger hub protocols 
-      let pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
-      console.log(pubResuts.status)
+      let pubResuts 
+      try{
+        pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
+        console.log(pubResuts)
+        pubResuts = await pubResuts.json()
+        console.log(pubResuts)
+      }catch{
+        alert("There was an error creating your Hub. Please report this issue.")
+      }
+
+      // pubResuts = {'location': 'http://id.loc.gov/resources/hubs/1111-111-111-111'}
       
+      return pubResuts
+
 
     },
 

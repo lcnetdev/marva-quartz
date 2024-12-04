@@ -1746,10 +1746,10 @@ const utilsExport = {
 	* @param {string} langUri - uri to language
 	 * @return {string}
 	 */
-	createHubStubXML: async function(hubCreatorObj,title,langUri){
+	createHubStubXML: async function(hubCreatorObj,title,langUri,catalogerId){
 
 		
-		console.log(hubCreatorObj,title,langUri)
+		console.log(hubCreatorObj,title,langUri,catalogerId)
 
 
 		// we are creating the xml in two formats, create the root node for both
@@ -1803,12 +1803,16 @@ const utilsExport = {
 
 		let elAgentProperty = document.createElementNS(this.namespace.bf ,'bf:agent')
 		let elAgentClass = document.createElementNS(this.namespace.bf ,'bf:Agent')
-		elAgentProperty.appendChild(elAgentClass)
+		elAgentClass.setAttributeNS(this.namespace.rdf, 'rdf:about', hubCreatorObj.uri)
 
+		
+
+		elAgentProperty.appendChild(elAgentClass)
+		
 		// let elAgentType = document.createElementNS(this.namespace.bf ,'bf:agent')
 		let AgentRdftype = this.createElByBestNS('rdf:type')
 		AgentRdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', hubCreatorObj.typeFull)
-
+		
 		elAgentClass.appendChild(AgentRdftype)
 		let elAgentLabel = document.createElementNS(this.namespace.rdfs ,'rdfs:label')
 		elAgentLabel.innerHTML = hubCreatorObj.label
@@ -1838,8 +1842,101 @@ const utilsExport = {
 		// let elTitleProperty = document.createElementNS(this.namespace.bf ,'bf:title')
 		// let elTitleClass = document.createElementNS(this.namespace.bf ,'bf:Title')
 
+		let elAdminProperty = document.createElementNS(this.namespace.bf ,'bf:adminMetadata')
+		let elAdminClass = document.createElementNS(this.namespace.bf ,'bf:AdminMetadata')
+
+		let elStatusProperty = document.createElementNS(this.namespace.bf ,'bf:status')
+		let elStatusClass = document.createElementNS(this.namespace.bf ,'bf:Status')
+
+		elStatusClass.setAttributeNS(this.namespace.rdf, 'rdf:about', 'http://id.loc.gov/vocabulary/mstatus/n')
+		let elStatusLabel = document.createElementNS(this.namespace.rdfs ,'rdfs:label')
+		elStatusLabel.innerHTML='new'
+		let elStatusCode = document.createElementNS(this.namespace.bf ,'bf:code')
+		elStatusCode.innerHTML='n'
+		elStatusClass.appendChild(elStatusLabel)
+		elStatusClass.appendChild(elStatusCode)
+		elStatusProperty.appendChild(elStatusClass)
+
+		elAdminClass.appendChild(elStatusProperty)
+
+		let elDate = document.createElementNS(this.namespace.bf ,'bf:date')
+		elDate.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://www.w3.org/2001/XMLSchema#date')
+		elDate.innerHTML = (new Date()).toISOString().split("T")[0]
+	
+		elAdminClass.appendChild(elDate)
 
 
+
+		let elAdminAgentProperty = document.createElementNS(this.namespace.bf ,'bf:agent')
+		let elAdminAgentClass = document.createElementNS(this.namespace.bf ,'bf:Agent')
+
+		elAdminAgentClass.setAttributeNS(this.namespace.rdf, 'rdf:about', 'http://id.loc.gov/vocabulary/organizations/dlc')
+
+		let elAdminAgentType = document.createElementNS(this.namespace.rdf ,'rdf:type')
+		elAdminAgentType.setAttributeNS(this.namespace.rdf, 'rdf:resource', 'http://id.loc.gov/ontologies/bibframe/Organization')
+		let elAdminAgentLabel = document.createElementNS(this.namespace.rdfs ,'rdfs:label')
+		elAdminAgentLabel.innerHTML='United States, Library of Congress'
+		
+		elAdminAgentClass.appendChild(elAdminAgentType)
+		elAdminAgentClass.appendChild(elAdminAgentLabel)
+
+		let elAdminAgentCode1 = document.createElementNS(this.namespace.rdfs ,'bf:code')		
+		elAdminAgentCode1.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://id.loc.gov/datatypes/orgs/code')
+		elAdminAgentCode1.innerHTML='DLC'
+		
+		let elAdminAgentCode2 = document.createElementNS(this.namespace.rdfs ,'bf:code')		
+		elAdminAgentCode1.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://id.loc.gov/datatypes/orgs/normalized')
+		elAdminAgentCode1.innerHTML='dlc'
+
+		let elAdminAgentCode3 = document.createElementNS(this.namespace.rdfs ,'bf:code')		
+		elAdminAgentCode1.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://id.loc.gov/datatypes/orgs/iso15511')
+		elAdminAgentCode1.innerHTML='US-dlc'
+
+		elAdminAgentClass.appendChild(elAdminAgentCode1)
+		elAdminAgentClass.appendChild(elAdminAgentCode2)
+		elAdminAgentClass.appendChild(elAdminAgentCode3)
+
+		
+
+
+		elAdminAgentProperty.appendChild(elAdminAgentClass)
+		elAdminClass.appendChild(elAdminAgentProperty)
+
+		
+		let catalogerIdProperty = document.createElementNS(this.namespace.bflc ,'bflc:catalogerId')		
+		catalogerIdProperty.innerHTML=catalogerId
+
+
+
+		elAdminClass.appendChild(catalogerIdProperty)
+
+
+		elAdminProperty.appendChild(elAdminClass)
+
+		elHub.appendChild(elAdminProperty)
+
+		
+		
+// <bf:adminMetadata>
+// 	<bf:AdminMetadata>
+// 	<bf:status>
+// 		<bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+// 			<rdfs:label>new</rdfs:label>
+// 			<bf:code>n</bf:code>
+// 		</bf:Status>
+// 	</bf:status>
+// 	<bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1996-05-16</bf:date>
+// 	<bf:agent>
+// 		<bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+// 			<rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+// 			<rdfs:label>United States, Library of Congress</rdfs:label>
+// 			<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+// 			<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+// 			<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+// 		</bf:Agent>
+// 	</bf:agent>
+// 	</bf:AdminMetadata>
+// </bf:adminMetadata>
 
 
 

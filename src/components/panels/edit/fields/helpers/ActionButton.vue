@@ -170,7 +170,8 @@
       clickmode: Boolean,
       small: Boolean,
       fieldGuid: String,
-      structure: Object
+      structure: Object,
+      propertyPath: Array,
 
     },
     data () {
@@ -241,6 +242,10 @@
       showBuildHubStub(){
 
 
+
+        if (!this.propertyPath) return false;
+        if (this.propertyPath && this.propertyPath.length==0) return false;
+        
         let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/relation"){
           return true
@@ -255,6 +260,20 @@
         console.log(this.guid)
         let info = this.profileStore.returnLccInfo(this.guid)
         this.profileStore.activeHubStubData = info
+        this.profileStore.activeHubStubComponent = {
+
+          type: this.type,
+          guid: this.guid,
+          fieldGuid: this.fieldGuid,
+          structure: this.structure,
+          type: this.type,
+          propertyPath:this.propertyPath
+
+          
+
+
+
+        }
         this.profileStore.showHubStubCreateModal = true
       },
 

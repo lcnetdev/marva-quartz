@@ -57,7 +57,9 @@
       ...mapStores(useConfigStore),      
       ...mapStores(useProfileStore),      
 
-      ...mapWritableState(useProfileStore, ['activeProfile','showHubStubCreateModal','activeHubStubData']),
+      ...mapWritableState(useProfileStore, ['activeProfile','showHubStubCreateModal','activeHubStubData','activeHubStubComponent']),
+
+      
 
       
       
@@ -170,9 +172,20 @@
           }
         },
 
-        buildHub(){
+        async buildHub(){
 
-          this.profileStore.buildPostHubStub(this.hubCreator,this.hubTitle,this.hubLang)
+          
+
+          let results = await this.profileStore.buildPostHubStub(this.hubCreator,this.hubTitle,this.hubLang,this.preferenceStore.catCode)
+
+
+          // this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
+
+          
+          console.log(results)
+
+
+          // this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
 
 
 
@@ -263,6 +276,7 @@
               <template v-if="activeHubStubData && activeHubStubData.title && activeHubStubData.title.trim() != ''">
               </template>
             </div>
+
 
             <div style="margin-bottom: 1em;">
               <span class="creator-label" v-if="!hubCreator.label">[No Hub Creator]</span>
