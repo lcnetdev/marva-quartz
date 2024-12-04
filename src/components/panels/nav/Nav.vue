@@ -448,9 +448,14 @@
         if (window.localStorage.getItem('marva-preferences')){
           let prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
 
+          let today = new Date()
+          let dd = String(today.getDate()).padStart(2, '0')
+          let mm = String(today.getMonth() + 1).padStart(2, '0')
+          let yyyy = today.getFullYear()
+
           var temp = document.createElement('a')
           temp.setAttribute('href', 'data:text/plain; characterset=utf-8,' + encodeURIComponent(JSON.stringify(prefs)))
-          temp.setAttribute('download', "MarvaPreferences.json")
+          temp.setAttribute('download', "MarvaPreferences_" + yyyy + mm + dd + ".json")
           temp.style.display = 'none'
           document.body.appendChild(temp)
           temp.click()
@@ -463,7 +468,6 @@
       importPreferences: function(){
         const that = this
 
-        let data = null
         var temp = document.createElement("input")
         temp.type = "file"
         temp.id = "file-input"
