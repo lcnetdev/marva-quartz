@@ -499,11 +499,14 @@
             var contents = JSON.parse(e.target.result)
 
             that.preferenceStore.loadPreferences(contents["prefs"])
+            window.localStorage.setItem('marva-preferences', JSON.stringify(contents["prefs"]))
             if (contents["scriptShifterOptions"]){
               that.preferenceStore.scriptShifterOptions = contents["scriptShifterOptions"]
+              window.localStorage.setItem('marva-scriptShifterOptions', JSON.stringify(contents["scriptShifterOptions"]))
             }
             if (contents["diacriticUse"]){
               that.preferenceStore.diacriticUse = contents["diacriticUse"]
+              window.localStorage.setItem('marva-diacriticUse', JSON.stringify(contents["diacriticUse"]))
             }
             that.preferenceStore.buildDiacriticSettings()
           }
