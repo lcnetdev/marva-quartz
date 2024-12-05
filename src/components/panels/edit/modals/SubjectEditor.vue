@@ -105,7 +105,7 @@
                           <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
-                          <span v-if="name.collections"> ({{ this.buildAddtionalInfo(name.collections) }})</span>
+                          <span v-if="name.collections"> {{ this.buildAddtionalInfo(name.collections) }}</span>
                         </div>
                       <hr>
                     </div>
@@ -131,7 +131,7 @@
                     <div v-if="searchResults && searchResults.subjectsChildrenComplex.length>0">
                       <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
-                        <span v-if="subjectC.collections"> ({{ this.buildAddtionalInfo(subjectC.collections) }})</span>
+                        <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
                       </div>
                       <hr>
                     </div>
@@ -139,7 +139,7 @@
                   <div v-if="searchResults && searchResults.subjectsChildren.length>0">
                       <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
-                        <span v-if="!subject.literal"> ({{ this.buildAddtionalInfo(subject.collections) }})</span>
+                        <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
                       </div>
                     </div>
 
@@ -1587,9 +1587,9 @@ methods: {
           out.push("(ChldSubj)")
       }
 
-      if (collections.includes("LCNAF")){
-          out.push("[LCNAF]")
-      }
+      // if (collections.includes("LCNAF")){
+      //     out.push("[LCNAF]")
+      // }
 
       return out.join(" ")
     } else {
