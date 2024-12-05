@@ -112,17 +112,13 @@
                   colors[targetId] = {}
                 }
                 colors[targetId][type] = color
-                console.info("????", id, "--", target.propertyLabel, "--", target, "--", colors[id])
+                // if we're only worried about a work or instance handle that now
                 if (["work", "instance"].includes(id) && target.parentId.toLowerCase().includes(id)){
-                  console.info("setting color of ", target.preferenceId, " in ", id," to ", colors[id][type])
                   if (!Object.keys(colors).includes(target.preferenceId)){
-                  // if (!Object.keys(colors).includes(target.id)){
                     //create a blank one
                     colors[target.preferenceId] = {}
-                    // colors[target.id] = {}
                   }
                   colors[target.preferenceId][type] = colors[id][type]
-                  // colors[target.id][type] = colors[id][type]
                 }
               }
             }
@@ -147,8 +143,6 @@
         },
 
         resetColor(id, type){
-
-
           let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
           if (colors[id] && colors[id][type]){
             delete colors[id][type]
@@ -172,6 +166,26 @@
                     delete colors[target.preferenceId]
                   }
                 }
+              }
+            }
+            this.updateCounnter++
+          } else if (["work", "instance"].includes(id)) {
+            for (let rt of this.activeProfile.rtOrder){
+              for (let pt in this.activeProfile.rt[rt].pt){
+                let target = this.activeProfile.rt[rt].pt[pt]
+                // if (!Object.keys(colors).includes(target.preferenceId)){
+                //   // don't need to do nothing
+                // } else {
+                  if (target.parentId.toLowerCase().includes(id)){
+                    if (colors[target.preferenceId] && colors[target.preferenceId][type]){
+                      delete colors[target.preferenceId][type]
+                    }
+
+                    if (colors[target.preferenceId] && Object.keys(colors[target.preferenceId]).length==0){
+                      delete colors[target.preferenceId]
+                    }
+                  }
+                // }
               }
             }
             this.updateCounnter++
