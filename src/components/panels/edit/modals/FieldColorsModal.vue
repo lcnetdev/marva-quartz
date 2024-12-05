@@ -6,8 +6,8 @@
   import "vue3-colorpicker/style.css";
 
 
-  
-  
+
+
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
@@ -19,7 +19,7 @@
       VueFinalModal,
       VueDragResize,
       ColorPicker
-      
+
     },
 
     data() {
@@ -43,13 +43,13 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore),
-      ...mapStores(useConfigStore),      
-      ...mapStores(useProfileStore),      
+      ...mapStores(useConfigStore),
+      ...mapStores(useProfileStore),
 
       ...mapState(useProfileStore, ['activeProfile']),
 
-      ...mapWritableState(usePreferenceStore, ['showFieldColorsModal']),     
-      
+      ...mapWritableState(usePreferenceStore, ['showFieldColorsModal']),
+
 
     },
 
@@ -63,7 +63,7 @@
     },
 
     methods: {
-        
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -96,26 +96,51 @@
 
           colors[id][type] = color
 
+          //if `All` is set, set everything to the same color
+          if (["all", "work", "instance"].includes(id)){
+            for (let rt of this.activeProfile.rtOrder){
+              for (let pt in this.activeProfile.rt[rt].pt){
+                let target = this.activeProfile.rt[rt].pt[pt]
+                let targetId = null
+                if (id == "all"){
+                  targetId = target.preferenceId
+                } else {
+                  targetId = id
+                }
+                if (!Object.keys(colors).includes(targetId)){
+                  //create a blank one
+                  colors[targetId] = {}
+                }
+                colors[targetId][type] = color
+                // if we're only worried about a work or instance handle that now
+                if (["work", "instance"].includes(id) && target.parentId.toLowerCase().includes(id)){
+                  if (!Object.keys(colors).includes(target.preferenceId)){
+                    //create a blank one
+                    colors[target.preferenceId] = {}
+                  }
+                  colors[target.preferenceId][type] = colors[id][type]
+                }
+              }
+            }
+          }
+
           this.preferenceStore.setValue('--o-edit-general-field-colors',colors)
-          
         },
 
 
         returnColor(id, type){
 
-          
+
           let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
 
           if (colors[id] && colors[id][type]){ return colors[id][type]}
-          
-          
+
+
           return null
 
         },
-        
-        resetColor(id, type){
 
-          
+        resetColor(id, type){
           let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
           if (colors[id] && colors[id][type]){
             delete colors[id][type]
@@ -124,16 +149,57 @@
             delete colors[id]
           }
           console.log(colors)
-          this.preferenceStore.setValue('--o-edit-general-field-colors',colors)
 
-          this.updateCounnter++
+          if (id == "all"){
+            for (let rt of this.activeProfile.rtOrder){
+              for (let pt in this.activeProfile.rt[rt].pt){
+                let target = this.activeProfile.rt[rt].pt[pt]
+                if (!Object.keys(colors).includes(target.preferenceId)){
+                  // don't need to do nothing
+                } else {
+                  if (colors[target.preferenceId] && colors[target.preferenceId][type]){
+                    delete colors[target.preferenceId][type]
+                  }
+                  if (Object.keys(colors[target.preferenceId]).length==0){
+                    delete colors[target.preferenceId]
+                  }
+                }
+              }
+            }
+            this.updateCounnter++
+          } else if (["work", "instance"].includes(id)) {
+            for (let rt of this.activeProfile.rtOrder){
+              for (let pt in this.activeProfile.rt[rt].pt){
+                let target = this.activeProfile.rt[rt].pt[pt]
+                // if (!Object.keys(colors).includes(target.preferenceId)){
+                //   // don't need to do nothing
+                // } else {
+                  if (target.parentId.toLowerCase().includes(id)){
+                    if (colors[target.preferenceId] && colors[target.preferenceId][type]){
+                      delete colors[target.preferenceId][type]
+                    }
+
+                    if (colors[target.preferenceId] && Object.keys(colors[target.preferenceId]).length==0){
+                      delete colors[target.preferenceId]
+                    }
+                  }
+                // }
+              }
+            }
+            this.updateCounnter++
+          } else {
+            this.updateCounnter++
+          }
+
+          this.preferenceStore.setValue('--o-edit-general-field-colors', colors)
+
           return null
 
         },
 
-           
 
-        
+
+
         onSelectElement (event) {
           const tagName = event.target.tagName
 
@@ -141,10 +207,10 @@
             event.stopPropagation()
           }
         },
-       
 
 
-    
+
+
 
     },
 
@@ -162,17 +228,17 @@
 
 
       // window.setTimeout(()=>{
-        
-        
+
+
       //   this.nonLatinAgents = this.profileStore.returnAllNonLatinAgentOptions()
-        
+
 
       //   for (let key in this.nonLatinAgents){
-        
+
       //     if (this.nonLatinScriptAgents[key]){
       //       this.localMap[key] = this.nonLatinScriptAgents[key]
       //     }else{
-      //       this.localMap[key] = utilsProfile.pickBestNonLatinScriptOption(this.defaultScript, this.nonLatinAgents[key].scripts)   
+      //       this.localMap[key] = utilsProfile.pickBestNonLatinScriptOption(this.defaultScript, this.nonLatinAgents[key].scripts)
       //     }
 
       //   }
@@ -197,7 +263,7 @@
       :hide-overlay="true"
       :overlay-transition="'vfm-fade'"
 
-      
+
     >
         <VueDragResize
           :is-active="true"
@@ -211,22 +277,84 @@
           :stickSize="22"
         >
           <div id="non-latin-bulk-content" ref="nonLatinBulkContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
-            
+
             <div class="menu-buttons">
               <button class="close-button" @pointerup="showFieldColorsModal=false">X</button>
             </div>
 
             <table style="width: 100%;">
+              <tr>
+                <td></td>
+                <td>Required Field Color</td>
+                <td></td>
+              </tr>
+              <td class="rt-name">Set Mandatory Field Color</td>
+              <td>
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('req','req')" :format="'hex8'" @update:pureColor="changeColor($event,'req','req')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('req','req')" v-if="returnColor('req','req') !== null">
+                    restart_alt
+                  </button>
+                </td>
+              <tr>
+                <td></td>
+                <td>Default Color</td>
+                <td>Data Changed Color </td>
+              </tr>
+              <tr>
+                <td class="rt-name">Set Color All Fields</td>
+                <td>
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('all','default')" :format="'hex8'" @update:pureColor="changeColor($event,'all','default')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('all','default')" v-if="returnColor('all','default') !== null">
+                    restart_alt
+                  </button>
+                </td>
+                <td>
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('all','edited')" :format="'hex8'" @update:pureColor="changeColor($event,'all','edited')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('all','edited')" v-if="returnColor('all','edited') !== null">
+                    restart_alt
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="rt-name">Set Color All Work Fields</td>
+                <td>
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('work','default')" :format="'hex8'" @update:pureColor="changeColor($event,'work','default')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('work','default')" v-if="returnColor('work','default') !== null">
+                    restart_alt
+                  </button>
+                </td>
+                <td>
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('work','edited')" :format="'hex8'" @update:pureColor="changeColor($event,'work','edited')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('work','edited')" v-if="returnColor('work','edited') !== null">
+                    restart_alt
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="rt-name">Set Color All Instance Fields</td>
+                <td>
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('instance','default')" :format="'hex8'" @update:pureColor="changeColor($event,'instance','default')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('instance','default')" v-if="returnColor('instance','default') !== null">
+                    restart_alt
+                  </button>
+                </td>
+                <td>
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('instance','edited')" :format="'hex8'" @update:pureColor="changeColor($event,'instance','edited')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('instance','edited')" v-if="returnColor('instance','edited') !== null">
+                    restart_alt
+                  </button>
+                </td>
+              </tr>
               <template v-for="rt in activeProfile.rtOrder">
-                {{ }}
+                <br>
                 <tr>
-                  <td>{{ rt.split(":").slice(-1)[0]  }}</td>
-                  <td>Default Color</td>
-                  <td>Data Changed Color</td>
+                  <td class="rt-name">{{ rt.split(":").slice(-1)[0]  }}</td>
+                  <td></td>
+                  <td></td>
                 </tr>
                 <tr v-for="pt in activeProfile.rt[rt].pt">
                   <td>{{ pt.propertyLabel }}</td>
-                  <td> 
+                  <td>
                     <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor(pt.preferenceId,'default')" :format="'hex8'" @update:pureColor="changeColor($event,pt.preferenceId,'default')" />
                     <!-- <color-picker :pureColor="'2c3e5023'" :format="'hex8'" @update:pureColor="" /> -->
                     <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor(pt.preferenceId,'default')" v-if="returnColor(pt.preferenceId,'default') !== null">
@@ -246,7 +374,7 @@
 
                 <tr ><td style="padding: 1em 0 1em 0;" colspan="3"><hr></td></tr>
               </template>
-              
+
 
 
             </table>
@@ -260,7 +388,7 @@
     </VueFinalModal>
 
 
-    
+
 
 </template>
 <style>
@@ -293,7 +421,7 @@
     width: 25px;
     height: 25px;
   }
-  
+
 
   .option{
     display: flex;
@@ -343,9 +471,12 @@
     flex: 0 !important;
     padding-right: 1em;
   }
+  .rt-name {
+    font-weight: bold;
+  }
 
 
 
-  
+
 
 </style>
