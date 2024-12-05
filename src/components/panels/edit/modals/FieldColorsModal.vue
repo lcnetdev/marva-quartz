@@ -97,20 +97,39 @@
           colors[id][type] = color
 
           //if `All` is set, set everything to the same color
-          if (id == "all"){
+          if (["all", "work", "instance"].includes(id)){
             for (let rt of this.activeProfile.rtOrder){
               for (let pt in this.activeProfile.rt[rt].pt){
                 let target = this.activeProfile.rt[rt].pt[pt]
-                if (!Object.keys(colors).includes(target.preferenceId)){
-                  //create a blank one
-                  colors[target.preferenceId] = {}
+                let targetId = null
+                if (id == "all"){
+                  targetId = target.preferenceId
+                } else {
+                  targetId = id
                 }
-                colors[target.preferenceId][type] = color
+                if (!Object.keys(colors).includes(targetId)){
+                  //create a blank one
+                  colors[targetId] = {}
+                }
+                colors[targetId][type] = color
+                console.info("????", id, "--", target.propertyLabel, "--", target, "--", colors[id])
+                if (["work", "instance"].includes(id) && target.parentId.toLowerCase().includes(id)){
+                  console.info("setting color of ", target.preferenceId, " in ", id," to ", colors[id][type])
+                  if (!Object.keys(colors).includes(target.preferenceId)){
+                  // if (!Object.keys(colors).includes(target.id)){
+                    //create a blank one
+                    colors[target.preferenceId] = {}
+                    // colors[target.id] = {}
+                  }
+                  colors[target.preferenceId][type] = colors[id][type]
+                  // colors[target.id][type] = colors[id][type]
+                }
               }
             }
           }
 
           this.preferenceStore.setValue('--o-edit-general-field-colors',colors)
+          console.info("colors: ", colors)
 
         },
 
@@ -283,7 +302,36 @@
                     restart_alt
                   </button>
                 </td>
-
+              </tr>
+              <tr>
+                <td class="rt-name">Set Color All Work Fields</td>
+                <td>
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('work','default')" :format="'hex8'" @update:pureColor="changeColor($event,'work','default')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('work','default')" v-if="returnColor('work','default') !== null">
+                    restart_alt
+                  </button>
+                </td>
+                <td>
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('work','edited')" :format="'hex8'" @update:pureColor="changeColor($event,'work','edited')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('work','edited')" v-if="returnColor('work','edited') !== null">
+                    restart_alt
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td class="rt-name">Set Color All Instance Fields</td>
+                <td>
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('instance','default')" :format="'hex8'" @update:pureColor="changeColor($event,'instance','default')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('instance','default')" v-if="returnColor('instance','default') !== null">
+                    restart_alt
+                  </button>
+                </td>
+                <td>
+                  <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('instance','edited')" :format="'hex8'" @update:pureColor="changeColor($event,'instance','edited')" />
+                  <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('instance','edited')" v-if="returnColor('instance','edited') !== null">
+                    restart_alt
+                  </button>
+                </td>
               </tr>
               <template v-for="rt in activeProfile.rtOrder">
                 <br>

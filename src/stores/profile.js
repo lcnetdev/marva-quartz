@@ -509,7 +509,9 @@ export const useProfileStore = defineStore('profile', {
 
                               // try to make a profile wide unique identifier to hang preferences off of for that property
                               let propUniqueId = null
-                              if (pt.valueConstraint && pt.valueConstraint.valueDataType && pt.valueConstraint.valueDataType.dataTypeURI){
+                              if (pt.propertyURI.includes("/note")){
+                                propUniqueId = pt.propertyURI + "|" + pt.parentId
+                              }else if (pt.valueConstraint && pt.valueConstraint.valueDataType && pt.valueConstraint.valueDataType.dataTypeURI){
                                 propUniqueId = pt.propertyURI + "|" + pt.valueConstraint.valueDataType.dataTypeURI
                               }else if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length>0 ){
                                 propUniqueId = pt.propertyURI + "|" + pt.valueConstraint.valueTemplateRefs[0]
