@@ -125,8 +125,6 @@
           }
 
           this.preferenceStore.setValue('--o-edit-general-field-colors',colors)
-          console.info("colors: ", colors)
-
         },
 
 
