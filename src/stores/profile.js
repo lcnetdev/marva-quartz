@@ -1794,6 +1794,7 @@ export const useProfileStore = defineStore('profile', {
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
+
       // let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
 
       if (!valueLocation){
@@ -4471,8 +4472,8 @@ export const useProfileStore = defineStore('profile', {
       let eid = 'e' + decimalTranslator.new()
       eid = eid.substring(0,8)
 
-      // pass a fake activeprofile with id == Hub to trigger hub protocols 
-      let pubResuts 
+      // pass a fake activeprofile with id == Hub to trigger hub protocols
+      let pubResuts
       try{
         pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
         console.log(pubResuts)
@@ -4483,7 +4484,7 @@ export const useProfileStore = defineStore('profile', {
       }
 
       // pubResuts = {'location': 'http://id.loc.gov/resources/hubs/1111-111-111-111'}
-      
+
       return pubResuts
 
 

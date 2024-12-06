@@ -28,7 +28,7 @@
               <!-- <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span> -->
 
               <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span></span>
-                
+
               <a href="#" class="inline-remove-x" @click="removeValue(idx)" style="">x</a>
           </template>
 
@@ -61,7 +61,8 @@
 
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
-            <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && simpleLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
+            <!-- <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && simpleLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div> -->
+            <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
           </template>
 
 
@@ -73,9 +74,9 @@
               <div class="bfcode-display-mode-holder-value">
 
                 <div class="lookup-fake-input-entities" style="display:inline-block;">
-                  <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">                    
+                  <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
                       <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
-                      
+
                       <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span></span>
 
                       <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
@@ -356,7 +357,7 @@ export default {
 
     simpleLookupValues(){
       // profileStore.setActiveField()
-      let values = this.profileStore.returnSimpleLookupValueFromProfile(this.guid,this.propertyPath)
+      let values = this.profileStore.returnSimpleLookupValueFromProfile(this.guid, this.propertyPath)
       if (this.readOnly && values.length==0){
         this.showField=false
       }
@@ -471,6 +472,7 @@ export default {
         this.showActionButton=false
       }
       this.uri = this.structure.valueConstraint.useValuesFrom[0]
+
       utilsNetwork.loadSimpleLookup(this.uri)
 
 
@@ -1146,6 +1148,7 @@ export default {
 .lookup-fake-input-entities{
   flex-shrink: 1;
   padding: 0.2em;
+  margin-top: 5px;
 }
 
 .lookup-fake-input-label{
@@ -1155,7 +1158,7 @@ export default {
   top: -4px;
   left: 2px;
   color: gray;
-
+  margin-top: 1px;
 }
 
 .lookup-fake-input-text{
