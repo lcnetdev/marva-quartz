@@ -182,6 +182,7 @@
           let results = await this.profileStore.buildPostHubStub(this.hubCreator,this.hubTitle,this.hubLang,this.preferenceStore.catCode)
 
           if (results && results.postLocation){
+            results.postLocation = results.postLocation.replace("http://",'https://')
             this.profileStore.setValueComplex(this.activeHubStubComponent.guid, null, this.activeHubStubComponent.propertyPath, results.postLocation, this.hubTitle, null, {}, null)
 
             this.newHubUrl=results.postLocation
