@@ -4476,9 +4476,9 @@ export const useProfileStore = defineStore('profile', {
       let pubResuts
       try{
         pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
-        console.log(pubResuts)
-        pubResuts = await pubResuts.json()
-        console.log(pubResuts)
+
+
+
       }catch (error){
         console.log(error)
         alert("There was an error creating your Hub. Please report this issue.")
