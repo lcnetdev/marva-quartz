@@ -164,7 +164,6 @@ const utilsExport = {
 			bnode.appendChild(rdftype)
 			return bnode
 		}else{
-
 			// just normally make it
 			let bnode = this.createElByBestNS(userValue['@type'])
 			if (userValue['@id']){
@@ -186,9 +185,14 @@ const utilsExport = {
   * @return {boolean}
   */
 	createLiteral: function(property,userValue){
-		let p = this.createElByBestNS(property)
+        let p = this.createElByBestNS(property)
+
+
 		// it should be stored under the same key
-		if (userValue[property]){
+		if (userValue[property] && property != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
+            // without this exception, an edit to an incoming URL in SupplementaryContentNote's "Electronic Location" will update the "rdf:resource"
+            // but will also add it to the inside of the tag.
+
 			// one last sanity check, don't make empty literals
 			if (userValue[property].trim()==''){
 				return false
@@ -557,7 +561,7 @@ const utilsExport = {
 				let userValue
 
         		// the uservalue could be stored in a few places depending on the nesting
-				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){					
+				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){
 					userValue = ptObj.userValue[ptObj.propertyURI][0]
 					// it might be a top level literal, if so we don't want to exclude additonal literals that might be added
 					// so look to see if the node we got only has a guid and literal value, and if so look if there are more of them as siblings
@@ -573,9 +577,9 @@ const utilsExport = {
 								userValue = ptObj.userValue[ptObj.propertyURI]
 								// console.log("SETTING userValue to the group!",userValue)
 							}
-						}						
+						}
 					}
-					
+
 				}else if (ptObj.userValue[ptObj.propertyURI]){
 					userValue = ptObj.userValue[ptObj.propertyURI]
 				}else{
@@ -590,8 +594,8 @@ const utilsExport = {
 				}
 
 				let mostCommonScript = useProfileStore().setMostCommonNonLatinScript()
-				
-				// in bf->marc conversion it builds 880s and 600s based off of the presenece of 
+
+				// in bf->marc conversion it builds 880s and 600s based off of the presenece of
 				// multiple auth labels one with no @lang tag and ones that do have it
 				// check specific properties for now? (10/2024)
 				if ([
@@ -601,9 +605,9 @@ const utilsExport = {
 
 				].indexOf(ptObj.propertyURI)>-1){
 
-					// recusrive function to go through each key in the userValue and keep going till we find labels or marckeys 
+					// recusrive function to go through each key in the userValue and keep going till we find labels or marckeys
 					// the two properties that make 880s work
-					let process = function(obj, func) {      
+					let process = function(obj, func) {
 						if (Array.isArray(obj)){
 							obj.forEach(function (child) {
 							process(child, func);
@@ -619,7 +623,7 @@ const utilsExport = {
 								}
 							}
 							}
-						}				
+						}
 					}
 
 					process(ptObj.userValue, function (property,ary) {
@@ -635,7 +639,7 @@ const utilsExport = {
 							}
 							// if we have a language then great, also check the manual setting
 							if (profile.nonLatinScriptAgents){
-								if (profile.nonLatinScriptAgents[ptObj['@guid']]){									
+								if (profile.nonLatinScriptAgents[ptObj['@guid']]){
 									keepLang = [profile.nonLatinScriptAgents[ptObj['@guid']]]
 								}
 							}
@@ -644,16 +648,16 @@ const utilsExport = {
 							}
 
 							let toRemove = []
-							for (var i = 0; i < ary.length; i++) { 
+							for (var i = 0; i < ary.length; i++) {
 								let value = ary[i]
 								// no lang tag? good, thats the authorized latin script one
-								if (!value['@language']){ 
+								if (!value['@language']){
 									continue
 								}else{
 									// it has a language tag? is it one of the ones we want to keep?
 									let keepIt = false
 									for (let l of keepLang){
-										
+
 										if (value['@language'].toLowerCase().indexOf('-' + l.toLowerCase()) >-1){
 											keepIt = true
 										}
@@ -673,7 +677,7 @@ const utilsExport = {
 
 							// there isn't a non-latin script in the record, so remove all the non-latin properties
 							let toRemove = []
-							for (var i = 0; i < ary.length; i++) { 
+							for (var i = 0; i < ary.length; i++) {
 								let value = ary[i]
 								if (value['@language']){
 									toRemove.push(value['@language'])
@@ -691,8 +695,6 @@ const utilsExport = {
 
 
 				xmlLog.push(['Set userValue to:', JSON.parse(JSON.stringify(userValue)) ])
-
-
 
 				if (this.ignoreProperties.indexOf(ptObj.propertyURI) > -1){
 					xmlLog.push(`Skpping it because it is in the ignoreProperties list`)
@@ -752,12 +754,13 @@ const utilsExport = {
 						xmlLog.push(`Root level bnode: ${ptObj.propertyURI}`)
 
 						let pLvl1 = this.createElByBestNS(ptObj.propertyURI)
+
 						let bnodeLvl1 = this.createBnode(userValue, ptObj.propertyURI)
+
 						xmlLog.push(`Created lvl 1 predicate: ${pLvl1.tagName} and bnode: ${bnodeLvl1.tagName}`)
 
 						// loop though the properties
 						for (let key1 of Object.keys(userValue).filter(k => (!k.includes('@') ? true : false ) )){
-
 							xmlLog.push(`Looking at property : ${key1} in the userValue`)
 							// console.log('userValue',userValue)
 							let pLvl2 = this.createElByBestNS(key1)
@@ -773,6 +776,7 @@ const utilsExport = {
 								if (userValue[key1] && userValue[key1][0] && userValue[key1][0]['@id']){
 									let rdftype = this.createElByBestNS(key1)
 									rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1][0]['@id'])
+
 									bnodeLvl1.appendChild(rdftype)
 									xmlLog.push(`This bnode just has a rdf:type : ${rdftype} setting it an continuing`)
 									continue
@@ -780,7 +784,8 @@ const utilsExport = {
 									let rdftype = this.createElByBestNS(key1)
 									rdftype.innerHTML=escapeHTML(userValue[key1][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
 									xmlLog.push(`This bnode just has a rdf:type and label : ${rdftype} setting it an continuing`)
-									bnodeLvl1.appendChild(rdftype)
+
+                                    bnodeLvl1.appendChild(rdftype)
 									continue
 								}
 							}
@@ -801,6 +806,7 @@ const utilsExport = {
 								if (this.isBnode(value1)){
 									// yes
 									let bnodeLvl2 = this.createBnode(value1,key1)
+
 									pLvl2.appendChild(bnodeLvl2)
 									bnodeLvl1.appendChild(pLvl2)
 									xmlLog.push(`Creating bnode lvl 2 for it ${bnodeLvl2.tagName}`)
@@ -808,84 +814,86 @@ const utilsExport = {
                   					// now loop through its properties and see whats nested
 									for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 										let pLvl3 = this.createElByBestNS(key2)
+
 										xmlLog.push(`Creating lvl 3 property: ${pLvl3.tagName} for ${key2}`)
-										for (let value2 of value1[key2]){
-											if (this.isBnode(value2)){
-												// more nested bnode
-												// one more level
-												let bnodeLvl3 = this.createBnode(value2,key2)
-												pLvl3.appendChild(bnodeLvl3)
-												bnodeLvl2.appendChild(pLvl3)
-												xmlLog.push(`Creating lvl 3 bnode: ${bnodeLvl3.tagName} for ${key2}`)
+
+                                        for (let value2 of value1[key2]){
+                                            if (this.isBnode(value2)){
+                                                // more nested bnode
+                                                // one more level
+                                                let bnodeLvl3 = this.createBnode(value2,key2)
+                                                pLvl3.appendChild(bnodeLvl3)
+                                                bnodeLvl2.appendChild(pLvl3)
+                                                xmlLog.push(`Creating lvl 3 bnode: ${bnodeLvl3.tagName} for ${key2}`)
 
 
-												for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
-													let pLvl4 = this.createElByBestNS(key2)
-													for (let value3 of value2[key3]){
-														if (this.isBnode(value3)){
-															// one more level
-															let bnodeLvl4 = this.createBnode(value3,key3)
-															pLvl4.appendChild(bnodeLvl4)
-															bnodeLvl3.appendChild(pLvl4)
-															xmlLog.push(`Creating lvl 4 bnode: ${bnodeLvl4.tagName} for ${key3}`)
+                                                for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
+                                                    let pLvl4 = this.createElByBestNS(key2)
+                                                    for (let value3 of value2[key3]){
+                                                        if (this.isBnode(value3)){
+                                                            // one more level
+                                                            let bnodeLvl4 = this.createBnode(value3,key3)
+                                                            pLvl4.appendChild(bnodeLvl4)
+                                                            bnodeLvl3.appendChild(pLvl4)
+                                                            xmlLog.push(`Creating lvl 4 bnode: ${bnodeLvl4.tagName} for ${key3}`)
 
 
-															for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
-																for (let value4 of value3[key4]){
-																	if (this.isBnode(value4)){
-																		console.error("Max hierarchy depth reached, but there are more levels left:", key4, 'in', userValue )
-																		xmlLog.push(`Max hierarchy depth reached, but there are more levels left for ${key4}`)
+                                                            for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
+                                                                for (let value4 of value3[key4]){
+                                                                    if (this.isBnode(value4)){
+                                                                        console.error("Max hierarchy depth reached, but there are more levels left:", key4, 'in', userValue )
+                                                                        xmlLog.push(`Max hierarchy depth reached, but there are more levels left for ${key4}`)
 
-																	}else{
+                                                                    }else{
 
-																		for (let key5 of Object.keys(value4).filter(k => (!k.includes('@') ? true : false ) )){
-																			if (typeof value4[key5] == 'string' || typeof value4[key5] == 'number'){
-																				// its a label or some other literal
-																				let p5 = this.createLiteral(key5, value4)
-																				if (p5!==false) bnodeLvl4.appendChild(p5);
-																				xmlLog.push(`Added literal ${p5} for ${key5}`)
-																			}else{
-																				console.error('key5', key5, value4[key5], 'not a literal, should not happen')
-																				xmlLog.push(`Error not a literal but I thought it was at ${key5}`)
-																			}
-																		}
+                                                                        for (let key5 of Object.keys(value4).filter(k => (!k.includes('@') ? true : false ) )){
+                                                                            if (typeof value4[key5] == 'string' || typeof value4[key5] == 'number'){
+                                                                                // its a label or some other literal
+                                                                                let p5 = this.createLiteral(key5, value4)
+                                                                                if (p5!==false) bnodeLvl4.appendChild(p5);
+                                                                                xmlLog.push(`Added literal ${p5} for ${key5}`)
+                                                                            }else{
+                                                                                console.error('key5', key5, value4[key5], 'not a literal, should not happen')
+                                                                                xmlLog.push(`Error not a literal but I thought it was at ${key5}`)
+                                                                            }
+                                                                        }
 
-																	}
+                                                                    }
 
-																}
+                                                                }
 
-															}
+                                                            }
 
 
-														}else{
-															for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
-																if (typeof value3[key4] == 'string' || typeof value3[key4] == 'number'){
-																	// its a label or some other literal
-																	let p4 = this.createLiteral(key4, value3)
-																	if (p4!==false) bnodeLvl3.appendChild(p4);
-																	xmlLog.push(`Added literal ${p4} for ${key4}`)
-																}else{
-																	console.error('key4', key4, value3[key4], 'not a literal, should not happen')
-																	xmlLog.push(`Error not a literal but I thought it was at ${key4}`)
-																}
-															}
-														}
-													}
-												}
-											}else{
-												for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
-													if (typeof value2[key3] == 'string' || typeof value2[key3] == 'number'){
-														// its a label or some other literal
-														let p3 = this.createLiteral(key3, value2)
-														if (p3!==false) bnodeLvl2.appendChild(p3)
-														xmlLog.push(`Created Literal ${p3.innerHTML} for ${key3}`)
-													}else{
-														console.error('key3', key3, value2[key3], 'not a literal, should not happen')
-														xmlLog.push(`Error not a literal but I thought it was at ${key3}`)
-													}
-												}
-											}
-										}
+                                                        }else{
+                                                            for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
+                                                                if (typeof value3[key4] == 'string' || typeof value3[key4] == 'number'){
+                                                                    // its a label or some other literal
+                                                                    let p4 = this.createLiteral(key4, value3)
+                                                                    if (p4!==false) bnodeLvl3.appendChild(p4)
+                                                                    //xmlLog.push(`Added literal ${p4} for ${key4}`)
+                                                                }else{
+                                                                    console.error('key4', key4, value3[key4], 'not a literal, should not happen')
+                                                                    xmlLog.push(`Error not a literal but I thought it was at ${key4}`)
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }else{
+                                                for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
+                                                    if (typeof value2[key3] == 'string' || typeof value2[key3] == 'number'){
+                                                        // its a label or some other literal
+                                                        let p3 = this.createLiteral(key3, value2)
+                                                        if (p3!==false) bnodeLvl2.appendChild(p3)
+                                                        xmlLog.push(`Created Literal ${p3.innerHTML} for ${key3}`)
+                                                    }else{
+                                                        console.error('key3', key3, value2[key3], 'not a literal, should not happen')
+                                                        xmlLog.push(`Error not a literal but I thought it was at ${key3}`)
+                                                    }
+                                                }
+                                            }
+                                        }
 									}
 								}else{
 									xmlLog.push(`It's value at lvl is not a bnode, looping through and adding a literal value`)
@@ -901,18 +909,15 @@ const utilsExport = {
 											bnodeLvl1.setAttributeNS(this.namespace.rdf, 'rdf:about', value1['@id'])
 										}
 									}
-                                    
+
                                     if (keys.length>0){
 										for (let key2 of keys){
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
-												// its a label or some other literal
-												let p2 = this.createLiteral(key2, value1)
-												xmlLog.push(`Creating literal ${JSON.stringify(value1)}`)
-												if (p2!==false) bnodeLvl1.appendChild(p2);
+                                                    let p2 = this.createLiteral(key2, value1)
+                                                    xmlLog.push(`Creating literal ${JSON.stringify(value1)}`)
+                                                    if (p2!==false) bnodeLvl1.appendChild(p2);
 											}else if (Array.isArray(value1[key2])){
-
 												for (let arrayValue of value1[key2]){
-
 													let keysLevel2 = Object.keys(arrayValue).filter(k => (!k.includes('@') ? true : false ) )
 													if (keysLevel2.length>0){
 
@@ -945,7 +950,6 @@ const utilsExport = {
 
 										}
 									}else if (keys.length==0 && value1['@id']){
-
 										let p2 = this.createLiteral(key1, value1)
 										if (p2!==false) bnodeLvl1.appendChild(p2);
 
@@ -975,14 +979,13 @@ const utilsExport = {
 						componentXmlLookup[`${rt}-${pt}`] = formatXML(pLvl1.outerHTML)
 
 					}else{
-
 						// this.debug(ptObj.propertyURI, 'root level element does not look like a bnode', userValue)
 						xmlLog.push(`Root level does not look like a bnode: ${ptObj.propertyURI}`)
 						let userValueArray = userValue
 						if (!Array.isArray(userValue)){
 							userValueArray = [userValue]
 						}
-						
+
 
 						// but it might be a bnode, but with only a URI
 						for (let userValue of userValueArray){
@@ -1054,7 +1057,6 @@ const utilsExport = {
 
 								console.error("Does not have URI, ERROR")
 							}else if (await utilsRDF.suggestTypeNetwork(ptObj.propertyURI) == 'http://www.w3.org/2000/01/rdf-schema#Literal'){
-
 								// console.log("Top level literal HERE!",userValue)
 								// its just a top level literal property
 								// loop through its keys and make the values
@@ -1093,8 +1095,8 @@ const utilsExport = {
 									}
 								}
 								componentXmlLookup[`${rt}-${pt}`] = allXMLFragments
-							}else if (await utilsRDF.suggestTypeNetwork(ptObj.propertyURI) == 'http://www.w3.org/2000/01/rdf-schema#Resource'){
-
+                            //Exception for electronicLocator so it is handled by in the next block, otherwise, it won't appear in the XML
+							}else if (ptObj.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator" && await utilsRDF.suggestTypeNetwork(ptObj.propertyURI) == 'http://www.w3.org/2000/01/rdf-schema#Resource'){
 								// if it is a marked in the profile as a literal and has expected value of rdf:Resource flatten it to a string literal
 								let allXMLFragments = ''
 								for (let key1 of Object.keys(userValue).filter(k => (!k.includes('@') ? true : false ) )){
@@ -1151,7 +1153,7 @@ const utilsExport = {
 					xmlLog.push(`Skpping it because hasUserValue == false`)
 				}
 			}
-			
+
 
 			// add in the admindata
 			// if (orginalProfile.rt[rt].adminMetadataData){
@@ -1235,10 +1237,17 @@ const utilsExport = {
 
 
 		// Add in a adminMetadata to the resources with this user id
-		// console.log(profile)
-		let catCode = profile.user.split(" (")
-		catCode = catCode[catCode.length-1]
-		catCode=catCode.split(")")[0]
+		// catInitals.log(profile)
+		//get user info from preferenceStore instead of the profile
+		let userInitial = usePreferenceStore().catInitals
+		let catCode = usePreferenceStore().catCode
+		let user = `${userInitial} (${catCode})`
+		profile.user = user
+		// console.info("userInitial: ", userInitial)
+		// console.info("userCode: ", userCode)
+		// let catCode = profile.user.split(" (")
+		// catCode = catCode[catCode.length-1]
+		// catCode=catCode.split(")")[0]
 
 		let bf_adminMetadata = this.createElByBestNS("bf:adminMetadata")
 		let bf_AdminMetadtat = this.createElByBestNS("bf:AdminMetadata")
@@ -1610,10 +1619,10 @@ const utilsExport = {
     // console.log(strXmlFormatted)
     // console.log("------")
     // console.log(strXmlBasic)
-        
+
         // let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
         // strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
-        
+
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,
@@ -1625,7 +1634,7 @@ const utilsExport = {
 			componentXmlLookup:componentXmlLookup
 		}
   },
-  
+
     //This was handled in the `add()` of `SubjectEditor.vue`, but there are some situtations where that don't work as intended
     //  namely, complex subjects that have subdivisions
     // !! This is not being used, incase having the profile in Marva be different from the XML causes issues somewhere
@@ -1639,10 +1648,10 @@ const utilsExport = {
             // subject = parser.parseFromString(subject.innerHTML, "application/xml")
 
             let componentList = subject.getElementsByTagName("madsrdf:componentList")
-            
+
             if (componentList.length > 0){
                 const clone = componentList[0].cloneNode(true)
-                
+
                 let labels = []
                 let marcKeys = []
 
@@ -1653,23 +1662,23 @@ const utilsExport = {
                 clone.getElementsByTagName("bflc:marcKey").forEach((key) => {
                     marcKeys.push(key.innerHTML)
                 })
-                
+
                 for (let label in labels){
                     //save the element incase it needs to be re-added
                     const frozenElement = componentList[0].children[0] //clone.children[label]
-                    
+
                     //remove the existing element
                     componentList[0].children[0].remove()
-                    
+
                     if (labels[label].includes("--") && !marcKeys[label].includes("$z") ){
-                        
+
                         let newElements = []
                         let marcKey = marcKeys[label]
 
                         let tag = marcKey.slice(0, 3)
                         let subfields = marcKey.slice(5)
                         subfields = subfields.match(/\$[axyzv]{1}/g)
-                        
+
                         let terms = labels[label].split("--")
                         //Determine the tag for the new element
                         for (let term in terms){
@@ -1713,27 +1722,27 @@ const utilsExport = {
                             //Add the auth label
                             let authLabelElement = document.createElementNS("http://www.loc.gov/mads/rdf/v1#", "madsrdf:authoritativeLabel")
                             authLabelElement.innerHTML = terms[term]
-                            
+
                             //Add the marcKey
                             let marcKeyElement = document.createElementNS("http://id.loc.gov/ontologies/bflc/", "bflc:marcKey")
                             marcKeyElement.innerHTML = tag + "  " + subfields[term] + terms[term]
-                            
+
                             typeElement.appendChild(authLabelElement)
                             typeElement.appendChild(marcKeyElement)
-                            
+
                             componentList[0].appendChild(typeElement)
                         }
                     } else {
                         //it's a term that doesn't need to be split, be we'll re-add it to ensure the pieces are in the correct order
-                        
+
                         componentList[0].appendChild(frozenElement)
-                        
+
                     }
                 }
             }
-        
+
         }
-        
+
         return xml
     },
 
@@ -1747,9 +1756,9 @@ const utilsExport = {
 	 * @return {string}
 	 */
 	createHubStubXML: async function(hubCreatorObj,title,langUri,catalogerId){
-
 		
 		console.log(hubCreatorObj,title,langUri,catalogerId)
+
 
 
 		// we are creating the xml in two formats, create the root node for both
@@ -1776,7 +1785,7 @@ const utilsExport = {
 
 		// da hub
 		let elHub = document.createElementNS(this.namespace.bf ,'bf:Hub')
-		
+
 		// uri
 		elHub.setAttributeNS(this.namespace.rdf, 'rdf:about', hubUri)
 		let elTitleProperty = document.createElementNS(this.namespace.bf ,'bf:title')

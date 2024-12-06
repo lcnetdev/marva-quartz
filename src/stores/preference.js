@@ -55,7 +55,7 @@ export const usePreferenceStore = defineStore('preference', {
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},
-    
+
     copyMode: false,
 
     panelDisplay:{
@@ -900,7 +900,7 @@ export const usePreferenceStore = defineStore('preference', {
       this.loadPreferences()
 
       this.buildDiacriticSettings()
-      
+
       //set copyMode from preferences
       this.copyMode = this.styleDefault['--c-general-copy-mode'].value
 
@@ -953,11 +953,20 @@ export const usePreferenceStore = defineStore('preference', {
     },
     /**
     * Loads the saved preferences into the current preferences
+    * @param {obj} data - preference data from a file
+    *
     * @return {void}
     */
-    loadPreferences: function(){
-      if (window.localStorage.getItem('marva-preferences')){
-        let prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
+    loadPreferences: function(data=null){
+      if (window.localStorage.getItem('marva-preferences') || data){
+        let prefs = null
+
+        if (!data){
+          prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
+        } else {
+          prefs = data
+        }
+        console.info("DATA: ", data)
 
         // TEMP - 10/24 remove eventually
         for (let k in prefs.styleDefault){
@@ -1122,11 +1131,11 @@ export const usePreferenceStore = defineStore('preference', {
 
 
     },
-    
+
     // turn copy mode on/off
     toggleCopyMode: function(){
         this.copyMode = !this.copyMode
-    }
+    },
 
     /**
     * Take a url and rewrites it to match the url pattern of the current enviornment
@@ -1143,10 +1152,6 @@ export const usePreferenceStore = defineStore('preference', {
 
 
   },
-
-
-
-
 
 })
 

@@ -2,12 +2,12 @@
 
 
   <div v-if="componentType != 'META'" :style="'background-color: ' + returnBackgroundColor + ';'" :class="[{'component': (level == 0), 'inline-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode'))}]" :id="`edit_${parentId}_${id}`">
-    
-    
+
+
     <!-- {{guid}} -- {{componentType}} ({{level}}) {{propertyPath}} id: {{id}} -->
-     <!-- {{ structure.preferenceId }} {{ guid }} -->
-     <!-- {{ preferenceId }} -->
-       <!-- {{ userModified }} -->
+    <!-- {{ structure.preferenceId }} {{ guid }} -->
+    <!-- {{ preferenceId }} -->
+    <!-- {{ userModified }} -->
     <Ref
       v-if="componentType === 'REF'"
       :propertyPath="buildPropertyPath(propertyPath)"
@@ -400,7 +400,7 @@ export default {
       },
       userModified(store) {
         return store.returnUserModifiedIdByGUID(this.guid);
-      }      
+      }
     }),
 
 
@@ -457,7 +457,7 @@ export default {
 
 
       let id = this.preferenceId
-      
+
       if (colors[id]){
 
         if (this.userModified){
@@ -473,7 +473,7 @@ export default {
       }
 
 
-      
+
       return 'white'
 
     }
