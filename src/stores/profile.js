@@ -4479,7 +4479,8 @@ export const useProfileStore = defineStore('profile', {
         console.log(pubResuts)
         pubResuts = await pubResuts.json()
         console.log(pubResuts)
-      }catch{
+      }catch (error){
+        console.log(error)
         alert("There was an error creating your Hub. Please report this issue.")
       }
 
