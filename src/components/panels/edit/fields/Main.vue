@@ -455,11 +455,16 @@ export default {
 
       let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
 
+      const mandatory = this.structure.mandatory
 
       let id = this.preferenceId
 
-      if (colors[id]){
+      //If the mandatory color is set, it overrides everything
+      if (mandatory == "true" && Object.keys(colors).includes('req')){
+        return colors['req']['req']
+      }
 
+      if (colors[id]){
         if (this.userModified){
           if (colors[id]['edited']){
             return colors[id]['edited']
@@ -468,14 +473,9 @@ export default {
         if (colors[id]['default']){
             return colors[id]['default']
           }
-
-
       }
 
-
-
       return 'white'
-
     }
 
 

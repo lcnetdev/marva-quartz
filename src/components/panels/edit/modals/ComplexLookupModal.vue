@@ -48,7 +48,7 @@
         maxPage: 0,
 
         activeContext: null,
-		
+
 		searchType: "left",
       }
     },
@@ -158,7 +158,7 @@
           }
         }
         window.clearTimeout(this.searchTimeout)
-		
+
 		let searchType = this.searchType
         let offset = this.offsetStart
         if (this.activeComplexSearch != []) {
@@ -224,7 +224,7 @@
         let noLang = title.filter((v)=> typeof v['@language'] == "undefined" || (v['@language'] && v['@language'] == "en") )
 
         if (noLang && noLang[0] && noLang[0]['@value']){ return noLang[0]['@value']}
-        
+
         return 'ERROR - Cannot find label'
 
       },
@@ -236,7 +236,7 @@
         if (title[0] && typeof title[0] == 'string'){ return []}
 
         let hasLang = title.filter((v)=>{ if (v['@language'] && v['@language'] != "en"){return true}else{return false} })
-        
+
         let results = []
         for (let l of hasLang){
           results.push(`${l['@value']} @ ${l['@language']}`)
@@ -396,8 +396,8 @@
         this.currentPage = 1
         this.doSearch()
       },
-	  
-	  changeSearchType: function(event){ 
+
+	  changeSearchType: function(event){
 		if (event.target.checked){
 			this.searchType = "keyword"
 		} else {
@@ -443,7 +443,7 @@
 
             this.$refs.complexLookupModalDisplay.style.height = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + 'px'
           }
-		  
+
 		  if (this.$refs.toggle){
 			if (this.$refs.toggle.checked){
 				this.searchType = "keyword"
@@ -453,9 +453,9 @@
 		  }
         })
       })
-	  
 
-		
+
+
     },
 
     mounted() {
@@ -507,7 +507,7 @@
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
 				  </div>
-				  
+
                   <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % 25 ) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
                     <span>
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
@@ -525,7 +525,7 @@
                       </a>
                     </span>
                   </div>
-				  
+
 				  <div id="container" v-if="modalSelectOptions.length == 10 && modalSelectOptions[8].label == 'NAF Geo SubDiv'">
 					<input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
 					<label for="search-type" class="toggle-container">
@@ -533,7 +533,7 @@
 						<div>Keyword</div>
 					</label>
 				  </div>
-				  
+
               </template>
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === true">
                 <select v-model="modeSelect">
@@ -544,7 +544,6 @@
               <button @click="forceSearch()">Search</button>
               <hr style="margin-top: 5px;">
               <div>
-
                   <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)">
 
                     <option v-if="activeComplexSearch.length == 0 && activeComplexSearchInProgress == false && initalSearchState != true">
@@ -554,8 +553,7 @@
                       Searching...
                     </option>
 
-
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + r.suggestLabel + ((r.literal) ? ' [Literal]' : '')">
+                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + (!r.literal ? r.suggestLabel : r.label) + ((r.literal) ? ' [Literal]' : '')">
                     </option>
                   </select>
 

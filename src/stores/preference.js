@@ -966,7 +966,6 @@ export const usePreferenceStore = defineStore('preference', {
         } else {
           prefs = data
         }
-        console.info("DATA: ", data)
 
         // TEMP - 10/24 remove eventually
         for (let k in prefs.styleDefault){

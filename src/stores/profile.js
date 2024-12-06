@@ -511,7 +511,9 @@ export const useProfileStore = defineStore('profile', {
 
                               // try to make a profile wide unique identifier to hang preferences off of for that property
                               let propUniqueId = null
-                              if (pt.valueConstraint && pt.valueConstraint.valueDataType && pt.valueConstraint.valueDataType.dataTypeURI){
+                              if (pt.propertyURI.includes("/note")){
+                                propUniqueId = pt.propertyURI + "|" + pt.parentId
+                              }else if (pt.valueConstraint && pt.valueConstraint.valueDataType && pt.valueConstraint.valueDataType.dataTypeURI){
                                 propUniqueId = pt.propertyURI + "|" + pt.valueConstraint.valueDataType.dataTypeURI
                               }else if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length>0 ){
                                 propUniqueId = pt.propertyURI + "|" + pt.valueConstraint.valueTemplateRefs[0]
@@ -1792,6 +1794,7 @@ export const useProfileStore = defineStore('profile', {
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
+
       // let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
 
       if (!valueLocation){
@@ -4469,8 +4472,8 @@ export const useProfileStore = defineStore('profile', {
       let eid = 'e' + decimalTranslator.new()
       eid = eid.substring(0,8)
 
-      // pass a fake activeprofile with id == Hub to trigger hub protocols 
-      let pubResuts 
+      // pass a fake activeprofile with id == Hub to trigger hub protocols
+      let pubResuts
       try{
         pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
         console.log(pubResuts)
@@ -4482,6 +4485,7 @@ export const useProfileStore = defineStore('profile', {
 
       // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
       
+
       return pubResuts
 
 
