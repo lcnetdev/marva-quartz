@@ -4483,7 +4483,8 @@ export const useProfileStore = defineStore('profile', {
         alert("There was an error creating your Hub. Please report this issue.")
       }
 
-      // pubResuts = {'location': 'http://id.loc.gov/resources/hubs/1111-111-111-111'}
+      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
+      
 
       return pubResuts
 

@@ -1406,7 +1406,7 @@ const utilsExport = {
 
 
 			let theHub = (new XMLSerializer()).serializeToString(rdfBasic)
-			theHub = parser.parseFromString(theHub, "text/xml").children[0];
+			theHub = xmlParser.parseFromString(theHub, "text/xml").children[0];
 
 			rdf = theHub
 		}
@@ -1894,12 +1894,12 @@ const utilsExport = {
 		elAdminAgentCode1.innerHTML='DLC'
 		
 		let elAdminAgentCode2 = document.createElementNS(this.namespace.rdfs ,'bf:code')		
-		elAdminAgentCode1.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://id.loc.gov/datatypes/orgs/normalized')
-		elAdminAgentCode1.innerHTML='dlc'
+		elAdminAgentCode2.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://id.loc.gov/datatypes/orgs/normalized')
+		elAdminAgentCode2.innerHTML='dlc'
 
 		let elAdminAgentCode3 = document.createElementNS(this.namespace.rdfs ,'bf:code')		
-		elAdminAgentCode1.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://id.loc.gov/datatypes/orgs/iso15511')
-		elAdminAgentCode1.innerHTML='US-dlc'
+		elAdminAgentCode3.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://id.loc.gov/datatypes/orgs/iso15511')
+		elAdminAgentCode3.innerHTML='US-dlc'
 
 		elAdminAgentClass.appendChild(elAdminAgentCode1)
 		elAdminAgentClass.appendChild(elAdminAgentCode2)
@@ -1924,73 +1924,7 @@ const utilsExport = {
 
 		elHub.appendChild(elAdminProperty)
 
-		
-		
-// <bf:adminMetadata>
-// 	<bf:AdminMetadata>
-// 	<bf:status>
-// 		<bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
-// 			<rdfs:label>new</rdfs:label>
-// 			<bf:code>n</bf:code>
-// 		</bf:Status>
-// 	</bf:status>
-// 	<bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1996-05-16</bf:date>
-// 	<bf:agent>
-// 		<bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
-// 			<rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
-// 			<rdfs:label>United States, Library of Congress</rdfs:label>
-// 			<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
-// 			<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
-// 			<bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
-// 		</bf:Agent>
-// 	</bf:agent>
-// 	</bf:AdminMetadata>
-// </bf:adminMetadata>
-
-
-
 		rdf.appendChild(elHub)
-
-
-
-
-
-		// <bf:Hub >
-		// 	<bflc:aap >Filosofia e scienza nell'età moderna</bflc:aap>
-		// 	<bflc:aap-normalized >filosofiaescienzanell'etàmoderna</bflc:aap-normalized>
-		// 	<rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Series" />
-		// 	<bf:title >
-		// 	<bf:Title >
-		// 	<bf:mainTitle >Filosofia e scienza nell'età moderna</bf:mainTitle>
-		// 	<bf:partNumber >1</bf:partNumber>
-		// 	<bf:partName >Studi</bf:partName>
-		// 	</bf:Title>
-		// 	</bf:title>
-		// 	<bflc:marcKey >440 0$aFilosofia e scienza nell'età moderna.$n1,$pStudi ;$v68</bflc:marcKey>
-		// 	</bf:Hub>
-
-
-{/* <bf:contribution>
-<bf:Contribution>
-<rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
-<bf:agent>
-<bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n79021164">
-<rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
-<rdfs:label>Twain, Mark, 1835-1910</rdfs:label>
-<bflc:marcKey>1001 $aTwain, Mark,$d1835-1910</bflc:marcKey>
-</bf:Agent>
-</bf:agent>
-<bf:role>
-<bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
-<rdfs:label>contributor</rdfs:label>
-<bf:code>ctb</bf:code>
-</bf:Role>
-</bf:role>
-</bf:Contribution>
-</bf:contribution> */}
-
-
-
 
 		console.log(aap)
 		console.log(aapHash)
