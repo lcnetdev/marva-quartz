@@ -113,10 +113,11 @@
 
               <h3>Load with profile:</h3>
 
+              
               <div class="load-buttons">
                 <button class="load-button" @click="loadUrl(s.instance)" :disabled="(urlToLoadIsHttp || lccnLoadSelected ) ? false : true"  v-for="s in startingPointsFiltered">{{s.name}}</button>
 
-
+                
               </div>
               <hr>
 
@@ -295,6 +296,9 @@
 
         }
 
+        points.push( { "name": "HUB", "work": null, "instance": "lc:RT:bf2:HubBasic:Hub", "item": null },)
+
+        console.log(points)
         return points
       }
 
@@ -442,12 +446,14 @@
 
         // find the right profile to use from the instance profile name used
         let useProfile = null
+        console.log("this.profiles",this.profiles)
+        console.log("useInstanceProfile",useInstanceProfile)
         for (let key in this.profiles){
           if (this.profiles[key].rtOrder.indexOf(useInstanceProfile)>-1){
             useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
           }
         }
-
+        
         // check if the input field is empty
         if (this.urlToLoad == "" && useProfile===null){
           alert("Please enter the URL or Identifier of the record you want to load.")
@@ -605,15 +611,29 @@
       this.refreshSavedRecords()
 
       // this is checking to see if the route is available to load the passed URL to it
-      let inerval = window.setInterval(()=>{
+      let intervalLoadUrl = window.setInterval(()=>{
           if (this.$route && this.$route.query && this.$route.query.url){
 
             this.urlToLoad = this.$route.query.url
             this.urlToLoadIsHttp=true
-            window.clearInterval(inerval)
+            window.clearInterval(intervalLoadUrl)
 
-          }
+          }          
+
         },500)
+
+        let intervalLoadProfile = window.setInterval(()=>{
+          if (this.$route && this.$route.query && this.$route.query.profile && this.startingPointsFiltered && this.startingPointsFiltered.length>0){
+            console.log("Weerrr looookiinnn at the profile!", this.$route.query.profile)
+            let possibleInstanceProfiles = this.startingPointsFiltered.map((v)=>v.instance)
+            if (possibleInstanceProfiles.indexOf(this.$route.query.profile) >-1){
+              this.loadUrl(this.$route.query.profile)              
+            }
+            window.clearInterval(intervalLoadProfile)
+            // loadUrl
+          }          
+
+        },600)
 
 
     }
