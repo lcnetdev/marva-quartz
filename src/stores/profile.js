@@ -2639,12 +2639,30 @@ export const useProfileStore = defineStore('profile', {
     * @return {obj} - response from posting action
     */
     publishRecord: async function(eid, profile){
+
+
+      
+      let postingHub = false
+      if (this.activeProfile && this.activeProfile.id && this.activeProfile.id.indexOf(':Hub')>-1){
+        // ITS A HUB!
+        // do other things if its a hub
+        postingHub=true
+      }
+
       let xml = await utilsExport.buildXML(this.activeProfile)
-      let pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
+
+      
+      let pubResuts
+
+      if (postingHub){
+        pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, {id: 'Hub'})
+      }else{        
+        pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
+      }
+            
+
       pubResuts.resourceLinks=[]
       // if it was accepted by the system send it to the marva backend to store as posted
-
-
 
       if (pubResuts.status){
         this.activeProfile.status = 'published'
