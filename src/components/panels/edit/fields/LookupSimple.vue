@@ -357,6 +357,7 @@ export default {
 
     simpleLookupValues(){
       // profileStore.setActiveField()
+      console.info("getting values")
       let values = this.profileStore.returnSimpleLookupValueFromProfile(this.guid, this.propertyPath)
       if (this.readOnly && values.length==0){
         this.showField=false
@@ -459,7 +460,7 @@ export default {
 
     },
 
-    focused: function(){
+    focused: async function(){
 
       // set the state active field
       this.activeField = this.myGuid
@@ -473,14 +474,22 @@ export default {
       }
       this.uri = this.structure.valueConstraint.useValuesFrom[0]
 
-      utilsNetwork.loadSimpleLookup(this.uri)
-
-
+      if (this.uri == "http://id.loc.gov/vocabulary/resourceComponents"){
+        this.uri = "https://id.loc.gov/vocabulary/suggest2?q=*&memberOf=http://id.loc.gov/vocabulary/resourceComponents/collection_LanguageResource"
+      }
+      if (!this.uri.includes("suggest2")){
+        utilsNetwork.loadSimpleLookup(this.uri)
+      } else {
+        console.info("doing the thing")
+        let uriParts = this.uri.split("/suggest2?q=")
+        console.info(uriParts)
+        let results = await utilsNetwork.loadSimpleLookupKeyword(uriParts[0], uriParts[1])
+        utilsNetwork.lookupLibrary[this.uri] = results
+      }
     },
 
     actionButtonCommand: function(cmd){
       this.$refs.input.focus()
-
     },
 
     // Takes the list of values from this lookup uri and filters it based on the input
@@ -537,8 +546,14 @@ export default {
         }
 
       }
-      Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]).forEach((v)=>{
+      console.info("utilsNetwork.lookupLibrary", utilsNetwork.lookupLibrary)
+      console.info("this.uri: ", this.uri)
+      console.info("addKeyword: ", addKeyword)
+      console.info("!!!", utilsNetwork.lookupLibrary[this.uri+addKeyword])
+      console.info("???", Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]))
 
+      Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]).forEach((v)=>{
+        console.info("v: ", v)
         // the list has a special key metdata that contains more info
         if (v==='metadata'){return false}
         // no filter yet show first 25
@@ -594,9 +609,6 @@ export default {
 
 
         if (!recursive){
-
-
-
           if (this.uri.includes('id.loc.gov/vocabulary/')){
 
             if (this.activeFilter.length>2){
@@ -712,8 +724,6 @@ export default {
 
     },
     keyDownEvent: function(event, reposLeft){
-
-
       if (event && event.keyCode == 220 && event.ctrlKey == true){
         let id = `action-button-${event.target.dataset.guid}`
         document.getElementById(id).click()
@@ -727,24 +737,14 @@ export default {
 
 
       if (reposLeft){
-
         this.findSelectListTime = window.setInterval(()=>{
-
           if (this.$refs.selectlist && this.$refs.selectlist.style){
             window.clearTimeout(this.findSelectListTime)
             var rect = event.target.getBoundingClientRect();
             this.$refs.selectlist.style.left = rect.left + 'px'
-
           }
-
-
-
-
         },100)
-
-
       }
-
 
       this.activeValue = event.target.value
 
@@ -876,18 +876,12 @@ export default {
         event.preventDefault()
 
 
-      }else if (event.target.value == ''){
-
-
+      } else if (event.target.value == '') {
             this.activeFilter = ''
             this.activeValue = ''
             this.activeSelect = ''
             this.displayAutocomplete=false
-
-
-
       }
-
 
       if (this.displayAutocomplete){
         // this.$store.dispatch("disableMacroNav")
