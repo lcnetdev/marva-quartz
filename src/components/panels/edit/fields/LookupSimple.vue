@@ -473,9 +473,6 @@ export default {
       }
       this.uri = this.structure.valueConstraint.useValuesFrom[0]
 
-      if (this.uri == "http://id.loc.gov/vocabulary/resourceComponents"){
-        this.uri = "https://id.loc.gov/vocabulary/suggest2?q=*&memberOf=http://id.loc.gov/vocabulary/resourceComponents/collection_LanguageResource"
-      }
       if (!this.uri.includes("suggest2")){
         utilsNetwork.loadSimpleLookup(this.uri)
       } else {
