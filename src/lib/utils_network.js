@@ -56,7 +56,7 @@ const utilsNetwork = {
           let url = uri
 
           // TODO more checks here
-          if (!uri.includes('.json')){
+          if (!uri.includes('.json') && !uri.includes("suggest2")){
               url = url + '.json'
           }
 
@@ -83,7 +83,6 @@ const utilsNetwork = {
     */
 
     simpleLookupProcess: function(data,parentURI){
-
         let dataProcessed = {
 
             // all the URIs will live here but also the metadata obj about the uris
@@ -100,7 +99,6 @@ const utilsNetwork = {
             // something that has the parent URI
 
             data.forEach((d)=>{
-
                 let label = null
                 let labelData = null                // it has a URI and that URI is not the parent uri
                 // assume it is one of the values we want
@@ -128,6 +126,28 @@ const utilsNetwork = {
                             label = labelWithCode
                         }
                     })
+                } else if (parentURI.includes("suggest2") && d.uri && d.aLabel) {
+                  this.possibleLabelURIs.forEach((result)=>{
+                    // if it has this label URI and does not yet have a label
+                    if ( !dataProcessed[result.uri] ){
+
+                        label = d.aLabel
+
+                        let labelWithCode = []
+                        // build the metadata for each item that will go along it with structured fields
+                        let metadata = {uri:d.uri, label: [], code: [], displayLabel: [] }
+                        label.forEach((l)=>{
+                            labelWithCode.push(`${l} (${d.uri.split('/').pop()})`)
+                            metadata.displayLabel.push(`${l.trim()} (${d.uri.split('/').pop()})`)
+
+                            metadata.label.push(l.trim())
+                            metadata.code.push(d.uri.split('/').pop())
+
+                        })
+                        labelData = metadata
+                        label = labelWithCode
+                    }
+                })
                 }else if (d['http://id.loc.gov/ontologies/RecordInfo#recordStatus']){
                     // this is just a record info blank node, skip it
                     return false
@@ -190,7 +210,6 @@ const utilsNetwork = {
         if (r.hits && r.hits.length==0){
           url = `${uri}/suggest2/?q=${keyword}&count=25&searchtype=keyword`
           r = await this.fetchSimpleLookup(url)
-
         }
 
 
@@ -252,7 +271,6 @@ const utilsNetwork = {
       }catch(err){
         //alert("There was an error retriving the record from:",url)
         console.error("There was an error retriving the record from ", url, ". Likely from the search being aborted because the user was typing.");
-
         return false
         // Handle errors here
       }
