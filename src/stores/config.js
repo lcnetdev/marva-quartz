@@ -6,8 +6,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 0,
-    versionMinor: 16,
-    versionPatch: 29,
+    versionMinor: 17,
+    versionPatch: 1,
 
     regionUrls: {
 
@@ -25,8 +25,8 @@ export const useConfigStore = defineStore('config', {
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
         starting: 'http://localhost:9401/util/profiles/starting/prod',
 
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
 
@@ -50,8 +50,8 @@ export const useConfigStore = defineStore('config', {
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         // bfdb : 'https://preprod-8210.id.loc.gov/',
         bfdb : 'https://preprod-8300.id.loc.gov/',
-        // profiles : '/bfe2/util/profiles/profile/stage',
-        profiles : '/bfe2/util/profiles/profile/prod',
+        profiles : '/bfe2/util/profiles/profile/stage',
+        // profiles : '/bfe2/util/profiles/profile/prod',
         // profiles: 'https://preprod-3001.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
         starting : '/bfe2/util/profiles/starting/stage',
         id: 'https://preprod-8288.id.loc.gov/',

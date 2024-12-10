@@ -43,6 +43,9 @@
 
         displayModal:false,
 
+        postStatus: 'unposted',
+
+        newHubUrl: null,
 
 
 
@@ -155,7 +158,7 @@
 
 
 
-          console.log(this.hubCreator)
+          
           
         },
 
@@ -175,11 +178,22 @@
         async buildHub(){
 
           
-
+          this.postStatus='posting'
           let results = await this.profileStore.buildPostHubStub(this.hubCreator,this.hubTitle,this.hubLang,this.preferenceStore.catCode)
 
+          if (results && results.postLocation){
+            results.postLocation = results.postLocation.replace("http://",'https://')
+            this.profileStore.setValueComplex(this.activeHubStubComponent.guid, null, this.activeHubStubComponent.propertyPath, results.postLocation, this.hubTitle, null, {}, null)
 
-          // this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
+            this.newHubUrl=results.postLocation
+            this.postStatus='posted'
+
+          }else{
+            alert("Error posting!")
+            this.postStatus='error'
+          }
+
+          
 
           
           console.log(results)
@@ -190,6 +204,14 @@
 
 
         },
+
+        close(){
+          this.activeHubStubComponent = {}
+          this.activeHubStubData = {}
+          this.showHubStubCreateModal=false
+          this.postStatus=='unposed'
+
+        }
        
 
 
@@ -262,7 +284,7 @@
           <div id="non-latin-bulk-content" ref="nonLatinBulkContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
             
             <div class="menu-buttons">
-              <button class="close-button" @pointerup="showHubStubCreateModal=false">X</button>
+              <button class="close-button" @pointerup="close">X</button>
             </div>
             <h3 style="margin-bottom: 1em;">Create Quick Hub</h3>
             <div style="display: flex; margin-bottom: 1em;">
@@ -277,7 +299,7 @@
               </template>
             </div>
 
-
+            
             <div style="margin-bottom: 1em;">
               <span class="creator-label" v-if="!hubCreator.label">[No Hub Creator]</span>
               <span class="creator-label" v-if="hubCreator.label">{{hubCreator.label  }}</span>
@@ -298,15 +320,26 @@
             </select>
 
             <hr>
-            <div>
+            <div v-if="postStatus!='posted'">
               Fill out the above information to create a Hub Stub. You would create a Hub for resources that you would not normally create a MARC Authority record for. Once you click create you will be provided a link to further edit the Hub if you wish.
             </div>
 
-            <div style="display: flex; padding: 1.5em;">
+            <div style="display: flex; padding: 1.5em;" v-if="postStatus=='unposted'">
               <div style="flex:1; text-align: center;"><button style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;" @click="buildHub">Create Hub</button></div>
-              <div style="flex:1; text-align: center"><button style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Cancel</button></div>
+              <div style="flex:1; text-align: center"><button @click="close" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Cancel</button></div>
+            </div>
+            <div style="display: flex; padding: 1.5em; font-size: 1.5em;" v-if="postStatus=='posting'">
+              <div >Posting... Please wait...</div>
+            </div>
+            <div style="display: flex; padding: 1.5em;" v-if="postStatus=='posted'">
+              <div >The Hub was created! If you would like to edit it further please click the link, it will open in new tab:</div>
+              <div><a :href="`../load?url=${newHubUrl}.rdf&profile=lc:RT:bf2:HubBasic:Hub`" target="_blank">{{ newHubUrl }}</a></div>
+            </div>
+            <div v-if="postStatus=='posted'" style="text-align: center;">
+              <button @click="close" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Close</button>
 
             </div>
+
             
           </div>
 

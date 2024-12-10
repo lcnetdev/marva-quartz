@@ -338,7 +338,26 @@ const utilsParse = {
     return xml
   },
 
-  
+  /**
+  * For our hub profile we broke out the different title types, sniff for which profile to use 
+  *
+  * @param {Node} xml - the XML payload
+  * @return {Node}
+  */
+  sniffTitleType(xml){
+    for (let child of xml.children){
+      if (child.tagName == 'bf:title'){
+        if ( child.innerHTML.indexOf("bf:VariantTitle")>-1){
+          child.setAttribute('local:pthint', 'lc:RT:bf2:Title:VarTitle')
+        }if ( child.innerHTML.indexOf("bf:TransliteratedTitle")>-1){
+          child.setAttribute('local:pthint', 'lc:RT:bflc:TranscribedTitle')          
+        }else{
+          // leave blank?
+        }
+      }
+    }
+    return xml
+  },
 
 
   specialTransforms: {
@@ -384,9 +403,12 @@ const utilsParse = {
       profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
     });
 
+    let rtsToRemove = []
+
     for (const pkey in profile.rt) {
 
       let tle = ""
+      let isHub = false
       if (pkey.includes(':Work')){
         tle = "bf:Work"
       }else if (pkey.includes(':Instance')){
@@ -395,7 +417,9 @@ const utilsParse = {
         tle = "bf:Item"
       }else if (pkey.endsWith(':Hub')){
         tle = "bf:Hub"
-      }else{
+        isHub=true
+      }else{        
+        rtsToRemove.push(pkey)
         // don't mess with anything other than top level entities in the profile, remove them from the profile
         continue
       }
@@ -413,12 +437,9 @@ const utilsParse = {
 
       if (xml === false && tle == 'bf:Hub'){
         tle = "bf:Work"
+        isHub=true
         console.warn('No bf:Hub found, looking for bf:Work')
-        if (testRun){
-          xml = this.testDom.getElementsByTagName(tle)
-        }else{
-          xml = this.activeDom.getElementsByTagName(tle)
-        }
+        xml = this.activeDom.getElementsByTagName(tle)
         xml = this.returnOneWhereParentIs(xml, "rdf:RDF")
 
       }
@@ -529,6 +550,11 @@ const utilsParse = {
       if (tle == "bf:Work"){
         xml = this.sniffWorkRelationType(xml)
         xml = this.sniffNoteType(xml)
+      }
+
+      if (isHub){
+        xml = this.sniffTitleType(xml)
+
       }
 
       
@@ -1933,6 +1959,17 @@ const utilsParse = {
     for (let x of toDeleteNoData){
       profile.rt[x].noData=true
     }
+
+    for (let rt of rtsToRemove){
+      delete profile.rt[rt]
+      let index = profile.rtOrder.indexOf(rt);
+      if (index !== -1) {
+        profile.rtOrder.splice(index, 1);
+      }
+      
+
+    }
+
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
 
     return profile

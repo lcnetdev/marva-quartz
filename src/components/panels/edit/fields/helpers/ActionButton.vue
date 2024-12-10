@@ -242,14 +242,19 @@
       showBuildHubStub(){
 
 
+        console.log("this.propertyPath",this.propertyPath)
 
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
-        
+
         let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/relation"){
           return true
         }
+        if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/expressionOf"){
+          return true
+        }
+        
         
 
         return false

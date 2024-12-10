@@ -2620,12 +2620,12 @@ const utilsNetwork = {
 
     if (content && content.publish && content.publish.status && content.publish.status == 'published'){
 
-      return {status:true}
+      return {status:true, postLocation: (content.postLocation) ? content.postLocation : null }
 
     }else{
 
       // alert("Did not post, please report this error--" + JSON.stringify(content.publish,null,2))
-      return {status:false, msg: JSON.stringify(content.publish,null,2)}
+      return {status:false, postLocation: (content.postLocation) ? content.postLocation : null, msg: JSON.stringify(content.publish,null,2)}
     }
   },
 
