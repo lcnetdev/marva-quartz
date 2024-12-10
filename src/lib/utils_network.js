@@ -48,7 +48,6 @@ const utilsNetwork = {
     * @return {object} - returns the results processing
     */
     loadSimpleLookup: async function(uris){
-        console.info("loadSimpleLookup")
         // TODO make this better for multuple lookup list (might not be needed)
         if (!Array.isArray(uris)){
           uris=[uris]
@@ -84,8 +83,6 @@ const utilsNetwork = {
     */
 
     simpleLookupProcess: function(data,parentURI){
-        console.info("parentURI: ", parentURI)
-        console.info("processing the data", data)
         let dataProcessed = {
 
             // all the URIs will live here but also the metadata obj about the uris
@@ -102,7 +99,6 @@ const utilsNetwork = {
             // something that has the parent URI
 
             data.forEach((d)=>{
-                  console.info("d: ", d)
                 let label = null
                 let labelData = null                // it has a URI and that URI is not the parent uri
                 // assume it is one of the values we want
@@ -191,7 +187,6 @@ const utilsNetwork = {
     */
 
     loadSimpleLookupKeyword: async function(uris,keyword){
-      console.info("loadSimpleLookupKeyword")
       if (!Array.isArray(uris)){
         uris=[uris]
       }
@@ -209,10 +204,8 @@ const utilsNetwork = {
 
 
         let url = `${uri}/suggest2/?q=${keyword}&count=25`
-        console.info("url: ", url)
 
         let r = await this.fetchSimpleLookup(url)
-        console.info("r", r)
 
         if (r.hits && r.hits.length==0){
           url = `${uri}/suggest2/?q=${keyword}&count=25&searchtype=keyword`
@@ -222,7 +215,6 @@ const utilsNetwork = {
 
         if (r.hits && r.hits.length>0){
           for (let hit of r.hits){
-            console.info("hit: ", hit)
             results.metadata.values[hit.uri] = {uri:hit.uri, label: [hit.suggestLabel], authLabel:hit.aLabel, code: [], displayLabel: [hit.suggestLabel] }
             results[hit.uri] = [hit.suggestLabel]
           }
@@ -232,8 +224,6 @@ const utilsNetwork = {
       }
 
       this.lookupLibrary[uris[0]+'KEYWORD'] = results
-
-      console.info("results: ", results)
 
       return results
     },

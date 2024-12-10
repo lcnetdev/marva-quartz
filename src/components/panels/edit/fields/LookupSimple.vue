@@ -357,7 +357,6 @@ export default {
 
     simpleLookupValues(){
       // profileStore.setActiveField()
-      console.info("getting values")
       let values = this.profileStore.returnSimpleLookupValueFromProfile(this.guid, this.propertyPath)
       if (this.readOnly && values.length==0){
         this.showField=false
@@ -480,9 +479,7 @@ export default {
       if (!this.uri.includes("suggest2")){
         utilsNetwork.loadSimpleLookup(this.uri)
       } else {
-        console.info("doing the thing")
         let uriParts = this.uri.split("/suggest2?q=")
-        console.info(uriParts)
         let results = await utilsNetwork.loadSimpleLookupKeyword(uriParts[0], uriParts[1])
         utilsNetwork.lookupLibrary[this.uri] = results
       }
@@ -546,14 +543,7 @@ export default {
         }
 
       }
-      console.info("utilsNetwork.lookupLibrary", utilsNetwork.lookupLibrary)
-      console.info("this.uri: ", this.uri)
-      console.info("addKeyword: ", addKeyword)
-      console.info("!!!", utilsNetwork.lookupLibrary[this.uri+addKeyword])
-      console.info("???", Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]))
-
       Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]).forEach((v)=>{
-        console.info("v: ", v)
         // the list has a special key metdata that contains more info
         if (v==='metadata'){return false}
         // no filter yet show first 25
