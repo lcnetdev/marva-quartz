@@ -14,7 +14,6 @@
       </template>
       <template v-else>
 
-
           <template v-for="(avl,idx) in simpleLookupValues" >
               <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
 

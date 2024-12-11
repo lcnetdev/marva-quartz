@@ -216,7 +216,7 @@ const utilsNetwork = {
         if (r.hits && r.hits.length>0){
           for (let hit of r.hits){
             results.metadata.values[hit.uri] = {uri:hit.uri, label: [hit.suggestLabel], authLabel:hit.aLabel, code: [], displayLabel: [hit.suggestLabel] }
-            results[hit.uri] = [hit.suggestLabel]
+            results[hit.uri] = [hit.suggestLabel.includes("USE") ? hit.aLabel : hit.suggestLabel]
           }
 
         }
