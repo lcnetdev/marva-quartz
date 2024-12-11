@@ -65,13 +65,13 @@
             </template>
             <hr>
         </template>
-        
+
         <template v-if="type=='lookupSimple'">
 
 
         </template>
 
-        
+
         <template v-if="type=='lookupComplex'">
             <!-- template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.parentId.includes(':Form') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[0]" -->
             <template v-if="showUpDownButtons()[0]">
@@ -80,7 +80,7 @@
                 Move Up
               </button>
             </template>
-            
+
             <!-- <template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.parentId.includes(':Form') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[1]"> -->
             <template v-if="showUpDownButtons()[1]">
               <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-d`" @click="moveDown()">
@@ -107,7 +107,7 @@
             View Documentation<span class="material-icons action-button-icon">open_in_new</span>
           </button>
         </template>
-        
+
 
         <template v-if="catInitals.toLowerCase().indexOf('matt') > -1">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="breakRecord()">
@@ -115,18 +115,18 @@
           💀 Break Record 💀
           </button>
         </template>
-        
+
         <template v-if="preferenceStore.copyMode && showCopyPasteButtons()">
             <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-c`" @click="copyComponent()">
                 <span class="button-shortcut-label">c</span>
                 Copy<span class="material-icons action-button-icon">content_copy</span>
             </button>
-              
+
             <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-p`" @click="pasteComponent()">
                 <span class="button-shortcut-label">p</span>
                 Paste<span class="material-icons action-button-icon">content_paste</span>
             </button>
-            
+
             <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-r`" @click="repeatComponent()">
                 <span class="button-shortcut-label">r</span>
                 Repeat Component<span class="material-icons action-button-icon">repeat</span>
@@ -254,8 +254,8 @@
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/expressionOf"){
           return true
         }
-        
-        
+
+
 
         return false
       },
@@ -274,7 +274,7 @@
           type: this.type,
           propertyPath:this.propertyPath
 
-          
+
 
 
 
@@ -360,14 +360,14 @@
         this.profileStore.makeSubjectHeadingPrimary(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
 
       },
-      
+
       moveUp: function(){
-        this.profileStore.moveUpDown(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], "up") 
+        this.profileStore.moveUpDown(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], "up")
       },
       moveDown: function(){
-        this.profileStore.moveUpDown(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], "down") 
+        this.profileStore.moveUpDown(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], "down")
       },
-      
+
       showUpDownButtons: function(){
         let show = this.profileStore.showUpDownButtons(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
 
@@ -395,7 +395,7 @@
           }
         }
 
-        // try the next level up 
+        // try the next level up
         let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
         if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
           for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
@@ -406,14 +406,14 @@
                   if (this.profileStore.rtLookup[vRt].propertyTemplates[0].remark && this.profileStore.rtLookup[vRt].propertyTemplates[0].remark  != ''){
                     return this.profileStore.rtLookup[vRt].propertyTemplates[0].remark
                   }
-                } 
+                }
               }else{
                 for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
                   if (pt.propertyURI == this.structure.propertyURI && pt.remark && pt.remark != ''){
                     return pt.remark
                   }
                 }
-              }              
+              }
             }
           }
         }
@@ -437,6 +437,9 @@
       },
 
       hasDefaultValues: function(){
+        // console.info("hasDefaultValues")
+
+        // console.info("this.structure: ", this.structure)
         // if the selected item has defaults
         if (this.structure.valueConstraint.defaults.length > 0){
           return true
@@ -444,18 +447,41 @@
 
         // if it's part of a group with members that have defaults, and that group isn't the whole thing
         let parentId = this.structure.parentId
-        
+
         if (parentId.includes("_")){
             parentId = parentId.split("_")[0]
         }
 
-        if (!parentId.endsWith("Work") && !parentId.endsWith("Instance") && !parentId.endsWith("Hub") && !parentId.endsWith("Item")){
-          for (let sibling of this.profileStore.rtLookup[parentId].propertyTemplates){
-            if (sibling.valueConstraint.defaults.length > 0){
-              return true
+        // try the next level up
+        let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
+          for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
+            if (this.profileStore.rtLookup[vRt]){
+              if (this.structure.propertyURI == 'http://www.w3.org/2002/07/owl#sameAs'){
+                // if its a #sameAs we kind of lose the connection, so select the first one and check
+                if (this.profileStore.rtLookup[vRt].propertyTemplates && this.profileStore.rtLookup[vRt].propertyTemplates[0]){
+                  if (this.profileStore.rtLookup[vRt].propertyTemplates[0].valueConstraint && this.profileStore.rtLookup[vRt].propertyTemplates[0].valueConstraint.defaults.length > 0){
+                    return true
+                  }
+                }
+              }else{
+                for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
+                  if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
+                    return true
+                  }
+                }
+              }
             }
           }
         }
+
+        // if (!parentId.endsWith("Work") && !parentId.endsWith("Instance") && !parentId.endsWith("Hub") && !parentId.endsWith("Item")){
+        //   for (let sibling of this.profileStore.rtLookup[parentId].propertyTemplates){
+        //     if (sibling.valueConstraint.defaults.length > 0){
+        //       return true
+        //     }
+        //   }
+        // }
 
         return false
       },
@@ -466,57 +492,57 @@
       addComponent: function(){
 
       },
-      
+
       showCopyPasteButtons: function(){
           let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
           let label = structure.propertyLabel
-          
+
           if (label.includes("Admin")){
               return false
           }
           return true
       },
-      
+
       copyComponent: async function(){
           let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
           let propertyUri = structure.propertyURI
-          
+
           let value = JSON.stringify(structure)
-          
+
           const type = "text/plain"
           const blob = new Blob([value], {type})
           const data = [new ClipboardItem({[type]: blob})]
-          
+
           await navigator.clipboard.write(data)
       },
-      
-      
+
+
       pasteComponent: async function(){
           let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
-          
+
           const clipboardContents = await navigator.clipboard.read();
-          
+
           for (let item of clipboardContents){
               if (!item.types.includes("text/plain")) {
                 throw new Error("Clipboard does not contain text data.");
               }
-              
+
               let blob = await item.getType("text/plain")
               const incomingValue = await blob.text()
               const incomingData = JSON.parse(incomingValue)
-              
+
               structure.userValue = incomingData.userValue
               structure.userModified = true
-              
-              
+
+
               this.profileStore.dataChanged()
           }
       },
-      
+
       repeatComponent: async function(){
           await this.copyComponent()
           await this.profileStore.pasteSelected()
-          
+
           this.profileStore.dataChanged()
       },
 

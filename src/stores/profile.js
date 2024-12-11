@@ -3459,7 +3459,7 @@ export const useProfileStore = defineStore('profile', {
       let today = yyyy + mm + dd
 
       return defaultString.replace("[$date]", today)
-    }
+    } // else if (target[0].includes("..."))
   },
 
   /**
@@ -3507,7 +3507,6 @@ export const useProfileStore = defineStore('profile', {
           let defaultsProperty = false
           if (this.rtLookup[structure.parentId]){
               for (let p of this.rtLookup[structure.parentId].propertyTemplates){
-
                 // dose it have a default value?
                 if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
                   if (p.valueConstraint.valueTemplateRefs && p.valueConstraint.valueTemplateRefs.length>0){
