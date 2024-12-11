@@ -2641,7 +2641,7 @@ export const useProfileStore = defineStore('profile', {
     publishRecord: async function(eid, profile){
 
 
-      
+
       let postingHub = false
       if (this.activeProfile && this.activeProfile.id && this.activeProfile.id.indexOf(':Hub')>-1){
         // ITS A HUB!
@@ -2651,15 +2651,15 @@ export const useProfileStore = defineStore('profile', {
 
       let xml = await utilsExport.buildXML(this.activeProfile)
 
-      
+
       let pubResuts
 
       if (postingHub){
         pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, {id: 'Hub'})
-      }else{        
+      }else{
         pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
       }
-            
+
 
       pubResuts.resourceLinks=[]
       // if it was accepted by the system send it to the marva backend to store as posted
@@ -3440,6 +3440,27 @@ export const useProfileStore = defineStore('profile', {
 
   },
 
+  /**
+   * Replace a placeholder in the default value when appropriate.
+   * Current replacements: `[$date]` with today's date
+   *
+   * @param {string} defaultString - the incoming string with a value that will be replaced. */
+  replaceDefaultPlaceHolder: function(defaultString){
+    if (!defaultString){ return defaultString }
+    let target = defaultString.match(/\[\$(.*)\]/g)
+    if (!target){return defaultString}
+
+    if (target[0].includes("date")){
+      let date = new Date()
+      let dd = String(date.getDate()).padStart(2, '0')
+      let mm = String(date.getMonth() + 1).padStart(2, '0')
+      let yyyy = date.getFullYear()
+
+      let today = yyyy + mm + dd
+
+      return defaultString.replace("[$date]", today)
+    } // else if (target[0].includes("..."))
+  },
 
   /**
       * Set the default values of the component fields
@@ -3486,7 +3507,6 @@ export const useProfileStore = defineStore('profile', {
           let defaultsProperty = false
           if (this.rtLookup[structure.parentId]){
               for (let p of this.rtLookup[structure.parentId].propertyTemplates){
-
                 // dose it have a default value?
                 if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
                   if (p.valueConstraint.valueTemplateRefs && p.valueConstraint.valueTemplateRefs.length>0){
@@ -3511,14 +3531,14 @@ export const useProfileStore = defineStore('profile', {
                             '@guid': short.generate(d.defaultLiteral, d.defaultURI)
                           }]
                           if (d.defaultLiteral && d.defaultLiteral != ''){
-                            value[defaultPropertyToUse][0][defaultPropertyToUse] = d.defaultLiteral
+                            value[defaultPropertyToUse][0][defaultPropertyToUse] = this.replaceDefaultPlaceHolder(d.defaultLiteral)
                           }
                           if (d.defaultURI && d.defaultURI != ''){
                             value['@id'] = d.defaultURI
                           }
                         }else{
                           if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
-                            value[defaultPropertyToUse] = d.defaultLiteral
+                            value[defaultPropertyToUse] = this.replaceDefaultPlaceHolder(d.defaultLiteral)
                           }else{
                             value['@id'] = d.defaultURI
                           }
@@ -3543,14 +3563,14 @@ export const useProfileStore = defineStore('profile', {
                       }
                       // if it just has a literal value and not a URI then don't create a blank node, just insert it using that literal property
                       if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
-                        value[p.propertyURI] = d.defaultLiteral
+                        value[p.propertyURI] = this.replaceDefaultPlaceHolder(d.defaultLiteral)
                       }else{
                         // it is a blank node
                         if (d.defaultLiteral){
                           // console.log(newPt)
                           value['http://www.w3.org/2000/01/rdf-schema#label'] = [{
                               '@guid': short.generate(),
-                              'http://www.w3.org/2000/01/rdf-schema#label':d.defaultLiteral
+                              'http://www.w3.org/2000/01/rdf-schema#label': this.replaceDefaultPlaceHolder(d.defaultLiteral)
                           }]
                         }
                         if (d.defaultURI){
@@ -4503,7 +4523,7 @@ export const useProfileStore = defineStore('profile', {
       }
 
       // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
-      
+
 
       return pubResuts
 
