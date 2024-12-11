@@ -343,9 +343,6 @@
         //does this have defaults, or are the defaults higher up?
         let defaults = this.structure.valueConstraint.defaults
 
-        console.info("guid: ", this.guid) // 8nn47R95iJ5KQd2bcWEDeb
-        console.info("this.structure", this.structure)
-
         if (defaults.length > 0){
           this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
         } else {
@@ -356,7 +353,6 @@
               if (this.profileStore.rtLookup[vRt]){
                 for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
                   if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
-                    console.info("doing the thing")
                     this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], pt)
                   }
                 }
@@ -460,9 +456,6 @@
       },
 
       hasDefaultValues: function(){
-        // console.info("hasDefaultValues")
-
-        // console.info("this.structure: ", this.structure)
         // if the selected item has defaults
         if (this.structure.valueConstraint.defaults.length > 0){
           return true

@@ -47,9 +47,9 @@
       returnSubjectHeadingLabel(component){
 
         let returnString = 'No Heading'
-        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'] 
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0 
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] 
+        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject']
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label']
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]
@@ -57,9 +57,9 @@
           returnString = component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
         }
 
-        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'] 
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0 
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] 
+        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject']
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length>0
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]
@@ -67,9 +67,9 @@
           returnString = component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
         }
 
-        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'] 
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0 
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] 
+        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject']
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0
+        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id']
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].indexOf('/fast/') > -1){
 
@@ -77,7 +77,7 @@
         }
 
 
-        
+
 
         return returnString
 
@@ -96,24 +96,21 @@
 
 
       },
-      
+
       change: function(){
           // A property was moved. Make the current state savable and update the xml
           this.dataChanged()
       },
-      
-      
+
+
       // if the component has data, and from where
       hasData: function(component){
           let userValue = component.userValue
           let emptyArray = new Array("@root")
           let dataLoaded = component.dataLoaded
-          
-          // console.info(component.propertyLabel, "[", dataLoaded,"]", ": ", component)
-          //console.info(JSON.stringify(Object.keys(component.userValue)), "--" ,JSON.stringify(emptyArray))
-          
+
           if (this.profileStore.isEmptyComponent(JSON.parse(JSON.stringify(component)))){
-            return false  
+            return false
           } else if (component.userModified){
             return "user"
           } else if (dataLoaded){
@@ -122,7 +119,7 @@
               return false
           }
       },
-    },    
+    },
   }
 
 
@@ -192,8 +189,8 @@
                                       <span v-else>
                                         {{activeProfile.rt[profileName].pt[element].propertyLabel}}
                                       </span>
-                                      
-                                      
+
+
 
                                   </a>
                                   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-show-types')">
