@@ -340,7 +340,30 @@
       },
 
       insertDefaultValues: function(){
-        this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
+        //does this have defaults, or are the defaults higher up?
+        let defaults = this.structure.valueConstraint.defaults
+
+        console.info("guid: ", this.guid) // 8nn47R95iJ5KQd2bcWEDeb
+        console.info("this.structure", this.structure)
+
+        if (defaults.length > 0){
+          this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
+        } else {
+          //look up one level & use the appropriate structure
+          let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
+          if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
+            for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
+              if (this.profileStore.rtLookup[vRt]){
+                for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
+                  if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
+                    console.info("doing the thing")
+                    this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], pt)
+                  }
+                }
+              }
+            }
+          }
+        }
         this.sendFocusHome()
       },
 

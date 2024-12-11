@@ -3471,6 +3471,7 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
+    // console.info("\n***************************\ninsertDefaultValuesComponent")
     // console.log(componentGuid)
     // console.log("structure",structure)
 
@@ -3507,9 +3508,11 @@ export const useProfileStore = defineStore('profile', {
           let defaultsProperty = false
           if (this.rtLookup[structure.parentId]){
               for (let p of this.rtLookup[structure.parentId].propertyTemplates){
+                // console.info("propertyLabel: ", p.propertyLabel, "--", p)
                 // dose it have a default value?
                 if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
                   if (p.valueConstraint.valueTemplateRefs && p.valueConstraint.valueTemplateRefs.length>0){
+                    // console.info("if")
                     // they are linking to another template in this template, so if we ant to populate the imformation we would need to know what predicate to use :(((((
                     if (this.rtLookup[p.valueConstraint.valueTemplateRefs[0]] && this.rtLookup[p.valueConstraint.valueTemplateRefs[0]].propertyTemplates && this.rtLookup[p.valueConstraint.valueTemplateRefs[0]].propertyTemplates.length==1){
                       let defaultPropertyToUse = this.rtLookup[p.valueConstraint.valueTemplateRefs[0]].propertyTemplates[0].propertyURI
@@ -3550,6 +3553,7 @@ export const useProfileStore = defineStore('profile', {
                       console.warn("Nested default template trying to insert values but there are multiple propertyTemplates so no clue which proerpty to look into for the default value: ", this.rtLookup[p.valueConstraint.valueTemplateRefs[0]])
                     }
                   }else{
+                    // console.info("else")
                     let blankNodeType = null
                     // we probably need to make a blank node, so find out what rdf type blank node is needed
                     if (p.valueConstraint && p.valueConstraint.valueDataType && p.valueConstraint.valueDataType.dataTypeURI){
@@ -3583,13 +3587,22 @@ export const useProfileStore = defineStore('profile', {
 
                       // if we're not working at the top level, just add the default values
                       if (!isParentTop){
+                        console.info("not top")
+                        console.info("")
+                        console.info("value: ", value)
+                        console.info("p.propertyURI: ", p.propertyURI)
                         userValue[p.propertyURI].push(value)
                       //otherwise, make sure the propertyURI matches the baseURI
                       } else if (isParentTop && p.propertyURI == baseURI){
+                        console.info("top")
                         userValue[p.propertyURI].push(value)
+                      } else {
+                        console.info("nothing")
                       }
                     }
                   }
+                } else {
+                  console.info("here???")
                 }
               }
 
@@ -3602,8 +3615,10 @@ export const useProfileStore = defineStore('profile', {
       }
 
       if (!isParentTop){
+        console.info("???")
         pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
       } else {
+        console.info("pt: ", pt)
         //We're not in a nested component, so we can just set the userValue
         pt.userValue = JSON.parse(JSON.stringify(userValue))
       }
