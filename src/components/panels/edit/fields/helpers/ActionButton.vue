@@ -96,6 +96,10 @@
               </button>
         </template>
 
+        <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="convertLcc2Dewey()">
+          <span class="button-shortcut-label">0</span>
+          AutoDewey
+        </button>
 
         <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
           <span class="button-shortcut-label">0</span>
@@ -161,6 +165,8 @@
 
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
+
+  import { LcCallToDewey } from '@/lib/auto_dewey'
 
 
   export default {
@@ -593,6 +599,24 @@
       //     this.$emit('actionButtonCommand', cmd)
       //     this.showActionButtonMenu=false
       // }
+
+      convertLcc2Dewey: function(){
+        // TODO: can a lcc be valid with only a class portion?
+        console.info("Dewing the conversion")
+
+        const parent = this.profileStore.returnStructureByComponentGuid(this.guid)
+        let lccn = null
+        try{
+          const data = parent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
+          const classPortion = data["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"]
+          const itemPortion = data["http://id.loc.gov/ontologies/bibframe/itemPortion"][0]["http://id.loc.gov/ontologies/bibframe/itemPortion"]
+          lccn = classPortion + itemPortion
+        } catch(e) {
+          alert("Couldn't generate an LC class number for auto dewey. Make sure all the pieces are present.")
+          console.error("AutoDewey Error", e)
+        }
+        console.info("lccn: ", lccn)
+      },
 
     },
     watch: {
