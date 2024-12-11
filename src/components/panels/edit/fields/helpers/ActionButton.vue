@@ -340,13 +340,17 @@
       },
 
       insertDefaultValues: function(){
+        if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
+          return false
+        }
+        console.info("this.structure", this.structure.parentId)
         //does this have defaults, or are the defaults higher up?
         let defaults = this.structure.valueConstraint.defaults
 
         if (defaults.length > 0){
           this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
         } else {
-          //look up one level & use the appropriate structure
+          // // look up one level & use the appropriate structure
           let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
           if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
             for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
