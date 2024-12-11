@@ -2362,7 +2362,9 @@ const utilsNetwork = {
         ]);
 
       } else if (mode == "CHILD"){
-        [resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
+        [resultsNames, resultsNamesSubdivision, resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
+            this.searchComplex(searchPayloadNames),
+            this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadChildrenSubjects),
             this.searchComplex(searchPayloadChildrenSubjectsComplex),
             this.searchComplex(searchPayloadChildrenSubjectsSubdivision)
