@@ -737,9 +737,12 @@ export default {
     // Open the authority `panel` for an given authority
     openAuthority: function() {
       //Get the type of search
-      let selection = document.getElementById(this.guid)
-      let selected = selection.options[selection.selectedIndex].value
-      this.searchType = selected
+      console.info("guid", this.guid)
+      try {
+        let selection = document.getElementById(this.guid)
+        let selected = selection.options[selection.selectedIndex].value
+        this.searchType = selected
+      } catch {}
 
       let label = this.$refs.el[0].innerHTML
       this.profileData = this.profileStore.returnStructureByGUID(this.guid)
@@ -764,13 +767,13 @@ export default {
         this.marcDeliminatedLCSHModeTimeout = null
         this.marcDeliminatedLCSHModeResults = []
 
-        try {
-          let selection = document.getElementById(this.guid)
-          let selected = selection.options[selection.selectedIndex].value
-          this.searchType = selected
-        } catch{
+        // try {
+        //   let selection = document.getElementById(this.guid)
+        //   let selected = selection.options[selection.selectedIndex].value
+        //   this.searchType = selected
+        // } catch{
 
-        }
+        // }
 
         this.displaySubjectModal = true
       }
