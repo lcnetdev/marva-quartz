@@ -1,21 +1,24 @@
 //from https://git.loc.gov/lcap/aws-lcap/ui-lcap-productivity-tools/-/blob/issue-001/lcap-productivity-tools/src/components/auto-dewey/instance-selected/lccall-to-dewey.js?ref_type=heads
 
+//import { useMemoize } from '@vueuse/core'
+
 import lccDeweyMap from "@/lib/LCCtoDewey.json"
 
 
-export default function LcCallToDewey({ lcCall, parentPhone }) {
-
+export default function LcCallToDewey(lcCall, genre=null) {  //{ lcCall, parentPhone }
+    console.info("Dewing it", lcCall, "--", genre)
     if (!lcCall) return
 
     //this if for Px class, for GV uses 'GV Bio'
     const autoDeweyGenres = ['fiction', 'poetry', 'drama']
-    const [autoDeweyGenre, setAutoDeweyGenre] = useState();
-    const [autoDeweyResult, setAutoDeweyResult] = useState();
+    const autoDeweyGenre = null
+    const autoDeweyResult = null
 
     const lccsWithLocalLogics = ['PG', 'PH', 'PQ', 'PR', 'PS', 'PT', 'GV']
 
     //autoDewey mode
     const convertLccWithLocalLogics = (letter, number) => {
+        console.info("convertLccWithLocalLogics", letter, "--", number)
         //these are basically copy and pasted form VBA
 
         const Left = (str, numChars) => {
@@ -1946,6 +1949,7 @@ export default function LcCallToDewey({ lcCall, parentPhone }) {
                 _convertClassPrDrama(letter + number)
             }
         } else if (letter == 'PS') {
+            console.info("!! PS !!", autoDeweyGenre)
             if (autoDeweyGenre == 'fiction') {
                 _convertClassPsFiction(letter + number)
             } else if (autoDeweyGenre == 'poetry') {
@@ -1990,14 +1994,6 @@ export default function LcCallToDewey({ lcCall, parentPhone }) {
             sDewey$,
             deweyInfo
         ]
-
-    }
-
-    const onAutoDeweyGenreClick = (genre) => {
-        if (genre == autoDeweyGenre) return
-
-        setAutoDeweyResult()
-        setAutoDeweyGenre(genre)
 
     }
 
@@ -2455,7 +2451,7 @@ export default function LcCallToDewey({ lcCall, parentPhone }) {
 
     const convertLccBasic = (letter, number) => {
         const ruleMatches = lccDeweyMap.filter(rule => rule.LCC == letter)
-        console.log('convertLccBasic', letter, ruleMatches)
+        console.info('convertLccBasic', letter, ruleMatches)
         if (ruleMatches.length == 1) {
             ruleMatches[0].mode = 'basic'
             return [ruleMatches[0].DDC, ruleMatches[0]]
@@ -2486,24 +2482,18 @@ export default function LcCallToDewey({ lcCall, parentPhone }) {
 
     }
 
-    const [dewey, deweyInfo] = useMemo(
-        () => {
-            const [match, letter, number] = lcCall.trim().match(/^([A-Z]*)(.*)/)
-            // console.log('letter', letter)
-            // console.log(lccDeweyMap)
-            const deweys = lccDeweyMap.filter(ddc => ddc.LCC == letter)
-            // console.log(deweys)
+    const [match, letter, number] = lcCall.trim().match(/^([A-Z]*)(.*)/)
+    const deweys = lccDeweyMap.filter(ddc => ddc.LCC == letter)
 
-            if (lccsWithLocalLogics.includes(letter)) {
-                return convertLccWithLocalLogics(letter, number)
-            }
+    console.info('letter', letter)
+    console.info(lccDeweyMap)
+    console.info(deweys)
 
-            return convertLccBasic(letter, number)
-        },
-        [lcCall, autoDeweyGenre]
-    )
+    const [dewey, deweyInfo] = lccsWithLocalLogics.includes(letter) ? convertLccWithLocalLogics(letter, number) : convertLccBasic(letter, number)
 
-    console.log(lcCall, dewey, deweyInfo)
+    console.info("lcCall: ", lcCall, dewey, deweyInfo)
+    console.info("dewey: ", dewey)
+    console.info("deweyInfo: ", deweyInfo)
 
     if (deweyInfo.mode == 'autoDewey') return (
         deweyInfo

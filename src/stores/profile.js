@@ -3471,6 +3471,9 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
+    console.info("insertDefaultValuesComponent")
+    console.info("componentGuid: ", componentGuid)
+    console.info("structure: ", structure)
     // console.log(componentGuid)
     // console.log("structure",structure)
 
@@ -3624,6 +3627,9 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     duplicateComponent: async function(componentGuid, structure){
+      console.info("duplicateComponent")
+      console.info("    componentGuid: ", componentGuid)
+      console.info("    structure: ", structure)
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile

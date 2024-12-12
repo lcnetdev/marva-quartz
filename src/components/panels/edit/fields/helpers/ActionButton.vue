@@ -14,6 +14,8 @@
  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
     <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
+    <AutoDewey ref="autoDeweyModal" @hideDeweyModal="hideDeweyModal()" v-model="displayDewey" :lcCall="lcCall" @addDdc="addDdc" />
+
     <template #popper>
 
       <div style="width: 250px;">
@@ -160,17 +162,21 @@
 
 <script>
 
+  import AutoDewey from "@/components/panels/edit/modals/AutoDeweyModal.vue";
   import { usePreferenceStore } from '@/stores/preference'
   import { useProfileStore } from '@/stores/profile'
+  import short from 'short-uuid'
 
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
   import utilsNetwork from '@/lib/utils_network'
-  import LcCallToDewey from '@/lib/auto_dewey' //TODO: get this working
-
+  import LcCallToDewey from '@/lib/auto_dewey'
 
   export default {
+    components: {
+    AutoDewey
+  },
     props: {
       type: String,
       guid: String,
@@ -188,8 +194,10 @@
 
         popperKeyboardShortcutEvent: null,
         popperKeyboardShortcutElement: null,
-
         isMenuShown:false,
+        displayDewey: false,
+
+        lcCall: null,
 
       }
     },
@@ -244,7 +252,66 @@
     },
 
     methods: {
+      hideDeweyModal:function (){
+        this.displayDewey = false
+      },
 
+      addDdc: async function(deweyInfo){
+        console.info("Add DDC: ", deweyInfo)
+        //Look to see if there is a DDC component
+        let activeProfile = this.profileStore.activeProfile
+        console.info(activeProfile)
+        let hasEmptyDDC = false
+        let ddcComponent = null
+        let lastClassifiction = null
+        for (let pt in activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt){
+          if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers")){
+            const target = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[pt]
+            console.info("target: ", target)
+            const userValue = target.userValue
+            console.info("userValue: ", userValue)
+            const classification = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
+            const type = classification["@type"]
+            console.info("component: ", classification)
+            if (!pt.deleted){
+              lastClassifiction = pt
+              if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc" && !Object.keys(classification).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")){
+                hasEmptyDDC = true
+                ddcComponent = classification
+              }
+            }
+          }
+        }
+        let newDDC
+        // if no empty ddc, create one
+        if (!hasEmptyDDC){
+          console.info("Creating component")
+          newDDC = await this.profileStore.duplicateComponentGetId(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], this.structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
+          ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
+        }
+
+        //add information to component
+        console.info("ddcComponent", ddcComponent)
+        let userValue = null
+        try{
+          userValue = ddcComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
+        } catch {
+          userValue = ddcComponent
+        }
+        console.info("userValue: ", userValue)
+        userValue["@type"] = "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"
+        userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": short.generate(), "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(deweyInfo.DDC) }]
+        //Add the defaults:
+
+        // const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
+        // const newStructure = this.profileStore.returnStructureByGUID(newComponent["@guid"])
+
+        // console.info("newComponent['@guid']: ", newComponent['@guid'])
+        // console.info("newStructure: ", newStructure)
+
+        // this.profileStore.insertDefaultValuesComponent(newComponent['@guid'], newStructure)
+
+      },
 
       showBuildHubStub(){
 
@@ -603,6 +670,7 @@
 
       convertLcc2Dewey: function(){
         // TODO: can a lcc be valid with only a class portion?
+        this.displayDewey = true
         console.info("Dewing the conversion")
 
         const parent = this.profileStore.returnStructureByComponentGuid(this.guid)
@@ -616,7 +684,10 @@
           alert("Couldn't generate an LC class number for auto dewey. Make sure all the pieces are present.")
           console.error("AutoDewey Error", e)
         }
+        this.lcCall = lccn
         console.info("lccn: ", lccn)
+        //const ddc = LcCallToDewey(lccn)
+        //console.info("ddc: ", ddc)
       },
 
     },
