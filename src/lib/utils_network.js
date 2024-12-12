@@ -1681,7 +1681,7 @@ const utilsNetwork = {
           // console.log("resultsSubjectsSimple",resultsSubjectsSimple)
 
           // see if there is a match for CYAK
-          if (searchType.includes(":Topic:Childrens:")){
+          if (searchType && searchType.includes(":Topic:Childrens:")){
             if (resultsChildren.length>0){
               for (let r of resultsChildren){
                 // lower case, remove end space, make double whitespace into one and remove any punctuation
