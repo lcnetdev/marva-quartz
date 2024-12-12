@@ -736,6 +736,11 @@ export default {
 
     // Open the authority `panel` for an given authority
     openAuthority: function() {
+      //Get the type of search
+      let selection = document.getElementById(this.guid)
+      let selected = selection.options[selection.selectedIndex].value
+      this.searchType = selected
+
       let label = this.$refs.el[0].innerHTML
       this.profileData = this.profileStore.returnStructureByGUID(this.guid)
 
