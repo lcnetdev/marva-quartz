@@ -764,9 +764,13 @@ export default {
         this.marcDeliminatedLCSHModeTimeout = null
         this.marcDeliminatedLCSHModeResults = []
 
-        let selection = document.getElementById(this.guid)
-        let selected = selection.options[selection.selectedIndex].value
-        this.searchType = selected
+        try {
+          let selection = document.getElementById(this.guid)
+          let selected = selection.options[selection.selectedIndex].value
+          this.searchType = selected
+        } catch{
+
+        }
 
         this.displaySubjectModal = true
       }
