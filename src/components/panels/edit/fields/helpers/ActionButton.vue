@@ -275,7 +275,8 @@
             console.info("component: ", classification)
             if (!pt.deleted){
               lastClassifiction = pt
-              if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc" && !Object.keys(classification).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")){
+              //type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc" &&
+              if (!Object.keys(classification).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")){
                 hasEmptyDDC = true
                 ddcComponent = classification
               }
@@ -298,18 +299,23 @@
         } catch {
           userValue = ddcComponent
         }
+        const newGuid = short.generate()
         console.info("userValue: ", userValue)
         userValue["@type"] = "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"
-        userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": short.generate(), "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(deweyInfo.DDC) }]
+        userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(deweyInfo.DDC) }]
+
         //Add the defaults:
+        console.info("profile: ", this.profileStore.activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt)
+        const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
+        const newStructure = this.profileStore.returnStructureByGUID(newComponent["@guid"])
 
-        // const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
-        // const newStructure = this.profileStore.returnStructureByGUID(newComponent["@guid"])
+        console.info("newComponent['@guid']: ", newComponent['@guid'])
+        console.info("newStructure: ", newStructure)
+        console.info("ddcComponent: ", ddcComponent)
 
-        // console.info("newComponent['@guid']: ", newComponent['@guid'])
-        // console.info("newStructure: ", newStructure)
+        console.info("*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*")
 
-        // this.profileStore.insertDefaultValuesComponent(newComponent['@guid'], newStructure)
+        // this.profileStore.insertDefaultValuesComponent(newComponent['@guid'], ddcComponent)
 
       },
 

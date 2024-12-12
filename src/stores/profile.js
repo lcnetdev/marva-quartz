@@ -131,6 +131,8 @@ export const useProfileStore = defineStore('profile', {
     */
     returnStructureByGUID: (state) => {
       return (guid) => {
+        console.info("The thing")
+        console.info(state.activeProfile)
         for (let rt in state.activeProfile.rt){
           for (let pt in state.activeProfile.rt[rt].pt){
             if (state.activeProfile.rt[rt].pt[pt]['@guid'] === guid){
@@ -3474,6 +3476,7 @@ export const useProfileStore = defineStore('profile', {
     console.info("insertDefaultValuesComponent")
     console.info("componentGuid: ", componentGuid)
     console.info("structure: ", structure)
+    console.info("whole thing: ", this.activeProfile)
     // console.log(componentGuid)
     // console.log("structure",structure)
 
