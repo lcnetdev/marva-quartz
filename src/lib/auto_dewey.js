@@ -1,6 +1,7 @@
 //from https://git.loc.gov/lcap/aws-lcap/ui-lcap-productivity-tools/-/blob/issue-001/lcap-productivity-tools/src/components/auto-dewey/instance-selected/lccall-to-dewey.js?ref_type=heads
 
-import {lccDeweyMap} from 'LCCtoDewey.json';
+import lccDeweyMap from "@/lib/LCCtoDewey.json"
+
 
 export default function LcCallToDewey({ lcCall, parentPhone }) {
 
@@ -2505,120 +2506,122 @@ export default function LcCallToDewey({ lcCall, parentPhone }) {
     console.log(lcCall, dewey, deweyInfo)
 
     if (deweyInfo.mode == 'autoDewey') return (
-        <div style={{ background: 'lavender', padding: '1em', marginTop: '1em', marginBottom: '1em' }}>
-            <div>LCC: {lcCall}</div>
-            {!lcCall.startsWith('GV') && (
-                <>
-                    <div>Please choose genre of this item</div>
-                    <ButtonGroup>
-                        {autoDeweyGenres.map((genre, i) => (
-                            <Button
-                                key={`genre-${i}`}
-                                onClick={() => onAutoDeweyGenreClick(genre)}
-                                buttonStyle={
-                                    genre === autoDeweyGenre
-                                        ? 'primary'
-                                        : 'default'
-                                }
-                            >
-                                <span style={{ textTransform: 'capitalize' }}>{genre}</span>
-                            </Button>
-                        )
-                        )}
-                    </ButtonGroup>
-                </>
-            )}
-            <>
-                {(deweyInfo.periods.length > 0) ? (
-                    <>
-                        <div>
-                            Please choose time period of this item
-                            <br />
-                            {deweyInfo.periods.map((period, i) => (
-                                <Button
-                                    key={`period-${i}`}
-                                    onClick={() => onPeriodClicked(i + 1, dewey, deweyInfo.genre, deweyInfo.country)}
-                                >
-                                    {period}
-                                </Button>
-                            )
-                            )}
-                        </div>
+        deweyInfo
+        // <div style={{ background: 'lavender', padding: '1em', marginTop: '1em', marginBottom: '1em' }}>
+        //     <div>LCC: {lcCall}</div>
+        //     {!lcCall.startsWith('GV') && (
+        //         <>
+        //             <div>Please choose genre of this item</div>
+        //             <ButtonGroup>
+        //                 {autoDeweyGenres.map((genre, i) => (
+        //                     <Button
+        //                         key={`genre-${i}`}
+        //                         onClick={() => onAutoDeweyGenreClick(genre)}
+        //                         buttonStyle={
+        //                             genre === autoDeweyGenre
+        //                                 ? 'primary'
+        //                                 : 'default'
+        //                         }
+        //                     >
+        //                         <span style={{ textTransform: 'capitalize' }}>{genre}</span>
+        //                     </Button>
+        //                 )
+        //                 )}
+        //             </ButtonGroup>
+        //         </>
+        //     )}
+        //     <>
+        //         {(deweyInfo.periods.length > 0) ? (
+        //             <>
+        //                 <div>
+        //                     Please choose time period of this item
+        //                     <br />
+        //                     {deweyInfo.periods.map((period, i) => (
+        //                         <Button
+        //                             key={`period-${i}`}
+        //                             onClick={() => onPeriodClicked(i + 1, dewey, deweyInfo.genre, deweyInfo.country)}
+        //                         >
+        //                             {period}
+        //                         </Button>
+        //                     )
+        //                     )}
+        //                 </div>
 
-                        {autoDeweyResult && (
-                            <>
-                            <div>
-                                {autoDeweyResult}
-                            </div>
-                            <div>
-                                <Button onClick={() => parentPhone({action: 'copyToClipboard', value: autoDeweyResult})}>Copy</Button>
-                            </div>
-                            </>
-                        )}
-                    </>
-                ) : (
-                    dewey ? (
-                        <>
-                            {Array.isArray(dewey) ? (
-                                <>
-                                    <div>Dewies:</div>
-                                    <ul>
-                                        {dewey.map(result => <li key={result.dewey}>{result.caption}: {result.dewey}</li>)}
-                                    </ul>
-                                </>
-                            ) : (
-                                <>
-                                <div>Dewey: {dewey}</div>
-                                <div>
-                                <Button onClick={() => parentPhone({action: 'copyToClipboard', value: dewey})}>Copy</Button>
-                                </div>
-                                </>
+        //                 {autoDeweyResult && (
+        //                     <>
+        //                     <div>
+        //                         {autoDeweyResult}
+        //                     </div>
+        //                     <div>
+        //                         <Button onClick={() => parentPhone({action: 'copyToClipboard', value: autoDeweyResult})}>Copy</Button>
+        //                     </div>
+        //                     </>
+        //                 )}
+        //             </>
+        //         ) : (
+        //             dewey ? (
+        //                 <>
+        //                     {Array.isArray(dewey) ? (
+        //                         <>
+        //                             <div>Dewies:</div>
+        //                             <ul>
+        //                                 {dewey.map(result => <li key={result.dewey}>{result.caption}: {result.dewey}</li>)}
+        //                             </ul>
+        //                         </>
+        //                     ) : (
+        //                         <>
+        //                         <div>Dewey: {dewey}</div>
+        //                         <div>
+        //                         <Button onClick={() => parentPhone({action: 'copyToClipboard', value: dewey})}>Copy</Button>
+        //                         </div>
+        //                         </>
 
-                            )}
+        //                     )}
 
-                        </>
-                    ) : (
-                        (dewey === false) && (
-                            <>
-                                <div>Can't convert this LCC to Dewey 😔</div>
-                            </>
-                        )
-                    )
-                )}
-            </>
+        //                 </>
+        //             ) : (
+        //                 (dewey === false) && (
+        //                     <>
+        //                         <div>Can't convert this LCC to Dewey 😔</div>
+        //                     </>
+        //                 )
+        //             )
+        //         )}
+        //     </>
 
-        </div>
+        // </div>
     )
 
 
     //basic mode
-    return (
-        <div style={{ background: 'antiquewhite', padding: '1em', marginTop: '1em', marginBottom: '1em' }}>
-            <div>LC Call#: {lcCall}
-                    {deweyInfo && (
-                        <Badge>
-                            <small>{deweyInfo['LCC Caption']}</small>
-                        </Badge>
-                    )}
-            </div>
+    return ( deweyInfo
 
-            {dewey && (
-                <>
-                    <div>Dewey: <strong>{dewey}</strong>
-                        {deweyInfo && (
-                            <Badge>
-                                <small>{deweyInfo['DDC Caption']}</small>
-                            </Badge>
-                        )}
-                    </div>
-                </>
-            )}
+        // <div style={{ background: 'antiquewhite', padding: '1em', marginTop: '1em', marginBottom: '1em' }}>
+        //     <div>LC Call#: {lcCall}
+        //             {deweyInfo && (
+        //                 <Badge>
+        //                     <small>{deweyInfo['LCC Caption']}</small>
+        //                 </Badge>
+        //             )}
+        //     </div>
 
-            {dewey === false && (
-                <div>Can't convert this LCC to Dewey 😔</div>
-            )}
+        //     {dewey && (
+        //         <>
+        //             <div>Dewey: <strong>{dewey}</strong>
+        //                 {deweyInfo && (
+        //                     <Badge>
+        //                         <small>{deweyInfo['DDC Caption']}</small>
+        //                     </Badge>
+        //                 )}
+        //             </div>
+        //         </>
+        //     )}
 
-        </div>
+        //     {dewey === false && (
+        //         <div>Can't convert this LCC to Dewey 😔</div>
+        //     )}
+
+        // </div>
     )
 
 }

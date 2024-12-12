@@ -166,7 +166,8 @@
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
-  import { LcCallToDewey } from '@/lib/auto_dewey'
+  import utilsNetwork from '@/lib/utils_network'
+  import LcCallToDewey from '@/lib/auto_dewey' //TODO: get this working
 
 
   export default {
