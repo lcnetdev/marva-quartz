@@ -98,10 +98,11 @@
               </button>
         </template>
 
-        <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="convertLcc2Dewey()">
-          <span class="button-shortcut-label">0</span>
-          AutoDewey
-        </button>
+        <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
+          <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="convertLcc2Dewey()">
+            <span class="">🤖</span>AutoDewey
+          </button>
+        </template>
 
         <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
           <span class="button-shortcut-label">0</span>
