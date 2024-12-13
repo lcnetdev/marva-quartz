@@ -296,10 +296,18 @@
         } catch {
           userValue = ddcComponent
         }
+
+        let dewey = null
+        if (Object.keys(deweyInfo).includes("DDC")){
+          dewey = deweyInfo.DDC
+        } else {
+          dewey = deweyInfo.dewey
+        }
+
         const newGuid = short.generate()
         console.info("userValue: ", userValue)
         userValue["@type"] = "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"
-        userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(deweyInfo.dewey) }]
+        userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(dewey) }]
 
         //Add the defaults:
         // console.info("profile: ", this.profileStore.activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt)

@@ -1871,6 +1871,8 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
 
             //GV
             const _convertClassGvSport = (sClassNo$) => {
+                console.info("converting sport")
+                console.info(Mid(sClassNo$, 3, 8))
                 if (Mid(sClassNo$, 3, 8) == "1003.62.") sDewey$ = "796.343092"
                 if (Mid(sClassNo$, 3, 8) == "1005.22.") sDewey$ = "796.34/6092"
                 if (Mid(sClassNo$, 3, 8) == "1006.52.") sDewey$ = "796.345092"
@@ -2032,6 +2034,11 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
         }
 
         const [match, letter, number] = lcCall.trim().match(/^([A-Z]*)(.*)/)
+
+        console.info("!! match: ", match)
+        console.info("!! letter: ", letter)
+        console.info("!! number: ", number)
+
         const deweys = lccDeweyMap.filter(ddc => ddc.LCC == letter)
 
         console.info('letter', letter)

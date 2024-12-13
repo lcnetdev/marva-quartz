@@ -8,7 +8,7 @@
         <VueDragResize
             :is-active="true"
             :w="850"
-            :h="250"
+            :h="300"
             :x="initalLeft"
             :y="50"
             class="debug-modal"
@@ -38,9 +38,9 @@
                                 </div>
                             </div>
 
-                            <button @click="dewIt()">Create DDC</button>
+                            <button @click="dewIt()" style="margin-top: 8px;">Create DDC</button>
 
-                            <div v-if="deweyInfo && deweyInfo.periods && deweyInfo.periods.length > 0" style="margin-top: 10px;">
+                            <div v-if="deweyInfo && deweyInfo.periods && deweyInfo.periods.length > 0" style="margin-top: 10px;" class="dewey-period-selection">
                                 Select a period to complete the DDC creation.
                                 <div class="dewey-toggle-btn-grp cssonly">
                                     <div v-for="(per, idx) in deweyInfo.periods">
@@ -112,9 +112,13 @@
         padding: 5px;
     }
     .dewey-toggle-btn-grp.cssonly{
-        width: 500px;
+        width: 100%;
         height: 30px;
         line-height: 30px;
+
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap
     }
     .dewey-toggle-btn-grp.cssonly div {
         display: initial;
@@ -170,6 +174,10 @@
         margin: 5px;
     }
 
+    .dewey-period-selection{
+        max-width: 100%;
+    }
+
   </style>
 
   <script>
@@ -220,7 +228,7 @@
         },
 
         add: function(){
-            console.info("adding to record")
+            console.info("adding to record", this.deweyInfo)
             this.$emit('addDdc', this.deweyInfo)
             this.closeModal()
         },
