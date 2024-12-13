@@ -305,15 +305,15 @@
         userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(deweyInfo.DDC) }]
 
         //Add the defaults:
-        console.info("profile: ", this.profileStore.activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt)
-        const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
-        const newStructure = this.profileStore.returnStructureByGUID(newComponent["@guid"])
+        // console.info("profile: ", this.profileStore.activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt)
+        // const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
+        // const newStructure = this.profileStore.returnStructureByGUID(newComponent["@guid"])
 
-        console.info("newComponent['@guid']: ", newComponent['@guid'])
-        console.info("newStructure: ", newStructure)
-        console.info("ddcComponent: ", ddcComponent)
+        // console.info("newComponent['@guid']: ", newComponent['@guid'])
+        // console.info("newStructure: ", newStructure)
+        // console.info("ddcComponent: ", ddcComponent)
 
-        console.info("*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*")
+        // console.info("*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*")
 
         // this.profileStore.insertDefaultValuesComponent(newComponent['@guid'], ddcComponent)
 
@@ -676,7 +676,6 @@
 
       convertLcc2Dewey: function(){
         // TODO: can a lcc be valid with only a class portion?
-        this.displayDewey = true
         console.info("Dewing the conversion")
 
         const parent = this.profileStore.returnStructureByComponentGuid(this.guid)
@@ -689,9 +688,11 @@
         } catch(e) {
           alert("Couldn't generate an LC class number for auto dewey. Make sure all the pieces are present.")
           console.error("AutoDewey Error", e)
+          return
         }
         this.lcCall = lccn
         console.info("lccn: ", lccn)
+        this.displayDewey = true
         //const ddc = LcCallToDewey(lccn)
         //console.info("ddc: ", ddc)
       },

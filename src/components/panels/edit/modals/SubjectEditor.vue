@@ -18,9 +18,9 @@
     <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
       <div style="position: relative;">
           <div style="position:absolute; right:2em; top:  0.25em; z-index: 100;">
-			  <div class="menu-buttons">
-				<button @click="closeEditor()">Close</button>
-			  </div>
+			      <div class="menu-buttons">
+				    <button @click="closeEditor()">Close</button>
+			    </div>
             <button @click="editorModeSwitch('build')" data-tooltip="Build LCSH headings using a lookup list" class="subjectEditorModeButtons simptip-position-left" style="margin-right: 1em; background-color: black; height: 2em; display: inline-flex;">
       <!--         <svg fill="#F2F2F2" width="20px" height="20px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                <g>
@@ -416,17 +416,12 @@
     /*font-size: 1em;*/
   }
 
-
-
   .subject-editor-container-left-lowres{
-
     font-size: 0.75em !important;
     height: 352px;
     max-height: 352px;
 
   }
-
-
 
   .subject-editor-container-right{
     flex:1;
@@ -455,7 +450,6 @@
 
 
   .color-holder{
-
     font-size: 1.5em;
     position: absolute;
     padding-top: 0.3em;
