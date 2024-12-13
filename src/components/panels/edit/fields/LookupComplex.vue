@@ -607,9 +607,11 @@ export default {
               this.marcDeliminatedLCSHMode = true
 
               //Get the type of search
-              let selection = document.getElementById(this.guid+"-select")
-              let selected = selection.options[selection.selectedIndex].value
-              this.searchType = selected
+              try{
+                let selection = document.getElementById(this.guid+"-select")
+                let selected = selection.options[selection.selectedIndex].value
+                this.searchType = selected
+              } catch {}
 
               this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue, this.searchType)
               this.marcDeliminatedLCSHModeSearching = false
@@ -671,9 +673,13 @@ export default {
 
             this.authorityLookup = this.searchValue.trim()
             this.searchValue = this.searchValue.trim()
-            let selection = document.getElementById(this.guid+"-select")
-            let selected = selection.options[selection.selectedIndex].value
-            this.searchType = selected
+
+            try{
+              let selection = document.getElementById(this.guid+"-select")
+              let selected = selection.options[selection.selectedIndex].value
+              this.searchType = selected
+            } catch {}
+
             this.displaySubjectModal=true
             this.$nextTick(() => {
               this.$refs.subjectEditorModal.focusInput()
@@ -737,9 +743,11 @@ export default {
     // Open the authority `panel` for an given authority
     openAuthority: function() {
       //Get the type of search
-      let selection = document.getElementById(this.guid+"-select")
-      let selected = selection.options[selection.selectedIndex].value
-      this.searchType = selected
+      try{
+        let selection = document.getElementById(this.guid+"-select")
+        let selected = selection.options[selection.selectedIndex].value
+        this.searchType = selected
+      } catch {}
 
       let label = this.$refs.el[0].innerHTML
       this.profileData = this.profileStore.returnStructureByGUID(this.guid)
