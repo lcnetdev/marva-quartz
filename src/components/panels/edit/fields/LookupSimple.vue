@@ -498,10 +498,10 @@ export default {
         addKeyword = 'KEYWORD'
         this.activeKeyword = true
       }
-      // console.log(`"${addKeyword}"`)
-      // console.log(this.uri)
-      // console.log(utilsNetwork.lookupLibrary)
-      // console.log(utilsNetwork.lookupLibrary[this.uri+addKeyword])
+      console.log(`"${addKeyword}"`)
+      console.log(this.uri)
+      console.log(utilsNetwork.lookupLibrary)
+      console.log(utilsNetwork.lookupLibrary[this.uri+addKeyword])
 
 
 
@@ -553,10 +553,10 @@ export default {
             // }
           })
         }else{
-
+          console.log("v is",v)
           // loop through each one, each is a array, so each element of array
           utilsNetwork.lookupLibrary[this.uri+addKeyword][v].forEach((x)=>{
-
+            console.log("looking at",x)
             // simple includes value check
             if (x.toLowerCase().startsWith(this.activeFilter.toLowerCase())){
                 if (this.displayList.indexOf(x)==-1){

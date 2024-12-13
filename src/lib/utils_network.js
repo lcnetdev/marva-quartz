@@ -83,7 +83,9 @@ const utilsNetwork = {
     */
 
     simpleLookupProcess: function(data,parentURI){
+
         let dataProcessed = {
+
 
             // all the URIs will live here but also the metadata obj about the uris
             metadata : {
@@ -97,7 +99,7 @@ const utilsNetwork = {
             // basic ID simple Lookup response
             // assume anything in this array is a possible value except
             // something that has the parent URI
-
+            
             data.forEach((d)=>{
                 let label = null
                 let labelData = null                // it has a URI and that URI is not the parent uri
@@ -215,7 +217,7 @@ const utilsNetwork = {
 
         if (r.hits && r.hits.length>0){
           for (let hit of r.hits){
-            results.metadata.values[hit.uri] = {uri:hit.uri, label: [hit.suggestLabel], authLabel:hit.aLabel, code: [], displayLabel: [hit.suggestLabel] }
+            results.metadata.values[hit.uri] = {uri:hit.uri, label: [hit.suggestLabel], authLabel:hit.aLabel, code: (hit.code) ? hit.code.split(" ") : [], displayLabel: [hit.suggestLabel] }
             results[hit.uri] = [hit.suggestLabel.includes("USE") ? hit.aLabel : hit.suggestLabel]
           }
 
@@ -754,7 +756,7 @@ const utilsNetwork = {
                   }
 
 
-                  console.log("URL is",url)
+                  
 
                   let response = await fetch(url.replace('http://','https://')+'.nt');
                   let text  = await response.text()
@@ -1356,7 +1358,7 @@ const utilsNetwork = {
           result.msg = 'REGEX Error: That value doesn\'t look like a valid MARC encoded LCSH string (too long? invalid format?)'
         }
 
-        console.log('regexResults',regexResults)
+        // console.log('regexResults',regexResults)
         try{
           regexResults = regexResults.slice(1,regexResults.length)
           for (let r of regexResults){
