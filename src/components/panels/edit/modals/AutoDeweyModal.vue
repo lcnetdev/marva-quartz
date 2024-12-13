@@ -43,8 +43,8 @@
                             <div v-if="deweyInfo && deweyInfo.periods && deweyInfo.periods.length > 0" style="margin-top: 10px;">
                                 Select a period to complete the DDC creation.
                                 <div class="dewey-toggle-btn-grp cssonly">
-                                    <div v-for="(per, indx) in deweyInfo.periods">
-                                        <input type="radio" :id="per" :value="per" class="period-type-radio" v-model="deweyPeriod" name="period-selection" @click="setPeriod(idx)" />
+                                    <div v-for="(per, idx) in deweyInfo.periods">
+                                        <input type="radio" :id="per" :value="per" class="period-type-radio" v-model="deweyPeriod" name="period-selection" @click="setPeriod($event, idx)" />
                                         <label onclick="" :for="per" class="dewey-toggle-btn">{{per}}</label>
                                     </div>
                                 </div>
@@ -175,7 +175,7 @@
   <script>
     import { VueFinalModal } from 'vue-final-modal'
     import VueDragResize from 'vue3-drag-resize'
-    import {LcCallToDewey, onPeriodClicked} from '@/lib/auto_dewey'
+    import { onPeriodClicked, LcCallToDewey } from '@/lib/auto_dewey'
 
     export default {
     name: "AutoDewey",
@@ -194,7 +194,8 @@
             autoDeweyGenres: ['fiction', 'poetry', 'drama'],
             autoDeweyGenre: null,
             lcCallLocal: null,
-            deweyInfo: null
+            deweyInfo: null,
+            deweyPeriod: 0,
         }
     },
 
@@ -224,10 +225,19 @@
             this.closeModal()
         },
 
-        setPeriod: function(idx){
-            console.info("setting period: ", e.target.value)
-            let result = onPeriodClicked(idx+1, this.deweyInfo.dewey, this.deweyInfo.genre, this.deweyInfo.country) //periodNumber, sDewey$, sGenre$, sCountry$
-            console.info("result", result)
+        setPeriod: function(e, idx){
+            console.info("setting period: ", this.deweyInfo, "--", idx)
+            //e.target.checked = true
+            const period = this.deweyInfo.dewey
+            if (period.startsWith("Period")){
+                this.savedPeriod = period
+            }
+            const genre = this.deweyInfo.genre
+            const country = this.deweyInfo.country
+            let result = onPeriodClicked(idx+1, this.savedPeriod, genre, country) //periodNumber, sDewey$, sGenre$, sCountry$
+            console.info("result: ", result)
+
+            this.deweyInfo.dewey = result
         }
     },
 

@@ -170,9 +170,6 @@
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
-  import utilsNetwork from '@/lib/utils_network'
-  import LcCallToDewey from '@/lib/auto_dewey'
-
   export default {
     components: {
     AutoDewey
