@@ -607,7 +607,7 @@ export default {
               this.marcDeliminatedLCSHMode = true
 
               //Get the type of search
-              let selection = document.getElementById(this.guid)
+              let selection = document.getElementById(this.guid+"-select")
               let selected = selection.options[selection.selectedIndex].value
               this.searchType = selected
 
@@ -671,7 +671,7 @@ export default {
 
             this.authorityLookup = this.searchValue.trim()
             this.searchValue = this.searchValue.trim()
-            let selection = document.getElementById(this.guid)
+            let selection = document.getElementById(this.guid+"-select")
             let selected = selection.options[selection.selectedIndex].value
             this.searchType = selected
             this.displaySubjectModal=true
@@ -737,7 +737,7 @@ export default {
     // Open the authority `panel` for an given authority
     openAuthority: function() {
       //Get the type of search
-      let selection = document.getElementById(this.guid)
+      let selection = document.getElementById(this.guid+"-select")
       let selected = selection.options[selection.selectedIndex].value
       this.searchType = selected
 
@@ -764,9 +764,13 @@ export default {
         this.marcDeliminatedLCSHModeTimeout = null
         this.marcDeliminatedLCSHModeResults = []
 
-        let selection = document.getElementById(this.guid)
-        let selected = selection.options[selection.selectedIndex].value
-        this.searchType = selected
+        // try {
+        //   let selection = document.getElementById(this.guid)
+        //   let selected = selection.options[selection.selectedIndex].value
+        //   this.searchType = selected
+        // } catch{
+
+        // }
 
         this.displaySubjectModal = true
       }
