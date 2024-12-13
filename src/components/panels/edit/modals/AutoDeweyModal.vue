@@ -31,18 +31,24 @@
                             <label for="LcCall">LC Call Number: </label>
                             <input class="lcCallInput" name="LcCall" v-model="lcCallLocal" ref="inputLookup" type="text" @click="inputFocus" />
 
-                            <div class="dewey-toggle-btn-grp cssonly">
+                            <div class="dewey-toggle-btn-grp cssonly" style="margin-bottom: 8px;">
                                 <div v-for="opt in autoDeweyGenres">
                                     <input type="radio" :id="opt" :value="opt" class="genre-type-radio" v-model="autoDeweyGenre" name="genre-selection" />
                                     <label onclick="" :for="opt" class="dewey-toggle-btn">{{opt}}</label>
                                 </div>
                             </div>
 
-                            <div v-if="deweyInfo && deweyInfo.periods && deweyInfo.periods.length > 0">
-                                ???
-                            </div>
-
                             <button @click="dewIt()">Create DDC</button>
+
+                            <div v-if="deweyInfo && deweyInfo.periods && deweyInfo.periods.length > 0" style="margin-top: 10px;">
+                                Select a period to complete the DDC creation.
+                                <div class="dewey-toggle-btn-grp cssonly">
+                                    <div v-for="(per, indx) in deweyInfo.periods">
+                                        <input type="radio" :id="per" :value="per" class="period-type-radio" v-model="deweyPeriod" name="period-selection" @click="setPeriod(idx)" />
+                                        <label onclick="" :for="per" class="dewey-toggle-btn">{{per}}</label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="auto-dewey-results">
@@ -106,7 +112,7 @@
         padding: 5px;
     }
     .dewey-toggle-btn-grp.cssonly{
-        width: 110px;
+        width: 500px;
         height: 30px;
         line-height: 30px;
     }
@@ -127,12 +133,12 @@
         width: fit-content;
     }
 
+    .period-type-radio,
     .genre-type-radio {
         position: absolute;
         z-index: 100;
         cursor: pointer;
         opacity: 0;
-
     }
 
     .dewey-toggle-btn-grp.cssonly div input{
@@ -169,7 +175,7 @@
   <script>
     import { VueFinalModal } from 'vue-final-modal'
     import VueDragResize from 'vue3-drag-resize'
-    import LcCallToDewey from '@/lib/auto_dewey'
+    import {LcCallToDewey, onPeriodClicked} from '@/lib/auto_dewey'
 
     export default {
     name: "AutoDewey",
@@ -216,6 +222,12 @@
             console.info("adding to record")
             this.$emit('addDdc', this.deweyInfo)
             this.closeModal()
+        },
+
+        setPeriod: function(idx){
+            console.info("setting period: ", e.target.value)
+            let result = onPeriodClicked(idx+1, this.deweyInfo.dewey, this.deweyInfo.genre, this.deweyInfo.country) //periodNumber, sDewey$, sGenre$, sCountry$
+            console.info("result", result)
         }
     },
 
