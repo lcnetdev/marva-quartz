@@ -12,7 +12,7 @@
 
     </template>
     <template v-else>
-      <select :id="structure['@guid']" @change="templateChange($event)" style=" background-color: transparent;">
+      <select :id="structure['@guid']+'-select'" @change="templateChange($event)" style=" background-color: transparent;">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
     </template>
