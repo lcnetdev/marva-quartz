@@ -302,7 +302,7 @@
         const newGuid = short.generate()
         console.info("userValue: ", userValue)
         userValue["@type"] = "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"
-        userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(deweyInfo.DDC) }]
+        userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(deweyInfo.dewey) }]
 
         //Add the defaults:
         // console.info("profile: ", this.profileStore.activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt)
@@ -693,8 +693,6 @@
         this.lcCall = lccn
         console.info("lccn: ", lccn)
         this.displayDewey = true
-        //const ddc = LcCallToDewey(lccn)
-        //console.info("ddc: ", ddc)
       },
 
     },

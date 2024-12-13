@@ -11,7 +11,7 @@ export default function LcCallToDewey(lcCall, genre=null) {  //{ lcCall, parentP
 
     //this if for Px class, for GV uses 'GV Bio'
     const autoDeweyGenres = ['fiction', 'poetry', 'drama']
-    const autoDeweyGenre = null
+    const autoDeweyGenre = genre
     const autoDeweyResult = null
 
     const lccsWithLocalLogics = ['PG', 'PH', 'PQ', 'PR', 'PS', 'PT', 'GV']
@@ -2454,7 +2454,7 @@ export default function LcCallToDewey(lcCall, genre=null) {  //{ lcCall, parentP
         console.info('convertLccBasic', letter, ruleMatches)
         if (ruleMatches.length == 1) {
             ruleMatches[0].mode = 'basic'
-            return [ruleMatches[0].DDC, ruleMatches[0]]
+            return [ruleMatches[0].dewey, ruleMatches[0]]
         }
 
         if (ruleMatches.length > 1) {
@@ -2469,12 +2469,12 @@ export default function LcCallToDewey(lcCall, genre=null) {  //{ lcCall, parentP
                 if (number * 1 >= rangeStart * 1 && number * 1 <= rangeEnd * 1) {
                     // console.log('number WITHIN range', number)
                     rule.mode = 'basic'
-                    return [rule.DDC, rule]
+                    return [rule.dewey, rule]
                 }
             }
 
             //if no range found just use first (generic) one
-            return [ruleMatches[0].DDC, ruleMatches[0]]
+            return [ruleMatches[0].dewey, ruleMatches[0]]
         }
 
         return [false, { error: 'Unable to convert this LCC' }]

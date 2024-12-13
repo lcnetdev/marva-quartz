@@ -20,7 +20,7 @@
 
             <div class="complex-lookup-modal">
                 <div style="position: relative;">
-                    <div class="dewey-menu-buttons">
+                    <div class="dewey-menu-button">
                         <button @click="closeModal()">Close</button>
                     </div>
                 </div>
@@ -29,7 +29,7 @@
                     <div class="auto-dewey-container">
                         <div class="input-panel">
                             <label for="LcCall">LC Call Number: </label>
-                            <input class="lcCallInput" name="LcCall" v-model="lcCallLocal" ref="inputLookup" type="text" />
+                            <input class="lcCallInput" name="LcCall" v-model="lcCallLocal" ref="inputLookup" type="text" @click="inputFocus" />
 
                             <div class="dewey-toggle-btn-grp cssonly">
                                 <div v-for="opt in autoDeweyGenres">
@@ -38,22 +38,30 @@
                                 </div>
                             </div>
 
+                            <div v-if="deweyInfo && deweyInfo.periods && deweyInfo.periods.length > 0">
+                                ???
+                            </div>
+
                             <button @click="dewIt()">Create DDC</button>
                         </div>
 
-                        <div class="auto-dewey-results" v-if="deweyInfo">
+                        <div class="auto-dewey-results">
                             <h2>Results</h2>
-                            <dl>
-                                <dt>DDC</dt>
-                                <dd>{{ deweyInfo.DDC }}</dd>
+                            <dl v-if="deweyInfo">
+                                <div v-for="(value, name, indx) in deweyInfo">
+                                    <dt v-if="value">{{ name }}</dt>
+                                    <dd v-if="value">{{ value }}</dd>
+                                </div>
+                                <!--
 
                                 <dt>DDC Caption</dt>
                                 <dd>{{ deweyInfo['DDC Caption'] }}</dd>
 
                                 <dt>LCC Caption</dt>
-                                <dd>{{ deweyInfo['LCC Caption'] }}</dd>
+                                <dd>{{ deweyInfo['LCC Caption'] }}</dd> -->
                             </dl>
-                            <button @click="add()">Add</button>
+
+                            <button @click="add()" v-if="deweyInfo">Add to record</button>
                         </div>
                     </div>
                 </div>
@@ -75,6 +83,7 @@
 
     dd {
         margin-bottom: 1em;
+        margin-left: 2em;
     }
 
     .auto-dewey-modal-container{
@@ -94,6 +103,7 @@
         width: 50%;
         background-color: lightgrey;
         margin: 5px;
+        padding: 5px;
     }
     .dewey-toggle-btn-grp.cssonly{
         width: 110px;
@@ -184,6 +194,9 @@
 
     computed: {},
     methods: {
+        inputFocus: function(){
+            this.$refs.inputLookup.focus()
+        },
         closeModal: function(){
             this.autoDeweyGenre = null
             this.lcCallLocal = null
