@@ -144,113 +144,7 @@
 
 <script>
 
-/*
 
-  <!-- <div>Simple Lookup ({{propertyPath.map((x)=>{return x.propertyURI}).join('->')}})</div> -->
-
-
-  <div v-if="nested == false" :class="'component-container' + ' component-container-' + settingsDisplayMode">
-
-    <div :class="'component-container-title' + ' component-container-title-' + settingsDisplayMode ">{{structure.propertyLabel}}</div>
-    <div :class="'component-container-input-container' + ' component-container-input-container-' + settingsDisplayMode">
-
-
-
-        <div class="component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border temp-icon-search">
-          <form autocomplete="off" v-on:submit.prevent>
-
-                <div style="position: absolute; left: 13px;" v-if="settingsDisplayMode=='compact'" class="component-nested-container-title">
-                  <span>{{structure.propertyLabel}}<EditLabelRemark :remark="structure.remark" /></span>
-                </div>
-
-
-            <div style=" display: flex; height: 100%">
-            <!-- <input autocomplete="off" v-bind:value="activeSelect"  type="text" disabled style="width: 95%; border:none; height: 90%; font-size: 1.5em; padding: 0.1em; position: relative; background: none; color: lightgray"> -->
-
-              <div v-for="(avl,idx) in activeLookupValue" ref="added-value" :key="idx" class="selected-value-container">
-
-                  <span v-if="!avl['http://www.w3.org/2000/01/rdf-schema#label'].startsWith('http')" style="padding-right: 0.3em; font-weight: bold">{{avl['http://www.w3.org/2000/01/rdf-schema#label']}}<span class="uncontrolled" v-if="!avl.uri">(uncontrolled)</span><span v-if="avl.uri" title="Controlled Term" class="selected-value-icon" style="margin-left: 5px; border-left: 1px solid black; padding: 0px 5px; font-size: 1em;"></span></span>
-                  <span v-else style="padding-right: 0.3em; font-weight: bold"><EditLabelDereference :URI="avl['http://www.w3.org/2000/01/rdf-schema#label']"/><span v-if="avl.uri" title="Controlled Term" class="selected-value-icon" style="margin-left: 5px; border-left: 1px solid black; padding: 0px 5px; font-size: 1em;"></span></span>
-
-                  <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
-              </div>
-              <input bfeType="EditSimpleLookupComponent-unnested" ref="lookupInput"  :id="assignedId" autocomplete="off" v-on:blur="blur" v-bind:value="activeValue"  type="text" @focus="autoFocus($event)" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :class="['input-single',{'selectable-input': (isMini==false), 'selectable-input-mini':(isMini==true)}]">
-            </div>
-          </form>
-        </div>
-      <div v-if="displayAutocomplete==true" class="autocomplete-container">
-        <ul>
-          <li v-for="(item, idx) in displayList" :data-idx="idx" v-bind:key="idx" @click="clickAdd">
-              <span v-if="item==activeSelect" :data-idx="idx" class="selected">{{item}}</span>
-              <span v-else :data-idx="idx">{{item}}</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-
-  </div>
-
-
-  <div v-else style="position: relative;">
-
-
-      <div  v-bind:class="['component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border temp-icon-search']" :style="{'background-color': (structure.dynamic) ? 'auto' : 'auto' }">
-        <form autocomplete="off" v-on:submit.prevent style="">
-          <div style="">
-          <!-- <input autocomplete="off" v-bind:value="activeSelect"  type="text" disabled style="width: 95%; border:none; height: 90%; font-size: 1.5em; padding: 0.1em; position: relative; background: none; color: lightgray"> -->
-            <div class="component-nested-container-title component-nested-container-title-simple-lookup" >
-              <span v-if="settingsDisplayMode=='compact'">{{parentStructureObj.propertyLabel}} -- </span>
-
-              <span>{{structure.propertyLabel}}</span>
-
-            </div>
-
-
-            <div style="display: flex">
-              <div v-for="(avl,idx) in activeLookupValue" ref="added-value" :key="idx" class="selected-value-container-nested">
-
-
-
-                  <span v-if="!avl['http://www.w3.org/2000/01/rdf-schema#label'].startsWith('http')" style="padding-right: 0.3em; font-weight: bold">{{avl['http://www.w3.org/2000/01/rdf-schema#label']}}<span class="uncontrolled" v-if="!avl.uri">(uncontrolled)</span><span v-if="avl.uri" title="Controlled Term" class="selected-value-icon" style="margin-left: 5px; border-left: 1px solid black; padding: 0px 5px; font-size: 1em;"></span></span>
-                  <span v-else style="padding-right: 0.3em; font-weight: bold"><EditLabelDereference :URI="avl['http://www.w3.org/2000/01/rdf-schema#label']"/><span v-if="avl.uri" title="Controlled Term" class="selected-value-icon" style="margin-left: 5px; border-left: 1px solid black; padding: 0px 5px; font-size: 1em;"></span></span>
-
-
-                  <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
-
-
-              </div>
-
-
-
-
-              <input bfeType="EditSimpleLookupComponent-nested" ref="lookupInput"  :id="assignedId" autocomplete="off" v-on:blur="blur" v-bind:value="activeValue"  type="text" @focus="autoFocus($event)" @keydown="keyDownEvent($event)"  @keyup="keyUpEvent($event)"  :class="['input-nested', {'selectable-input': (isMini==false), 'selectable-input-mini':(isMini==true)}]">
-            </div>
-
-          </div>
-
-
-        </form>
-      </div>
-    <div v-if="displayAutocomplete==true" class="autocomplete-container">
-      <ul>
-        <li v-for="(item, idx) in displayList" :data-idx="idx" v-bind:key="idx" @click="clickAdd">
-            <span v-if="item==activeSelect" :data-idx="idx" class="selected">{{item}}</span>
-            <span v-else :data-idx="idx">{{item}}</span>
-        </li>
-      </ul>
-    </div>
-
-
-
-  </div>
-*/
-
-
-// import { mapState } from 'vuex'
-// import uiUtils from "@/lib/uiUtils"
-// import EditLabelDereference from "@/components/EditLabelDereference.vue";
-// import EditLabelRemark from "@/components/EditLabelRemark.vue";
 
 import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.vue";
 import LabelDereference from "@/components/panels/edit/fields/helpers/LabelDereference.vue";
@@ -310,22 +204,11 @@ export default {
 
       showField: true,
 
-      // activeLookupValue: [],
-
-      // stores the guid to the place to add more if there is already a value
-
-
-      // displayAutocomplete: false,
-      //
-      //
-      // activeFilter: '',
-      //
+      
       activeValue: '',
 
 
-      //
-      // internalAssignID:false,
-
+      
     }
   },
 
@@ -402,45 +285,7 @@ export default {
 
 
 
-  // computed: mapState({
-  //   lookupLibrary: 'lookupLibrary',
-  //   activeInput: 'activeInput',
-  //   activeProfile: 'activeProfile',
-  //   activeProfileMini: 'activeProfileMini',
-  //   workingOnMiniProfile: 'workingOnMiniProfile',
-  //   settingsDisplayMode: 'settingsDisplayMode',
-  //   undoCounter: 'undoCounter',
-
-  //   assignedId (){
-  //     // return uiUtils.assignID(this.structure,this.parentStructure)
-  //     if (this.internalAssignID){
-  //       return this.internalAssignID
-  //     }else{
-  //       this.internalAssignID = uiUtils.assignID(this.structure,this.parentStructure)
-  //       return this.internalAssignID
-  //     }
-
-  //   },
-  //   // to access local state with `this`, a normal function must be used
-  //   lookupVocab (state) {
-  //     // let uri = this.structure.valueConstraint.useValuesFrom[0]
-
-  //     // let returnVal = []
-  //     // Object.keys(state.lookupLibrary).forEach((s)=>{
-
-  //     // })
-
-  //     // if (state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]){
-
-  //     //   return state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]
-  //     // }else{
-  //     //   return []
-  //     // }
-  //     return state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]
-
-
-  //   }
-  // }),
+  
   methods:{
 
     focusClick: function(){
@@ -498,10 +343,10 @@ export default {
         addKeyword = 'KEYWORD'
         this.activeKeyword = true
       }
-      console.log(`"${addKeyword}"`)
-      console.log(this.uri)
-      console.log(utilsNetwork.lookupLibrary)
-      console.log(utilsNetwork.lookupLibrary[this.uri+addKeyword])
+      // console.log(`"${addKeyword}"`)
+      // console.log(this.uri)
+      // console.log(utilsNetwork.lookupLibrary)
+      // console.log(utilsNetwork.lookupLibrary[this.uri+addKeyword])
 
 
 
@@ -539,10 +384,12 @@ export default {
         }
 
       }
+      let exactMatches = []
       Object.keys(utilsNetwork.lookupLibrary[this.uri+addKeyword]).forEach((v)=>{
         // the list has a special key metdata that contains more info
         if (v==='metadata'){return false}
         // no filter yet show first 25
+        let tempDisplayList=[]
         if (this.activeFilter.trim()===''){
           utilsNetwork.lookupLibrary[this.uri+addKeyword][v].forEach((x)=>{
 
@@ -553,25 +400,42 @@ export default {
             // }
           })
         }else{
-          console.log("v is",v)
           // loop through each one, each is a array, so each element of array
           utilsNetwork.lookupLibrary[this.uri+addKeyword][v].forEach((x)=>{
-            console.log("looking at",x)
             // simple includes value check
             if (x.toLowerCase().startsWith(this.activeFilter.toLowerCase())){
                 if (this.displayList.indexOf(x)==-1){
                   this.displayList.push(x)
                 }
-            }
-
-            if (x.toLowerCase().includes(' (' +this.activeFilter.toLowerCase())){
+            }else if (x.toLowerCase().includes(' (' +this.activeFilter.toLowerCase())){
                 if (this.displayList.indexOf(x)==-1){
                   this.displayList.push(x)
                 }
+            }else if (utilsNetwork.lookupLibrary[this.uri+addKeyword] && utilsNetwork.lookupLibrary[this.uri+addKeyword].metadata && utilsNetwork.lookupLibrary[this.uri+addKeyword].metadata.values && utilsNetwork.lookupLibrary[this.uri+addKeyword].metadata.values[v]){
+             // check for the code as well
+
+              let addCode = false
+              let exactMatch = false
+              for (let code of utilsNetwork.lookupLibrary[this.uri+addKeyword].metadata.values[v].code){
+                if (code.toLowerCase().startsWith(this.activeFilter.toLowerCase())){
+                  addCode=true
+                  if (code.toLowerCase().trim()==this.activeFilter.toLowerCase().trim()){
+                    exactMatch=true
+                  }
+                }
+              }
+              if (addCode){
+                if (exactMatch){
+                  // put exact matches at the top
+                  exactMatches.push(x)
+                }else{
+                  this.displayList.push(x)
+                }               
+              }
+            }else{
+              console.warn('Could not find the metadata in the simple lookup response, this should not happen.')
             }
-
-
-
+            
           })
         }
 
@@ -584,6 +448,9 @@ export default {
 
 
       this.displayList.sort()
+      // put exact matches at the top after sort
+      this.displayList = exactMatches.concat(this.displayList)
+
 
 
       // take the first hit and make it the autocomplete text
@@ -798,38 +665,45 @@ export default {
 
 
         // find the active selected in the data
-        Object.keys(metadata).forEach((key)=>{
-          let idx = metadata[key].displayLabel.indexOf(this.activeSelect)
-          // a dumb bug here where depending on the vocab the label has extra spaces in it....
-          if (idx==-1){
-            idx = metadata[key].displayLabel.indexOf(this.activeSelect.replace(/\s+/g,' '))
+        
+        for (let key of Object.keys(metadata)){
+          // let idx = metadata[key].displayLabel.indexOf(this.activeSelect)
+          // // a dumb bug here where depending on the vocab the label has extra spaces in it....
+          // if (idx==-1){
+          //   idx = metadata[key].displayLabel.indexOf(this.activeSelect.replace(/\s+/g,' '))
+          // }
+
+
+          let displayLabel = metadata[key].displayLabel
+          if (Array.isArray(displayLabel)){displayLabel = displayLabel[0]}
+          displayLabel = displayLabel.replace(/\s+/g,' ')
+
+          // if we don't see it in the display label it might be in the authLabel becase the display label will be sometihng like "dlc (USE United States, Library of Congress)"
+          let authLabel = metadata[key].authLabel
+          if (authLabel){ authLabel = authLabel.replace(/\s+/g,' ')}
+
+          let isMatch = (this.activeSelect == metadata[key].displayLabel)
+          if (!isMatch){
+            isMatch = (this.activeSelect == authLabel)       
           }
 
 
-          if (idx >-1){
+
+
+
+
+          if (isMatch){
             // this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':metadata[key].label[idx],URI:metadata[key].uri})
             this.activeFilter = ''
             this.activeValue = ''
             this.activeSelect = ''
             this.displayAutocomplete=false
             event.target.value = ''
-            // let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null
-            let useLabel = (metadata[key].authLabel) ? metadata[key].authLabel : metadata[key].label[idx]
-
-            // this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, propertyPath: this.propertyPath, valueURI: metadata[key].uri, valueLabel:useLabel}).then((resultData) => {
-            //   this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':resultData.valueLabel, uri: resultData.valueURI, uriGuid: resultData.guid, labelGuid:resultData.guid})
-            // })
-            // not passing a field guid since this is adding a new one
+            let useLabel = (authLabel) ? authLabel : displayLabel
             this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,metadata[key].uri,useLabel)
-
+            break
           }
-          // let data = utilsNetwork.lookupLibrary[this.uri].metadata[v]
-
-          // let idx = data.defaultsisplayLabel.indexOf(this.activeSelect)
-          // if (idx > -1){
-          //   this.structure.valueConstraint.defaults.push({defaultLiteral:data.label[idx],defaultURI:data.uri[idx]})
-          // }
-        })
+        }
 
 
         // if (event.target.value == ''){
@@ -919,24 +793,39 @@ export default {
       if (this.activeKeyword){
         metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values
       }
+      console.log("looking forrrrr",this.activeSelect)
+      console.log("META",JSON.stringify(metadata,null,2))
 
       // find the active selected in the data
-      Object.keys(metadata).forEach((key)=>{
-        let idx = metadata[key].displayLabel.indexOf(this.activeSelect)
-        if (idx >-1){
+      
+      for (let key of Object.keys(metadata)){
+
+        let displayLabel = metadata[key].displayLabel
+        if (Array.isArray(displayLabel)){displayLabel = displayLabel[0]}
+        displayLabel = displayLabel.replace(/\s+/g,' ')
+
+        // if we don't see it in the display label it might be in the authLabel becase the display label will be sometihng like "dlc (USE United States, Library of Congress)"
+        let authLabel = metadata[key].authLabel
+        if (authLabel){ authLabel = authLabel.replace(/\s+/g,' ')}
+
+        let isMatch = (this.activeSelect == metadata[key].displayLabel)
+        if (!isMatch){
+          isMatch = (this.activeSelect == authLabel)       
+        }
+      
+        if (isMatch){
           this.activeFilter = ''
           this.activeValue = ''
           this.activeSelect = ''
           this.displayAutocomplete=false
           event.target.value = ''
-          let useLabel = (metadata[key].authLabel) ? metadata[key].authLabel : metadata[key].label[idx]
+          let useLabel = (authLabel) ? authLabel : displayLabel
           this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,metadata[key].uri,useLabel)
-
           // refocus
           this.$refs.lookupInput.focus()
-
+          break
         }
-      })
+      }
 
 
     },
