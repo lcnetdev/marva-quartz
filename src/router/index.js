@@ -5,7 +5,7 @@ import Load from "../views/Load.vue";
 import EditMulti from "../views/EditMulti.vue";
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory('/'),
   routes: [
     {
       path: "/",

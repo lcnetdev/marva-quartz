@@ -13,30 +13,19 @@ export const useConfigStore = defineStore('config', {
 
       dev:{
 
-        ldpjs : 'http://127.0.0.1:5101/api-staging/',
-        util  : 'http://127.0.0.1:5001/util/',
-        // util  : 'http://localhost:5200/',
-        utilLang: 'http://127.0.0.1:5001/util-lang/',
-        scriptshifter: 'http://127.0.0.1:8000/scriptshifter/',
-        publish : 'http://127.0.0.1:9401/util/publish/staging',
-        validate: 'http://127.0.0.1:5200/validate',
-        bfdb : 'https://id.loc.gov/',
-        shelfListing: 'https://id.loc.gov/',
-        profiles : 'http://127.0.0.1:5001/util/profiles/profile/prod',
-        starting: 'http://127.0.0.1:5001/util/profiles/starting/prod',
-
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
-
-
-
+        ldpjs: "https://quartz.bibframe.app/api-staging/",
+        util: "https://quartz.bibframe.app/util/",
+        utilLang: "https://quartz.bibframe.app/util-lang/",
+        scriptshifter  :  'https://quartz.bibframe.app/scriptshifter/',
+        publish: "https://quartz.bibframe.app/util/publish/staging",
+        bfdb: "https://id.loc.gov/",
+        profiles: "https://quartz.bibframe.app/assets/profiles.json",
+        starting: "https://quartz.bibframe.app/assets/starting.json",
         id: 'https://id.loc.gov/',
-        env : 'staging',
-        dev: true,
-
-
-      },
+        env: "staging",
+        publicEndpoints: true,
+        displayLCOnlyFeatures: true
+        },
 
       staging:{
 
@@ -102,12 +91,12 @@ export const useConfigStore = defineStore('config', {
         util: "https://quartz.bibframe.app/util/",
         utilLang: "https://quartz.bibframe.app/util-lang/",
         scriptshifter  :  'https://quartz.bibframe.app/scriptshifter/',
-        publish: "https://quartz.bibframe.app/util/publish/production/",
+        publish: "https://quartz.bibframe.app/util/publish/staging",
         bfdb: "https://id.loc.gov/",
         profiles: "https://quartz.bibframe.app/assets/profiles.json",
         starting: "https://quartz.bibframe.app/assets/starting.json",
         id: 'https://id.loc.gov/',
-        env: "production",
+        env: "staging",
         publicEndpoints: true,
         displayLCOnlyFeatures: true
         },
@@ -116,7 +105,7 @@ export const useConfigStore = defineStore('config', {
 
 
 
-  postUsingAlmaXmlFormat: true,
+  postUsingAlmaXmlFormat: false,
 
 
 
@@ -1003,7 +992,7 @@ export const useConfigStore = defineStore('config', {
           return state.regionUrls.staging
         }else if (window && window.location.href.startsWith('https://editor.id')){
           return state.regionUrls.production
-        }else if (window && window.location.href.includes('quartz.bibframe.app')){
+        }else if (window && window.location.href.includes('https://quartz.bibframe.app')){
           return state.regionUrls.quartzDotBibframeDotApp
         }else{
           return state.regionUrls.dev

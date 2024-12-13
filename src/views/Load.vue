@@ -68,6 +68,13 @@
                 <p>Need to search title or author? Use <a href="https://id.loc.gov" target="_blank">ID.LOC.GOV</a>.</p>
               </form>
 
+              <!-- Display the options after a URL is entered -->
+              <div v-if="urlEntered">
+                <h3>Load with profile:</h3>
+                <div class="load-buttons">
+                  <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>
+                </div>
+              </div>
 
               <ol>
 
@@ -85,7 +92,7 @@
 
                             <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.label}}</span></div>
                             <div style="flex:1">
-                              <a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">View on BFDB</a>
+                              <a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">View on ID.LOC.GOV</a>
                               <span v-if="searchByLccnResults.length == 1" style="display:none;">
                                 <label :for="'lccnsearch'+idx">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" checked="true" />
                               </span>
@@ -111,13 +118,6 @@
                   First Enter the URL or identifier for a resource above, then select a profile.
                 </div>
 
-              <h3>Load with profile:</h3>
-
-              <div class="load-buttons">
-                <button class="load-button" @click="loadUrl(s.instance)" :disabled="(urlToLoadIsHttp || lccnLoadSelected ) ? false : true"  v-for="s in startingPointsFiltered">{{s.name}}</button>
-
-
-              </div>
               <hr>
 
 
@@ -141,7 +141,7 @@
 
               <h1>
                 <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_note</span>
-                <span>Your Records</span></h1>
+                <span>Your Descriptions</span></h1>
                 <a href="#" @click="loadAllRecords" style="color: inherit;">Show All Records</a>
                 <div>
 
@@ -176,9 +176,9 @@
 
               <h1 style="margin-bottom: 10px;">
                 <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_document</span>
-                <span>Create Blank Record</span></h1>
+                <span>Create New Description</span></h1>
                 <div style="padding:5px;">
-                  Use these blank templates to test, but any record that you want to post to Voyager must originate in Voyager. Marva cannot currently assign Voyager bib numbers, so you need to create a stub record in Voyager and then load it into Marva.
+                  Use these blank templates to create a new description. Note that in Alma the Work must exist first, then an instance can be exported. The Alma system will not allow an instance to be created without referencing an existing work.
                 </div>
                 <div>
                   <div class="load-buttons">
@@ -261,8 +261,8 @@
         displayAllRecords: false,
         isLoadingAllRecords:false,
 
-        allRecords: []
-
+        allRecords: [],
+        urlEntered: false
 
       }
     },
@@ -387,6 +387,7 @@
 
       loadSearch: function(){
         this.lccnLoadSelected = null
+        this.urlEntered = this.urlToLoad.trim() !== '';
 
         if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")){
           this.urlToLoadIsHttp = true
