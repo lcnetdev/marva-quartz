@@ -4578,7 +4578,9 @@ export const useProfileStore = defineStore('profile', {
       }
 
       //add information to component
-      console.info("ddcComponent", ddcComponent)
+      console.info("structure: ", structure)
+      console.info("structure string: ", JSON.stringify(structure))
+      console.info("ddcComponent", JSON.stringify(ddcComponent))
       let userValue = null
       try{
         userValue = ddcComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
