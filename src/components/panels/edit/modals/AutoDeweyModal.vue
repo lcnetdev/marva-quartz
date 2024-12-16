@@ -16,6 +16,7 @@
             @dragging="dragResize"
             :sticks="['br']"
             :stickSize="22"
+            style="background-color: whitesmoke"
             >
 
             <div class="dewey-modal" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
@@ -32,6 +33,7 @@
                             <input class="lcCallInput" name="LcCall" v-model="lcCall" ref="inputLookup" type="text" @click="inputFocus" />
 
                             <div class="dewey-toggle-btn-grp cssonly" style="margin-bottom: 8px;">
+                                <div><span class="dewey-genre">Genre:</span></div>
                                 <div v-for="opt in autoDeweyGenres">
                                     <input type="radio" :id="opt" :value="opt" class="genre-type-radio" v-model="autoDeweyGenre" name="genre-selection" />
                                     <label onclick="" :for="opt" class="dewey-toggle-btn">{{opt}}</label>
@@ -92,7 +94,7 @@
         margin-left: 2em;
     }
 
-    .ddc-modal{
+    .dewey-modal{
         background-color: whitesmoke;
     }
 
@@ -111,6 +113,11 @@
         margin: 5px;
         padding: 5px;
     }
+
+    .dewey-genre {
+        line-height: 30px;
+    }
+
     .dewey-toggle-btn-grp.cssonly{
         width: 100%;
         height: 30px;
@@ -198,7 +205,7 @@
 
     data: function() {
         return {
-            autoDeweyGenres: ['fiction', 'poetry', 'drama'],
+            autoDeweyGenres: ['fiction', 'poetry', 'drama', 'none'],
             autoDeweyGenre: null,
             lcCall: null,
             deweyInfo: null,

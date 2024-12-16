@@ -617,12 +617,14 @@
         try{
           const data = parent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
           const classPortion = data["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"]
-          const itemPortion = data["http://id.loc.gov/ontologies/bibframe/itemPortion"][0]["http://id.loc.gov/ontologies/bibframe/itemPortion"]
-          lccn = classPortion + itemPortion
+          lccn = classPortion
+          try {
+            const itemPortion = data["http://id.loc.gov/ontologies/bibframe/itemPortion"][0]["http://id.loc.gov/ontologies/bibframe/itemPortion"]
+            lccn += itemPortion
+          } catch {}
         } catch(e) {
-          alert("Couldn't generate an LC class number for auto dewey. Make sure all the pieces are present.")
+          // alert("Couldn't generate an LC class number for auto dewey. Make sure all the pieces are present.")
           console.error("AutoDewey Error", e)
-          return
         }
         this.lcCall = lccn
         this.deweyData = {
