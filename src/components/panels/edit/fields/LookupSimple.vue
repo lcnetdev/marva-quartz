@@ -682,12 +682,22 @@ export default {
           let authLabel = metadata[key].authLabel
           if (authLabel){ authLabel = authLabel.replace(/\s+/g,' ')}
 
-          let isMatch = (this.activeSelect == metadata[key].displayLabel)
+          let isMatch = (this.activeSelect == displayLabel)
           if (!isMatch){
             isMatch = (this.activeSelect == authLabel)       
           }
 
-
+          // if it is an array then try to match up to it
+          if (!isMatch){
+            if (Array.isArray(metadata[key].displayLabel)){
+              for (let dlValue of metadata[key].displayLabel){
+                if (this.activeSelect == dlValue){
+                  isMatch = true
+                  displayLabel = dlValue
+                }
+              }
+            }
+          }
 
 
 
@@ -787,14 +797,14 @@ export default {
       this.displayAutocomplete=false
 
       this.activeSelect = item
-
+      console.log("this.activeSelect", this.activeSelect)
       let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
 
       if (this.activeKeyword){
         metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values
       }
-      console.log("looking forrrrr",this.activeSelect)
-      console.log("META",JSON.stringify(metadata,null,2))
+      // console.log("looking forrrrr",this.activeSelect)
+      // console.log("META",JSON.stringify(metadata,null,2))
 
       // find the active selected in the data
       
@@ -804,15 +814,35 @@ export default {
         if (Array.isArray(displayLabel)){displayLabel = displayLabel[0]}
         displayLabel = displayLabel.replace(/\s+/g,' ')
 
+        console.log(metadata[key])
+
         // if we don't see it in the display label it might be in the authLabel becase the display label will be sometihng like "dlc (USE United States, Library of Congress)"
         let authLabel = metadata[key].authLabel
         if (authLabel){ authLabel = authLabel.replace(/\s+/g,' ')}
 
-        let isMatch = (this.activeSelect == metadata[key].displayLabel)
+        let isMatch = (this.activeSelect == displayLabel)
+
         if (!isMatch){
           isMatch = (this.activeSelect == authLabel)       
         }
-      
+        
+        // if it is an array then try to match up to it
+        if (!isMatch){
+          if (Array.isArray(metadata[key].displayLabel)){
+            for (let dlValue of metadata[key].displayLabel){
+              if (this.activeSelect == dlValue){
+                isMatch = true
+                displayLabel = dlValue
+              }
+            }
+          }
+        }
+
+
+        console.log("looking for ",this.activeSelect,' in ', displayLabel, 'or',  authLabel)
+
+
+        
         if (isMatch){
           this.activeFilter = ''
           this.activeValue = ''
@@ -1089,6 +1119,13 @@ export default {
 .autocomplete-container li{
   cursor: pointer;
 }
+.autocomplete-container li:hover span{
+  border:solid 4px lightblue;
+  border-radius: 5px;
+}
+
+
+
 
 
 .selected-value-icon{
