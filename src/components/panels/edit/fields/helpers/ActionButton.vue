@@ -207,6 +207,7 @@
 
 
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
+      ...mapWritableState(useProfileStore, ['showAutoDeweyModal', 'deweyData']),
 
       scriptShifterOptionsForMenu(){
 
@@ -628,11 +629,12 @@
         this.lcCall = lccn
         console.info("lccn: ", lccn)
         this.deweyData = {
-          lcc: lcc,
+          lcc: lccn,
           guid: this.guid,
           strcuture: this.structure
         }
 
+        console.info("!!", this.deweyData)
         this.showAutoDeweyModal = true
       },
 

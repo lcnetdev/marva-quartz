@@ -263,14 +263,19 @@
 
     created: function () {},
     before: function () {},
-    mounted: function(){},
-
-
-    updated: function() {
-        //update local value from prop
+    mounted: function(){
         this.lcCall = this.deweyData.lcc
         this.guid = this.deweyData.guid
         this.structure = this.deweyData.structure
+    },
+
+
+    updated: function() {
+        // console.info("update")
+        // //update local value from prop
+        // this.lcCall = this.deweyData.lcc
+        // this.guid = this.deweyData.guid
+        // this.structure = this.deweyData.structure
     }
   };
 

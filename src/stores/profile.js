@@ -135,8 +135,6 @@ export const useProfileStore = defineStore('profile', {
     */
     returnStructureByGUID: (state) => {
       return (guid) => {
-        console.info("The thing")
-        console.info(state.activeProfile)
         for (let rt in state.activeProfile.rt){
           for (let pt in state.activeProfile.rt[rt].pt){
             if (state.activeProfile.rt[rt].pt[pt]['@guid'] === guid){
@@ -4547,7 +4545,7 @@ export const useProfileStore = defineStore('profile', {
     addDdc: async function(deweyInfo, guid, structure){
       console.info("Add DDC: ", deweyInfo)
       //Look to see if there is a DDC component
-      let activeProfile = this.profileStore.activeProfile
+      let activeProfile = this.activeProfile
       console.info(activeProfile)
       let hasEmptyDDC = false
       let ddcComponent = null
@@ -4575,7 +4573,7 @@ export const useProfileStore = defineStore('profile', {
       // if no empty ddc, create one
       if (!hasEmptyDDC){
         console.info("Creating component")
-        newDDC = await this.profileStore.duplicateComponentGetId(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], this.structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
+        newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
         ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
       }
 
