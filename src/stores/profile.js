@@ -4498,13 +4498,13 @@ export const useProfileStore = defineStore('profile', {
     *
     * @param {object} hubCreatorObj - obj with creator label, uri,marcKey
     * @param {string} title - title string
-    * @param {string} langUri - uri to language
+    * @param {string} langObj - {uri:"",label:""}
     * @return {String}
     */
-    async buildPostHubStub(hubCreatorObj,title,langUri,catCode){
+    async buildPostHubStub(hubCreatorObj,title,langObj,catCode){
 
-      console.log("hubCreatorObj",hubCreatorObj)
-      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langUri,catCode)
+      // console.log("hubCreatorObj",hubCreatorObj)
+      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langObj,catCode)
 
       console.log(xml)
       let eid = 'e' + decimalTranslator.new()
@@ -4514,8 +4514,6 @@ export const useProfileStore = defineStore('profile', {
       let pubResuts
       try{
         pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
-
-
 
       }catch (error){
         console.log(error)
