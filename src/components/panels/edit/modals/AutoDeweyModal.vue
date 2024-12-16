@@ -1,31 +1,31 @@
 <template>
     <VueFinalModal
         display-directive="show"
-        :hide-overlay="false"
+        :hide-overlay="true"
         :overlay-transition="'vfm-fade'"
         @closed="closeModal()"
       >
         <VueDragResize
             :is-active="true"
             :w="850"
-            :h="300"
+            :h="400"
             :x="initalLeft"
             :y="50"
-            class="debug-modal"
+            class="ddc-modal"
             @resizing="dragResize"
             @dragging="dragResize"
             :sticks="['br']"
             :stickSize="22"
             >
 
-            <div class="complex-lookup-modal">
+            <div class="complex-lookup-modal" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
                 <div style="position: relative;">
                     <div class="dewey-menu-button">
                         <button @click="closeModal()">Close</button>
                     </div>
                 </div>
                 <div ref="autoDeweyModalContainer" class="auto-dewey-modal-container">
-                    <h1 style="margin-left: 5px">AutoDewey 🤖</h1>
+                    <h1 style="margin-left: 5px">LC to DDC</h1>
                     <div class="auto-dewey-container">
                         <div class="input-panel">
                             <label for="LcCall">LC Call Number: </label>
@@ -246,7 +246,15 @@
             console.info("result: ", result)
 
             this.deweyInfo.dewey = result
-        }
+        },
+
+        onSelectElement (event) {
+          const tagName = event.target.tagName
+
+          if (tagName === 'INPUT' || tagName === 'TD' || tagName === 'BUTTON'  || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+            event.stopPropagation()
+          }
+        },
     },
 
     created: function () {},
