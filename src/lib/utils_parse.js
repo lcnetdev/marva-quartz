@@ -1614,6 +1614,19 @@ const utilsParse = {
 
             sucessfulElements.push(e.outerHTML)
 
+
+            // check if we marked this component deepHierarchy
+            if (populateData.deepHierarchy){
+              // check if it is a relation with a URI, if so it is okay
+              if (populateData.userValue['http://id.loc.gov/ontologies/bibframe/relation'] && populateData.userValue['http://id.loc.gov/ontologies/bibframe/relation'][0]){
+                if (populateData.userValue['http://id.loc.gov/ontologies/bibframe/relation'][0]['http://id.loc.gov/ontologies/bibframe/associatedResource'] && populateData.userValue['http://id.loc.gov/ontologies/bibframe/relation'][0]['http://id.loc.gov/ontologies/bibframe/associatedResource'][0]){
+                  if (populateData.userValue['http://id.loc.gov/ontologies/bibframe/relation'][0]['http://id.loc.gov/ontologies/bibframe/associatedResource'][0]['@id']){
+                    delete populateData.deepHierarchy
+                  }
+                }
+              }
+            }
+
             // since we created a brand new populateData we either need to
             // replace the orginal in the profile or if there is more than one we
             // need to make a new one and add it to the resource template list
