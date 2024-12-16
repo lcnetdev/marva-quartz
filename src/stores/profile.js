@@ -4586,18 +4586,22 @@ export const useProfileStore = defineStore('profile', {
       userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(dewey) }]
 
       //Add the defaults:
-      // console.info("profile: ", this.profileStore.activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt)
-      // const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
-      // const newStructure = this.profileStore.returnStructureByGUID(newComponent["@guid"])
+      const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
+      const newStructure = this.returnStructureByGUID(newComponent["@guid"])
 
-      // console.info("newComponent['@guid']: ", newComponent['@guid'])
-      // console.info("newStructure: ", newStructure)
-      // console.info("ddcComponent: ", ddcComponent)
-
-      // console.info("*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*")
-
-      // this.profileStore.insertDefaultValuesComponent(newComponent['@guid'], ddcComponent)
-
+      // look up one level & use the appropriate structure
+      let parentStructure = this.returnStructureByComponentGuid(newComponent['@guid'])
+      if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
+        for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
+          if (this.rtLookup[vRt]){
+            for (let pt of this.rtLookup[vRt].propertyTemplates){
+              if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
+                this.insertDefaultValuesComponent(newComponent['@guid'], pt)
+              }
+            }
+          }
+        }
+      }
     },
 
 
