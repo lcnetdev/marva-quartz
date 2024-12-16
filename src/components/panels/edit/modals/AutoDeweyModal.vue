@@ -233,7 +233,7 @@
 
         add: function(){
             console.info("adding to record", this.deweyInfo)
-            this.profileStore.addDdc(this.deweyData.lcc, this.deweyData.guid, this.deweyData.structure)
+            this.profileStore.addDdc(this.deweyInfo, this.deweyData.guid, this.deweyData.structure)
             this.closeModal()
         },
 

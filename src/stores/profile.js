@@ -102,6 +102,8 @@ export const useProfileStore = defineStore('profile', {
     showAutoDeweyModal: false,
     deweyData: {
       lcc: null,
+      guid: null,
+      structure: null,
     },
 
     mostCommonNonLatinScript: null,

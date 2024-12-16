@@ -631,7 +631,7 @@
         this.deweyData = {
           lcc: lccn,
           guid: this.guid,
-          strcuture: this.structure
+          structure: this.structure
         }
 
         console.info("!!", this.deweyData)
