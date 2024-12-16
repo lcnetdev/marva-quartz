@@ -3006,7 +3006,7 @@ export const useProfileStore = defineStore('profile', {
           if (work){ break }
         }
       }
-      console.log("work",work)
+      // console.log("work",work)
       if (work){
 
         for (let ptId in work.pt){
@@ -3073,7 +3073,7 @@ export const useProfileStore = defineStore('profile', {
                         {
                         let agent = contributorUserValue['http://id.loc.gov/ontologies/bibframe/agent'][0]
                         if (agent && agent['http://www.w3.org/2000/01/rdf-schema#label'] && agent['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && agent['http://www.w3.org/2000/01/rdf-schema#label'][0] && agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-                          console.log("agentagentagentagent",agent)
+                          // console.log("agentagentagentagent",agent)
                           let agentData = {type:type,label:agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']}
                           if (agent['@id']){
                             agentData['@id'] = agent['@id']
