@@ -29,7 +29,7 @@
                     <div class="auto-dewey-container">
                         <div class="input-panel">
                             <label for="LcCall">LC Call Number: </label>
-                            <input class="lcCallInput" name="LcCall" v-model="lcCallLocal" ref="inputLookup" type="text" @click="inputFocus" />
+                            <input class="lcCallInput" name="LcCall" v-model="lcCall" ref="inputLookup" type="text" @click="inputFocus" />
 
                             <div class="dewey-toggle-btn-grp cssonly" style="margin-bottom: 8px;">
                                 <div v-for="opt in autoDeweyGenres">
@@ -67,7 +67,7 @@
                                 <dd>{{ deweyInfo['LCC Caption'] }}</dd> -->
                             </dl>
 
-                            <button @click="add()" v-if="deweyInfo">Add to record</button>
+                            <button @click="add()" v-if="deweyInfo && this.$route.path.includes('/edit/')">Add to record</button>
                         </div>
                     </div>
                 </div>
@@ -184,15 +184,14 @@
     import { VueFinalModal } from 'vue-final-modal'
     import VueDragResize from 'vue3-drag-resize'
     import { onPeriodClicked, LcCallToDewey } from '@/lib/auto_dewey'
+    import { mapStores, mapState, mapWritableState } from 'pinia'
+    import { useProfileStore } from '@/stores/profile'
 
     export default {
     name: "AutoDewey",
     components: {
         VueFinalModal,
         VueDragResize,
-    },
-    props: {
-        lcCall: String,
     },
 
     watch: {},
@@ -201,35 +200,40 @@
         return {
             autoDeweyGenres: ['fiction', 'poetry', 'drama'],
             autoDeweyGenre: null,
-            lcCallLocal: null,
+            lcCall: null,
             deweyInfo: null,
             deweyPeriod: 0,
+            guid: null,
+            structure: null,
         }
     },
 
-    computed: {},
+    computed: {
+        ...mapStores(useProfileStore),
+        ...mapWritableState(useProfileStore, ['showAutoDeweyModal','deweyData']),
+    },
     methods: {
         inputFocus: function(){
             this.$refs.inputLookup.focus()
         },
         closeModal: function(){
             this.autoDeweyGenre = null
-            this.lcCallLocal = null
+            this.lcCall = null
             this.deweyInfo = null
-            this.$emit('hideDeweyModal', true)
+            this.showAutoDeweyModal = false
         },
 
         dewIt: function(){
             console.info("Dewing the thing")
             console.info("genre: ", this.autoDeweyGenre)
-            console.info("lcCall: ", this.lcCallLocal)
-            this.deweyInfo = LcCallToDewey(this.lcCallLocal, this.autoDeweyGenre)
+            console.info("lcCall: ", this.lcCall)
+            this.deweyInfo = LcCallToDewey(this.lcCall, this.autoDeweyGenre)
             console.info(">>> deweyInfo", this.deweyInfo)
         },
 
         add: function(){
             console.info("adding to record", this.deweyInfo)
-            this.$emit('addDdc', this.deweyInfo)
+            this.profileStore.addDdc(this.deweyData.lcc, this.deweyData.guid, this.deweyData.structure)
             this.closeModal()
         },
 
@@ -264,7 +268,9 @@
 
     updated: function() {
         //update local value from prop
-        this.lcCallLocal = this.lcCall
+        this.lcCall = this.deweyData.lcc
+        this.guid = this.deweyData.guid
+        this.structure = this.deweyData.structure
     }
   };
 
