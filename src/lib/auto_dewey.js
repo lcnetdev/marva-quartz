@@ -7,7 +7,6 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
 
 
     export function LcCallToDewey(lcCall, genre=null){  //{ lcCall, parentPhone }
-        console.info("Dewing it", lcCall, "--", genre)
         if (!lcCall) return
 
         //this if for Px class, for GV uses 'GV Bio'
@@ -19,7 +18,6 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
 
         //autoDewey mode
         const convertLccWithLocalLogics = (letter, number) => {
-            console.info("convertLccWithLocalLogics", letter, "--", number)
             //these are basically copy and pasted form VBA
 
             const Left = (str, numChars) => {
@@ -1871,8 +1869,6 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
 
             //GV
             const _convertClassGvSport = (sClassNo$) => {
-                console.info("converting sport")
-                console.info(Mid(sClassNo$, 3, 8))
                 if (Mid(sClassNo$, 3, 8) == "1003.62.") sDewey$ = "796.343092"
                 if (Mid(sClassNo$, 3, 8) == "1005.22.") sDewey$ = "796.34/6092"
                 if (Mid(sClassNo$, 3, 8) == "1006.52.") sDewey$ = "796.345092"
@@ -1952,7 +1948,6 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
                     _convertClassPrDrama(letter + number)
                 }
             } else if (letter == 'PS') {
-                console.info("!! PS !!", autoDeweyGenre)
                 if (autoDeweyGenre == 'fiction') {
                     _convertClassPsFiction(letter + number)
                 } else if (autoDeweyGenre == 'poetry') {
@@ -2002,7 +1997,6 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
 
         const convertLccBasic = (letter, number) => {
             const ruleMatches = lccDeweyMap.filter(rule => rule.LCC == letter)
-            console.info('convertLccBasic', letter, ruleMatches)
             if (ruleMatches.length == 1) {
                 ruleMatches[0].mode = 'basic'
                 return [ruleMatches[0].dewey, ruleMatches[0]]
@@ -2034,22 +2028,8 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
         }
 
         const [match, letter, number] = lcCall.trim().match(/^([A-Z]*)(.*)/)
-
-        console.info("!! match: ", match)
-        console.info("!! letter: ", letter)
-        console.info("!! number: ", number)
-
         const deweys = lccDeweyMap.filter(ddc => ddc.LCC == letter)
-
-        console.info('letter', letter)
-        console.info(lccDeweyMap)
-        console.info(deweys)
-
         const [dewey, deweyInfo] = lccsWithLocalLogics.includes(letter) ? convertLccWithLocalLogics(letter, number) : convertLccBasic(letter, number)
-
-        console.info("lcCall: ", lcCall, dewey, deweyInfo)
-        console.info("dewey: ", dewey)
-        console.info("deweyInfo: ", deweyInfo)
 
         if (deweyInfo.mode == 'autoDewey') return (
             deweyInfo

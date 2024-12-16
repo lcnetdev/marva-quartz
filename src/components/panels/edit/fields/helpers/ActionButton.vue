@@ -359,7 +359,6 @@
         if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
           return false
         }
-        console.info("this.structure", this.structure.parentId)
         //does this have defaults, or are the defaults higher up?
         let defaults = this.structure.valueConstraint.defaults
 
@@ -612,7 +611,6 @@
 
       convertLcc2Dewey: function(){
         // TODO: can a lcc be valid with only a class portion?
-        console.info("Dewing the conversion")
 
         const parent = this.profileStore.returnStructureByComponentGuid(this.guid)
         let lccn = null
@@ -627,14 +625,12 @@
           return
         }
         this.lcCall = lccn
-        console.info("lccn: ", lccn)
         this.deweyData = {
           lcc: lccn,
           guid: this.guid,
           structure: this.structure
         }
 
-        console.info("!!", this.deweyData)
         this.showAutoDeweyModal = true
       },
 

@@ -3477,10 +3477,6 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
-    console.info("insertDefaultValuesComponent")
-    console.info("componentGuid: ", componentGuid)
-    console.info("structure: ", structure)
-    console.info("whole thing: ", this.activeProfile)
     // console.log(componentGuid)
     // console.log("structure",structure)
 
@@ -3634,9 +3630,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     duplicateComponent: async function(componentGuid, structure){
-      console.info("duplicateComponent")
-      console.info("    componentGuid: ", componentGuid)
-      console.info("    structure: ", structure)
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
@@ -4545,22 +4538,17 @@ export const useProfileStore = defineStore('profile', {
     },
 
     addDdc: async function(deweyInfo, guid, structure){
-      console.info("Add DDC: ", deweyInfo)
       //Look to see if there is a DDC component
       let activeProfile = this.activeProfile
-      console.info(activeProfile)
       let hasEmptyDDC = false
       let ddcComponent = null
       let lastClassifiction = null
       for (let pt in activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt){
         if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers")){
           const target = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[pt]
-          console.info("target: ", target)
           const userValue = target.userValue
-          console.info("userValue: ", userValue)
           const classification = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
           const type = classification["@type"]
-          console.info("component: ", classification)
           if (!pt.deleted){
             lastClassifiction = pt
             //type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc" &&
@@ -4574,15 +4562,11 @@ export const useProfileStore = defineStore('profile', {
       let newDDC
       // if no empty ddc, create one
       if (!hasEmptyDDC){
-        console.info("Creating component")
         newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
         ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
       }
 
       //add information to component
-      console.info("structure: ", structure)
-      console.info("structure string: ", JSON.stringify(structure))
-      console.info("ddcComponent", JSON.stringify(ddcComponent))
       let userValue = null
       try{
         userValue = ddcComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
@@ -4598,7 +4582,6 @@ export const useProfileStore = defineStore('profile', {
       }
 
       const newGuid = short.generate()
-      console.info("userValue: ", userValue)
       userValue["@type"] = "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"
       userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(dewey) }]
 

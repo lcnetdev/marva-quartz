@@ -11,14 +11,14 @@
             :h="400"
             :x="initalLeft"
             :y="50"
-            class="ddc-modal"
+            :class="ddc-modal"
             @resizing="dragResize"
             @dragging="dragResize"
             :sticks="['br']"
             :stickSize="22"
             >
 
-            <div class="complex-lookup-modal" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
+            <div class="dewey-modal" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
                 <div style="position: relative;">
                     <div class="dewey-menu-button">
                         <button @click="closeModal()">Close</button>
@@ -67,7 +67,7 @@
                                 <dd>{{ deweyInfo['LCC Caption'] }}</dd> -->
                             </dl>
 
-                            <button @click="add()" v-if="deweyInfo && this.$route.path.includes('/edit/')">Add to record</button>
+                            <button @click="add()" v-if="deweyInfo && (deweyInfo.DDC || deweyInfo.dewey) && this.$route.path.includes('/edit/')">Add to record</button>
                         </div>
                     </div>
                 </div>
@@ -92,8 +92,8 @@
         margin-left: 2em;
     }
 
-    .auto-dewey-modal-container{
-
+    .ddc-modal{
+        background-color: whitesmoke;
     }
 
     .auto-dewey-container {
@@ -220,25 +220,21 @@
             this.autoDeweyGenre = null
             this.lcCall = null
             this.deweyInfo = null
+            this.deweyData.guid = null
+            this.deweyData.structure = null
             this.showAutoDeweyModal = false
         },
 
         dewIt: function(){
-            console.info("Dewing the thing")
-            console.info("genre: ", this.autoDeweyGenre)
-            console.info("lcCall: ", this.lcCall)
             this.deweyInfo = LcCallToDewey(this.lcCall, this.autoDeweyGenre)
-            console.info(">>> deweyInfo", this.deweyInfo)
         },
 
         add: function(){
-            console.info("adding to record", this.deweyInfo)
             this.profileStore.addDdc(this.deweyInfo, this.deweyData.guid, this.deweyData.structure)
             this.closeModal()
         },
 
         setPeriod: function(e, idx){
-            console.info("setting period: ", this.deweyInfo, "--", idx)
             //e.target.checked = true
             const period = this.deweyInfo.dewey
             if (period.startsWith("Period")){
@@ -247,7 +243,6 @@
             const genre = this.deweyInfo.genre
             const country = this.deweyInfo.country
             let result = onPeriodClicked(idx+1, this.savedPeriod, genre, country) //periodNumber, sDewey$, sGenre$, sCountry$
-            console.info("result: ", result)
 
             this.deweyInfo.dewey = result
         },
@@ -270,13 +265,7 @@
     },
 
 
-    updated: function() {
-        // console.info("update")
-        // //update local value from prop
-        // this.lcCall = this.deweyData.lcc
-        // this.guid = this.deweyData.guid
-        // this.structure = this.deweyData.structure
-    }
+    updated: function() {}
   };
 
   </script>
