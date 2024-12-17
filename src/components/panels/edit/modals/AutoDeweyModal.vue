@@ -234,6 +234,13 @@
         ...mapWritableState(useProfileStore, ['showAutoDeweyModal','deweyData']),
     },
     methods: {
+        dragResize: function(newRect) {
+            this.width = newRect.width
+            this.height = newRect.height
+            this.top = newRect.top
+            this.left = newRect.left
+            this.$refs.shelfListingContent.style.height = newRect.height + 'px'
+        },
         inputFocus: function(){
             this.$refs.inputLookup.focus()
         },
