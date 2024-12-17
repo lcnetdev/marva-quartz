@@ -4536,7 +4536,12 @@ export const useProfileStore = defineStore('profile', {
 
 
     },
-
+    /** Add the DDC to marva
+     *
+     * @param {object} deweyInfo - The dewey information that will be inserted into Marva
+     * @param {string} guid - The GUID of the LCC component that will be used to create the new component
+     * @param {string} structure - the structure that will be used to create the new component
+     */
     addDdc: async function(deweyInfo, guid, structure){
       //Look to see if there is a DDC component
       let activeProfile = this.activeProfile
