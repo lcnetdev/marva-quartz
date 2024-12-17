@@ -256,8 +256,6 @@
       },
 
       showBuildHubStub(){
-
-
         console.log("this.propertyPath",this.propertyPath)
 
         if (!this.propertyPath) return false;
