@@ -3012,7 +3012,7 @@ export const useProfileStore = defineStore('profile', {
           if (work){ break }
         }
       }
-      console.log("work",work)
+      // console.log("work",work)
       if (work){
 
         for (let ptId in work.pt){
@@ -3079,7 +3079,7 @@ export const useProfileStore = defineStore('profile', {
                         {
                         let agent = contributorUserValue['http://id.loc.gov/ontologies/bibframe/agent'][0]
                         if (agent && agent['http://www.w3.org/2000/01/rdf-schema#label'] && agent['http://www.w3.org/2000/01/rdf-schema#label'].length > 0 && agent['http://www.w3.org/2000/01/rdf-schema#label'][0] && agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-                          console.log("agentagentagentagent",agent)
+                          // console.log("agentagentagentagent",agent)
                           let agentData = {type:type,label:agent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']}
                           if (agent['@id']){
                             agentData['@id'] = agent['@id']
@@ -4504,13 +4504,13 @@ export const useProfileStore = defineStore('profile', {
     *
     * @param {object} hubCreatorObj - obj with creator label, uri,marcKey
     * @param {string} title - title string
-    * @param {string} langUri - uri to language
+    * @param {string} langObj - {uri:"",label:""}
     * @return {String}
     */
-    async buildPostHubStub(hubCreatorObj,title,langUri,catCode){
+    async buildPostHubStub(hubCreatorObj,title,langObj,catCode){
 
-      console.log("hubCreatorObj",hubCreatorObj)
-      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langUri,catCode)
+      // console.log("hubCreatorObj",hubCreatorObj)
+      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langObj,catCode)
 
       console.log(xml)
       let eid = 'e' + decimalTranslator.new()
@@ -4520,8 +4520,6 @@ export const useProfileStore = defineStore('profile', {
       let pubResuts
       try{
         pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
-
-
 
       }catch (error){
         console.log(error)

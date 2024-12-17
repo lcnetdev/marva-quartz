@@ -177,9 +177,19 @@
 
         async buildHub(){
 
-          
+
+          let langObj
+          if (this.hubLang){
+            langObj = {
+              uri: this.hubLang,
+              label:    this.langsLookup.filter((v)=> { return (v.uri == this.hubLang)  } )[0].label
+            }
+          }else{
+            langObj = null
+          }  
+
           this.postStatus='posting'
-          let results = await this.profileStore.buildPostHubStub(this.hubCreator,this.hubTitle,this.hubLang,this.preferenceStore.catCode)
+          let results = await this.profileStore.buildPostHubStub(this.hubCreator,this.hubTitle,langObj,this.preferenceStore.catCode)
 
           if (results && results.postLocation){
             results.postLocation = results.postLocation.replace("http://",'https://')

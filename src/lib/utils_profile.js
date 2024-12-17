@@ -795,7 +795,7 @@ const utilsProfile = {
   * @return {string} - the AAP
   */
   returnAap: function(contributor,title){
-    if (!contributor || !title){
+    if (contributor == null || !title || typeof(contributor) == 'undefined'){
         return false
     }
 

@@ -49,6 +49,9 @@
 
         activeContext: null,
 
+
+        nextInputIsVoyagerModeDiacritics: false,
+
 		searchType: "left",
       }
     },
@@ -64,7 +67,7 @@
 
       ...mapState(useConfigStore, ['lookupConfig']),
 
-
+      ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
 
 
@@ -159,7 +162,7 @@
         }
         window.clearTimeout(this.searchTimeout)
 
-		let searchType = this.searchType
+		    let searchType = this.searchType
         let offset = this.offsetStart
         if (this.activeComplexSearch != []) {
           offset = this.offsetStep * (this.currentPage - 1)
@@ -204,13 +207,268 @@
       },
 
 
+
+      inputKeyup: function(event){
+
+
+        // text macros
+        let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
+        if (useTextMacros && useTextMacros.length>0){
+          for (let m of useTextMacros){
+            if (event.target.value.indexOf(m.lookFor) > -1){
+              event.target.value = event.target.value.replace(m.lookFor,m.replaceWith)
+              this.searchValueLocal = event.target.value
+            }
+          }
+        }        
+      },
+
+
+
+
+
       inputKeydown: function(event){
         if (event.key==='ArrowDown'){
           this.$refs.selectOptions.focus()
           this.$refs.selectOptions.value=this.activeComplexSearch[0].uri
           this.selectChange()
+          return true
         }
+
+        // do a bunch of diacritic checks to see if they are trying to trigger a diacrtiic macro
+
+
+
+
+        // This mode is they press Crtl+e to enter diacritic macro mode, so they did that on the last kedown and now we need to act on the next keystroke and interpret it as a macro code
+        if (this.nextInputIsVoyagerModeDiacritics){
+            // they are pressing shift in about to press antoher macro shrotcut
+            if (event.key == 'Shift'){
+              return false
+            }
+
+            if (this.diacriticPacks.voyager[event.code]){
+              let useMacro
+              for (let macro of this.diacriticPacks.voyager[event.code]){
+                if (macro.shiftKey == event.shiftKey){
+                  useMacro = macro
+                  break
+                }
+              }
+
+              let inputV = event.target
+              let insertAt = event.target.value.length
+              if (event.target && event.target.selectionStart){
+                insertAt=event.target.selectionStart
+              }
+
+              if (!useMacro.combining){
+              // it is not a combining unicode char so just insert it into the value
+                if (inputV.value){
+                  // inputV.value=inputV.value+useMacro.codeEscape
+                  inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+                }else{
+                  inputV.value = useMacro.codeEscape
+                }
+                this.searchValueLocal = inputV.value
+              }else{
+                    // inputV.value=inputV.value+useMacro.codeEscape
+                    inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+                    this.searchValueLocal = inputV.value
+              }
+
+              if (insertAt){
+              this.$nextTick(()=>{
+                inputV.setSelectionRange(insertAt+1,insertAt+1)
+                this.searchValueLocal = inputV.value
+                this.$nextTick(()=>{
+                  inputV.focus()
+                })
+
+              })
+              }else{
+                this.$nextTick(()=>{
+                  inputV.focus()
+                })
+              }
+            }
+            // turn off mode
+            this.nextInputIsVoyagerModeDiacritics  =false
+            event.target.style.removeProperty('background-color')
+            event.preventDefault()
+            return false
+        }
+        // all macros use the ctrl key 
+        if (event.ctrlKey == true){
+          if (this.diacriticUse.length>0){
+            for (let macro of this.diacriticUseValues){
+              if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
+                // console.log("run this macro", macro)
+                event.preventDefault()
+                this.runMacroExpressMacro(event)
+                return false
+
+              }
+            }
+          }
+
+         // they are entering into voyager diacritic mode
+          if (event.code == 'KeyE'){
+            if (!this.preferenceStore.returnValue('--b-diacritics-disable-voyager-mode')){
+              event.target.style.backgroundColor="chartreuse"
+              this.nextInputIsVoyagerModeDiacritics = true
+              event.preventDefault()
+              return false
+            }
+
+          }
+
+          //
+
+        }
+
+
+
+
+
+
+
       },
+
+
+      runMacroExpressMacro(event){
+
+        for (let macro of this.diacriticUseValues){
+              if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
+                // console.log("run this macro", macro)
+                let insertAt = event.target.value.length
+
+                if (event.target && event.target.selectionStart){
+                  insertAt=event.target.selectionStart
+                }
+                let inputV
+                if (event.target){
+                  inputV = event.target
+                }else{
+                  console.warn("ERROR: Field not found")
+                  return false
+                }
+                if (!macro.combining){
+                  // there is behavior where if it is a digit shortcut the numerial is still sent
+                  // so if thats the case remove the last digit from the value
+                  if (event.code.includes('Digit')){
+                    // if it is in fact a digit char then remove it
+                    if (inputV.value.charAt(insertAt) == event.code.replace('Digit','')){
+                      // remove the last char
+                      // inputV.value = inputV.value.slice(0, -1);
+                      inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+
+                    }
+                  }
+                  // same for euqal key
+                  if (event.code == 'Equal'){
+                    if (inputV.value.charAt(inputV.value.length-1) == '='){
+                      // remove the last char
+                      // inputV.value = inputV.value.slice(0, -1);
+                      inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+                    }
+                  }
+                  // same for Backquote key
+
+                  if (event.code == 'Backquote'){
+                    if (inputV.value.charAt(inputV.value.length-1) == '`'){
+                      // remove the last char
+                      // inputV.value = inputV.value.slice(0, -1);
+                      inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+                    }
+                  }
+                  // it is not a combining unicode char so just insert it into the value
+                  if (inputV.value){
+                    // inputV.value=inputV.value+macro.codeEscape
+                    inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
+                    this.searchValueLocal = inputV.value
+                    if (insertAt){
+                      this.$nextTick(()=>{
+                        inputV.setSelectionRange(insertAt+1,insertAt+1)
+                        this.$nextTick(()=>{
+                          inputV.focus()
+                          // this.doSearch()
+                        })
+                      })
+                    }else{
+                        this.$nextTick(()=>{
+                          inputV.focus()
+                        })
+                    }
+                  }else{
+                    inputV.value = macro.codeEscape
+                    this.searchValueLocal = inputV.value
+                  }
+                  
+
+                }else{
+
+
+                  // same for Backquote key
+
+                  if (event.code == 'Backquote'){
+
+                    if (inputV.value.charAt(inputV.value.length-1) == '`'){
+                      // remove the last char
+                      inputV.value = inputV.value.slice(0, -1);
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+                    }
+
+                    }
+
+
+                    // little cheap hack here, on macos the Alt+9 makes ª digits 1-0 do this with Alt+## but we only
+                    // have one short cut that uses Alt+9 so just remove that char for now
+                    inputV.value=inputV.value.replace('ª','')
+
+                    inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
+                    // inputV.value=inputV.value+macro.codeEscape
+
+                    inputV.setSelectionRange(insertAt+1,insertAt+1)
+                    inputV.focus()
+
+
+                    if (insertAt){
+                    this.$nextTick(()=>{
+                      inputV.setSelectionRange(insertAt+1,insertAt+1)
+                      this.searchValueLocal = inputV.value
+                      this.$nextTick(()=>{
+                        inputV.focus()
+                      })
+
+                    })
+                    }else{
+
+                      this.$nextTick(()=>{
+                        inputV.focus()
+                      })
+
+                    }
+                }
+
+                event.preventDefault()
+                event.stopPropagation()
+                return false
+              }
+            }
+
+
+
+        },
+
+
 
       returnContextTitle(title){
 
@@ -299,10 +557,10 @@
         this.activeContext = {
             "contextValue": true,
             "source": [],
-            "type": (toLoad !== null && toLoad.literal) ? "Literal Value" : null,
+            "type": (toLoad && toLoad.literal) ? "Literal Value" : null,
             "variant": [],
             "uri": (toLoad == null || toLoad.literal) ? null : toLoad.uri,
-            "title": toLoad !== null ? toLoad.label : "",
+            "title": (toLoad)  ? toLoad.label : "",
             "contributor": [],
             "date": null,
             "genreForm": null,
@@ -540,7 +798,7 @@
                   <option  v-for="opt in modalSelectOptions">{{opt.label}}</option>
                 </select>
               </template>
-              <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" type="text" />
+              <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" @keyup="inputKeyup($event)" type="text" />
               <button @click="forceSearch()">Search</button>
               <hr style="margin-top: 5px;">
               <div>

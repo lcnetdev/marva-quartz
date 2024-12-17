@@ -1750,13 +1750,13 @@ const utilsExport = {
 	 *
 	* @param {object} hubCreatorObj - obj with creator label, uri,marcKey
 	* @param {string} title - title string
-	* @param {string} langUri - uri to language
+	* @param {string} langObj - {uri:"",label:""}
 	 * @return {string}
 	 */
-	createHubStubXML: async function(hubCreatorObj,title,langUri,catalogerId){
+	createHubStubXML: async function(hubCreatorObj,title,langObj,catalogerId){
 
-		console.log(hubCreatorObj,title,langUri,catalogerId)
 
+		
 
 
 		// we are creating the xml in two formats, create the root node for both
@@ -1769,13 +1769,20 @@ const utilsExport = {
 			rdfBasic.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:${ns}`, this.namespace[ns])
 		}
 
-		if (!hubCreatorObj) return false
-		if (!hubCreatorObj.label || !hubCreatorObj.marcKey ||!hubCreatorObj.uri) return false
+		// they are allowed to have a hub without a creator...
+		// if (!hubCreatorObj) return false
+		// if (!hubCreatorObj.label || !hubCreatorObj.marcKey ||!hubCreatorObj.uri) return false
+
+		// but needsa title
 		if (!title) return false
 
-		console.log("hubCreatorObj",hubCreatorObj)
+		if (!hubCreatorObj){ hubCreatorObj = {'label':''}}
+		if (!hubCreatorObj.label){ hubCreatorObj.label = ''} 
+
+		
 
 		let aap = utilsProfile.returnAap(hubCreatorObj.label,title)
+		
 		let aapHash = await md5(aap)
 		aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
 		let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
@@ -1799,51 +1806,58 @@ const utilsExport = {
 
 
 		// the creator
-		let elContributionProperty = document.createElementNS(this.namespace.bf ,'bf:contribution')
-		let elContributionClass = document.createElementNS(this.namespace.bf ,'bf:Contribution')
+		if (hubCreatorObj && hubCreatorObj.label && hubCreatorObj.label != ''){
+			let elContributionProperty = document.createElementNS(this.namespace.bf ,'bf:contribution')
+			let elContributionClass = document.createElementNS(this.namespace.bf ,'bf:Contribution')
 
-		let rdftype = this.createElByBestNS('rdf:type')
-		rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution')
+			let rdftype = this.createElByBestNS('rdf:type')
+			rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', 'http://id.loc.gov/ontologies/bibframe/PrimaryContribution')
 
-		elContributionClass.appendChild(rdftype)
-		elContributionProperty.appendChild(elContributionClass)
+			elContributionClass.appendChild(rdftype)
+			elContributionProperty.appendChild(elContributionClass)
 
-		let elAgentProperty = document.createElementNS(this.namespace.bf ,'bf:agent')
-		let elAgentClass = document.createElementNS(this.namespace.bf ,'bf:Agent')
-		elAgentClass.setAttributeNS(this.namespace.rdf, 'rdf:about', hubCreatorObj.uri)
-
-
-
-		elAgentProperty.appendChild(elAgentClass)
-
-		// let elAgentType = document.createElementNS(this.namespace.bf ,'bf:agent')
-		let AgentRdftype = this.createElByBestNS('rdf:type')
-		AgentRdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', hubCreatorObj.typeFull)
-
-		elAgentClass.appendChild(AgentRdftype)
-		let elAgentLabel = document.createElementNS(this.namespace.rdfs ,'rdfs:label')
-		elAgentLabel.innerHTML = hubCreatorObj.label
-		elAgentClass.appendChild(elAgentLabel)
-
-		let elAgentMarcKey = document.createElementNS(this.namespace.bflc ,'bflc:marcKey')
-		elAgentMarcKey.innerHTML = hubCreatorObj.marcKey
-		elAgentClass.appendChild(elAgentMarcKey)
-
-		elContributionClass.appendChild(elAgentProperty)
-
-		elHub.appendChild(elContributionProperty)
+			let elAgentProperty = document.createElementNS(this.namespace.bf ,'bf:agent')
+			let elAgentClass = document.createElementNS(this.namespace.bf ,'bf:Agent')
+			elAgentClass.setAttributeNS(this.namespace.rdf, 'rdf:about', hubCreatorObj.uri)
 
 
-		let elLanguageProperty = document.createElementNS(this.namespace.bf ,'bf:language')
-		let elLanguageClass = document.createElementNS(this.namespace.bf ,'bf:Language')
-		elLanguageClass.setAttributeNS(this.namespace.rdf, 'rdf:about', langUri)
 
-		let elCodeProperty = document.createElementNS(this.namespace.bf ,'bf:code')
-		elCodeProperty.innerHTML = langUri.split("/").pop();
-		elLanguageClass.appendChild(elCodeProperty)
-		elLanguageProperty.appendChild(elLanguageClass)
-		elHub.appendChild(elLanguageProperty)
+			elAgentProperty.appendChild(elAgentClass)
 
+			// let elAgentType = document.createElementNS(this.namespace.bf ,'bf:agent')
+			let AgentRdftype = this.createElByBestNS('rdf:type')
+			AgentRdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', hubCreatorObj.typeFull)
+
+			elAgentClass.appendChild(AgentRdftype)
+			let elAgentLabel = document.createElementNS(this.namespace.rdfs ,'rdfs:label')
+			elAgentLabel.innerHTML = hubCreatorObj.label
+			elAgentClass.appendChild(elAgentLabel)
+
+			let elAgentMarcKey = document.createElementNS(this.namespace.bflc ,'bflc:marcKey')
+			elAgentMarcKey.innerHTML = hubCreatorObj.marcKey
+			elAgentClass.appendChild(elAgentMarcKey)
+
+			elContributionClass.appendChild(elAgentProperty)
+
+			elHub.appendChild(elContributionProperty)
+		}
+
+		if (langObj){
+			let elLanguageProperty = document.createElementNS(this.namespace.bf ,'bf:language')
+			let elLanguageClass = document.createElementNS(this.namespace.bf ,'bf:Language')
+			elLanguageClass.setAttributeNS(this.namespace.rdf, 'rdf:about', langObj.uri)
+
+			let elCodeProperty = document.createElementNS(this.namespace.bf ,'bf:code')
+			elCodeProperty.innerHTML = langObj.uri.split("/").pop();
+			elLanguageClass.appendChild(elCodeProperty)
+			elLanguageProperty.appendChild(elLanguageClass)
+
+			let elLangLabel = document.createElementNS(this.namespace.rdfs ,'rdfs:label')
+			elLangLabel.innerHTML = langObj.label
+			elLanguageClass.appendChild(elLangLabel)
+
+			elHub.appendChild(elLanguageProperty)
+		}
 
 		// // uri
 		// let elTitleProperty = document.createElementNS(this.namespace.bf ,'bf:title')
@@ -1924,12 +1938,13 @@ const utilsExport = {
 
 		rdf.appendChild(elHub)
 
-		console.log(aap)
-		console.log(aapHash)
-		console.log(hubUri)
+		// console.log(aap)
+		// console.log(aapHash)
+		// console.log(hubUri)
+		// console.log(rdf)
 		let xml = (new XMLSerializer()).serializeToString(rdf)
 
-		console.log(xml)
+		// console.log(xml)
 		return xml
 
 	}
