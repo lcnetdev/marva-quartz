@@ -39,6 +39,13 @@
           </button>
         </template>
 
+        <template v-if="['lc:RT:bf2:WorkTitle', 'lc:RT:bf2:InstanceTitle', 'lc:RT:bf2:Title:VarTitle', 'lc:RT:bf2:ParallelTitle'].includes(structure.parentId)">
+          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-4`" @click="sendToOtherProfile()">
+            <span class="button-shortcut-label">4</span>
+            Send to {{ this.profileStore.returnRtByGUID(this.guid) == "lc:RT:bf2:Monograph:Work" ? "Instance" : "Work" }}
+          </button>
+        </template>
+
         <hr>
 
         <template v-if="type=='literal'">
@@ -628,6 +635,64 @@
         }
 
         this.showAutoDeweyModal = true
+      },
+
+      sendToOtherProfile: function(){
+        let thisRt = this.profileStore.returnRtByGUID(this.guid)
+
+        //get the structure that will be copied over
+        let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+
+        //Structure that will get the changes and be passed on
+        const activeStructure = JSON.parse(JSON.stringify(structure))
+
+        console.info("starting structure: ", JSON.parse(JSON.stringify(activeStructure)))
+
+        /** TODO: update the following aspects of the structure, just need to swap `Work` and `Instance`?
+         *    parent
+         *    parentID
+         *    preferenceID
+         *    others?
+        * */
+        let oldRt
+        let newRt
+        if (thisRt.includes(":Work")){
+          oldRt = "Work"
+          newRt = "Instance"
+        } else {
+          oldRt = "Instance"
+          newRt = "Work"
+        }
+        activeStructure.parent = activeStructure.parent.replace(oldRt, newRt)
+        activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt)
+        activeStructure.preferenceId = activeStructure.preferenceId.replace(oldRt, newRt)
+
+        this.profileStore.changeGuid(activeStructure)
+
+        console.info("thisRT: ", thisRt)
+
+        //Moving Instance -> Work, cut out bf:subtitle
+        let userValue = activeStructure.userValue
+        if (thisRt == "lc:RT:bf2:Monograph:Instance"){
+          let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
+          if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
+            delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
+          }
+        }
+
+
+
+        const targetRt = (thisRt == "lc:RT:bf2:Monograph:Work") ? "lc:RT:bf2:Monograph:Instance" : "lc:RT:bf2:Monograph:Work"
+
+        console.info("modified structure: ", JSON.parse(JSON.stringify(activeStructure)))
+        console.info(activeStructure.id)
+        console.info(activeStructure.userValue)
+
+        //can resuse `parseActiveInsert()`??
+        this.profileStore.parseActiveInsert(activeStructure)
+
+        //Force XML update
+        this.profileStore.dataChanged()
       },
 
     },

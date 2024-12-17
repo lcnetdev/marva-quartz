@@ -148,6 +148,25 @@ export const useProfileStore = defineStore('profile', {
     },
 
     /**
+    * Can be used to return the rt of the component by passing the GUID
+    * It doesn't care what profile it is in it will loop through all of them to find the unique GUID
+    * @param {string} guid - the guid of the component
+    * @return {object}
+    */
+    returnRtByGUID: (state) => {
+      console.info("??????")
+      return (guid) => {
+        for (let rt in state.activeProfile.rt){
+          for (let pt in state.activeProfile.rt[rt].pt){
+            if (state.activeProfile.rt[rt].pt[pt]['@guid'] === guid){
+              return rt
+            }
+          }
+        }
+      }
+    },
+
+    /**
     * Can be used to return the structure of the component by passing the GUID
     * It doesn't care what profile it is in it will loop through all of them to find the unique GUID
     * @param {string} guid - the guid of the component
@@ -4327,8 +4346,8 @@ export const useProfileStore = defineStore('profile', {
                     this.changeGuid(data[key])
                 }
             }
-        } catch {
-
+        } catch(e) {
+          console.error("Error in changeGuid: ", e)
         }
     },
 
@@ -4400,7 +4419,7 @@ export const useProfileStore = defineStore('profile', {
 
         for (let item of data){
               const dataJson = JSON.parse(item)
-              this.parseActiveInsert(dataJson)
+              this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
         }
     },
 
