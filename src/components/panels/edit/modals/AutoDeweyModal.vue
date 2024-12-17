@@ -9,7 +9,7 @@
             :is-active="true"
             :w="850"
             :h="400"
-            :x="initalLeft"
+            :x="200"
             :y="50"
             :class="ddc-modal"
             @resizing="dragResize"
@@ -20,9 +20,9 @@
             >
 
             <div class="dewey-modal" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
-                <div style="position: relative;">
+                <div>
                     <div class="dewey-menu-button">
-                        <button @click="closeModal()">Close</button>
+                        <button @click="closeModal()" class="close-button">Close</button>
                     </div>
                 </div>
                 <div ref="autoDeweyModalContainer" class="auto-dewey-modal-container">
@@ -68,8 +68,7 @@
                                 <dt>LCC Caption</dt>
                                 <dd>{{ deweyInfo['LCC Caption'] }}</dd> -->
                             </dl>
-
-                            <button @click="add()" v-if="deweyInfo && (deweyInfo.DDC || deweyInfo.dewey) && this.$route.path.includes('/edit/')">Add to record</button>
+                            <button @click="add()" v-if="deweyInfo && deweyData.lcc && this.$route.path.includes('/edit/')">Add to record</button>
                         </div>
                     </div>
                 </div>
@@ -100,6 +99,10 @@
 
     .auto-dewey-container {
         display: flex;
+    }
+
+    .auto-dewey-modal-container{
+        height: 400px;
     }
 
     .input-panel{
@@ -185,6 +188,17 @@
         max-width: 100%;
     }
 
+    .close-button{
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        background-color: white;
+        border-radius: 5px;
+        border: solid 1px black;
+        cursor: pointer;
+        z-index: 100;
+    }
+
   </style>
 
   <script>
@@ -205,8 +219,8 @@
 
     data: function() {
         return {
-            autoDeweyGenres: ['fiction', 'poetry', 'drama', 'none'],
-            autoDeweyGenre: null,
+            autoDeweyGenres: ['none', 'fiction', 'poetry', 'drama'],
+            autoDeweyGenre: 'none',
             lcCall: null,
             deweyInfo: null,
             deweyPeriod: 0,

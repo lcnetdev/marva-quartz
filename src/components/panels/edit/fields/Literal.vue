@@ -116,7 +116,6 @@
 
       </div>
 
-
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/itemPortion'">
         <!-- { "title": "knitter's handy book of patterns", "classNumber": "TT820", "cutterNumber": ".B877 2002", "titleNonSort": 4, "contributors": [ { "type": "PrimaryContribution", "label": "Budd, Ann, 1956-" } ], "firstSubject": "Knitting--Patterns" } -->
         <div style="display: flex;">

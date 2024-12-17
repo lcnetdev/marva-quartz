@@ -4587,7 +4587,6 @@ export const useProfileStore = defineStore('profile', {
 
       //Add the defaults:
       const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
-      const newStructure = this.returnStructureByGUID(newComponent["@guid"])
 
       // look up one level & use the appropriate structure
       let parentStructure = this.returnStructureByComponentGuid(newComponent['@guid'])
