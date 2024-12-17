@@ -256,7 +256,6 @@
         },
 
         setPeriod: function(e, idx){
-            //e.target.checked = true
             const period = this.deweyInfo.dewey
             if (period.startsWith("Period")){
                 this.savedPeriod = period

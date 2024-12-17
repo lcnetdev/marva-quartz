@@ -168,11 +168,9 @@ export default {
     <HubStubCreateModal v-model="showHubStubCreateModal"  />
   </template>
 
-  ??
   <template v-if="showAutoDeweyModal==true">
     <AutoDeweyModal v-model="showAutoDeweyModal"  />
   </template>
-  !!
 
 </template>
 

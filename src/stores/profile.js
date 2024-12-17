@@ -4546,6 +4546,8 @@ export const useProfileStore = defineStore('profile', {
       let hasEmptyDDC = false
       let ddcComponent = null
       let lastClassifiction = null
+      let newDDC
+
       for (let pt in activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt){
         if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers")){
           const target = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[pt]
@@ -4558,11 +4560,12 @@ export const useProfileStore = defineStore('profile', {
             if (!Object.keys(classification).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")){
               hasEmptyDDC = true
               ddcComponent = classification
+              newDDC = target.id
             }
           }
         }
       }
-      let newDDC
+
       // if no empty ddc, create one
       if (!hasEmptyDDC){
         newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)

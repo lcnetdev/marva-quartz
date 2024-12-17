@@ -255,7 +255,6 @@
             <div class="shelf-listing-work-area">
               <input v-model="classNumber" class="number-input" placeholder="Class" @keyup="hitCount=10; search()" type="text" />
               <input v-model="cutterNumber" class="number-input" @keyup="hitCount=10; search()" placeholder="Cutter" type="text" />
-              {{ activeShelfListData }}
               <button class="number-input" @click="save" :disabled="(!activeShelfListData.componentGuid)">Save</button>
 
               <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>

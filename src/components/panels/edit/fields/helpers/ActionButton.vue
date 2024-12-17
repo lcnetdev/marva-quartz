@@ -14,8 +14,6 @@
  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
     <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
-    <!-- <AutoDewey ref="autoDeweyModal" @hideDeweyModal="hideDeweyModal()" v-model="displayDewey" :lcCall="lcCall" @addDdc="addDdc" /> -->
-
     <template #popper>
 
       <div style="width: 250px;">
@@ -608,8 +606,6 @@
       // }
 
       convertLcc2Dewey: function(){
-        // TODO: can a lcc be valid with only a class portion?
-
         const parent = this.profileStore.returnStructureByComponentGuid(this.guid)
         let lccn = null
         try{
