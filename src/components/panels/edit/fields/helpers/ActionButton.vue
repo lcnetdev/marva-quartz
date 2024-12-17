@@ -96,6 +96,11 @@
               </button>
         </template>
 
+        <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
+          <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="convertLcc2Dewey()">
+            <span class="">🤖</span>AutoDewey
+          </button>
+        </template>
 
         <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
           <span class="button-shortcut-label">0</span>
@@ -156,14 +161,18 @@
 
 <script>
 
+  import AutoDewey from "@/components/panels/edit/modals/AutoDeweyModal.vue";
   import { usePreferenceStore } from '@/stores/preference'
   import { useProfileStore } from '@/stores/profile'
+  import short from 'short-uuid'
 
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
-
   export default {
+    components: {
+    AutoDewey
+  },
     props: {
       type: String,
       guid: String,
@@ -181,8 +190,10 @@
 
         popperKeyboardShortcutEvent: null,
         popperKeyboardShortcutElement: null,
-
         isMenuShown:false,
+        displayDewey: false,
+
+        lcCall: null,
 
       }
     },
@@ -194,6 +205,7 @@
 
 
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
+      ...mapWritableState(useProfileStore, ['showAutoDeweyModal', 'deweyData']),
 
       scriptShifterOptionsForMenu(){
 
@@ -237,11 +249,11 @@
     },
 
     methods: {
-
+      hideDeweyModal:function (){
+        this.displayDewey = false
+      },
 
       showBuildHubStub(){
-
-
         console.log("this.propertyPath",this.propertyPath)
 
         if (!this.propertyPath) return false;
@@ -343,7 +355,6 @@
         if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
           return false
         }
-        console.info("this.structure", this.structure.parentId)
         //does this have defaults, or are the defaults higher up?
         let defaults = this.structure.valueConstraint.defaults
 
@@ -593,6 +604,31 @@
       //     this.$emit('actionButtonCommand', cmd)
       //     this.showActionButtonMenu=false
       // }
+
+      convertLcc2Dewey: function(){
+        const parent = this.profileStore.returnStructureByComponentGuid(this.guid)
+        let lccn = null
+        try{
+          const data = parent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
+          const classPortion = data["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"]
+          lccn = classPortion
+          try {
+            const itemPortion = data["http://id.loc.gov/ontologies/bibframe/itemPortion"][0]["http://id.loc.gov/ontologies/bibframe/itemPortion"]
+            lccn += itemPortion
+          } catch {}
+        } catch(e) {
+          // alert("Couldn't generate an LC class number for auto dewey. Make sure all the pieces are present.")
+          console.error("AutoDewey Error", e)
+        }
+        this.lcCall = lccn
+        this.deweyData = {
+          lcc: lccn,
+          guid: this.guid,
+          structure: this.structure
+        }
+
+        this.showAutoDeweyModal = true
+      },
 
     },
     watch: {

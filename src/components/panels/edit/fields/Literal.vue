@@ -31,7 +31,7 @@
 
   </template>
 
-  <template v-else>    
+  <template v-else>
     <div class="lookup-fake-input" v-if="showField" >
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues">
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
@@ -115,7 +115,6 @@
 
 
       </div>
-
 
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/itemPortion'">
         <!-- { "title": "knitter's handy book of patterns", "classNumber": "TT820", "cutterNumber": ".B877 2002", "titleNonSort": 4, "contributors": [ { "type": "PrimaryContribution", "label": "Budd, Ann, 1956-" } ], "firstSubject": "Knitting--Patterns" } -->
@@ -783,7 +782,7 @@ export default {
         let data = this.profileStore.returnLccInfo(this.guid, this.structure)
         if (data.contributors && data.contributors.length>0){
           data.contributors[0].secondLetterLabel = data.contributors[0].label.substring(1)
-        }        
+        }
         return data
       }
       return false
@@ -824,7 +823,7 @@ export default {
     //     this.lccFeatureData = this.profileStore.returnLccInfo(this.guid, this.structure)
     //   }
     // }
-    dataChangedTimestamp(newVal, oldVal) {      
+    dataChangedTimestamp(newVal, oldVal) {
       this.lccFeatureDataCounter++
     }
 
@@ -1010,8 +1009,8 @@ textarea{
 .lookup-fake-input{
   min-height: 2em;
   background-color: transparent;
-  
-  
+
+
 }
 
 textarea:focus-within{

@@ -99,6 +99,12 @@ export const useProfileStore = defineStore('profile', {
       componentGuid: null,
       componentPropertyPath:null
     },
+    showAutoDeweyModal: false,
+    deweyData: {
+      lcc: null,
+      guid: null,
+      structure: null,
+    },
 
     mostCommonNonLatinScript: null,
     nonLatinScriptAgents: {},
@@ -4528,8 +4534,80 @@ export const useProfileStore = defineStore('profile', {
 
 
     },
+    /** Add the DDC to marva
+     *
+     * @param {object} deweyInfo - The dewey information that will be inserted into Marva
+     * @param {string} guid - The GUID of the LCC component that will be used to create the new component
+     * @param {string} structure - the structure that will be used to create the new component
+     */
+    addDdc: async function(deweyInfo, guid, structure){
+      //Look to see if there is a DDC component
+      let activeProfile = this.activeProfile
+      let hasEmptyDDC = false
+      let ddcComponent = null
+      let lastClassifiction = null
+      let newDDC
 
+      for (let pt in activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt){
+        if (pt.includes("id_loc_gov_ontologies_bibframe_classification__classification_numbers")){
+          const target = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[pt]
+          const userValue = target.userValue
+          const classification = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
+          const type = classification["@type"]
+          if (!pt.deleted){
+            lastClassifiction = pt
+            //type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc" &&
+            if (!Object.keys(classification).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")){
+              hasEmptyDDC = true
+              ddcComponent = classification
+              newDDC = target.id
+            }
+          }
+        }
+      }
 
+      // if no empty ddc, create one
+      if (!hasEmptyDDC){
+        newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
+        ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
+      }
+
+      //add information to component
+      let userValue = null
+      try{
+        userValue = ddcComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
+      } catch {
+        userValue = ddcComponent
+      }
+
+      let dewey = null
+      if (Object.keys(deweyInfo).includes("DDC")){
+        dewey = deweyInfo.DDC
+      } else {
+        dewey = deweyInfo.dewey
+      }
+
+      const newGuid = short.generate()
+      userValue["@type"] = "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"
+      userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(dewey) }]
+
+      //Add the defaults:
+      const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
+
+      // look up one level & use the appropriate structure
+      let parentStructure = this.returnStructureByComponentGuid(newComponent['@guid'])
+      if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
+        for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
+          if (this.rtLookup[vRt]){
+            for (let pt of this.rtLookup[vRt].propertyTemplates){
+              if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
+                this.insertDefaultValuesComponent(newComponent['@guid'], pt)
+              }
+            }
+          }
+        }
+      }
+    },
 
 
   },
