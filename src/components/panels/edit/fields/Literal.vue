@@ -183,7 +183,7 @@
           <div>
             <ul>
               <template v-for="(item, idx) in preferences">
-                <li v-if="preferenceStore.returnValue(item[1]) != ''">
+                <li v-if="item[1] && preferenceStore.returnValue(item[1]) != ''">
                   <a :href="preferenceStore.returnValue(item[1])" target="_blank">
                     {{ preferenceStore.returnValue(item[0]) != "" ? preferenceStore.returnValue(item[0]) : preferenceStore.returnValue(item[1])}}
                     <span class="material-icons" style="font-size: 14px;">open_in_new</span>

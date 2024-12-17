@@ -1551,7 +1551,7 @@ const utilsExport = {
 
 		let strXmlBasic = (new XMLSerializer()).serializeToString(rdfBasic)
 		let strXml = (new XMLSerializer()).serializeToString(rdf)
-		console.log(strXml)
+		// console.log(strXml)
     /*
         kefo note
         In FF, only strXmlBasic has any real content.  The other two -

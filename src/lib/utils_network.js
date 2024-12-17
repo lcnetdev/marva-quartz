@@ -272,7 +272,13 @@ const utilsNetwork = {
         return  data;
       }catch(err){
         //alert("There was an error retriving the record from:",url)
-        console.error("There was an error retriving the record from ", url, ". Likely from the search being aborted because the user was typing.");
+        
+        if (err.name == 'AbortError'){
+          // don't do anything
+          // console.error("There was an error retriving the record from ", url, ". Likely from the search being aborted because the user was typing.");
+        }else{
+          console.error(err)
+        }        
         return false
         // Handle errors here
       }
