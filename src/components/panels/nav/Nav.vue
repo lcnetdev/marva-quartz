@@ -166,7 +166,7 @@
             { text: "AutoDewey", click: () => {
               this.deweyData = {}
               this.showAutoDeweyModal = true
-            }, icon:"" },
+            }, icon:"smart_toy" },
 
             { is: 'separator'},
             {
