@@ -19,7 +19,7 @@
             style="background-color: whitesmoke"
             >
 
-            <div class="dewey-modal" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
+            <div class="dewey-modal" ref="autoDeweyContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
                 <div>
                     <div class="dewey-menu-button">
                         <button @click="closeModal()" class="close-button">Close</button>
@@ -239,7 +239,7 @@
             this.height = newRect.height
             this.top = newRect.top
             this.left = newRect.left
-            this.$refs.shelfListingContent.style.height = newRect.height + 'px'
+            this.$refs.autoDeweyContent.style.height = newRect.height + 'px'
         },
         inputFocus: function(){
             this.$refs.inputLookup.focus()
