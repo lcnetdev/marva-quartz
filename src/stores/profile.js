@@ -154,7 +154,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {object}
     */
     returnRtByGUID: (state) => {
-      console.info("??????")
       return (guid) => {
         for (let rt in state.activeProfile.rt){
           for (let pt in state.activeProfile.rt[rt].pt){
@@ -4352,7 +4351,7 @@ export const useProfileStore = defineStore('profile', {
     },
 
     //parse the activeProfile and insert the copied data where appropriate
-    parseActiveInsert: async function(newComponent){
+    parseActiveInsert: async function(newComponent, incomingTargetRt=null){
         this.changeGuid(newComponent)
         let profile = this.activeProfile
 
@@ -4368,6 +4367,10 @@ export const useProfileStore = defineStore('profile', {
             }
         } else {
             targetRt = newComponent.parentId
+        }
+
+        if (incomingTargetRt){
+          targetRt = incomingTargetRt
         }
 
         for (let rt in profile["rt"]){

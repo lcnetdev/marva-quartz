@@ -14,6 +14,8 @@
  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
     <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
+    <InstanceSelectionModal ref="instanceSelectionModal" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
+
     <template #popper>
 
       <div style="width: 250px;">
@@ -169,6 +171,7 @@
 <script>
 
   import AutoDewey from "@/components/panels/edit/modals/AutoDeweyModal.vue";
+  import InstanceSelectionModal from "@/components/panels/edit/modals/InstanceSelectionModal.vue";
   import { usePreferenceStore } from '@/stores/preference'
   import { useProfileStore } from '@/stores/profile'
   import short from 'short-uuid'
@@ -178,7 +181,8 @@
 
   export default {
     components: {
-    AutoDewey
+    AutoDewey,
+    InstanceSelectionModal,
   },
     props: {
       type: String,
@@ -188,6 +192,9 @@
       fieldGuid: String,
       structure: Object,
       propertyPath: Array,
+
+    },
+    emit: {
 
     },
     data () {
@@ -201,6 +208,10 @@
         displayDewey: false,
 
         lcCall: null,
+
+        displayInstanceSelectionModal: false,
+        instances: {},
+        targetInstance: null,
 
       }
     },
@@ -256,6 +267,10 @@
     },
 
     methods: {
+      hideInstanceSelectionModal: function(){
+        this.instances = {}
+        this.displayInstanceSelectionModal = false;
+      },
       hideDeweyModal:function (){
         this.displayDewey = false
       },
@@ -637,7 +652,19 @@
         this.showAutoDeweyModal = true
       },
 
-      sendToOtherProfile: function(){
+      // Pass the ids of the target instances to `sendToOtherProfile()`
+      setInstance: function(data){
+        this.targetInstance = data
+        this.displayInstanceSelectionModal = false
+        this.sendToOtherProfile(data)
+      },
+
+      //Send the information in a component between Work and Instances
+      // Can be used in either direction.
+      // TODO: make sure there is information before trying to send
+      // TODO: swapping back and forth doesn't seem to work? When there are multiple instances
+      sendToOtherProfile: async function(target=null){
+        const Rts = Object.keys(this.profileStore.activeProfile.rt)
         let thisRt = this.profileStore.returnRtByGUID(this.guid)
 
         //get the structure that will be copied over
@@ -646,50 +673,76 @@
         //Structure that will get the changes and be passed on
         const activeStructure = JSON.parse(JSON.stringify(structure))
 
-        console.info("starting structure: ", JSON.parse(JSON.stringify(activeStructure)))
+        console.info("activeStructure: ", activeStructure)
 
-        /** TODO: update the following aspects of the structure, just need to swap `Work` and `Instance`?
-         *    parent
-         *    parentID
-         *    preferenceID
-         *    others?
-        * */
-        let oldRt
+        //This works when there is only 1 of each
+        let oldRt = thisRt
         let newRt
-        if (thisRt.includes(":Work")){
-          oldRt = "Work"
-          newRt = "Instance"
-        } else {
-          oldRt = "Instance"
-          newRt = "Work"
+
+        if (Rts.length == 2){
+          newRt = Rts.filter((rt) => rt != thisRt)
         }
-        activeStructure.parent = activeStructure.parent.replace(oldRt, newRt)
-        activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt)
-        activeStructure.preferenceId = activeStructure.preferenceId.replace(oldRt, newRt)
 
-        this.profileStore.changeGuid(activeStructure)
+        // this doesn't need to be treated differently for multiple instances
+        activeStructure.preferenceId = activeStructure.preferenceId.replace(oldRt, newRt) // this needs to swap `Work` and `Instance`, but not the RT
+        //"http://id.loc.gov/ontologies/bibframe/title|lc:RT:bf2:InstanceTitle"
 
-        console.info("thisRT: ", thisRt)
+        if (Rts.length > 2 && target != null && target != "all"){
+          newRt = target
+        }
+        if (Rts.length > 2 && target == "all"){
+          newRt = Rts.filter((rt) => rt != thisRt)
+        }
 
-        //Moving Instance -> Work, cut out bf:subtitle
-        let userValue = activeStructure.userValue
-        if (thisRt == "lc:RT:bf2:Monograph:Instance"){
-          let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
-          if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
-            delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
+        // if there are multiple instance, but no target, get the target and do it all over
+        if (Rts.length > 2 && thisRt.includes(":Work") && target == null){
+          for (let rt of Rts.filter((r) => !r.includes(":Work"))){
+            this.instances[rt] = this.activeProfile.rt[rt]
+          }
+          this.displayInstanceSelectionModal = true
+          return
+        }
+
+        if (!Array.isArray(newRt)){
+          activeStructure.parent = activeStructure.parent.replace(oldRt, newRt)
+          activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt) // when there's more than 1 instance this is the most important change.
+
+
+          this.profileStore.changeGuid(activeStructure)
+
+          //Moving Instance -> Work, cut out bf:subtitle
+          let userValue = activeStructure.userValue
+          if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){
+            let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
+            if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
+              delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
+            }
+          }
+
+          //do the change
+          this.profileStore.parseActiveInsert(activeStructure)
+        } else {
+          for (let rt of newRt){
+            console.info("newRt: ", rt)
+            activeStructure.parent = activeStructure.parent.replace(oldRt, rt)
+            activeStructure.parentId = activeStructure.parentId.replace(oldRt, rt) // when there's more than 1 instance this is the most important change.
+
+
+            this.profileStore.changeGuid(activeStructure)
+
+            //Moving Instance -> Work, cut out bf:subtitle
+            let userValue = activeStructure.userValue
+            if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){
+              let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
+              if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
+                delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
+              }
+            }
+
+            //do the change
+            this.profileStore.parseActiveInsert(activeStructure, rt)
           }
         }
-
-
-
-        const targetRt = (thisRt == "lc:RT:bf2:Monograph:Work") ? "lc:RT:bf2:Monograph:Instance" : "lc:RT:bf2:Monograph:Work"
-
-        console.info("modified structure: ", JSON.parse(JSON.stringify(activeStructure)))
-        console.info(activeStructure.id)
-        console.info(activeStructure.userValue)
-
-        //can resuse `parseActiveInsert()`??
-        this.profileStore.parseActiveInsert(activeStructure)
 
         //Force XML update
         this.profileStore.dataChanged()
