@@ -675,8 +675,6 @@
         //Structure that will get the changes and be passed on
         const activeStructure = JSON.parse(JSON.stringify(structure))
 
-        console.info("activeStructure: ", activeStructure)
-
         //This works when there is only 1 of each
         let oldRt = thisRt
         let newRt
@@ -705,7 +703,6 @@
             this.instances[rt] = this.activeProfile.rt[rt]
           }
           this.displayInstanceSelectionModal = true
-          console.info("instances: ", this.instances)
           return
         }
 

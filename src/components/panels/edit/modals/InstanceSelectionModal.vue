@@ -138,7 +138,6 @@
         },
 
         setInstance: async function(event){
-            console.info("setting instance: ", event, "--", event.target.value)
             this.$emit('emitSetInstance', event.target.value)
         },
 
