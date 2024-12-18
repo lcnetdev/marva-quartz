@@ -1,6 +1,3 @@
-//Gets a list of Instances
-// Returns the ID of the selected structure(s)
-
 <template>
     <VueFinalModal
         display-directive="show"
