@@ -722,7 +722,7 @@
           }
 
           //do the change
-          this.profileStore.parseActiveInsert(activeStructure)
+          this.profileStore.parseActiveInsert(activeStructure, thisRt)
         } else {
           for (let rt of newRt){
             activeStructure.parent = activeStructure.parent.replace(oldRt, rt)
@@ -740,7 +740,7 @@
             }
 
             //do the change
-            this.profileStore.parseActiveInsert(activeStructure, rt)
+            this.profileStore.parseActiveInsert(activeStructure, thisRt, rt)
           }
         }
 

@@ -3765,7 +3765,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {string} the id ofthe newPropertyId
     */
     duplicateComponentGetId: async function(componentGuid, structure, profileName, predecessor){
-
+      console.info("predecessor: ", predecessor) //predecessor is only useful if staying in the same RT
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
@@ -3819,7 +3819,6 @@ export const useProfileStore = defineStore('profile', {
           newPt.userValue = {
               '@guid': short.generate(),
               '@root' : newPt.propertyURI
-
           }
 
           if (newPt.activeType){
@@ -3854,9 +3853,16 @@ export const useProfileStore = defineStore('profile', {
         }else{
           // doesn't support duplicating components yet
         }
-
+        console.info("lastPosition: ", lastPosition)
+        console.info("propertyPosition", propertyPosition)
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
-        this.activeProfile.rt[profile].ptOrder.splice(Number(propertyPosition)+1, 0, newPropertyId);
+        // For moving titles between work/instance, we want to use the last postion, otherwise
+        //    should be after the predecessor
+        if (predecessor == 'last'){
+          this.activeProfile.rt[profile].ptOrder.splice(Number(lastPosition)+1, 0, newPropertyId)
+        } else {
+          this.activeProfile.rt[profile].ptOrder.splice(Number(propertyPosition)+1, 0, newPropertyId)
+        }
 
 
         if (structure){
@@ -4351,7 +4357,7 @@ export const useProfileStore = defineStore('profile', {
     },
 
     //parse the activeProfile and insert the copied data where appropriate
-    parseActiveInsert: async function(newComponent, incomingTargetRt=null){
+    parseActiveInsert: async function(newComponent, sourceRt=null, incomingTargetRt=null){
         this.changeGuid(newComponent)
         let profile = this.activeProfile
 
@@ -4369,7 +4375,13 @@ export const useProfileStore = defineStore('profile', {
             targetRt = newComponent.parentId
         }
 
+        console.info("targetRt: ", targetRt)
+        console.info("sourceRt: ", sourceRt)
+        console.info("incomingTargetRt: ", incomingTargetRt)
         if (incomingTargetRt){
+          if (targetRt != incomingTargetRt){
+            console.info("use Last")
+          }
           targetRt = incomingTargetRt
         }
 
@@ -4392,7 +4404,13 @@ export const useProfileStore = defineStore('profile', {
                         } else {
                             const guid = current["@guid"]
                             let structure = this.returnStructureByComponentGuid(guid)
-                            let newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
+
+                            let newPt
+                            if (sourceRt && sourceRt != targetRt){
+                              newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
+                            } else {
+                              newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
+                            }
 
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
                             profile["rt"][rt]["pt"][newPt].userModified = true
