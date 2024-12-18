@@ -44,7 +44,7 @@
         <template v-if="['lc:RT:bf2:WorkTitle', 'lc:RT:bf2:InstanceTitle', 'lc:RT:bf2:Title:VarTitle', 'lc:RT:bf2:ParallelTitle'].includes(structure.parentId)">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-4`" @click="sendToOtherProfile()">
             <span class="button-shortcut-label">4</span>
-            Send to {{ this.profileStore.returnRtByGUID(this.guid) == "lc:RT:bf2:Monograph:Work" ? "Instance" : "Work" }}
+            Send to {{ this.profileStore.returnRtByGUID(this.guid) == "lc:RT:bf2:Monograph:Work" ? "Instance" : (Object.keys(this.profileStore.activeProfile.rt).length > 2 ? "Work/Instance" : "Work") }}
           </button>
         </template>
 
