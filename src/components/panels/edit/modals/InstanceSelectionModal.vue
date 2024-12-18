@@ -23,7 +23,7 @@
 
             <div class="instance-selection-modal" ref="instanceSelection">
                 <div>
-                    <h3 style="width: 80%; float: left;">Select an instance to copy the data into</h3>
+                    <h3 style="width: 80%; float: left;">Select Location To Send To</h3>
                     <div class="close-button">
                         <button @click="closeModal()">Close</button>
                     </div>
@@ -31,11 +31,12 @@
                 <div class="toggle-btn-grp cssonly">
                     <div>
                         <input type="radio" id="all" value="all" class="instance-selection-radio" v-model="selectedInstance" name="insetance-selection" @click="setInstance($event, 'all')" />
-                        <label onclick="" for="all" class="dewey-toggle-btn">All Instances</label>
+                        <label onclick="" for="all" class="dewey-toggle-btn">All</label>
                     </div>
                     <div v-for="(value, key, idx) in instances">
                         <input type="radio" :id="key" :value="key" class="instance-selection-radio" v-model="selectedInstance" name="insetance-selection" @click="setInstance($event, idx)" />
                         <label onclick="" :for="key" class="dewey-toggle-btn">{{key}}</label>
+                        {{ Object.keys(value.pt) }}
                     </div>
                 </div>
             </div>

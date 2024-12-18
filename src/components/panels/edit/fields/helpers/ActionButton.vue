@@ -14,7 +14,7 @@
  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
     <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
-    <InstanceSelectionModal ref="instanceSelectionModal" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
+    <InstanceSelectionModal ref="instanceSelectionModal" :currentRt="currentRt" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
 
     <template #popper>
 
@@ -212,6 +212,7 @@
         displayInstanceSelectionModal: false,
         instances: {},
         targetInstance: null,
+        currentRt: null,
 
       }
     },
@@ -666,6 +667,7 @@
       sendToOtherProfile: async function(target=null){
         const Rts = Object.keys(this.profileStore.activeProfile.rt)
         let thisRt = this.profileStore.returnRtByGUID(this.guid)
+        this.currentRt = thisRt
 
         //get the structure that will be copied over
         let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
@@ -698,11 +700,12 @@
         }
 
         // if there are multiple instance, but no target, get the target and restart
-        if (Rts.length > 2 && thisRt.includes(":Work") && target == null){
-          for (let rt of Rts.filter((r) => !r.includes(":Work"))){
+        if (Rts.length > 2 && target == null){
+          for (let rt of Rts.filter((r) => r != thisRt)){
             this.instances[rt] = this.activeProfile.rt[rt]
           }
           this.displayInstanceSelectionModal = true
+          console.info("instances: ", this.instances)
           return
         }
 
