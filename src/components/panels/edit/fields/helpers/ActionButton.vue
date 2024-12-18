@@ -684,8 +684,11 @@
         }
 
         // this doesn't need to be treated differently for multiple instances
-        activeStructure.preferenceId = activeStructure.preferenceId.replace(oldRt, newRt) // this needs to swap `Work` and `Instance`, but not the RT
-        //"http://id.loc.gov/ontologies/bibframe/title|lc:RT:bf2:InstanceTitle"
+        if (thisRt.includes(":Work")){
+          activeStructure.preferenceId = activeStructure.preferenceId.replace(":Work", ":Instance")
+        } else {
+          activeStructure.preferenceId = activeStructure.preferenceId.replace(":Instance", ":Work")
+        }
 
         if (Rts.length > 2 && target != null && target != "all"){
           newRt = target
@@ -694,7 +697,7 @@
           newRt = Rts.filter((rt) => rt != thisRt)
         }
 
-        // if there are multiple instance, but no target, get the target and do it all over
+        // if there are multiple instance, but no target, get the target and restart
         if (Rts.length > 2 && thisRt.includes(":Work") && target == null){
           for (let rt of Rts.filter((r) => !r.includes(":Work"))){
             this.instances[rt] = this.activeProfile.rt[rt]
@@ -705,8 +708,7 @@
 
         if (!Array.isArray(newRt)){
           activeStructure.parent = activeStructure.parent.replace(oldRt, newRt)
-          activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt) // when there's more than 1 instance this is the most important change.
-
+          activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt)
 
           this.profileStore.changeGuid(activeStructure)
 
@@ -723,10 +725,8 @@
           this.profileStore.parseActiveInsert(activeStructure)
         } else {
           for (let rt of newRt){
-            console.info("newRt: ", rt)
             activeStructure.parent = activeStructure.parent.replace(oldRt, rt)
             activeStructure.parentId = activeStructure.parentId.replace(oldRt, rt) // when there's more than 1 instance this is the most important change.
-
 
             this.profileStore.changeGuid(activeStructure)
 
