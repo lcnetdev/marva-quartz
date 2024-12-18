@@ -35,8 +35,7 @@
                     </div>
                     <div v-for="(value, key, idx) in instances">
                         <input type="radio" :id="key" :value="key" class="instance-selection-radio" v-model="selectedInstance" name="insetance-selection" @click="setInstance($event, idx)" />
-                        <label onclick="" :for="key" class="dewey-toggle-btn">{{key}}</label>
-                        {{ Object.keys(value.pt) }}
+                        <label onclick="" :for="key" class="dewey-toggle-btn">{{updateLabel(key)}}</label>
                     </div>
                 </div>
             </div>
@@ -142,6 +141,19 @@
             console.info("setting instance: ", event, "--", event.target.value)
             this.$emit('emitSetInstance', event.target.value)
         },
+
+        updateLabel: function(currLabel){
+            if (currLabel.includes(":Work")){
+                return "Work"
+            } else {
+                if (currLabel.includes("_")){
+                    let parts = currLabel.split("_")
+                    return "Instance " + (parseInt(parts[1]) + 1)
+                } else {
+                    return "Instance 1"
+                }
+            }
+        }
     },
 
     created: function() {},
