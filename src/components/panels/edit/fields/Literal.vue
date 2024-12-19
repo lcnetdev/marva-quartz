@@ -98,7 +98,6 @@
           </form>
         </div>
         <span class="lang-display" v-if="lValue['@language'] !== null">{{ lValue['@language'] }}</span>
-
           <Transition name="action">
             <div class="literal-action" v-if="showActionButton && myGuid == activeField">
               <action-button :type="'literal'" :structure="structure" :fieldGuid="lValue['@guid']"  :guid="guid"  @action-button-command="actionButtonCommand" />
