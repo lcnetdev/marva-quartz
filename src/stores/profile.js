@@ -3788,7 +3788,7 @@ export const useProfileStore = defineStore('profile', {
           // the new components at the end of that list
           for (let idx in this.activeProfile.rt[r].ptOrder){
               let item = this.activeProfile.rt[r].ptOrder[idx]
-
+              //TODO: fix order when there's a deleted element? Can't reproduce now
               if (item.includes(key)){
                   lastPosition = idx
               }

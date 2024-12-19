@@ -43,10 +43,8 @@
                         :level="0"
                         :id="activeProfile.rt[profileName].pt[profileCompoent].id"
                         :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
-                        :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"/>
-
+                        :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
                     </template>
-
                   </template>
                 </template>
 
@@ -56,7 +54,7 @@
 
           </template>
       <template v-if="instanceMode == false">
-        <template v-if="profileName.includes(':Instance')">
+        <template v-if="profileName.includes(':Instance') && !this.dualEdit">
             <div class="instanceInfoWrapper">
                 <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                 <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
