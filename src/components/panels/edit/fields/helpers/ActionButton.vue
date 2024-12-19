@@ -29,6 +29,11 @@
           Insert Default Values
         </button>
 
+        <button v-if="isContribComponent()" style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="promoteContrib()">
+          <span class="button-shortcut-label">2</span>
+          De/promote Contributor
+        </button>
+
         <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-3`" @click="deleteComponent()">
           <span class="button-shortcut-label">3</span>
           Delete Component
@@ -746,6 +751,64 @@
 
         //Force XML update
         this.profileStore.dataChanged()
+      },
+
+      isContribComponent: function(){
+        let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
+
+        return parentStructure.id.includes("_contribution_")
+      },
+
+      promoteContrib: function(){
+        const primaryId = "id_loc_gov_ontologies_bibframe_contribution__creator_of_work"
+        const primaryPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/PrimaryContributio"
+        const primaryType = "http://id.loc.gov/ontologies/bibframe/PrimaryContribution"
+        const primaryLabel = "Creator of Work"
+        const contributorId = "id_loc_gov_ontologies_bibframe_contribution__contributors"
+        const contributorPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/Contributio"
+        const contributorType = "http://id.loc.gov/ontologies/bibframe/Contribution"
+        const contributorLabel = "Contributors"
+
+        console.info("Changing the contrib thingy")
+        let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+        let activeStructure =  JSON.parse(JSON.stringify(structure))
+        console.info("real structure: ", JSON.parse(JSON.stringify(activeStructure)))
+
+        const currentType = activeStructure.id == primaryId ? primaryId : contributorId
+        /**
+         * Differences:
+         *    guid
+         *    id
+         *    preferenceId
+         */
+
+        // contrib -> primary
+        // Need to check if there is a current primary and do...
+
+        activeStructure["@guid"] = short.generate()
+        console.info("currentType: ", currentType)
+        let userValue = activeStructure.userValue
+        if (currentType == contributorId){
+          console.info("changing the id?, contrib -> creator")
+          activeStructure.id = primaryId
+          activeStructure.preferenceId = primaryPrefId
+          activeStructure.propertyLabel = primaryLabel
+          userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["@type"] = primaryType
+        } else {
+          console.info("changing the id?, creator -> contrib")
+          activeStructure.id = contributorId
+          activeStructure.preferenceId = contributorPrefId
+          activeStructure.propertyLabel = contributorLabel
+          userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["@type"] = contributorType
+        }
+
+        console.info("new structure: ", JSON.parse(JSON.stringify(activeStructure)))
+
+        //do the change
+        this.profileStore.parseActiveInsert(activeStructure)
+
+        //delete the existing
+        this.profileStore.deleteComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
       },
 
     },
