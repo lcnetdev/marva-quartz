@@ -3884,13 +3884,8 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     deleteComponent: async function(componentGuid){
-
-      console.info("deleteComponent: ", componentGuid)
-
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
-      console.info("pt: ", pt)
 
       if (pt !== false){
         if (pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/adminMetadata'){
@@ -3900,7 +3895,6 @@ export const useProfileStore = defineStore('profile', {
 
         // the checklabel will be the URI and the label of the component, beceause there are some components that use the same property URI
         let checkLabel = pt.propertyLabel + pt.propertyURI
-        console.info("checkLabel: ", checkLabel)
 
         // first see how many these properties exist in the resource
         let propertyCount = 0
@@ -3909,17 +3903,13 @@ export const useProfileStore = defineStore('profile', {
             propertyCount++
           }
         }
-        console.info("propertyCount: ", propertyCount)
-        //TODO: get deletion working with added instance titles
 
         // if the propertyCount is 1 then we are about to delete the only property
         // so instead just blank out the user value so it still exists if they need to add a value
 
         if (propertyCount>1){
           this.activeProfile.rt[pt.parentId].pt[pt.id].deleted = true
-          console.info("deleted: ", this.activeProfile.rt[pt.parentId].pt[pt.id])
         }else{
-          console.info("else")
           for (let key in this.activeProfile.rt[pt.parentId].pt[pt.id].userValue){
             if (!key.startsWith('@')){
                delete this.activeProfile.rt[pt.parentId].pt[pt.id].userValue[key]
