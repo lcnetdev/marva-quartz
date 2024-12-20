@@ -12,6 +12,7 @@
 
     </template>
     <template v-else>
+      {{ thisRtTemplate.id }}
       <select :id="structure['@guid']+'-select'" @change="templateChange($event)" style=" background-color: transparent;">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
@@ -232,6 +233,7 @@ export default {
       }
 
       // // grab the first component from the struecture, but there might be mutluple ones
+      console.info("set useId: ", this.structure.valueConstraint.valueTemplateRefs)
       let useId = this.structure.valueConstraint.valueTemplateRefs[0]
       let foundBetter = false
 
@@ -248,6 +250,7 @@ export default {
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
           if (foundBetter) return false
           if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
+            console.info("set useId 1", tmpid)
             useId = tmpid
             foundBetter = true
           }
@@ -256,6 +259,7 @@ export default {
             if (Array.isArray(userValue[key])){
               for (let val of userValue[key]){
                 if (val['@type'] && this.rtLookup[tmpid].resourceURI === val['@type']){
+                  console.info("set useId 2", tmpid)
                   useId = tmpid
                   foundBetter = true
                 }
@@ -281,10 +285,11 @@ export default {
 			  if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
 				  let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
 				  if (target){
-                      let type = target[0]["@type"]
-                      if (type && this.rtLookup[template].resourceURI === type){
-                        useId = template
-                      }
+            let type = target[0]["@type"]
+            if (type && this.rtLookup[template].resourceURI === type){
+              console.info("set useId 3", template)
+              useId = template
+            }
 				  }
 			  }
 		  }
@@ -296,6 +301,7 @@ export default {
         if (this.rtLookup[useId]){
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
 
+          console.info("use: ", use)
           return use
           // this.multiTemplateSelect = use.resourceLabel
           // this.multiTemplateSelectURI = useId
@@ -385,6 +391,7 @@ export default {
   methods: {
 
     templateChange(event){
+      console.info("template change?")
       let nextRef = this.allRtTemplate.filter((v)=>{ return (v.id === event.target.value) })[0]
       let thisRef = this.thisRtTemplate
 

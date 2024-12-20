@@ -769,7 +769,7 @@
         const primaryPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/PrimaryContribution"
         const primaryType = "http://id.loc.gov/ontologies/bibframe/PrimaryContribution"
         const primaryLabel = "Creator of Work"
-        let contributorId = "id_loc_gov_ontologies_bibframe_contribution__contributors"
+        const contributorId = "id_loc_gov_ontologies_bibframe_contribution__contributors"
         const contributorPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/Contribution"
         const contributorType = "http://id.loc.gov/ontologies/bibframe/Contribution"
         const contributorLabel = "Contributors"
@@ -789,6 +789,13 @@
 
         return contribStructure
       },
+
+      /**
+       * TODO:
+       *    - dropdown not following the de/promotion if the creator is user supplied. When it comes in with a record, things seem fine
+       *    - if you de/promote, change the dropdown of the now empty field, and then de/promote to repopulate the field, it'll create a new field instead of populating
+       *    - Changing the dropdown of an empty primary field, and de/promoting the populate that field will cause it to give the alert that something already exists there.
+       */
 
       promoteContrib: function(){
         const primaryId = "id_loc_gov_ontologies_bibframe_contribution__creator_of_work"
@@ -818,7 +825,12 @@
         if (currentType == contributorId){
           //check the active primary, if there is a value, create an alert for the user
           // and swap the two
-          if (Object.keys(activePrimary.userValue).length != 1){
+          console.info("keys: ", Object.keys(activePrimary.userValue))
+          console.info("userValue: ", activePrimary.userValue)
+          // console.info(activePrimary.userValue["http://id.loc.gov/ontologies/bibframe/contribution"])
+          // console.info(Object.keys(activePrimary.userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]).includes("http://id.loc.gov/ontologies/bibframe/agent"))
+
+          if (!this.profileStore.isEmptyComponent(activePrimary)){
             const swap = confirm("There is already a primary contributor. Continuing will swap the two.")
             if (swap){
               let activePrimaryStruct = this.profileStore.returnStructureByComponentGuid(JSON.parse(JSON.stringify(activePrimary))["@guid"])
@@ -832,7 +844,9 @@
         }
 
         //update, insert, and delete
+        console.info("activeStructure", JSON.parse(JSON.stringify(activeStructure)))
         activeStructure = this.updateContrib(activeStructure, currentType)
+        console.info("updated Structure", JSON.parse(JSON.stringify(activeStructure)))
         this.profileStore.parseActiveInsert(activeStructure)
         this.profileStore.deleteComponent(this.guid)
       },
