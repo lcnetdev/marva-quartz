@@ -837,15 +837,15 @@
           console.info("changing the id?, contrib -> creator")
 
           //check the active primary, if there is a value, create an alert for the user
-          //Hide `createComponent` for creator of work
-          console.info("active primary: ", JSON.parse(JSON.stringify(activePrimary)))
           if (Object.keys(activePrimary.userValue).length != 1){
-            const swap = confirm("There is already a primary contributor. Continuing will swap this with that.")
+            const swap = confirm("There is already a primary contributor. Continuing will swap the two.")
             if (swap){
               let activePrimaryStruct = this.profileStore.returnStructureByComponentGuid(JSON.parse(JSON.stringify(activePrimary))["@guid"])
               activePrimaryStruct = this.updateContrib(JSON.parse(JSON.stringify(activePrimaryStruct)), primaryId, contributors)
               this.profileStore.parseActiveInsert(activePrimaryStruct)
               this.profileStore.deleteComponent(activePrimary["@guid"])
+            } else {
+              return
             }
           }
         }
