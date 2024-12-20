@@ -742,8 +742,6 @@
           }
         }
 
-        console.info("activeStructure: ", activeStructure)
-
         //if it's a variant or parallel title, delete the original
         const type = activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"]
         if (["http://id.loc.gov/ontologies/bibframe/ParallelTitle", "http://id.loc.gov/ontologies/bibframe/VariantTitle"].includes(type)){
