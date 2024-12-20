@@ -232,16 +232,11 @@ export default {
         return true
       }
 
-      console.info("structure 1: ", JSON.parse(JSON.stringify(this.structure)))
       // // grab the first component from the struecture, but there might be mutluple ones
-      console.info("set useId: ", this.structure.valueConstraint.valueTemplateRefs)
       let useId = this.structure.valueConstraint.valueTemplateRefs[0]
       let foundBetter = false
 
       let userValue = this.structure.userValue
-
-      console.info("userValue: ", JSON.parse(JSON.stringify(userValue)))
-      console.info("structure 2: ", JSON.parse(JSON.stringify(this.structure)))
 
       // use the first value in the userValue
       if (userValue[this.structure.propertyURI] && userValue[this.structure.propertyURI][0]){
@@ -252,13 +247,10 @@ export default {
       if (userValue['@type']){
         // loop thrugh all the refs and see if there is a URI that matches it better
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
-          console.info("seeing if ", tmpid, " is better" )
           //if tmpid is 'lc:RT:bf2:Agents:Contribution', need to look somehwere else
           if (foundBetter) return false
           if (tmpid == "lc:RT:bf2:Agents:Contribution"){
-            console.info("value keys", this.structure.valueConstraint.valueTemplateRefs)
           } else if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
-            console.info("set useId 1", tmpid)
             useId = tmpid
             foundBetter = true
           }
@@ -267,7 +259,6 @@ export default {
             if (Array.isArray(userValue[key])){
               for (let val of userValue[key]){
                 if (val['@type'] && this.rtLookup[tmpid].resourceURI === val['@type']){
-                  console.info("set useId 2", tmpid)
                   useId = tmpid
                   foundBetter = true
                 }
@@ -277,7 +268,6 @@ export default {
 
         })
       } else {
-        console.info("else")
         //There's no userValue, we'll use the parent's userValue to check
         //	if there's a template that might be even better-er
         // But, we're only going to look deeper for bf:contribution
@@ -288,9 +278,6 @@ export default {
           } catch {
           parentUserValue = null
         }
-
-        console.info("parentUserValue: ", parentUserValue)
-        console.info("this.structure: ", this.structure)
 
         // resourceURI :: type
         const typeMap = {
@@ -303,27 +290,19 @@ export default {
 
         for (let idx in this.structure.valueConstraint.valueTemplateRefs){
           let template = this.structure.valueConstraint.valueTemplateRefs[idx]
-          console.info("template: ", template)
-          console.info("lookup: ", this.rtLookup[template])
           if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
             let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
-            console.info("target: ", target)
             if (target){
               let type = target[0]["@type"]
-              console.info("type", type)
               if (type && this.rtLookup[template].resourceURI === type){   // the resourceURIs don't match the types
-                console.info("set useId 3", template)
                 useId = template
               } else if (type && Object.keys(typeMap).includes(type)){
-                console.info("set useId 4", typeMap[type])
                 useId = typeMap[type]
               }
             } else { //there's no user agent
             let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]
               let type = target[0]["@type"]
-              console.info("type", type)
               if (type && this.rtLookup[template].resourceURI === type){
-                console.info("set useId 3", template)
                 useId = template
               }
             }
@@ -337,7 +316,6 @@ export default {
         if (this.rtLookup[useId]){
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
 
-          console.info("use: ", use)
           return use
           // this.multiTemplateSelect = use.resourceLabel
           // this.multiTemplateSelectURI = useId
@@ -427,7 +405,6 @@ export default {
   methods: {
 
     templateChange(event){
-      console.info("template change?")
       let nextRef = this.allRtTemplate.filter((v)=>{ return (v.id === event.target.value) })[0]
       let thisRef = this.thisRtTemplate
 
