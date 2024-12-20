@@ -759,15 +759,68 @@
         return parentStructure.id.includes("_contribution_")
       },
 
-      promoteContrib: function(){
+      /**
+       * Update the contributor component to pro/demotion
+       * @param contribStructure - the structure of the component that will be updated
+       * @param contribType - the type of contributor
+       * @param contributors - the current contributors, not including primary
+       */
+      updateContrib: function(contribStructure, contribType, contributors){
         const primaryId = "id_loc_gov_ontologies_bibframe_contribution__creator_of_work"
-        const primaryPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/PrimaryContributio"
+        const primaryPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/PrimaryContribution"
         const primaryType = "http://id.loc.gov/ontologies/bibframe/PrimaryContribution"
         const primaryLabel = "Creator of Work"
-        const contributorId = "id_loc_gov_ontologies_bibframe_contribution__contributors"
-        const contributorPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/Contributio"
+        let contributorId = "id_loc_gov_ontologies_bibframe_contribution__contributors"  //TODO: this changes when there's more than 1
+        const contributorPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/Contribution"
         const contributorType = "http://id.loc.gov/ontologies/bibframe/Contribution"
         const contributorLabel = "Contributors"
+
+        let userValue = contribStructure.userValue
+        if (contribType == contributorId){
+          console.info("changing the id?, contrib -> creator")
+          contribStructure.id = primaryId
+          contribStructure.preferenceId = primaryPrefId
+          contribStructure.propertyLabel = primaryLabel
+          userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["@type"] = primaryType
+        } else {
+          console.info("changing the id?, creator -> contrib")
+          contribStructure.id = contributorId
+          contribStructure.preferenceId = contributorPrefId
+          contribStructure.propertyLabel = contributorLabel
+          userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["@type"] = contributorType
+        }
+
+        console.info("contribStructure: ", JSON.parse(JSON.stringify(contribStructure)))
+        return contribStructure
+      },
+
+      promoteContrib: function(){
+        const primaryId = "id_loc_gov_ontologies_bibframe_contribution__creator_of_work"
+        const contributorId = "id_loc_gov_ontologies_bibframe_contribution__contributors"
+
+        console.info("activeProfile: ", JSON.parse(JSON.stringify(this.activeProfile)))
+        console.info("this.structure: ", this.structure)
+        console.info("rtLookup: ", this.profileStore.rtLookup)
+
+        //get the current active primaryContributor, need to make sure there isn't already one
+        console.info("looking for active, primary contributor")
+        let activePrimary
+        let contributors = []
+        for (let rt in this.activeProfile.rt){
+          for (let pt in this.activeProfile.rt[rt].pt){
+            if (pt.includes("creator_of_work")){
+              const target = this.activeProfile.rt[rt].pt[pt]
+              if (!target.deleted){
+                activePrimary = target
+              }
+            }
+            if (pt.includes("contribution__contributors")){
+              contributors.push(pt)
+            }
+          }
+        }
+
+        //Get a list of current contributors, need to update the contribtor id?
 
         console.info("Changing the contrib thingy")
         let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
@@ -775,40 +828,31 @@
         console.info("real structure: ", JSON.parse(JSON.stringify(activeStructure)))
 
         const currentType = activeStructure.id == primaryId ? primaryId : contributorId
-        /**
-         * Differences:
-         *    guid
-         *    id
-         *    preferenceId
-         */
 
-        // contrib -> primary
-        // Need to check if there is a current primary and do...
+        console.info("contributors: ", contributors)
 
         activeStructure["@guid"] = short.generate()
         console.info("currentType: ", currentType)
-        let userValue = activeStructure.userValue
         if (currentType == contributorId){
           console.info("changing the id?, contrib -> creator")
-          activeStructure.id = primaryId
-          activeStructure.preferenceId = primaryPrefId
-          activeStructure.propertyLabel = primaryLabel
-          userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["@type"] = primaryType
-        } else {
-          console.info("changing the id?, creator -> contrib")
-          activeStructure.id = contributorId
-          activeStructure.preferenceId = contributorPrefId
-          activeStructure.propertyLabel = contributorLabel
-          userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["@type"] = contributorType
+
+          //check the active primary, if there is a value, create an alert for the user
+          //Hide `createComponent` for creator of work
+          console.info("active primary: ", JSON.parse(JSON.stringify(activePrimary)))
+          if (Object.keys(activePrimary.userValue).length != 1){
+            const swap = confirm("There is already a primary contributor. Continuing will swap this with that.")
+            if (swap){
+              let activePrimaryStruct = this.profileStore.returnStructureByComponentGuid(JSON.parse(JSON.stringify(activePrimary))["@guid"])
+              activePrimaryStruct = this.updateContrib(JSON.parse(JSON.stringify(activePrimaryStruct)), primaryId, contributors)
+              this.profileStore.parseActiveInsert(activePrimaryStruct)
+              this.profileStore.deleteComponent(activePrimary["@guid"])
+            }
+          }
         }
 
-        console.info("new structure: ", JSON.parse(JSON.stringify(activeStructure)))
-
-        //do the change
+        activeStructure = this.updateContrib(activeStructure, currentType, contributors)
         this.profileStore.parseActiveInsert(activeStructure)
-
-        //delete the existing
-        this.profileStore.deleteComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
+        this.profileStore.deleteComponent(this.guid)
       },
 
     },

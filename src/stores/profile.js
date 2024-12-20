@@ -3778,6 +3778,7 @@ export const useProfileStore = defineStore('profile', {
 
         let lastPosition = 0
 
+        console.info("looking for positiong of ", predecessor, " in ", this.activeProfile)
         for (let r of this.activeProfile.rtOrder){
             let tempPosition = JSON.parse(JSON.stringify(this.activeProfile.rt[r].ptOrder)).indexOf(predecessor)
             if (tempPosition > 0){
@@ -3855,6 +3856,8 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
         // For moving titles between work/instance, we want to use the last postion, otherwise
         //    should be after the predecessor
+        console.info("lastPosition: ", lastPosition)
+        console.info("propertyPosition: ", propertyPosition)
         if (predecessor == 'last'){
           this.activeProfile.rt[profile].ptOrder.splice(Number(lastPosition)+1, 0, newPropertyId)
         } else {
@@ -3884,8 +3887,10 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     deleteComponent: async function(componentGuid){
+      console.info("deleting")
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      console.info("pt: ", pt)
 
       if (pt !== false){
         if (pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/adminMetadata'){
@@ -3906,6 +3911,8 @@ export const useProfileStore = defineStore('profile', {
 
         // if the propertyCount is 1 then we are about to delete the only property
         // so instead just blank out the user value so it still exists if they need to add a value
+
+        console.info("this thing: ", this.activeProfile.rt[pt.parentId].pt[pt.id])
 
         if (propertyCount>1){
           this.activeProfile.rt[pt.parentId].pt[pt.id].deleted = true
