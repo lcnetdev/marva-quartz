@@ -662,8 +662,6 @@
 
       //Send the information in a component between Work and Instances
       // Can be used in either direction.
-      // TODO: make sure there is information before trying to send
-      // TODO: swapping back and forth doesn't seem to work? When there are multiple instances
       sendToOtherProfile: async function(target=null){
         const Rts = Object.keys(this.profileStore.activeProfile.rt)
         let thisRt = this.profileStore.returnRtByGUID(this.guid)
@@ -744,6 +742,11 @@
           }
         }
 
+        //if it's a variant or parallel title, delete the original
+        const type = activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"]
+        if (["http://id.loc.gov/ontologies/bibframe/ParallelTitle", "http://id.loc.gov/ontologies/bibframe/VariantTitle"].includes(type)){
+          this.profileStore.deleteComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
+        }
         //Force XML update
         this.profileStore.dataChanged()
       },
