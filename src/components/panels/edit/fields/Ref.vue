@@ -12,7 +12,6 @@
 
     </template>
     <template v-else>
-      {{ thisRtTemplate.id }}
       <select :id="structure['@guid']+'-select'" @change="templateChange($event)" style=" background-color: transparent;">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
@@ -25,7 +24,7 @@
     :nested="true"
     :guid="guid"
     :inheritedStructure="thisRtTemplate.propertyTemplates[idx]"
-    :readOnly="readOnly"/>
+    :readOnly="readOnly" />
 
 
   <!--
@@ -220,6 +219,7 @@ export default {
 
 
     thisRtTemplate(){
+      console.info("thisRtTemplate")
       if (this.manualOverride !== null){
         for (let tmpid of this.structure.valueConstraint.valueTemplateRefs){
           console.log('tmpid',tmpid)
@@ -281,7 +281,7 @@ export default {
 
         // resourceURI :: type
         const typeMap = {
-          "http://id.loc.gov/ontologies/bibframe/Person": "lc:RT:bf2:Agent:bfPerso",
+          "http://id.loc.gov/ontologies/bibframe/Person": "lc:RT:bf2:Agent:bfPerson",
           "http://id.loc.gov/ontologies/bibframe/Family": "lc:RT:bf2:Agent:bfFamily",
           "http://www.loc.gov/mads/rdf/v1#CorporateName": "lc:RT:bf2:Agent:bfCorp",
           "http://id.loc.gov/ontologies/bibframe/Jurisdiction": "lc:RT:bf2:Agent:bfJurisdiction",
@@ -316,6 +316,7 @@ export default {
         if (this.rtLookup[useId]){
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
 
+          console.info("use: ", use)
           return use
           // this.multiTemplateSelect = use.resourceLabel
           // this.multiTemplateSelectURI = useId

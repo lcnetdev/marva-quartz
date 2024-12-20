@@ -839,9 +839,7 @@
         }
 
         //update, insert, and delete
-        console.info("activeStructure", JSON.parse(JSON.stringify(activeStructure)))
         activeStructure = this.updateContrib(activeStructure, currentType)
-        console.info("updated Structure", JSON.parse(JSON.stringify(activeStructure)))
         this.profileStore.parseActiveInsert(activeStructure)
         this.profileStore.deleteComponent(this.guid)
       },
