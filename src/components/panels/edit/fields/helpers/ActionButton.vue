@@ -790,13 +790,6 @@
         return contribStructure
       },
 
-      /**
-       * TODO:
-       *    [ ] dropdown not following the de/promotion if the creator is user supplied. When it comes in with a record, things seem fine
-       *    [X] if you de/promote, change the dropdown of the now empty field, and then de/promote to repopulate the field, it'll create a new field instead of populating the existing field [same fix for this and next]
-       *    [X] Changing the dropdown of an empty primary field, and de/promoting the populate that field will cause it to give the alert that something already exists there.
-       */
-
       promoteContrib: function(){
         const primaryId = "id_loc_gov_ontologies_bibframe_contribution__creator_of_work"
         const contributorId = "id_loc_gov_ontologies_bibframe_contribution__contributors"
