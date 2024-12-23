@@ -46,8 +46,6 @@ const utilsMisc = {
 
 
   calculateCutter (toCut,howLong) {
-    console.info("toCut: ", toCut)
-
     var authorName = toCut
     authorName = authorName.toUpperCase();
     authorName = authorName.replace(/^[0-9]/,"a");
