@@ -29,14 +29,10 @@ export const useConfigStore = defineStore('config', {
         // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
-
-
         id: 'https://id.loc.gov/',
         env : 'staging',
         dev: true,
         displayLCOnlyFeatures: true,
-
-
       },
 
       staging:{
