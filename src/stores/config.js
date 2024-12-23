@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 17,
-    versionPatch: 12,
+    versionPatch: 13,
 
     regionUrls: {
 
@@ -29,14 +29,10 @@ export const useConfigStore = defineStore('config', {
         // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
-
-
         id: 'https://id.loc.gov/',
         env : 'staging',
         dev: true,
         displayLCOnlyFeatures: true,
-
-
       },
 
       staging:{
