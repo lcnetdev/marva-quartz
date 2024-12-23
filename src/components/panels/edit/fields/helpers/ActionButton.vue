@@ -31,7 +31,7 @@
 
         <button v-if="isContribComponent()" style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="promoteContrib()">
           <span class="button-shortcut-label">2</span>
-          De/promote Contributor
+          {{ this.profileStore.returnStructureByComponentGuid(this.guid).propertyLabel == "Creator of Work" ? "Demote" : "Promote" }} Contributor
         </button>
 
         <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-3`" @click="deleteComponent()">
