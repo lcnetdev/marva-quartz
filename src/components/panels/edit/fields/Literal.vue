@@ -121,8 +121,6 @@
           <div style="flex:1">
           <fieldset v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length>0) || lccFeatureData.title" >
             <legend>Cutter Calculator</legend>
-            {{ lccFeatureData.title}}
-
             <template v-if="lccFeatureData.contributors">
 
               <template v-if="lccFeatureData.contributors[0]">
