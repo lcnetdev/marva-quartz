@@ -24,7 +24,7 @@
     :nested="true"
     :guid="guid"
     :inheritedStructure="thisRtTemplate.propertyTemplates[idx]"
-    :readOnly="readOnly"/>
+    :readOnly="readOnly" />
 
 
   <!--
@@ -219,6 +219,7 @@ export default {
 
 
     thisRtTemplate(){
+      console.info("thisRtTemplate")
       if (this.manualOverride !== null){
         for (let tmpid of this.structure.valueConstraint.valueTemplateRefs){
           console.log('tmpid',tmpid)
@@ -246,8 +247,10 @@ export default {
       if (userValue['@type']){
         // loop thrugh all the refs and see if there is a URI that matches it better
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
+          //if tmpid is 'lc:RT:bf2:Agents:Contribution', need to look somehwere else
           if (foundBetter) return false
-          if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
+          if (tmpid == "lc:RT:bf2:Agents:Contribution"){
+          } else if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
             useId = tmpid
             foundBetter = true
           }
@@ -265,30 +268,47 @@ export default {
 
         })
       } else {
-		  //There's no userValue, we'll use the parent's userValue to check
-		  //	if there's a template that might be even better-er
-		  // But, we're only going to look deeper for bf:contribution
+        //There's no userValue, we'll use the parent's userValue to check
+        //	if there's a template that might be even better-er
+        // But, we're only going to look deeper for bf:contribution
 
-		  let parentUserValue
-		  try {
-			  parentUserValue = this.$parent.$parent.structure.userValue
-	      } catch {
-			  parentUserValue = null
-		  }
+        let parentUserValue
+        try {
+          parentUserValue = this.$parent.$parent.structure.userValue
+          } catch {
+          parentUserValue = null
+        }
 
-		  for (let idx in this.structure.valueConstraint.valueTemplateRefs){
-			  let template = this.structure.valueConstraint.valueTemplateRefs[idx]
-			  if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
-				  let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
-				  if (target){
-                      let type = target[0]["@type"]
-                      if (type && this.rtLookup[template].resourceURI === type){
-                        useId = template
-                      }
-				  }
-			  }
-		  }
-	  }
+        // resourceURI :: type
+        const typeMap = {
+          "http://id.loc.gov/ontologies/bibframe/Person": "lc:RT:bf2:Agent:bfPerson",
+          "http://id.loc.gov/ontologies/bibframe/Family": "lc:RT:bf2:Agent:bfFamily",
+          "http://www.loc.gov/mads/rdf/v1#CorporateName": "lc:RT:bf2:Agent:bfCorp",
+          "http://id.loc.gov/ontologies/bibframe/Jurisdiction": "lc:RT:bf2:Agent:bfJurisdiction",
+          "http://id.loc.gov/ontologies/bibframe/Meeting": "lc:RT:bf2:Agent:bfConf",
+        }
+
+        for (let idx in this.structure.valueConstraint.valueTemplateRefs){
+          let template = this.structure.valueConstraint.valueTemplateRefs[idx]
+          if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
+            let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
+            if (target){
+              let type = target[0]["@type"]
+              if (type && this.rtLookup[template].resourceURI === type){   // the resourceURIs don't match the types
+                useId = template
+              } else if (type && Object.keys(typeMap).includes(type)){
+                useId = typeMap[type]
+              }
+            } else { //there's no user agent
+            let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]
+              let type = target[0]["@type"]
+              if (type && this.rtLookup[template].resourceURI === type){
+                useId = template
+              }
+            }
+          }
+        }
+      }
 
 
       // do not render recursivly if the thing we are trying to render recursivly is one the of the things thAT WER ARE RENDERING TO BEGIN WITHHHHH!!!1
@@ -296,6 +316,7 @@ export default {
         if (this.rtLookup[useId]){
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
 
+          console.info("use: ", use)
           return use
           // this.multiTemplateSelect = use.resourceLabel
           // this.multiTemplateSelectURI = useId

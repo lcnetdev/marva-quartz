@@ -29,6 +29,11 @@
           Insert Default Values
         </button>
 
+        <button v-if="isContribComponent()" style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="promoteContrib()">
+          <span class="button-shortcut-label">2</span>
+          {{ this.profileStore.returnStructureByComponentGuid(this.guid).propertyLabel == "Creator of Work" ? "Demote" : "Promote" }} Contributor
+        </button>
+
         <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-3`" @click="deleteComponent()">
           <span class="button-shortcut-label">3</span>
           Delete Component
@@ -44,7 +49,7 @@
         <template v-if="['lc:RT:bf2:WorkTitle', 'lc:RT:bf2:InstanceTitle', 'lc:RT:bf2:Title:VarTitle', 'lc:RT:bf2:ParallelTitle'].includes(structure.parentId)">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-4`" @click="sendToOtherProfile()">
             <span class="button-shortcut-label">4</span>
-            Send to {{ this.profileStore.returnRtByGUID(this.guid) == "lc:RT:bf2:Monograph:Work" ? "Instance" : (Object.keys(this.profileStore.activeProfile.rt).length > 2 ? "Work/Instance" : "Work") }}
+            Send to {{ this.profileStore.returnRtByGUID(this.guid).includes(":Work") ? "Instance" : (Object.keys(this.profileStore.activeProfile.rt).length > 2 ? "Work/Instance" : "Work") }}
           </button>
         </template>
 
@@ -749,6 +754,92 @@
         }
         //Force XML update
         this.profileStore.dataChanged()
+      },
+
+
+      // show the button for de/promotion
+      isContribComponent: function(){
+        let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
+
+        return parentStructure.id.includes("_contribution_")
+      },
+
+      /**
+       * Update the contributor component to pro/demotion
+       * @param contribStructure - the structure of the component that will be updated
+       * @param contribType - the type of contributor
+       */
+      updateContrib: function(contribStructure, contribType){
+        const primaryId = "id_loc_gov_ontologies_bibframe_contribution__creator_of_work"
+        const primaryPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/PrimaryContribution"
+        const primaryType = "http://id.loc.gov/ontologies/bibframe/PrimaryContribution"
+        const primaryLabel = "Creator of Work"
+        const contributorId = "id_loc_gov_ontologies_bibframe_contribution__contributors"
+        const contributorPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/Contribution"
+        const contributorType = "http://id.loc.gov/ontologies/bibframe/Contribution"
+        const contributorLabel = "Contributors"
+
+        let userValue = contribStructure.userValue
+        if (contribType == contributorId){
+          contribStructure.id = primaryId
+          contribStructure.preferenceId = primaryPrefId
+          contribStructure.propertyLabel = primaryLabel
+          userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["@type"] = primaryType
+        } else {
+          contribStructure.id = contributorId
+          contribStructure.preferenceId = contributorPrefId
+          contribStructure.propertyLabel = contributorLabel
+          userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["@type"] = contributorType
+        }
+
+        return contribStructure
+      },
+
+      promoteContrib: function(){
+        const primaryId = "id_loc_gov_ontologies_bibframe_contribution__creator_of_work"
+        const contributorId = "id_loc_gov_ontologies_bibframe_contribution__contributors"
+
+        //get the current active primaryContributor, need to make sure there isn't already one
+        let activePrimary
+        let contributors = []
+        for (let rt in this.activeProfile.rt){
+          for (let pt in this.activeProfile.rt[rt].pt){
+            if (pt.includes("creator_of_work")){
+              const target = this.activeProfile.rt[rt].pt[pt]
+              if (!target.deleted){
+                activePrimary = target
+              }
+            }
+          }
+        }
+
+        //Get a list of current contributors, need to update the contribtor id?
+        let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+        let activeStructure =  JSON.parse(JSON.stringify(structure))
+
+        const currentType = activeStructure.id == primaryId ? primaryId : contributorId
+
+        activeStructure["@guid"] = short.generate()
+        if (currentType == contributorId){
+          //check the active primary, if there is a value, create an alert for the user
+          // and swap the two
+          if (!this.profileStore.isEmptyComponent(activePrimary)){
+            const swap = confirm("There is already a primary contributor. Continuing will swap the two.")
+            if (swap){
+              let activePrimaryStruct = this.profileStore.returnStructureByComponentGuid(JSON.parse(JSON.stringify(activePrimary))["@guid"])
+              activePrimaryStruct = this.updateContrib(JSON.parse(JSON.stringify(activePrimaryStruct)), primaryId)
+              this.profileStore.parseActiveInsert(activePrimaryStruct)
+              this.profileStore.deleteComponent(activePrimary["@guid"])
+            } else {
+              return
+            }
+          }
+        }
+
+        //update, insert, and delete
+        activeStructure = this.updateContrib(activeStructure, currentType)
+        this.profileStore.parseActiveInsert(activeStructure)
+        this.profileStore.deleteComponent(this.guid)
       },
 
     },

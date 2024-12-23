@@ -4384,7 +4384,8 @@ export const useProfileStore = defineStore('profile', {
                     let targetLabel = newComponent.propertyLabel
 
                     if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
-                        if (Object.keys(current.userValue).length == 1){
+                        // if (Object.keys(current.userValue).length == 1){
+                        if (this.isEmptyComponent(current)){
                             current.userValue = newComponent.userValue
                             break
                         } else {
