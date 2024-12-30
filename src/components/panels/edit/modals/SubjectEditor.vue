@@ -859,7 +859,7 @@ methods: {
           this.componetLookup[subjIdx] = {}
           let type = incomingSubjects[subjIdx]["@type"]
 
-          if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")){
             this.typeLookup[subjIdx] = 'madsrdf:Topic'
           }
           if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
@@ -898,7 +898,7 @@ methods: {
         this.componetLookup[0] = {}
         let type = incomingSubjects["@type"] ? incomingSubjects["@type"] : ""
 
-        if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic") ){
             this.typeLookup[0] = 'madsrdf:Topic'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
@@ -943,23 +943,28 @@ methods: {
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
 
-    if (componentLookUpCount > 0){ //We are dealing with a hierarchical GEO and need to stitch some terms together
+    if (componentLookUpCount > 0){ //We might be dealing with something that needs to stitch some terms together
       if (componentLookUpCount < subjectStringSplit.length){
         let target = false
+        let targetType = null
+        let splitTarget = false
         for (let i in this.componetLookup){
           for (let j in this.componetLookup[i]) {
+            targetType = this.componetLookup[i][j].type
 
             if (this.componetLookup[i][j].label.includes("--")){
               target = this.componetLookup[i][j].label.replaceAll("--", "‑‑")
               targetIndex = i  // needs this to ensure the target will go into the search string in the right place
+              splitTarget = target.split('‑‑')
             }
 
             let matchIndx = []
-            if (target){
-              for (let i in subjectStringSplit){
-                if (target.includes(subjectStringSplit[i])){
-                  matchIndx.push(i)
-                }
+            if (target){  // && targetType == 'madsrdf:Geographic'
+                for (let i in subjectStringSplit){
+                  if (target == subjectStringSplit[i]){ matchIndx.push(i); break } // if there is an exact match, keep it and move on
+                  if (target.includes(subjectStringSplit[i])){  //&& subjectStringSplit[i].length > 3
+                    matchIndx.push(i)
+                  }
               }
 
               //remove them
@@ -994,7 +999,7 @@ methods: {
       if (this.componetLookup[id] && this.componetLookup[id][ss]){
         literal = this.componetLookup[id][ss].literal
         uri = this.componetLookup[id][ss].uri
-		marcKey = this.componetLookup[id][ss].marcKey
+        marcKey = this.componetLookup[id][ss].marcKey
         nonLatinLabel = this.componetLookup[id][ss].nonLatinTitle
         nonLatinMarcKey = this.componetLookup[id][ss].nonLatinMarcKey
 
@@ -1532,14 +1537,14 @@ methods: {
               this.subjectString = event.target.value
               this.subjectStringChanged()
               this.navString({key:'ArrowRight'})
-          })            
+          })
 
-          
+
 
 
         }
       }
-    }   
+    }
 
 
   },
@@ -1619,7 +1624,6 @@ methods: {
   },
 
   runMacroExpressMacro(event){
-
     for (let macro of this.diacriticUseValues){
           if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
             // console.log("run this macro", macro)
@@ -1645,7 +1649,7 @@ methods: {
                   // inputV.value = inputV.value.slice(0, -1);
                   inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
                   // this.searchValueLocal = inputV.value
-              
+
                   // this.subjectString = inputV.value
                   // this.doSearch()
 
@@ -1658,7 +1662,7 @@ methods: {
                   // inputV.value = inputV.value.slice(0, -1);
                   inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
                   // this.searchValueLocal = inputV.value
-                  
+
                   // this.subjectString = inputV.value
                   // this.doSearch()
                 }
@@ -1671,7 +1675,7 @@ methods: {
                   // inputV.value = inputV.value.slice(0, -1);
                   inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
                   // this.searchValueLocal = inputV.value
-                
+
                   // this.subjectString = inputV.value
                   // this.doSearch()
                 }
@@ -1681,7 +1685,7 @@ methods: {
                 // inputV.value=inputV.value+macro.codeEscape
                 inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
                 // this.searchValueLocal = inputV.value
-                  
+
                 // this.subjectString = inputV.value
                 if (insertAt){
                   this.$nextTick(()=>{
@@ -1699,10 +1703,10 @@ methods: {
               }else{
                 inputV.value = macro.codeEscape
                 // this.searchValueLocal = inputV.value
-               
+
                 // this.subjectString = inputV.value
               }
-              
+
 
             }else{
 
@@ -1953,7 +1957,6 @@ methods: {
       return false
 
     }else{
-
       // they might be trying to insert a diacritic here
 
         // This mode is they press Crtl+e to enter diacritic macro mode, so they did that on the last kedown and now we need to act on the next keystroke and interpret it as a macro code
@@ -1987,19 +1990,19 @@ methods: {
                   inputV.value = useMacro.codeEscape
                 }
                 // this.searchValueLocal = inputV.value
-                
+
               }else{
                     // inputV.value=inputV.value+useMacro.codeEscape
                     inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
                     // this.searchValueLocal = inputV.value
-                  
+
               }
 
               if (insertAt){
                 this.$nextTick(()=>{
                   inputV.setSelectionRange(insertAt+1,insertAt+1)
                   // this.searchValueLocal = inputV.value
-                
+
                   this.$nextTick(()=>{
                     inputV.focus()
                   })
@@ -2016,7 +2019,7 @@ methods: {
                   this.subjectString = inputV.value
                   this.subjectStringChanged()
                   this.navString({key:'ArrowRight'})
-              })  
+              })
 
 
             }
@@ -2026,7 +2029,7 @@ methods: {
             event.preventDefault()
             return false
         }
-        // all macros use the ctrl key 
+        // all macros use the ctrl key
         if (event.ctrlKey == true){
           if (this.diacriticUse.length>0){
             for (let macro of this.diacriticUseValues){
@@ -2036,13 +2039,13 @@ methods: {
                 this.runMacroExpressMacro(event)
 
                 // manually change the v-model var and force a update
-                this.$nextTick(() => {                  
+                this.$nextTick(() => {
                   this.subjectString = event.target.value
                   this.subjectStringChanged()
                   this.navString({key:'ArrowRight'})
-                })  
-                // 
-              
+                })
+                //
+
                 return false
 
               }
@@ -2060,7 +2063,7 @@ methods: {
 
           }
           //
-        }      
+        }
     }
 
 
@@ -2906,7 +2909,7 @@ updated: function() {
 
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
-  if (this.searchValue && this.components.length != this.searchValue.split("--") && !this.searchValue.endsWith('-')){
+  if (this.searchValue && this.components.length != this.searchValue.split("--").length && !this.searchValue.endsWith('-')){
     this.buildLookupComponents(incomingSubjects)
     this.buildComponents(this.searchValue)
 
