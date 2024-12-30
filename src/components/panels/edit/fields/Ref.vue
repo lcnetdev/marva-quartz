@@ -219,7 +219,6 @@ export default {
 
 
     thisRtTemplate(){
-      console.info("thisRtTemplate")
       if (this.manualOverride !== null){
         for (let tmpid of this.structure.valueConstraint.valueTemplateRefs){
           console.log('tmpid',tmpid)
@@ -316,7 +315,6 @@ export default {
         if (this.rtLookup[useId]){
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
 
-          console.info("use: ", use)
           return use
           // this.multiTemplateSelect = use.resourceLabel
           // this.multiTemplateSelectURI = useId
