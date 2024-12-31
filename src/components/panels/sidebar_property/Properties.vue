@@ -100,7 +100,19 @@
           returnString = prefix + '(FAST) ' + returnString
         }
 
-
+        //For GEO, add the GACs code at the end
+        if (propertyURI == "http://id.loc.gov/ontologies/bibframe/geographicCoverage"){
+          if (component && component.userValue && component.userValue[propertyURI]
+              && component.userValue[propertyURI].length>0
+              && component.userValue[propertyURI][0]
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/code']
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/code'].length>0
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/code'][0]
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/code'][0]['http://id.loc.gov/ontologies/bibframe/code']
+          ){
+            returnString = returnString + " [" + component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/code'][0]['http://id.loc.gov/ontologies/bibframe/code'] + "]"
+          }
+        }
 
 
         return returnString
