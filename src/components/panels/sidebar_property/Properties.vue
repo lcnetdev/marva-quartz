@@ -69,15 +69,13 @@
             case 'http://id.loc.gov/ontologies/bibframe/identifiedBy':
               if (component.userValue && component.userValue[propertyURI]){
                 let type = component.userValue[propertyURI][0]["@type"]
-                prefix = type.split("/").at(-1).toUpperCase() + ': '
+                prefix = '[' + type.split("/").at(-1).toUpperCase() + ']: '
                 break
               }
             default:
               prefix = ''
           }
         }
-
-        console.info("component: ", component)
 
         let returnString = prefix + 'No Heading'
         if (component && component.userValue && component.userValue[propertyURI]
