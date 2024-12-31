@@ -48,6 +48,7 @@
           "http://id.loc.gov/ontologies/bibframe/subject",
           "http://id.loc.gov/ontologies/bibframe/geographicCoverage",
           "http://id.loc.gov/ontologies/bibframe/language",
+          "http://id.loc.gov/ontologies/bibframe/identifiedBy",
         ].includes(propertyURI)
       },
       returnHeadingLabel(component){
@@ -65,10 +66,18 @@
             case 'http://id.loc.gov/ontologies/bibframe/language':
               prefix = '[Lang 008]: '
               break
+            case 'http://id.loc.gov/ontologies/bibframe/identifiedBy':
+              if (component.userValue && component.userValue[propertyURI]){
+                let type = component.userValue[propertyURI][0]["@type"]
+                prefix = type.split("/").at(-1).toUpperCase() + ': '
+                break
+              }
             default:
               prefix = ''
           }
         }
+
+        console.info("component: ", component)
 
         let returnString = prefix + 'No Heading'
         if (component && component.userValue && component.userValue[propertyURI]
@@ -98,6 +107,18 @@
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].indexOf('/fast/') > -1){
 
           returnString = prefix + '(FAST) ' + returnString
+        }
+
+        //identifiers have slightly different pat
+        if (component && component.userValue && component.userValue[propertyURI]
+            && component.userValue[propertyURI].length>0
+            && component.userValue[propertyURI][0]
+            && component.userValue[propertyURI][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
+            && component.userValue[propertyURI][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'].length>0
+            && component.userValue[propertyURI][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]
+            && component.userValue[propertyURI][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
+        ){
+          returnString = prefix + component.userValue[propertyURI][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
         }
 
         //For GEO, add the GACs code at the end
