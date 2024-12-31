@@ -57,20 +57,20 @@
           propertyURI = component.propertyURI
           switch (propertyURI){
             case 'http://id.loc.gov/ontologies/bibframe/subject':
-              prefix = '[SH]'
+              prefix = '[SH]: '
               break
             case 'http://id.loc.gov/ontologies/bibframe/geographicCoverage':
-              prefix = '[GEO]'
+              prefix = '[GEO]: '
               break
             case 'http://id.loc.gov/ontologies/bibframe/language':
-              prefix = '[Lang 008]'
+              prefix = '[Lang 008]: '
               break
             default:
               prefix = ''
           }
         }
 
-        let returnString = prefix + ' No Heading'
+        let returnString = prefix + 'No Heading'
         if (component && component.userValue && component.userValue[propertyURI]
         && component.userValue[propertyURI].length>0
         && component.userValue[propertyURI][0]
@@ -78,7 +78,7 @@
         && component.userValue[propertyURI][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0
         && component.userValue[propertyURI][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]
         && component.userValue[propertyURI][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-          returnString = prefix + ": " + component.userValue[propertyURI][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+          returnString = prefix + component.userValue[propertyURI][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
         }
 
         if (component && component.userValue && component.userValue[propertyURI]
@@ -88,7 +88,7 @@
         && component.userValue[propertyURI][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length>0
         && component.userValue[propertyURI][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]
         && component.userValue[propertyURI][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
-          returnString = prefix + ": " + component.userValue[propertyURI][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+          returnString = prefix + component.userValue[propertyURI][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
         }
 
         if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject']
@@ -97,7 +97,7 @@
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id']
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].indexOf('/fast/') > -1){
 
-          returnString = prefix + ': (FAST) ' + returnString
+          returnString = prefix + '(FAST) ' + returnString
         }
 
 
