@@ -1158,23 +1158,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
-      console.info("setValueSimple")
-      console.info("    componentGuid: ", componentGuid)
-      console.info("    fieldGuid: ", fieldGuid)
-      console.info("    propertyPath: ", propertyPath)
-      console.info("    URI: ", URI)
-      console.info("    label: ", label)
-
-
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
-
 
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
-      console.info("    pt: ", JSON.parse(JSON.stringify(pt)))
 
       if (pt !== false){
 
@@ -1185,16 +1174,10 @@ export const useProfileStore = defineStore('profile', {
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
 
-        console.info("        blankNode: ", JSON.parse(JSON.stringify(blankNode)))
-
         if (blankNode === false){
-          console.info("        if")
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
           pt = buildBlankNodeResult[0]
-
-          console.info("        pt: ", JSON.parse(JSON.stringify(pt)))
-
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
 
@@ -1213,7 +1196,6 @@ export const useProfileStore = defineStore('profile', {
             }
           ]
         }else{
-          console.info("        else")
           let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
 
           // make sure we can find where to put the new one
@@ -1271,23 +1253,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     removeValueComplex: async function(componentGuid, fieldGuid){
-      console.info("removeValueComplex")
-      console.info("    componentGuid: ", componentGuid)
-      console.info("    fieldGuid: ", fieldGuid)
-
-
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
-      console.info("    pt: ", JSON.parse(JSON.stringify(pt)))
-
       if (pt !== false){
 
         // find the correct blank node to edit if possible,
-
         let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
-
-        console.info("    parent: ", JSON.parse(JSON.stringify(parent)))
 
         if (parent && parent.length === 1 && parent[0]['@guid'] === fieldGuid ){
           // console.log("The parent is the node we are looking for")
@@ -1296,15 +1267,10 @@ export const useProfileStore = defineStore('profile', {
             parent = pt.userValue
         }
 
-        console.info("    userValue: ", JSON.parse(JSON.stringify(parent)))
-
         // just look through all of the properties, if its an array filter it
         for (let p in parent){
-          console.info("        p: ", p)
-          console.info("        parent[p]: ", parent[p])
           if (Array.isArray(parent[p])){
             parent[p] = parent[p].filter((v) => {
-              console.info("        v: ", v)
               if (v && v['@guid'] && v['@guid'] === fieldGuid){
                 return false
               }else{
@@ -1313,9 +1279,6 @@ export const useProfileStore = defineStore('profile', {
             })
           }
         }
-
-        console.info("filtered parent :", JSON.parse(JSON.stringify(parent)))
-
 
         // check to make sure that we didn't make an empty property
         // remove the property key if so
@@ -2073,14 +2036,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
-      console.info("    componentGuid: ", componentGuid)
-      console.info("    fieldGuid: ", fieldGuid)
-      console.info("    propertyPath: ", propertyPath)
-      console.info("    URI: ", URI)
-      console.info("    label: ", label)
-      console.info("    type: ", type)
-      console.info("    nodeMap: ", nodeMap)
-      console.info("    marcKey: ", marcKey)
 
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
@@ -2090,8 +2045,6 @@ export const useProfileStore = defineStore('profile', {
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
-      console.info("    pt: ", JSON.parse(JSON.stringify(pt)))
 
       if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
@@ -2115,20 +2068,12 @@ export const useProfileStore = defineStore('profile', {
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid) // fieldGuid is always null?
-        console.info("        blankNode: ", blankNode) // this is always false with the geocoverage?
         if (blankNode === false){
-          console.info("        if")
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
           pt = buildBlankNodeResult[0]
-
-          console.info("            pt: ", JSON.parse(JSON.stringify(pt)))
-
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
-
-          console.info("            blankNode: ", JSON.parse(JSON.stringify(blankNode)))
-
           //empty out the blankNode's existing data so it only has the new data
           for (let key of Object.keys(blankNode).filter((k) => !k.startsWith("@"))){
               // blankNode[key] = [] //
@@ -2235,16 +2180,8 @@ export const useProfileStore = defineStore('profile', {
 
 
         }else{
-          console.info("        else")
-          console.info("        pt: ", pt)
-          console.info("        pt.userValue: ", pt.userValue)
-          console.info("        lastProperty: ", lastProperty)
-
           //let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)  //this isn't returning the parent?
           let parent = pt.userValue
-
-          console.info("        parentBefore: ", JSON.parse(JSON.stringify(parent)))
-
           let node = {
             '@id': URI,
             '@guid': short.generate(),
@@ -2344,10 +2281,6 @@ export const useProfileStore = defineStore('profile', {
           }else{
             console.error("Could not find the parent[lastProperty] of the existing value", {'parent':parent,'pt.userValue':pt.userValue, 'fieldGuid':fieldGuid})
           }
-
-          console.info("        parentAfter: ", JSON.parse(JSON.stringify(parent)))
-
-
         }
         // they changed something
         this.dataChanged()

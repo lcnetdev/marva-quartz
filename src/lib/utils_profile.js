@@ -18,34 +18,22 @@ const utilsProfile = {
   * @return {object|boolean} - will return the obj or false if not found
   */
   returnGuidLocation: function(obj,guid){
-    console.info("            returnGuidLocation")
-    console.info("            obj: ", obj)
-    console.info("            guid: ", guid)
     // use a pattern that looks at many possible levels down for a @guid
     let foundPos = objectScan(['*.**.@guid,*.**.@guid.**.@guid,*.**.@guid.**.@guid.**.@guid,*.**.@guid.**.@guid.**.@guid.**.@guid'])(obj);
 
-    console.info("            foundPos: ", foundPos)
-
     for (let fp of foundPos){
-      console.info("                fp: ", fp)
       // eventuall pointer will point to the @guid value
       let pointer = obj
       // and pointerParent will be the object containing that @guid
       let pointerParent = null
       for (let pos of fp){
-        console.info("                        pos: ", pos)
-
         pointerParent = pointer
-        console.info("                    pointerParent: ", pointerParent)
         // if the guid was not in the hiearchy at some point this pointer will be undefined and we can kick back a false
         if (typeof pointer ==='undefined'){
-          console.info("                        undefined")
           // return false
           break
         }
         pointer = pointer[pos]
-        console.info("                        pointer: ", pointer)
-        console.info("                        ", pointer, " == ", guid, ">>", pointer==guid)
         if (pointer===guid){
           return pointerParent
         }
@@ -53,7 +41,6 @@ const utilsProfile = {
       }
     }
     // if it can't find it at all, like a new userValue return false
-    console.info("            returning false")
     return false
   },
 
@@ -426,7 +413,6 @@ const utilsProfile = {
   * @return {object} - will return the userValue pruned
   */
   pruneUserValue: function(userValue){
-    console.info("    pruneUserValue: ", userValue)
     for (let key in userValue){
       if (Array.isArray(userValue[key])){
         console.log(key)
