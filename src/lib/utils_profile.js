@@ -426,8 +426,8 @@ const utilsProfile = {
   * @return {object} - will return the userValue pruned
   */
   pruneUserValue: function(userValue){
+    console.info("    pruneUserValue: ", userValue)
     for (let key in userValue){
-
       if (Array.isArray(userValue[key])){
         console.log(key)
         let hasData = false
@@ -437,8 +437,6 @@ const utilsProfile = {
             if (!['@guid','@type'].includes(key2)){
               hasData=true
             }
-
-
             // // go one level deeper
             // if (Array.isArray(value[key2])){
             //   for (let value2 of value[key2]){
@@ -452,9 +450,6 @@ const utilsProfile = {
             //   }
 
             // }
-
-
-
           }
         }
         if (!hasData){

@@ -1271,27 +1271,40 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     removeValueComplex: async function(componentGuid, fieldGuid){
-
+      console.info("removeValueComplex")
+      console.info("    componentGuid: ", componentGuid)
+      console.info("    fieldGuid: ", fieldGuid)
 
 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      console.info("    pt: ", JSON.parse(JSON.stringify(pt)))
 
       if (pt !== false){
 
         // find the correct blank node to edit if possible,
 
         let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
+
+        console.info("    parent: ", JSON.parse(JSON.stringify(parent)))
+
         if (parent && parent.length === 1 && parent[0]['@guid'] === fieldGuid ){
           // console.log("The parent is the node we are looking for")
           parent = pt.userValue
+        } else if (parent && parent.length > 1){
+            parent = pt.userValue
         }
+
+        console.info("    userValue: ", JSON.parse(JSON.stringify(parent)))
 
         // just look through all of the properties, if its an array filter it
         for (let p in parent){
+          console.info("        p: ", p)
+          console.info("        parent[p]: ", parent[p])
           if (Array.isArray(parent[p])){
             parent[p] = parent[p].filter((v) => {
-
+              console.info("        v: ", v)
               if (v && v['@guid'] && v['@guid'] === fieldGuid){
                 return false
               }else{
@@ -1300,6 +1313,9 @@ export const useProfileStore = defineStore('profile', {
             })
           }
         }
+
+        console.info("filtered parent :", JSON.parse(JSON.stringify(parent)))
+
 
         // check to make sure that we didn't make an empty property
         // remove the property key if so

@@ -35,7 +35,7 @@
           <div class="selected-value-container-action">
             <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
           </div> -->
-        <a href="#" @click="removeValue(idx)" style="padding: 0 0 0 2.5px; text-decoration: none; font-size: 1em; cursor: pointer; color: gray;">x</a>
+        <a href="#" @click="removeValue(idx)" style="padding: 0 0 0 2.5px; text-decoration: none; font-size: 1em; cursor: pointer; color: gray;">x {{ idx }}</a>
 
         </template>
         <input class="input-inline-mode can-select" style="width: 20px;" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" :data-guid="structure['@guid']" @input="textInputEvent($event)" :disabled="readOnly" />
@@ -82,7 +82,7 @@
                           <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
                         </div>
                         <div class="selected-value-container-action">
-                          <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+                          <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x {{ idx }}</span>
                         </div>
                       </div>
                     </div>
@@ -124,7 +124,7 @@
                   <span v-else-if="avl.uneditable" style="padding-right: 0.3em; font-weight: bold">{{ avl.label }} (Uneditable)</span>
                 </div>
                 <div class="selected-value-container-action" v-if="!avl.uneditable">
-                  <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+                  <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x {{ idx }}</span>
                 </div>
               </div>
             </div>
@@ -572,8 +572,9 @@ export default {
 
 
 
-    removeValue: function(){
-      this.profileStore.removeValueComplex(this.guid, this.complexLookupValues[0]['@guid'])
+    removeValue: function(idx=0){
+      let fieldGuid = this.complexLookupValues[idx]['@guid']
+      this.profileStore.removeValueComplex(this.guid, fieldGuid)
     },
 
     textInputEvent: function(event){
