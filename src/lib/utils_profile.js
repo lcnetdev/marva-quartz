@@ -18,23 +18,34 @@ const utilsProfile = {
   * @return {object|boolean} - will return the obj or false if not found
   */
   returnGuidLocation: function(obj,guid){
+    console.info("            returnGuidLocation")
+    console.info("            obj: ", obj)
+    console.info("            guid: ", guid)
     // use a pattern that looks at many possible levels down for a @guid
     let foundPos = objectScan(['*.**.@guid,*.**.@guid.**.@guid,*.**.@guid.**.@guid.**.@guid,*.**.@guid.**.@guid.**.@guid.**.@guid'])(obj);
 
+    console.info("            foundPos: ", foundPos)
+
     for (let fp of foundPos){
+      console.info("                fp: ", fp)
       // eventuall pointer will point to the @guid value
       let pointer = obj
       // and pointerParent will be the object containing that @guid
       let pointerParent = null
       for (let pos of fp){
+        console.info("                        pos: ", pos)
 
         pointerParent = pointer
+        console.info("                    pointerParent: ", pointerParent)
         // if the guid was not in the hiearchy at some point this pointer will be undefined and we can kick back a false
         if (typeof pointer ==='undefined'){
+          console.info("                        undefined")
           // return false
           break
         }
         pointer = pointer[pos]
+        console.info("                        pointer: ", pointer)
+        console.info("                        ", pointer, " == ", guid, ">>", pointer==guid)
         if (pointer===guid){
           return pointerParent
         }
@@ -42,6 +53,7 @@ const utilsProfile = {
       }
     }
     // if it can't find it at all, like a new userValue return false
+    console.info("            returning false")
     return false
   },
 
@@ -320,15 +332,15 @@ const utilsProfile = {
                     console.warn("It looks like ", JSON.stringify(pointerParent[parentP][0]['@type'],null,2))
                     console.warn("Should not have the type ",pointerParent[parentP][0]['@type'])
                     console.warn("But instead it should have", possibleParentType)
-                    console.warn("-------------------------")  
+                    console.warn("-------------------------")
                   }
                 }
               }
-              
+
             }
           }
 
-      
+
 
 
         }else{
@@ -351,10 +363,10 @@ const utilsProfile = {
   * @return {array} - will return the value array at the end of the property path if it exists
   */
   returnValueFromPropertyPath: function(pt,propertyPath){
-        
+
       // this needs to include a check for "supplementaryContent", so the note will populate in the form
       let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent") )
-            
+
       let deepestLevel
       if (propertyPath[propertyPath.length-1]){
         deepestLevel = propertyPath[propertyPath.length-1].level
@@ -363,9 +375,9 @@ const utilsProfile = {
       }
 
       let pointer = pt.userValue
-      
+
       // The note in the supplementaryContent is not in the propertyPath
-      //    
+      //
       for (let p of propertyPath){
         // the property path has two parts
         // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
@@ -395,12 +407,12 @@ const utilsProfile = {
             return false
         }
       }
-      
-      if (isLocator){ 
+
+      if (isLocator){
         // deleting this avoids the creation of a "rdf:Resource" tag for "URL of Instance"
         delete pointer[0]["@type"]
       }
-      
+
       return pointer
 
 
@@ -733,11 +745,11 @@ const utilsProfile = {
                 }
             }
         }
-        
+
         return false
   },
 
-  
+
 
   /**
   * This will select the best possbile script to use based on the ones avaiable to use

@@ -1158,6 +1158,14 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
+      console.info("setValueSimple")
+      console.info("    componentGuid: ", componentGuid)
+      console.info("    fieldGuid: ", fieldGuid)
+      console.info("    propertyPath: ", propertyPath)
+      console.info("    URI: ", URI)
+      console.info("    label: ", label)
+
+
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
@@ -1165,6 +1173,8 @@ export const useProfileStore = defineStore('profile', {
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      console.info("    pt: ", JSON.parse(JSON.stringify(pt)))
 
       if (pt !== false){
 
@@ -1175,12 +1185,15 @@ export const useProfileStore = defineStore('profile', {
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
 
+        console.info("        blankNode: ", JSON.parse(JSON.stringify(blankNode)))
+
         if (blankNode === false){
+          console.info("        if")
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
-
-
           pt = buildBlankNodeResult[0]
+
+          console.info("        pt: ", JSON.parse(JSON.stringify(pt)))
 
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
@@ -1200,7 +1213,7 @@ export const useProfileStore = defineStore('profile', {
             }
           ]
         }else{
-
+          console.info("        else")
           let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
 
           // make sure we can find where to put the new one
@@ -2044,6 +2057,14 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
+      console.info("    componentGuid: ", componentGuid)
+      console.info("    fieldGuid: ", fieldGuid)
+      console.info("    propertyPath: ", propertyPath)
+      console.info("    URI: ", URI)
+      console.info("    label: ", label)
+      console.info("    type: ", type)
+      console.info("    nodeMap: ", nodeMap)
+      console.info("    marcKey: ", marcKey)
 
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
@@ -2054,13 +2075,14 @@ export const useProfileStore = defineStore('profile', {
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
+      console.info("    pt: ", JSON.parse(JSON.stringify(pt)))
 
       if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
         type = context.typeFull
-
       }
+
       // literals don't have a type or a URI & intendedAudience has extra considerations
       // namely that the rdf:Type in BF is bf:Authority
       if ((!type && !URI) || lastProperty.includes("intendedAudience")){
@@ -2076,18 +2098,24 @@ export const useProfileStore = defineStore('profile', {
         pt.dataLoaded = false
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
-        let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
+        let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid) // fieldGuid is always null?
+        console.info("        blankNode: ", blankNode) // this is always false with the geocoverage?
         if (blankNode === false){
+          console.info("        if")
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
           pt = buildBlankNodeResult[0]
 
+          console.info("            pt: ", JSON.parse(JSON.stringify(pt)))
+
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
 
+          console.info("            blankNode: ", JSON.parse(JSON.stringify(blankNode)))
+
           //empty out the blankNode's existing data so it only has the new data
           for (let key of Object.keys(blankNode).filter((k) => !k.startsWith("@"))){
-              blankNode[key] = []
+              // blankNode[key] = [] //
           }
 
           // set the URI
@@ -2191,26 +2219,117 @@ export const useProfileStore = defineStore('profile', {
 
 
         }else{
-          let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
+          console.info("        else")
+          console.info("        pt: ", pt)
+          console.info("        pt.userValue: ", pt.userValue)
+          console.info("        lastProperty: ", lastProperty)
 
+          //let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)  //this isn't returning the parent?
+          let parent = pt.userValue
+
+          console.info("        parentBefore: ", JSON.parse(JSON.stringify(parent)))
+
+          let node = {
+            '@id': URI,
+            '@guid': short.generate(),
+            '@type': type
+          }
+
+          if (!Array.isArray(label)){
+            label = [label]
+          }
+
+          for (let aLabelNode of label){
+            if (!node['http://www.w3.org/2000/01/rdf-schema#label']){
+              node['http://www.w3.org/2000/01/rdf-schema#label'] = []
+            }
+            if (typeof aLabelNode == 'string'){
+              node['http://www.w3.org/2000/01/rdf-schema#label'].push(
+                {
+                  '@guid': short.generate(),
+                  'http://www.w3.org/2000/01/rdf-schema#label' : aLabelNode
+                }
+              )
+            }else if (aLabelNode['@value']){
+              let aNode = {
+                '@guid': short.generate(),
+                'http://www.w3.org/2000/01/rdf-schema#label' : aLabelNode['@value']
+              }
+              if (aLabelNode['@language']){
+                aNode['@language']=aLabelNode['@language']
+              }
+              node['http://www.w3.org/2000/01/rdf-schema#label'].push(aNode)
+
+            }else{
+              console.error("Cannot understand response from context extaction for label:",label)
+            }
+          }
+
+          //Add gacs code to user data
+          if (nodeMap["GAC(s)"]){
+            node["http://www.loc.gov/mads/rdf/v1#code"] = []
+            for (let code in nodeMap["GAC(s)"]){
+              node["http://www.loc.gov/mads/rdf/v1#code"].push(
+                  {
+                    '@guid': short.generate(),
+                    "@gacs": "http://id.loc.gov/datatypes/codes/gac",
+                    'http://www.loc.gov/mads/rdf/v1#code': nodeMap["GAC(s)"][code]
+                  }
+                )
+            }
+          }
+
+          if (!Array.isArray(marcKey)){
+            marcKey = [marcKey]
+          }
+
+          for (let aMarcKeyNode of marcKey){
+            if (!node['http://id.loc.gov/ontologies/bflc/marcKey']){
+              node['http://id.loc.gov/ontologies/bflc/marcKey'] = []
+            }
+            if (typeof aMarcKeyNode == 'string'){
+              node['http://id.loc.gov/ontologies/bflc/marcKey'].push(
+                {
+                  '@guid': short.generate(),
+                  'http://id.loc.gov/ontologies/bflc/marcKey' : aMarcKeyNode
+                }
+              )
+            }else if (aMarcKeyNode && aMarcKeyNode['@value']){
+              let aNode = {
+                '@guid': short.generate(),
+                'http://id.loc.gov/ontologies/bflc/marcKey' : aMarcKeyNode['@value']
+              }
+              if (aMarcKeyNode['@language']){
+                aNode['@language']=aMarcKeyNode['@language']
+              }
+              node['http://id.loc.gov/ontologies/bflc/marcKey'].push(aNode)
+
+            }else{
+              console.error("Cannot understand response from context extaction for marcKey:",marcKey)
+            }
+          }
+
+
+          // this needs to be updated to support the incoming data better
           // make sure we can find where to put the new one
           if (parent[lastProperty]){
             // create a new node here
-            parent[lastProperty].push({
-              '@id': URI,
-              '@guid' : short.generate(),
-              'http://www.w3.org/2000/01/rdf-schema#label' : [
-                {
-                  '@guid': short.generate(),
-                  'http://www.w3.org/2000/01/rdf-schema#label' : label
-                }
-              ]
-            })
-
-
+            // parent[lastProperty].push({
+            //   '@id': URI,
+            //   '@guid' : short.generate(),
+            //   'http://www.w3.org/2000/01/rdf-schema#label' : [
+            //     {
+            //       '@guid': short.generate(),
+            //       'http://www.w3.org/2000/01/rdf-schema#label' : label
+            //     }
+            //   ]
+            // })
+            parent[lastProperty].push(node)
           }else{
             console.error("Could not find the parent[lastProperty] of the existing value", {'parent':parent,'pt.userValue':pt.userValue, 'fieldGuid':fieldGuid})
           }
+
+          console.info("        parentAfter: ", JSON.parse(JSON.stringify(parent)))
 
 
         }

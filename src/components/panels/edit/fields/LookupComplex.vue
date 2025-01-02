@@ -340,7 +340,13 @@ export default {
       }
 
     },
-
+    existingGuid(){
+      let values = this.profileStore.returnSimpleLookupValueFromProfile(this.guid,this.propertyPath)
+      if (values && values[0] && values[0]['@guid']){
+        return values[0]['@guid']
+      }
+      return null
+    },
     myGuid(){
       return `${this.structure['@guid']}--${this.guid}`
     },
@@ -361,7 +367,6 @@ export default {
       }
 
       return false
-
     }
 
 
@@ -532,8 +537,11 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
+      console.info("setComplexValue")
       delete contextValue.typeFull
-      this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
+      // why is the field guid hardcoded as `null`?
+      // this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
+      this.profileStore.setValueComplex(this.guid, this.existingGuid, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
       this.searchValue=''
       this.displayModal=false
 
@@ -575,10 +583,10 @@ export default {
       }
 
       // if there is already a value abort
-      if (this.complexLookupValues.length > 0 && this.marcDeliminatedLCSHMode == false){
-        this.searchValue = ""
-        return false
-      }
+      // if (this.complexLookupValues.length > 0 && this.marcDeliminatedLCSHMode == false){
+      //   this.searchValue = ""
+      //   return false
+      // }
 
       if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
         // this.displaySubjectModal=true
