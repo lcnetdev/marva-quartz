@@ -1062,15 +1062,9 @@ const utilsExport = {
 								//there's a bnode, but it's empty. What needs to happen here? And under what conditions?
 
 								for (let key1 of Object.keys(userValue).filter(k => (!k.includes('@') ? true : false ) )){
-									let pLvl2 = this.createElByBestNS(key1)
 									console.info("        building node for ", key1)
 									for (let value1 of userValue[key1]){
-										if (this.isBnode(value1)){
-											console.info("            this is a bnode: ", value1)
-											let bnodeLvl2 = this.createBnode(value1,key1)
-											pLvl2.appendChild(bnodeLvl2)
-											bnode.appendChild(pLvl2)
-										} else {
+										if (!this.isBnode(value1)){
 											console.info("            not a bnode: ", value1)
 											let keys = Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )
 											for (let key2 of keys){
@@ -1081,6 +1075,12 @@ const utilsExport = {
 													if (p2!==false) bnode.appendChild(p2);
 												}
 											}
+										} else {
+											console.info("            is a bnode: ", value1)
+											let bnodeLvl2 = this.createBnode(value1,key1)
+											console.info("            bnode: ", bnodeLvl2)
+											//pLvl2.appendChild(bnodeLvl2)
+											bnode.appendChild(bnodeLvl2)
 										}
 									}
 								}

@@ -1158,6 +1158,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
+      console.info("setValueSimple")
+      console.info("    componentGuid: ", componentGuid)
+      console.info("    fieldGuid: ", fieldGuid)
+      console.info("    propertyPath: ", propertyPath)
+      console.info("    URI: ", URI)
+      console.info("    label: ", label)
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
