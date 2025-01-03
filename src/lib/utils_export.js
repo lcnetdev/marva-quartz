@@ -437,6 +437,7 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
+	console.info("building XML: ", profile)
     // console.log(profile)
 
     // keep track of the proces for later
@@ -561,7 +562,7 @@ const utilsExport = {
 				let userValue
 
         		// the uservalue could be stored in a few places depending on the nesting
-				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){
+				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0] && ptObj.userValue[ptObj.propertyURI].length == 1){  //why does this default to the first value, what if there are multiple
 					userValue = ptObj.userValue[ptObj.propertyURI][0]
 					// it might be a top level literal, if so we don't want to exclude additonal literals that might be added
 					// so look to see if the node we got only has a guid and literal value, and if so look if there are more of them as siblings
@@ -593,6 +594,8 @@ const utilsExport = {
 					}
 				}
 
+				console.info("initial userValue? ", JSON.parse(JSON.stringify(userValue)))
+
 				let mostCommonScript = useProfileStore().setMostCommonNonLatinScript()
 
 				// in bf->marc conversion it builds 880s and 600s based off of the presenece of
@@ -604,28 +607,26 @@ const utilsExport = {
 					'http://id.loc.gov/ontologies/bibframe/geographicCoverage'
 
 				].indexOf(ptObj.propertyURI)>-1){
-
 					// recusrive function to go through each key in the userValue and keep going till we find labels or marckeys
 					// the two properties that make 880s work
 					let process = function(obj, func) {
 						if (Array.isArray(obj)){
 							obj.forEach(function (child) {
-							process(child, func);
+								process(child, func);
 							});
 						}else if (typeof obj == 'object' && obj !== null){
 							for (let k in obj){
-							if (Array.isArray(obj[k])){
-								// we only care about these properties
-								if (k == 'http://www.w3.org/2000/01/rdf-schema#label' || k == 'http://id.loc.gov/ontologies/bflc/marcKey' || k == 'http://www.loc.gov/mads/rdf/v1#authoritativeLabel'){
-									func(k,obj[k])
-								}else{
-									process(obj[k], func);
+								if (Array.isArray(obj[k])){
+									// we only care about these properties
+									if (k == 'http://www.w3.org/2000/01/rdf-schema#label' || k == 'http://id.loc.gov/ontologies/bflc/marcKey' || k == 'http://www.loc.gov/mads/rdf/v1#authoritativeLabel'){
+										func(k,obj[k])
+									}else{
+										process(obj[k], func);
+									}
 								}
-							}
 							}
 						}
 					}
-
 					process(ptObj.userValue, function (property,ary) {
 						// does it have multiple values?
 						if (ary.length>1 && mostCommonScript){
@@ -695,6 +696,12 @@ const utilsExport = {
 
 
 				xmlLog.push(['Set userValue to:', JSON.parse(JSON.stringify(userValue)) ])
+				console.info("Set userValue to: ", JSON.parse(JSON.stringify(userValue)))
+				/**
+				 * It looks good here, but the output doesn't have the details, only the top structure
+				 *		<bf:geographicCoverge>
+				 			<madsrdf:geographic>...
+				 */
 
 				if (this.ignoreProperties.indexOf(ptObj.propertyURI) > -1){
 					xmlLog.push(`Skpping it because it is in the ignoreProperties list`)
@@ -758,10 +765,15 @@ const utilsExport = {
 						let bnodeLvl1 = this.createBnode(userValue, ptObj.propertyURI)
 
 						xmlLog.push(`Created lvl 1 predicate: ${pLvl1.tagName} and bnode: ${bnodeLvl1.tagName}`)
+						console.info("created lvl 1 predicate: ", pLvl1.tagName, " and bnode: ", bnodeLvl1.tagName)
+						console.info("    pLvl1: ", pLvl1)
+						console.info("    bnodeLvl1: ", bnodeLvl1)
+						console.info("    userValue: ", userValue)
 
 						// loop though the properties
 						for (let key1 of Object.keys(userValue).filter(k => (!k.includes('@') ? true : false ) )){
 							xmlLog.push(`Looking at property : ${key1} in the userValue`)
+							console.info("        looking at property: ", key1)
 							// console.log('userValue',userValue)
 							let pLvl2 = this.createElByBestNS(key1)
 							if (key1 == 'http://www.loc.gov/mads/rdf/v1#componentList'){
@@ -804,6 +816,7 @@ const utilsExport = {
 
 								// is it a bnode?  createElByBestNS
 								if (this.isBnode(value1)){
+									console.info("            is a bnode: ", value1)
 									// yes
 									let bnodeLvl2 = this.createBnode(value1,key1)
 
@@ -896,6 +909,7 @@ const utilsExport = {
                                         }
 									}
 								}else{
+									console.info("            is not a bnode: ", value1)
 									xmlLog.push(`It's value at lvl is not a bnode, looping through and adding a literal value`)
 									// no it is a literal or something else
 									// loop through its keys and make the values
@@ -914,6 +928,7 @@ const utilsExport = {
 										for (let key2 of keys){
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
                                                     let p2 = this.createLiteral(key2, value1)
+													console.info("                literal: ", value1)
                                                     xmlLog.push(`Creating literal ${JSON.stringify(value1)}`)
                                                     if (p2!==false) bnodeLvl1.appendChild(p2);
 											}else if (Array.isArray(value1[key2])){
@@ -979,6 +994,7 @@ const utilsExport = {
 						componentXmlLookup[`${rt}-${pt}`] = formatXML(pLvl1.outerHTML)
 
 					}else{
+						console.info("not a bnode: ", ptObj.propertyURI)
 						// this.debug(ptObj.propertyURI, 'root level element does not look like a bnode', userValue)
 						xmlLog.push(`Root level does not look like a bnode: ${ptObj.propertyURI}`)
 						let userValueArray = userValue
@@ -986,9 +1002,9 @@ const utilsExport = {
 							userValueArray = [userValue]
 						}
 
-
 						// but it might be a bnode, but with only a URI
 						for (let userValue of userValueArray){
+							console.info("    userValue: ", userValue)
 
 							// 2024 - Still needed?
 							if (userValue['@flags'] && userValue['@flags'].indexOf('simpleLookupTopLevelMulti') > -1){
@@ -1036,12 +1052,38 @@ const utilsExport = {
 
 
 							}else if (userValue['@type'] && userValue['@id']){
-
+								console.info("    has @id and @type")
 								// this.debug(ptObj.propertyURI, 'But has @type, making bnode')
 
 								let p = this.createElByBestNS(ptObj.propertyURI)
 								let bnode = this.createElByBestNS(userValue['@type'])
 								bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])
+								console.info("    bnode: ", bnode)
+								//there's a bnode, but it's empty. What needs to happen here? And under what conditions?
+
+								for (let key1 of Object.keys(userValue).filter(k => (!k.includes('@') ? true : false ) )){
+									let pLvl2 = this.createElByBestNS(key1)
+									console.info("        building node for ", key1)
+									for (let value1 of userValue[key1]){
+										if (this.isBnode(value1)){
+											console.info("            this is a bnode: ", value1)
+											let bnodeLvl2 = this.createBnode(value1,key1)
+											pLvl2.appendChild(bnodeLvl2)
+											bnode.appendChild(pLvl2)
+										} else {
+											console.info("            not a bnode: ", value1)
+											let keys = Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )
+											for (let key2 of keys){
+												if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
+													let p2 = this.createLiteral(key2, value1)
+													console.info("                literal: ", value1)
+													xmlLog.push(`Creating literal ${JSON.stringify(value1)}`)
+													if (p2!==false) bnode.appendChild(p2);
+												}
+											}
+										}
+									}
+								}
 
 								xmlLog.push(`Created ${p.tagName} property and ${bnode.tagName} bnode`)
 								p.appendChild(bnode)
@@ -1756,7 +1798,7 @@ const utilsExport = {
 	createHubStubXML: async function(hubCreatorObj,title,langObj,catalogerId){
 
 
-		
+
 
 
 		// we are creating the xml in two formats, create the root node for both
@@ -1777,12 +1819,12 @@ const utilsExport = {
 		if (!title) return false
 
 		if (!hubCreatorObj){ hubCreatorObj = {'label':''}}
-		if (!hubCreatorObj.label){ hubCreatorObj.label = ''} 
+		if (!hubCreatorObj.label){ hubCreatorObj.label = ''}
 
-		
+
 
 		let aap = utilsProfile.returnAap(hubCreatorObj.label,title)
-		
+
 		let aapHash = await md5(aap)
 		aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
 		let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
