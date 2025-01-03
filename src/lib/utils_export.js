@@ -1076,11 +1076,61 @@ const utilsExport = {
 												}
 											}
 										} else {
+											let pLvl2 = this.createElByBestNS(key1)
 											console.info("            is a bnode: ", value1)
 											let bnodeLvl2 = this.createBnode(value1,key1)
-											console.info("            bnode: ", bnodeLvl2)
-											//pLvl2.appendChild(bnodeLvl2)
-											bnode.appendChild(bnodeLvl2)
+											console.info("            bnodeLvl2: ", bnodeLvl2)
+											pLvl2.appendChild(bnodeLvl2)
+											bnode.appendChild(pLvl2)
+
+											for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
+												let pLvl3 = this.createElByBestNS(key2)
+												for (let value2 of value1[key2]){
+													if (this.isBnode(value2)){
+														let bnodeLvl3 = this.createBnode(value2,key2)
+														console.info("                bnodeLvl3: ", bnodeLvl3)
+														pLvl3.appendChild(bnodeLvl3)
+														bnodeLvl2.appendChild(pLvl3)
+														for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
+															let pLvl4 = this.createElByBestNS(key2)
+															for (let value3 of value2[key3]){
+																console.info("                    value3: ", value3)
+																if (this.isBnode(value3)){
+																	// one more level
+																	let bnodeLvl4 = this.createBnode(value3,key3)
+																	console.info("                    bnodeLvl4: ", bnodeLvl4)
+																	pLvl4.appendChild(bnodeLvl4)
+																	bnodeLvl3.appendChild(pLvl4)
+																} else {
+																	for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
+																		if (typeof value3[key4] == 'string' || typeof value3[key4] == 'number'){
+																			// its a label or some other literal
+																			let p4 = this.createLiteral(key4, value3)
+																			console.info("                    p4: ", p4)
+																			if (p4!==false) bnodeLvl3.appendChild(p4)
+																		}else{
+																			console.error('key4', key4, value3[key4], 'not a literal, should not happen')
+																		}
+																	}
+																}
+															}
+														}
+													} else {
+														console.info(" ################## else ")
+														for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
+															if (typeof value2[key3] == 'string' || typeof value2[key3] == 'number'){
+																// its a label or some other literal
+																let p3 = this.createLiteral(key3, value2)
+																if (p3!==false) bnodeLvl2.appendChild(p3)
+																xmlLog.push(`Created Literal ${p3.innerHTML} for ${key3}`)
+															}else{
+																console.error('key3', key3, value2[key3], 'not a literal, should not happen')
+																xmlLog.push(`Error not a literal but I thought it was at ${key3}`)
+															}
+														}
+													}
+												}
+											}
 										}
 									}
 								}
