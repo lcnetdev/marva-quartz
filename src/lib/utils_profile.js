@@ -214,47 +214,113 @@ const utilsProfile = {
   * @return {array} - will return an array with the pt as 0 and the new @guid of the blanknode as 1
   */
   buildBlanknode: function(pt,propertyPath){
+    console.info("        buildBlankNode")
+    console.info("        pt: ", JSON.parse(JSON.stringify(pt)))
+    console.info("        propertyPath: ", propertyPath)
+
       // link to the base userValue
       let pointer = pt.userValue
+      let prevPointer = null
 
-      for (let p of propertyPath){
-        // the property path has two parts
-        // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
-        // we don't care about the level number so just overwrite it
-        p = p.propertyURI
+      const startPath = propertyPath[0]
 
-        // if the property doesn't exist then create it
-        if (!pointer[p]){
-          pointer[p] = [{
-            // always create a guid for it
-            '@guid' : short.generate()
-          }]
+      console.info("        pointer: ", JSON.parse(JSON.stringify(pointer)))
+      let frozenPointer = JSON.parse(JSON.stringify(pointer))
+      console.info("        frozenPointer: ", JSON.parse(JSON.stringify(frozenPointer)))
 
-          // relink to the first blank node
-          pointer = pointer[p][0]
+      //travel through the propertyPath, and once one pieces has bee traversed, set the pointer
+      //  to match on the next piece
 
-        }else{
-          // console.log("dont need to create this level", p, pointer[p])
-          // if we don't need to create this level, so just link to it
+      console.info("starting with pointer: ", pointer)
 
-          if (pointer[p][0]){
-            // make sure it has a guid
-            if (!pointer[p][0]['@guid']){
-              pointer[p][0]['@guid'] = short.generate()
+      let traverse = function(path, obj){
+        console.info("traversing: ", obj, ">>", path, "--", path.length)
+        if (path.length == 0) {
+          return obj
+        }
+        for (let p of path){
+          console.info("    looking at ", p)
+          let pPos = path.indexOf(p)
+          console.info("pPos: ", pPos)
+          let newPath = path.slice(pPos+1)
+          console.info("newPath: ", newPath)
+          p = p.propertyURI
+          if (!obj[p]){
+            console.info("        ", p, " doesn't exist in object, adding it")
+            obj[p] = [{
+              // always create a guid for it
+              '@guid' : short.generate()
+            }]
+            console.info("    next: ", obj[p][0], "--", newPath)
+            return traverse(newPath, obj[p][0])
+          } else {
+            console.info("        ", p, " does exist in object, making some changes >>", obj[p])
+            const o = JSON.parse(JSON.stringify(obj))
+            console.info("        o: ", o)
+            for (let idx in o[p]){
+              console.info("            idx: ", idx, " >> ", obj[p])
+              if (obj[p][idx]){
+                if (!obj[p][idx]['@guid']){
+                  obj[p][idx]['@guid'] = short.generate()
+                }
+                console.info("    next: ", obj[p][idx], "--", newPath)
+                return traverse(newPath, obj[p][idx])
+              }
             }
-            // console.log("Linink to",pointer[p][0])
-            pointer = pointer[p][0]
-          }else{
-            console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
           }
         }
-
       }
+
+      pointer = traverse(propertyPath, pointer)
+      console.info("        pointer post traversal: ", pointer)
+
+      // for (let p of propertyPath){
+      //   // the property path has two parts
+      //   // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
+      //   // we don't care about the level number so just overwrite it
+      //   p = p.propertyURI
+      //   console.info("    looking at p: ", p)
+      //   console.info("    pointer: ", JSON.parse(JSON.stringify(pointer)))
+
+      //   if (!pointer[p]){
+      //     console.info("            There is no p, so add it")
+      //     pointer[p] = [{
+      //       // always create a guid for it
+      //       '@guid' : short.generate()
+      //     }]
+
+      //     // relink to the first blank node
+      //     console.info("            moving pointer from", JSON.parse(JSON.stringify(pointer)))
+      //     pointer = pointer[p][0]
+      //     console.info("            moved pointer to", JSON.parse(JSON.stringify(pointer)))
+
+      //   } else{
+      //     console.info("            There is a p")
+      //     // console.log("dont need to create this level", p, pointer[p])
+      //     // if we don't need to create this level, so just link to it
+
+      //     if (pointer[p][0]){
+      //         // make sure it has a guid
+      //         if (!pointer[p][0]['@guid']){
+      //           pointer[p][0]['@guid'] = short.generate()
+      //         }
+      //         // console.log("Linink to",pointer[p][0])
+      //         console.info("            moving pointer from", JSON.parse(JSON.stringify(pointer)))
+      //         pointer = pointer[p][0]
+      //         console.info("            moved pointer to", JSON.parse(JSON.stringify(pointer)))
+      //       }else{
+      //         console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
+      //       }
+      //   }
+      // }
+
       // console.log("pointer is",pointer)
       if (!pointer || !pointer['@guid']){
         console.error("There was an unknown error trying to create a blank node in", propertyPath, ' in ', pt)
       }
 
+      console.info("        final pt: ", JSON.parse(JSON.stringify(pt)))
+      console.info("        final pointer: ", JSON.parse(JSON.stringify(pointer)))
       this.setTypesForBlankNode(pt,propertyPath)
       return [pt, pointer['@guid']]
   },
@@ -272,9 +338,19 @@ const utilsProfile = {
     let pointer = pt.userValue
     let pointerParent = null
     let parentP = null
+
+    console.info("            setTypesForBlankNode")
+    console.info("            propertyPath: ", propertyPath)
+    console.info("            pt: ", JSON.parse(JSON.stringify(pt)))
+    console.info("            pointer: ", JSON.parse(JSON.stringify(pointer)))
+
     for (let p of propertyPath){
 
       p = p.propertyURI
+
+      console.info(p)
+      console.info(pointer)
+      console.info(pointer[p])
 
       if (pointer[p][0]){
         // we may or maynot need to create a @type for this level, depending on what type of property it is,

@@ -1171,6 +1171,8 @@ export const useProfileStore = defineStore('profile', {
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
+      console.info("    pt: ", JSON.parse(JSON.stringify(pt)))
+
       if (pt !== false){
 
         pt.hasData = true
@@ -1180,12 +1182,20 @@ export const useProfileStore = defineStore('profile', {
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
 
+        console.info("    blankNode: ", JSON.parse(JSON.stringify(blankNode)))
+
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
+
+          console.info("    buildBlankNodeResult: ", buildBlankNodeResult)
+
           pt = buildBlankNodeResult[0]
+          console.info("    userValue: ", JSON.parse(JSON.stringify(pt.userValue)))
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
+
+          console.info("    blankNode 2: ", JSON.parse(JSON.stringify(blankNode)))
 
           // set the URI
           // if its null then we are adding a literal
@@ -1202,6 +1212,7 @@ export const useProfileStore = defineStore('profile', {
             }
           ]
         }else{
+          console.info("    else")
           let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
 
           // make sure we can find where to put the new one
@@ -1246,7 +1257,7 @@ export const useProfileStore = defineStore('profile', {
         console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
 
-
+      console.info("    final pt: ", JSON.parse(JSON.stringify(pt)))
     },
 
 
