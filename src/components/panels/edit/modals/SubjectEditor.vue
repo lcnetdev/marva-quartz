@@ -2486,11 +2486,14 @@ methods: {
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
 			const target = frozenComponents[component]
-
-            if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || target.uri.includes("childrensSubjects/sj")) && target.complex){
+      if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || (target.uri && target.uri.includes("childrensSubjects/sj"))) && target.complex){
         let uri = target.uri
         let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
-        data = await this.parseComplexSubject(uri)
+        if (uri){
+          data = await this.parseComplexSubject(uri)
+        } else {
+          data = target
+        }
 
 				let subs
 				subs = target.marcKey.slice(5)
