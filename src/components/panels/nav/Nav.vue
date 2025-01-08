@@ -547,7 +547,6 @@
           return
         }
         if (instanceCount>1){
-          console.info("open instance selection modal")
           // show a modal to select which instance the item belongs too
           this.showItemInstanceSelection = true
         } else {
@@ -556,7 +555,6 @@
       },
 
       setInstance: function(data){
-        console.info("setting instance")
         this.targetInstance = this.instances[data]
         this.showItemInstanceSelection = false
         this.instances = []
