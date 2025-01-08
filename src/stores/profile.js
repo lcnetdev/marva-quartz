@@ -4083,21 +4083,27 @@ export const useProfileStore = defineStore('profile', {
           }
       }
 
+      console.info("itemName: ", itemName)
+      console.info("itemRt: ", itemRt)
+
       let itemCount = 0;
 
       // gather info to add it
       let items = Object.keys(this.activeProfile.rt).filter(i => i.includes(":Item"))
-      if (items.length>1){
-        itemCount = items.length -1
+      console.info("items: ", items)
+      if (items.length >= 1){
+        itemCount = items.length
       }
 
 
-      itemCount++
+
       // console.log('itemCount',itemCount)
       let newRtId = itemName +'_'+itemCount
       itemRt.isNew = true
       this.activeProfile.rt[newRtId] = itemRt
       this.activeProfile.rtOrder.push(newRtId)
+
+      console.info("newRtId: ", newRtId)
 
       // give it all new guids
       for (let pt in this.activeProfile.rt[newRtId].pt){
