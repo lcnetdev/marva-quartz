@@ -347,7 +347,6 @@ export default {
     },
 
     expandHeightToContent: function(){
-
       for (let key of Object.keys(this.$refs)){
         if (key.startsWith('input_')){
           if (this.$refs[key] && this.$refs[key][0]){
