@@ -1,12 +1,9 @@
 <script>
   import { useProfileStore } from '@/stores/profile'
   import { useConfigStore } from '@/stores/config'
-
-  
-  import {  mapStores, mapWritableState } from 'pinia'
+  import { mapStores, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
   import VueDragResize from 'vue3-drag-resize'
-
 
   export default {
     components: {
@@ -20,225 +17,243 @@
         height: 0,
         top: 100,
         left: 0,
-
         postResults: {},
         posting: false,
-
-        
         initalHeight: 400,
-        initalLeft: (window.innerWidth /2 ) - 450,
-
-
+        initalLeft: (window.innerWidth / 2) - 450,
       }
     },
     computed: {
-      // other computed properties
-      // ...
-      // gives access to this.counterStore and this.userStore
-      ...mapStores(useProfileStore,useConfigStore),
-
-      
-      
-      // ...mapState(usePreferenceStore, ['debugModalData']),
+      // ...existing code...
+      ...mapStores(useProfileStore, useConfigStore),
       ...mapWritableState(useProfileStore, ['showPostModal']),
-
-      
-
-      
-      
-
+      activeProfile() {
+        return this.profileStore.activeProfile
+      }
     },
 
-    
     methods: {
+      done: function() {
+        this.showPostModal = false
+      },
 
+      dragResize: function(newRect) {
+        this.width = newRect.width
+        this.height = newRect.height
+        this.top = newRect.top
+        this.left = newRect.left
+        this.$refs.errorHolder.style.height = newRect.height + 'px'
+      },
 
-        done : function(){
-
-          this.showPostModal = false
-
-        },
+      post: async function() {
+        const config = useConfigStore()
         
-        dragResize: function(newRect){
+        this.$refs.errorHolder.style.height = this.initalHeight + 'px'
+        this.posting = true
+        const profile = this.activeProfile
 
-          this.width = newRect.width
-          this.height = newRect.height
-          this.top = newRect.top
-          this.left = newRect.left
-
-          this.$refs.errorHolder.style.height = newRect.height + 'px'
-
-        },
-
-
-        post: async function(){
-
-          const config = useConfigStore()
-          
-          if (!config.returnUrls.displayLCOnlyFeatures){
-            this.showPostModal=false
-            alert("Sorry you cannot post in this Marva environment")
-            return false
+        if (!profile) {
+          console.error('Profile is not defined')
+          this.postResults = {
+            publish: {
+              status: 'error',
+              message: 'Profile is not defined'
+            }
           }
-
-
-
-
-
-          this.$refs.errorHolder.style.height = this.initalHeight + 'px'
-          this.posting = true
-          this.postResults = {}
-          this.postResults = await this.profileStore.publishRecord()
           this.posting = false
-          console.log(this.postResults)
+          return
+        }
 
-        },  
-
-        onSelectElement (event) {
-          const tagName = event.target.tagName
-          if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
-            event.stopPropagation()
+        if (!profile.eId) {
+          console.error('EID is not defined', profile)
+          this.postResults = {
+            publish: {
+              status: 'error',
+              message: 'EID is not defined'
+            }
           }
-        },
+          this.posting = false
+          return
+        }
 
-        copyErrorToClipboard: function(){
+        // Generate or retrieve xmlString here
+        const xmlString = this.generateXML(profile) // Implement generateXML accordingly
 
-          var text = this.cleanUpErrorResponse(this.postResults.msg)
-          navigator.clipboard.writeText(text).then(function() {
-            console.log('Async: Copying to clipboard was successful!');
-          }, function(err) {
-            console.error('Async: Could not copy text: ', err);
-          });
+        try {
+          const response = await this.profileStore.publishRecord(xmlString, profile) // Pass xmlString
+          this.postResults = response // Assign raw response directly
+          if (response.publish.status !== 'published') {
+            console.error('Error response:', response)
+          }
+        } catch (error) {
+          console.error('Error during post:', error)
+          this.postResults = {
+            publish: {
+              status: 'error',
+              message: error.message || 'An unknown error occurred'
+            }
+          }
+        } finally {
+          this.posting = false
+        }
+      },
 
+      // Add this method to reliably get EID from the active profile
+      getEID: function() {
+        return this.activeProfile?.eId || '';
+      },
 
+      async handlePublish() {
+        const profile = this.profileStore.activeProfile;
 
-        },
+        if (!profile?.eId) { // Ensure EID is available if needed elsewhere
+          this.showError('EID is not available.');
+          return;
+        }
 
-        /** 
-        * Helper to make the XML preview display nicer
-        * @return {string} - the cleaned up string
-        */
-        cleanUpErrorResponse: function(msg){
-            msg = JSON.stringify(msg,null,2)
-            msg = msg.replace(/\\n|\\t/g, '').replace(/\\"/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
-            return msg
-        },
+        const result = await this.profileStore.publishRecord(profile); // Removed 'eid'
 
+        if (result.publish.status === 'published') {
+          this.showSuccess(result.name.instance_mms_id, result.name.work_mms_id);
+        } else {
+          this.showError(result.publish.message);
+        }
+      },
 
+      onSelectElement(event) {
+        const tagName = event.target.tagName
+        if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+          event.stopPropagation()
+        }
+      },
+
+      copyErrorToClipboard: function() {
+        var text = this.cleanUpErrorResponse(this.postResults.publish.message)
+        navigator.clipboard.writeText(text).then(function() {
+          console.log('Async: Copying to clipboard was successful!')
+        }, function(err) {
+          console.error('Async: Could not copy text: ', err)
+        })
+      },
+
+      cleanUpErrorResponse: function(msg) {
+        if (!msg) return ''
+        msg = JSON.stringify(msg, null, 2)
+        msg = msg.replace(/\\n|\\t/g, '').replace(/\\"/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+        return msg
+      },
+
+      // Implement a method to generate XML from the profile
+      generateXML(profile) {
+        // Your logic to convert profile to RDF XML string
+        // For example:
+        // return someXMLGenerationFunction(profile)
+        return profile.rdfxml || '' // Adjust based on your data structure
+      },
     },
 
     mounted() {
-
-      
-
+      // ...existing code...
     }
   }
-
-
-
 </script>
 
 <template>
-
-
-    <VueFinalModal
-      display-directive="show"
-      :hide-overlay="false"
-      :overlay-transition="'vfm-fade'"
-      :click-to-close="false"
-      :esc-to-close="false"
-      
+  <VueFinalModal
+    display-directive="show"
+    :hide-overlay="false"
+    :overlay-transition="'vfm-fade'"
+    :click-to-close="false"
+    :esc-to-close="false"
+  >
+    <VueDragResize
+      :is-active="true"
+      :w="900"
+      :h="initalHeight"
+      :x="initalLeft"
+      class="login-modal"
+      @resizing="dragResize"
+      @dragging="dragResize"
+      :sticks="['br']"
+      :stickSize="22"
     >
-        <VueDragResize
-          :is-active="true"
-          :w="900"
-          :h="initalHeight"
-          :x="initalLeft"
-          class="login-modal"
-          @resizing="dragResize"
-          @dragging="dragResize"
+      <div id="error-holder" ref="errorHolder" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
+        <h1 v-if="posting">Posting please wait...</h1>
 
-          :sticks="['br']"
-          :stickSize="22"
-        >
-          <div id="error-holder" ref="errorHolder" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
-            
-
-            <h1 v-if="posting">Posting please wait...</h1>
-            
-            <div v-if="posting == false && Object.keys(postResults).length != 0 && postResults.status === false">
-            
-              <h2>There was an error posting. Please report error. </h2><button @click="copyErrorToClipboard">Copy error to clipboard</button>              <button @click="done">Close</button>
-
-              <div>
-                <code v-if="postResults.status === false">
-                  {{ cleanUpErrorResponse(postResults.msg) }}
-                </code>
-              </div>
-            
+        <div v-if="!posting && Object.keys(postResults).length !== 0">
+          <div v-if="postResults.publish && postResults.publish.status === 'published'" style="margin: 0.5em 0; background-color: #90ee9052; padding: 0.5em; border-radius: 0.25em;">
+            The record was accepted by the system.
+            <div v-if="postResults.name.instance_mms_id.length || postResults.name.work_mms_id.length">
+              Here are the MMS IDs:
+              <ul>
+                <li>Instance MMS ID(s):
+                  <ul>
+                    <li v-for="id in postResults.name.instance_mms_id" :key="id">{{ id }}</li>
+                  </ul>
+                </li>
+                <li>Work MMS ID(s):
+                  <ul>
+                    <li v-for="id in postResults.name.work_mms_id" :key="id">{{ id }}</li>
+                  </ul>
+                </li>
+              </ul>
             </div>
-            <div v-if="posting == false && Object.keys(postResults).length != 0">
-
-              <div v-if="postResults.resourceLinks.length>0" style="margin: 0.5em 0 0.5em 0;background-color: #90ee9052;padding: 0.5em;border-radius: 0.25em;">
-                The record was accepted by the system. To view the record follow these links:
-                <div v-for="rl in postResults.resourceLinks" v-bind:key="rl.url">
-                  <a :href="rl.url+'?blastdacache=' + Date.now()" target="_blank">View {{rl.type}} on {{rl.env}}</a>
-                </div>
-                
-              </div>
+            <div v-else>
+              MMS IDs are not available.
             </div>
-
-
-            <button @click="done">Close</button>
-
-
-            
-
-
+            <button @click="copyErrorToClipboard">Copy to clipboard</button>
           </div>
+          <div v-else-if="postResults.publish && postResults.publish.status !== 'published' && postResults.publish.status" style="margin: 0.5em 0; background-color: #ffcccb; padding: 0.5em; border-radius: 0.25em;">
+            <h2>There was an error posting: {{ postResults.publish.message }}</h2>
+            <button @click="copyErrorToClipboard">Copy error to clipboard</button>
+            <pre>{{ cleanUpErrorResponse(postResults.publish.message) }}</pre>
+            <button @click="done">Close</button>
+          </div>
+          <div v-else style="margin: 0.5em 0; background-color: #ffcccb; padding: 0.5em; border-radius: 0.25em;">
+            <h2>An unknown error occurred.</h2>
+            <pre>{{ JSON.stringify(postResults, null, 2) }}</pre>
+            <button @click="done">Close</button>
+          </div>
+        </div>
 
-
-        </VueDragResize>
-    </VueFinalModal>
-
-
-
-
+        <button @click="done">Close</button>
+      </div>
+    </VueDragResize>
+  </VueFinalModal>
 </template>
 
 <style scoped>
-
-  #error-holder{
+  #error-holder {
     overflow-y: scroll;
   }
 
-  .checkbox-option{
+  .checkbox-option {
     width: 20px;
     height: 20px;
   }
 
-  .option{
+  .option {
     display: flex;
   }
-  .option-title{
-    flex:2;
+  .option-title {
+    flex: 2;
   }
-  .option-title-header{
+  .option-title-header {
     font-weight: bold;
   }
-  .option-title-desc{
+  .option-title-desc {
     font-size: 0.8em;
-    color:gray;
+    color: gray;
   }
-  #debug-content{
+  #debug-content {
     overflow: hidden;
     overflow-y: auto;
   }
-  .menu-buttons{
+  .menu-buttons {
     margin-bottom: 2em;
     position: relative;
   }
-  .close-button{
+  .close-button {
     position: absolute;
     right: 5px;
     top: 5px;
@@ -247,27 +262,26 @@
     border: solid 1px black;
     cursor: pointer;
   }
-  .login-modal{
+  .login-modal {
     background-color: white;
     -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27); 
     box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27);
     border-radius: 1em;
-    padding:1em;
+    padding: 1em;
     border: solid 1px black;
   }
-  div{
+  div {
     /* margin-top: 2em; */
   }
 
-  input{
+  input {
     font-size: 1.5em;
     margin-top: 0.5em;
-
   }
-  strong{
-    font-weight: bold
+  strong {
+    font-weight: bold;
   }
-  button{
+  button {
     font-size: 1.5em;
   }
 </style>

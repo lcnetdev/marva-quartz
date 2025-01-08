@@ -788,7 +788,7 @@ export const useProfileStore = defineStore('profile', {
       let uuid = 'e' + decimalTranslator.new()
       uuid = uuid.substring(0,8)
       useProfile.eId= uuid
-
+      console.log('Generated new EID:', useProfile.eId) // Debugging information
       }
 
       if (!useProfile.user){
@@ -2630,51 +2630,40 @@ export const useProfileStore = defineStore('profile', {
     /**
     * Publish record to backend
     *
-
-    * @return {obj} - response from posting action
+    * @param {string} eid - The EID of the profile
+    * @param {object} profile - The profile data to publish
+    * @return {object} - Response from posting action with a publish status
     */
-    publishRecord: async function(eid, profile){
-      let xml = await utilsExport.buildXML(this.activeProfile)
-      let pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
-      pubResuts.resourceLinks=[]
-      // if it was accepted by the system send it to the marva backend to store as posted
-
-
-
-      if (pubResuts.status){
-        this.activeProfile.status = 'published'
-        await this.saveRecord()
-
-
-
-        const config = useConfigStore()
-
-        for (let rt in this.activeProfile.rt){
-          let type = rt.split(':').slice(-1)[0]
-          let url = config.convertToRegionUrl(this.activeProfile.rt[rt].URI)
-          let env = config.returnUrls.env
-
-          // populate the title
-          if (type=='Instance'){
-            let bibId =  this.activeProfile.rt[rt].URI.split("/")[this.activeProfile.rt[rt].URI.split('/').length - 1]
-            document.title = `Marva | ${bibId}`;
-          }
-
-          pubResuts.resourceLinks.push({
-            'type':type,
-            'url': url,
-            'env': env
-          })
+    async publishRecord(eid, profile) {
+      const recordId = eid || profile?.eId;
+      if (!recordId) {
+        console.error('EID is not defined')
+        return {
+          publish: {
+            status: 'error',
+            message: 'EID is not defined'
+          },
+          name: {}
         }
       }
 
-      return pubResuts
+      let xml = await utilsExport.buildXML(profile)
+      let response = await utilsNetwork.publish(xml.xlmStringBasic, recordId, profile)
+
+      console.log('Full Response from publish:', JSON.stringify(response, null, 2)) // Detailed logging
+
+      // Ensure the response includes a publish status and MMS IDs
+      return {
+        publish: {
+          status: response.publish?.status || 'error',
+          message: response.publish?.message || ''
+        },
+        name: {
+          instance_mms_id: response.name?.instance_mms_id || [],
+          work_mms_id: response.name?.work_mms_id || []
+        }
+      }
     },
-
-
-
-
-
 
     /**
     * returns the label to use in bf code mode
@@ -2944,7 +2933,7 @@ export const useProfileStore = defineStore('profile', {
     loadRecordFromBackend: async function(eid){
 
       this.activeProfile = await utilsProfile.loadRecordFromBackend(eid)
-
+      console.log('Loaded profile with EID:', this.activeProfile.eId) // Debugging information
     },
 
 
@@ -3501,46 +3490,52 @@ export const useProfileStore = defineStore('profile', {
                           }
                         }
 
+                        // if we're not working at the top level, just add the default values
+                        if (!isParentTop){
+                          userValue[p.propertyURI].push(value)
+                      //otherwise, make sure the propertyURI matches the baseURI
+                      } else if (isParentTop && p.propertyURI == baseURI){
                         userValue[p.propertyURI].push(value)
                       }
-                    }else{
-                      console.warn("Nested default template trying to insert values but there are multiple propertyTemplates so no clue which proerpty to look into for the default value: ", this.rtLookup[p.valueConstraint.valueTemplateRefs[0]])
                     }
                   }else{
-                    let blankNodeType = null
-                    // we probably need to make a blank node, so find out what rdf type blank node is needed
-                    if (p.valueConstraint && p.valueConstraint.valueDataType && p.valueConstraint.valueDataType.dataTypeURI){
-                      blankNodeType = p.valueConstraint.valueDataType.dataTypeURI
+                    console.warn("Nested default template trying to insert values but there are multiple propertyTemplates so no clue which proerpty to look into for the default value: ", this.rtLookup[p.valueConstraint.valueTemplateRefs[0]])
+                  }
+                }else{
+                  let blankNodeType = null
+                  // we probably need to make a blank node, so find out what rdf type blank node is needed
+                  if (p.valueConstraint && p.valueConstraint.valueDataType && p.valueConstraint.valueDataType.dataTypeURI){
+                    blankNodeType = p.valueConstraint.valueDataType.dataTypeURI
+                  }
+                  // overwrite it if there is anything there already
+                  userValue[p.propertyURI] = []
+                  for (let d of p.valueConstraint.defaults){
+                    let value = {
+                      '@guid': short.generate(d.defaultLiteral, d.defaultURI)
                     }
-                    // overwrite it if there is anything there already
-                    userValue[p.propertyURI] = []
-                    for (let d of p.valueConstraint.defaults){
-                      let value = {
-                        '@guid': short.generate(d.defaultLiteral, d.defaultURI)
+                    // if it just has a literal value and not a URI then don't create a blank node, just insert it using that literal property
+                    if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
+                      value[p.propertyURI] = d.defaultLiteral
+                    }else{
+                      // it is a blank node
+                      if (d.defaultLiteral){
+                        // console.log(newPt)
+                        value['http://www.w3.org/2000/01/rdf-schema#label'] = [{
+                            '@guid': short.generate(),
+                            'http://www.w3.org/2000/01/rdf-schema#label':d.defaultLiteral
+                        }]
                       }
-                      // if it just has a literal value and not a URI then don't create a blank node, just insert it using that literal property
-                      if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
-                        value[p.propertyURI] = d.defaultLiteral
-                      }else{
-                        // it is a blank node
-                        if (d.defaultLiteral){
-                          // console.log(newPt)
-                          value['http://www.w3.org/2000/01/rdf-schema#label'] = [{
-                              '@guid': short.generate(),
-                              'http://www.w3.org/2000/01/rdf-schema#label':d.defaultLiteral
-                          }]
-                        }
-                        if (d.defaultURI){
-                          value['@id'] = d.defaultURI
-                        }
-                        if (blankNodeType){
-                          value['@type'] = blankNodeType
-                        }
+                      if (d.defaultURI){
+                        value['@id'] = d.defaultURI
                       }
+                      if (blankNodeType){
+                        value['@type'] = blankNodeType
+                      }
+                    }
 
-                      // if we're not working at the top level, just add the default values
-                      if (!isParentTop){
-                        userValue[p.propertyURI].push(value)
+                    // if we're not working at the top level, just add the default values
+                    if (!isParentTop){
+                      userValue[p.propertyURI].push(value)
                       //otherwise, make sure the propertyURI matches the baseURI
                       } else if (isParentTop && p.propertyURI == baseURI){
                         userValue[p.propertyURI].push(value)

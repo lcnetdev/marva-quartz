@@ -2425,52 +2425,38 @@ const utilsNetwork = {
   /**
   * Send the record
   * @async
-  * @param {string} xml - The xml string
-  * @param {string} eid - the e12345678 number
-  * @param {obj} activeProfile - the activeProfile we're posting
+  * @param {string} xmlString - The xml string
+  * @param {obj} profile - the activeProfile we're posting
   * @return {obj} - {status:false, msg: ""}
   */
-
-  publish: async function(xml,eid,activeProfile){
-
-    // console.log("activeProfile",activeProfile)
-    let postingHub = false
-
-    // check if we are posting a HUB if so set that flag
-    // activeProfile is not required but if it is check
-    if (activeProfile){
-      if (activeProfile.id && activeProfile.id === 'Hub'){
-        postingHub = true
-      }
+  publish: async function(xmlString, profile) {
+    if (!profile) {
+      throw new Error('Profile is required for publishing.')
     }
 
-    let url = useConfigStore().returnUrls.publish
+    const config = useConfigStore();
+    const publishEndpoint = config.returnUrls.publish; // Correctly retrieve publishEndpoint
 
-    let uuid = translator.toUUID(translator.new())
-
-    const rawResponse = await fetch(url, {
+    const url = publishEndpoint; // Removed '/${eid}'
+    const options = {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({name: uuid, rdfxml:xml, eid: eid, hub:postingHub})
-    });
-    const content = await rawResponse.json();
-
-    // console.log(content);
-
-    if (content && content.publish && content.publish.status && content.publish.status == 'published'){
-
-      return {status:true}
-
-    }else{
-
-      // alert("Did not post, please report this error--" + JSON.stringify(content.publish,null,2))
-      return {status:false, msg: JSON.stringify(content.publish,null,2)}
+      body: JSON.stringify({ rdfxml: xmlString })
+    };
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`Failed to publish: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json(); // Adjust based on expected response format
+      return data;
+    } catch (error) {
+      console.error('Error during publish:', error);
+      throw error;
     }
   },
-
 
   /**
   * Send off a rdf bibframe xml files in the format <rdf:RDF><bf:Work/><bf:Instance/>...etc...</rdf:RDF>

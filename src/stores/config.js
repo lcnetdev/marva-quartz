@@ -19,12 +19,13 @@ export const useConfigStore = defineStore('config', {
         scriptshifter  :  'https://quartz.bibframe.app/scriptshifter/',
         publish: "https://quartz.bibframe.app/util/publish/staging",
         bfdb: "https://id.loc.gov/",
+        validate: 'https://bibframe.org/marva/util/validate',
         profiles: "https://quartz.bibframe.app/assets/profiles.json",
         starting: "https://quartz.bibframe.app/assets/starting.json",
         id: 'https://id.loc.gov/',
         env: "staging",
         publicEndpoints: true,
-        displayLCOnlyFeatures: true
+        displayLCOnlyFeatures: false
         },
 
       staging:{
@@ -33,7 +34,6 @@ export const useConfigStore = defineStore('config', {
         util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter: 'https://editor.id.loc.gov/bfe2/scriptshifter/',
-        publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
         validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         // bfdb : 'https://preprod-8210.id.loc.gov/',
@@ -54,7 +54,6 @@ export const useConfigStore = defineStore('config', {
         util  :  'https://editor.id.loc.gov/bfe2/util/',
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter  :  'https://editor.id.loc.gov/bfe2/scriptshifter/',
-        publish: 'https://editor.id.loc.gov/bfe2/util/publish/production',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         validate: 'https://editor.id.loc.gov/bfe2/util/validate',
         bfdb : 'https://preprod-8230.id.loc.gov/',
@@ -75,7 +74,6 @@ export const useConfigStore = defineStore('config', {
         util  :  'https://bibframe.org/marva/util/',
         utilLang  :  'https://bibframe.org/marva/util-lang/',
         scriptshifter  :  'https://bibframe.org/scriptshifter/',
-        publish: 'https://bibframe.org/marva/util/publish/production',
         validate: 'https://bibframe.org/marva/util/validate',
         bfdb : 'https://id.loc.gov/',
         profiles : 'https://bibframe.org/marva/util/profiles/profile/prod',
@@ -103,7 +101,7 @@ export const useConfigStore = defineStore('config', {
 
     },
 
-
+    environment: process.env.NODE_ENV || 'development', // 'development' or 'production'
 
   postUsingAlmaXmlFormat: false,
 
