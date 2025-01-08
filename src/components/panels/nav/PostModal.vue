@@ -3,12 +3,10 @@
   import { useConfigStore } from '@/stores/config'
   import { mapStores, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
-  import VueDragResize from 'vue3-drag-resize'
 
   export default {
     components: {
-      VueFinalModal,
-      VueDragResize,
+      VueFinalModal
     },
 
     data() {
@@ -35,14 +33,6 @@
     methods: {
       done: function() {
         this.showPostModal = false
-      },
-
-      dragResize: function(newRect) {
-        this.width = newRect.width
-        this.height = newRect.height
-        this.top = newRect.top
-        this.left = newRect.left
-        this.$refs.errorHolder.style.height = newRect.height + 'px'
       },
 
       post: async function() {
@@ -120,21 +110,12 @@
         }
       },
 
-      onSelectElement(event) {
-        const tagName = event.target.tagName
-        if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
-          event.stopPropagation()
-        }
-      },
-
-      copyErrorToClipboard: function() {
-        var text = this.cleanUpErrorResponse(this.postResults.publish.message)
-        navigator.clipboard.writeText(text).then(function() {
-          console.log('Async: Copying to clipboard was successful!')
-        }, function(err) {
-          console.error('Async: Could not copy text: ', err)
-        })
-      },
+      // onSelectElement(event) {
+      //   const tagName = event.target.tagName
+      //   if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+      //     event.stopPropagation()
+      //   }
+      // },
 
       cleanUpErrorResponse: function(msg) {
         if (!msg) return ''
@@ -166,59 +147,45 @@
     :click-to-close="false"
     :esc-to-close="false"
   >
-    <VueDragResize
-      :is-active="true"
-      :w="900"
-      :h="initalHeight"
-      :x="initalLeft"
-      class="login-modal"
-      @resizing="dragResize"
-      @dragging="dragResize"
-      :sticks="['br']"
-      :stickSize="22"
-    >
-      <div id="error-holder" ref="errorHolder" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
-        <h1 v-if="posting">Posting please wait...</h1>
+    <div class="login-modal" id="error-holder" ref="errorHolder">
+      <h1 v-if="posting">Posting please wait...</h1>
 
-        <div v-if="!posting && Object.keys(postResults).length !== 0">
-          <div v-if="postResults.publish && postResults.publish.status === 'published'" style="margin: 0.5em 0; background-color: #90ee9052; padding: 0.5em; border-radius: 0.25em;">
-            The record was accepted by the system.
-            <div v-if="postResults.name.instance_mms_id.length || postResults.name.work_mms_id.length">
-              Here are the MMS IDs:
-              <ul>
-                <li>Instance MMS ID(s):
-                  <ul>
-                    <li v-for="id in postResults.name.instance_mms_id" :key="id">{{ id }}</li>
-                  </ul>
-                </li>
-                <li>Work MMS ID(s):
-                  <ul>
-                    <li v-for="id in postResults.name.work_mms_id" :key="id">{{ id }}</li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-            <div v-else>
-              MMS IDs are not available.
-            </div>
-            <button @click="copyErrorToClipboard">Copy to clipboard</button>
+      <div v-if="!posting && Object.keys(postResults).length !== 0">
+        <div v-if="postResults.publish && postResults.publish.status === 'published'" style="margin: 0.5em 0; background-color: #90ee9052; padding: 0.5em; border-radius: 0.25em;">
+          The record was accepted by the system.
+          <div v-if="postResults.name.instance_mms_id.length || postResults.name.work_mms_id.length">
+            Here are the MMS IDs:
+            <ul>
+              <li>Instance MMS ID(s):
+                <ul>
+                  <li v-for="id in postResults.name.instance_mms_id" :key="id">{{ id }}</li>
+                </ul>
+              </li>
+              <li>Work MMS ID(s):
+                <ul>
+                  <li v-for="id in postResults.name.work_mms_id" :key="id">{{ id }}</li>
+                </ul>
+              </li>
+            </ul>
           </div>
-          <div v-else-if="postResults.publish && postResults.publish.status !== 'published' && postResults.publish.status" style="margin: 0.5em 0; background-color: #ffcccb; padding: 0.5em; border-radius: 0.25em;">
-            <h2>There was an error posting: {{ postResults.publish.message }}</h2>
-            <button @click="copyErrorToClipboard">Copy error to clipboard</button>
-            <pre>{{ cleanUpErrorResponse(postResults.publish.message) }}</pre>
-            <button @click="done">Close</button>
-          </div>
-          <div v-else style="margin: 0.5em 0; background-color: #ffcccb; padding: 0.5em; border-radius: 0.25em;">
-            <h2>An unknown error occurred.</h2>
-            <pre>{{ JSON.stringify(postResults, null, 2) }}</pre>
-            <button @click="done">Close</button>
+          <div v-else>
+            MMS IDs are not available.
           </div>
         </div>
-
-        <button @click="done">Close</button>
+        <div v-else-if="postResults.publish && postResults.publish.status !== 'published' && postResults.publish.status" style="margin: 0.5em 0; background-color: #ffcccb; padding: 0.5em; border-radius: 0.25em;">
+          <h2>There was an error posting: {{ postResults.publish.message }}</h2>
+          <pre>{{ cleanUpErrorResponse(postResults.publish.message) }}</pre>
+          <button @click="done">Close</button>
+        </div>
+        <div v-else style="margin: 0.5em 0; background-color: #ffcccb; padding: 0.5em; border-radius: 0.25em;">
+          <h2>An unknown error occurred.</h2>
+          <pre>{{ JSON.stringify(postResults, null, 2) }}</pre>
+          <button @click="done">Close</button>
+        </div>
       </div>
-    </VueDragResize>
+
+      <button @click="done">Close</button>
+    </div>
   </VueFinalModal>
 </template>
 
