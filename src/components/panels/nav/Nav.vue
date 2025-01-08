@@ -305,25 +305,10 @@
           {
             text: (this.activeProfileSaved) ? "Saved" : "Save",
             disabled: (this.activeProfileSaved) ? true : false,
-            // active: this.happy,
             icon: (this.activeProfileSaved) ? "turned_in" : "turned_in_not",
             class: (this.activeProfileSaved) ? "save-saved" : "save-not-saved",
-
-
             click: () => { this.profileStore.saveRecord() }
           }
-          )
-          menu.push(
-            {
-              text: "Validate",
-              icon: "check",
-              click: () => {
-                this.showValidateModal = true;
-                this.$nextTick(()=>{
-                  this.$refs.validatemodal.post()
-                })
-              }
-            }
           )
           menu.push(
             {
