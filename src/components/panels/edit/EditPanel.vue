@@ -282,7 +282,8 @@
         },
 
         showDeleteInstanceModal: function(profileName){
-            if (window.confirm("Do you really want to delete this instance?")){
+          let resourceType = profileName.includes("Item") ? "Item" : "Instance"
+            if (window.confirm("Do you really want to delete this " + resourceType + "?")){
                 // remove from rtOrder
                 const targetIndex = this.activeProfile.rtOrder.indexOf(profileName)
                 this.activeProfile.rtOrder.splice(targetIndex, 1)
