@@ -236,7 +236,8 @@ const utilsProfile = {
       let traverse = function(path, obj){
         console.info("traversing: ", obj, ">>", path, "--", path.length)
         if (path.length == 0) {
-          return obj
+          pointer = obj
+          return
         }
         for (let p of path){
           console.info("    looking at ", p)
@@ -252,27 +253,25 @@ const utilsProfile = {
               '@guid' : short.generate()
             }]
             console.info("    next: ", obj[p][0], "--", newPath)
-            return traverse(newPath, obj[p][0])
+            traverse(newPath, obj[p][0])
           } else {
             console.info("        ", p, " does exist in object, making some changes >>", obj[p])
-            const o = JSON.parse(JSON.stringify(obj))
-            console.info("        o: ", o)
-            for (let idx in o[p]){
+            for (let idx in obj[p]){
               console.info("            idx: ", idx, " >> ", obj[p])
               if (obj[p][idx]){
                 if (!obj[p][idx]['@guid']){
                   obj[p][idx]['@guid'] = short.generate()
                 }
                 console.info("    next: ", obj[p][idx], "--", newPath)
-                return traverse(newPath, obj[p][idx])
+                traverse(newPath, obj[p][idx])
               }
             }
           }
         }
       }
 
-      pointer = traverse(propertyPath, pointer)
-      console.info("        pointer post traversal: ", pointer)
+      traverse(propertyPath, pointer)
+      console.info("        pointer post traversal: ", pt, "--", pointer)
 
       // for (let p of propertyPath){
       //   // the property path has two parts
@@ -322,6 +321,7 @@ const utilsProfile = {
       console.info("        final pt: ", JSON.parse(JSON.stringify(pt)))
       console.info("        final pointer: ", JSON.parse(JSON.stringify(pointer)))
       this.setTypesForBlankNode(pt,propertyPath)
+      console.info("        pt with types: ", JSON.parse(JSON.stringify(pt)))
       return [pt, pointer['@guid']]
   },
 

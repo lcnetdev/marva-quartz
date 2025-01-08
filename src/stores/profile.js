@@ -2088,6 +2088,9 @@ export const useProfileStore = defineStore('profile', {
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
+
+          console.info("!!! build blankNode: ", buildBlankNodeResult)
+
           pt = buildBlankNodeResult[0]
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
