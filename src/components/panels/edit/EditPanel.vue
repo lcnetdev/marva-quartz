@@ -15,11 +15,17 @@
     v-for="profileName in this.activeProfile.rtOrder"
     :key="profileName"
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-item': (profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1 && !profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
-          <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
+          <template v-if="instanceMode == true && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)">
           <template v-if="profileName.includes(':Instance')">
                 <div>
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                     <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
+                </div>
+          </template>
+          <template v-if="profileName.includes(':Item')">
+                <div>
+                    <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                    <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Item</button>
                 </div>
           </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
@@ -93,7 +99,7 @@
                         </template>
                     </template>
                     <template v-if="this.dualEdit == true">
-                        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && profileName.indexOf(':Instance') == -1">
+                        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && (profileName.indexOf(':Instance') == -1 && profileName.indexOf(':Item') == -1 )">
                           <div class="component-label" >
                           <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
@@ -104,12 +110,12 @@
 
                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
                         <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
-                        <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
+                        <div v-if="profileName.indexOf(':Instance') > -1 && profileName.indexOf(':Item') == -1" class="inline-mode-resource-color-instance">&nbsp;</div>
                         <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
                       </template>
 
                       <!-- index == -1 means it's the work, so just add the work -->
-                      <Main v-if="profileName.indexOf(':Instance') == -1"
+                      <Main v-if="profileName.indexOf(':Instance') == -1 && profileName.indexOf(':Item') == -1"
                         :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
                         :level="0"
                         :id="activeProfile.rt[profileName].pt[profileCompoent].id"
