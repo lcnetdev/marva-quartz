@@ -11,12 +11,10 @@
       </div>
 
   </template>
-
   <div
     v-for="profileName in this.activeProfile.rtOrder"
     :key="profileName"
-    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
-
+    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-item': (profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1 && !profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
           <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
           <template v-if="profileName.includes(':Instance')">
                 <div>
@@ -60,6 +58,14 @@
                 <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
             </div>
         </template>
+
+        <template v-if="profileName.includes(':Item') && !this.dualEdit">
+            <div class="instanceInfoWrapper">
+                <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Item</button>
+            </div>
+        </template>
+
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
 
           <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
@@ -288,14 +294,17 @@
         },
 
         instanceLabel: function(profileName){
-            try{
-                if (this.activeProfile.rt[profileName]["@type"].includes("Secondary")){
-                    return "Secondary Instance"
-                }
-                return "Instance"
-            } catch(err){
-                return "Instance"
-            }
+          if (profileName.includes(":Item")){
+            return "Item"
+          }
+          try{
+              if (this.activeProfile.rt[profileName]["@type"].includes("Secondary")){
+                  return "Secondary Instance"
+              }
+              return "Instance"
+          } catch(err){
+              return "Instance"
+          }
         }
     },
 
@@ -408,6 +417,9 @@
 
 .edit-panel-instance{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')") !important;
+}
+.edit-panel-item{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-item')") !important;
 }
 .edit-panel-instance-secondary{
 

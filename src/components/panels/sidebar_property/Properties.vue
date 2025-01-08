@@ -148,7 +148,7 @@
                             <svg v-if="profileName.includes('Instance')" :fill="preferenceStore.returnValue('--c-general-icon-instance-color')" style="margin-right: 7px;" width="18px" height="18px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                              <path  d="m5 50l45-45 45 45-45 45z"/>
                             </svg>
-                            <svg v-if="profileName.includes(':Item')" style="margin-right: 7px;" width="1.5em" height="1.1em" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <svg v-if="profileName.includes(':Item')" style="margin-right: 1px;" width="1.5em" height="1.1em" version="1.1" xmlns="http://www.w3.org/2000/svg">
                               <rect fill="green"  width="0.85em" height="0.85em" x=".1em" y="0.1em" />
                             </svg>
                             <svg  v-if="profileName.endsWith(':Hub')" version="1.1" viewBox="0 -20 100 100" xmlns="http://www.w3.org/2000/svg">
