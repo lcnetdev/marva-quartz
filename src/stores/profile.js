@@ -3968,7 +3968,7 @@ export const useProfileStore = defineStore('profile', {
     /**
     * Build a new instance
     *
-    * @param lccn {string} the lccn for the new instance. If there isn't one, this is a secondary instance
+    * @param secondary {bool} whether this should an instance or a secondary instance
     * @return {void}
     */
     createInstance:  function(secondary=false){
@@ -4033,7 +4033,7 @@ export const useProfileStore = defineStore('profile', {
       this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
       this.activeProfile.rt[newRtId].instanceOf = workUri
 
-      if (secondary){
+      if (secondary && secondary != "item"){
         this.activeProfile.rt[newRtId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
       }
 
@@ -4041,6 +4041,80 @@ export const useProfileStore = defineStore('profile', {
 
       //Add to rtLookup, with a copy of an instance as the value
       this.rtLookup[newRtId] = this.rtLookup[instanceName]
+
+      this.dataChanged()
+
+    },
+
+    /**
+    * Create a new item for the record
+    *
+    * @return {void}
+    */
+    createItem: async function(secondary=false){
+
+      // find the RT for the instance of this profile orginally
+      // get the work rt
+
+      let itemName
+      let itemRt
+      let workUri
+      let instanceUri
+
+      console.info("active: ", this.activeProfile)
+
+      for (let rtId in this.activeProfile.rt){
+          if (rtId.includes(":Work")){
+              workUri = this.activeProfile.rt[rtId].URI
+              // now find the corosponding item id
+              for (let allRt in this.profiles){
+                if (this.profiles[allRt].rtOrder.indexOf(rtId)>-1){
+                  if (this.profiles[allRt].rtOrder.filter(i => i.includes(":Item"))[0]){
+                    itemName = this.profiles[allRt].rtOrder.filter(i => i.includes(":Item"))[0]
+                    itemRt = JSON.parse(JSON.stringify(this.profiles[allRt].rt[itemName]))
+                  }
+                }
+              }
+          }
+          if (rtId.includes(":Instance")){
+            instanceUri = this.activeProfile.rt[rtId].URI
+          }
+      }
+
+      let itemCount = 0;
+
+      // gather info to add it
+      let items = Object.keys(this.activeProfile.rt).filter(i => i.includes(":Item"))
+      if (items.length>1){
+        itemCount = items.length -1
+      }
+
+
+      itemCount++
+      // console.log('itemCount',itemCount)
+      let newRtId = itemName +'_'+itemCount
+      itemRt.isNew = true
+      this.activeProfile.rt[newRtId] = itemRt
+      this.activeProfile.rtOrder.push(newRtId)
+
+      // give it all new guids
+      for (let pt in this.activeProfile.rt[newRtId].pt){
+        this.activeProfile.rt[newRtId].pt[pt]['@guid'] = short.generate()
+        // update the parentId
+        this.activeProfile.rt[newRtId].pt[pt].parentId = this.activeProfile.rt[newRtId].pt[pt].parentId.replace(itemName, newRtId)
+        this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(itemName, newRtId)
+      }
+
+
+
+      // setup the new instance's properies
+      // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
+
+      this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', instanceUri)
+      this.activeProfile.rt[newRtId].itemOf = instanceUri
+
+      //Add to rtLookup, with a copy of an instance as the value
+      this.rtLookup[newRtId] = this.rtLookup[itemName]
 
       this.dataChanged()
 

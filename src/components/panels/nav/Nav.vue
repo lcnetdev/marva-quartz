@@ -141,6 +141,10 @@
             {
               text: 'Add Secondary Instance',
               click: () => { this.profileStore.createInstance(true) }
+            },
+            {
+              text: 'Add Item',
+              click: () => { this.profileStore.createItem() }
             }
           )
         }
