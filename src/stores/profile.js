@@ -85,6 +85,7 @@ export const useProfileStore = defineStore('profile', {
     showRecoveryModal: false,
     showValidateModal: false,
     showHubStubCreateModal: false,
+    showItemInstanceSelection: false,
     activeHubStubData:{
     },
     activeHubStubComponent:{
@@ -4048,10 +4049,11 @@ export const useProfileStore = defineStore('profile', {
 
     /**
     * Create a new item for the record
+    * @param instance {string} position of the rt for the instance that the item belongs to, when there is more than 1 instance
     *
     * @return {void}
     */
-    createItem: async function(secondary=false){
+    createItem: async function(instance){
 
       // find the RT for the instance of this profile orginally
       // get the work rt
@@ -4061,22 +4063,22 @@ export const useProfileStore = defineStore('profile', {
       let workUri
       let instanceUri
 
-      console.info("active: ", this.activeProfile)
-
       for (let rtId in this.activeProfile.rt){
           if (rtId.includes(":Work")){
-              workUri = this.activeProfile.rt[rtId].URI
-              // now find the corosponding item id
-              for (let allRt in this.profiles){
-                if (this.profiles[allRt].rtOrder.indexOf(rtId)>-1){
-                  if (this.profiles[allRt].rtOrder.filter(i => i.includes(":Item"))[0]){
-                    itemName = this.profiles[allRt].rtOrder.filter(i => i.includes(":Item"))[0]
-                    itemRt = JSON.parse(JSON.stringify(this.profiles[allRt].rt[itemName]))
-                  }
+            workUri = this.activeProfile.rt[rtId].URI
+            // now find the corosponding item id
+            for (let allRt in this.profiles){
+              if (this.profiles[allRt].rtOrder.indexOf(rtId)>-1){
+                if (this.profiles[allRt].rtOrder.filter(i => i.includes(":Item"))[0]){
+                  itemName = this.profiles[allRt].rtOrder.filter(i => i.includes(":Item"))[0]
+                  itemRt = JSON.parse(JSON.stringify(this.profiles[allRt].rt[itemName]))
                 }
               }
+            }
           }
-          if (rtId.includes(":Instance")){
+          if (instance && rtId == instance){
+            instanceUri = this.activeProfile.rt[rtId].URI
+          }else if (rtId.includes(":Instance")){
             instanceUri = this.activeProfile.rt[rtId].URI
           }
       }
@@ -4104,8 +4106,6 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.rt[newRtId].pt[pt].parentId = this.activeProfile.rt[newRtId].pt[pt].parentId.replace(itemName, newRtId)
         this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(itemName, newRtId)
       }
-
-
 
       // setup the new instance's properies
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())

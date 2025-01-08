@@ -17,6 +17,10 @@
         <RecoveryModal ref="recoverymodal" v-model="showRecoveryModal" />
       </template>
 
+      <template v-if="showItemInstanceSelection==true">
+        <ItemInstanceSelectionModal ref="itemselectionmodal" v-model="showItemInstanceSelection" :instances="instances" @emitSetInstance="setInstance" @hideInstanceSelectionModal="hideInstanceSelectionModal()" />
+      </template>
+
     </Teleport>
 
   </div>
@@ -33,13 +37,15 @@
   import PostModal from "@/components/panels/nav/PostModal.vue";
   import ValidateModal from "@/components/panels/nav/ValidateModal.vue";
   import RecoveryModal from "@/components/panels/nav/RecoveryModal.vue";
+  import ItemInstanceSelectionModal from "@/components/panels/nav/ItemInstanceSelectionModal.vue";
 
 
   export default {
-    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal,ItemInstanceSelectionModal },
     data() {
       return {
         allSelected: false,
+        instances: [],
       }
     },
     props:{
@@ -57,7 +63,7 @@
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -144,7 +150,7 @@
             },
             {
               text: 'Add Item',
-              click: () => { this.profileStore.createItem() }
+              click: () => { this.addItem() }
             }
           )
         }
@@ -526,6 +532,41 @@
         temp.click()
         document.body.removeChild(temp)
       },
+
+      addItem: function(){
+        let instanceCount = 0
+        let instance = null
+        for (let p in this.activeProfile.rt){
+          if (p.includes(":Instance")){
+            this.instances.push(p)
+            instanceCount++
+          }
+        }
+        if (instanceCount == 0){
+          alert("There are no instances in the record. You need to crete one before you can add an item.")
+          return
+        }
+        if (instanceCount>1){
+          console.info("open instance selection modal")
+          // show a modal to select which instance the item belongs too
+          this.showItemInstanceSelection = true
+        } else {
+          this.profileStore.createItem(this.targetInstance)
+        }
+      },
+
+      setInstance: function(data){
+        console.info("setting instance")
+        this.targetInstance = this.instances[data]
+        this.showItemInstanceSelection = false
+        this.instances = []
+        this.profileStore.createItem(this.targetInstance)
+      },
+
+      hideInstanceSelectionModal: function(){
+        this.instances = []
+        this.showItemInstanceSelection = false;
+      }
 
     },
 
