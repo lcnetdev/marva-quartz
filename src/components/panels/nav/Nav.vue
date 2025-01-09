@@ -314,13 +314,18 @@
             {
               text: "Post",
               icon: "sailing",
-              click: () => {
-                this.showPostModal = true;
-                this.$nextTick(()=>{
-                  this.$refs.postmodal.post();
-                  this.profileStore.saveRecord()
-                })
-              }
+              menu: [
+                { text: "Work + Instance", click: () => { 
+                  this.showPostModal = true;
+                  this.$nextTick(()=>{
+                    this.$refs.postmodal.post();
+                    this.profileStore.saveRecord()
+                  })
+                } },
+                { text: "Work Only", click: () => { /* schedule post logic */ } },
+                { text: "Instance Only", click: () => { /* schedule post logic */ } }
+
+              ]
             }
           )
           
