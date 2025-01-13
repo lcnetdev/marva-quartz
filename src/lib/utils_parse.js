@@ -54,7 +54,7 @@ const utilsParse = {
     if (uri.match(/lcc:[A-Z]/)){
       return true
     }
-    
+
     // for (let nsKey of Object.keys(this.namespace)){
 
     //  let pattern = `${nsKey}:[A-Z]/`
@@ -206,7 +206,7 @@ const utilsParse = {
       //     '</xsl:stylesheet>',
       // ].join('\n'), 'application/xml');
 
-      // var xsltProcessor = new XSLTProcessor();    
+      // var xsltProcessor = new XSLTProcessor();
       // xsltProcessor.importStylesheet(xsltDoc);
       // var resultDoc = xsltProcessor.transformToDocument(this.activeDom);
       // var resultXml = new XMLSerializer().serializeToString(resultDoc);
@@ -214,7 +214,7 @@ const utilsParse = {
 
 
       // xml = xml.replace(/(<\/?.*?>)/g, '$1\n');
-      
+
       this.activeDom = parser.parseFromString(xml, 'application/xml');
       this.testDom = parser.parseFromString(xml, 'application/xml');
 
@@ -253,11 +253,11 @@ const utilsParse = {
   sniffWorkRelationType(xml){
     for (let child of xml.children){
       if (child.tagName == 'bf:relation'){
-      
+
         // let hasUncontrolled = false
         // if (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1){ hasUncontrolled = true }
         // if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){ hasUncontrolled = true }
-        
+
         // let hasSeriesProperty = false
         // if (child.innerHTML.indexOf("bf:hasSeries")>-1){ hasSeriesProperty = true }
 
@@ -289,9 +289,9 @@ const utilsParse = {
         // console.log('hasSeries',hasSeries)
         // console.log('hasAssociatedResource',hasAssociatedResource)
 
-        
 
-        
+
+
 
       // old Logic
        if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
@@ -339,7 +339,7 @@ const utilsParse = {
   },
 
   /**
-  * For our hub profile we broke out the different title types, sniff for which profile to use 
+  * For our hub profile we broke out the different title types, sniff for which profile to use
   *
   * @param {Node} xml - the XML payload
   * @return {Node}
@@ -350,7 +350,7 @@ const utilsParse = {
         if ( child.innerHTML.indexOf("bf:VariantTitle")>-1){
           child.setAttribute('local:pthint', 'lc:RT:bf2:Title:VarTitle')
         }if ( child.innerHTML.indexOf("bf:TransliteratedTitle")>-1){
-          child.setAttribute('local:pthint', 'lc:RT:bflc:TranscribedTitle')          
+          child.setAttribute('local:pthint', 'lc:RT:bflc:TranscribedTitle')
         }else{
           // leave blank?
         }
@@ -365,7 +365,7 @@ const utilsParse = {
   },
 
   updateAdditionalInstanceParentValues: function(profile, instanceName, newRdId){
-  // when a record comes in with multiple (secondary) instances, each instance will have the 
+  // when a record comes in with multiple (secondary) instances, each instance will have the
   // same parent and parentId, so all of there components will match. This causes issues with
   // navigation, but not anywhere else?
   // adapted from `profile.createSecondaryInstance()` to have parent properties be unique and correct
@@ -375,10 +375,10 @@ const utilsParse = {
             profile.pt[pt].parentId = profile.pt[pt].parentId.replace(instanceName, newRdId)
             profile.pt[pt].parent = profile.pt[pt].parent.replace(instanceName, newRdId)
         }
-        
+
         return profile
   },
-  
+
   transformRts: async function(profile){
     let toDeleteNoData = []
 
@@ -418,7 +418,7 @@ const utilsParse = {
       }else if (pkey.endsWith(':Hub')){
         tle = "bf:Hub"
         isHub=true
-      }else{        
+      }else{
         rtsToRemove.push(pkey)
         // don't mess with anything other than top level entities in the profile, remove them from the profile
         continue
@@ -557,7 +557,7 @@ const utilsParse = {
 
       }
 
-      
+
 
       let sucessfulProperties  = []
       let sucessfulElements  = []
@@ -592,9 +592,9 @@ const utilsParse = {
 
           if (this.UriNamespace(e.tagName) == propertyURI){
 
-            
+
             // elHashOrder.push(hashCode((new XMLSerializer()).serializeToString(e)))
-            
+
 
             // if it has a hint then we need to check if we can find the right pt for it
             if (e.attributes['local:pthint'] && e.attributes['local:pthint'].value){
@@ -629,7 +629,7 @@ const utilsParse = {
               el.push(e)
             }
 
-            
+
           }
         }
 
@@ -750,7 +750,7 @@ const utilsParse = {
             }
 
             // do a deepHierarchy check here to see if it is a very nested bf:relation property if so we will mark it here
-            if (ptk.propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation'){              
+            if (ptk.propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation'){
               if (e.innerHTML.indexOf("bf:hasInstance")>-1){
                 ptk.deepHierarchy=true
               }
@@ -1640,7 +1640,7 @@ const utilsParse = {
             }else{
               let newKey = `${k}_${counter}`
               let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
-              let newpos = currentpos + 1               
+              let newpos = currentpos + 1
               profile.rt[pkey].ptOrder.splice(newpos, 0, newKey);
               populateData.id = newKey
               ptsCreatedThisLoop.push(newKey)
@@ -1653,7 +1653,7 @@ const utilsParse = {
 
             // do a little sanity check here, loop through and
             userValue = this.removeEmptyBnodes(userValue)
-                       
+
 
             counter++
 
@@ -1663,8 +1663,8 @@ const utilsParse = {
           if (ptsCreatedThisLoop.length>1){
             let posOfFirst = 9999
             // we need to find the first occurance of the property to know where to start cutting and replacing
-            for (let ptCreated of ptsCreatedThisLoop){             
-              if (profile.rt[pkey].ptOrder.indexOf(ptCreated)<posOfFirst){ posOfFirst = profile.rt[pkey].ptOrder.indexOf(ptCreated)}              
+            for (let ptCreated of ptsCreatedThisLoop){
+              if (profile.rt[pkey].ptOrder.indexOf(ptCreated)<posOfFirst){ posOfFirst = profile.rt[pkey].ptOrder.indexOf(ptCreated)}
             }
             if (posOfFirst != -1 && posOfFirst != 9999){
               // cut out the old ones and inset the new order
@@ -1839,8 +1839,16 @@ const utilsParse = {
         if (Object.keys(profile.rt[pkey].pt[key].userValue).length>1){
           // there could be one property for all components, the @root id
           profile.rt[pkey].pt[key].dataLoaded=true
+          console.info("\ndataloaded: ", pkey, "--", key)
         }else{
           profile.rt[pkey].pt[key].dataLoaded=false
+          console.info("\nNO dataloaded: ", pkey, "--", key)
+          // if there is no data loaded, add it to the list for ad hoc
+          if (Object.keys(useProfileStore().emptyComponents).includes(pkey)){
+            useProfileStore().emptyComponents[pkey].push(key)
+          } else {
+            useProfileStore().emptyComponents[pkey] = [key]
+          }
 
 
           for (let k in profile.rt[pkey].pt[key].userValue){
@@ -1979,7 +1987,7 @@ const utilsParse = {
       if (index !== -1) {
         profile.rtOrder.splice(index, 1);
       }
-      
+
 
     }
 

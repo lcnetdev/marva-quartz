@@ -13,10 +13,10 @@
   </template>
 
   <div
+
     v-for="profileName in this.activeProfile.rtOrder"
     :key="profileName"
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
-
           <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
           <template v-if="profileName.includes(':Instance')">
                 <div>
@@ -27,14 +27,14 @@
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
               <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
-                  :key="profileCompoent">
+                  :key="profileCompoent" v-if="!profileStore.emptyComponents[profileName].includes(profileCompoent)">
 
-                <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
+                <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !profileStore.emptyComponents[profileName].includes(profileCompoent)">
                   <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
 
                     <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
-                      <div class="component-label" >
+                      <div class="component-label 3" >
                           <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                           {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                       </div>
@@ -72,13 +72,10 @@
 
                   <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
 
-
-                    <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
-
-
+                    <div v-if="!profileStore.emptyComponents[profileName].includes(profileCompoent)" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
                       <template v-if="this.dualEdit == false">
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
-                          <div class="component-label" >
+                          <div class="component-label 1" >
                             <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
 
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
@@ -88,7 +85,7 @@
                     </template>
                     <template v-if="this.dualEdit == true">
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && profileName.indexOf(':Instance') == -1">
-                          <div class="component-label" >
+                          <div class="component-label 2" >
                           <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                             <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>

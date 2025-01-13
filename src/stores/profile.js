@@ -124,6 +124,8 @@ export const useProfileStore = defineStore('profile', {
     literalLangInfo: null,
     literalLangShow: false,
 
+    // List of empty components for ad hoc mode
+    emptyComponents: {},
 
 
   }),
@@ -4434,7 +4436,6 @@ export const useProfileStore = defineStore('profile', {
 
 
     //Check if the component's userValue is empty
-
     isEmptyComponent: function(c){
       const component = c
       const emptyArray = new Array("@root")
