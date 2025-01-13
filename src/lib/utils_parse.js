@@ -380,6 +380,7 @@ const utilsParse = {
   },
 
   transformRts: async function(profile){
+    console.info("transformRts")
     let toDeleteNoData = []
 
     // before we start processing make sure we have enough instance rts for the number needed
@@ -1839,10 +1840,8 @@ const utilsParse = {
         if (Object.keys(profile.rt[pkey].pt[key].userValue).length>1){
           // there could be one property for all components, the @root id
           profile.rt[pkey].pt[key].dataLoaded=true
-          console.info("\ndataloaded: ", pkey, "--", key)
         }else{
           profile.rt[pkey].pt[key].dataLoaded=false
-          console.info("\nNO dataloaded: ", pkey, "--", key)
           // if there is no data loaded, add it to the list for ad hoc
           if (Object.keys(useProfileStore().emptyComponents).includes(pkey)){
             useProfileStore().emptyComponents[pkey].push(key)

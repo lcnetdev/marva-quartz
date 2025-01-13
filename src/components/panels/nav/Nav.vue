@@ -551,7 +551,11 @@
           for (let element in this.activeProfile.rt[rt].pt){
             let empty = this.isEmptyComponent(this.activeProfile.rt[rt].pt[element])
             if(empty){
-              this.emptyComponents[rt].push(element)
+              if (Object.keys(this.emptyComponents).includes(rt)){
+                this.emptyComponents[rt].push(element)
+              } else {
+                this.emptyComponents[rt] = [element]
+              }
             }
           }
         }
