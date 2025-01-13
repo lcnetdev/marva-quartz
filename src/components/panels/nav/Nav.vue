@@ -57,7 +57,7 @@
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showHideModal', 'emptyComponents']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showAdHocModal', 'emptyComponents']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -179,22 +179,7 @@
               // active: this.happy,
               click: () => { this.showNonLatinAgentModal = true }
             },
-            { is: 'separator'},
-            {
-              text: 'Show/Hide Elements',
-              click: () => { this.showHideModal = true },
-              icon: 'menu'
-            },
-            {
-              text: 'Show All Elements',
-              click: () => this.showAllElements(),
-              icon: 'visibility'
-            },
-            {
-              text: 'Hide All Elements',
-              click: () => this.hideAllElements(),
-              icon: 'visibility_off'
-            },
+
             { is: 'separator'},
             {
               text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
@@ -212,9 +197,34 @@
             }
           ] }
           )
+        }
 
-
-
+        if(this.$route.path.startsWith('/edit/')){
+          console.info("menu: ", menu)
+          for (let sub in menu){
+            console.info("sub: ", menu[sub])
+            if (menu[sub].text == 'Tools'){
+              menu[sub].menu.push(
+                { is: 'separator'},
+                {
+                  text: 'Show/Hide Elements',
+                  icon: 'menu',
+                  custom_chevron: ">",
+                  click: () => this.showAdHocModal(),
+                },
+                {
+                  text: 'Show Empty Elements',
+                  click: () => this.showAllElements(),
+                  icon: 'visibility'
+                },
+                {
+                  text: 'Hide Empty Elements',
+                  click: () => this.hideAllElements(),
+                  icon: 'visibility_off'
+                },
+              )
+            }
+          }
         }
 
 
@@ -557,6 +567,11 @@
             }
           }
         }
+      },
+
+      showAdHocModal: function(){
+        console.info("???")
+        this.showAdHocModal = true
       },
 
     },

@@ -100,7 +100,7 @@ export const useProfileStore = defineStore('profile', {
       componentPropertyPath:null
     },
     showAutoDeweyModal: false,
-    showHideModal: false,
+    showAdHocModal: false,
     deweyData: {
       lcc: null,
       guid: null,

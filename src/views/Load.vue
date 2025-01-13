@@ -448,14 +448,11 @@
         let useProfile = null
         console.log("this.profiles",this.profiles)
         console.log("useInstanceProfile",useInstanceProfile)
-        console.info("loading profile: ",this.profile)
         for (let key in this.profiles){
           if (this.profiles[key].rtOrder.indexOf(useInstanceProfile)>-1){
             useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
           }
         }
-
-        console.info("loading profile 2: ",this.profile)
 
         // check if the input field is empty
         if (this.urlToLoad == "" && useProfile===null){
@@ -515,8 +512,6 @@
           useProfile.log = []
         }
 
-        console.info("loading 1")
-
         // setup the log and set the procinfo so the post process knows what to do with this record
         useProfile.log.push({action:'loadInstance',from:this.urlToLoad})
         useProfile.procInfo= "update instance"
@@ -555,13 +550,11 @@
             this.emptyComponents[rt] = []
             for (let element in this.activeProfile.rt[rt].pt){
               const e = this.activeProfile.rt[rt].pt[element]
-              console.info("element: ", e, "--", e.mandatory)
               if (e.mandatory != 'true'){
                 this.emptyComponents[rt].push(element)
               }
             }
           }
-          console.info("empty: ", this.emptyComponents)
         }
 
         if (multiTestFlag){
