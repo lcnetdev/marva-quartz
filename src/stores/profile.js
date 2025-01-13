@@ -100,6 +100,7 @@ export const useProfileStore = defineStore('profile', {
       componentPropertyPath:null
     },
     showAutoDeweyModal: false,
+    showHideModal: false,
     deweyData: {
       lcc: null,
       guid: null,
@@ -4437,6 +4438,7 @@ export const useProfileStore = defineStore('profile', {
 
     //Check if the component's userValue is empty
     isEmptyComponent: function(c){
+      console.info("checking if empty: ", c)
       const component = c
       const emptyArray = new Array("@root")
       const userValue = JSON.parse(JSON.stringify(component["userValue"]))

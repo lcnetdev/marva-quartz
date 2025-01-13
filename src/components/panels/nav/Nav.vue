@@ -53,11 +53,11 @@
 
       ...mapStores(useProfileStore,usePreferenceStore),
 
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showHideModal', 'emptyComponents']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -179,7 +179,22 @@
               // active: this.happy,
               click: () => { this.showNonLatinAgentModal = true }
             },
-
+            { is: 'separator'},
+            {
+              text: 'Show/Hide Elements',
+              click: () => { this.showHideModal = true },
+              icon: 'menu'
+            },
+            {
+              text: 'Show All Elements',
+              click: () => this.showAllElements(),
+              icon: 'visibility'
+            },
+            {
+              text: 'Hide All Elements',
+              click: () => this.hideAllElements(),
+              icon: 'visibility_off'
+            },
             { is: 'separator'},
             {
               text: 'Copy Mode [' + (this.preferenceStore.copyMode ? "on" : "off") + ']',
@@ -521,6 +536,25 @@
         document.body.appendChild(temp)
         temp.click()
         document.body.removeChild(temp)
+      },
+
+      // Show all hidden elements
+      showAllElements: function(){
+        for (let key in this.emptyComponents){
+          this.emptyComponents[key] = []
+        }
+      },
+
+      // Hide all empty elements
+      hideAllElements: function(){
+        for (let rt in this.activeProfile.rt){
+          for (let element in this.activeProfile.rt[rt].pt){
+            let empty = this.isEmptyComponent(this.activeProfile.rt[rt].pt[element])
+            if(empty){
+              this.emptyComponents[rt].push(element)
+            }
+          }
+        }
       },
 
     },
