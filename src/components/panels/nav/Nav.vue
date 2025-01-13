@@ -548,14 +548,12 @@
       // Hide all empty elements
       hideAllElements: function(){
         for (let rt in this.activeProfile.rt){
+          this.emptyComponents[rt] = []
           for (let element in this.activeProfile.rt[rt].pt){
             let empty = this.isEmptyComponent(this.activeProfile.rt[rt].pt[element])
-            if(empty){
-              if (Object.keys(this.emptyComponents).includes(rt)){
-                this.emptyComponents[rt].push(element)
-              } else {
-                this.emptyComponents[rt] = [element]
-              }
+            const mandatory = this.activeProfile.rt[rt].pt[element].mandatory
+            if(empty && mandatory != 'true'){
+              this.emptyComponents[rt].push(element)
             }
           }
         }

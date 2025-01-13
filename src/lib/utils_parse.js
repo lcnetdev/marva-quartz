@@ -1843,10 +1843,13 @@ const utilsParse = {
         }else{
           profile.rt[pkey].pt[key].dataLoaded=false
           // if there is no data loaded, add it to the list for ad hoc
-          if (Object.keys(useProfileStore().emptyComponents).includes(pkey)){
-            useProfileStore().emptyComponents[pkey].push(key)
-          } else {
-            useProfileStore().emptyComponents[pkey] = [key]
+          const e = profile.rt[pkey].pt[key]
+          if (e.mandatory != 'true'){
+            if (Object.keys(useProfileStore().emptyComponents).includes(pkey)){
+              useProfileStore().emptyComponents[pkey].push(key)
+            } else {
+              useProfileStore().emptyComponents[pkey] = [key]
+            }
           }
 
 
