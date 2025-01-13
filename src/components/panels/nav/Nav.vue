@@ -17,6 +17,10 @@
         <RecoveryModal ref="recoverymodal" v-model="showRecoveryModal" />
       </template>
 
+      <template v-if="showAdHocModal==true">
+        <AdHocModal ref="adHocModal" v-model="showAdHocModal" />
+      </template>
+
     </Teleport>
 
   </div>
@@ -33,10 +37,11 @@
   import PostModal from "@/components/panels/nav/PostModal.vue";
   import ValidateModal from "@/components/panels/nav/ValidateModal.vue";
   import RecoveryModal from "@/components/panels/nav/RecoveryModal.vue";
+  import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
 
 
   export default {
-    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, AdHocModal },
     data() {
       return {
         allSelected: false,
@@ -200,17 +205,14 @@
         }
 
         if(this.$route.path.startsWith('/edit/')){
-          console.info("menu: ", menu)
           for (let sub in menu){
-            console.info("sub: ", menu[sub])
             if (menu[sub].text == 'Tools'){
               menu[sub].menu.push(
                 { is: 'separator'},
                 {
                   text: 'Show/Hide Elements',
                   icon: 'menu',
-                  custom_chevron: ">",
-                  click: () => this.showAdHocModal(),
+                  click: () => { this.showAdHocModal = true },
                 },
                 {
                   text: 'Show Empty Elements',
@@ -568,12 +570,6 @@
           }
         }
       },
-
-      showAdHocModal: function(){
-        console.info("???")
-        this.showAdHocModal = true
-      },
-
     },
 
     created() {}
