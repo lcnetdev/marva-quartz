@@ -380,7 +380,6 @@ const utilsParse = {
   },
 
   transformRts: async function(profile){
-    console.info("transformRts")
     let toDeleteNoData = []
 
     // before we start processing make sure we have enough instance rts for the number needed

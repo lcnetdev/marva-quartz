@@ -698,7 +698,7 @@ export const usePreferenceStore = defineStore('preference', {
           range: [true,false]
       },
       '--c-general-ad-hoc' : {
-          desc: 'Turn on Ad Hoc Mode. Ad Hoc mode will only display populated fields in Marva, other fields can be added as needed.',
+          desc: 'Turn on Ad Hoc Mode. Ad Hoc mode will only display populated and mandatory fields in Marva, other fields can be added as needed.',
           descShort: 'Ad Hoc Mode',
           value: false,
           type: 'boolean',
