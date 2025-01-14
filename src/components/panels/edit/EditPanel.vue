@@ -187,6 +187,7 @@
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged']),
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
+      ...mapWritableState(useProfileStore, ['emptyComponents']),
 
       activeResourceName(){
 
@@ -276,6 +277,11 @@
                 // remove from rtOrder
                 const targetIndex = this.activeProfile.rtOrder.indexOf(profileName)
                 this.activeProfile.rtOrder.splice(targetIndex, 1)
+
+                // Remove from ad hoc
+                if (Object.keys(this.emptyComponents).includes(profileName)){
+                  delete this.emptyComponents[profileName]
+                }
 
                 // remove the profile
                 delete this.activeProfile.rt[profileName]
