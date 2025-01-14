@@ -176,15 +176,15 @@
       <div v-if="!posting && Object.keys(postResults).length !== 0">
         <div v-if="postResults.publish && postResults.publish.status === 'published'" style="margin: 0.5em 0; background-color: #90ee9052; padding: 0.5em; border-radius: 0.25em;">
           The record was accepted by the system.
-          <div v-if="postResults.name.instance_mms_id.length || postResults.name.work_mms_id.length">
-            Here are the MMS IDs:
+          <div v-if="postResults.name && (postResults.name.instance_mms_id?.length || postResults.name.work_mms_id?.length)">
+            MMS IDs:
             <ul>
-              <li>Instance MMS ID(s):
+              <li v-if="postResults.name.instance_mms_id?.length">Instance:
                 <ul>
                   <li v-for="id in postResults.name.instance_mms_id" :key="id">{{ id }}</li>
                 </ul>
               </li>
-              <li>Work MMS ID(s):
+              <li v-if="postResults.name.work_mms_id?.length">Work:
                 <ul>
                   <li v-for="id in postResults.name.work_mms_id" :key="id">{{ id }}</li>
                 </ul>
