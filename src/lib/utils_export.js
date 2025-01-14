@@ -1,18 +1,12 @@
 import {useConfigStore} from "../stores/config";
 import {useProfileStore} from "../stores/profile";
 import {usePreferenceStore} from "../stores/preference";
-
-
-// import short from 'short-uuid'
 import utilsRDF from './utils_rdf';
 import utilsMisc from './utils_misc';
 import utilsNetwork from './utils_network';
 import utilsProfile from './utils_profile';
-
 import { parse as parseEDTF } from 'edtf'
-
 import { md5 } from "hash-wasm";
-
 
 const escapeHTML = str => str.replace(/[&<>'"]/g,
   tag => ({
@@ -46,16 +40,11 @@ const returnDOMParser = function(){
 	try{
 		p = new DOMParser();
 	}catch(error){
-		// const jsdom = require("jsdom");
-		// const { JSDOM } = jsdom;
-		// const { window } = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
+
 		p = new window.DOMParser();
 	}
 	return p
 }
-
-
-
 
 const utilsExport = {
 
@@ -241,13 +230,7 @@ const utilsExport = {
   * @return {boolean}
   */
 	isBnode: function(userValue){
-		// if it has any nested data it is a bnode
-		// for (let key in userValue){
-		// 	if (Array.isArray(userValue[key])){
-		// 		return true
-		// 	}
-		// }
-    // if it has a type then it is a blank node
+
 		if (userValue['@type']){
 			return true
 		}
@@ -563,9 +546,7 @@ const utilsExport = {
         		// the uservalue could be stored in a few places depending on the nesting
 				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){
 					userValue = ptObj.userValue[ptObj.propertyURI][0]
-					// it might be a top level literal, if so we don't want to exclude additonal literals that might be added
-					// so look to see if the node we got only has a guid and literal value, and if so look if there are more of them as siblings
-					// and select that if so
+
 					let nonGuidProps = Object.keys(ptObj.userValue[ptObj.propertyURI][0]).filter(k => (!k.includes('@') ? true : false ))
 					if (nonGuidProps.length==1){
 						if (typeof ptObj.userValue[ptObj.propertyURI][0][nonGuidProps[0]] == 'string' || typeof ptObj.userValue[ptObj.propertyURI][0][nonGuidProps[0]] == 'number'){
@@ -993,46 +974,7 @@ const utilsExport = {
 							// 2024 - Still needed?
 							if (userValue['@flags'] && userValue['@flags'].indexOf('simpleLookupTopLevelMulti') > -1){
 
-								// xmlLog.push(`Found special flag rule for ${ptObj.propertyURI}`)
-								// // an edge case here where we wanted to allow multiple simple lookups in root level fields
-								// // like carrierType, loop through the labels, build the properties, if it doesnt have a @id its because its at te root lvl
-
-								// if (userValue['http://www.w3.org/2000/01/rdf-schema#label']){
-
-								// 	let allXMLFragments = ''
-								// 	for (let label of userValue['http://www.w3.org/2000/01/rdf-schema#label']){
-
-								// 		let p = this.createElByBestNS(ptObj.propertyURI)
-								// 		let bnode = this.createElByBestNS(await this.suggestType(ptObj.propertyURI))
-								// 		xmlLog.push(`Created ${p.tagName} property and ${bnode.tagName} bnode`)
-								// 		p.appendChild(bnode)
-								// 		rootEl.appendChild(p)
-
-								// 		if (label['http://www.w3.org/2000/01/rdf-schema#label']){
-								// 			let lp = this.createElByBestNS('http://www.w3.org/2000/01/rdf-schema#label')
-								// 			lp.innerHTML = label['http://www.w3.org/2000/01/rdf-schema#label']
-								// 			bnode.appendChild(lp)
-								// 		}
-
-								// 		if (label['@id']){
-								// 			xmlLog.push(`Set rdf:about from label bnode ${label['@id']}`)
-								// 			bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', label['@id'])
-
-								// 		}else if (userValue['@id']){
-								// 			xmlLog.push(`Set rdf:about from root userValue @id ${userValue['@id']}`)
-								// 			bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])
-								// 		}
-
-								// 		allXMLFragments = allXMLFragments + `\n${formatXML(p.outerHTML)}`
-
-
-								// 	}
-								// 	componentXmlLookup[`${rt}-${pt}`] = allXMLFragments
-
-
-
-								// }
-
+							
 
 
 							}else if (userValue['@type'] && userValue['@id']){
@@ -1145,70 +1087,11 @@ const utilsExport = {
 
 						}
 					}
-					// build the predicate
-					// //
-					// if (rootElName ==='Item'){
-					// }
+
 				}else{
 					xmlLog.push(`Skpping it because hasUserValue == false`)
 				}
 			}
-
-
-			// add in the admindata
-			// if (orginalProfile.rt[rt].adminMetadataData){
-
-
-			// 	let parser = new DOMParser();
-			// 	let adm = parser.parseFromString(orginalProfile.rt[rt].adminMetadataData, "text/xml");
-
-			// 	adm = adm.children[0]
-
-			// 	if (adm.getElementsByTagName('bflc:procInfo').length>0){
-			// 		adm.getElementsByTagName('bflc:procInfo')[0].remove()
-			// 	}
-			// 	let p = this.createElByBestNS('bflc:procInfo')
-			// 	p.innerHTML = profile.rt[rt].procInfo
-
-
-			// 	for (let el of adm.getElementsByTagName('bflc:generationProcess')){
-			// 		for (let el2 of el.getElementsByTagName('rdfs:label')){
-
-			// 			// remove it
-			// 			if (el2.innerHTML.startsWith('BFE2')){
-			// 				el.remove()
-			// 			}
-
-			// 		}
-			// 	}
-
-			// 	// add in new one
-			// 	let gP = this.createElByBestNS('bf:generationProcess')
-			// 	adm.appendChild(gP)
-			// 	let GP = this.createElByBestNS('bf:GenerationProcess')
-			// 	gP.appendChild(GP)
-
-			// 	let GPD = this.createElByBestNS('bf:generationDate')
-			// 	GPD.innerHTML = new Date().toISOString()
-			// 	GPD.setAttributeNS(this.namespace.rdf, 'rdf:datatype', 'http://www.w3.org/2001/XMLSchema#dateTime')
-			// 	GP.appendChild(GPD)
-
-
-			// 	let GPL = this.createElByBestNS('rdfs:label')
-
-			// 	GPL.innerHTML = `BFE2 v${config.versionMajor}.${config.versionMinor}.${config.versionPatch}`
-			// 	GP.appendChild(GPL)
-
-
-
-
-			// 	adm.getElementsByTagName('bf:AdminMetadata')[0].appendChild(p)
-
-
-
-			// 	rootEl.appendChild(adm)
-			// }
-
 
 
 			if (orginalProfile.rt[rt].unusedXml){

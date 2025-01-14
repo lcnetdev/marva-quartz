@@ -1,24 +1,15 @@
 import { defineStore } from 'pinia'
 import { useConfigStore } from './config'
 import { usePreferenceStore } from './preference'
-
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 TimeAgo.addDefaultLocale(en)
-
 import utilsNetwork from '@/lib/utils_network';
 import utilsParse from '@/lib/utils_parse';
 import utilsRDF from '@/lib/utils_rdf';
 import utilsExport from '@/lib/utils_export';
-// import utilsMisc from '@/lib/utils_misc';
-
-
-
 import utilsProfile from '../lib/utils_profile'
-
 import {unescape} from 'html-escaper';
-
-
 import short from 'short-uuid'
 const translator = short();
 const decimalTranslator = short("0123456789");
@@ -37,12 +28,8 @@ let cachePt = {}
 let cacheGuid = {}
 let dataChangedTimeout = null
 
-// const nonLatinRegex = /^[A-z\u00C0-\u00ff\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9]+$/;
-// const latinRegex = /^[\u3040-\u309F\u30A0-\u30FF]+$/;
 const latinRegex = /^[A-z\s'\.,-\/#!$%\^&\*;:{}=\-_`~()0-9\u0000-\u007F\u0080-\u00FF\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF\u2C60-\u2C7F\uA720-\uA7FF]+$/
 
-//https://stackoverflow.com/questions/49562546/how-to-get-all-properties-values-of-a-javascript-nested-objects-without-knowing
-// clean cacheGuid of items that match the children of the PT that is insert default values too
 function cleanCacheGuid(cache, obj, target){
   return Object.keys(obj).map(
     function(key){
@@ -64,19 +51,14 @@ function cleanCacheGuid(cache, obj, target){
 export const useProfileStore = defineStore('profile', {
   state: () => ({
 
-    // flag if the profiles have been loaded and processed
     profilesLoaded: false,
 
-    // holds all profiles
     profiles: {},
 
-    // holds all rts, with its ID as the key
     rtLookup: {},
 
-    // the starting points that display on the create new page
     startingPoints: {},
 
-    // the current active profile
     activeProfile: {},
 
     activeProfileSaved: true,
@@ -101,23 +83,14 @@ export const useProfileStore = defineStore('profile', {
     mostCommonNonLatinScript: null,
     nonLatinScriptAgents: {},
 
-    // bf:title component/predicate for example, value will be the structure object for this component
-
     activeComponent: null,
 
-    // bf:mainTitle for example, value will be the the structure object for this field
-    // main thing we can use it for is to see which field is currently active in the interface via the @guid
     activeField: { '@guid' : null },
 
     dataChangedTimestamp: Date.now(),
 
-    // the active guid of the literal field being assinged a @lang value
-    // if it === false it hides the modal
     literalLangInfo: null,
     literalLangShow: false,
-
-
-
   }),
   getters: {
 
@@ -168,11 +141,6 @@ export const useProfileStore = defineStore('profile', {
         }
       }
     },
-
-
-
-
-
   },
   actions: {
 
@@ -214,13 +182,6 @@ export const useProfileStore = defineStore('profile', {
         console.error(err);
       }
 
-
-
-
-
-      // FLAG: NEEDS_PROFILE_ALIGNMENT
-      // TEMP HACK ADD IN HUBS
-
       if (startingPointData[0]){
           startingPointData[0].json.push(
               {
@@ -258,8 +219,6 @@ export const useProfileStore = defineStore('profile', {
       }
 
 
-      // FLAG: NEEDS_PROFILE_ALIGNMENT
-      // TEMP HACK, striping RDA fields for some things for the new editor
       for (let p of profileData){
 
           if (p.json.Profile.id == 'lc:profile:bf2:Agents:Attributes'){
@@ -457,38 +416,22 @@ export const useProfileStore = defineStore('profile', {
                           pt.propertyURI = 'http://id.loc.gov/ontologies/bibframe/supplementaryContent'
 
                       }
-
-                      // others?
-                      // "propertyURI": "http://id.loc.gov/ontologies/bflc/MovingImageTechnique",
-                      // "propertyURI": "http://id.loc.gov/ontologies/bibframe/Generation",
-                      // "propertyURI": "http://id.loc.gov/ontologies/bibframe/RecordingMedium",
-                      // "propertyURI": "http://id.loc.gov/ontologies/bibframe/RegionalEncoding",
-                      // "propertyURI": "http://id.loc.gov/ontologies/bibframe/SoundContent",
-                      // "propertyURI": "http://id.loc.gov/ontologies/bibframe/PlaybackCharacteristic",
-                      // "propertyURI": "http://id.loc.gov/ontologies/bibframe/MusicInstrument",
-                      // "propertyURI": "http://id.loc.gov/ontologies/bibframe/MusicVoice",
-                      // "propertyURI": "http://id.loc.gov/ontologies/bibframe/MusicEnsemble",
                   }
               }
           }
       }
 
 
-      // -------- end HACKKCKCKCKCK
       profileData.forEach((p)=>{
 
 
-          // build the first level profiles
           if (p.json && p.json.Profile){
 
-              // for example monograph -> work
               this.profiles[p.json.Profile.id] = {
                   rtOrder: [],
                   rt: {},
                   id: p.json.Profile.id
               }
-              // now make obj of all the properties in each top level
-              // for example monograph -> work -> title
               if (p.json.Profile.resourceTemplates){
 
                   p.json.Profile.resourceTemplates.forEach((rt)=>{
@@ -539,15 +482,6 @@ export const useProfileStore = defineStore('profile', {
               })
           }
       })
-
-      // make a copy of the obj to cut refs to the orginal
-      // this.profiles = Object.assign({}, this.profiles)
-      //this.profiles = JSON.parse(JSON.stringify(this.profiles))
-
-
-
-
-
       // make a lookup for just the profiles rts
       let plookup = {}
       for (let p of Object.keys(this.profiles)){
@@ -562,9 +496,6 @@ export const useProfileStore = defineStore('profile', {
           startingPointData = startingPointData[0]
       }
 
-
-
-      // HACKHACKHACKHACK
       if (config.returnUrls.env != 'production'){
           startingPointData.json.splice(2,0,{
               "menuGroup": "GPO Monograph",
@@ -665,10 +596,6 @@ export const useProfileStore = defineStore('profile', {
               this.profiles[sp.menuGroup].rtOrder.push(this.startingPoints[sp.menuGroup].work)
               this.profiles[sp.menuGroup].rtOrder.push(this.startingPoints[sp.menuGroup].instance)
           }
-
-
-
-
 
       })
 
@@ -911,15 +838,7 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-
-
-
-
-      // console.log(JSON.stringify(useProfile,null,2))
-
-
       return useProfile
-
 
     },
 
@@ -1040,72 +959,6 @@ export const useProfileStore = defineStore('profile', {
             }
         }
 
-        // also check to see if there are default values in the orignal profile that we might need to over write with if they are switching
-
-
-        // for (let ptIdx of this.rtLookup[nextRef.id].propertyTemplates){
-        //     if (ptIdx.valueConstraint.defaults && ptIdx.valueConstraint.defaults.length>0){
-        //         // console.log("These fdautls:",ptIdx.valueConstraint.defaults && ptIdx.valueConstraint.defaults[0])
-        //         // console.log(ptIdx.propertyURI)
-        //         // if there is already this property in the uservalue remove it
-        //         if (userValue[ptIdx.propertyURI]){
-        //             userValue[ptIdx.propertyURI] = []
-        //         }
-
-        //         // popualte with the default
-
-        //         if (ptIdx.valueConstraint.defaults[0].defaultLiteral){
-
-
-
-        //             // if the default is for a label property, don't double nest it
-        //             if (ptIdx.propertyURI === 'http://www.w3.org/2000/01/rdf-schema#label'){
-
-        //                 userValue[ptIdx.propertyURI]= [
-        //                     {
-        //                         'http://www.w3.org/2000/01/rdf-schema#label':ptIdx.valueConstraint.defaults[0].defaultLiteral,
-        //                         '@guid': short.generate(),
-        //                     }
-        //                 ]
-
-        //             }else{
-        //                 userValue[ptIdx.propertyURI]= [{
-        //                     '@guid': short.generate(),
-        //                     'http://www.w3.org/2000/01/rdf-schema#label': [
-        //                         {
-        //                             'http://www.w3.org/2000/01/rdf-schema#label':ptIdx.valueConstraint.defaults[0].defaultLiteral,
-        //                             '@guid': short.generate(),
-        //                         }
-        //                     ]
-
-        //                 }]
-
-        //             }
-
-
-
-        //         }
-
-        //         if (ptIdx.valueConstraint.defaults[0].defaultURI && ptIdx.valueConstraint.defaults[0].defaultURI.trim() != ""){
-
-
-        //             userValue[ptIdx.propertyURI][0]['@id'] = ptIdx.valueConstraint.defaults[0].defaultURI
-
-        //             if (ptIdx.valueConstraint.valueDataType && ptIdx.valueConstraint.valueDataType.dataTypeURI){
-        //                 userValue[ptIdx.propertyURI][0]['@type'] = ptIdx.valueConstraint.valueDataType.dataTypeURI
-        //             }
-
-
-
-        //         }
-
-
-
-
-        //     }
-        // }
-
-        // they changed something
         this.dataChanged()
       }else{
         console.error('changeRefTemplate: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -1336,11 +1189,6 @@ export const useProfileStore = defineStore('profile', {
         }
 
 
-
-        // find the correct blank node to edit if possible, if we don't find it then we need to create it
-        // console.log(pt)
-        // console.log("fieldGuid",fieldGuid)
-
         let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)
 
         // just look through all of the properties, if its an array filter it
@@ -1356,22 +1204,7 @@ export const useProfileStore = defineStore('profile', {
             })
           }if (['object'].includes(typeof parent[p]) && parent[p] !== null){
 
-            // check the parent if there are only two keys this is a top level
-            // simple lookup, blank out the non-root key and that should clear this value
-            // if (Object.keys(pt.userValue).length==2){
-            //   for (let k in pt.userValue){
-            //     if (k != '@root'){
-            //       pt.userValue[k] = []
-            //     }
-            //   }
-            // }
-
-            // // not an array just remove the values
-            // for (let key in parent[p]){
-            //   if (key !='@guid'){
-            //     delete parent[p][key]
-            //   }
-            // }
+        
 
 
           }
@@ -1433,12 +1266,6 @@ export const useProfileStore = defineStore('profile', {
 
               }
 
-              // // not an array just remove the values
-              // for (let key in parent[p]){
-              //   if (key !='@guid'){
-              //     delete parent[p][key]
-              //   }
-              // }
 
 
             }
@@ -1450,17 +1277,6 @@ export const useProfileStore = defineStore('profile', {
         // they changed something
         this.dataChanged()
 
-        // console.log("psot filter em:",parent)
-
-
-        // if (blankNode === false){
-
-
-        // }else{
-
-
-
-        // }
       }else{
         console.error('removeValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
@@ -1521,9 +1337,6 @@ export const useProfileStore = defineStore('profile', {
 	  }
 
       // console.log("--------pt 1------------")
-      // console.log(JSON.stringify(pt,null,2))
-      // let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-      // console.log(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral)
       if (pt !== false){
         pt.hasData = true
         pt.userModified = true
@@ -1539,9 +1352,6 @@ export const useProfileStore = defineStore('profile', {
         }
 
         // console.log("--------pt 2------------")
-        // console.log(JSON.stringify(pt,null,2))
-
-        // let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
 
         if (blankNode === false){
           // create the path to the blank node
@@ -1651,10 +1461,6 @@ export const useProfileStore = defineStore('profile', {
 
           }
 
-          // make sure the blank node is not empty either
-          // loop through the property list and check the parents
-
-          // if (parent && Object.keys(parent).length==2 && parent['@type'] && parent['@guid']) {
 
             propertyPath.pop()
             let uv = pt.userValue
@@ -1688,15 +1494,6 @@ export const useProfileStore = defineStore('profile', {
 
         }
 
-        // console.log("Before prune")
-        // console.log(JSON.stringify(pt.userValue))
-
-        // pt.userValue = utilsProfile.pruneUserValue(pt.userValue)
-
-        // console.log("affter prune")
-        // console.log(JSON.stringify(pt.userValue))
-
-        // they changed something
         this.dataChanged()
 
       }else{
@@ -1733,9 +1530,6 @@ export const useProfileStore = defineStore('profile', {
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
 
-      // console.log(propertyPath[0], deepestLevelURI)
-      // console.log('pt',pt)
-      // console.log(valueLocation)
 
       if (valueLocation){
 
@@ -2016,10 +1810,7 @@ export const useProfileStore = defineStore('profile', {
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
 
-      // TODO: reconcile this to how the profiles are built, or dont..
-      // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
-      // console.log("propertyPath=",propertyPath)
 
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
@@ -2149,14 +1940,6 @@ export const useProfileStore = defineStore('profile', {
           }
 
 
-          // if (nodeMap["marcKey"]){
-          //   blankNode["http://id.loc.gov/ontologies/bflc/marcKey"] = [
-          //     {
-          //       '@guid': short.generate(),
-          //       'http://id.loc.gov/ontologies/bflc/marcKey': nodeMap["marcKey"][0]
-          //     }
-          //   ]
-          // }
 
 
 
@@ -2208,10 +1991,7 @@ export const useProfileStore = defineStore('profile', {
 
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-        // console.log('-----')
-        // console.log(pt)
-        // console.log(subjectComponents)
-        // console.log(propertyPath)
+
 
 
 
@@ -2220,12 +2000,7 @@ export const useProfileStore = defineStore('profile', {
             // build out the hiearchy
             let userValue = {}
 
-            // build the hiearchy if it doesn't exist to place the data
-
-            // we are adding the rdfs:label and the @id to this property
-            // we just need to know where to put it
-
-            // a reference to allow us to write to the end of the hierarchy
+            
             let currentUserValuePos = userValue
 
             // used as a reference to the last postion's parent, so we can easily add a new sibling
@@ -2634,35 +2409,23 @@ export const useProfileStore = defineStore('profile', {
     * @param {object} profile - The profile data to publish
     * @return {object} - Response from posting action with a publish status
     */
-    async publishRecord(eid, profile) {
-      const recordId = eid || profile?.eId;
-      if (!recordId) {
-        console.error('EID is not defined')
-        return {
-          publish: {
-            status: 'error',
-            message: 'EID is not defined'
-          },
-          name: {}
-        }
+    async publishRecord(xmlString, profile, type = 'default') {
+      if (!profile || !profile.eId) {
+        throw new Error('Profile or EID is not defined');
       }
-
-      let xml = await utilsExport.buildXML(profile)
-      let response = await utilsNetwork.publish(xml.xlmStringBasic, recordId, profile)
-
-      console.log('Full Response from publish:', JSON.stringify(response, null, 2)) // Detailed logging
-
-      // Ensure the response includes a publish status and MMS IDs
-      return {
-        publish: {
-          status: response.publish?.status || 'error',
-          message: response.publish?.message || ''
-        },
-        name: {
-          instance_mms_id: response.name?.instance_mms_id || [],
-          work_mms_id: response.name?.work_mms_id || []
-        }
+      const config = useConfigStore();
+      let publishUrl;
+      switch (type) {
+        case 'work':
+          publishUrl = config.workPublishUrl;
+          break;
+        case 'instance':
+          publishUrl = config.instancePublishUrl;
+          break;
+        default:
+          publishUrl = config.publishUrl;
       }
+      return await utilsNetwork.publishRecord(xmlString, profile, publishUrl);
     },
 
     /**
@@ -3834,9 +3597,6 @@ export const useProfileStore = defineStore('profile', {
           }
         }
 
-        // if the propertyCount is 1 then we are about to delete the only property
-        // so instead just blank out the user value so it still exists if they need to add a value
-
         if (propertyCount>1){
           this.activeProfile.rt[pt.parentId].pt[pt.id].deleted = true
         }else{
@@ -3930,15 +3690,6 @@ export const useProfileStore = defineStore('profile', {
       if (instances.length>1){
         instanceCount = instances.length -1
       }
-      // console.log('instances',instances)
-      // for (let i of instances){
-      //     if (i.includes('_')){
-      //         let nid = parseInt(i.split('_')[1])
-      //         if (nid > instances.length){
-      //             instanceCount = nid
-      //         }
-      //     }
-      // }
 
       instanceCount++
       // console.log('instanceCount',instanceCount)

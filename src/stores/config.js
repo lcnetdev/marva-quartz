@@ -975,8 +975,11 @@ export const useConfigStore = defineStore('config', {
     "yuit_cyrillic": {
         "code": "ypk-Cyrl"
     }
-  }
+  },
 
+  publishUrl: "https://quartz.bibframe.app/util/publish/staging",
+  workPublishUrl: "https://quartz.bibframe.app/util/publish/staging/work",
+  instancePublishUrl: "https://quartz.bibframe.app/util/publish/staging/instance",
 
   }),
   getters: {

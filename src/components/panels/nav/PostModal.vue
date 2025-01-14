@@ -3,6 +3,7 @@
   import { useConfigStore } from '@/stores/config'
   import { mapStores, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
+  import utilsExport from '@/lib/utils_export'
 
   export default {
     components: {
@@ -36,7 +37,19 @@
       },
 
       post: async function() {
-        const config = useConfigStore()
+        await this.publishRecord('default');
+      },
+
+      postwork: async function() {
+        await this.publishRecord('work');
+      },
+
+      postinstance: async function() {
+        await this.publishRecord('instance');
+      },
+
+      async publishRecord(type) {
+        const config = useConfigStore();
         
         this.$refs.errorHolder.style.height = this.initalHeight + 'px'
         this.posting = true
@@ -67,10 +80,23 @@
         }
 
         // Generate or retrieve xmlString here
-        const xmlString = this.generateXML(profile) // Implement generateXML accordingly
+        const xmlString = await this.generateXML(profile) // Implement generateXML accordingly
+        console.log('Generated XML:', xmlString);
+
+        if (!xmlString || xmlString === '<rdf:RDF></rdf:RDF>') {
+          console.error('Generated XML is empty')
+          this.postResults = {
+            publish: {
+              status: 'error',
+              message: 'Generated XML is empty'
+            }
+          }
+          this.posting = false
+          return
+        }
 
         try {
-          const response = await this.profileStore.publishRecord(xmlString, profile) // Pass xmlString
+          const response = await this.profileStore.publishRecord(xmlString, profile, type) // Pass xmlString and type
           this.postResults = response // Assign raw response directly
           if (response.publish.status !== 'published') {
             console.error('Error response:', response)
@@ -110,13 +136,6 @@
         }
       },
 
-      // onSelectElement(event) {
-      //   const tagName = event.target.tagName
-      //   if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
-      //     event.stopPropagation()
-      //   }
-      // },
-
       cleanUpErrorResponse: function(msg) {
         if (!msg) return ''
         msg = JSON.stringify(msg, null, 2)
@@ -125,11 +144,15 @@
       },
 
       // Implement a method to generate XML from the profile
-      generateXML(profile) {
-        // Your logic to convert profile to RDF XML string
-        // For example:
-        // return someXMLGenerationFunction(profile)
-        return profile.rdfxml || '' // Adjust based on your data structure
+      async generateXML(profile) {
+        // Use the buildXML method from utilsExport to generate the XML
+        const xmlObj = await utilsExport.buildXML(profile);
+        if (xmlObj && xmlObj.xmlStringFormatted) {
+          return xmlObj.xmlStringFormatted;
+        } else {
+          console.error('Failed to generate XML:', xmlObj);
+          return '<rdf:RDF></rdf:RDF>';
+        }
       },
     },
 

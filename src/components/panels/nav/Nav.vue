@@ -322,8 +322,20 @@
                     this.profileStore.saveRecord()
                   })
                 } },
-                { text: "Work Only", click: () => { /* schedule post logic */ } },
-                { text: "Instance Only", click: () => { /* schedule post logic */ } }
+                { text: "Work Only", click: () => {
+                  this.showPostModal = true;
+                  this.$nextTick(()=>{
+                    this.$refs.postmodal.postwork();
+                    this.profileStore.saveRecord()
+                  })
+                } },
+                { text: "Instance Only", click: () => {
+                  this.showPostModal = true;
+                  this.$nextTick(()=>{
+                    this.$refs.postmodal.postinstance();
+                    this.profileStore.saveRecord()
+                  })
+                } },
 
               ]
             }
@@ -436,6 +448,27 @@
                   el.checked = false
               }
           })
+      },
+      async handlePublish(type) {
+        const profile = this.profileStore.activeProfile;
+
+        if (!profile?.eId) {
+          this.showError('EID is not available.');
+          return;
+        }
+
+        const xmlString = this.generateXML(profile); // Implement generateXML accordingly
+
+        try {
+          const result = await this.profileStore.publishRecord(xmlString, profile, type);
+          if (result.publish.status === 'published') {
+            this.showSuccess(result.name.instance_mms_id, result.name.work_mms_id);
+          } else {
+            this.showError(result.publish.message);
+          }
+        } catch (error) {
+          this.showError(error.message || 'An unknown error occurred');
+        }
       },
       
     },

@@ -344,6 +344,7 @@ const utilsNetwork = {
               url = url.replace('https://preprod-8230.id.loc.gov','https://id.loc.gov')
               url = url.replace('https://test-8080.id.lctl.gov','https://id.loc.gov')
               url = url.replace('https://preprod-8080.id.loc.gov','https://id.loc.gov')
+              url = url.replace('https://preprod-8080.id.loc.gov','https://id.loc.gov')
               url = url.replace('https://preprod-8288.id.loc.gov','https://id.loc.gov')
             }
 
@@ -2423,42 +2424,6 @@ const utilsNetwork = {
   },
 
   /**
-  * Send the record
-  * @async
-  * @param {string} xmlString - The xml string
-  * @param {obj} profile - the activeProfile we're posting
-  * @return {obj} - {status:false, msg: ""}
-  */
-  publish: async function(xmlString, profile) {
-    if (!profile) {
-      throw new Error('Profile is required for publishing.')
-    }
-
-    const config = useConfigStore();
-    const publishEndpoint = config.returnUrls.publish; // Correctly retrieve publishEndpoint
-
-    const url = publishEndpoint; // Removed '/${eid}'
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ rdfxml: xmlString })
-    };
-    try {
-      const response = await fetch(url, options);
-      if (!response.ok) {
-        throw new Error(`Failed to publish: ${response.status} ${response.statusText}`);
-      }
-      const data = await response.json(); // Adjust based on expected response format
-      return data;
-    } catch (error) {
-      console.error('Error during publish:', error);
-      throw error;
-    }
-  },
-
-  /**
   * Send off a rdf bibframe xml files in the format <rdf:RDF><bf:Work/><bf:Instance/>...etc...</rdf:RDF>
   * @async
   * @param {string} xml - The xml string
@@ -2490,6 +2455,24 @@ const utilsNetwork = {
 
   },
 
+  async publishRecord(xmlString, profile, publishUrl) {
+    if (!profile || !profile.eId) {
+      throw new Error('Profile or EID is not defined');
+    }
+    let uuid = translator.toUUID(translator.new());
+    const rawResponse = await fetch(publishUrl, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name: uuid, rdfxml: xmlString, eid: profile.eId, hub: profile.hub })
+    });
+    if (!rawResponse.ok) {
+      throw new Error(`Failed to publish: ${rawResponse.status} ${rawResponse.statusText}`);
+    }
+    return await rawResponse.json();
+  },
 
     /**
     * A result from searching ID by LCCN
@@ -2710,13 +2693,7 @@ const utilsNetwork = {
         return false
       }
 
-
-    },
-
-
-
-
-}
+    },}
 
 
 export default utilsNetwork;
