@@ -33,7 +33,7 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,useConfigStore),
-      ...mapState(useProfileStore, ['emptyComponents', 'activeProfile']),
+      ...mapState(useProfileStore, ['emptyComponents', 'activeProfile', 'isEmptyComponent']),
 
       // ...mapState(usePreferenceStore, ['debugModalData']),
       ...mapWritableState(useProfileStore, ['showAdHocModal', 'emptyComponents']),
@@ -51,8 +51,17 @@
           this.top = newRect.top
           this.left = newRect.left
           this.$refs.errorHolder.style.height = newRect.height + 'px'
-
         },
+
+        changeVisibility: function(rt, pt){
+          // if it's hidden, display it
+          if (this.emptyComponents[rt].includes(pt)){
+            let idx = this.emptyComponents[rt].indexOf(pt)
+            this.emptyComponents[rt].splice(idx, 1)
+          } else {
+            this.emptyComponents[rt].push(pt)
+          }
+        }
     },
 
     mounted() {}
@@ -91,21 +100,33 @@
                 </div>
             </div>
             <h3>Below you can select elements to display or hide in Marva.</h3>
-
-            <div v-for="(value, key) in emptyComponents">
-              <h2>{{ key }}</h2>
-                <li v-for="item in value">
-                  <div id="container">
-                    <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
-                    <label for="search-type" class="toggle-container">
+            <div v-for="(v, rt) in activeProfile.rt">
+              <h2 style="margin-top: 5px;">{{ rt }}</h2>
+              <div v-for="(obj, pt) in activeProfile.rt[rt].pt">
+                <li style="margin-bottom: 2px;">
+                  <div id="container" v-if="obj.mandatory!='true' && isEmptyComponent(obj)">
+                    <input type="checkbox" :id="`${rt}--${pt}`" class="toggle" name="search-type" value="keyword" @click="changeVisibility(rt, pt)" ref="toggle" :checked="emptyComponents[rt].includes(pt)" readonly>
+                    <label :for="`${rt}--${pt}`" class="toggle-container">
                       <div>Display</div>
                       <div>Hide</div>
                     </label>
-                    {{ this.activeProfile.rt[key].pt[item].propertyLabel }}
+                    <div>{{ obj.propertyLabel }}</div>
+                  </div>
+                  <div v-else>
+                    <div class="mandatory-container" v-if="obj.mandatory == 'true'">
+                      <div class="mandatory">MANDATORY</div>
+                      <div>{{ obj.propertyLabel }}</div>
+                    </div>
+                    <div class="mandatory-container" v-else>
+                      <div class="mandatory">Populated</div>
+                      <div>{{ obj.propertyLabel }}</div>
+                    </div>
                   </div>
                 </li>
               </div>
+            </div>
           </div>
+
         </VueDragResize>
     </VueFinalModal>
 </template>
@@ -174,41 +195,13 @@
     font-size: 1.5em;
   }
 
-  .level-INFO,
-  .level-SUCCESS,
-  .level-WARNING,
-  .level-ERROR{
-    list-style: none;
-    width: fit-content;
-    margin-bottom: 5px;
-    padding: .75rem 1.25rem;
-  }
-  .level-WARNING {
-    color: #856404;
-    background-color: #fff3cd;
-    border-color: #ffeeba;
-  }
-  .level-ERROR {
-    color: #721c24;
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-  }
+/* toggle */
+#container{
+  display: table;
+}
 
-  .level-SUCCESS {
-    color: #155724;
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-  }
-
-  .level-INFO {
-    color: #0c5460;
-    background-color: #d1ecf1;
-    border-color: #bee5eb;
-  }
-
-  /* toggle */
-  #container{
-	margin-left: 5px;
+#container div {
+  display: table-cell;
 }
 
 .toggle {
@@ -221,11 +214,26 @@
    grid-template-columns: repeat(2, 1fr);
    width: fit-content;
    border: 3px solid lightskyblue;
-   border-radius: 20px;
+   border-radius: 10px;
    background: lightskyblue;
    font-weight: bold;
    color: lightskyblue;
    cursor: pointer;
+}
+
+.mandatory-container {
+  display: table;
+}
+.mandatory {
+  position: relative;
+   display: table-cell;
+   width: fit-content;
+   border: 3px solid slategray;
+   border-radius: 10px;
+   background: lightgray;
+   font-weight: bold;
+   color: black;
+   padding: 2px;
 }
 
 .toggle-container::before {
@@ -234,13 +242,13 @@
    width: 50%;
    height: 100%;
    left: 0%;
-   border-radius:20px;
+   border-radius:10px;
    background: black;
    transition: all 0.3s;
 }
 
 .toggle-container div {
-   padding: 6px;
+   padding: 1px;
    text-align: center;
    z-index: 1;
 }
