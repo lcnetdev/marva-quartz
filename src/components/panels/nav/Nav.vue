@@ -17,6 +17,10 @@
         <RecoveryModal ref="recoverymodal" v-model="showRecoveryModal" />
       </template>
 
+      <template v-if="showAdHocModal==true">
+        <AdHocModal ref="adHocModal" v-model="showAdHocModal" />
+      </template>
+
     </Teleport>
 
   </div>
@@ -33,10 +37,11 @@
   import PostModal from "@/components/panels/nav/PostModal.vue";
   import ValidateModal from "@/components/panels/nav/ValidateModal.vue";
   import RecoveryModal from "@/components/panels/nav/RecoveryModal.vue";
+  import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
 
 
   export default {
-    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, AdHocModal },
     data() {
       return {
         allSelected: false,
@@ -53,11 +58,11 @@
 
       ...mapStores(useProfileStore,usePreferenceStore),
 
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showAdHocModal', 'emptyComponents']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -197,9 +202,31 @@
             }
           ] }
           )
+        }
 
-
-
+        if(this.$route.path.startsWith('/edit/')){
+          for (let sub in menu){
+            if (menu[sub].text == 'Tools'){
+              menu[sub].menu.push(
+                { is: 'separator'},
+                {
+                  text: 'Show/Hide Elements',
+                  icon: 'menu',
+                  click: () => { this.showAdHocModal = true },
+                },
+                {
+                  text: 'Show Empty Elements',
+                  click: () => this.showAllElements(),
+                  icon: 'visibility'
+                },
+                {
+                  text: 'Hide Empty Elements',
+                  click: () => this.hideAllElements(),
+                  icon: 'visibility_off'
+                },
+              )
+            }
+          }
         }
 
 
@@ -523,6 +550,26 @@
         document.body.removeChild(temp)
       },
 
+      // Show all hidden elements
+      showAllElements: function(){
+        for (let key in this.emptyComponents){
+          this.emptyComponents[key] = []
+        }
+      },
+
+      // Hide all empty elements
+      hideAllElements: function(){
+        for (let rt in this.activeProfile.rt){
+          this.emptyComponents[rt] = []
+          for (let element in this.activeProfile.rt[rt].pt){
+            let empty = this.isEmptyComponent(this.activeProfile.rt[rt].pt[element])
+            const mandatory = this.activeProfile.rt[rt].pt[element].mandatory
+            if(empty && mandatory != 'true'){
+              this.emptyComponents[rt].push(element)
+            }
+          }
+        }
+      },
     },
 
     created() {}

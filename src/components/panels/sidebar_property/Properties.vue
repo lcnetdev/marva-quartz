@@ -33,10 +33,10 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent', 'emptyComponents']),
       ...mapState(usePreferenceStore, ['styleDefault', 'isEmptyComponent']),
 
-      ...mapWritableState(useProfileStore, ['activeComponent']),
+      ...mapWritableState(useProfileStore, ['activeComponent', 'emptyComponents']),
 
 
     },
@@ -119,6 +119,16 @@
               return false
           }
       },
+
+      jumpToElement: function(profileName, elementName){
+        //if it's hidden show it
+        if (this.emptyComponents[profileName].includes(elementName)){
+          let idx = this.emptyComponents[profileName].indexOf(elementName)
+          this.emptyComponents[profileName].splice(idx, 1)
+        }
+        //jump to it
+        this.activeComponent = this.activeProfile.rt[profileName].pt[elementName]
+      },
     },
   }
 
@@ -168,9 +178,6 @@
 
 
                   <ul class="sidebar-property-ul" role="list">
-
-
-
                           <draggable
                             v-model="activeProfile.rt[profileName].ptOrder"
                             group="people"
@@ -180,8 +187,8 @@
                             item-key="id">
                             <template #item="{element}">
                               <template v-if="!activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI)">
-                                <li @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}]">
-                                  <a href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-ul-alink">
+                                <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) )}]">
+                                  <a href="#" @click.stop="jumpToElement(profileName, element)" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
                                       <span v-if="activeProfile.rt[profileName].pt[element].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'">
                                         [SH]: {{ returnSubjectHeadingLabel(activeProfile.rt[profileName].pt[element]) }}
@@ -189,8 +196,6 @@
                                       <span v-else>
                                         {{activeProfile.rt[profileName].pt[element].propertyLabel}}
                                       </span>
-
-
 
                                   </a>
                                   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-show-types')">
@@ -510,8 +515,13 @@ li.system-populated:before {
 li.user-populated:before {
     font-family: 'Material Icons';
     content: 'task_alt';
-    //content: '✓';
     color: white !important;
+}
+
+li.not-populated-hide:before{
+  font-family: 'Material Icons';
+  content: 'visibility_off';
+  color: white !important;
 }
 
 
