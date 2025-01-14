@@ -4026,6 +4026,16 @@ export const useProfileStore = defineStore('profile', {
         // update the parentId
         this.activeProfile.rt[newRtId].pt[pt].parentId = this.activeProfile.rt[newRtId].pt[pt].parentId.replace(instanceName, newRtId)
         this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(instanceName, newRtId)
+
+        // TODO: make sure this is included in the branch for adding items
+        // If it's not mandatory, add it to ad hoc mode's emptyComponents list
+        if (this.activeProfile.rt[newRtId].pt[pt].mandatory != 'true'){
+          if (Object.keys(this.emptyComponents).includes(newRtId)){
+            this.emptyComponents[newRtId].push(pt)
+          } else {
+            this.emptyComponents[newRtId] = [pt]
+          }
+        }
       }
 
 

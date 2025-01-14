@@ -123,12 +123,15 @@
       jumpToElement: function(profileName, elementName){
         //if it's hidden show it
         if (this.emptyComponents[profileName].includes(elementName)){
-          console.info("this is a hidden element")
+          console.info("this is a hidden element, removing it from the list: ", elementName)
           let idx = this.emptyComponents[profileName].indexOf(elementName)
+          console.info("idx: ", idx)
           this.emptyComponents[profileName].splice(idx, 1)
+          console.info("new emptyComponentList: ", this.emptyComponents[profileName])
         }
         //jump to it
         this.activeComponent = this.activeProfile.rt[profileName].pt[elementName]
+        console.info("activeComponent: ", this.activeComponent)
       },
     },
   }

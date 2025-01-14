@@ -61,6 +61,11 @@
           } else {
             this.emptyComponents[rt].push(pt)
           }
+        },
+
+        setLabel: function(rt){
+          let pieces = rt.split(":")
+          return pieces.at(-1)
         }
     },
 
@@ -95,13 +100,14 @@
           <div id="error-holder" ref="errorHolder">
             <div>
                 <h1>Ad Hoc Mode Elements</h1>
-                <div class="dewey-menu-button">
+                <div style="z-index: 100;">
                     <button @click="done()" class="close-button">Close</button>
                 </div>
             </div>
             <h3>Below you can select elements to display or hide in Marva.</h3>
+            <p>Fields that are mandatory or populated can't be hidden.</p>
             <div v-for="(v, rt) in activeProfile.rt">
-              <h2 style="margin-top: 5px;">{{ rt }}</h2>
+              <h2 style="margin-top: 5px;">{{ setLabel(rt) }}</h2>
               <div v-for="(obj, pt) in activeProfile.rt[rt].pt">
                 <li style="margin-bottom: 2px;">
                   <div id="container" v-if="obj.mandatory!='true' && isEmptyComponent(obj)">
@@ -114,7 +120,7 @@
                   </div>
                   <div v-else>
                     <div class="mandatory-container" v-if="obj.mandatory == 'true'">
-                      <div class="mandatory">MANDATORY</div>
+                      <div class="mandatory">Mandatory</div>
                       <div>{{ obj.propertyLabel }}</div>
                     </div>
                     <div class="mandatory-container" v-else>
@@ -198,6 +204,7 @@
 /* toggle */
 #container{
   display: table;
+  margin-left: 20px;
 }
 
 #container div {
@@ -223,6 +230,7 @@
 
 .mandatory-container {
   display: table;
+  margin-left: 20px;
 }
 .mandatory {
   position: relative;
