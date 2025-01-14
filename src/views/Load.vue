@@ -178,7 +178,7 @@
                 <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_document</span>
                 <span>Create New Description</span></h1>
                 <div style="padding:5px;">
-                  Use these blank templates to create a new description. Note that in Alma the Work must exist first, then an instance can be exported. The Alma system will not allow an instance to be created without referencing an existing work.
+                  Use these blank templates to create a new description. Note that in Alma the Work must exist first, then an instance can be exported.
                 </div>
                 <div>
                   <div class="load-buttons">
