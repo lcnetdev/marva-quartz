@@ -246,8 +246,6 @@ export const useConfigStore = defineStore('config', {
         properties: [
           "http://id.loc.gov/ontologies/bibframe/subject",
           "http://id.loc.gov/ontologies/bibframe/classification",
-
-
         ]
       }
 

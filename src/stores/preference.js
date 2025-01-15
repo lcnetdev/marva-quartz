@@ -47,8 +47,9 @@ export const usePreferenceStore = defineStore('preference', {
     showTextMacroModal: false,
 
     layoutActive: false,
-
     layoutActiveFilter: null,
+    customLayouts: {},
+    createLayoutMode: false,
 
 
 
@@ -75,7 +76,6 @@ export const usePreferenceStore = defineStore('preference', {
 
 
       // the left properties panel
-
       '--c-edit-main-splitpane-properties-background-color' : {
           value:'#2a2a2a',
           desc: 'The background color of the properties side bar on the edit screen.',
@@ -102,7 +102,6 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Property',
           range: [5,100]
       },
-
       '--n-edit-main-splitpane-properties-font-size' : {
           desc: 'The fontsize of the text in the property list side bar.',
           descShort: 'Font Size',
@@ -121,7 +120,6 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Property',
           range: null
       },
-
       '--c-edit-main-splitpane-properties-font-color' : {
           value:'#fff',
           desc: 'The font color of the text in the property list.',
@@ -853,7 +851,6 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
       // scriptshifter
-
       '--b-scriptshifter-capitalize-first-letter' : {
         desc: 'Capitalize the first letter of the transliterated string.',
         descShort: 'Capitalize the first letter',
@@ -862,6 +859,15 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Scriptshifter',
         range: [true,false]
+      },
+
+      // Custom Layouts, isn't really a preference, but need to store it somewhere
+      '--b-scriptshifter-capitalize-first-letter' : {
+        desc: '',
+        descShort: '',
+        value: false,
+        type: 'object',
+        group: 'layouts',
       },
 
 

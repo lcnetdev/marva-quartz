@@ -63,9 +63,9 @@
       ...mapStores(useProfileStore,usePreferenceStore),
 
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent']),
-      ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
+      ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode']),
       ...mapState(useConfigStore, ['layouts']),
-      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal']),
+      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode']),
       ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
@@ -317,6 +317,12 @@
           )
 
            let layoutsMenu = []
+           layoutsMenu.push({
+              text: "Create Layout",
+              click: () => { this.createLayout() },
+              icon: "add"
+            })
+            layoutsMenu.push({ is: "separator" })
 
            for (let l in this.layouts.all ){
 
@@ -329,9 +335,28 @@
             })
            }
 
+           console.info("???", this.createLayoutMode)
+          //  menu.push(
+          //     !this.createLayoutMode ? { text: "Layouts",  menu: layoutsMenu } : { text: "Save Layout", click: () => { this.saveLayout() }}
+          //   )
+
+           if (!this.createLayoutMode){
             menu.push(
               { text: "Layouts",  menu: layoutsMenu }
             )
+           } else {
+            menu.push(
+              { text: "Save Layout", click: (e) => {
+                e.stopPropagation()
+                console.info("click save: ", e)
+                this.saveLayout()
+               }},
+              { text: "Cancel Layout", click: (e) => {
+                e.stopPropagation()
+                this.cancelLayout()
+              }},
+            )
+           }
 
         }
 
@@ -469,6 +494,23 @@
       activateLayout(layout){
         this.layoutActive = true
         this.layoutActiveFilter = layout
+      },
+
+      createLayout: function(){
+        console.info("Create Layout")
+        console.info("Current Custom Layouts: ", this.customLayouts)
+        this.createLayoutMode = true
+        console.info("createLayoutMode: ", this.createLayoutMode)
+      },
+
+      saveLayout: function(){
+        console.info("save")
+        // this.createLayoutMode = false
+      },
+
+      cancelLayout: function(){
+        console.info("cancel")
+        this.createLayoutMode = false
       },
 
       selectAll: function(){
