@@ -3,7 +3,7 @@ import { useProfileStore } from './profile'
 import { getCurrentInstance } from 'vue'
 import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyager_macro_express.json"
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
-
+import utilsProfile from '../lib/utils_profile'
 
 export const usePreferenceStore = defineStore('preference', {
   state: () => ({
@@ -1158,6 +1158,29 @@ export const usePreferenceStore = defineStore('preference', {
     toggleCopyMode: function(){
         this.copyMode = !this.copyMode
     },
+
+    saveLayout: function(){
+      let properties = []
+      console.info("profile: ", useProfileStore().activeProfile)
+      const profileId =  useProfileStore().activeProfile.id
+      console.info("profileId: ", profileId)
+
+      let copyTargets = document.querySelectorAll('input[class=layout-selection]:checked')
+      console.info("targets: ", copyTargets)
+      if (copyTargets.length == 0){
+        alert("No elements are selected for the profile. Select some and try again.")
+        return false
+      }
+      copyTargets.forEach((item) => properties.push(item.id))
+
+
+      return false
+      let name = prompt("Save layout as")
+      console.info("saving layout as ", name)
+
+
+
+    }
 
     /**
     * Take a url and rewrites it to match the url pattern of the current enviornment

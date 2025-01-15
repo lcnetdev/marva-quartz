@@ -505,7 +505,11 @@
 
       saveLayout: function(){
         console.info("save")
-        // this.createLayoutMode = false
+        let saved = this.preferenceStore.saveLayout()
+
+        if (saved){
+          this.createLayoutMode = false
+        }
       },
 
       cancelLayout: function(){
