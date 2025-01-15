@@ -85,6 +85,7 @@ export const useProfileStore = defineStore('profile', {
     showRecoveryModal: false,
     showValidateModal: false,
     showHubStubCreateModal: false,
+    showItemInstanceSelection: false,
     activeHubStubData:{
     },
     activeHubStubComponent:{
@@ -3971,12 +3972,11 @@ export const useProfileStore = defineStore('profile', {
     /**
     * Build a new instance
     *
-    * @param lccn {string} the lccn for the new instance. If there isn't one, this is a secondary instance
+    * @param secondary {bool} whether this should an instance or a secondary instance
+    * @param lccn {string} the lccn for the record
     * @return {void}
     */
-    createInstance:  function(secondary=false){
-
-
+    createInstance:  function(secondary=false, lccn=null){
       // find the RT for the instance of this profile orginally
       // get the work rt
 
@@ -4027,7 +4027,6 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.rt[newRtId].pt[pt].parentId = this.activeProfile.rt[newRtId].pt[pt].parentId.replace(instanceName, newRtId)
         this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(instanceName, newRtId)
 
-        // TODO: make sure this is included in the branch for adding items
         // If it's not mandatory, add it to ad hoc mode's emptyComponents list
         if (this.activeProfile.rt[newRtId].pt[pt].mandatory != 'true'){
           if (Object.keys(this.emptyComponents).includes(newRtId)){
@@ -4043,10 +4042,14 @@ export const useProfileStore = defineStore('profile', {
       // setup the new instance's properies
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
-      this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
+      if (lccn != ""){
+        this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/instances/" + lccn
+      } else {
+        this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance', workUri)
+      }
       this.activeProfile.rt[newRtId].instanceOf = workUri
 
-      if (secondary){
+      if (secondary && secondary != "item"){
         this.activeProfile.rt[newRtId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
       }
 
@@ -4054,6 +4057,93 @@ export const useProfileStore = defineStore('profile', {
 
       //Add to rtLookup, with a copy of an instance as the value
       this.rtLookup[newRtId] = this.rtLookup[instanceName]
+
+      this.dataChanged()
+
+    },
+
+    /**
+    * Create a new item for the record
+    * @param instance {string} position of the rt for the instance that the item belongs to, when there is more than 1 instance
+    * @param lccn {string} the lccn for the record
+    *
+    * @return {void}
+    */
+    createItem: async function(instance, lccn=null){
+      // find the RT for the instance of this profile orginally
+      // get the work rt
+
+      let itemName
+      let itemRt
+      let workUri
+      let instanceUri
+
+      for (let rtId in this.activeProfile.rt){
+          if (rtId.includes(":Work")){
+            workUri = this.activeProfile.rt[rtId].URI
+            // now find the corresponding item id
+            for (let allRt in this.profiles){
+              if (this.profiles[allRt].rtOrder.indexOf(rtId)>-1){
+                if (this.profiles[allRt].rtOrder.filter(i => i.includes(":Item"))[0]){
+                  itemName = this.profiles[allRt].rtOrder.filter(i => i.includes(":Item"))[0]
+                  itemRt = JSON.parse(JSON.stringify(this.profiles[allRt].rt[itemName]))
+                }
+              }
+            }
+          }
+          if (instance && rtId == instance){
+            instanceUri = this.activeProfile.rt[rtId].URI
+            break
+          }else if (rtId.includes(":Instance")){
+            instanceUri = this.activeProfile.rt[rtId].URI
+          }
+      }
+      let itemCount = 0;
+      // gather info to add it
+      let items = Object.keys(this.activeProfile.rt).filter(i => i.includes(":Item"))
+      if (items.length >= 1){
+        itemCount = items.length
+      }
+
+
+
+      // console.log('itemCount',itemCount)
+      let newRtId = itemName +'_'+itemCount
+      itemRt.isNew = true
+      this.activeProfile.rt[newRtId] = itemRt
+      this.activeProfile.rtOrder.push(newRtId)
+
+      // give it all new guids
+      for (let pt in this.activeProfile.rt[newRtId].pt){
+        this.activeProfile.rt[newRtId].pt[pt]['@guid'] = short.generate()
+        // update the parentId
+        this.activeProfile.rt[newRtId].pt[pt].parentId = this.activeProfile.rt[newRtId].pt[pt].parentId.replace(itemName, newRtId)
+        this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(itemName, newRtId)
+
+        // If it's not mandatory, add it to ad hoc mode's emptyComponents list
+        if (this.activeProfile.rt[newRtId].pt[pt].mandatory != 'true'){
+          if (Object.keys(this.emptyComponents).includes(newRtId)){
+            this.emptyComponents[newRtId].push(pt)
+          } else {
+            this.emptyComponents[newRtId] = [pt]
+          }
+        }
+      }
+
+      // setup the new instance's properies
+      // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
+
+      //this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', instanceUri)
+      if (lccn && lccn != ""){
+        this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/items/" + lccn
+      } else {
+        this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', instanceUri)
+      }
+
+      this.activeProfile.rt[newRtId].itemOf = instanceUri
+
+      //Add to rtLookup, with a copy of an instance as the value
+      this.rtLookup[newRtId] = this.rtLookup[itemName]
 
       this.dataChanged()
 
