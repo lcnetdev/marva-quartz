@@ -862,10 +862,10 @@ export const usePreferenceStore = defineStore('preference', {
       },
 
       // Custom Layouts, isn't really a preference, but need to store it somewhere
-      '--b-scriptshifter-capitalize-first-letter' : {
+      '--l-custom-layouts' : {
         desc: '',
         descShort: '',
-        value: false,
+        value: {},
         type: 'object',
         group: 'layouts',
       },
@@ -1030,6 +1030,7 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {string|number} - The value of the property
     */
     returnValue: function(propertyName,excludeUnitType){
+      console.info("Returning value for ", propertyName, "--", this.styleDefault[propertyName])
       if (!this.styleDefault[propertyName]){
         console.warn("Trying to return", propertyName, ' but does not exist.')
         return ""
@@ -1052,6 +1053,7 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {boolean} - Did it work
     */
     setValue: function(propertyName,value){
+      console.info("setting value for ", propertyName, " to ", value)
       if (!this.styleDefault[propertyName]){
         return false
       }
@@ -1160,6 +1162,8 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
     saveLayout: function(){
+      let currentLayouts = this.returnValue('--l-custom-layouts')
+      console.info(">>>>>>>>>>>>>>>>>", currentLayouts)
       let components = []
       let compontGuids = []
       let properties = []
@@ -1195,7 +1199,7 @@ export const usePreferenceStore = defineStore('preference', {
 
       console.info("components: ", components)
 
-      layout[layoutHash] = {
+      layout = {
         label: layoutName,
         properties: {}
       }
@@ -1204,22 +1208,21 @@ export const usePreferenceStore = defineStore('preference', {
         console.info("component: ", component)
         const parentId = component.parentId
         const propertyUri = component.propertyURI
-        if (Object.keys(layout[layoutHash].properties).includes(parentId)){
-          layout[layoutHash].properties[parentId].push(propertyUri)
+        if (Object.keys(layout.properties).includes(parentId)){
+          layout.properties[parentId].push(propertyUri)
         } else {
-          layout[layoutHash].properties[parentId] = [propertyUri]
+          layout.properties[parentId] = [propertyUri]
         }
       }
 
       console.info("layout: ", layout)
 
+      currentLayouts[layoutHash] = layout
 
-      return false
-      let name = prompt("Save layout as")
-      console.info("saving layout as ", name)
+      console.info("current layouts:", currentLayouts)
+      this.setValue('--l-custom-layouts', currentLayouts)
 
-
-
+      return false //true
     }
 
     /**
