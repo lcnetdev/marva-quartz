@@ -4070,7 +4070,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     createItem: async function(instance, lccn=null){
-
       // find the RT for the instance of this profile orginally
       // get the work rt
 
@@ -4094,6 +4093,7 @@ export const useProfileStore = defineStore('profile', {
           }
           if (instance && rtId == instance){
             instanceUri = this.activeProfile.rt[rtId].URI
+            break
           }else if (rtId.includes(":Instance")){
             instanceUri = this.activeProfile.rt[rtId].URI
           }
@@ -4134,11 +4134,12 @@ export const useProfileStore = defineStore('profile', {
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
       //this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', instanceUri)
-      if (lccn != ""){
+      if (lccn && lccn != ""){
         this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/items/" + lccn
       } else {
         this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', instanceUri)
       }
+
       this.activeProfile.rt[newRtId].itemOf = instanceUri
 
       //Add to rtLookup, with a copy of an instance as the value

@@ -108,7 +108,7 @@
                 <div class="toggle-btn-grp cssonly">
                     <div v-for="(value, key, idx) in instances">
                         <input type="radio" :id="key" :value="key" class="instance-selection-radio" v-model="selectedInstance" name="instance-selection" @click="setInstance($event, idx)" />
-                        <label onclick="" :for="key" class="dewey-toggle-btn">{{ updateLabel(value) }}</label>
+                        <label onclick="setInstance($event, idx)" :for="key" class="dewey-toggle-btn">{{ updateLabel(value) }}</label>
                     </div>
                 </div>
             </div>
