@@ -101,6 +101,7 @@ export const useProfileStore = defineStore('profile', {
       componentPropertyPath:null
     },
     showAutoDeweyModal: false,
+    showAdHocModal: false,
     deweyData: {
       lcc: null,
       guid: null,
@@ -125,6 +126,8 @@ export const useProfileStore = defineStore('profile', {
     literalLangInfo: null,
     literalLangShow: false,
 
+    // List of empty components for ad hoc mode
+    emptyComponents: {},
 
 
   }),
@@ -4024,6 +4027,16 @@ export const useProfileStore = defineStore('profile', {
         // update the parentId
         this.activeProfile.rt[newRtId].pt[pt].parentId = this.activeProfile.rt[newRtId].pt[pt].parentId.replace(instanceName, newRtId)
         this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(instanceName, newRtId)
+
+        // TODO: make sure this is included in the branch for adding items
+        // If it's not mandatory, add it to ad hoc mode's emptyComponents list
+        if (this.activeProfile.rt[newRtId].pt[pt].mandatory != 'true'){
+          if (Object.keys(this.emptyComponents).includes(newRtId)){
+            this.emptyComponents[newRtId].push(pt)
+          } else {
+            this.emptyComponents[newRtId] = [pt]
+          }
+        }
       }
 
 
@@ -4506,7 +4519,6 @@ export const useProfileStore = defineStore('profile', {
 
 
     //Check if the component's userValue is empty
-
     isEmptyComponent: function(c){
       const component = c
       const emptyArray = new Array("@root")

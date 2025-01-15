@@ -12,6 +12,7 @@
 
   </template>
   <div
+
     v-for="profileName in this.activeProfile.rtOrder"
     :key="profileName"
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-item': (profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1 && !profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
@@ -29,30 +30,30 @@
                 </div>
           </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
+                <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
+                    :key="profileCompoent">
+                  <template v-if="!preferenceStore.returnValue('--c-general-ad-hoc') || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && profileStore.emptyComponents[profileName] && !profileStore.emptyComponents[profileName].includes(profileCompoent) ))">
+                  <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
+                    <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
 
-              <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
-                  :key="profileCompoent">
+                      <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
-                <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
-                  <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
-
-                    <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
-
-                      <div class="component-label" >
-                          <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
-                          {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
-                      </div>
-                      <Main
-                        :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
-                        :level="0"
-                        :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-                        :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
-                        :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
+                        <div class="component-label" >
+                            <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                            {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
+                        </div>
+                        <Main
+                          :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
+                          :level="0"
+                          :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+                          :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
+                          :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
+                      </template>
                     </template>
                   </template>
-                </template>
 
-              </div>
+                  </template>
+                </div>
             </template>
 
 
@@ -83,11 +84,7 @@
                 <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
                   <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
-
-
-                    <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
-
-
+                    <div v-if="!preferenceStore.returnValue('--c-general-ad-hoc') || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
                       <template v-if="this.dualEdit == false">
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
                           <div class="component-label" >
@@ -203,6 +200,7 @@
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged']),
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
+      ...mapWritableState(useProfileStore, ['emptyComponents']),
 
       activeResourceName(){
 
@@ -293,6 +291,11 @@
                 // remove from rtOrder
                 const targetIndex = this.activeProfile.rtOrder.indexOf(profileName)
                 this.activeProfile.rtOrder.splice(targetIndex, 1)
+
+                // Remove from ad hoc
+                if (Object.keys(this.emptyComponents).includes(profileName)){
+                  delete this.emptyComponents[profileName]
+                }
 
                 // remove the profile
                 delete this.activeProfile.rt[profileName]
