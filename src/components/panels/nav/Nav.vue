@@ -559,12 +559,12 @@
       },
 
       addInstance: function(secondary=false){
-        let lccn = prompt("Enter an LCCN for this Instance.")
+        let lccn = "" //prompt("Enter an LCCN for this Instance.")
         this.profileStore.createInstance(true, lccn)
       },
 
       addItem: function(){
-        let lccn = prompt("Enter an LCCN for this Item.")
+        let lccn = "" //prompt("Enter an LCCN for this Item.")
         let instanceCount = 0
         let instance = null
         for (let p in this.activeProfile.rt){
