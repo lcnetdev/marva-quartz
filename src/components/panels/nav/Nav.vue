@@ -145,11 +145,11 @@
           menuButtonSubMenu.push(
             {
               text: 'Add Additional Instance',
-              click: () => { this.profileStore.createInstance(false) }
+              click: () => { this.addInstance(false) }
             },
             {
               text: 'Add Secondary Instance',
-              click: () => { this.profileStore.createInstance(true) }
+              click: () => { this.addInstance(true) }
             },
             {
               text: 'Add Item',
@@ -558,7 +558,13 @@
         document.body.removeChild(temp)
       },
 
+      addInstance: function(secondary=false){
+        let lccn = prompt("Enter an LCCN for this Instance.")
+        this.profileStore.createInstance(true, lccn)
+      },
+
       addItem: function(){
+        let lccn = prompt("Enter an LCCN for this Item.")
         let instanceCount = 0
         let instance = null
         for (let p in this.activeProfile.rt){
@@ -575,7 +581,7 @@
           // show a modal to select which instance the item belongs too
           this.showItemInstanceSelection = true
         } else {
-          this.profileStore.createItem(this.targetInstance)
+          this.profileStore.createItem(this.targetInstance, lccn)
         }
       },
 

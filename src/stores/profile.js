@@ -3973,11 +3973,10 @@ export const useProfileStore = defineStore('profile', {
     * Build a new instance
     *
     * @param secondary {bool} whether this should an instance or a secondary instance
+    * @param lccn {string} the lccn for the record
     * @return {void}
     */
-    createInstance:  function(secondary=false){
-
-
+    createInstance:  function(secondary=false, lccn=null){
       // find the RT for the instance of this profile orginally
       // get the work rt
 
@@ -4043,7 +4042,7 @@ export const useProfileStore = defineStore('profile', {
       // setup the new instance's properies
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
-      this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
+      this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/instances/" + lccn //utilsProfile.suggestURI(this.activeProfile,'bf:Instance', workUri)
       this.activeProfile.rt[newRtId].instanceOf = workUri
 
       if (secondary && secondary != "item"){
@@ -4062,10 +4061,11 @@ export const useProfileStore = defineStore('profile', {
     /**
     * Create a new item for the record
     * @param instance {string} position of the rt for the instance that the item belongs to, when there is more than 1 instance
+    * @param lccn {string} the lccn for the record
     *
     * @return {void}
     */
-    createItem: async function(instance){
+    createItem: async function(instance, lccn=null){
 
       // find the RT for the instance of this profile orginally
       // get the work rt
@@ -4129,7 +4129,8 @@ export const useProfileStore = defineStore('profile', {
       // setup the new instance's properies
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
-      this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', instanceUri)
+      //this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', instanceUri)
+      this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/items/" + lccn
       this.activeProfile.rt[newRtId].itemOf = instanceUri
 
       //Add to rtLookup, with a copy of an instance as the value
