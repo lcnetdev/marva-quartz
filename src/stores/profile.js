@@ -4043,7 +4043,7 @@ export const useProfileStore = defineStore('profile', {
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
       if (lccn != ""){
-        this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/instances/" + lccn //utilsProfile.suggestURI(this.activeProfile,'bf:Instance', workUri)
+        this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/instances/" + lccn
       } else {
         this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance', workUri)
       }
@@ -4082,7 +4082,7 @@ export const useProfileStore = defineStore('profile', {
       for (let rtId in this.activeProfile.rt){
           if (rtId.includes(":Work")){
             workUri = this.activeProfile.rt[rtId].URI
-            // now find the corosponding item id
+            // now find the corresponding item id
             for (let allRt in this.profiles){
               if (this.profiles[allRt].rtOrder.indexOf(rtId)>-1){
                 if (this.profiles[allRt].rtOrder.filter(i => i.includes(":Item"))[0]){
@@ -4137,7 +4137,7 @@ export const useProfileStore = defineStore('profile', {
       if (lccn != ""){
         this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/items/" + lccn
       } else {
-        this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', workUri)
+        this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', instanceUri)
       }
       this.activeProfile.rt[newRtId].itemOf = instanceUri
 
