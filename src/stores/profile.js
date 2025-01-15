@@ -4042,7 +4042,11 @@ export const useProfileStore = defineStore('profile', {
       // setup the new instance's properies
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
-      this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/instances/" + lccn //utilsProfile.suggestURI(this.activeProfile,'bf:Instance', workUri)
+      if (lccn != ""){
+        this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/instances/" + lccn //utilsProfile.suggestURI(this.activeProfile,'bf:Instance', workUri)
+      } else {
+        this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance', workUri)
+      }
       this.activeProfile.rt[newRtId].instanceOf = workUri
 
       if (secondary && secondary != "item"){
@@ -4130,7 +4134,11 @@ export const useProfileStore = defineStore('profile', {
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
       //this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', instanceUri)
-      this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/items/" + lccn
+      if (lccn != ""){
+        this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/items/" + lccn
+      } else {
+        this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', workUri)
+      }
       this.activeProfile.rt[newRtId].itemOf = instanceUri
 
       //Add to rtLookup, with a copy of an instance as the value
