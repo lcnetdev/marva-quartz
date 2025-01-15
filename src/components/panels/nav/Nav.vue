@@ -49,6 +49,7 @@
       return {
         allSelected: false,
         instances: [],
+        layoutHash: null,
       }
     },
     props:{
@@ -312,16 +313,38 @@
               click: () => {
                 this.layoutActive=false
                 this.layoutActiveFilter=null
+                this.layoutHash=null
               }
             }
           )
 
+
            let layoutsMenu = []
-           layoutsMenu.push({
+           // If there is a custom layout loaded, options should be edit & delete
+           let layoutOptions
+
+           if (!this.layoutHash){
+            layoutOptions = [{
               text: "Create Layout",
               click: () => { this.createLayout() },
               icon: "add"
-            })
+            }]
+           } else {
+            layoutOptions = [{
+              text: "Edit Layout",
+              click: () => { this.editLayout() },
+              icon: "edit"
+            },
+            {
+              text: "Delete Layout",
+              click: () => { this.deleteLayout() },
+              icon: "delete"
+            }]
+           }
+
+           for (let opt in layoutOptions){
+            layoutsMenu.push(layoutOptions[opt])
+           }
             layoutsMenu.push({ is: "separator" })
 
            for (let l in this.layouts.all ){
@@ -341,6 +364,7 @@
               layoutsMenu.push({
                 text: l.label,
                 click: () => {
+                  this.layoutHash = hash
                   this.activateLayout(l)
                 }
               })
@@ -514,6 +538,18 @@
         console.info("Current Custom Layouts: ", this.customLayouts)
         this.createLayoutMode = true
         console.info("createLayoutMode: ", this.createLayoutMode)
+      },
+
+      editLayout: function(){
+        let target = this.layoutActiveFilter
+        console.info("Edit layout: ", target)
+      },
+
+      deleteLayout: function(){
+        this.preferenceStore.deleteLayout(this.layoutHash)
+        this.layoutActive = false
+        this.layoutActiveFilter = null
+        this.layoutHash = null
       },
 
       saveLayout: function(){

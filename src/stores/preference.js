@@ -1160,6 +1160,11 @@ export const usePreferenceStore = defineStore('preference', {
         this.copyMode = !this.copyMode
     },
 
+    deleteLayout: function(target){
+      let currentLayouts = this.returnValue('--l-custom-layouts')
+      delete currentLayouts[target]
+    },
+
     saveLayout: function(){
       let currentLayouts = this.returnValue('--l-custom-layouts')
       console.info(">>>>>>>>>>>>>>>>>", currentLayouts)
