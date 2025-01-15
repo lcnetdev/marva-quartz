@@ -230,23 +230,33 @@ export const useConfigStore = defineStore('config', {
   layouts: {
     all: {
       titles: {
+        profileId: "Monograph",
         label: "Titles",
-        properties: [
-          "http://id.loc.gov/ontologies/bibframe/title"
-        ]
+        properties: {
+            "lc:RT:bf2:Monograph:Work": [
+                "http://id.loc.gov/ontologies/bibframe/title"
+            ],
+            "lc:RT:bf2:Monograph:Instance": [
+                "http://id.loc.gov/ontologies/bibframe/title"
+            ]
+        }
       },
       contributors: {
+        profileId: "Monograph",
         label: "Contributors",
-        properties: [
-          "http://id.loc.gov/ontologies/bibframe/contribution"
-        ]
+        properties: {
+          "lc:RT:bf2:Monograph:Work": ["http://id.loc.gov/ontologies/bibframe/contribution"]
+        }
       },
       subjects: {
+        profileId: "Monograph",
         label: "Subjects & Class",
-        properties: [
-          "http://id.loc.gov/ontologies/bibframe/subject",
-          "http://id.loc.gov/ontologies/bibframe/classification",
-        ]
+        properties: {
+          "lc:RT:bf2:Monograph:Work": [
+            "http://id.loc.gov/ontologies/bibframe/subject",
+            "http://id.loc.gov/ontologies/bibframe/classification",
+          ]
+        }
       }
 
     }

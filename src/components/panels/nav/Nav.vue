@@ -325,14 +325,26 @@
             layoutsMenu.push({ is: "separator" })
 
            for (let l in this.layouts.all ){
-
             layoutsMenu.push({
               text: this.layouts.all[l].label,
               click: () => {
                 this.activateLayout(this.layouts.all[l])
               }
-
             })
+           }
+
+           const customLayouts = this.preferenceStore.returnValue("--l-custom-layouts")
+           if (customLayouts != {}){
+            layoutsMenu.push({ is: "separator" })
+            for (let hash in customLayouts){
+              let l = customLayouts[hash]
+              layoutsMenu.push({
+                text: l.label,
+                click: () => {
+                  this.activateLayout(l)
+                }
+              })
+            }
            }
 
            console.info("???", this.createLayoutMode)
@@ -492,6 +504,7 @@
       },
 
       activateLayout(layout){
+        console.info("activate layout: ", layout)
         this.layoutActive = true
         this.layoutActiveFilter = layout
       },

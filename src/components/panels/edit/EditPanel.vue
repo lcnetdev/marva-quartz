@@ -34,7 +34,7 @@
                     :key="profileCompoent">
                   <template v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || createLayoutMode) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && profileStore.emptyComponents[profileName] && !profileStore.emptyComponents[profileName].includes(profileCompoent) ))">
                   <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
-                    <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
+                    <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName].indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
 
                       <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
                         <div class="component-label 1" >
@@ -75,7 +75,7 @@
 
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
 
-          <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
+          <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName] && layoutActiveFilter.properties[profileName].indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
 
             <template v-if="!hideProps.includes(activeProfile.rt[profileName].pt[profileCompoent].propertyURI)">
 

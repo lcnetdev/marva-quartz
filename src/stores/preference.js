@@ -1030,7 +1030,6 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {string|number} - The value of the property
     */
     returnValue: function(propertyName,excludeUnitType){
-      console.info("Returning value for ", propertyName, "--", this.styleDefault[propertyName])
       if (!this.styleDefault[propertyName]){
         console.warn("Trying to return", propertyName, ' but does not exist.')
         return ""
@@ -1187,11 +1186,8 @@ export const usePreferenceStore = defineStore('preference', {
       }
 
       const hashCode = s => s.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
-      let itemId
       let layoutHash = hashCode(layoutName)
-
       copyTargets.forEach((item) => compontGuids.push(item.id))
-
       for (const guid of compontGuids){
         let component = utilsProfile.returnPt(useProfileStore().activeProfile, guid)
         components.push(component)
@@ -1200,6 +1196,7 @@ export const usePreferenceStore = defineStore('preference', {
       console.info("components: ", components)
 
       layout = {
+        profileId: profileId,
         label: layoutName,
         properties: {}
       }
@@ -1219,7 +1216,7 @@ export const usePreferenceStore = defineStore('preference', {
 
       currentLayouts[layoutHash] = layout
 
-      console.info("current layouts:", currentLayouts)
+      console.info("current layouts:", JSON.stringify(currentLayouts))
       this.setValue('--l-custom-layouts', currentLayouts)
 
       return false //true
