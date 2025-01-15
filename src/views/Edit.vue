@@ -357,8 +357,7 @@
 .edit-layout-opac,
 .edit-layout-xml,
 .edit-layout-marc {
-  opacity: 25%;
-  pointer-events: none;
+  opacity: 50%;
 }
 
 .edit-layout-main {

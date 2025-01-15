@@ -1160,7 +1160,10 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
     saveLayout: function(){
+      let components = []
+      let compontGuids = []
       let properties = []
+      let layout = {}
       console.info("profile: ", useProfileStore().activeProfile)
       const profileId =  useProfileStore().activeProfile.id
       console.info("profileId: ", profileId)
@@ -1168,10 +1171,47 @@ export const usePreferenceStore = defineStore('preference', {
       let copyTargets = document.querySelectorAll('input[class=layout-selection]:checked')
       console.info("targets: ", copyTargets)
       if (copyTargets.length == 0){
-        alert("No elements are selected for the profile. Select some and try again.")
+        alert("No elements are selected for the layout. Select some and try again.")
         return false
       }
-      copyTargets.forEach((item) => properties.push(item.id))
+
+      let layoutName = prompt("Save layout as")
+      console.info("Name: ", layoutName)
+      if (layoutName == ""){
+        alert("Layout name can't be empty.")
+        return false
+      }
+
+      const hashCode = s => s.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
+      let itemId
+      let layoutHash = hashCode(layoutName)
+
+      copyTargets.forEach((item) => compontGuids.push(item.id))
+
+      for (const guid of compontGuids){
+        let component = utilsProfile.returnPt(useProfileStore().activeProfile, guid)
+        components.push(component)
+      }
+
+      console.info("components: ", components)
+
+      layout[layoutHash] = {
+        label: layoutName,
+        properties: {}
+      }
+
+      for (let component of components){
+        console.info("component: ", component)
+        const parentId = component.parentId
+        const propertyUri = component.propertyURI
+        if (Object.keys(layout[layoutHash].properties).includes(parentId)){
+          layout[layoutHash].properties[parentId].push(propertyUri)
+        } else {
+          layout[layoutHash].properties[parentId] = [propertyUri]
+        }
+      }
+
+      console.info("layout: ", layout)
 
 
       return false
