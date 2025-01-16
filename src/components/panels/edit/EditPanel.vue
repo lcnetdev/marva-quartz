@@ -17,13 +17,13 @@
     :key="profileName"
     :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-item': (profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1 && !profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
           <template v-if="instanceMode == true && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)">
-          <template v-if="profileName.includes(':Instance')">
+          <template v-if="profileName.includes(':Instance') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
                 <div>
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
-                    <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
+                    <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance?</button>
                 </div>
           </template>
-          <template v-if="profileName.includes(':Item')">
+          <template v-if="profileName.includes(':Item') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
                 <div>
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                     <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Item</button>
@@ -34,7 +34,7 @@
                     :key="profileCompoent">
                   <template v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || createLayoutMode) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && profileStore.emptyComponents[profileName] && !profileStore.emptyComponents[profileName].includes(profileCompoent) ))">
                   <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
-                    <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName].indexOf(activeProfile.rt[profileName].pt[profileCompoent].id) > -1) ">
+                    <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName] && layoutActiveFilter.properties[profileName].indexOf(activeProfile.rt[profileName].pt[profileCompoent].id) > -1) ">
 
                       <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
                         <div class="component-label 1" >
@@ -59,14 +59,14 @@
 
           </template>
       <template v-if="instanceMode == false">
-        <template v-if="profileName.includes(':Instance') && !this.dualEdit">
+        <template v-if="profileName.includes(':Instance') && !this.dualEdit && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
             <div class="instanceInfoWrapper">
                 <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
-                <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
+                <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance!</button>
             </div>
         </template>
 
-        <template v-if="profileName.includes(':Item') && !this.dualEdit">
+        <template v-if="profileName.includes(':Item') && !this.dualEdit && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
             <div class="instanceInfoWrapper">
                 <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                 <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Item</button>

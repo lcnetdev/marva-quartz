@@ -374,7 +374,6 @@
             }
            }
 
-           console.info("???", this.createLayoutMode)
           //  menu.push(
           //     !this.createLayoutMode ? { text: "Layouts",  menu: layoutsMenu } : { text: "Save Layout", click: () => { this.saveLayout() }}
           //   )
@@ -387,7 +386,6 @@
             menu.push(
               { text: "Save Layout", click: (e) => {
                 e.stopPropagation()
-                console.info("click save: ", e)
                 this.saveLayout()
                }},
               { text: "Cancel Layout", click: (e) => {
