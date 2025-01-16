@@ -36,10 +36,10 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent','returnComponentLibrary']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent', 'emptyComponents','returnComponentLibrary']),
       ...mapState(usePreferenceStore, ['styleDefault', 'isEmptyComponent']),
 
-      ...mapWritableState(useProfileStore, ['activeComponent']),
+      ...mapWritableState(useProfileStore, ['activeComponent', 'emptyComponents']),
 
 
     },
@@ -224,6 +224,16 @@
               return false
           }
       },
+
+      jumpToElement: function(profileName, elementName){
+        //if it's hidden show it
+        if (this.emptyComponents[profileName].includes(elementName)){
+          let idx = this.emptyComponents[profileName].indexOf(elementName)
+          this.emptyComponents[profileName].splice(idx, 1)
+        }
+        //jump to it
+        this.activeComponent = this.activeProfile.rt[profileName].pt[elementName]
+      },
     },
   }
 
@@ -250,8 +260,8 @@
                             <svg v-if="profileName.includes('Instance')" :fill="preferenceStore.returnValue('--c-general-icon-instance-color')" style="margin-right: 7px;" width="18px" height="18px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                              <path  d="m5 50l45-45 45 45-45 45z"/>
                             </svg>
-                            <svg v-if="profileName.includes(':Item')"  viewBox="0 -32 50 72" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                              <rect width="40px" height="40px" class="item-icon" />
+                            <svg v-if="profileName.includes(':Item')" style="margin-right: 1px;" width="1.5em" height="1.1em" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                              <rect :fill="preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-item')"  width="0.85em" height="0.85em" x=".1em" y="0.1em" />
                             </svg>
                             <svg  v-if="profileName.endsWith(':Hub')" version="1.1" viewBox="0 -20 100 100" xmlns="http://www.w3.org/2000/svg">
                               <path fill="royalblue" d="m62.113 24.66 1.9023-15.238 18.875 32.691-7.5469 20.004 15.238 1.9023-32.691 18.875-20.004-7.5469-1.9023 15.238-18.875-32.691 7.5469-20.004-15.238-1.9023 32.691-18.875zm-17.684 15.695-4.0781 15.215 15.215 4.0781 4.0781-15.215z" fill-rule="evenodd"/>
@@ -270,9 +280,6 @@
 
 
                   <ul class="sidebar-property-ul" role="list">
-
-
-
                           <draggable
                             v-model="activeProfile.rt[profileName].ptOrder"
                             group="people"
@@ -282,8 +289,8 @@
                             item-key="id">
                             <template #item="{element}">
                               <template v-if="!activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI)">
-                                <li @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}]">
-                                  <a href="#" @click.stop="activeComponent = activeProfile.rt[profileName].pt[element]" class="sidebar-property-ul-alink">
+                                <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) )}]">
+                                  <a href="#" @click.stop="jumpToElement(profileName, element)" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
                                       <span v-if="activeProfile.rt[profileName].pt[element].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'">
                                         [SH]: {{ returnSubjectHeadingLabel(activeProfile.rt[profileName].pt[element]) }}
@@ -291,8 +298,6 @@
                                       <span v-else>
                                         {{activeProfile.rt[profileName].pt[element].propertyLabel}}
                                       </span>
-
-
 
                                   </a>
                                   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-show-types')">
@@ -772,8 +777,13 @@ li.system-populated:before {
 li.user-populated:before {
     font-family: 'Material Icons';
     content: 'task_alt';
-    //content: '✓';
     color: white !important;
+}
+
+li.not-populated-hide:before{
+  font-family: 'Material Icons';
+  content: 'visibility_off';
+  color: white !important;
 }
 
 

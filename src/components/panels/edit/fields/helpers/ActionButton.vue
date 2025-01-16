@@ -116,6 +116,12 @@
           </button>
         </template>
 
+        <template v-if="showHideElementButton()">
+          <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="hideElement()">
+            <span class="">🙈</span>Hide Element
+          </button>
+        </template>
+
         <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
           <span class="button-shortcut-label">0</span>
           Debug
@@ -233,7 +239,7 @@
 
 
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
-      ...mapWritableState(useProfileStore, ['showAutoDeweyModal', 'deweyData']),
+      ...mapWritableState(useProfileStore, ['showAutoDeweyModal', 'deweyData', 'emptyComponents']),
 
       scriptShifterOptionsForMenu(){
 
@@ -851,6 +857,18 @@
         activeStructure = this.updateContrib(activeStructure, currentType)
         this.profileStore.parseActiveInsert(activeStructure)
         this.profileStore.deleteComponent(this.guid)
+      },
+
+      showHideElementButton: function(){
+        let component = this.profileStore.returnStructureByComponentGuid(this.guid)
+        let empty = this.profileStore.isEmptyComponent(component)
+
+        return empty
+      },
+      // Hide empty element in ad hoc mode
+      hideElement: function(){
+        let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+        this.emptyComponents[structure.parentId].push(structure.id)
       },
 
     },

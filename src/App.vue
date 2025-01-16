@@ -60,7 +60,7 @@ export default {
     // gives access to this.counterStore and this.userStore
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
-    ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal']),
+    ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal', 'showItemInstanceSelection']),
     ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),

@@ -338,6 +338,14 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: null
         },
+        '--c-edit-main-splitpane-edit-background-color-item' : {
+          value:'#ffe2ff96',
+          desc: 'The background color of the item on edit screen panel.',
+          descShort: 'Item Background Color',
+          type: 'color',
+          group: 'Edit Panel',
+          range: null
+        },
       '--c-edit-main-splitpane-edit-background-color-instance-secondary' : {
           value:'#f671f696',
           desc: 'The background color of the secondary instance on edit screen panel.',
@@ -710,6 +718,15 @@ export const usePreferenceStore = defineStore('preference', {
       '--c-general-copy-mode' : {
           desc: 'Set if copy mode should be on or off by default.',
           descShort: 'Copy mode default',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'General',
+          range: [true,false]
+      },
+      '--c-general-ad-hoc' : {
+          desc: 'Turn on Ad Hoc Mode. Ad Hoc mode will only display populated and mandatory fields in Marva, other fields can be added as needed.',
+          descShort: 'Ad Hoc Mode',
           value: false,
           type: 'boolean',
           unit: null,

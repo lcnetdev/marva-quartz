@@ -12,9 +12,16 @@
         <PostModal ref="postmodal" v-model="showPostModal" />
       </template>
 
-
       <template v-if="showRecoveryModal==true">
         <RecoveryModal ref="recoverymodal" v-model="showRecoveryModal" />
+      </template>
+
+      <template v-if="showItemInstanceSelection==true">
+        <ItemInstanceSelectionModal ref="itemselectionmodal" v-model="showItemInstanceSelection" :instances="instances" @emitSetInstance="setInstance" @hideInstanceSelectionModal="hideInstanceSelectionModal()" />
+      </template>
+
+      <template v-if="showAdHocModal==true">
+        <AdHocModal ref="adHocModal" v-model="showAdHocModal" />
       </template>
 
     </Teleport>
@@ -33,13 +40,15 @@
   import PostModal from "@/components/panels/nav/PostModal.vue";
   import ValidateModal from "@/components/panels/nav/ValidateModal.vue";
   import RecoveryModal from "@/components/panels/nav/RecoveryModal.vue";
-
+  import ItemInstanceSelectionModal from "@/components/panels/nav/ItemInstanceSelectionModal.vue";
+  import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
 
   export default {
-    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal },
     data() {
       return {
         allSelected: false,
+        instances: [],
       }
     },
     props:{
@@ -53,11 +62,11 @@
 
       ...mapStores(useProfileStore,usePreferenceStore),
 
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -136,11 +145,15 @@
           menuButtonSubMenu.push(
             {
               text: 'Add Additional Instance',
-              click: () => { this.profileStore.createInstance(false) }
+              click: () => { this.addInstance(false) }
             },
             {
               text: 'Add Secondary Instance',
-              click: () => { this.profileStore.createInstance(true) }
+              click: () => { this.addInstance(true) }
+            },
+            {
+              text: 'Add Item',
+              click: () => { this.addItem() }
             }
           )
         }
@@ -197,9 +210,31 @@
             }
           ] }
           )
+        }
 
-
-
+        if(this.$route.path.startsWith('/edit/') && this.preferenceStore.returnValue('--c-general-ad-hoc')){
+          for (let sub in menu){
+            if (menu[sub].text == 'Tools'){
+              menu[sub].menu.push(
+                { is: 'separator'},
+                {
+                  text: 'Show/Hide Elements',
+                  icon: 'menu',
+                  click: () => { this.showAdHocModal = true },
+                },
+                {
+                  text: 'Show Empty Elements',
+                  click: () => this.showAllElements(),
+                  icon: 'visibility'
+                },
+                {
+                  text: 'Hide Empty Elements',
+                  click: () => this.hideAllElements(),
+                  icon: 'visibility_off'
+                },
+              )
+            }
+          }
         }
 
 
@@ -537,6 +572,45 @@
         temp.click()
         document.body.removeChild(temp)
       },
+
+      addInstance: function(secondary=false){
+        let lccn = "" //prompt("Enter an LCCN for this Instance.")
+        this.profileStore.createInstance(true, lccn)
+      },
+
+      addItem: function(){
+        let lccn = "" //prompt("Enter an LCCN for this Item.")
+        let instanceCount = 0
+        let instance = null
+        for (let p in this.activeProfile.rt){
+          if (p.includes(":Instance")){
+            this.instances.push(p)
+            instanceCount++
+          }
+        }
+        if (instanceCount == 0){
+          alert("There are no instances in the record. You need to crete one before you can add an item.")
+          return
+        }
+        if (instanceCount>1){
+          // show a modal to select which instance the item belongs too
+          this.showItemInstanceSelection = true
+        } else {
+          this.profileStore.createItem(this.targetInstance, lccn)
+        }
+      },
+
+      setInstance: function(data){
+        this.targetInstance = this.instances[data]
+        this.showItemInstanceSelection = false
+        this.instances = []
+        this.profileStore.createItem(this.targetInstance)
+      },
+
+      hideInstanceSelectionModal: function(){
+        this.instances = []
+        this.showItemInstanceSelection = false;
+      }
 
     },
 
