@@ -326,7 +326,10 @@
            if (!this.layoutHash){
             layoutOptions = [{
               text: "Create Layout",
-              click: () => { this.createLayout() },
+              click: (e) => {
+                e.stopPropagation()
+                this.createLayout()
+              },
               icon: "add"
             }]
            } else {
