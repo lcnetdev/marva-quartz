@@ -212,7 +212,7 @@
           )
         }
 
-        if(this.$route.path.startsWith('/edit/')){
+        if(this.$route.path.startsWith('/edit/') && this.preferenceStore.returnValue('--c-general-ad-hoc')){
           for (let sub in menu){
             if (menu[sub].text == 'Tools'){
               menu[sub].menu.push(
