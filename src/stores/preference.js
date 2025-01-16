@@ -1210,10 +1210,13 @@ export const usePreferenceStore = defineStore('preference', {
         console.info("component: ", component)
         const parentId = component.parentId
         const propertyUri = component.propertyURI
+        const propertyId = component.id
         if (Object.keys(layout.properties).includes(parentId)){
-          layout.properties[parentId].push(propertyUri)
+          layout.properties[parentId].push(propertyId)
         } else {
-          layout.properties[parentId] = [propertyUri]
+          layout.properties[parentId] = [propertyId]
+          // this needed to be more granular(?) Adding "Note about the work" will also pick up "Language note"
+          // use the id
         }
       }
 

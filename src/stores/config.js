@@ -234,10 +234,10 @@ export const useConfigStore = defineStore('config', {
         label: "Titles",
         properties: {
             "lc:RT:bf2:Monograph:Work": [
-                "http://id.loc.gov/ontologies/bibframe/title"
+              "id_loc_gov_ontologies_bibframe_title__title_information"
             ],
             "lc:RT:bf2:Monograph:Instance": [
-                "http://id.loc.gov/ontologies/bibframe/title"
+              "id_loc_gov_ontologies_bibframe_title__title_information"
             ]
         }
       },
@@ -245,7 +245,10 @@ export const useConfigStore = defineStore('config', {
         profileId: "Monograph",
         label: "Contributors",
         properties: {
-          "lc:RT:bf2:Monograph:Work": ["http://id.loc.gov/ontologies/bibframe/contribution"]
+          "lc:RT:bf2:Monograph:Work": [
+            "id_loc_gov_ontologies_bibframe_contribution__creator_of_work",
+            "id_loc_gov_ontologies_bibframe_contribution__contributors"
+          ]
         }
       },
       subjects: {
@@ -253,8 +256,8 @@ export const useConfigStore = defineStore('config', {
         label: "Subjects & Class",
         properties: {
           "lc:RT:bf2:Monograph:Work": [
-            "http://id.loc.gov/ontologies/bibframe/subject",
-            "http://id.loc.gov/ontologies/bibframe/classification",
+            "id_loc_gov_ontologies_bibframe_subject__subjects",
+            "id_loc_gov_ontologies_bibframe_classification__classification_numbers",
           ]
         }
       }
