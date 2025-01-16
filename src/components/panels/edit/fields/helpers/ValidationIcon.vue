@@ -68,7 +68,7 @@ export default {
 
 </script>
 
-<style scoped>
+<style>
 
 .verified {
     color: green;
