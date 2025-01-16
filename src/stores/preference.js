@@ -193,6 +193,25 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Property',
           range: [true,false]
       },
+      '--b-edit-main-splitpane-properties-component-library' : {
+        desc: 'Display the Component Library in the Property Panel.',
+        descShort: 'Component Library',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Property',
+        range: [true,false]
+    },
+    '--b-edit-main-splitpane-properties-component-library-prompt-to-add' : {
+      desc: 'Ask before adding a component from the library.',
+      descShort: 'Prompt to add Library Component',
+      value: true,
+      type: 'boolean',
+      unit: null,
+      group: 'Sidebars - Property',
+      range: [true,false]
+  },
+
 
       // not implemented
       // '--b-edit-main-splitpane-properties-accordion-autoclose' : {
@@ -892,8 +911,9 @@ export const usePreferenceStore = defineStore('preference', {
       if (window.localStorage.getItem('marva-diacriticUse')){
         this.diacriticUse = JSON.parse(window.localStorage.getItem('marva-diacriticUse'))
       }
-
-
+      if (window.localStorage.getItem('marva-componentLibrary')){
+        useProfileStore().componentLibrary = JSON.parse(window.localStorage.getItem('marva-componentLibrary'))
+      }
 
       this.styleDefaultOrginal = JSON.parse(JSON.stringify(this.styleDefault))
       this.panelDisplayOrginal = JSON.parse(JSON.stringify(this.panelDisplay))
