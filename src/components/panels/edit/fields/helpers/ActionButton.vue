@@ -116,7 +116,7 @@
           </button>
         </template>
 
-        <template v-if="preferenceStore.returnValue('--c-general-ad-hoc') && this.profileStore.isEmptyComponent(this.structure)">
+        <template v-if="showHideElementButton()">
           <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="hideElement()">
             <span class="">🙈</span>Hide Element
           </button>
@@ -848,6 +848,12 @@
         this.profileStore.deleteComponent(this.guid)
       },
 
+      showHideElementButton: function(){
+        let component = this.profileStore.returnStructureByComponentGuid(this.guid)
+        let empty = this.profileStore.isEmptyComponent(component)
+
+        return empty
+      },
       // Hide empty element in ad hoc mode
       hideElement: function(){
         let structure = this.profileStore.returnStructureByComponentGuid(this.guid)

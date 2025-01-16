@@ -4538,6 +4538,7 @@ export const useProfileStore = defineStore('profile', {
 
     //Check if the component's userValue is empty
     isEmptyComponent: function(c){
+      console.info("isEmpty? ", c)
       const component = c
       const emptyArray = new Array("@root")
       const userValue = JSON.parse(JSON.stringify(component["userValue"]))
@@ -4545,6 +4546,7 @@ export const useProfileStore = defineStore('profile', {
 
       // if there is only a @root
       if (JSON.stringify(Object.keys(component.userValue)) == JSON.stringify(emptyArray)){
+          console.info("only has root")
           return true
       } else {
           // if the children only have "@..." properties
