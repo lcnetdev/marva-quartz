@@ -120,6 +120,10 @@
           <span class="button-shortcut-label">0</span>
           Debug
         </button>
+        <button style="width:100%" :id="`action-button-command-${fieldGuid}-cl`" class="" @click="addToLibrary()">
+          Add To Library
+        </button>
+
         <template v-if="this.returnRemark()">
           <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}--`" @click="openRemark()">
             <span class="button-shortcut-label">-</span>
@@ -282,8 +286,6 @@
       },
 
       showBuildHubStub(){
-        console.log("this.propertyPath",this.propertyPath)
-
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
 
@@ -370,6 +372,15 @@
 
         this.debugModalData= this.profileStore.returnStructureByComponentGuid(this.guid);
         this.showDebugModal = true
+        this.sendFocusHome()
+
+      },
+
+
+
+      addToLibrary: function(){
+
+        this.profileStore.addToComponentLibrary(this.guid);
         this.sendFocusHome()
 
       },
