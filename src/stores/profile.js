@@ -106,6 +106,13 @@ export const useProfileStore = defineStore('profile', {
       structure: null,
     },
 
+    
+    componentLibrary : {
+      profiles:{
+
+      }  
+    },
+
     mostCommonNonLatinScript: null,
     nonLatinScriptAgents: {},
 
@@ -195,6 +202,55 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
+    
+    /** Groups the library components into a array ready to render
+     * 
+     * @return {array} 
+     */    
+    returnComponentLibrary: (state) => {
+
+      // limit to the current profiles being used
+      console.log(state.activeProfile)
+      console.log(state.componentLibrary)
+      // return () => {
+      //   return [state.componentLibrary]
+
+      // }
+      let results = []
+      for (let key in state.activeProfile.rt){
+
+        // ther are components saved for this profile
+        if (state.componentLibrary.profiles[key]){
+
+          let groups = {}
+          let groupsOrder = []
+          // loop through all the components sorted by position order
+          for (let group of state.componentLibrary.profiles[key].groups.sort(({position:a}, {position:b}) => a-b)){
+
+            if (group.groupId === null){
+              groups[group.id] = [group]
+              groupsOrder.push(group.id)
+            }else{
+                if (!groups[group.groupId]){groups[group.groupId]=[]}
+                groups[group.groupId].push(group)
+                if (groupsOrder.indexOf(group.groupId)==-1){
+                  groupsOrder.push(group.groupId)
+                }
+
+            }
+          }
+
+          results.push({groups:groups,groupsOrder:groupsOrder, profileId: key,label: key.split(":").slice(-1)[0]})
+        }
+
+      }
+
+
+      return results
+      
+
+
+    },
 
 
 
@@ -720,6 +776,8 @@ export const useProfileStore = defineStore('profile', {
                       let ptVal = JSON.parse(JSON.stringify(this.profiles[p].rt[rt].pt[pt]))
                       delete ptVal['@guid']
                       this.profiles[p].hashPts[id] = hashCode(JSON.stringify(ptVal))
+                      this.profiles[p].rt[rt].pt[pt].hashCode = hashCode(JSON.stringify(ptVal))
+                      this.profiles[p].rt[rt].pt[pt].hashCodeId = id
                   }
 
 
@@ -3004,7 +3062,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-      console.log(pt)
+
       let classNumber = null
       let classGuid = null
 
@@ -4635,6 +4693,214 @@ export const useProfileStore = defineStore('profile', {
         }
       }
     },
+
+    /** Add a component to the library
+     *
+     * @param {string} guid - The GUID of the component
+     */
+    addToComponentLibrary: async function(guid){
+
+      let structure = JSON.parse(JSON.stringify(this.returnStructureByComponentGuid(guid)))
+
+      // clean up component property values for storage
+      structure['@guid'] = null
+      // does the id end with a number, if so it is a duplicated component, or one of multiple, so remove that value
+      let lastIdPart = structure['id'].split("_").slice(-1)[0]
+      if (lastIdPart >= '0' && lastIdPart <= '9') {
+        // it is a number
+        let newId = structure['id'].split("_")
+        newId=newId.slice(0, -1)
+        newId=newId.join("_")
+        structure['id'] = newId
+      }
+
+      let label = prompt("What to call this component?", structure.propertyLabel)
+      if (!label){
+        return false
+      }
+
+      
+      if (!this.componentLibrary.profiles[structure['parentId']]){
+        this.componentLibrary.profiles[structure['parentId']] = {
+          groups:[]
+        }
+      }
+
+      
+      this.componentLibrary.profiles[structure['parentId']].groups.push({
+        id: short.generate(),
+        groupId: null,
+        position: this.componentLibrary.profiles[structure['parentId']].groups.length,
+        structure: structure,
+        label: label
+      })
+
+      this.saveComponentLibrary()
+
+    },
+
+    /** Writes the component library to the local storage
+     * 
+     */
+    saveComponentLibrary(){
+      window.localStorage.setItem('marva-componentLibrary',JSON.stringify(this.componentLibrary))
+    },
+
+    /** Changes the group property in the storged component library data
+     * 
+     */
+    changeGroupComponentLibrary(id,groupId){
+
+      for (let key in this.componentLibrary.profiles){
+        for (let group of this.componentLibrary.profiles[key].groups){
+          if (group.id == id){
+            group.groupId = groupId
+            this.saveComponentLibrary()
+            return true
+          }
+        }
+
+      }
+
+    },
+
+    /** Changes the group property in the storged component library data
+     * 
+     */
+    addFromComponentLibrary(id){      
+      for (let key in this.componentLibrary.profiles){
+        for (let group of this.componentLibrary.profiles[key].groups){
+          if (group.id == id){
+
+            // we are adding a sigle one here so groups are individual (group of 1) in this case
+            console.log("Adding thisone",group)
+            let component = JSON.parse(JSON.stringify(group.structure))
+
+            // see if we can find its counter part in the acutal profile
+            if (this.activeProfile.rt[component.parentId]){
+
+              // see if we can find the component 
+              let ptObjFound = false
+              for (let pt in this.activeProfile.rt[component.parentId].pt){
+                if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
+                  ptObjFound = this.activeProfile.rt[component.parentId].pt[pt]
+                }
+              }
+
+              if (ptObjFound != false){
+                console.log("Found orignal here:",ptObjFound)
+
+                if (ptObjFound.hashCode == component.hashCode){
+
+                  // if the component we found in the system already has data in it then we are going to add a new component
+                  // if it doesn't then just overwrite it completely with the one from the library
+
+                  // regardless we need to set the id
+                  component['@guid'] = short.generate()
+
+                  if (Object.keys(ptObjFound.userValue).length <= 1){
+                    // if this is 1 or 0 then the userdata is empty, with just a @root property
+                    // there is no user data added yet
+                    // we can just overwrite whats there with our component
+                    // we don't need to adjust the order, its 1-for-1
+                    // find it again and overwrite                    
+                    for (let pt in this.activeProfile.rt[component.parentId].pt){
+                      if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
+                        this.activeProfile.rt[component.parentId].pt[pt] = JSON.parse(JSON.stringify(component))
+                        this.dataChanged()
+                        return [component.parentId,pt]
+                      }
+                    }
+                    
+                    
+                  }else{
+
+                    // we can't replace the one that is there, already has data, so construct a new place for it
+
+                    // first find out how many of these components there are
+                    let total_components = 0
+                    for (let pt in this.activeProfile.rt[component.parentId].pt){
+                      if (this.activeProfile.rt[component.parentId].pt[pt].id.startsWith(component.id)){
+                        total_components++
+                      }
+                    }
+                    let newId = component.id + "_" + (total_components+1)
+
+                    let oldId = JSON.parse(JSON.stringify(component.id))
+                    
+                    // rename it
+                    component.id = newId
+
+                    // add it to the pt
+                    this.activeProfile.rt[component.parentId].pt[newId] = JSON.parse(JSON.stringify(component))
+                    // add it to the order
+                    // find the position of the last one
+                    let insertAt = 0
+                    for (const [i, p] of this.activeProfile.rt[component.parentId].ptOrder.entries()){
+                      if (p.startsWith(oldId)){
+                        insertAt = i
+                      }
+                    }
+                    this.activeProfile.rt[component.parentId].ptOrder.splice(insertAt+1, 0, newId);
+                    
+                    return [component.parentId,newId]
+                  }
+
+
+
+                }else{
+
+                  alert("ERROR: There seems to be mismatch between the component you are trying to add and the components in the profile. Please delete this component from your library and recreate it")
+
+                }
+
+
+              }else{
+                alert("ERRROR: Could not find the orginal profile template this component was built from.",component.id)
+              }
+
+
+            }else{
+              alert("ERRROR: Trying to add a component but could not find the profile:", component.parentId)
+            }
+
+          }
+        }
+
+      }
+
+    },
+    
+    /** Removes a component from the library
+     * 
+     */
+    delComponentLibrary(id){  
+      for (let key in this.componentLibrary.profiles){
+        this.componentLibrary.profiles[key].groups = this.componentLibrary.profiles[key].groups.filter((c) => { return (c.id != id) })
+      }
+      this.saveComponentLibrary()
+    },
+
+    /** Renames a component's label in the library
+     * 
+     */
+    renameComponentLibrary(id,newLabel){  
+
+      for (let key in this.componentLibrary.profiles){
+        for (let group of this.componentLibrary.profiles[key].groups){
+          if (group.id == id){
+            group.label = newLabel
+            this.saveComponentLibrary()
+            return true
+          }
+        }
+
+      }
+      
+
+    },
+
+
 
 
   },

@@ -745,7 +745,7 @@ const utilsProfile = {
   *
   * @param {string} scriptWanted - requested script
   * @param {array} scriptOptions - array of script strings
-  * @return {object} - the profile
+  * @return {string} - the sript code to use
   */
 
   pickBestNonLatinScriptOption: function(scriptWanted, scriptOptions){
