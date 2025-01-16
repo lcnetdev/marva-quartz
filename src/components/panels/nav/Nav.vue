@@ -488,6 +488,7 @@
         let prefs = null
         let scriptShifterOptions = null
         let diacriticUse = null
+        let marvaComponentLibrary = null
 
         let data = {}
 
@@ -509,6 +510,14 @@
         } else {
           console.warn("Couldn't find Diacritic preferences to export. :(")
         }
+
+        if (window.localStorage.getItem('marva-componentLibrary')){
+          marvaComponentLibrary = JSON.parse(window.localStorage.getItem('marva-componentLibrary'))
+          data["marvaComponentLibrary"] = marvaComponentLibrary
+        } else {
+          console.warn("Couldn't find marva-componentLibrary preferences to export. :(")
+        }
+
 
         let today = new Date()
         let dd = String(today.getDate()).padStart(2, '0')
@@ -544,6 +553,12 @@
               that.preferenceStore.scriptShifterOptions = contents["scriptShifterOptions"]
               window.localStorage.setItem('marva-scriptShifterOptions', JSON.stringify(contents["scriptShifterOptions"]))
             }
+
+            if (contents["marvaComponentLibrary"]){
+              that.preferenceStore.componentLibrary = contents["marvaComponentLibrary"]
+              window.localStorage.setItem('marva-componentLibrary', JSON.stringify(contents["marvaComponentLibrary"]))
+            }           
+
             if (contents["diacriticUse"]){
               that.preferenceStore.diacriticUse = contents["diacriticUse"]
               window.localStorage.setItem('marva-diacriticUse', JSON.stringify(contents["diacriticUse"]))

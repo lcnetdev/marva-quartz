@@ -3,16 +3,19 @@
         display-directive="show"
         :hide-overlay="true"
         :overlay-transition="'vfm-fade'"
-        :contentClass="instance-selection-modal-container"
+        
       >
+       <!--  was attr in VueFinalModal... :contentClass="instance-selection-modal-container" -->
+
+        <!-- was attr in VueDragResize @resizing="dragResize" -->
+        <!-- was attr in VueDragResize @dragging="dragResize" -->
       <VueDragResize
             :is-active="true"
             :w="400"
             :h="250"
             :x="200"
             :y="50"
-            @resizing="dragResize"
-            @dragging="dragResize"
+
             :sticks="['br']"
             :stickSize="22"
             style="background-color: whitesmoke"
