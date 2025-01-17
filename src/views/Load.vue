@@ -553,7 +553,7 @@
               // if (e.mandatory != 'true'){
               //   this.emptyComponents[rt].push(element)
               // }
-              this.useProfile.addToAdHocMode(rt, element)
+              this.profileStore.addToAdHocMode(rt, element)
             }
           }
         }

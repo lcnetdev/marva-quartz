@@ -421,10 +421,14 @@
           }
         }
 
-
-
-
-
+        if (this.activeProfile.id){
+          menu.push(
+            {
+              text: "Profile: " + this.activeProfile.id,
+              class: "current-profile"
+            }
+          )
+          }
 
         menu.push(
 
@@ -701,6 +705,10 @@
       fill: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
     }
 
+    .current-profile {
+      background: var(--bar-button-hover-bkg, #f1f3f4);
+      margin-left: 100px;
+    }
     .login-menu{
 
       position: absolute !important;
