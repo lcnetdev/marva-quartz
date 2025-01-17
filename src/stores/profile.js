@@ -108,11 +108,11 @@ export const useProfileStore = defineStore('profile', {
       structure: null,
     },
 
-    
+
     componentLibrary : {
       profiles:{
 
-      }  
+      }
     },
 
     mostCommonNonLatinScript: null,
@@ -206,11 +206,11 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
-    
+
     /** Groups the library components into a array ready to render
-     * 
-     * @return {array} 
-     */    
+     *
+     * @return {array}
+     */
     returnComponentLibrary: (state) => {
 
       // limit to the current profiles being used
@@ -251,7 +251,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       return results
-      
+
 
 
     },
@@ -4086,13 +4086,7 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(instanceName, newRtId)
 
         // If it's not mandatory, add it to ad hoc mode's emptyComponents list
-        if (this.activeProfile.rt[newRtId].pt[pt].mandatory != 'true'){
-          if (Object.keys(this.emptyComponents).includes(newRtId)){
-            this.emptyComponents[newRtId].push(pt)
-          } else {
-            this.emptyComponents[newRtId] = [pt]
-          }
-        }
+        this.addToAdHocMode(newRtId, pt)
       }
 
 
@@ -4179,13 +4173,7 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(itemName, newRtId)
 
         // If it's not mandatory, add it to ad hoc mode's emptyComponents list
-        if (this.activeProfile.rt[newRtId].pt[pt].mandatory != 'true'){
-          if (Object.keys(this.emptyComponents).includes(newRtId)){
-            this.emptyComponents[newRtId].push(pt)
-          } else {
-            this.emptyComponents[newRtId] = [pt]
-          }
-        }
+        this.addToAdHocMode(newRtId, pt)
       }
 
       // setup the new instance's properies
@@ -4596,7 +4584,6 @@ export const useProfileStore = defineStore('profile', {
 
     //Check if the component's userValue is empty
     isEmptyComponent: function(c){
-      console.info("isEmpty? ", c)
       const component = c
       const emptyArray = new Array("@root")
       const userValue = JSON.parse(JSON.stringify(component["userValue"]))
@@ -4604,7 +4591,6 @@ export const useProfileStore = defineStore('profile', {
 
       // if there is only a @root
       if (JSON.stringify(Object.keys(component.userValue)) == JSON.stringify(emptyArray)){
-          console.info("only has root")
           return true
       } else {
           // if the children only have "@..." properties
@@ -4823,14 +4809,14 @@ export const useProfileStore = defineStore('profile', {
         return false
       }
 
-      
+
       if (!this.componentLibrary.profiles[structure['parentId']]){
         this.componentLibrary.profiles[structure['parentId']] = {
           groups:[]
         }
       }
 
-      
+
       this.componentLibrary.profiles[structure['parentId']].groups.push({
         id: short.generate(),
         groupId: null,
@@ -4844,14 +4830,14 @@ export const useProfileStore = defineStore('profile', {
     },
 
     /** Writes the component library to the local storage
-     * 
+     *
      */
     saveComponentLibrary(){
       window.localStorage.setItem('marva-componentLibrary',JSON.stringify(this.componentLibrary))
     },
 
     /** Changes the group property in the storged component library data
-     * 
+     *
      */
     changeGroupComponentLibrary(id,groupId){
 
@@ -4869,9 +4855,9 @@ export const useProfileStore = defineStore('profile', {
     },
 
     /** Changes the group property in the storged component library data
-     * 
+     *
      */
-    addFromComponentLibrary(id){      
+    addFromComponentLibrary(id){
       for (let key in this.componentLibrary.profiles){
         for (let group of this.componentLibrary.profiles[key].groups){
           if (group.id == id){
@@ -4883,7 +4869,7 @@ export const useProfileStore = defineStore('profile', {
             // see if we can find its counter part in the acutal profile
             if (this.activeProfile.rt[component.parentId]){
 
-              // see if we can find the component 
+              // see if we can find the component
               let ptObjFound = false
               for (let pt in this.activeProfile.rt[component.parentId].pt){
                 if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
@@ -4907,7 +4893,7 @@ export const useProfileStore = defineStore('profile', {
                     // there is no user data added yet
                     // we can just overwrite whats there with our component
                     // we don't need to adjust the order, its 1-for-1
-                    // find it again and overwrite                    
+                    // find it again and overwrite
                     for (let pt in this.activeProfile.rt[component.parentId].pt){
                       if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
                         this.activeProfile.rt[component.parentId].pt[pt] = JSON.parse(JSON.stringify(component))
@@ -4915,8 +4901,8 @@ export const useProfileStore = defineStore('profile', {
                         return [component.parentId,pt]
                       }
                     }
-                    
-                    
+
+
                   }else{
 
                     // we can't replace the one that is there, already has data, so construct a new place for it
@@ -4931,7 +4917,7 @@ export const useProfileStore = defineStore('profile', {
                     let newId = component.id + "_" + (total_components+1)
 
                     let oldId = JSON.parse(JSON.stringify(component.id))
-                    
+
                     // rename it
                     component.id = newId
 
@@ -4946,7 +4932,7 @@ export const useProfileStore = defineStore('profile', {
                       }
                     }
                     this.activeProfile.rt[component.parentId].ptOrder.splice(insertAt+1, 0, newId);
-                    
+
                     return [component.parentId,newId]
                   }
 
@@ -4974,11 +4960,11 @@ export const useProfileStore = defineStore('profile', {
       }
 
     },
-    
+
     /** Removes a component from the library
-     * 
+     *
      */
-    delComponentLibrary(id){  
+    delComponentLibrary(id){
       for (let key in this.componentLibrary.profiles){
         this.componentLibrary.profiles[key].groups = this.componentLibrary.profiles[key].groups.filter((c) => { return (c.id != id) })
       }
@@ -4986,9 +4972,9 @@ export const useProfileStore = defineStore('profile', {
     },
 
     /** Renames a component's label in the library
-     * 
+     *
      */
-    renameComponentLibrary(id,newLabel){  
+    renameComponentLibrary(id,newLabel){
 
       for (let key in this.componentLibrary.profiles){
         for (let group of this.componentLibrary.profiles[key].groups){
@@ -4998,10 +4984,26 @@ export const useProfileStore = defineStore('profile', {
             return true
           }
         }
-
       }
-      
+    },
 
+    /**
+     *
+     * @param {string} profileName - name of the profile the element belongs to
+     * @param {string} element - the id of the element that will
+     */
+    addToAdHocMode: function(profileName, element){
+      let target = this.activeProfile.rt[profileName].pt[element]
+      let empty = this.isEmptyComponent(this.activeProfile.rt[profileName].pt[element])
+      if (empty && target.mandatory != 'true'){
+        if (Object.keys(this.emptyComponents).includes(profileName)){
+          this.emptyComponents[profileName].push(element)
+        } else {
+          this.emptyComponents[profileName] = [element]
+        }
+      } else {
+        console.warn(element, " is mandatory or populated. Didn't hide it.")
+      }
     },
 
 

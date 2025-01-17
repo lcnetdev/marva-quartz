@@ -868,7 +868,7 @@
       // Hide empty element in ad hoc mode
       hideElement: function(){
         let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
-        this.emptyComponents[structure.parentId].push(structure.id)
+        this.profileStore.addToAdHocMode(structure.parentId, structure.id)
       },
 
     },
