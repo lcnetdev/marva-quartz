@@ -421,10 +421,14 @@
           }
         }
 
-
-
-
-
+        if (this.activeProfile.id){
+          menu.push(
+            {
+              text: "Profile: " + this.activeProfile.id,
+              class: "current-profile"
+            }
+          )
+          }
 
         menu.push(
 
@@ -557,7 +561,7 @@
             if (contents["marvaComponentLibrary"]){
               that.preferenceStore.componentLibrary = contents["marvaComponentLibrary"]
               window.localStorage.setItem('marva-componentLibrary', JSON.stringify(contents["marvaComponentLibrary"]))
-            }           
+            }
 
             if (contents["diacriticUse"]){
               that.preferenceStore.diacriticUse = contents["diacriticUse"]
@@ -610,7 +614,24 @@
       hideInstanceSelectionModal: function(){
         this.instances = []
         this.showItemInstanceSelection = false;
-      }
+      },
+
+      // Show all hidden elements
+      showAllElements: function(){
+        for (let key in this.emptyComponents){
+          this.emptyComponents[key] = []
+        }
+      },
+
+      // Hide all empty elements
+      hideAllElements: function(){
+        for (let rt in this.activeProfile.rt){
+          this.emptyComponents[rt] = []
+          for (let element in this.activeProfile.rt[rt].pt){
+            this.profileStore.addToAdHocMode(rt, element)
+          }
+        }
+      },
 
     },
 
@@ -684,6 +705,10 @@
       fill: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
     }
 
+    .current-profile {
+      background: var(--bar-button-hover-bkg, #f1f3f4);
+      margin-left: 100px;
+    }
     .login-menu{
 
       position: absolute !important;
