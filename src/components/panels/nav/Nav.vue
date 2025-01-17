@@ -314,6 +314,7 @@
                 this.layoutActive=false
                 this.layoutActiveFilter=null
                 this.layoutHash=null
+                this.createLayoutMode=false
               }
             }
           )
@@ -335,7 +336,10 @@
            } else {
             layoutOptions = [{
               text: "Edit Layout",
-              click: () => { this.editLayout() },
+              click: (e) => {
+                e.stopPropagation()
+                this.editLayout()
+              },
               icon: "edit"
             },
             {
@@ -382,6 +386,14 @@
             menu.push(
               { text: "Layouts",  menu: layoutsMenu }
             )
+            if(this.layoutActive){
+              menu.push(
+                {
+                  text: this.layoutActiveFilter.label,
+                  class: 'active-layout-label'
+                }
+              )
+            }
            } else {
             menu.push(
               { text: "Save Layout", click: (e) => {
@@ -544,6 +556,7 @@
       editLayout: function(){
         let target = this.layoutActiveFilter
         console.info("Edit layout: ", target)
+        this.createLayoutMode = true
       },
 
       deleteLayout: function(){
@@ -556,7 +569,15 @@
       saveLayout: function(){
         console.info("save")
         let saved = this.preferenceStore.saveLayout()
+        console.info("saved: ", saved)
 
+        // if there is a loaded layout, refresh it
+        if (this.layoutActive){
+          this.layoutHash = saved
+          const customLayouts = this.preferenceStore.returnValue("--l-custom-layouts")
+          let l = customLayouts[this.layoutHash]
+          this.activateLayout(l)
+        }
         if (saved){
           this.createLayoutMode = false
         }
@@ -782,6 +803,11 @@
     }
     .layout-not-active{
       display: none !important;
+    }
+
+    .active-layout-label:hover,
+    .active-layout-label {
+      background: rgb(30, 231, 57) !important;
     }
 
 

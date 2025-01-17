@@ -1183,7 +1183,11 @@ export const usePreferenceStore = defineStore('preference', {
         return false
       }
 
-      let layoutName = prompt("Save layout as")
+      let currentName = ""
+      if (this.layoutActive){
+        currentName = this.layoutActiveFilter.label
+      }
+      let layoutName = prompt("Save layout as", currentName)
       console.info("Name: ", layoutName)
       if (layoutName == ""){
         alert("Layout name can't be empty.")
@@ -1227,7 +1231,7 @@ export const usePreferenceStore = defineStore('preference', {
       console.info("current layouts:", JSON.stringify(currentLayouts))
       this.setValue('--l-custom-layouts', currentLayouts)
 
-      return false //true
+      return layoutHash
     }
 
     /**
