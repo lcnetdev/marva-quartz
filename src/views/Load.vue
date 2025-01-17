@@ -549,10 +549,11 @@
           for (let rt in this.activeProfile.rt){
             this.emptyComponents[rt] = []
             for (let element in this.activeProfile.rt[rt].pt){
-              const e = this.activeProfile.rt[rt].pt[element]
-              if (e.mandatory != 'true'){
-                this.emptyComponents[rt].push(element)
-              }
+              // const e = this.activeProfile.rt[rt].pt[element]
+              // if (e.mandatory != 'true'){
+              //   this.emptyComponents[rt].push(element)
+              // }
+              this.useProfile.addToAdHocMode(rt, element)
             }
           }
         }

@@ -227,10 +227,6 @@
 
       jumpToElement: function(profileName, elementName){
         //if it's hidden show it
-        // if (this.emptyComponents[profileName].includes(elementName)){
-        //   let idx = this.emptyComponents[profileName].indexOf(elementName)
-        //   this.emptyComponents[profileName].splice(idx, 1)
-        // }
         let removed = this.profileStore.removeFromAdHocMode(profileName, elementName)
         //jump to it
         if (removed){
