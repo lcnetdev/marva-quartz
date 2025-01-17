@@ -692,12 +692,16 @@ const utilsProfile = {
                     }
                 }
                 let itemCountLabel = String(itemCount).padStart(4, '0');
-                newURI = newURI + '-' + itemCountLabel
+                //if there is only 1 item, it should match the instance URI
+                if (itemCount == 1){
+                  newURI = newURI
+                } else {
+                  newURI = newURI + '-' + itemCountLabel
+                }
                 return newURI
             }
         }
     }
-
 
     if (type === 'bf:Instance'){
         let instanceURIbasedOnWork = URI.replace('/works/','/instances/')

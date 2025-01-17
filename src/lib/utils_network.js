@@ -99,7 +99,7 @@ const utilsNetwork = {
             // basic ID simple Lookup response
             // assume anything in this array is a possible value except
             // something that has the parent URI
-            
+
             data.forEach((d)=>{
                 let label = null
                 let labelData = null                // it has a URI and that URI is not the parent uri
@@ -272,13 +272,13 @@ const utilsNetwork = {
         return  data;
       }catch(err){
         //alert("There was an error retriving the record from:",url)
-        
+
         if (err.name == 'AbortError'){
           // don't do anything
           // console.error("There was an error retriving the record from ", url, ". Likely from the search being aborted because the user was typing.");
         }else{
           console.error(err)
-        }        
+        }
         return false
         // Handle errors here
       }
@@ -762,7 +762,7 @@ const utilsNetwork = {
                   }
 
 
-                  
+
 
                   let response = await fetch(url.replace('http://','https://')+'.nt');
                   let text  = await response.text()
@@ -1063,7 +1063,6 @@ const utilsNetwork = {
                 })
               })
             })
-
 
             data.forEach((n)=>{
               var citation = '';
