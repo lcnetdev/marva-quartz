@@ -190,7 +190,7 @@
                                         [SH]: {{ returnSubjectHeadingLabel(activeProfile.rt[profileName].pt[element]) }}
                                       </span>
                                       <span v-else>
-                                        {{activeProfile.rt[profileName].pt[element].propertyLabel}}?!?!
+                                        {{activeProfile.rt[profileName].pt[element].propertyLabel}}
                                       </span>
 
                                   </a>
