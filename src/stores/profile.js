@@ -4990,7 +4990,7 @@ export const useProfileStore = defineStore('profile', {
     /**
      *
      * @param {string} profileName - name of the profile the element belongs to
-     * @param {string} element - the id of the element that will
+     * @param {string} element - the id of the element that will be added
      */
     addToAdHocMode: function(profileName, element){
       let target = this.activeProfile.rt[profileName].pt[element]
@@ -5003,6 +5003,22 @@ export const useProfileStore = defineStore('profile', {
         }
       } else {
         console.warn(element, " is mandatory or populated. Didn't hide it.")
+      }
+    },
+
+    /**
+     *
+     * @param {string} profileName - name of the profile the element belongs to
+     * @param {string} element - the id of the element that will be removed
+     */
+    removeFromAdHocMode: function(profileName, element){
+      if (this.emptyComponents[profileName].includes(element)){
+        let idx = this.emptyComponents[profileName].indexOf(element)
+        this.emptyComponents[profileName].splice(idx, 1)
+        return true
+      } else {
+        console.warn("Couldn't find ", element, " in Ad Hoc mode: ", this.emptyComponents)
+        return false
       }
     },
 

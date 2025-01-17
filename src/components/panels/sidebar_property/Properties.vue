@@ -59,7 +59,7 @@
       configComponentLibraryAssignGroup(event,clId){
         this.profileStore.changeGroupComponentLibrary(clId,event.target.value)
 
-        
+
 
       },
 
@@ -79,10 +79,10 @@
 
       },
 
-      
-      
+
+
       addComponentLibrary(event,clId,supressPropmpt){
-        
+
         if (event){
           if (this.clDebounce){return false}
           event.preventDefault()
@@ -93,7 +93,7 @@
         }
 
 
-      
+
         if (this.preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-prompt-to-add') == true){
           if (!supressPropmpt){
             if (!confirm('Add Component From Library?')) {
@@ -109,7 +109,7 @@
         // for (let rt in this.activeProfile.rt){
         //   for (let pt in this.activeProfile.rt[rt].pt){
         //     if (this.activeProfile.rt[rt].pt[pt].id == newId){
-              
+
         //     }
         //   }
         // }
@@ -134,7 +134,7 @@
                 let r = this.addComponentLibrary(null,component.id,supressPrompt)
                 // if the first one returns canceled then stop, otherwise supress the prompt from here on
                 if (r == 'canceled'){ return false}else{supressPrompt=true}
-                
+
               }
             }
           }
@@ -227,12 +227,15 @@
 
       jumpToElement: function(profileName, elementName){
         //if it's hidden show it
-        if (this.emptyComponents[profileName].includes(elementName)){
-          let idx = this.emptyComponents[profileName].indexOf(elementName)
-          this.emptyComponents[profileName].splice(idx, 1)
-        }
+        // if (this.emptyComponents[profileName].includes(elementName)){
+        //   let idx = this.emptyComponents[profileName].indexOf(elementName)
+        //   this.emptyComponents[profileName].splice(idx, 1)
+        // }
+        let removed = this.profileStore.removeFromAdHocMode(profileName, elementName)
         //jump to it
-        this.activeComponent = this.activeProfile.rt[profileName].pt[elementName]
+        if (removed){
+          this.activeComponent = this.activeProfile.rt[profileName].pt[elementName]
+        }
       },
     },
   }
@@ -452,7 +455,7 @@
 
         <AccordionItem style="color: white;" :id="'accordion_'+clProfile.label" default-closed>
           <template #summary>
-            <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">Library: {{ clProfile.label }}</span></div>          
+            <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">Library: {{ clProfile.label }}</span></div>
           </template>
           <ul class="sidebar-property-ul" role="list">
             <template v-for="group in clProfile.groups" >
@@ -464,19 +467,19 @@
                 <template v-for="component in group">
                   <li class="sidebar-property-li sidebar-property-li-cl ">
 
-                  
+
 
                   <button :class="{'material-icons' : true, 'component-library-settings-button': true, 'component-library-settings-button-invert': (activeComponentLibrary == component.id)  }" @click="configComponentLibrary(component.id)">settings_applications</button>
 
-                  
+
 
                   <div class="component-library-item-container sidebar-property-li-empty" @click="addComponentLibrary($event,component.id)" >
                     <a href="#" @click="addComponentLibrary($event,component.id)">{{ component.label }}</a>
                   </div>
                     <template v-if="activeComponentLibrary == component.id">
                       <div class="component-library-settings">
-                        
-                        
+
+
                         <button class="material-icons simptip-position-right" data-tooltip="DELETE" @click="delComponentLibrary($event,component.id)">delete_forever</button>
                         <button class="material-icons simptip-position-right" data-tooltip="RENAME" @click="renameComponentLibrary($event,component.id,component.label)">new_label</button>
                         <select @change="configComponentLibraryAssignGroup($event,component.id)">
@@ -506,9 +509,9 @@
                           <option value="W" :selected="(component.groupId==='W')">Group W</option>
                           <option value="X" :selected="(component.groupId==='X')">Group X</option>
                           <option value="Y" :selected="(component.groupId==='Y')">Group Y</option>
-                          <option value="Z" :selected="(component.groupId==='Z')">Group Z</option>                     
+                          <option value="Z" :selected="(component.groupId==='Z')">Group Z</option>
                         </select>
-                        
+
 
                       </div>
                     </template>
@@ -531,7 +534,7 @@
     </AccordionList>
   </template>
 
-  
+
 
 
 
@@ -693,7 +696,7 @@
 .component-library-settings select{
   height: 26px;
   vertical-align: top;
-  
+
 
 }
 
