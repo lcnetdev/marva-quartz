@@ -579,7 +579,7 @@
 
       addInstance: function(secondary=false){
         let lccn = "" //prompt("Enter an LCCN for this Instance.")
-        this.profileStore.createInstance(true, lccn)
+        this.profileStore.createInstance(secondary, lccn)
       },
 
       addItem: function(){

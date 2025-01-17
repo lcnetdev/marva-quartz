@@ -189,7 +189,6 @@
                       <div class="modal-context-data-title">{{ contextData.label }} [Literal]</div>
                     </div>
 
-
                     <div v-if="contextData.source && contextData.source.length>0">
                       <div class="modal-context-data-title">Sources:</div>
                       <ul>
