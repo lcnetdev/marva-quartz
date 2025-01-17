@@ -541,21 +541,16 @@
       },
 
       activateLayout(layout){
-        console.info("activate layout: ", layout)
         this.layoutActive = true
         this.layoutActiveFilter = layout
       },
 
       createLayout: function(){
-        console.info("Create Layout")
-        console.info("Current Custom Layouts: ", this.customLayouts)
         this.createLayoutMode = true
-        console.info("createLayoutMode: ", this.createLayoutMode)
       },
 
       editLayout: function(){
         let target = this.layoutActiveFilter
-        console.info("Edit layout: ", target)
         this.createLayoutMode = true
       },
 
@@ -567,9 +562,7 @@
       },
 
       saveLayout: function(){
-        console.info("save")
         let saved = this.preferenceStore.saveLayout()
-        console.info("saved: ", saved)
 
         // if there is a loaded layout, refresh it
         if (this.layoutActive){
@@ -584,7 +577,6 @@
       },
 
       cancelLayout: function(){
-        console.info("cancel")
         this.createLayoutMode = false
       },
 

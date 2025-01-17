@@ -1184,6 +1184,7 @@ export const usePreferenceStore = defineStore('preference', {
       }
 
       let currentName = ""
+      //prepopulate the prompt with the current layout name when editing
       if (this.layoutActive){
         currentName = this.layoutActiveFilter.label
       }
@@ -1220,17 +1221,13 @@ export const usePreferenceStore = defineStore('preference', {
         } else {
           layout.properties[parentId] = [propertyId]
           // this needed to be more granular(?) Adding "Note about the work" will also pick up "Language note"
-          // use the id
+          // if it uses the propertyURI
         }
       }
-
-      console.info("layout: ", layout)
-
       currentLayouts[layoutHash] = layout
-
-      console.info("current layouts:", JSON.stringify(currentLayouts))
       this.setValue('--l-custom-layouts', currentLayouts)
 
+      // return the layout hash value so we can correctly refresh the current layout when editing
       return layoutHash
     }
 
