@@ -397,15 +397,12 @@
             )
             if(this.layoutActive){
               if (this.layoutActiveFilter){
-                console.einfo("not this")
                 menu.push(
                   {
                     text: this.layoutActiveFilter.label,
                     class: 'active-layout-label'
                   }
                 )
-              } else {
-                this.layoutActiveFilter = null
               }
             }
            } else {
