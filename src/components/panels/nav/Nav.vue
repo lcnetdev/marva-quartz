@@ -213,7 +213,7 @@
           )
         }
 
-        if(this.$route.path.startsWith('/edit/')){
+        if(this.$route.path.startsWith('/edit/') && this.preferenceStore.returnValue('--c-general-ad-hoc')){
           for (let sub in menu){
             if (menu[sub].text == 'Tools'){
               menu[sub].menu.push(
@@ -506,10 +506,14 @@
           }
         }
 
-
-
-
-
+        if (this.activeProfile.id){
+          menu.push(
+            {
+              text: "Profile: " + this.activeProfile.id,
+              class: "current-profile"
+            }
+          )
+          }
 
         menu.push(
 
@@ -615,6 +619,7 @@
         let prefs = null
         let scriptShifterOptions = null
         let diacriticUse = null
+        let marvaComponentLibrary = null
 
         let data = {}
 
@@ -636,6 +641,14 @@
         } else {
           console.warn("Couldn't find Diacritic preferences to export. :(")
         }
+
+        if (window.localStorage.getItem('marva-componentLibrary')){
+          marvaComponentLibrary = JSON.parse(window.localStorage.getItem('marva-componentLibrary'))
+          data["marvaComponentLibrary"] = marvaComponentLibrary
+        } else {
+          console.warn("Couldn't find marva-componentLibrary preferences to export. :(")
+        }
+
 
         let today = new Date()
         let dd = String(today.getDate()).padStart(2, '0')
@@ -671,6 +684,12 @@
               that.preferenceStore.scriptShifterOptions = contents["scriptShifterOptions"]
               window.localStorage.setItem('marva-scriptShifterOptions', JSON.stringify(contents["scriptShifterOptions"]))
             }
+
+            if (contents["marvaComponentLibrary"]){
+              that.preferenceStore.componentLibrary = contents["marvaComponentLibrary"]
+              window.localStorage.setItem('marva-componentLibrary', JSON.stringify(contents["marvaComponentLibrary"]))
+            }
+
             if (contents["diacriticUse"]){
               that.preferenceStore.diacriticUse = contents["diacriticUse"]
               window.localStorage.setItem('marva-diacriticUse', JSON.stringify(contents["diacriticUse"]))
@@ -687,7 +706,7 @@
 
       addInstance: function(secondary=false){
         let lccn = "" //prompt("Enter an LCCN for this Instance.")
-        this.profileStore.createInstance(true, lccn)
+        this.profileStore.createInstance(secondary, lccn)
       },
 
       addItem: function(){
@@ -722,7 +741,24 @@
       hideInstanceSelectionModal: function(){
         this.instances = []
         this.showItemInstanceSelection = false;
-      }
+      },
+
+      // Show all hidden elements
+      showAllElements: function(){
+        for (let key in this.emptyComponents){
+          this.emptyComponents[key] = []
+        }
+      },
+
+      // Hide all empty elements
+      hideAllElements: function(){
+        for (let rt in this.activeProfile.rt){
+          this.emptyComponents[rt] = []
+          for (let element in this.activeProfile.rt[rt].pt){
+            this.profileStore.addToAdHocMode(rt, element)
+          }
+        }
+      },
 
     },
 
@@ -796,6 +832,10 @@
       fill: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
     }
 
+    .current-profile {
+      background: var(--bar-button-hover-bkg, #f1f3f4);
+      margin-left: 100px;
+    }
     .login-menu{
 
       position: absolute !important;
