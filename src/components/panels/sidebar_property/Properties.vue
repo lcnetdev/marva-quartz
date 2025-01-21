@@ -37,11 +37,10 @@
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent', 'emptyComponents','returnComponentLibrary']),
-      ...mapState(usePreferenceStore, ['styleDefault', 'isEmptyComponent']),
+      ...mapState(usePreferenceStore, ['styleDefault', 'isEmptyComponent', 'layoutActive', 'layoutActiveFilter', 'createLayoutMode']),
+
 
       ...mapWritableState(useProfileStore, ['activeComponent', 'emptyComponents']),
-
-
     },
 
 
@@ -59,7 +58,7 @@
       configComponentLibraryAssignGroup(event,clId){
         this.profileStore.changeGroupComponentLibrary(clId,event.target.value)
 
-        
+
 
       },
 
@@ -79,10 +78,10 @@
 
       },
 
-      
-      
+
+
       addComponentLibrary(event,clId,supressPropmpt){
-        
+
         if (event){
           if (this.clDebounce){return false}
           event.preventDefault()
@@ -93,7 +92,7 @@
         }
 
 
-      
+
         if (this.preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-prompt-to-add') == true){
           if (!supressPropmpt){
             if (!confirm('Add Component From Library?')) {
@@ -109,7 +108,7 @@
         // for (let rt in this.activeProfile.rt){
         //   for (let pt in this.activeProfile.rt[rt].pt){
         //     if (this.activeProfile.rt[rt].pt[pt].id == newId){
-              
+
         //     }
         //   }
         // }
@@ -136,6 +135,7 @@
               // if the first one returns canceled then stop, otherwise supress the prompt from here on
               if (r == 'canceled'){ return false}else{supressPrompt=true}
               
+
             }
           }
           
@@ -228,12 +228,11 @@
 
       jumpToElement: function(profileName, elementName){
         //if it's hidden show it
-        if (this.emptyComponents[profileName].includes(elementName)){
-          let idx = this.emptyComponents[profileName].indexOf(elementName)
-          this.emptyComponents[profileName].splice(idx, 1)
-        }
+        let removed = this.profileStore.removeFromAdHocMode(profileName, elementName)
         //jump to it
-        this.activeComponent = this.activeProfile.rt[profileName].pt[elementName]
+        if (removed){
+          this.activeComponent = this.activeProfile.rt[profileName].pt[elementName]
+        }
       },
     },
   }
@@ -247,7 +246,6 @@
     <AccordionList  :open-multiple-items="false">
 
       <template v-for="profileName in activeProfile.rtOrder" :key="profileName">
-
       <!-- <div v-for="profileName in activeProfile.rtOrder" class="sidebar" :key="profileName"> -->
 
         <template v-if="activeProfile.rt[profileName].noData != true">
@@ -279,7 +277,6 @@
                   </template>
 
 
-
                   <ul class="sidebar-property-ul" role="list">
                           <draggable
                             v-model="activeProfile.rt[profileName].ptOrder"
@@ -289,8 +286,8 @@
                             @change="change"
                             item-key="id">
                             <template #item="{element}">
-                              <template v-if="!activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI)">
-                                <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) )}]">
+                              <template v-if="!activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI) && ( (layoutActive && layoutActiveFilter['properties'][profileName] && layoutActiveFilter['properties'][profileName].includes(activeProfile.rt[profileName].pt[element].id)) || !layoutActive || (createLayoutMode && layoutActive))">
+                                <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) && !layoutActive )}]">
                                   <a href="#" @click.stop="jumpToElement(profileName, element)" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
                                       <span v-if="activeProfile.rt[profileName].pt[element].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'">
@@ -453,7 +450,7 @@
 
         <AccordionItem style="color: white;" :id="'accordion_'+clProfile.label" default-closed>
           <template #summary>
-            <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">Library: {{ clProfile.label }}</span></div>          
+            <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">Library: {{ clProfile.label }}</span></div>
           </template>
           <ul class="sidebar-property-ul" role="list">
             <template v-for="group in clProfile.groups" >
@@ -465,19 +462,19 @@
                 <template v-for="component in group">
                   <li class="sidebar-property-li sidebar-property-li-cl ">
 
-                  
+
 
                   <button :class="{'material-icons' : true, 'component-library-settings-button': true, 'component-library-settings-button-invert': (activeComponentLibrary == component.id)  }" @click="configComponentLibrary(component.id)">settings_applications</button>
 
-                  
+
 
                   <div class="component-library-item-container sidebar-property-li-empty" @click="addComponentLibrary($event,component.id)" >
                     <a href="#" @click="addComponentLibrary($event,component.id)">{{ component.label }}</a>
                   </div>
                     <template v-if="activeComponentLibrary == component.id">
                       <div class="component-library-settings">
-                        
-                        
+
+
                         <button class="material-icons simptip-position-right" data-tooltip="DELETE" @click="delComponentLibrary($event,component.id)">delete_forever</button>
                         <button class="material-icons simptip-position-right" data-tooltip="RENAME" @click="renameComponentLibrary($event,component.id,component.label)">new_label</button>
                         <select @change="configComponentLibraryAssignGroup($event,component.id)">
@@ -507,9 +504,9 @@
                           <option value="W" :selected="(component.groupId==='W')">Group W</option>
                           <option value="X" :selected="(component.groupId==='X')">Group X</option>
                           <option value="Y" :selected="(component.groupId==='Y')">Group Y</option>
-                          <option value="Z" :selected="(component.groupId==='Z')">Group Z</option>                     
+                          <option value="Z" :selected="(component.groupId==='Z')">Group Z</option>
                         </select>
-                        
+
 
                       </div>
                     </template>
@@ -533,7 +530,7 @@
     </AccordionList>
   </template>
 
-  
+
 
 
 
@@ -695,7 +692,7 @@
 .component-library-settings select{
   height: 26px;
   vertical-align: top;
-  
+
 
 }
 

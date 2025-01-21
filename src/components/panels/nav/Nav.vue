@@ -49,6 +49,7 @@
       return {
         allSelected: false,
         instances: [],
+        layoutHash: null,
       }
     },
     props:{
@@ -63,9 +64,9 @@
       ...mapStores(useProfileStore,usePreferenceStore),
 
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent']),
-      ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
+      ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode']),
       ...mapState(useConfigStore, ['layouts']),
-      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal']),
+      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode']),
       ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
@@ -308,30 +309,117 @@
               icon: "reorder",
               disabled: (this.layoutActive) ? false : true,
               class: (this.layoutActive) ? "layout-active" : "layout-not-active",
+              title: "Turn off layout",
 
               click: () => {
                 this.layoutActive=false
                 this.layoutActiveFilter=null
+                this.layoutHash=null
+                this.createLayoutMode=false
               }
             }
           )
 
+
            let layoutsMenu = []
+           // If there is a custom layout loaded, options should be edit & delete
+           let layoutOptions
+
+           if (!this.layoutHash){
+            layoutOptions = [{
+              text: "Create Layout",
+              click: (e) => {
+                e.stopPropagation()
+                this.createLayout()
+              },
+              icon: "add"
+            }]
+           } else {
+            layoutOptions = [{
+              text: "Edit Layout",
+              click: (e) => {
+                e.stopPropagation()
+                this.editLayout()
+              },
+              icon: "edit",
+              hotkey: "ctrl+shift+e"
+            },
+            {
+              text: "Delete Layout",
+              click: () => {
+                if (window.confirm("Do you really want to delete this layout?")){
+                  this.deleteLayout()
+                }
+              },
+              icon: "delete",
+              hotkey: "ctrl+shift+d"
+            }]
+           }
+
+           for (let opt in layoutOptions){
+            layoutsMenu.push(layoutOptions[opt])
+           }
+            layoutsMenu.push({ is: "separator" })
 
            for (let l in this.layouts.all ){
-
             layoutsMenu.push({
               text: this.layouts.all[l].label,
               click: () => {
                 this.activateLayout(this.layouts.all[l])
-              }
+              },
 
             })
            }
 
+           const customLayouts = this.preferenceStore.returnValue("--l-custom-layouts")
+           if (customLayouts != {}){
+            layoutsMenu.push({ is: "separator" })
+            const layoutList = Object.keys(customLayouts)
+            for (let idx in layoutList){
+              let layout = customLayouts[layoutList[idx]]
+              layoutsMenu.push({
+                text: layout.label,
+                hotkey: "ctrl+" + idx,
+                click: () => {
+                  this.layoutHash = layoutList[idx]
+                  this.activateLayout(layout)
+                },
+                emoji: layout.profileId == this.activeProfile.id ? "heavy_check_mark" : "x",
+                title: layout.profileId == this.activeProfile.id ? "Layout Matches Profile." : "Can't use ''" + layout.profileId  + "'' layout with ''" + this.activeProfile.id + "'' profile."
+              })
+            }
+           }
+
+          //  menu.push(
+          //     !this.createLayoutMode ? { text: "Layouts",  menu: layoutsMenu } : { text: "Save Layout", click: () => { this.saveLayout() }}
+          //   )
+
+           if (!this.createLayoutMode){
             menu.push(
-              { text: "Layouts",  menu: layoutsMenu }
+              { text: "Layouts",  menu: layoutsMenu, menu_width: 250 }
             )
+            if(this.layoutActive){
+              if (this.layoutActiveFilter){
+                menu.push(
+                  {
+                    text: this.layoutActiveFilter.label,
+                    class: 'active-layout-label'
+                  }
+                )
+              }
+            }
+           } else {
+            menu.push(
+              { text: "Save Layout", click: (e) => {
+                e.stopPropagation()
+                this.saveLayout()
+               }},
+              { text: "Cancel Layout", click: (e) => {
+                e.stopPropagation()
+                this.cancelLayout()
+              }},
+            )
+           }
 
         }
 
@@ -421,10 +509,14 @@
           }
         }
 
-
-
-
-
+        if (this.activeProfile.id){
+          menu.push(
+            {
+              text: "Profile: " + this.activeProfile.id,
+              class: "current-profile"
+            }
+          )
+          }
 
         menu.push(
 
@@ -469,6 +561,48 @@
       activateLayout(layout){
         this.layoutActive = true
         this.layoutActiveFilter = layout
+      },
+
+      createLayout: function(){
+        this.createLayoutMode = true
+      },
+
+      editLayout: function(){
+        let target = this.layoutActiveFilter
+        this.createLayoutMode = true
+      },
+
+      deleteLayout: function(hash=null){
+        let targetHash
+        if (hash){
+          targetHash = hash
+        } else {
+          targetHash = this.layoutHash
+        }
+        this.preferenceStore.deleteLayout(targetHash)
+        this.layoutActive = false
+        this.layoutActiveFilter = null
+        this.layoutHash = null
+      },
+
+      saveLayout: function(){
+        let saved = this.preferenceStore.saveLayout()
+        let l
+        const customLayouts = this.preferenceStore.returnValue("--l-custom-layouts")
+        this.layoutHash = saved
+        l = customLayouts[this.layoutHash]
+        // switch to the new layout
+        this.activateLayout(l)
+        if (saved){
+          this.createLayoutMode = false
+        }
+      },
+
+      cancelLayout: function(){
+        this.createLayoutMode = false
+        this.layoutActive = false
+        this.layoutActiveFilter = null
+        this.layoutHash = null
       },
 
       selectAll: function(){
@@ -557,7 +691,7 @@
             if (contents["marvaComponentLibrary"]){
               that.preferenceStore.componentLibrary = contents["marvaComponentLibrary"]
               window.localStorage.setItem('marva-componentLibrary', JSON.stringify(contents["marvaComponentLibrary"]))
-            }           
+            }
 
             if (contents["diacriticUse"]){
               that.preferenceStore.diacriticUse = contents["diacriticUse"]
@@ -575,7 +709,7 @@
 
       addInstance: function(secondary=false){
         let lccn = "" //prompt("Enter an LCCN for this Instance.")
-        this.profileStore.createInstance(true, lccn)
+        this.profileStore.createInstance(secondary, lccn)
       },
 
       addItem: function(){
@@ -610,7 +744,24 @@
       hideInstanceSelectionModal: function(){
         this.instances = []
         this.showItemInstanceSelection = false;
-      }
+      },
+
+      // Show all hidden elements
+      showAllElements: function(){
+        for (let key in this.emptyComponents){
+          this.emptyComponents[key] = []
+        }
+      },
+
+      // Hide all empty elements
+      hideAllElements: function(){
+        for (let rt in this.activeProfile.rt){
+          this.emptyComponents[rt] = []
+          for (let element in this.activeProfile.rt[rt].pt){
+            this.profileStore.addToAdHocMode(rt, element)
+          }
+        }
+      },
 
     },
 
@@ -684,6 +835,10 @@
       fill: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
     }
 
+    .current-profile {
+      background: var(--bar-button-hover-bkg, #f1f3f4);
+      margin-left: 100px;
+    }
     .login-menu{
 
       position: absolute !important;
@@ -701,6 +856,11 @@
     }
     .layout-not-active{
       display: none !important;
+    }
+
+    .active-layout-label:hover,
+    .active-layout-label {
+      background: rgb(30, 231, 57) !important;
     }
 
 
