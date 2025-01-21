@@ -862,6 +862,21 @@ export const usePreferenceStore = defineStore('preference', {
       },
 
       // Custom Layouts, isn't really a preference, but need to store it somewhere
+      /**
+       * The structure of a layout is
+       * hash: {  // hash is made from the `user's label + profileId`
+              "profileId": "Monograph",         // the id for the profile associated with the layout
+              "label": "Monograph-Work-Title",  // user assigned lable
+              "properties": {
+                  "lc:RT:bf2:Monograph:Work": [ // ProfileName
+                      "id_loc_gov_ontologies_bibframe_contribution__creator_of_work" // property id
+                  ]
+              }
+          }
+       * This allows greater granularity in the layouts, but also means layouts will only work for the profile they are created with.
+       * Without this level of granuality, it's not possible to allows the user to differentiate between "Notes about the Work" & "Notes about the Instance."
+       * Additionally, using the `propertyId` instead of the `propertyURI` allows "Notes about the Work" to be different from "Language Note"
+       */
       '--l-custom-layouts' : {
         desc: '',
         descShort: '',
