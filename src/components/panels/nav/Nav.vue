@@ -344,7 +344,11 @@
             },
             {
               text: "Delete Layout",
-              click: () => { this.deleteLayout() },
+              click: () => {
+                if (window.confirm("Do you really want to delete this layout?")){
+                  this.deleteLayout()
+                }
+              },
               icon: "delete"
             }]
            }
@@ -359,7 +363,8 @@
               text: this.layouts.all[l].label,
               click: () => {
                 this.activateLayout(this.layouts.all[l])
-              }
+              },
+
             })
            }
 
@@ -556,8 +561,14 @@
         this.createLayoutMode = true
       },
 
-      deleteLayout: function(){
-        this.preferenceStore.deleteLayout(this.layoutHash)
+      deleteLayout: function(hash=null){
+        let targetHash
+        if (hash){
+          targetHash = hash
+        } else {
+          targetHash = this.layoutHash
+        }
+        this.preferenceStore.deleteLayout(targetHash)
         this.layoutActive = false
         this.layoutActiveFilter = null
         this.layoutHash = null
@@ -565,14 +576,12 @@
 
       saveLayout: function(){
         let saved = this.preferenceStore.saveLayout()
-
-        // if there is a loaded layout, refresh it
-        if (this.layoutActive){
-          this.layoutHash = saved
-          const customLayouts = this.preferenceStore.returnValue("--l-custom-layouts")
-          let l = customLayouts[this.layoutHash]
-          this.activateLayout(l)
-        }
+        let l
+        const customLayouts = this.preferenceStore.returnValue("--l-custom-layouts")
+        this.layoutHash = saved
+        l = customLayouts[this.layoutHash]
+        // switch to the new layout
+        this.activateLayout(l)
         if (saved){
           this.createLayoutMode = false
         }
