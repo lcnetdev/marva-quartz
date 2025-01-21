@@ -2199,6 +2199,7 @@ const utilsNetwork = {
       const numResultsNames = usePreferenceStore().returnValue('--b-edit-complex-number-names')
       const numResultsComplex = usePreferenceStore().returnValue('--b-edit-complex-number-complex')
       const numResultsSimple = usePreferenceStore().returnValue('--b-edit-complex-number-simple')
+      const numResultsCyac = usePreferenceStore().returnValue('--b-edit-complex-number-cyac')
 
 
       this.subjectSearchActive = true
@@ -2218,8 +2219,8 @@ const utilsNetwork = {
       let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
       let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
 
-      let childrenSubject = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&-memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
-      let childrenSubjectComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&rdftype=ComplexType'
+      let childrenSubject = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&-memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let childrenSubjectComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&rdftype=ComplexType'
       let childrenSubjectSubdivision = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       let searchValHierarchicalGeographic = searchVal.replaceAll('‑','-') //.split(' ').join('--')

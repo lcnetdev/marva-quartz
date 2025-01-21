@@ -728,6 +728,15 @@ export const usePreferenceStore = defineStore('preference', {
         range: [5, 100],
         step: 5,
       },
+      '--b-edit-complex-number-cyac' : {
+        desc: "Set the number of Children's headings that will appear in the subject builder.",
+        descShort: 'Number of Cyac Headings',
+        value: 5,
+        type: 'number',
+        group: 'Complex Lookup',
+        range: [5, 100],
+        step: 5,
+      },
 
       //general
       '--c-general-icon-instance-color' : {
