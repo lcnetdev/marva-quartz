@@ -340,7 +340,8 @@
                 e.stopPropagation()
                 this.editLayout()
               },
-              icon: "edit"
+              icon: "edit",
+              hotkey: "ctrl+shift+e"
             },
             {
               text: "Delete Layout",
@@ -349,7 +350,8 @@
                   this.deleteLayout()
                 }
               },
-              icon: "delete"
+              icon: "delete",
+              hotkey: "ctrl+shift+d"
             }]
            }
 
@@ -393,7 +395,7 @@
 
            if (!this.createLayoutMode){
             menu.push(
-              { text: "Layouts",  menu: layoutsMenu }
+              { text: "Layouts",  menu: layoutsMenu, menu_width: 250 }
             )
             if(this.layoutActive){
               if (this.layoutActiveFilter){
