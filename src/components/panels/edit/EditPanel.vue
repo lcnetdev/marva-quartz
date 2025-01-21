@@ -11,44 +11,49 @@
       </div>
 
   </template>
-
   <div
+
     v-for="profileName in this.activeProfile.rtOrder"
     :key="profileName"
-    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
-
-          <template v-if="instanceMode == true && profileName.indexOf(':Instance') > -1">
+    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-item': (profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1 && !profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
+          <template v-if="instanceMode == true && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)">
           <template v-if="profileName.includes(':Instance')">
                 <div>
                     <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
                     <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
                 </div>
           </template>
+          <template v-if="profileName.includes(':Item')">
+                <div>
+                    <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                    <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Item</button>
+                </div>
+          </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
+                <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
+                    :key="profileCompoent">
+                  <template v-if="!preferenceStore.returnValue('--c-general-ad-hoc') || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && profileStore.emptyComponents[profileName] && !profileStore.emptyComponents[profileName].includes(profileCompoent) ))">
+                  <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
+                    <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
 
-              <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
-                  :key="profileCompoent">
+                      <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
-                <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
-                  <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
-
-                    <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
-
-                      <div class="component-label" >
-                          <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
-                          {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
-                      </div>
-                      <Main
-                        :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
-                        :level="0"
-                        :id="activeProfile.rt[profileName].pt[profileCompoent].id"
-                        :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
-                        :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
+                        <div class="component-label 1" >
+                            <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                            {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
+                        </div>
+                        <Main
+                          :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
+                          :level="0"
+                          :id="activeProfile.rt[profileName].pt[profileCompoent].id"
+                          :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
+                          :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
+                      </template>
                     </template>
                   </template>
-                </template>
 
-              </div>
+                  </template>
+                </div>
             </template>
 
 
@@ -60,6 +65,14 @@
                 <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Instance</button>
             </div>
         </template>
+
+        <template v-if="profileName.includes(':Item') && !this.dualEdit">
+            <div class="instanceInfoWrapper">
+                <span class="instanceIdentifer">{{ instanceLabel(profileName) }}: {{ activeProfile.rt[profileName].URI.split("/").at(-1) }}</span>
+                <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Item</button>
+            </div>
+        </template>
+
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
 
           <template v-if="layoutActive == false || (layoutActive == true && layoutActiveFilter.properties.indexOf(activeProfile.rt[profileName].pt[profileCompoent].propertyURI) > -1) ">
@@ -71,14 +84,10 @@
                 <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
                   <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
-
-
-                    <div :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
-
-
+                    <div v-if="!preferenceStore.returnValue('--c-general-ad-hoc') || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
                       <template v-if="this.dualEdit == false">
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
-                          <div class="component-label" >
+                          <div class="component-label 2" >
                             <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
 
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
@@ -87,8 +96,8 @@
                         </template>
                     </template>
                     <template v-if="this.dualEdit == true">
-                        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && profileName.indexOf(':Instance') == -1">
-                          <div class="component-label" >
+                        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && (profileName.indexOf(':Instance') == -1 && profileName.indexOf(':Item') == -1 )">
+                          <div class="component-label 3" >
                           <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                             <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
@@ -98,12 +107,12 @@
 
                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
                         <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
-                        <div v-if="profileName.indexOf(':Instance') > -1" class="inline-mode-resource-color-instance">&nbsp;</div>
+                        <div v-if="profileName.indexOf(':Instance') > -1 && profileName.indexOf(':Item') == -1" class="inline-mode-resource-color-instance">&nbsp;</div>
                         <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
                       </template>
 
                       <!-- index == -1 means it's the work, so just add the work -->
-                      <Main v-if="profileName.indexOf(':Instance') == -1"
+                      <Main v-if="profileName.indexOf(':Instance') == -1 && profileName.indexOf(':Item') == -1"
                         :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
                         :level="0"
                         :id="activeProfile.rt[profileName].pt[profileCompoent].id"
@@ -111,7 +120,7 @@
                         :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
 
                       <!-- If it's not in dual mode add the instances too -->
-                      <Main v-if="this.dualEdit == false && profileName.indexOf(':Instance') > -1"
+                      <Main v-if="this.dualEdit == false && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)"
                         :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
                         :level="0"
                         :id="activeProfile.rt[profileName].pt[profileCompoent].id"
@@ -191,6 +200,7 @@
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged']),
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
+      ...mapWritableState(useProfileStore, ['emptyComponents']),
 
       activeResourceName(){
 
@@ -276,10 +286,16 @@
         },
 
         showDeleteInstanceModal: function(profileName){
-            if (window.confirm("Do you really want to delete this instance?")){
+          let resourceType = profileName.includes("Item") ? "Item" : "Instance"
+            if (window.confirm("Do you really want to delete this " + resourceType + "?")){
                 // remove from rtOrder
                 const targetIndex = this.activeProfile.rtOrder.indexOf(profileName)
                 this.activeProfile.rtOrder.splice(targetIndex, 1)
+
+                // Remove from ad hoc
+                if (Object.keys(this.emptyComponents).includes(profileName)){
+                  delete this.emptyComponents[profileName]
+                }
 
                 // remove the profile
                 delete this.activeProfile.rt[profileName]
@@ -288,14 +304,17 @@
         },
 
         instanceLabel: function(profileName){
-            try{
-                if (this.activeProfile.rt[profileName]["@type"].includes("Secondary")){
-                    return "Secondary Instance"
-                }
-                return "Instance"
-            } catch(err){
-                return "Instance"
-            }
+          if (profileName.includes(":Item")){
+            return "Item"
+          }
+          try{
+              if (this.activeProfile.rt[profileName]["@type"].includes("Secondary")){
+                  return "Secondary Instance"
+              }
+              return "Instance"
+          } catch(err){
+              return "Instance"
+          }
         }
     },
 
@@ -408,6 +427,9 @@
 
 .edit-panel-instance{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')") !important;
+}
+.edit-panel-item{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-item')") !important;
 }
 .edit-panel-instance-secondary{
 
