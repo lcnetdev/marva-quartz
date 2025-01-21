@@ -1052,7 +1052,6 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {boolean} - Did it work
     */
     setValue: function(propertyName,value){
-      console.info("setting value for ", propertyName, " to ", value)
       if (!this.styleDefault[propertyName]){
         return false
       }
@@ -1167,17 +1166,12 @@ export const usePreferenceStore = defineStore('preference', {
 
     saveLayout: function(){
       let currentLayouts = this.returnValue('--l-custom-layouts')
-      console.info(">>>>>>>>>>>>>>>>>", currentLayouts)
       let components = []
       let compontGuids = []
-      let properties = []
       let layout = {}
-      console.info("profile: ", useProfileStore().activeProfile)
       const profileId =  useProfileStore().activeProfile.id
-      console.info("profileId: ", profileId)
 
       let copyTargets = document.querySelectorAll('input[class=layout-selection]:checked')
-      console.info("targets: ", copyTargets)
       if (copyTargets.length == 0){
         alert("No elements are selected for the layout. Select some and try again.")
         return false
@@ -1189,7 +1183,6 @@ export const usePreferenceStore = defineStore('preference', {
         currentName = this.layoutActiveFilter.label
       }
       let layoutName = prompt("Save layout as", currentName)
-      console.info("Name: ", layoutName)
       if (layoutName == ""){
         alert("Layout name can't be empty.")
         return false
@@ -1203,8 +1196,6 @@ export const usePreferenceStore = defineStore('preference', {
         components.push(component)
       }
 
-      console.info("components: ", components)
-
       layout = {
         profileId: profileId,
         label: layoutName,
@@ -1212,7 +1203,6 @@ export const usePreferenceStore = defineStore('preference', {
       }
 
       for (let component of components){
-        console.info("component: ", component)
         const parentId = component.parentId
         const propertyUri = component.propertyURI
         const propertyId = component.id

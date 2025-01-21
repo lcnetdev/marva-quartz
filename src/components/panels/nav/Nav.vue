@@ -366,14 +366,16 @@
            const customLayouts = this.preferenceStore.returnValue("--l-custom-layouts")
            if (customLayouts != {}){
             layoutsMenu.push({ is: "separator" })
-            for (let hash in customLayouts){
-              let l = customLayouts[hash]
+            const layoutList = Object.keys(customLayouts)
+            for (let idx in layoutList){
+              let layout = customLayouts[layoutList[idx]]
               layoutsMenu.push({
-                text: l.label,
+                text: layout.label,
+                hotkey: "ctrl+" + idx,
                 click: () => {
-                  this.layoutHash = hash
-                  this.activateLayout(l)
-                }
+                  this.layoutHash = layoutList[idx]
+                  this.activateLayout(layout)
+                },
               })
             }
            }
