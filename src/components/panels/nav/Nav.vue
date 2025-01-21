@@ -309,6 +309,7 @@
               icon: "reorder",
               disabled: (this.layoutActive) ? false : true,
               class: (this.layoutActive) ? "layout-active" : "layout-not-active",
+              title: "Turn off layout",
 
               click: () => {
                 this.layoutActive=false
