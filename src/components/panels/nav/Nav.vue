@@ -396,7 +396,6 @@
               { text: "Layouts",  menu: layoutsMenu }
             )
             if(this.layoutActive){
-              console.info("turn on layout: ", this.layoutActive, "--", this.layoutActiveFilter)
               if (this.layoutActiveFilter){
                 console.einfo("not this")
                 menu.push(
