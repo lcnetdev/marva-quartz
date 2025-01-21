@@ -210,8 +210,8 @@ export const useProfileStore = defineStore('profile', {
     returnComponentLibrary: (state) => {
 
       // limit to the current profiles being used
-      console.log(state.activeProfile)
-      console.log(state.componentLibrary)
+      // console.log(state.activeProfile)
+      // console.log(state.componentLibrary)
       // return () => {
       //   return [state.componentLibrary]
 
@@ -244,6 +244,82 @@ export const useProfileStore = defineStore('profile', {
         }
 
       }
+
+      // now go through and see if there are the the same group being used in multiple profiles if so 
+      // that means they have cross profile components (2 fields in Work 1 in instance for exmaple)
+
+
+      let groupsCount = {}
+      for (let profileComponents of results){
+        for (let groupKey in profileComponents.groups){
+          if (profileComponents.groups[groupKey].groupId !== null){
+            for (let groupItem of profileComponents.groups[groupKey]){
+              if (groupItem.groupId !== null){
+                if (!groupsCount[groupItem.groupId]){
+                  groupsCount[groupItem.groupId]=[]
+                }
+                if (groupsCount[groupItem.groupId].indexOf(groupItem.structure.parentId)==-1){
+                  groupsCount[groupItem.groupId].push(groupItem.structure.parentId)
+                }
+              }
+            }
+
+          }          
+        }
+      }
+
+      let groupsToMerge = []
+      for (let groupKey in groupsCount){
+        if (groupsCount[groupKey].length>1){
+          groupsToMerge.push(groupKey)
+        }
+      }
+      if (groupsToMerge.length>0){
+        // we have to MERGE
+        let multiProfile = {
+          groups: {},
+          groupsOrder: [],
+          label: 'Multi',
+          profileId: 'Multi'
+        } 
+
+        for (let groupName of groupsToMerge){
+
+          let tmpGroupComponents = []
+
+
+          // remove them from the orginal group/profile and them to the multi profile
+          for (let profileComponents of results){
+            if (profileComponents.groups[groupName]){
+              tmpGroupComponents=tmpGroupComponents.concat( JSON.parse(JSON.stringify(profileComponents.groups[groupName])) )
+              delete profileComponents.groups[groupName]
+            }
+            profileComponents.groupsOrder = profileComponents.groupsOrder.filter((v) => {return (v !== groupName)})
+          }
+
+          // put them into the multi profile
+          multiProfile.groups[groupName] = tmpGroupComponents
+          multiProfile.groupsOrder.push(groupName)
+
+          // add a label to denote if the individual component is a work or instance whatever component.
+          for (let groupKey in multiProfile.groups){
+            for (let component of multiProfile.groups[groupKey]){
+              let initial = component.structure.parentId.split(':').slice(-1)[0].charAt(0).toLowerCase();
+              component.label = `(${initial}) ${component.label}`
+            }
+          }
+
+
+        }
+
+
+        results.push(multiProfile)
+        
+
+
+      }
+      // remove any empty ones that may have shifted fully into the multi profile
+      results = results.filter((g) => {return (g.groupsOrder.length>0)})
 
 
       return results
