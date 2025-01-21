@@ -381,6 +381,8 @@
                   this.layoutHash = layoutList[idx]
                   this.activateLayout(layout)
                 },
+                emoji: layout.profileId == this.activeProfile.id ? "heavy_check_mark" : "x",
+                title: layout.profileId == this.activeProfile.id ? "Layout Matches Profile." : "Can't use ''" + layout.profileId  + "'' layout with ''" + this.activeProfile.id + "'' profile."
               })
             }
            }
