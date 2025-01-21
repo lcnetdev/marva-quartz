@@ -119,24 +119,26 @@
       },
 
 
-      addComponentLibraryGroup(profile,group){
-        console.log(profile,group)
-        console.log(this.returnComponentLibrary)
+      addComponentLibraryGroup(group){
+
+
         let sentFirstComponentOfGroup = false
         let supressPrompt = false
         for (let groups of this.returnComponentLibrary){
-          if (groups.profileId == profile){
-            if (groups.groups[group]){
-              for (let component of groups.groups[group]){
-                console.log(component)
 
-                let r = this.addComponentLibrary(null,component.id,supressPrompt)
-                // if the first one returns canceled then stop, otherwise supress the prompt from here on
-                if (r == 'canceled'){ return false}else{supressPrompt=true}
 
-              }
+          if (groups.groups[group]){
+            for (let component of groups.groups[group]){
+
+              
+              let r = this.addComponentLibrary(null,component.id,supressPrompt)
+              // if the first one returns canceled then stop, otherwise supress the prompt from here on
+              if (r == 'canceled'){ return false}else{supressPrompt=true}
+              
+
             }
           }
+          
         }
         // for (let group of returnComponentLibrary){
 
@@ -512,7 +514,8 @@
                 </template>
 
               <template v-if="group.length>1">
-                <button class="component-librart-group-button" @click="addComponentLibraryGroup(group[0].structure.parentId, group[0].groupId)"><span class="material-icons">arrow_upward</span>Add Group {{ group[0].groupId }} <span class="material-icons">arrow_upward</span></button>
+
+                <button class="component-librart-group-button" @click="addComponentLibraryGroup(group[0].groupId)"><span class="material-icons">arrow_upward</span>Add Group {{ group[0].groupId }} <span class="material-icons">arrow_upward</span></button>
               </template>
 
 
