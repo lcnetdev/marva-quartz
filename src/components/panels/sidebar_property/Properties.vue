@@ -37,11 +37,10 @@
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent', 'emptyComponents','returnComponentLibrary']),
-      ...mapState(usePreferenceStore, ['styleDefault', 'isEmptyComponent']),
+      ...mapState(usePreferenceStore, ['styleDefault', 'isEmptyComponent', 'layoutActive', 'layoutActiveFilter', 'createLayoutMode']),
+
 
       ...mapWritableState(useProfileStore, ['activeComponent', 'emptyComponents']),
-
-
     },
 
 
@@ -245,7 +244,6 @@
     <AccordionList  :open-multiple-items="false">
 
       <template v-for="profileName in activeProfile.rtOrder" :key="profileName">
-
       <!-- <div v-for="profileName in activeProfile.rtOrder" class="sidebar" :key="profileName"> -->
 
         <template v-if="activeProfile.rt[profileName].noData != true">
@@ -277,7 +275,6 @@
                   </template>
 
 
-
                   <ul class="sidebar-property-ul" role="list">
                           <draggable
                             v-model="activeProfile.rt[profileName].ptOrder"
@@ -287,8 +284,8 @@
                             @change="change"
                             item-key="id">
                             <template #item="{element}">
-                              <template v-if="!activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI)">
-                                <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) )}]">
+                              <template v-if="!activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI) && ( (layoutActive && layoutActiveFilter['properties'][profileName] && layoutActiveFilter['properties'][profileName].includes(activeProfile.rt[profileName].pt[element].id)) || !layoutActive || (createLayoutMode && layoutActive))">
+                                <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) && !layoutActive )}]">
                                   <a href="#" @click.stop="jumpToElement(profileName, element)" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
                                       <span v-if="activeProfile.rt[profileName].pt[element].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'">
