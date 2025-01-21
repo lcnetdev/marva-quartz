@@ -883,7 +883,7 @@ export const usePreferenceStore = defineStore('preference', {
       // Custom Layouts, isn't really a preference, but need to store it somewhere
       /**
        * The structure of a layout is
-       * hash: {  // hash is made from the `user's label + profileId`
+       * hash: {  // hash is made from the `user's label`
               "profileId": "Monograph",         // the id for the profile associated with the layout
               "label": "Monograph-Work-Title",  // user assigned lable
               "properties": {
