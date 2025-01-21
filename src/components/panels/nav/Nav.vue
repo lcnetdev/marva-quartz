@@ -396,12 +396,18 @@
               { text: "Layouts",  menu: layoutsMenu }
             )
             if(this.layoutActive){
-              menu.push(
-                {
-                  text: this.layoutActiveFilter.label,
-                  class: 'active-layout-label'
-                }
-              )
+              console.info("turn on layout: ", this.layoutActive, "--", this.layoutActiveFilter)
+              if (this.layoutActiveFilter){
+                console.einfo("not this")
+                menu.push(
+                  {
+                    text: this.layoutActiveFilter.label,
+                    class: 'active-layout-label'
+                  }
+                )
+              } else {
+                this.layoutActiveFilter = null
+              }
             }
            } else {
             menu.push(
@@ -591,6 +597,9 @@
 
       cancelLayout: function(){
         this.createLayoutMode = false
+        this.layoutActive = false
+        this.layoutActiveFilter = null
+        this.layoutHash = null
       },
 
       selectAll: function(){
