@@ -686,8 +686,6 @@ margin-top: 10px;
   overflow-y: scroll;
 }
 
-/* TODO: whats the best way to apply these so a section isn't smooshed down when there is only 1? */
-
 .small-container{
   height: 33%;
 }
