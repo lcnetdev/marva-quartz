@@ -16,7 +16,7 @@
     >
 
     <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
-      <div style="position: relative;">
+      <div style="position: relative" class="subject-container-outer">
           <div style="position:absolute; right:2em; top:  0.25em; z-index: 100;">
 			      <div class="menu-buttons">
 				    <button @click="closeEditor()">Close</button>
@@ -95,11 +95,11 @@
                 </div>
 
 
-                <div style="flex:1; align-self: flex-end;" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                <div style="flex:1; align-self: flex-end; height: 95%" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
 
                   <div v-if="activeSearch!==false">{{activeSearch}}</div>
-                  <div v-if="searchResults !== null">
-                    <div v-if="searchResults && searchResults.names.length>0 && !this.searching" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                  <div v-if="searchResults !== null" style="height: 95%">
+                    <div v-if="searchResults && searchResults.names.length>0 && !this.searching" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3, 'medium-container': this.numPopulatedResults()==2, 'large-container': this.numPopulatedResults()==1}">
                       <span class="subject-results-heading">LCNAF</span>
                       <div v-for="(name,idx) in searchResults.names" @click="selectContext((searchResults.names.length - idx)*-1)" @mouseover="loadContext((searchResults.names.length - idx)*-1)" :data-id="(searchResults.names.length - idx)*-1" :key="name.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1 ),'picked': (pickLookup[(searchResults.names.length - idx)*-1] && pickLookup[(searchResults.names.length - idx)*-1].picked)}]">
                         <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
@@ -110,7 +110,7 @@
                     </div>
 
                     <!-- LCSH -->
-                    <div v-if="searchResults && searchResults.subjectsComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                    <div v-if="searchResults && searchResults.subjectsComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3, 'medium-container': this.numPopulatedResults()==2, 'large-container': this.numPopulatedResults()==1 }">
                       <span class="subject-results-heading">Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
@@ -118,7 +118,7 @@
                       </div>
                     </div>
 
-                    <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                    <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3, 'medium-container': this.numPopulatedResults()==2, 'large-container': this.numPopulatedResults()==1}">
                       <span class="subject-results-heading">Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
@@ -128,15 +128,16 @@
 
 
                     <!-- ChildrenSubjects -->
-                    <div v-if="searchResults && searchResults.subjectsChildrenComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
-                      <span class="subject-results-heading">CYAK</span>
+                    <div v-if="searchResults && searchResults.subjectsChildrenComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3, 'medium-container': this.numPopulatedResults()==2, 'large-container': this.numPopulatedResults()==1}">
+                      <span class="subject-results-heading">CYAK Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
                       </div>
                     </div>
 
-                  <div v-if="searchResults && searchResults.subjectsChildren.length>0">
+                  <div v-if="searchResults && searchResults.subjectsChildren.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3, 'medium-container': this.numPopulatedResults()==2, 'large-container': this.numPopulatedResults()==1}">
+                    <span class="subject-results-heading">CYAK Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
@@ -392,7 +393,8 @@
     width: 99%;
     margin-left: auto;
     margin-right: auto;
-    height: 470px;
+    /* height: 470px; */
+    height: 90%;
   }
 
   .subject-editor-container-lowres{
@@ -406,7 +408,7 @@
 
   .subject-editor-container-left{
     display: flex;
-    height: 468px;
+    height: 95%;
     position: relative;
     overflow-y: hidden;
   }
@@ -426,7 +428,8 @@
     flex:1;
     align-self: flex-start;
     padding: 2em;
-    height: 503px;
+    /* height: 503px; */
+    height: 100%;
     overflow-y: scroll;
     background: whitesmoke;
   }
@@ -682,12 +685,27 @@ margin-top: 10px;
 
 .scrollable-subjects {
   overflow-y: scroll;
-  max-height: 150px;
 }
 
+/* TODO: whats the best way to apply these so a section isn't smooshed down when there is only 1? */
+.small-container{
+  height: 33%;
+}
+.medium-container{
+  height: 50%;
+}
+.large-container{
+  height: 100px;
+}
+
+/* document.documentElement.clientHeight */
 .scroll-all {
   overflow-y: scroll;
-  max-height: 450px;
+}
+
+.subject-container-outer{
+  /* height: v-bind('returnBrowserHeight()'); */
+  height: 100%;
 }
 
 /*
@@ -800,7 +818,6 @@ data: function() {
 
     nextInputIsVoyagerModeDiacritics: false,
 
-
     activeTypes: {
       'madsrdf:Topic': {label:'Topic / Heading ($a $x)', value:'madsrdf:Topic',selected:false},
       'madsrdf:GenreForm': {label:'Genre ($v)', value:'madsrdf:GenreForm',selected:false},
@@ -821,6 +838,19 @@ computed: {
 
 },
 methods: {
+
+  // Return the number of search results that are populated.
+  // Used to determine how tall to make each set of search results
+  numPopulatedResults: function(){
+    let count = 0
+    for (let key of Object.keys(this.searchResults)){
+      if (this.searchResults[key].length>1){
+        count++
+      }
+    }
+
+    return count
+  },
 
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
@@ -2643,8 +2673,8 @@ methods: {
   },
 
   cleanState: function(){
-	this.searchMode = "LCSHNAF"
-	this.components= []
+    this.searchMode = "LCSHNAF"
+    this.components= []
     this.lookup= {}
     this.searchResults= null
     this.activeSearch= false

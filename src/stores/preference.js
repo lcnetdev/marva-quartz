@@ -693,8 +693,8 @@ export const usePreferenceStore = defineStore('preference', {
         range: [true,false]
       },
       '--b-edit-complex-scroll-independently' : {
-        desc: 'Scroll the results of each section independently.',
-        descShort: 'Scroll by section',
+        desc: 'Scroll the results of each section independently (LCNAF, CYAC, Complex headings...).',
+        descShort: 'Scroll by Section',
         value: false,
         type: 'boolean',
         unit: null,
@@ -702,7 +702,7 @@ export const usePreferenceStore = defineStore('preference', {
         range: [true,false]
       },
       '--b-edit-complex-number-names' : {
-        desc: 'Set the number of names that will appear in the subject builder.',
+        desc: 'Set the number of names that will appear in the subject builder. More results might be slower.',
         descShort: 'Number of Names',
         value: 5,
         type: 'number',
@@ -711,7 +711,7 @@ export const usePreferenceStore = defineStore('preference', {
         step: 5,
       },
       '--b-edit-complex-number-complex' : {
-        desc: 'Set the number of complex headings that will appear in the subject builder.',
+        desc: 'Set the number of complex headings that will appear in the subject builder. More results might be slower.',
         descShort: 'Number of Complex Headings',
         value: 5,
         type: 'number',
@@ -720,7 +720,7 @@ export const usePreferenceStore = defineStore('preference', {
         step: 5,
       },
       '--b-edit-complex-number-simple' : {
-        desc: 'Set the number of simple headings that will appear in the subject builder.',
+        desc: 'Set the number of simple headings that will appear in the subject builder. More results might be slower.',
         descShort: 'Number of Simple Headings',
         value: 5,
         type: 'number',
@@ -729,8 +729,8 @@ export const usePreferenceStore = defineStore('preference', {
         step: 5,
       },
       '--b-edit-complex-number-cyac' : {
-        desc: "Set the number of Children's headings that will appear in the subject builder.",
-        descShort: 'Number of Cyac Headings',
+        desc: "Set the number of Children's headings that will appear in the subject builder. More results might be slower.",
+        descShort: 'Number of CYAC Headings',
         value: 5,
         type: 'number',
         group: 'Complex Lookup',
