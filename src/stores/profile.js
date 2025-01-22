@@ -85,6 +85,7 @@ export const useProfileStore = defineStore('profile', {
     showRecoveryModal: false,
     showValidateModal: false,
     showHubStubCreateModal: false,
+    showItemInstanceSelection: false,
     activeHubStubData:{
     },
     activeHubStubComponent:{
@@ -100,10 +101,18 @@ export const useProfileStore = defineStore('profile', {
       componentPropertyPath:null
     },
     showAutoDeweyModal: false,
+    showAdHocModal: false,
     deweyData: {
       lcc: null,
       guid: null,
       structure: null,
+    },
+
+
+    componentLibrary : {
+      profiles:{
+
+      }
     },
 
     mostCommonNonLatinScript: null,
@@ -124,6 +133,8 @@ export const useProfileStore = defineStore('profile', {
     literalLangInfo: null,
     literalLangShow: false,
 
+    // List of empty components for ad hoc mode
+    emptyComponents: {},
 
 
   }),
@@ -195,6 +206,131 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
+
+    /** Groups the library components into a array ready to render
+     *
+     * @return {array}
+     */
+    returnComponentLibrary: (state) => {
+
+      // limit to the current profiles being used
+      // console.log(state.activeProfile)
+      // console.log(state.componentLibrary)
+      // return () => {
+      //   return [state.componentLibrary]
+
+      // }
+      let results = []
+      for (let key in state.activeProfile.rt){
+
+        // ther are components saved for this profile
+        if (state.componentLibrary.profiles[key]){
+
+          let groups = {}
+          let groupsOrder = []
+          // loop through all the components sorted by position order
+          for (let group of state.componentLibrary.profiles[key].groups.sort(({position:a}, {position:b}) => a-b)){
+
+            if (group.groupId === null){
+              groups[group.id] = [group]
+              groupsOrder.push(group.id)
+            }else{
+                if (!groups[group.groupId]){groups[group.groupId]=[]}
+                groups[group.groupId].push(group)
+                if (groupsOrder.indexOf(group.groupId)==-1){
+                  groupsOrder.push(group.groupId)
+                }
+
+            }
+          }
+
+          results.push({groups:groups,groupsOrder:groupsOrder, profileId: key,label: key.split(":").slice(-1)[0]})
+        }
+
+      }
+
+      // now go through and see if there are the the same group being used in multiple profiles if so 
+      // that means they have cross profile components (2 fields in Work 1 in instance for exmaple)
+
+
+      let groupsCount = {}
+      for (let profileComponents of results){
+        for (let groupKey in profileComponents.groups){
+          if (profileComponents.groups[groupKey].groupId !== null){
+            for (let groupItem of profileComponents.groups[groupKey]){
+              if (groupItem.groupId !== null){
+                if (!groupsCount[groupItem.groupId]){
+                  groupsCount[groupItem.groupId]=[]
+                }
+                if (groupsCount[groupItem.groupId].indexOf(groupItem.structure.parentId)==-1){
+                  groupsCount[groupItem.groupId].push(groupItem.structure.parentId)
+                }
+              }
+            }
+
+          }          
+        }
+      }
+
+      let groupsToMerge = []
+      for (let groupKey in groupsCount){
+        if (groupsCount[groupKey].length>1){
+          groupsToMerge.push(groupKey)
+        }
+      }
+      if (groupsToMerge.length>0){
+        // we have to MERGE
+        let multiProfile = {
+          groups: {},
+          groupsOrder: [],
+          label: 'Multi',
+          profileId: 'Multi'
+        } 
+
+        for (let groupName of groupsToMerge){
+
+          let tmpGroupComponents = []
+
+
+          // remove them from the orginal group/profile and them to the multi profile
+          for (let profileComponents of results){
+            if (profileComponents.groups[groupName]){
+              tmpGroupComponents=tmpGroupComponents.concat( JSON.parse(JSON.stringify(profileComponents.groups[groupName])) )
+              delete profileComponents.groups[groupName]
+            }
+            profileComponents.groupsOrder = profileComponents.groupsOrder.filter((v) => {return (v !== groupName)})
+          }
+
+          // put them into the multi profile
+          multiProfile.groups[groupName] = tmpGroupComponents
+          multiProfile.groupsOrder.push(groupName)
+
+          // add a label to denote if the individual component is a work or instance whatever component.
+          for (let groupKey in multiProfile.groups){
+            for (let component of multiProfile.groups[groupKey]){
+              let initial = component.structure.parentId.split(':').slice(-1)[0].charAt(0).toLowerCase();
+              component.label = `(${initial}) ${component.label}`
+            }
+          }
+
+
+        }
+
+
+        results.push(multiProfile)
+        
+
+
+      }
+      // remove any empty ones that may have shifted fully into the multi profile
+      results = results.filter((g) => {return (g.groupsOrder.length>0)})
+
+
+      return results
+
+
+
+    },
 
 
 
@@ -720,6 +856,8 @@ export const useProfileStore = defineStore('profile', {
                       let ptVal = JSON.parse(JSON.stringify(this.profiles[p].rt[rt].pt[pt]))
                       delete ptVal['@guid']
                       this.profiles[p].hashPts[id] = hashCode(JSON.stringify(ptVal))
+                      this.profiles[p].rt[rt].pt[pt].hashCode = hashCode(JSON.stringify(ptVal))
+                      this.profiles[p].rt[rt].pt[pt].hashCodeId = id
                   }
 
 
@@ -3004,7 +3142,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-      console.log(pt)
+
       let classNumber = null
       let classGuid = null
 
@@ -3968,12 +4106,11 @@ export const useProfileStore = defineStore('profile', {
     /**
     * Build a new instance
     *
-    * @param lccn {string} the lccn for the new instance. If there isn't one, this is a secondary instance
+    * @param secondary {bool} whether this should an instance or a secondary instance
+    * @param lccn {string} the lccn for the record
     * @return {void}
     */
-    createInstance:  function(secondary=false){
-
-
+    createInstance:  function(secondary=false, lccn=null){
       // find the RT for the instance of this profile orginally
       // get the work rt
 
@@ -4023,6 +4160,9 @@ export const useProfileStore = defineStore('profile', {
         // update the parentId
         this.activeProfile.rt[newRtId].pt[pt].parentId = this.activeProfile.rt[newRtId].pt[pt].parentId.replace(instanceName, newRtId)
         this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(instanceName, newRtId)
+
+        // If it's not mandatory, add it to ad hoc mode's emptyComponents list
+        this.addToAdHocMode(newRtId, pt)
       }
 
 
@@ -4030,10 +4170,14 @@ export const useProfileStore = defineStore('profile', {
       // setup the new instance's properies
       // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
 
-      this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance',workUri)
+      if (lccn != ""){
+        this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/instances/" + lccn
+      } else {
+        this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Instance', workUri)
+      }
       this.activeProfile.rt[newRtId].instanceOf = workUri
 
-      if (secondary){
+      if (secondary && secondary != "item"){
         this.activeProfile.rt[newRtId]['@type'] = 'http://id.loc.gov/ontologies/bflc/SecondaryInstance'
       }
 
@@ -4041,6 +4185,87 @@ export const useProfileStore = defineStore('profile', {
 
       //Add to rtLookup, with a copy of an instance as the value
       this.rtLookup[newRtId] = this.rtLookup[instanceName]
+
+      this.dataChanged()
+
+    },
+
+    /**
+    * Create a new item for the record
+    * @param instance {string} position of the rt for the instance that the item belongs to, when there is more than 1 instance
+    * @param lccn {string} the lccn for the record
+    *
+    * @return {void}
+    */
+    createItem: async function(instance, lccn=null){
+      // find the RT for the instance of this profile orginally
+      // get the work rt
+
+      let itemName
+      let itemRt
+      let workUri
+      let instanceUri
+
+      for (let rtId in this.activeProfile.rt){
+          if (rtId.includes(":Work")){
+            workUri = this.activeProfile.rt[rtId].URI
+            // now find the corresponding item id
+            for (let allRt in this.profiles){
+              if (this.profiles[allRt].rtOrder.indexOf(rtId)>-1){
+                if (this.profiles[allRt].rtOrder.filter(i => i.includes(":Item"))[0]){
+                  itemName = this.profiles[allRt].rtOrder.filter(i => i.includes(":Item"))[0]
+                  itemRt = JSON.parse(JSON.stringify(this.profiles[allRt].rt[itemName]))
+                }
+              }
+            }
+          }
+          if (instance && rtId == instance){
+            instanceUri = this.activeProfile.rt[rtId].URI
+            break
+          }else if (rtId.includes(":Instance")){
+            instanceUri = this.activeProfile.rt[rtId].URI
+          }
+      }
+      let itemCount = 0;
+      // gather info to add it
+      let items = Object.keys(this.activeProfile.rt).filter(i => i.includes(":Item"))
+      if (items.length >= 1){
+        itemCount = items.length
+      }
+
+
+
+      // console.log('itemCount',itemCount)
+      let newRtId = itemName +'_'+itemCount
+      itemRt.isNew = true
+      this.activeProfile.rt[newRtId] = itemRt
+      this.activeProfile.rtOrder.push(newRtId)
+
+      // give it all new guids
+      for (let pt in this.activeProfile.rt[newRtId].pt){
+        this.activeProfile.rt[newRtId].pt[pt]['@guid'] = short.generate()
+        // update the parentId
+        this.activeProfile.rt[newRtId].pt[pt].parentId = this.activeProfile.rt[newRtId].pt[pt].parentId.replace(itemName, newRtId)
+        this.activeProfile.rt[newRtId].pt[pt].parent = this.activeProfile.rt[newRtId].pt[pt].parent.replace(itemName, newRtId)
+
+        // If it's not mandatory, add it to ad hoc mode's emptyComponents list
+        this.addToAdHocMode(newRtId, pt)
+      }
+
+      // setup the new instance's properies
+      // profile.rt[newRdId].URI = 'http://id.loc.gov/resources/instances/'+ translator.toUUID(translator.new())
+
+      //this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', instanceUri)
+      if (lccn && lccn != ""){
+        this.activeProfile.rt[newRtId].URI = "http://id.loc.gov/resources/items/" + lccn
+      } else {
+        this.activeProfile.rt[newRtId].URI = utilsProfile.suggestURI(this.activeProfile,'bf:Item', instanceUri)
+      }
+
+      this.activeProfile.rt[newRtId].itemOf = instanceUri
+
+      //Add to rtLookup, with a copy of an instance as the value
+      this.rtLookup[newRtId] = this.rtLookup[itemName]
 
       this.dataChanged()
 
@@ -4434,7 +4659,6 @@ export const useProfileStore = defineStore('profile', {
 
 
     //Check if the component's userValue is empty
-
     isEmptyComponent: function(c){
       const component = c
       const emptyArray = new Array("@root")
@@ -4635,6 +4859,246 @@ export const useProfileStore = defineStore('profile', {
         }
       }
     },
+
+    /** Add a component to the library
+     *
+     * @param {string} guid - The GUID of the component
+     */
+    addToComponentLibrary: async function(guid){
+
+      let structure = JSON.parse(JSON.stringify(this.returnStructureByComponentGuid(guid)))
+
+      // clean up component property values for storage
+      structure['@guid'] = null
+      // does the id end with a number, if so it is a duplicated component, or one of multiple, so remove that value
+      let lastIdPart = structure['id'].split("_").slice(-1)[0]
+      if (lastIdPart >= '0' && lastIdPart <= '9') {
+        // it is a number
+        let newId = structure['id'].split("_")
+        newId=newId.slice(0, -1)
+        newId=newId.join("_")
+        structure['id'] = newId
+      }
+
+      let label = prompt("What to call this component?", structure.propertyLabel)
+      if (!label){
+        return false
+      }
+
+
+      if (!this.componentLibrary.profiles[structure['parentId']]){
+        this.componentLibrary.profiles[structure['parentId']] = {
+          groups:[]
+        }
+      }
+
+
+      this.componentLibrary.profiles[structure['parentId']].groups.push({
+        id: short.generate(),
+        groupId: null,
+        position: this.componentLibrary.profiles[structure['parentId']].groups.length,
+        structure: structure,
+        label: label
+      })
+
+      this.saveComponentLibrary()
+
+    },
+
+    /** Writes the component library to the local storage
+     *
+     */
+    saveComponentLibrary(){
+      window.localStorage.setItem('marva-componentLibrary',JSON.stringify(this.componentLibrary))
+    },
+
+    /** Changes the group property in the storged component library data
+     *
+     */
+    changeGroupComponentLibrary(id,groupId){
+
+      for (let key in this.componentLibrary.profiles){
+        for (let group of this.componentLibrary.profiles[key].groups){
+          if (group.id == id){
+            group.groupId = groupId
+            this.saveComponentLibrary()
+            return true
+          }
+        }
+
+      }
+
+    },
+
+    /** Changes the group property in the storged component library data
+     *
+     */
+    addFromComponentLibrary(id){
+      for (let key in this.componentLibrary.profiles){
+        for (let group of this.componentLibrary.profiles[key].groups){
+          if (group.id == id){
+
+            // we are adding a sigle one here so groups are individual (group of 1) in this case
+            console.log("Adding thisone",group)
+            let component = JSON.parse(JSON.stringify(group.structure))
+
+            // see if we can find its counter part in the acutal profile
+            if (this.activeProfile.rt[component.parentId]){
+
+              // see if we can find the component
+              let ptObjFound = false
+              for (let pt in this.activeProfile.rt[component.parentId].pt){
+                if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
+                  ptObjFound = this.activeProfile.rt[component.parentId].pt[pt]
+                }
+              }
+
+              if (ptObjFound != false){
+                console.log("Found orignal here:",ptObjFound)
+
+                if (ptObjFound.hashCode == component.hashCode){
+
+                  // if the component we found in the system already has data in it then we are going to add a new component
+                  // if it doesn't then just overwrite it completely with the one from the library
+
+                  // regardless we need to set the id
+                  component['@guid'] = short.generate()
+
+                  if (Object.keys(ptObjFound.userValue).length <= 1){
+                    // if this is 1 or 0 then the userdata is empty, with just a @root property
+                    // there is no user data added yet
+                    // we can just overwrite whats there with our component
+                    // we don't need to adjust the order, its 1-for-1
+                    // find it again and overwrite
+                    for (let pt in this.activeProfile.rt[component.parentId].pt){
+                      if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
+                        this.activeProfile.rt[component.parentId].pt[pt] = JSON.parse(JSON.stringify(component))
+                        this.dataChanged()
+                        return [component.parentId,pt]
+                      }
+                    }
+
+
+                  }else{
+
+                    // we can't replace the one that is there, already has data, so construct a new place for it
+
+                    // first find out how many of these components there are
+                    let total_components = 0
+                    for (let pt in this.activeProfile.rt[component.parentId].pt){
+                      if (this.activeProfile.rt[component.parentId].pt[pt].id.startsWith(component.id)){
+                        total_components++
+                      }
+                    }
+                    let newId = component.id + "_" + (total_components+1)
+
+                    let oldId = JSON.parse(JSON.stringify(component.id))
+
+                    // rename it
+                    component.id = newId
+
+                    // add it to the pt
+                    this.activeProfile.rt[component.parentId].pt[newId] = JSON.parse(JSON.stringify(component))
+                    // add it to the order
+                    // find the position of the last one
+                    let insertAt = 0
+                    for (const [i, p] of this.activeProfile.rt[component.parentId].ptOrder.entries()){
+                      if (p.startsWith(oldId)){
+                        insertAt = i
+                      }
+                    }
+                    this.activeProfile.rt[component.parentId].ptOrder.splice(insertAt+1, 0, newId);
+
+                    return [component.parentId,newId]
+                  }
+
+
+
+                }else{
+
+                  alert("ERROR: There seems to be mismatch between the component you are trying to add and the components in the profile. Please delete this component from your library and recreate it")
+
+                }
+
+
+              }else{
+                alert("ERRROR: Could not find the orginal profile template this component was built from.",component.id)
+              }
+
+
+            }else{
+              alert("ERRROR: Trying to add a component but could not find the profile:", component.parentId)
+            }
+
+          }
+        }
+
+      }
+
+    },
+
+    /** Removes a component from the library
+     *
+     */
+    delComponentLibrary(id){
+      for (let key in this.componentLibrary.profiles){
+        this.componentLibrary.profiles[key].groups = this.componentLibrary.profiles[key].groups.filter((c) => { return (c.id != id) })
+      }
+      this.saveComponentLibrary()
+    },
+
+    /** Renames a component's label in the library
+     *
+     */
+    renameComponentLibrary(id,newLabel){
+
+      for (let key in this.componentLibrary.profiles){
+        for (let group of this.componentLibrary.profiles[key].groups){
+          if (group.id == id){
+            group.label = newLabel
+            this.saveComponentLibrary()
+            return true
+          }
+        }
+      }
+    },
+
+    /**
+     *
+     * @param {string} profileName - name of the profile the element belongs to
+     * @param {string} element - the id of the element that will be added
+     */
+    addToAdHocMode: function(profileName, element){
+      let target = this.activeProfile.rt[profileName].pt[element]
+      let empty = this.isEmptyComponent(this.activeProfile.rt[profileName].pt[element])
+      if (empty && target.mandatory != 'true'){
+        if (Object.keys(this.emptyComponents).includes(profileName)){
+          this.emptyComponents[profileName].push(element)
+        } else {
+          this.emptyComponents[profileName] = [element]
+        }
+      } else {
+        console.warn(element, " is mandatory or populated. Didn't hide it.")
+      }
+    },
+
+    /**
+     *
+     * @param {string} profileName - name of the profile the element belongs to
+     * @param {string} element - the id of the element that will be removed
+     */
+    removeFromAdHocMode: function(profileName, element){
+      if (this.emptyComponents[profileName].includes(element)){
+        let idx = this.emptyComponents[profileName].indexOf(element)
+        this.emptyComponents[profileName].splice(idx, 1)
+        return true
+      } else {
+        console.warn("Couldn't find ", element, " in Ad Hoc mode: ", this.emptyComponents)
+        return false
+      }
+    },
+
+
 
 
   },

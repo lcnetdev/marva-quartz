@@ -3,7 +3,7 @@ import { useProfileStore } from './profile'
 import { getCurrentInstance } from 'vue'
 import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyager_macro_express.json"
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
-
+import utilsProfile from '../lib/utils_profile'
 
 export const usePreferenceStore = defineStore('preference', {
   state: () => ({
@@ -47,8 +47,9 @@ export const usePreferenceStore = defineStore('preference', {
     showTextMacroModal: false,
 
     layoutActive: false,
-
     layoutActiveFilter: null,
+    customLayouts: {},
+    createLayoutMode: false,
 
 
 
@@ -75,7 +76,6 @@ export const usePreferenceStore = defineStore('preference', {
 
 
       // the left properties panel
-
       '--c-edit-main-splitpane-properties-background-color' : {
           value:'#2a2a2a',
           desc: 'The background color of the properties side bar on the edit screen.',
@@ -102,7 +102,6 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Property',
           range: [5,100]
       },
-
       '--n-edit-main-splitpane-properties-font-size' : {
           desc: 'The fontsize of the text in the property list side bar.',
           descShort: 'Font Size',
@@ -121,7 +120,6 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Property',
           range: null
       },
-
       '--c-edit-main-splitpane-properties-font-color' : {
           value:'#fff',
           desc: 'The font color of the text in the property list.',
@@ -193,6 +191,25 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Sidebars - Property',
           range: [true,false]
       },
+      '--b-edit-main-splitpane-properties-component-library' : {
+        desc: 'Display the Component Library in the Property Panel.',
+        descShort: 'Component Library',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Property',
+        range: [true,false]
+    },
+    '--b-edit-main-splitpane-properties-component-library-prompt-to-add' : {
+      desc: 'Ask before adding a component from the library.',
+      descShort: 'Prompt to add Library Component',
+      value: true,
+      type: 'boolean',
+      unit: null,
+      group: 'Sidebars - Property',
+      range: [true,false]
+  },
+
 
       // not implemented
       // '--b-edit-main-splitpane-properties-accordion-autoclose' : {
@@ -315,6 +332,14 @@ export const usePreferenceStore = defineStore('preference', {
           value:'#ffe2ff96',
           desc: 'The background color of the instance on edit screen panel.',
           descShort: 'Instance Background Color',
+          type: 'color',
+          group: 'Edit Panel',
+          range: null
+        },
+        '--c-edit-main-splitpane-edit-background-color-item' : {
+          value:'#ffe2ff96',
+          desc: 'The background color of the item on edit screen panel.',
+          descShort: 'Item Background Color',
           type: 'color',
           group: 'Edit Panel',
           range: null
@@ -657,8 +682,61 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Complex Lookup',
         range: [true,false]
-    },
-
+      },
+      '--b-edit-complex-scroll-all' : {
+        desc: 'Scroll all the results at the same time.',
+        descShort: 'Scroll All Results',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Complex Lookup',
+        range: [true,false]
+      },
+      '--b-edit-complex-scroll-independently' : {
+        desc: 'Scroll the results of each section independently (LCNAF, CYAC, Complex headings...).',
+        descShort: 'Scroll by Section',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Complex Lookup',
+        range: [true,false]
+      },
+      '--b-edit-complex-number-names' : {
+        desc: 'Set the number of names that will appear in the subject builder. More results might be slower.',
+        descShort: 'Number of Names',
+        value: 5,
+        type: 'number',
+        group: 'Complex Lookup',
+        range: [5, 100],
+        step: 5,
+      },
+      '--b-edit-complex-number-complex' : {
+        desc: 'Set the number of complex headings that will appear in the subject builder. More results might be slower.',
+        descShort: 'Number of Complex Headings',
+        value: 5,
+        type: 'number',
+        group: 'Complex Lookup',
+        range: [5, 100],
+        step: 5,
+      },
+      '--b-edit-complex-number-simple' : {
+        desc: 'Set the number of simple headings that will appear in the subject builder. More results might be slower.',
+        descShort: 'Number of Simple Headings',
+        value: 5,
+        type: 'number',
+        group: 'Complex Lookup',
+        range: [5, 100],
+        step: 5,
+      },
+      '--b-edit-complex-number-cyac' : {
+        desc: "Set the number of Children's headings that will appear in the subject builder. More results might be slower.",
+        descShort: 'Number of CYAC Headings',
+        value: 5,
+        type: 'number',
+        group: 'Complex Lookup',
+        range: [5, 100],
+        step: 5,
+      },
 
       //general
       '--c-general-icon-instance-color' : {
@@ -691,6 +769,15 @@ export const usePreferenceStore = defineStore('preference', {
       '--c-general-copy-mode' : {
           desc: 'Set if copy mode should be on or off by default.',
           descShort: 'Copy mode default',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'General',
+          range: [true,false]
+      },
+      '--c-general-ad-hoc' : {
+          desc: 'Turn on Ad Hoc Mode. Ad Hoc mode will only display populated and mandatory fields in Marva, other fields can be added as needed.',
+          descShort: 'Ad Hoc Mode',
           value: false,
           type: 'boolean',
           unit: null,
@@ -836,7 +923,6 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
       // scriptshifter
-
       '--b-scriptshifter-capitalize-first-letter' : {
         desc: 'Capitalize the first letter of the transliterated string.',
         descShort: 'Capitalize the first letter',
@@ -845,6 +931,30 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Scriptshifter',
         range: [true,false]
+      },
+
+      // Custom Layouts, isn't really a preference, but need to store it somewhere
+      /**
+       * The structure of a layout is
+       * hash: {  // hash is made from the `user's label`
+              "profileId": "Monograph",         // the id for the profile associated with the layout
+              "label": "Monograph-Work-Title",  // user assigned lable
+              "properties": {
+                  "lc:RT:bf2:Monograph:Work": [ // ProfileName
+                      "id_loc_gov_ontologies_bibframe_contribution__creator_of_work" // property id
+                  ]
+              }
+          }
+       * This allows greater granularity in the layouts, but also means layouts will only work for the profile they are created with.
+       * Without this level of granuality, it's not possible to allows the user to differentiate between "Notes about the Work" & "Notes about the Instance."
+       * Additionally, using the `propertyId` instead of the `propertyURI` allows "Notes about the Work" to be different from "Language Note"
+       */
+      '--l-custom-layouts' : {
+        desc: '',
+        descShort: '',
+        value: {},
+        type: 'object',
+        group: 'layouts',
       },
 
 
@@ -892,8 +1002,9 @@ export const usePreferenceStore = defineStore('preference', {
       if (window.localStorage.getItem('marva-diacriticUse')){
         this.diacriticUse = JSON.parse(window.localStorage.getItem('marva-diacriticUse'))
       }
-
-
+      if (window.localStorage.getItem('marva-componentLibrary')){
+        useProfileStore().componentLibrary = JSON.parse(window.localStorage.getItem('marva-componentLibrary'))
+      }
 
       this.styleDefaultOrginal = JSON.parse(JSON.stringify(this.styleDefault))
       this.panelDisplayOrginal = JSON.parse(JSON.stringify(this.panelDisplay))
@@ -1135,6 +1246,69 @@ export const usePreferenceStore = defineStore('preference', {
     toggleCopyMode: function(){
         this.copyMode = !this.copyMode
     },
+
+    deleteLayout: function(target){
+      let currentLayouts = this.returnValue('--l-custom-layouts')
+      delete currentLayouts[target]
+      this.setValue('--l-custom-layouts', currentLayouts)
+    },
+
+    saveLayout: function(){
+      let currentLayouts = this.returnValue('--l-custom-layouts')
+      let components = []
+      let compontGuids = []
+      let layout = {}
+      const profileId =  useProfileStore().activeProfile.id
+
+      let copyTargets = document.querySelectorAll('input[class=layout-selection]:checked')
+      if (copyTargets.length == 0){
+        alert("No elements are selected for the layout. Select some and try again.")
+        return false
+      }
+
+      let currentName = ""
+      //prepopulate the prompt with the current layout name when editing
+      if (this.layoutActive){
+        currentName = this.layoutActiveFilter.label
+      }
+      let layoutName = prompt("Save layout as", currentName)
+      if (layoutName == ""){
+        alert("Layout name can't be empty.")
+        return false
+      }
+
+      const hashCode = s => s.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
+      let layoutHash = hashCode(layoutName)
+      copyTargets.forEach((item) => compontGuids.push(item.id))
+      for (const guid of compontGuids){
+        let component = utilsProfile.returnPt(useProfileStore().activeProfile, guid)
+        components.push(component)
+      }
+
+      layout = {
+        profileId: profileId,
+        label: layoutName,
+        properties: {}
+      }
+
+      for (let component of components){
+        const parentId = component.parentId
+        const propertyUri = component.propertyURI
+        const propertyId = component.id
+        if (Object.keys(layout.properties).includes(parentId)){
+          layout.properties[parentId].push(propertyId)
+        } else {
+          layout.properties[parentId] = [propertyId]
+          // this needed to be more granular(?) Adding "Note about the work" will also pick up "Language note"
+          // if it uses the propertyURI
+        }
+      }
+      currentLayouts[layoutHash] = layout
+      this.setValue('--l-custom-layouts', currentLayouts)
+
+      // return the layout hash value so we can correctly refresh the current layout when editing
+      return layoutHash
+    }
 
     /**
     * Take a url and rewrites it to match the url pattern of the current enviornment

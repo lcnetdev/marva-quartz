@@ -113,11 +113,11 @@
 
               <h3>Load with profile:</h3>
 
-              
+
               <div class="load-buttons">
                 <button class="load-button" @click="loadUrl(s.instance)" :disabled="(urlToLoadIsHttp || lccnLoadSelected ) ? false : true"  v-for="s in startingPointsFiltered">{{s.name}}</button>
 
-                
+
               </div>
               <hr>
 
@@ -276,7 +276,7 @@
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
       ...mapState(useConfigStore, ['testData']),
       ...mapState(useProfileStore, ['startingPoints','profiles']),
-      ...mapWritableState(useProfileStore, ['activeProfile']),
+      ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents']),
 
 
 
@@ -453,7 +453,7 @@
             useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
           }
         }
-        
+
         // check if the input field is empty
         if (this.urlToLoad == "" && useProfile===null){
           alert("Please enter the URL or Identifier of the record you want to load.")
@@ -540,13 +540,23 @@
           let profileDataMerge  = await utilsParse.transformRts(useProfile)
           this.activeProfile = profileDataMerge
         }else{
-
           // if there is not url they are making it from scratch, so we need to link the instances and work together
           useProfile = utilsParse.linkInstancesWorks(useProfile)
 
           this.activeProfile = useProfile
-        }
 
+          // prime this for ad hoc mode
+          for (let rt in this.activeProfile.rt){
+            this.emptyComponents[rt] = []
+            for (let element in this.activeProfile.rt[rt].pt){
+              // const e = this.activeProfile.rt[rt].pt[element]
+              // if (e.mandatory != 'true'){
+              //   this.emptyComponents[rt].push(element)
+              // }
+              this.profileStore.addToAdHocMode(rt, element)
+            }
+          }
+        }
 
         if (multiTestFlag){
           this.$router.push(`/multiedit/`)
@@ -598,7 +608,7 @@
 
     mounted: async function(){
       this.refreshSavedRecords()
-	  
+
 	  //reset the title
 	  document.title = `Marva`;
 
@@ -618,7 +628,7 @@
             this.urlToLoadIsHttp=true
             window.clearInterval(intervalLoadUrl)
 
-          }          
+          }
 
         },500)
 
@@ -627,11 +637,11 @@
             console.log("Weerrr looookiinnn at the profile!", this.$route.query.profile)
             let possibleInstanceProfiles = this.startingPointsFiltered.map((v)=>v.instance)
             if (possibleInstanceProfiles.indexOf(this.$route.query.profile) >-1){
-              this.loadUrl(this.$route.query.profile)              
+              this.loadUrl(this.$route.query.profile)
             }
             window.clearInterval(intervalLoadProfile)
             // loadUrl
-          }          
+          }
 
         },600)
 

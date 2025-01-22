@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 17,
-    versionPatch: 15,
+    versionPatch: 23,
 
     regionUrls: {
 
@@ -230,25 +230,36 @@ export const useConfigStore = defineStore('config', {
   layouts: {
     all: {
       titles: {
+        profileId: "Monograph",
         label: "Titles",
-        properties: [
-          "http://id.loc.gov/ontologies/bibframe/title"
-        ]
+        properties: {
+            "lc:RT:bf2:Monograph:Work": [
+              "id_loc_gov_ontologies_bibframe_title__title_information"
+            ],
+            "lc:RT:bf2:Monograph:Instance": [
+              "id_loc_gov_ontologies_bibframe_title__title_information"
+            ]
+        }
       },
       contributors: {
+        profileId: "Monograph",
         label: "Contributors",
-        properties: [
-          "http://id.loc.gov/ontologies/bibframe/contribution"
-        ]
+        properties: {
+          "lc:RT:bf2:Monograph:Work": [
+            "id_loc_gov_ontologies_bibframe_contribution__creator_of_work",
+            "id_loc_gov_ontologies_bibframe_contribution__contributors"
+          ]
+        }
       },
       subjects: {
+        profileId: "Monograph",
         label: "Subjects & Class",
-        properties: [
-          "http://id.loc.gov/ontologies/bibframe/subject",
-          "http://id.loc.gov/ontologies/bibframe/classification",
-
-
-        ]
+        properties: {
+          "lc:RT:bf2:Monograph:Work": [
+            "id_loc_gov_ontologies_bibframe_subject__subjects",
+            "id_loc_gov_ontologies_bibframe_classification__classification_numbers",
+          ]
+        }
       }
 
     }

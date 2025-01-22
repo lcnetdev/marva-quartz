@@ -16,7 +16,7 @@
     >
 
     <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
-      <div style="position: relative;">
+      <div style="position: relative" class="subject-container-outer">
           <div style="position:absolute; right:2em; top:  0.25em; z-index: 100;">
 			      <div class="menu-buttons">
 				    <button @click="closeEditor()">Close</button>
@@ -95,31 +95,31 @@
                 </div>
 
 
-                <div style="flex:1; align-self: flex-end;">
+                <div style="flex:1; align-self: flex-end; height: 95%" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
 
                   <div v-if="activeSearch!==false">{{activeSearch}}</div>
-                  <div v-if="searchResults !== null">
-                    <div v-if="searchResults && searchResults.names.length>0 && !this.searching">
-
+                  <div v-if="searchResults !== null" style="height: 95%">
+                    <div v-if="searchResults && searchResults.names.length>0 && !this.searching" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">LCNAF</span>
                       <div v-for="(name,idx) in searchResults.names" @click="selectContext((searchResults.names.length - idx)*-1)" @mouseover="loadContext((searchResults.names.length - idx)*-1)" :data-id="(searchResults.names.length - idx)*-1" :key="name.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1 ),'picked': (pickLookup[(searchResults.names.length - idx)*-1] && pickLookup[(searchResults.names.length - idx)*-1].picked)}]">
-                          <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
+                        <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
                           <span v-if="name.collections"> {{ this.buildAddtionalInfo(name.collections) }}</span>
                         </div>
-                      <hr>
                     </div>
 
                     <!-- LCSH -->
-                    <div v-if="searchResults && searchResults.subjectsComplex.length>0">
+                    <div v-if="searchResults && searchResults.subjectsComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()>=3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
                       </div>
-                      <hr>
                     </div>
 
-                    <div v-if="searchResults && searchResults.subjectsSimple.length>0">
+                    <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
@@ -128,15 +128,16 @@
 
 
                     <!-- ChildrenSubjects -->
-                    <div v-if="searchResults && searchResults.subjectsChildrenComplex.length>0">
+                    <div v-if="searchResults && searchResults.subjectsChildrenComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">CYAK Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
                       </div>
-                      <hr>
                     </div>
 
-                  <div v-if="searchResults && searchResults.subjectsChildren.length>0">
+                  <div v-if="searchResults && searchResults.subjectsChildren.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                    <span class="subject-results-heading">CYAK Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
@@ -188,7 +189,6 @@
                     <div v-else>
                       <div class="modal-context-data-title">{{ contextData.label }} [Literal]</div>
                     </div>
-
 
                     <div v-if="contextData.source && contextData.source.length>0">
                       <div class="modal-context-data-title">Sources:</div>
@@ -393,7 +393,8 @@
     width: 99%;
     margin-left: auto;
     margin-right: auto;
-    height: 470px;
+    /* height: 470px; */
+    height: 90%;
   }
 
   .subject-editor-container-lowres{
@@ -407,7 +408,7 @@
 
   .subject-editor-container-left{
     display: flex;
-    height: 468px;
+    height: 95%;
     position: relative;
     overflow-y: hidden;
   }
@@ -427,7 +428,8 @@
     flex:1;
     align-self: flex-start;
     padding: 2em;
-    height: 503px;
+    /* height: 503px; */
+    height: 100%;
     overflow-y: scroll;
     background: whitesmoke;
   }
@@ -529,8 +531,6 @@
     font-weight: bold;
     color: green;
     font-size: larger;
-
-
   }
 
 
@@ -676,6 +676,36 @@ margin-top: 10px;
 	float: right;
 }
 
+.subject-section{
+  border-top: solid black;
+  border-bottom: solid-black;
+}
+
+.scrollable-subjects {
+  overflow-y: scroll;
+}
+
+.small-container{
+  height: 33%;
+}
+.medium-container{
+  height: 50%;
+}
+.large-container{
+  height: 90%;
+}
+
+/* document.documentElement.clientHeight */
+.scroll-all {
+  overflow-y: scroll;
+}
+
+.subject-container-outer{
+  /* height: v-bind('returnBrowserHeight()'); */
+  height: 100%;
+}
+
+
 /*
 .left-menu-list-item-has-data::before {
   content: "✓ " !important;
@@ -786,7 +816,6 @@ data: function() {
 
     nextInputIsVoyagerModeDiacritics: false,
 
-
     activeTypes: {
       'madsrdf:Topic': {label:'Topic / Heading ($a $x)', value:'madsrdf:Topic',selected:false},
       'madsrdf:GenreForm': {label:'Genre ($v)', value:'madsrdf:GenreForm',selected:false},
@@ -807,6 +836,21 @@ computed: {
 
 },
 methods: {
+  hasOverFlow: function(element){
+    let overflow = element.scrollHeight > element.clientHeight
+    return overflow
+  },
+  // Return the number of search results that are populated.
+  // Used to determine how tall to make each set of search results
+  numPopulatedResults: function(){
+    let count = 0
+    for (let key of Object.keys(this.searchResults)){
+      if (this.searchResults[key].length>=1){
+        count++
+      }
+    }
+    return count
+  },
 
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
@@ -1607,10 +1651,10 @@ methods: {
         out.push("(GnFrm)")
       } else if (collections.includes("GeographicSubdivisions")){
         out.push("(GeoSubDiv)")
-      } else if (collections.includes("Subdivisions")){
-        out.push("(SubDiv)")
       } else if (collections.includes("LCSH_Childrens")){
           out.push("(ChldSubj)")
+      } else if (collections.includes("Subdivisions")){
+        out.push("(SubDiv)")
       }
 
       // if (collections.includes("LCNAF")){
@@ -2486,11 +2530,14 @@ methods: {
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
 			const target = frozenComponents[component]
-
-            if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || target.uri.includes("childrensSubjects/sj")) && target.complex){
+      if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || (target.uri && target.uri.includes("childrensSubjects/sj"))) && target.complex){
         let uri = target.uri
         let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
-        data = await this.parseComplexSubject(uri)
+        if (uri){
+          data = await this.parseComplexSubject(uri)
+        } else {
+          data = target
+        }
 
 				let subs
 				subs = target.marcKey.slice(5)
@@ -2626,8 +2673,8 @@ methods: {
   },
 
   cleanState: function(){
-	this.searchMode = "LCSHNAF"
-	this.components= []
+    this.searchMode = "LCSHNAF"
+    this.components= []
     this.lookup= {}
     this.searchResults= null
     this.activeSearch= false
