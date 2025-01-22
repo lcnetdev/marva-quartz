@@ -46,7 +46,6 @@
 
     methods: {
 
-
       configComponentLibrary(clId){
         if (this.activeComponentLibrary == clId){
           this.activeComponentLibrary = null
@@ -130,15 +129,15 @@
           if (groups.groups[group]){
             for (let component of groups.groups[group]){
 
-              
+
               let r = this.addComponentLibrary(null,component.id,supressPrompt)
               // if the first one returns canceled then stop, otherwise supress the prompt from here on
               if (r == 'canceled'){ return false}else{supressPrompt=true}
-              
+
 
             }
           }
-          
+
         }
         // for (let group of returnComponentLibrary){
 
@@ -150,27 +149,60 @@
       },
 
 
-      returnSubjectHeadingLabel(component){
+      replacePropertyWithValue(propertyURI){
+        return [
+          "http://id.loc.gov/ontologies/bibframe/subject",
+          "http://id.loc.gov/ontologies/bibframe/geographicCoverage",
+          "http://id.loc.gov/ontologies/bibframe/language",
+          "http://id.loc.gov/ontologies/bibframe/identifiedBy",
+        ].includes(propertyURI)
+      },
 
-        let returnString = 'No Heading'
-        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject']
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label']
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-          returnString = component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+      returnHeadingLabel(component){
+        let propertyURI = null
+        let prefix = null
+        if (component){
+          propertyURI = component.propertyURI
+          switch (propertyURI){
+            case 'http://id.loc.gov/ontologies/bibframe/subject':
+              prefix = '[SH]: '
+              break
+            case 'http://id.loc.gov/ontologies/bibframe/geographicCoverage':
+              prefix = '[GEO]: '
+              break
+            case 'http://id.loc.gov/ontologies/bibframe/language':
+              prefix = '[Lang 008]: '
+              break
+            case 'http://id.loc.gov/ontologies/bibframe/identifiedBy':
+              if (component.userValue && component.userValue[propertyURI]){
+                let type = component.userValue[propertyURI][0]["@type"]
+                prefix = '[' + type.split("/").at(-1).toUpperCase() + ']: '
+                break
+              }
+            default:
+              prefix = ''
+          }
         }
 
-        if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject']
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'].length>0
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length>0
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]
-        && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
-          returnString = component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+        let returnString = prefix + 'No Heading'
+        if (component && component.userValue && component.userValue[propertyURI]
+        && component.userValue[propertyURI].length>0
+        && component.userValue[propertyURI][0]
+        && component.userValue[propertyURI][0]['http://www.w3.org/2000/01/rdf-schema#label']
+        && component.userValue[propertyURI][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0
+        && component.userValue[propertyURI][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]
+        && component.userValue[propertyURI][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+          returnString = prefix + component.userValue[propertyURI][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+        }
+
+        if (component && component.userValue && component.userValue[propertyURI]
+        && component.userValue[propertyURI].length>0
+        && component.userValue[propertyURI][0]
+        && component.userValue[propertyURI][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+        && component.userValue[propertyURI][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length>0
+        && component.userValue[propertyURI][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]
+        && component.userValue[propertyURI][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
+          returnString = prefix + component.userValue[propertyURI][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
         }
 
         if (component && component.userValue && component.userValue['http://id.loc.gov/ontologies/bibframe/subject']
@@ -179,10 +211,34 @@
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id']
         && component.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].indexOf('/fast/') > -1){
 
-          returnString = '(FAST) ' + returnString
+          returnString = returnString + ' (FAST)'
         }
 
+        //identifiers have slightly different pat
+        if (component && component.userValue && component.userValue[propertyURI]
+            && component.userValue[propertyURI].length>0
+            && component.userValue[propertyURI][0]
+            && component.userValue[propertyURI][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
+            && component.userValue[propertyURI][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'].length>0
+            && component.userValue[propertyURI][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]
+            && component.userValue[propertyURI][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
+        ){
+          returnString = prefix + component.userValue[propertyURI][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
+        }
 
+        //For GEO, add the GACs code at the end
+        if (propertyURI == "http://id.loc.gov/ontologies/bibframe/geographicCoverage"){
+          if (component && component.userValue && component.userValue[propertyURI]
+              && component.userValue[propertyURI].length>0
+              && component.userValue[propertyURI][0]
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/code']
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/code'].length>0
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/code'][0]
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/code'][0]['http://id.loc.gov/ontologies/bibframe/code']
+          ){
+            returnString = returnString + " [" + component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/code'][0]['http://id.loc.gov/ontologies/bibframe/code'] + "]"
+          }
+        }
 
 
         return returnString
@@ -295,8 +351,8 @@
                                 <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) && !layoutActive )}]">
                                   <a href="#" @click.stop="jumpToElement(profileName, element)" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
-                                      <span v-if="activeProfile.rt[profileName].pt[element].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'">
-                                        [SH]: {{ returnSubjectHeadingLabel(activeProfile.rt[profileName].pt[element]) }}
+                                      <span v-if="replacePropertyWithValue(activeProfile.rt[profileName].pt[element].propertyURI)">
+                                        {{ returnHeadingLabel(activeProfile.rt[profileName].pt[element]) }}
                                       </span>
                                       <span v-else>
                                         {{activeProfile.rt[profileName].pt[element].propertyLabel}}
