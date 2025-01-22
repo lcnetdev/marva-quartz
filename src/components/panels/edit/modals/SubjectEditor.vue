@@ -111,7 +111,6 @@
 
                     <!-- LCSH -->
                     <div v-if="searchResults && searchResults.subjectsComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()>=3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
-                    <!-- <div v-if="searchResults && searchResults.subjectsComplex.length>0" class="subject-section" :class="testClassFunction(this)" > -->
                       <span class="subject-results-heading">Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
@@ -837,33 +836,6 @@ computed: {
 
 },
 methods: {
-  testStyleFunction: function(){
-    let totalHeight = document.documentElement.clientHeight
-    let totalHeightUsed = 0
-    let numOverflows = 0
-
-    let subjectContainers = document.getElementsByClassName('subject-section')
-
-    for (let el of subjectContainers){
-      let overflow = this.hasOverFlow(el)
-      if (overflow){
-        numOverflows++
-      }
-      totalHeightUsed = totalHeightUsed + el.clientHeight
-    }
-
-    for (let el of subjectContainers){
-      let newHeight = (totalHeight - totalHeightUsed) / numOverflows
-      if (this.hasOverFlow(el)){
-        // el.style.maxHeight = newHeight + "px"
-        return newHeight + "px"
-      }
-    }
-  },
-
-  testClassFunction: function(){
-    return "test-class scrollable-subjects"
-  },
   hasOverFlow: function(element){
     let overflow = element.scrollHeight > element.clientHeight
     return overflow
