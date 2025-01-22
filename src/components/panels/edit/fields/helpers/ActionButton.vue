@@ -863,7 +863,7 @@
         let component = this.profileStore.returnStructureByComponentGuid(this.guid)
         let empty = this.profileStore.isEmptyComponent(component)
 
-        return empty
+        return empty && this.preferenceStore.returnValue('--c-general-ad-hoc') && component.mandatory != 'true'
       },
       // Hide empty element in ad hoc mode
       hideElement: function(){

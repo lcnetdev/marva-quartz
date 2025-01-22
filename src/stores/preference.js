@@ -682,8 +682,61 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Complex Lookup',
         range: [true,false]
-    },
-
+      },
+      '--b-edit-complex-scroll-all' : {
+        desc: 'Scroll all the results at the same time.',
+        descShort: 'Scroll All Results',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Complex Lookup',
+        range: [true,false]
+      },
+      '--b-edit-complex-scroll-independently' : {
+        desc: 'Scroll the results of each section independently (LCNAF, CYAC, Complex headings...).',
+        descShort: 'Scroll by Section',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Complex Lookup',
+        range: [true,false]
+      },
+      '--b-edit-complex-number-names' : {
+        desc: 'Set the number of names that will appear in the subject builder. More results might be slower.',
+        descShort: 'Number of Names',
+        value: 5,
+        type: 'number',
+        group: 'Complex Lookup',
+        range: [5, 100],
+        step: 5,
+      },
+      '--b-edit-complex-number-complex' : {
+        desc: 'Set the number of complex headings that will appear in the subject builder. More results might be slower.',
+        descShort: 'Number of Complex Headings',
+        value: 5,
+        type: 'number',
+        group: 'Complex Lookup',
+        range: [5, 100],
+        step: 5,
+      },
+      '--b-edit-complex-number-simple' : {
+        desc: 'Set the number of simple headings that will appear in the subject builder. More results might be slower.',
+        descShort: 'Number of Simple Headings',
+        value: 5,
+        type: 'number',
+        group: 'Complex Lookup',
+        range: [5, 100],
+        step: 5,
+      },
+      '--b-edit-complex-number-cyac' : {
+        desc: "Set the number of Children's headings that will appear in the subject builder. More results might be slower.",
+        descShort: 'Number of CYAC Headings',
+        value: 5,
+        type: 'number',
+        group: 'Complex Lookup',
+        range: [5, 100],
+        step: 5,
+      },
 
       //general
       '--c-general-icon-instance-color' : {

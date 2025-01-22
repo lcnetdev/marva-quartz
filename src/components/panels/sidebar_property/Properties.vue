@@ -228,7 +228,12 @@
 
       jumpToElement: function(profileName, elementName){
         //if it's hidden show it
-        let removed = this.profileStore.removeFromAdHocMode(profileName, elementName)
+        let removed
+        if (this.preferenceStore.returnValue('--c-general-ad-hoc')){
+          removed = this.profileStore.removeFromAdHocMode(profileName, elementName)
+        } else {
+          removed = true
+        }
         //jump to it
         if (removed){
           this.activeComponent = this.activeProfile.rt[profileName].pt[elementName]
