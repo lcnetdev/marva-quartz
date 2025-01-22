@@ -1070,6 +1070,9 @@ const utilsNetwork = {
               }
             })
 
+            results.source = sourceOrder
+            // populate with the sourceOrder, this will allow .splice() to insert citation in the right place
+
             data.forEach((n)=>{
               var variant = '';
               var citation = '';
@@ -1150,11 +1153,7 @@ const utilsNetwork = {
 
               let sourcePos = sourceOrder.indexOf(sourceId)
               if (citation != ''){
-                if (results.source.length == 0){
-                  results.source.push(citation)
-                } else {
-                  results.source.splice(sourcePos, 0, citation)
-                }
+                results.source.splice(sourcePos, 1, citation)
               }
 
               if (variant != ''){ results.variant.push(variant)}
