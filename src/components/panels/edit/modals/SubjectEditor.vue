@@ -1651,10 +1651,10 @@ methods: {
         out.push("(GnFrm)")
       } else if (collections.includes("GeographicSubdivisions")){
         out.push("(GeoSubDiv)")
-      } else if (collections.includes("Subdivisions")){
-        out.push("(SubDiv)")
       } else if (collections.includes("LCSH_Childrens")){
           out.push("(ChldSubj)")
+      } else if (collections.includes("Subdivisions")){
+        out.push("(SubDiv)")
       }
 
       // if (collections.includes("LCNAF")){
