@@ -659,7 +659,6 @@ const utilsNetwork = {
 
           // return data2
 
-
           try{
             let response = await fetch(jsonuri);
             let data =  await response.json()
@@ -1063,31 +1062,45 @@ const utilsNetwork = {
                 })
               })
             })
+            //Make sure to maintain the source order
+            let sourceOrder = []
+            data.forEach((n) => {
+              if (n["http://www.loc.gov/mads/rdf/v1#hasSource"]){
+                sourceOrder = n["http://www.loc.gov/mads/rdf/v1#hasSource"].map((source) => source["@id"])
+              }
+            })
 
             data.forEach((n)=>{
-              var citation = '';
               var variant = '';
+              var citation = '';
               // var seeAlso = '';
               var title = [];
               var marcKey = [];
+              let sourceId = ''
 
               if (n['http://www.loc.gov/mads/rdf/v1#citation-source']) {
                 citation = citation + " Source: " + n['http://www.loc.gov/mads/rdf/v1#citation-source'].map(function (v) { return v['@value'] + ' '; })
+                sourceId = n["@id"]
               }
               if (n['http://www.loc.gov/mads/rdf/v1#citation-note']) {
                 citation = citation + " Note: " + n['http://www.loc.gov/mads/rdf/v1#citation-note'].map(function (v) { return v['@value'] + ' '; })
+                sourceId = n["@id"]
               }
               if (n['http://www.loc.gov/mads/rdf/v1#citation-status']) {
                 citation = citation + " Status: " + n['http://www.loc.gov/mads/rdf/v1#citation-status'].map(function (v) { return v['@value'] + ' '; })
+                sourceId = n["@id"]
               }
               if (n['http://www.loc.gov/mads/rdf/v1#citationSource']) {
                 citation = citation + " Source: " + n['http://www.loc.gov/mads/rdf/v1#citationSource'].map(function (v) { return v['@value'] + ' '; })
+                sourceId = n["@id"]
               }
               if (n['http://www.loc.gov/mads/rdf/v1#citationNote']) {
                 citation = citation + " Note: " + n['http://www.loc.gov/mads/rdf/v1#citationNote'].map(function (v) { return v['@value'] + ' '; })
+                sourceId = n["@id"]
               }
               if (n['http://www.loc.gov/mads/rdf/v1#citationStatus']) {
                 citation = citation + " Status: " + n['http://www.loc.gov/mads/rdf/v1#citationStatus'].map(function (v) { return v['@value'] + ' '; })
+                sourceId = n["@id"]
               }
 
 
@@ -1132,12 +1145,19 @@ const utilsNetwork = {
 
               }
 
-
               citation = citation.trim()
               variant = variant.trim()
 
+              let sourcePos = sourceOrder.indexOf(sourceId)
+              if (citation != ''){
+                if (results.source.length == 0){
+                  results.source.push(citation)
+                } else {
+                  results.source.splice(sourcePos, 0, citation)
+                }
+              }
+
               if (variant != ''){ results.variant.push(variant)}
-              if (citation != ''){ results.source.push(citation)}
               if (title && title.length>0){
                 results.title = title
               }
