@@ -82,8 +82,8 @@
               <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
                 <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
-
-                  <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
+                  <!-- if it's readonly and admin metadata don't show it -->
+                  <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !(isReadOnly(activeProfile.rt[profileName].pt[profileCompoent]) && activeProfile.rt[profileName].pt[profileCompoent].propertyLabel == 'Admin Metadata')">
                     <!-- if createLatoutMode is active, and there is an active layout, show everything -->
                     <div v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
                       <!-- =={{ layoutActiveFilter['properties'][profileName].includes(activeProfile.rt[profileName].pt[profileCompoent].id) }} -->
