@@ -7,6 +7,7 @@
 
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
+import { isReadonly } from 'vue';
 
   export default {
     data() {
@@ -295,6 +296,13 @@
           this.activeComponent = this.activeProfile.rt[profileName].pt[elementName]
         }
       },
+
+      isReadOnly: function(component){
+        if (component.adminMetadataType && component.adminMetadataType == 'secondary'){
+          return true
+        }
+        return false
+      },
     },
   }
 
@@ -348,6 +356,7 @@
                             item-key="id">
                             <template #item="{element}">
                               <template v-if="!activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI) && ( (layoutActive && layoutActiveFilter['properties'][profileName] && layoutActiveFilter['properties'][profileName].includes(activeProfile.rt[profileName].pt[element].id)) || !layoutActive || (createLayoutMode && layoutActive))">
+                                ?? {{ activeProfile.rt[profileName].pt[element] }}
                                 <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) && !layoutActive )}]">
                                   <a href="#" @click.stop="jumpToElement(profileName, element)" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
