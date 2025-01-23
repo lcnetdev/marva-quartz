@@ -31,7 +31,11 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
             }
 
             const Val = (val) => {
-                return Number(val)
+                let num = Number(val)
+                if (isNaN(num) && val.at(-1) == "."){
+                    num = Number(val.substring(0, val.length - 1))
+                }
+                return num
             }
 
             const Len = (str) => {
@@ -569,6 +573,8 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
             }
 
             const _convertClassPqFiction = (sClassNo$) => {
+                // if pos 7 of sClassNo$ is `.`, remove it. The `.` is important for GV
+
                 if (Val(Mid(sClassNo$, 3, 6)) > 1410.1 && Val(Mid(sClassNo$, 3, 4)) < 1546) {
                     sDewey$ = "843/.1"
                 } else if (Val(Mid(sClassNo$, 3, 4)) > 1550 && Val(Mid(sClassNo$, 3, 4)) < 1596) {
