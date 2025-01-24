@@ -83,7 +83,7 @@
 
                 <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
-                  <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted">
+                  <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
                     <!-- if createLatoutMode is active, and there is an active layout, show everything -->
                     <div v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
                       <!-- =={{ layoutActiveFilter['properties'][profileName].includes(activeProfile.rt[profileName].pt[profileCompoent].id) }} -->
@@ -242,6 +242,16 @@
 
           return false
 
+        },
+
+        //We only want the editable admin field under instances to show up
+        // Don't show READONLY ADMIN fields in the instance, Don't show any admin fields in the work
+        hideAdminField: function(component, profileName){
+          let readOnly = this.isReadOnly(component)
+          let isWork = profileName.includes(':Work')
+          let isAdminField = component.propertyURI.includes('adminMetadata')
+
+          return (readOnly) || (isWork && isAdminField )
         },
 
         inlineRowButtonMouseEnter: function(event){
