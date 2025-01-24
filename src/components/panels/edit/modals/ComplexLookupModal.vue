@@ -77,7 +77,7 @@
         let options = []
         // add in the the defaul search ALL of everything possible
         //options.push({label: 'All', urls:null, processor:null})
-        
+
         this.structure.valueConstraint.useValuesFrom.forEach((l)=>{
           if (this.lookupConfig[l]){
             this.lookupConfig[l].modes.forEach((mode)=>{
@@ -220,7 +220,7 @@
               this.searchValueLocal = event.target.value
             }
           }
-        }        
+        }
       },
 
 
@@ -298,7 +298,7 @@
             event.preventDefault()
             return false
         }
-        // all macros use the ctrl key 
+        // all macros use the ctrl key
         if (event.ctrlKey == true){
           if (this.diacriticUse.length>0){
             for (let macro of this.diacriticUseValues){
@@ -410,7 +410,7 @@
                     inputV.value = macro.codeEscape
                     this.searchValueLocal = inputV.value
                   }
-                  
+
 
                 }else{
 
@@ -811,7 +811,7 @@
                       Searching...
                     </option>
 
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + (!r.literal ? r.suggestLabel : r.label) + ((r.literal) ? ' [Literal]' : '')">
+                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + (!r.literal ? r.suggestLabel : r.label) + ((r.literal) ? ' [Literal]' : '')">
                     </option>
                   </select>
 
@@ -835,6 +835,9 @@
                         <div class="modal-context-data-title">{{activeContext.type}}</div>
                         <div v-if="activeContext.depreciated" style="background: pink;">
                           DEPRECIATED AUTHORITY
+                        </div>
+                        <div v-if="activeContext.nodeMap['MADS Collection'].includes('NamesUndifferentiated')" style="background: pink;">
+                          THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN <a href="https://www.loc.gov/aba/pcc/rda/PCC%20RDA%20guidelines/Z01%20008%2032%202014rfeb.pdf" target="_blank">DCM Z1 008/32</a>.
                         </div>
                         <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank">view on id.loc.gov</a>
 

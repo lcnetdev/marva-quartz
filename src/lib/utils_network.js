@@ -412,7 +412,8 @@ const utilsNetwork = {
                     literal:false,
                     depreciated: false,
                     extra: '',
-                    total: r.count
+                    total: r.count,
+                    undifferentiated: false
                   }
 
 
@@ -420,6 +421,9 @@ const utilsNetwork = {
                   if (hitAdd.label=='' && hitAdd.suggestLabel.includes('DEPRECATED')){
                     hitAdd.label  = hitAdd.suggestLabel.split('(DEPRECATED')[0] + ' DEPRECATED'
                     hitAdd.depreciated = true
+                  }
+                  if (hit.more && hit.more.undifferentiated && hit.more.undifferentiated == 'Name not-unique'){
+                    hitAdd.undifferentiated = true
                   }
                   results.push(hitAdd)
                 }
