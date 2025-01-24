@@ -303,6 +303,14 @@ import { isReadonly } from 'vue';
         }
         return false
       },
+
+      hideAdminField: function(component, profileName){
+          let readOnly = this.isReadOnlyField(component)
+          let isWork = profileName.includes(':Work')
+          let isAdminField = component.propertyURI.includes('adminMetadata')
+
+          return (readOnly) || (isWork && isAdminField )
+        },
     },
   }
 
@@ -355,7 +363,7 @@ import { isReadonly } from 'vue';
                             @change="change"
                             item-key="id">
                             <template #item="{element}">
-                              <template v-if="!isReadOnlyField(activeProfile.rt[profileName].pt[element]) && !activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI) && ( (layoutActive && layoutActiveFilter['properties'][profileName] && layoutActiveFilter['properties'][profileName].includes(activeProfile.rt[profileName].pt[element].id)) || !layoutActive || (createLayoutMode && layoutActive))">
+                              <template v-if="!hideAdminField(activeProfile.rt[profileName].pt[element], profileName) && !activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI) && ( (layoutActive && layoutActiveFilter['properties'][profileName] && layoutActiveFilter['properties'][profileName].includes(activeProfile.rt[profileName].pt[element].id)) || !layoutActive || (createLayoutMode && layoutActive))">
                                 <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) && !layoutActive )}]">
                                   <a href="#" @click.stop="jumpToElement(profileName, element)" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
