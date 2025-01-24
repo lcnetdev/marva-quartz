@@ -335,6 +335,7 @@ const utilsNetwork = {
     * @return {array} - An array of {@link searchComplexResult} results
     */
     searchComplex: async function(searchPayload){
+      console.info("searchComplex")
       // console.log("searchPayload",searchPayload)
         let returnUrls = useConfigStore().returnUrls
 
@@ -382,6 +383,8 @@ const utilsNetwork = {
               url = url.replace('q=?','q=')
             }
 
+            url = url.replace('https://id.loc.gov','https://preprod-8287.id.loc.gov')
+            console.info("URL: ", url)
             let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
             //Config only allows 25 results, this will add something to the results
@@ -412,7 +415,8 @@ const utilsNetwork = {
                     literal:false,
                     depreciated: false,
                     extra: '',
-                    total: r.count
+                    total: r.count,
+                    undifferentiated: false
                   }
 
 
@@ -420,6 +424,9 @@ const utilsNetwork = {
                   if (hitAdd.label=='' && hitAdd.suggestLabel.includes('DEPRECATED')){
                     hitAdd.label  = hitAdd.suggestLabel.split('(DEPRECATED')[0] + ' DEPRECATED'
                     hitAdd.depreciated = true
+                  }
+                  if (hit.more && hit.more.undifferentiated && hit.more.undifferentiated == 'Name not-unique'){
+                    hitAdd.undifferentiated = true
                   }
                   results.push(hitAdd)
                 }
@@ -466,6 +473,7 @@ const utilsNetwork = {
           })
         }
 
+        console.info("results: ", results)
         // console.log(results,"<results")
         return results
 
