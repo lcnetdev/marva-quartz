@@ -335,7 +335,6 @@ const utilsNetwork = {
     * @return {array} - An array of {@link searchComplexResult} results
     */
     searchComplex: async function(searchPayload){
-      console.info("searchComplex")
       // console.log("searchPayload",searchPayload)
         let returnUrls = useConfigStore().returnUrls
 
@@ -383,8 +382,6 @@ const utilsNetwork = {
               url = url.replace('q=?','q=')
             }
 
-            url = url.replace('https://id.loc.gov','https://preprod-8287.id.loc.gov')
-            console.info("URL: ", url)
             let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
             //Config only allows 25 results, this will add something to the results
@@ -473,7 +470,6 @@ const utilsNetwork = {
           })
         }
 
-        console.info("results: ", results)
         // console.log(results,"<results")
         return results
 
