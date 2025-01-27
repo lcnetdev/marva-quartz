@@ -308,6 +308,8 @@ export const useProfileStore = defineStore('profile', {
           // add a label to denote if the individual component is a work or instance whatever component.
           for (let groupKey in multiProfile.groups){
             for (let component of multiProfile.groups[groupKey]){
+              if (component.label.indexOf("(i)")>-1){ continue}
+              if (component.label.indexOf("(w)")>-1){ continue}
               let initial = component.structure.parentId.split(':').slice(-1)[0].charAt(0).toLowerCase();
               component.label = `(${initial}) ${component.label}`
             }
