@@ -41,8 +41,7 @@ export default {
 
 
     useIcon(){
-
-      if (this.value && this.value.URI){
+      if (this.value && (this.value.URI || this.value.uri)){
         return ['verified','Linked']
       }else{
         return this.profileStore.returnValidationType( this.value['@guid'])
@@ -50,9 +49,9 @@ export default {
 
       return [null,null]
 
-    }, 
+    },
 
-    
+
 
 
   },
@@ -133,7 +132,7 @@ export default {
   padding: 2px;
   font-size: 13px;
 
-  
+
   content: attr(data-tooltip);
   white-space: nowrap;
 }

@@ -249,7 +249,7 @@ export const useProfileStore = defineStore('profile', {
 
       }
 
-      // now go through and see if there are the the same group being used in multiple profiles if so 
+      // now go through and see if there are the the same group being used in multiple profiles if so
       // that means they have cross profile components (2 fields in Work 1 in instance for exmaple)
 
 
@@ -268,7 +268,7 @@ export const useProfileStore = defineStore('profile', {
               }
             }
 
-          }          
+          }
         }
       }
 
@@ -285,7 +285,7 @@ export const useProfileStore = defineStore('profile', {
           groupsOrder: [],
           label: 'Multi',
           profileId: 'Multi'
-        } 
+        }
 
         for (let groupName of groupsToMerge){
 
@@ -318,7 +318,7 @@ export const useProfileStore = defineStore('profile', {
 
 
         results.push(multiProfile)
-        
+
 
 
       }
@@ -4476,7 +4476,6 @@ export const useProfileStore = defineStore('profile', {
     * @param {string} fieldGuid - the guid of the field
     */
     returnValidationType: function(fieldGuid){
-
       let fieldValue=null
 
       for (let rt of this.activeProfile.rtOrder){

@@ -147,14 +147,37 @@
         <template v-if="configStore.useSubjectEditor.includes(structure.propertyURI)">
 
           <div class="marc-deliminated-lcsh-mode-container" v-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.hit && Array.isArray(marcDeliminatedLCSHModeResults.hit)">
-            <template v-for="heading in marcDeliminatedLCSHModeResults.hit">
+            <div class="selected-value-container">
+              <AuthTypeIcon passClass="complex-lookup-inline" :type="marcDeliminatedLCSHModeResults.hit[0].heading.rdfType"/>
+              <a href="#" @click="openAuthority()" ref="el">
+                {{ marcDeliminatedLCSHModeResults.hit.map((item)=>item.label).join("--") }}
+              </a>
+              <template v-if="marcDeliminatedLCSHModeResults.hit.length == 1">
+                <ValidationIcon :value="{
+                  '@guid': profileStore.returnStructureByGUID(guid).userValue[propertyPath[0].propertyURI][0]['@guid'],
+                  'URI': marcDeliminatedLCSHModeResults.hit[0].uri,
+                }" />
+              </template>
+              <template v-else>
+                <ValidationIcon :value="{'@guid': profileStore.returnStructureByGUID(guid).userValue[propertyPath[0].propertyURI][0]['@guid']}" />
+              </template>
+            </div>
+
+            <!-- <template v-for="heading in marcDeliminatedLCSHModeResults.hit">
               <span v-if="heading.literal==false" class="marc-deliminated-lcsh-mode-entity"> <span class="material-icons marc-deliminated-lcsh-mode-icon">check_circle</span> <a :href="heading.uri" target="_blank">{{ heading.label }}</a></span>
               <span v-if="heading.literal==true" class="marc-deliminated-lcsh-mode-entity"> <span class="material-icons marc-deliminated-lcsh-mode-icon-warning">warning</span> {{ heading.label }} </span>
-            </template>
+            </template> -->
           </div>
 
           <div class="marc-deliminated-lcsh-mode-container" v-else-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.resultType == 'COMPLEX'">
-            <span class="marc-deliminated-lcsh-mode-entity"> <span class="material-icons marc-deliminated-lcsh-mode-icon">check_circle</span> <a :href="marcDeliminatedLCSHModeResults.hit.uri" target="_blank">{{ marcDeliminatedLCSHModeResults.hit.label }}</a></span>
+            <div class="selected-value-container">
+              <AuthTypeIcon passClass="complex-lookup-inline" :type="marcDeliminatedLCSHModeResults.hit.heading.rdfType"/>
+              <a href="#" @click="openAuthority()" ref="el">
+                {{ marcDeliminatedLCSHModeResults.hit.label }}
+              </a>
+              <ValidationIcon :value="marcDeliminatedLCSHModeResults.hit" />
+            </div>
+            <!-- <span class="marc-deliminated-lcsh-mode-entity"> <span class="material-icons marc-deliminated-lcsh-mode-icon">check_circle</span> <a :href="marcDeliminatedLCSHModeResults.hit.uri" target="_blank">{{ marcDeliminatedLCSHModeResults.hit.label }}</a></span> -->
           </div>
 
           <div class="marc-deliminated-lcsh-mode-container" v-else-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.resultType == 'ERROR'">
@@ -749,10 +772,10 @@ export default {
         this.searchType = selected
       } catch {}
 
-      let label = this.$refs.el[0].innerHTML
+      let label = this.$refs.el[0] ? this.$refs.el[0].innerHTML : this.$refs.el.innerHTML
       this.profileData = this.profileStore.returnStructureByGUID(this.guid)
 
-      let sibling = this.$refs.el[0].parentNode.childNodes[2]
+      let sibling = this.$refs.el[0] ? this.$refs.el[0].parentNode.childNodes[2] :  this.$refs.el.parentNode.childNodes[2]
       if (sibling.className == "uncontrolled") {
         this.isLiteral = true
       } else {

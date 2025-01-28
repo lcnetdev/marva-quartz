@@ -64,7 +64,7 @@ const utilsRDF = {
   * @return {bolean}
   */
   isUriALiteral: function(URI){
-      if (this.LITERAL_TYPES.map((v) => {return v.toLowerCase()}).indexOf(URI.toLowerCase()) > -1){
+      if (URI && this.LITERAL_TYPES.map((v) => {return v.toLowerCase()}).indexOf(URI.toLowerCase()) > -1){
           return true
       }
       return false
@@ -82,7 +82,7 @@ const utilsRDF = {
       // grab the rtLookup from the profile store
       if (!rtLookup){
         rtLookup= useProfileStore().rtLookup
-      } 
+      }
 
       // if the component itself has it set then just return it we dont need to dig around
       if (propertyURI == pt.propertyURI){
@@ -129,7 +129,7 @@ const utilsRDF = {
           if (!pt.userValue[pt.propertyURI]){
               lookForResourceURI = true
           }else{
-              if (pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){                  
+              if (pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){
                   if (!pt.userValue[pt.propertyURI][0]['@type']){
                       lookForResourceURI = true
                   }
@@ -152,14 +152,14 @@ const utilsRDF = {
           }
       }
 
-      
+
       return false
 
   },
 
   /**
-  * 
-  * 
+  *
+  *
   * @param {string} propertyURI - the string URI to test
   * @param {obj} pt - the pt template from the profile
   * @return {string} URI - the uri of the type
@@ -169,7 +169,7 @@ const utilsRDF = {
       // grab the rtLookup from the profile store
       if (!rtLookup){
         rtLookup= useProfileStore().rtLookup
-      } 
+      }
       // only do this on templates that have one reference templates for now (may need to expand)
       if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length==1){
         let valueTemplateRef = pt.valueConstraint.valueTemplateRefs[0]
@@ -195,7 +195,7 @@ const utilsRDF = {
       // grab the rtLookup from the profile store
       if (!rtLookup){
         rtLookup= useProfileStore().rtLookup
-      } 
+      }
 
       let template = rtLookup[valueTemplateRef]
       let foundProperty = null
@@ -255,7 +255,7 @@ const utilsRDF = {
       return 'http://www.w3.org/2000/01/rdf-schema#Resource'
     }
 
-    
+
 
 
     // at this point we have a well cached lookup of the whole onotlogy in localstorage
@@ -275,7 +275,7 @@ const utilsRDF = {
       // check if it has a rdfs:subPropertyOf, if it does then we can ask for that
       let subPropertyOf = prop.getElementsByTagName("rdfs:subPropertyOf")
       if (subPropertyOf.length>0){
-        if (subPropertyOf[0].attributes['rdf:resource']){          
+        if (subPropertyOf[0].attributes['rdf:resource']){
           let subPropertyResult = await this.suggestTypeNetwork(subPropertyOf[0].attributes['rdf:resource'].value)
           if (subPropertyResult){
             return subPropertyResult
