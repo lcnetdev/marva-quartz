@@ -77,7 +77,7 @@
         let options = []
         // add in the the defaul search ALL of everything possible
         //options.push({label: 'All', urls:null, processor:null})
-        
+
         this.structure.valueConstraint.useValuesFrom.forEach((l)=>{
           if (this.lookupConfig[l]){
             this.lookupConfig[l].modes.forEach((mode)=>{
@@ -121,10 +121,11 @@
       // This is for when the modal is closed, we want to reset things so nothing is preloaded
       // and the user starts from zero
       reset: function(){
+        console.info("RESET")
         this.activeContext = null
         this.activeComplexSearch = []
         this.searchValueLocal = null
-            this.authorityLookupLocal = null
+        this.authorityLookupLocal = null
       },
 
       // watching the search input, when it changes kick off a search
@@ -220,7 +221,7 @@
               this.searchValueLocal = event.target.value
             }
           }
-        }        
+        }
       },
 
 
@@ -298,7 +299,7 @@
             event.preventDefault()
             return false
         }
-        // all macros use the ctrl key 
+        // all macros use the ctrl key
         if (event.ctrlKey == true){
           if (this.diacriticUse.length>0){
             for (let macro of this.diacriticUseValues){
@@ -410,7 +411,7 @@
                     inputV.value = macro.codeEscape
                     this.searchValueLocal = inputV.value
                   }
-                  
+
 
                 }else{
 
@@ -526,6 +527,7 @@
         if (event.key==='Enter' && event.shiftKey){
           console.log("emitComplexValue",this.activeContext)
           this.$emit('emitComplexValue', this.activeContext)
+          this.reset()
         }
 
       },
@@ -841,7 +843,7 @@
                     </div>
                     <div class="complex-lookup-modal-display-buttons">
 
-                      <button @click="$emit('emitComplexValue', activeContext)">Add [Shift+Enter]</button>
+                      <button @click="$emit('emitComplexValue', activeContext); reset()">Add [Shift+Enter]</button>
                       <button @click="$emit('hideComplexModal')">Cancel [ESC]</button>
 
                     </div>
