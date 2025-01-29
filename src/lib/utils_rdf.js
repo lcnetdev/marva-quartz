@@ -64,7 +64,7 @@ const utilsRDF = {
   * @return {bolean}
   */
   isUriALiteral: function(URI){
-      if (URI && this.LITERAL_TYPES.map((v) => {return v.toLowerCase()}).indexOf(URI.toLowerCase()) > -1){
+      if (this.LITERAL_TYPES.map((v) => {return v.toLowerCase()}).indexOf(URI.toLowerCase()) > -1){
           return true
       }
       return false
@@ -78,7 +78,6 @@ const utilsRDF = {
   * @return {string} URI - the uri of the type
   */
   suggestTypeProfile: function(propertyURI,pt){
-
       // grab the rtLookup from the profile store
       if (!rtLookup){
         rtLookup= useProfileStore().rtLookup
@@ -149,6 +148,8 @@ const utilsRDF = {
                       console.warn("Did not find the requested template name", rtKey)
                   }
               }
+          }else if (!lookForResourceURI && pt.userValue[pt.propertyURI][0]['@type']){
+            return pt.userValue[pt.propertyURI][0]['@type']
           }
       }
 
@@ -234,7 +235,6 @@ const utilsRDF = {
   * @return {string|boolean} URI - the uri of the type or false
   */
   suggestTypeNetwork: async function(propertyURI){
-
     let result = false
 
     // some very common hardcoded options
