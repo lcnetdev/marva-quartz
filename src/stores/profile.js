@@ -1193,24 +1193,27 @@ export const useProfileStore = defineStore('profile', {
           pt = buildBlankNodeResult[0]
           console.info("    userValue: ", JSON.parse(JSON.stringify(pt.userValue)))
           // now we can make a link to the parent of where the literal value should live
-          blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
+          for (let pointer of buildBlankNodeResult[2]){
+            // blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
+            blankNode = utilsProfile.returnGuidLocation(pt.userValue, pointer['@guid'])
 
-          console.info("    blankNode 2: ", JSON.parse(JSON.stringify(blankNode)))
+            console.info("    blankNode 2: ", JSON.parse(JSON.stringify(blankNode)))
 
-          // set the URI
-          // if its null then we are adding a literal
-          if (URI !== null){
-            blankNode['@id'] = URI
-          }else{
-            // do nothing for now...
-          }
-
-          blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = [
-            {
-              '@guid': short.generate(),
-              'http://www.w3.org/2000/01/rdf-schema#label' : label
+            // set the URI
+            // if its null then we are adding a literal
+            if (URI !== null){
+              blankNode['@id'] = URI
+            }else{
+              // do nothing for now...
             }
-          ]
+
+            blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = [
+              {
+                '@guid': short.generate(),
+                'http://www.w3.org/2000/01/rdf-schema#label' : label
+              }
+            ]
+          }
         }else{
           console.info("    else")
           let parent = utilsProfile.returnGuidParent(pt.userValue,fieldGuid)

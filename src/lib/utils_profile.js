@@ -213,7 +213,7 @@ const utilsProfile = {
   * @param {array} propertyPath - the array of URI strings that points to the place to build the blank node obj
   * @return {array} - will return an array with the pt as 0 and the new @guid of the blanknode as 1
   */
-  buildBlanknode: function(pt,propertyPath){
+  buildBlanknode: async function(pt,propertyPath){
     console.info("        buildBlankNode")
     console.info("        pt: ", JSON.parse(JSON.stringify(pt)))
     console.info("        propertyPath: ", propertyPath)
@@ -233,16 +233,23 @@ const utilsProfile = {
 
       console.info("starting with pointer: ", pointer)
 
-      let traverse = function(path, obj){
-        console.info("traversing: ", obj, ">>", path, "--", path.length)
+      let pointers = []
+
+      console.info("\n#######################\n#######################")
+      let traverse = function(path, obj, parent){
+        console.info("traversing: ", obj, ">>", parent, "::",path, "--", path.length)
         if (path.length == 0) {
           pointer = obj
+          console.info("ADDING pointer: ", pointer)
+          pointers.push(pointer)
+          console.info("                     RETURNING")
           return
         }
         for (let p of path){
-          console.info("    looking at ", p)
           let pPos = path.indexOf(p)
-          console.info("pPos: ", pPos)
+          console.info("    looking for ", p, " in", obj, ">>", pPos)
+          console.info("pPos: ", pPos)  //0 means we're looking at the correct level
+          if (pPos != 0){ return }  // if not at the correct level return to avoid putting things in the wrong place
           let newPath = path.slice(pPos+1)
           console.info("newPath: ", newPath)
           p = p.propertyURI
@@ -253,7 +260,7 @@ const utilsProfile = {
               '@guid' : short.generate()
             }]
             console.info("    next: ", obj[p][0], "--", newPath)
-            traverse(newPath, obj[p][0])
+            traverse(newPath, obj[p][0], obj)
           } else {
             console.info("        ", p, " does exist in object, making some changes >>", obj[p])
             for (let idx in obj[p]){
@@ -263,14 +270,14 @@ const utilsProfile = {
                   obj[p][idx]['@guid'] = short.generate()
                 }
                 console.info("    next: ", obj[p][idx], "--", newPath)
-                traverse(newPath, obj[p][idx])
+                traverse(newPath, obj[p][idx], obj)
               }
             }
           }
         }
       }
 
-      traverse(propertyPath, pointer)
+      traverse(propertyPath, pointer, pt.userValue)
       console.info("        pointer post traversal: ", pt, "--", pointer)
 
       // for (let p of propertyPath){
@@ -290,6 +297,7 @@ const utilsProfile = {
 
       //     // relink to the first blank node
       //     console.info("            moving pointer from", JSON.parse(JSON.stringify(pointer)))
+      //     pointers.push(pointer)
       //     pointer = pointer[p][0]
       //     console.info("            moved pointer to", JSON.parse(JSON.stringify(pointer)))
 
@@ -299,17 +307,18 @@ const utilsProfile = {
       //     // if we don't need to create this level, so just link to it
 
       //     if (pointer[p][0]){
-      //         // make sure it has a guid
-      //         if (!pointer[p][0]['@guid']){
-      //           pointer[p][0]['@guid'] = short.generate()
-      //         }
-      //         // console.log("Linink to",pointer[p][0])
-      //         console.info("            moving pointer from", JSON.parse(JSON.stringify(pointer)))
-      //         pointer = pointer[p][0]
-      //         console.info("            moved pointer to", JSON.parse(JSON.stringify(pointer)))
-      //       }else{
-      //         console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
+      //       // make sure it has a guid
+      //       if (!pointer[p][0]['@guid']){
+      //         pointer[p][0]['@guid'] = short.generate()
       //       }
+      //       // console.log("Linink to",pointer[p][0])
+      //       console.info("            moving pointer from", JSON.parse(JSON.stringify(pointer)))
+      //       pointers.push(pointer)
+      //       pointer = pointer[p][0]
+      //       console.info("            moved pointer to", JSON.parse(JSON.stringify(pointer)))
+      //     }else{
+      //       console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
+      //     }
       //   }
       // }
 
@@ -320,9 +329,11 @@ const utilsProfile = {
 
       console.info("        final pt: ", JSON.parse(JSON.stringify(pt)))
       console.info("        final pointer: ", JSON.parse(JSON.stringify(pointer)))
-      this.setTypesForBlankNode(pt,propertyPath)
+      await this.setTypesForBlankNode(pt,propertyPath)
       console.info("        pt with types: ", JSON.parse(JSON.stringify(pt)))
-      return [pt, pointer['@guid']]
+      console.info("RETURN: ", pt, "--", pointer['@guid'])
+      console.info("POINTERS: ", pointers)
+      return [pt, pointer['@guid'], pointers]
   },
 
 
@@ -344,76 +355,150 @@ const utilsProfile = {
     console.info("            pt: ", JSON.parse(JSON.stringify(pt)))
     console.info("            pointer: ", JSON.parse(JSON.stringify(pointer)))
 
-    for (let p of propertyPath){
+    console.info("\n\n\n#######################\n#######################")
+    // let traverse = function(path, obj, parent){
+    //   console.info("traversing: ", obj, ">>", parent, "::",path, "--", path.length)
+    //   if (path.length == 0) {
+    //     pointer = obj
+    //     return
+    //   }
+    //   for (let p of path){
+    //     console.info("looking for ", p, " in ", obj)
+    //     let pPos = path.indexOf(p)
+    //     let newPath = path.slice(pPos+1)
 
+    //     p = p.propertyURI
+    //     console.info("obj[p]: ", obj[p])
+
+    //       console.info("    idx: ", idx)
+    //       if (pointer[p] && pointer[p][idx]){
+    //         console.info("    working on ", pointer[p][idx])
+    //         let type = utilsRDF.suggestTypeProfile(p,pt)
+    //         if (type === false){
+    //           // did not find it in the profile, look to the network
+    //           type = utilsRDF.suggestTypeNetwork(p)
+    //         }
+    //         if (type !== false){
+    //           if (utilsRDF.isUriALiteral(type) === false){
+    //             if (!pointer[p][idx]['@type'] || type.includes("PrimaryContribution")){
+    //               pointer[p][idx]['@type'] = type
+    //             }
+    //           } else {
+    //             let possibleParentType = utilsRDF.suggestTypeProfileForLiteralParent(p,pt)
+    //             if (pointerParent[parentP][0]['@type']){
+    //               if (pointerParent[parentP][0]['@type'] != possibleParentType){
+    //                 let isSubClassOf = utilsRDF.isSubClassOf(possibleParentType,pointerParent[parentP][0]['@type'])
+    //                 if (isSubClassOf){
+
+    //                   pointerParent[parentP][0]['@type'] = possibleParentType
+
+    //                 }else{
+    //                   console.warn("-------------------------")
+    //                   console.warn("It looks like ", JSON.stringify(pointerParent[parentP][0]['@type'],null,2))
+    //                   console.warn("Should not have the type ",pointerParent[parentP][0]['@type'])
+    //                   console.warn("But instead it should have", possibleParentType)
+    //                   console.warn("-------------------------")
+    //                 }
+    //               }
+    //             }
+    //           }
+    //         } else {
+    //           console.error("Could not find type for this property", p, 'of', propertyPath, 'in', pt)
+    //         }
+    //         pointerParent = obj
+    //         parentP = p
+    //         console.info(">>>>> MOVING >>>>>>>>>>", idx)
+    //         pointer = obj[p][idx]
+    //         console.info("NEXT: ", pointer)
+    //         console.info("obj: ", obj)
+    //         traverse(newPath, obj[p][idx], obj)
+    //       } else {
+    //         console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
+    //       }
+
+    //   }
+    // }
+
+    // for (let p of propertyPath){
+    //   p = p.propertyURI
+    //   for (let idx in pointer[p]){
+    //     traverse(propertyPath, pointer[p][idx], pt.userValue)
+    //   }
+    // }
+
+    for (let p of propertyPath){
+      let level = p
+      console.info("p: ", p)
       p = p.propertyURI
 
-      console.info(p)
-      console.info(pointer)
-      console.info(pointer[p])
+      console.info("pointer: ", pointer)
+      console.info("pointer[p]: ", pointer[p])
 
-      if (pointer[p][0]){
-        // we may or maynot need to create a @type for this level, depending on what type of property it is,
-        // so test first the property info in the profile
-        let type = utilsRDF.suggestTypeProfile(p,pt)
-        if (type === false){
-          // did not find it in the profile, look to the network
-          type = await utilsRDF.suggestTypeNetwork(p)
-        }
-        if (type !== false){
+      for (let idx in pointer[p]){
+        // if (pointer[p][0]){
+        if (pointer[p] && pointer[p][idx]){
+          console.info("looking at ", pointer[p][idx])
+          // we may or maynot need to create a @type for this level, depending on what type of property it is,
+          // so test first the property info in the profile
+          let type = utilsRDF.suggestTypeProfile(p,pt)
+          if (type === false){
+            // did not find it in the profile, look to the network
+            type = await utilsRDF.suggestTypeNetwork(p)
+          }
+          console.info("    suggested type: ", type)
+          if (type !== false){
 
-          // first we test to see if the type is a literal (the type returned, not the property of the value), if so then we
-          // don't need to set the type, as its not a blank node, just a nested property
-          if (utilsRDF.isUriALiteral(type) === false){
-            // if it doesn't yet have a type then go ahead and set it
-			// OR if the suggested type is PrimaryContribution, override the existing type
-            if (!pointer[p][0]['@type'] || type.includes("PrimaryContribution")){
-              pointer[p][0]['@type'] = type
-            }
-          }else{
-            // if it is a literal the profiles may in a covoluated way hold the @type for its parent blank node so check that
-            let possibleParentType = utilsRDF.suggestTypeProfileForLiteralParent(p,pt)
+            // first we test to see if the type is a literal (the type returned, not the property of the value), if so then we
+            // don't need to set the type, as its not a blank node, just a nested property
+            if (utilsRDF.isUriALiteral(type) === false){
+              console.info("if")
+              // if it doesn't yet have a type then go ahead and set it
+              // OR if the suggested type is PrimaryContribution, override the existing type
+              if (!pointer[p][idx]['@type'] || type.includes("PrimaryContribution")){
+                pointer[p][idx]['@type'] = type
+              }
+            }else{
+              console.info("else")
+              // if it is a literal the profiles may in a covoluated way hold the @type for its parent blank node so check that
+              let possibleParentType = utilsRDF.suggestTypeProfileForLiteralParent(p,pt)
 
-            // console.log("But its parent is probably a", possibleParentType)
-            // console.log(pointerParent)
-            // console.log(parentP)
+              // console.log("But its parent is probably a", possibleParentType)
+              // console.log(pointerParent)
+              // console.log(parentP)
 
-            if (possibleParentType && pointerParent && pointerParent[parentP] && pointerParent[parentP][0] ){
-              if (pointerParent[parentP][0]['@type']){
-                // if it does have a type then check to see if they are different than what this process suggests
-                if (pointerParent[parentP][0]['@type'] != possibleParentType){
-                  // they are different so check if one is sub classed of the other
-                  let isSubClassOf = await utilsRDF.isSubClassOf(possibleParentType,pointerParent[parentP][0]['@type'])
-                  if (isSubClassOf){
+              if (possibleParentType && pointerParent && pointerParent[parentP] && pointerParent[parentP][0] ){
+                if (pointerParent[parentP][0]['@type']){
+                  // if it does have a type then check to see if they are different than what this process suggests
+                  if (pointerParent[parentP][0]['@type'] != possibleParentType){
+                    // they are different so check if one is sub classed of the other
+                    let isSubClassOf = await utilsRDF.isSubClassOf(possibleParentType,pointerParent[parentP][0]['@type'])
+                    if (isSubClassOf){
 
-                    // overwrite the parent with the more specific class
-                    pointerParent[parentP][0]['@type'] = possibleParentType
+                      // overwrite the parent with the more specific class
+                      pointerParent[parentP][0]['@type'] = possibleParentType
 
-                  }else{
-                    // if it is here it means that the process doesn't think the parent node is the correct @type, but it might not be right, so warn for now
-                    console.warn("-------------------------")
-                    console.warn("It looks like ", JSON.stringify(pointerParent[parentP][0]['@type'],null,2))
-                    console.warn("Should not have the type ",pointerParent[parentP][0]['@type'])
-                    console.warn("But instead it should have", possibleParentType)
-                    console.warn("-------------------------")
+                    }else{
+                      // if it is here it means that the process doesn't think the parent node is the correct @type, but it might not be right, so warn for now
+                      console.warn("-------------------------")
+                      console.warn("It looks like ", JSON.stringify(pointerParent[parentP][0]['@type'],null,2))
+                      console.warn("Should not have the type ",pointerParent[parentP][0]['@type'])
+                      console.warn("But instead it should have", possibleParentType)
+                      console.warn("-------------------------")
+                    }
                   }
                 }
               }
-
             }
+          }else{
+            console.error("Could not find type for this property", p, 'of', propertyPath, 'in', pt)
           }
-
-
-
-
+          pointerParent = pointer
+          parentP = p
+          console.info(">>>>> MOVING >>>>>>>>>>")
+          pointer = pointer[p][idx]
         }else{
-          console.error("Could not find type for this property", p, 'of', propertyPath, 'in', pt)
+          console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
         }
-        pointerParent = pointer
-        parentP = p
-        pointer = pointer[p][0]
-      }else{
-        console.error("Trying to link to a level in userValue and unable to find it", p, 'of', propertyPath, 'in', pt)
       }
     }
   },

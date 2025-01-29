@@ -248,6 +248,7 @@ const utilsExport = {
 		// 	}
 		// }
     // if it has a type then it is a blank node
+		console.info("isBnode: ", userValue)
 		if (userValue['@type']){
 			return true
 		}
@@ -1062,7 +1063,7 @@ const utilsExport = {
 								//there's a bnode, but it's empty. What needs to happen here? And under what conditions?
 
 								for (let key1 of Object.keys(userValue).filter(k => (!k.includes('@') ? true : false ) )){
-									console.info("        building node for ", key1)
+									console.info("        building node for ", key1, ">>", userValue)
 									for (let value1 of userValue[key1]){
 										if (!this.isBnode(value1)){
 											console.info("            not a bnode: ", value1)
