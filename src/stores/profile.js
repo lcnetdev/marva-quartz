@@ -1338,20 +1338,18 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     removeValueSimple: async function(componentGuid, fieldGuid){
-
+      console.info("removeValueSimple")
+      console.info("componentGuid: ", componentGuid)
+      console.info("fieldGuid: ", fieldGuid)
 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt !== false){
-
-
         // is it a top level property, meaning there is no need to dig through the blank nodes of the userValue
         if (pt.valueConstraint.valueTemplateRefs.length === 0){
-
           // filter the entire uservalue
           for (let key in pt.userValue){
-
             if (Array.isArray(pt.userValue[key])){
               pt.userValue[key] = pt.userValue[key].filter((v) => {
                 if (v && v['@guid'] && v['@guid'] === fieldGuid){
@@ -1369,13 +1367,9 @@ export const useProfileStore = defineStore('profile', {
               }
             }
           }
-
           this.dataChanged()
           return true
-
         }
-
-
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         // console.log(pt)
@@ -1387,7 +1381,6 @@ export const useProfileStore = defineStore('profile', {
         for (let p in parent){
           if (Array.isArray(parent[p])){
             parent[p] = parent[p].filter((v) => {
-
               if (v && v['@guid'] && v['@guid'] === fieldGuid){
                 return false
               }else{
