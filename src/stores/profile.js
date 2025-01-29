@@ -4518,7 +4518,7 @@ export const useProfileStore = defineStore('profile', {
       return ['report','No Link']
     },
 
-    copySelected: async function(deleteSelected){
+    copySelected: async function(deleteSelected=false){
         let components = []
         let compontGuids = []
         let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
