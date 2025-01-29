@@ -4609,6 +4609,8 @@ export const useProfileStore = defineStore('profile', {
                     let targetLabel = newComponent.propertyLabel
 
                     if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
+                        let currentPos = order.indexOf(current.id)
+                        let newPos = order.indexOf(newComponent.id)
                         // if (Object.keys(current.userValue).length == 1){
                         if (this.isEmptyComponent(current)){
                             current.userValue = newComponent.userValue
@@ -4621,8 +4623,11 @@ export const useProfileStore = defineStore('profile', {
                             if (sourceRt && sourceRt != targetRt){
                               newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
                             } else {
-                              // newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
-                              newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)
+                              if (newPos < 0){
+                                newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)
+                              } else {
+                                newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
+                              }
                             }
 
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
