@@ -4518,7 +4518,7 @@ export const useProfileStore = defineStore('profile', {
       return ['report','No Link']
     },
 
-    copySelected: async function(){
+    copySelected: async function(deleteSelected){
         let components = []
         let compontGuids = []
         let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
@@ -4536,6 +4536,9 @@ export const useProfileStore = defineStore('profile', {
             let component = utilsProfile.returnPt(this.activeProfile, guid)
             let componentString = JSON.stringify(component)
             components.push(componentString)
+            if (deleteSelected){
+              this.deleteComponent(guid)
+            }
         }
 
         //copy it
@@ -4661,7 +4664,6 @@ export const useProfileStore = defineStore('profile', {
           this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
         }
     },
-
 
 
     //Check if the component's userValue is empty
