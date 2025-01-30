@@ -64,7 +64,7 @@ const utilsRDF = {
   * @return {bolean}
   */
   isUriALiteral: function(URI){
-      if (this.LITERAL_TYPES.map((v) => {return v.toLowerCase()}).indexOf(URI.toLowerCase()) > -1){
+      if (URI && this.LITERAL_TYPES.map((v) => {return v.toLowerCase()}).indexOf(URI.toLowerCase()) > -1){
           return true
       }
       return false
@@ -148,8 +148,6 @@ const utilsRDF = {
                       console.warn("Did not find the requested template name", rtKey)
                   }
               }
-          }else if (!lookForResourceURI && pt.userValue[pt.propertyURI][0]['@type']){
-            return pt.userValue[pt.propertyURI][0]['@type']
           }
       }
 
