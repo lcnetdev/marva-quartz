@@ -374,7 +374,6 @@ const utilsNetwork = {
               url = url.replace('https://preprod-8288.id.loc.gov','https://id.loc.gov')
             }
 
-
             url = url + "&blastdacache=" + Date.now()
 
             // don't allow a ? in the keyword if it is already marked as keyword search

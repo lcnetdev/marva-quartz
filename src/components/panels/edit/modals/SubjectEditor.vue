@@ -974,6 +974,7 @@ methods: {
             console.error(err)
         }
     }
+
   },
 
   /**
@@ -2956,7 +2957,7 @@ updated: function() {
 
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
-  if (this.searchValue && this.components.length != this.searchValue.split("--").length && !this.searchValue.endsWith('-')){
+  if (this.searchValue && (this.components.length != this.searchValue.split("--").length || this.components[0].label != this.searchValue) && !this.searchValue.endsWith('-')){
     this.buildLookupComponents(incomingSubjects)
     this.buildComponents(this.searchValue)
 

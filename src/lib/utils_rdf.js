@@ -64,7 +64,7 @@ const utilsRDF = {
   * @return {bolean}
   */
   isUriALiteral: function(URI){
-      if (this.LITERAL_TYPES.map((v) => {return v.toLowerCase()}).indexOf(URI.toLowerCase()) > -1){
+      if (URI && this.LITERAL_TYPES.map((v) => {return v.toLowerCase()}).indexOf(URI.toLowerCase()) > -1){
           return true
       }
       return false

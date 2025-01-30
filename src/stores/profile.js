@@ -2052,7 +2052,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {array} - an array of objs representing the simple lookup values
     */
     returnComplexLookupValueFromProfile: function(componentGuid, propertyPath){
-
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -4478,7 +4477,6 @@ export const useProfileStore = defineStore('profile', {
     * @param {string} fieldGuid - the guid of the field
     */
     returnValidationType: function(fieldGuid){
-
       let fieldValue=null
 
       for (let rt of this.activeProfile.rtOrder){
