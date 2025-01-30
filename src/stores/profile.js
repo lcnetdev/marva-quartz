@@ -4518,7 +4518,7 @@ export const useProfileStore = defineStore('profile', {
       return ['report','No Link']
     },
 
-    copySelected: async function(){
+    copySelected: async function(deleteSelected=false){
         let components = []
         let compontGuids = []
         let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
@@ -4536,6 +4536,9 @@ export const useProfileStore = defineStore('profile', {
             let component = utilsProfile.returnPt(this.activeProfile, guid)
             let componentString = JSON.stringify(component)
             components.push(componentString)
+            if (deleteSelected){
+              this.deleteComponent(guid)
+            }
         }
 
         //copy it
@@ -4585,13 +4588,13 @@ export const useProfileStore = defineStore('profile', {
         // in the title
         let targetRt
         if (!profile.rtOrder.includes(newComponent.parentId)){
-            if (newComponent.parentId.includes("_")){
-                targetRt = newComponent.parentId.split("_").at(0)
-            } else {
-                targetRt = newComponent.parentId
-            }
+          if (newComponent.parentId.includes("_")){
+              targetRt = newComponent.parentId.split("_").at(0)
+          } else {
+              targetRt = newComponent.parentId
+          }
         } else {
-            targetRt = newComponent.parentId
+          targetRt = newComponent.parentId
         }
 
         if (incomingTargetRt){
@@ -4600,17 +4603,17 @@ export const useProfileStore = defineStore('profile', {
 
         for (let rt in profile["rt"]){
             let frozenPts = profile["rt"][rt]["pt"]
-
             let order = profile["rt"][rt]["ptOrder"]
 
             for (let pt in frozenPts){
                 let current = profile["rt"][rt]["pt"][pt]
-
                 if (rt == targetRt){
                     let targetURI = newComponent.propertyURI
                     let targetLabel = newComponent.propertyLabel
 
                     if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
+                        let currentPos = order.indexOf(current.id)
+                        let newPos = order.indexOf(newComponent.id)
                         // if (Object.keys(current.userValue).length == 1){
                         if (this.isEmptyComponent(current)){
                             current.userValue = newComponent.userValue
@@ -4623,7 +4626,11 @@ export const useProfileStore = defineStore('profile', {
                             if (sourceRt && sourceRt != targetRt){
                               newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
                             } else {
-                              newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
+                              if (newPos < 0){
+                                newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)
+                              } else {
+                                newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
+                              }
                             }
 
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
@@ -4653,11 +4660,10 @@ export const useProfileStore = defineStore('profile', {
             }
 
         for (let item of data){
-              const dataJson = JSON.parse(item)
-              this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
+          const dataJson = JSON.parse(item)
+          this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
         }
     },
-
 
 
     //Check if the component's userValue is empty

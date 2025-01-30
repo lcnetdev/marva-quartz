@@ -480,10 +480,7 @@
                       this.profileStore.copySelected()
                     })
                   }
-                }
-              )
-
-              menu.push(
+                },
                 {
                   text: "Paste Content",
                   icon: "content_paste",
@@ -492,7 +489,20 @@
                       this.profileStore.pasteSelected()
                     })
                   }
-                }
+                },
+                {
+                  text: "Cut Selected",
+                  icon: "content_cut",
+                  click: () => {
+                    this.$nextTick(()=>{
+                      this.profileStore.copySelected(true)
+                    })
+                  }
+                },
+              )
+
+              menu.push(
+
               )
 
               menu.push(
