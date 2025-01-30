@@ -281,6 +281,8 @@
               { text: 'General', click: () => this.preferenceStore.togglePrefModal('General')},
               { text: 'Edit Panel', click: () => this.preferenceStore.togglePrefModal('Edit Panel')},
               { text: 'Literal Field', click: () => this.preferenceStore.togglePrefModal('Literal Field')},
+              { text: 'Lookup Field', click: () => this.preferenceStore.togglePrefModal('Lookup Field')},
+
               { text: 'Complex Lookup', click: () => this.preferenceStore.togglePrefModal('Complex Lookup')},
               { text: 'Action Button', click: () => this.preferenceStore.togglePrefModal('Action Button')},
               { text: 'Nav Bar', click: () => this.preferenceStore.togglePrefModal('Nav Bar')},

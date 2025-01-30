@@ -851,11 +851,11 @@ export default {
 
   position: absolute;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-edit-show-field-labels-size')");
-
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
+  pointer-events: none;
   z-index: 1;
   top: -4px;
   left: 2px;
-  color: gray;
 
 
 }
@@ -869,7 +869,8 @@ export default {
 
 .lookup-fake-input{
   display: flex;
-  background-color: transparent;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')");
+
   padding: 0.1em;
 }
 
@@ -908,27 +909,28 @@ export default {
   border-radius: 0.5em;
   padding: 0.35em;
   font-size: 0.75em;
-  background-color: whitesmoke;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-lookup-background-color')");
+  border: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+  color:  v-bind("preferenceStore.returnValue('--c-edit-main-lookup-text-color')");
+
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 2em;
-
-
-
+  
+}
+.selected-value-container a{
+  color:  v-bind("preferenceStore.returnValue('--c-edit-main-lookup-text-color')") !important;
+  text-decoration: none;
 
 }
-.selected-value-container-nested{
-  margin: 0.25em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.75em;
-  background-color: whitesmoke;
-  white-space: nowrap;
-  display: inline;
+.selected-value-container a:hover{
+  text-decoration: underline;
+  cursor: pointer;
 }
+
+
 .selected-value-icon{
 /*  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;*/
   padding-right: 0.3em;
@@ -974,248 +976,10 @@ export default {
 .inline-auth-link:hover{
   background-color: whitesmoke;
 }
-/*
-li::before{
-  content: '';
-}
 
-li{
-  padding:0.1em;
-}
-
-li span{
-  padding:0.1em;
-}
-input{
-  outline: none;
-}
-
-.modal-entity-select{
-  width: 100%;
-  border:none;
-  overflow-x: none;
-  overflow-y: auto;
-  outline:none;
-
-}
-.modal-context{
-  height: 75%;
-  overflow-y: auto;
-  padding: 0.5em;
-}
-.modal-context-add-menu{
-  text-align: center;
-    width: 100%;
-    height: 3em;
-    background: white;
-
-}
-.modal-context-add-menu button{
-  border: none;
-  border-radius: 0.5em;
-  color: white;
-  background-color: #2c3e50;
-  font-size: 1.25em;
-   padding: 0.3em;
-}
-
-.modal-context-build-manual-buttons button{
-  font-size: .85em;
-  background-color: whitesmoke;
-  color: #2c3e50 !important;
-  border: solid 1px #2c3e50;
-}
-
-.modal-context-data-title{
-  font-size: 0.9em;
-  font-weight: bold;
-}
-
-.modal-context ul{
-  margin-top: 0;
-  margin-bottom: 0;
-}
-.modal-context-data-li{
-  font-size: 0.85em;
-}
-
-.modal-context  h3{
-  margin: 0;
-  padding: 0;
-}
-
-.modal-context-icon{
-  font-family: "fontello", Avenir, Helvetica, Arial, sans-serif;
-  font-size: 1.25em;
-  padding-right: 0.25em;
-
-}
-.modal-entity-select option{
-  font-family: "fontello", Avenir, Helvetica, Arial, sans-serif;
-  font-size: 1.25em;
-  white-space: pre-wrap;
-
-}
-.selected-value-icon{
-  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;
-  padding-right: 0.3em;
-}
-.selected-value-container{
-  margin: 0.95em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.75em;
-  background-color: whitesmoke;
-  white-space: nowrap;
-
-}
-.selected-value-container-nested{
-  margin: 0.25em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.75em;
-  background-color: whitesmoke;
-  white-space: nowrap;
-  display: inline;
-  cursor: pointer;
-}
-
-.selected-value-details button, a{
-  float: right;
-  border: none;
-  border-radius: 0.5em;
-  color: white;
-  background-color: #2c3e50 ;
-  font-size: 1.25em;
-   padding: 0.3em;
-}
-.selected-value-details-close{
-  color: #2c3e50 !important;
-  border: none !important;
-  background: white !important;
-  border: solid 2px #2c3e50 !important;
-  margin-left: 0.75em;
-}
-
-.selected-value-details-edit{
-  color: #2c3e50 !important;
-  border: none !important;
-  background: white !important;
-  border: solid 2px #2c3e50 !important;
-  margin-left: 0.75em;
-
-}
-.selected-value-details{
-    position: relative;
-    z-index: 100;
-    width: 90%;
-    background: white;
-    border: solid 1px black;
-    margin-top: 0.5em;
-    border-radius: 0.5em;
-    height: 14em;
-    margin-left: 0.2em;
-    overflow-y: auto;
--webkit-box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
--moz-box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
-box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
-  padding: 0.5em;
-}
-.input-single{
-  width: 95%;
-  border:none;
-  font-size: 1.5em;
-  min-height: 2em;
-  max-height: 2em;
-  background:none;
-}
-.input-nested{
-  width: 95%;
-  border: none;
-  font-size: 1.5em;
-  padding: 0.1em;
-  background: none;
-
-}
-
-.complex-lookup-results{
-  padding: 0 1em 0 1em;
-  height: 73%;
-  margin-top: 1.25em;
-
-}
-
-.complex-lookup-result{
-  border-bottom: 1px lightgray solid;
-  cursor: pointer;
-}
-.complex-lookup-results-complex{
-  height: 75%;
-}
-
-.modal-entity-select option[value=""]{
-
-  font-weight: bold;
-  font-style: oblique;
-}
+.component .lookup-fake-input{
+  border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')");
+} 
 
 
-.fake-real-button{
-  height: 4em;
-  min-width: 4em;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  margin: 0.15em;
-}
-
-.modal-switch-values-container{
-  width: 70%;
-  margin:auto !important;
-}
-.component-container-fake-input:focus-within {
-  border: solid 1px #a6acb7;
-  background-color: #dfe5f1;
-
-}
-.selected-value-container{
-  margin: 0.65em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.85em;
-  background-color: whitesmoke;
-}
-.selected{
-  border:solid 4px lightblue;
-  border-radius: 5px;
-}
-.autocomplete-container{
-  padding: 0.45em;
-  position: absolute;
-  z-index: 100;
-  background-color: white;
-  border-radius: 15px;
-  -webkit-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-  -moz-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-  box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-}
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-form{
-  height: 100%;
-}*/
 </style>

@@ -97,11 +97,11 @@
 
           </form>
         </div>
-        <span class="lang-display" v-if="lValue['@language'] !== null">{{ lValue['@language'] }}</span>
-          <Transition name="action">
-            <div class="literal-action" v-if="showActionButton && myGuid == activeField">
-              <action-button :type="'literal'" :structure="structure" :fieldGuid="lValue['@guid']"  :guid="guid"  @action-button-command="actionButtonCommand" />
-            </div>
+        <span class="lang-display" v-if="lValue['@language'] && lValue['@language'] !== null">{{ lValue['@language'] }}</span>
+        <Transition name="action">
+          <div class="literal-action" v-if="showActionButton && myGuid == activeField">
+            <action-button :type="'literal'" :structure="structure" :fieldGuid="lValue['@guid']"  :guid="guid"  @action-button-command="actionButtonCommand" />
+          </div>
         </Transition>
       </div>
     </div>
@@ -895,9 +895,19 @@ fieldset{
 
 }
 .lang-display{
-  background-color: aliceblue;
+
   border-radius: 1em;
   padding: 2px;
+
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-lang-label-font-size')");
+
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-lang-label-background-color')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-lang-label-font-color')");
+
+
+  
+
+  
 }
 
 .inline-mode-editable-span-input{
@@ -976,12 +986,15 @@ fieldset{
 .lookup-fake-input-label{
   position: absolute;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-edit-show-field-labels-size')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
 
+  pointer-events: none;
 
   z-index: 1;
   top: -4px;
   left: 2px;
-  color: gray;
+ 
+  
 }
 
 
@@ -997,6 +1010,10 @@ textarea{
   resize: none;
   width: 100%;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
+
+  
+
 
   height: 1.25em;
   line-height: 1.25em;
@@ -1005,7 +1022,9 @@ textarea{
 
 .lookup-fake-input{
   min-height: 2em;
-  background-color: transparent;
+  /* background-color: transparent; */
+ 
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')");
 
 
 }
@@ -1052,5 +1071,17 @@ textarea:hover{
   margin-top: .5em;
   margin-bottom: .25em;
   height: auto !important;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')");
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
+
+
 }
+.component .lookup-fake-input{
+  border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')");
+} 
+
+
+
+
 </style>

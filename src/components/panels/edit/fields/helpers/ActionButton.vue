@@ -11,15 +11,15 @@
   </div>
  -->
 
- <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
+ <!-- <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed"> -->
+  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown" :autoHide="false" :hideTriggers="[]">
+
     <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
     <InstanceSelectionModal ref="instanceSelectionModal" :currentRt="currentRt" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
 
     <template #popper>
-
-      <div style="width: 250px;">
-
+      <div class="action-button-menu-background" :style="'background-color: ' + preferenceStore.returnValue('--c-edit-general-action-button-menu-background-color')  + ';'">
         <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-1`" @click="duplicateComponent()">
           <span class="button-shortcut-label">1</span>
           Add Another Component
@@ -878,11 +878,17 @@
   }
 </script>
 
+
 <style scoped>
+  .action-button-menu-background{
+    width: 250px;   
+  }
+
   button{
     margin-bottom: 5px;
     position: relative;
 
+    
   }
 
   hr{
@@ -917,7 +923,7 @@
       display: inline-flex;
       align-items: center;
   }
-
+/* 
   .action-button-list-container{
     position: absolute;
     z-index: 1000;
@@ -942,7 +948,7 @@
   }
   .action-button-list-container a:hover{
     background-color: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-continer-background-highlight-color')");
-  }
+  } */
 
   .action-enter-active,
   .action-leave-active {
@@ -959,5 +965,6 @@
     background-color: red;
     margin-left: 5px;
   }
+
 
 </style>

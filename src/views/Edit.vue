@@ -283,6 +283,22 @@
   width: 0;
   height: 0;
 }
+
+.splitpanes--vertical > .splitpanes__splitter {
+
+
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-slider-color')") !important;
+
+  border-left: 1px solid v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-slider-border-color')") !important;
+  border-right: 1px solid v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-slider-border-color')") !important;
+
+}
+
+
+
+
+
+
 </style>
 <style scoped>
 
@@ -365,7 +381,6 @@
   border-radius: 10px;
   padding: 2px;
 }
-
 
 
 

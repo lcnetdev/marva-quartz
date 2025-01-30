@@ -210,6 +210,26 @@ export const usePreferenceStore = defineStore('preference', {
       range: [true,false]
   },
 
+    '--c-edit-main-splitpane-slider-color' : {
+      value:'#ffffff',
+      desc: 'Color of the dividing line / resize line.',
+      descShort: 'Resize Line Color',
+      type: 'color',
+      group: 'Sidebars - Property',
+      range: null
+  },
+  '--c-edit-main-splitpane-slider-border-color' : {
+    value:'#eee',
+    desc: 'Color of the dividing line / resize line Border.',
+    descShort: 'Resize Line Border Color',
+    type: 'color',
+    group: 'Sidebars - Property',
+    range: null
+},
+
+  
+  
+
 
       // not implemented
       // '--b-edit-main-splitpane-properties-accordion-autoclose' : {
@@ -353,13 +373,38 @@ export const usePreferenceStore = defineStore('preference', {
           range: null
         },
 
-
+        '--c-edit-main-splitpane-edit-component-label-color' : {
+          value:'black',
+          desc: 'The of the text describing the component.',
+          descShort: 'Component Label Color',
+          type: 'color',
+          group: 'Edit Panel',
+          range: null
+        },
 
 
       '--c-edit-main-splitpane-edit-focused-field-color' : {
           value:'#f2f6f6',
           desc: 'The background color of the field when it has the focus.',
           descShort: 'Field Focus Background Color',
+          type: 'color',
+          group: 'Edit Panel',
+          range: null
+        },
+
+        '--c-edit-main-splitpane-edit-field-color' : {
+          value:'transparent',
+          desc: 'The background color of the field when no focus.',
+          descShort: 'Field Background Color',
+          type: 'color',
+          group: 'Edit Panel',
+          range: null
+        },
+
+        '--c-edit-main-splitpane-edit-field-border-color' : {
+          value:'rgba(133, 133, 133,0.2)',
+          desc: 'The color of the border between fields.',
+          descShort: 'Field Border Color',
           type: 'color',
           group: 'Edit Panel',
           range: null
@@ -386,6 +431,18 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: [0,1]
       },
+
+      '--c-edit-main-splitpane-edit-show-field-labels-color' : {
+        value:'gray',
+        desc: 'The color of the field labels that sit above the value.',
+        descShort: 'Field Label color',
+        type: 'color',
+        group: 'Edit Panel',
+        range: null
+      },
+      
+
+
 
       '--b-edit-main-splitpane-edit-shortcode-display-mode' : {
           desc: 'Display abbrivated BF tags instead of natural language labels.',
@@ -504,10 +561,90 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Literal Field',
           range: [1,2]
       },
+      '--c-edit-main-literal-font-color' : {
+        desc: 'The color of the text',
+        descShort: 'Font Color',
+        value: "black",
+        type: 'color',
+        group: 'Literal Field',
+        range: null
+      },
+
+
+      '--c-edit-main-literal-lang-label-background-color' : {
+        desc: 'The background color of the language indicator',
+        descShort: 'Lang Label Background Color',
+        value: "aliceblue",
+        type: 'color',
+        group: 'Literal Field',
+        range: null
+      },
+      '--c-edit-main-literal-lang-label-font-color' : {
+        desc: 'The font color of the language indicator',
+        descShort: 'Lang Label Font Color',
+        value: "#090909",
+        type: 'color',
+        group: 'Literal Field',
+        range: null
+      },
+
+      '--n-edit-main-literal-lang-label-font-size' : {
+        desc: 'The fontsize of the language indicator',
+        descShort: 'Lang Label Font Size',
+        value: 1,
+        step: 0.1,
+        type: 'number',
+        unit: 'em',
+        group: 'Literal Field',
+        range: [1,2]
+    },
 
 
 
 
+    // Lookup Field
+    '--n-edit-main-lookup-background-color' : {
+      desc: 'The background color of the entity badge',
+      descShort: 'Lookup value background color',
+      value: 1,
+      step: 0.1,
+      type: 'number',
+      unit: 'em',
+      group: 'Lookup Field',
+      range: [1,2]
+  },
+  '--c-edit-main-lookup-background-color' : {
+    desc: 'The background color of the entity badge',
+    descShort: 'Lookup value background color',
+    value: "whitesmoke",
+    type: 'color',
+    group: 'Lookup Field',
+    range: null
+  },
+  '--c-edit-main-lookup-border-color' : {
+    desc: 'The border color of the entity badge',
+    descShort: 'Lookup value border color',
+    value: "transparent",
+    type: 'color',
+    group: 'Lookup Field',
+    range: null
+  },
+  '--c-edit-main-lookup-text-color' : {
+    desc: 'The text color of the entity badge',
+    descShort: 'Lookup value text color',
+    value: "black",
+    type: 'color',
+    group: 'Lookup Field',
+    range: null
+  },
+  '--c-edit-main-lookup-icon-linked-color' : {
+    desc: 'Linked icon color',
+    descShort: 'Linked Icon Color',
+    value: "green",
+    type: 'color',
+    group: 'Lookup Field',
+    range: null
+  },
 
 
 
@@ -552,7 +689,7 @@ export const usePreferenceStore = defineStore('preference', {
       },
       '--n-edit-general-action-button-border-width' : {
           desc: 'The width of the button border',
-          descShort: 'Button Border width',
+          descShort: 'Button Border Width',
           value: 1,
           step: 0.1,
           type: 'number',
@@ -563,14 +700,14 @@ export const usePreferenceStore = defineStore('preference', {
       '--c-edit-general-action-button-border-color' : {
           value:'#202124',
           desc: 'The color of background on the action button.',
-          descShort: 'Action background color',
+          descShort: 'Action Border Color',
           type: 'color',
           group: 'Action Button',
           range: null
         },
       '--n-edit-general-action-button-border-radius' : {
           desc: 'The radius of the button border',
-          descShort: 'Button Border radius',
+          descShort: 'Button Border Radius',
           value: 5,
           step: 0.1,
           type: 'number',
@@ -658,7 +795,25 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Action Button',
           range: [true,false]
       },
+      '--c-edit-general-action-button-menu-background-color' : {
+        value:'red',
+        desc: 'Color of the Menu background',
+        descShort: 'Menu background color',
+        type: 'color',
+        group: 'Action Button',
+        range: null
+      },
+      '--c-test' : {
+        value:'red',
+        desc: 'test',
+        descShort: 'test',
+        type: 'color',
+        group: 'Action Button',
+        range: null
+      },
 
+
+      
 
 
 

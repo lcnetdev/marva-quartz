@@ -313,6 +313,9 @@
   padding-left:0.4em;
   font-size:0.85em;
   margin-bottom:0.5em;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
+
+
 }
 
 .sidebar-opac-li-value a{
