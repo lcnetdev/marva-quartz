@@ -323,16 +323,13 @@ export default {
     },
 
     focused: function(){
-      console.info("focused")
       // set the state active field
       this.activeField = this.myGuid
 
       // if enabled show the action button
       if (this.preferenceStore.returnValue('--b-edit-general-action-button-display')){
-        console.info("set true")
         this.showActionButton=true
       }else{
-        console.info("set false")
         this.showActionButton=false
       }
 
