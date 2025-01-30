@@ -33,7 +33,7 @@
 
   <template v-else>
     <div class="lookup-fake-input" v-if="showField" >
-      <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues">
+      <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues" @focusin="focused">
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
         <div class="literal-field">
 
@@ -323,16 +323,16 @@ export default {
     },
 
     focused: function(){
-
-
-
+      console.info("focused")
       // set the state active field
       this.activeField = this.myGuid
 
       // if enabled show the action button
       if (this.preferenceStore.returnValue('--b-edit-general-action-button-display')){
+        console.info("set true")
         this.showActionButton=true
       }else{
+        console.info("set false")
         this.showActionButton=false
       }
 
