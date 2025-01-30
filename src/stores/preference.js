@@ -1260,8 +1260,8 @@ export const usePreferenceStore = defineStore('preference', {
       let layout = {}
       const profileId =  useProfileStore().activeProfile.id
 
-      let copyTargets = document.querySelectorAll('input[class=layout-selection]:checked')
-      if (copyTargets.length == 0){
+      let layoutTargets = document.querySelectorAll('input[class=layout-selection]:checked')
+      if (layoutTargets.length == 0){
         alert("No elements are selected for the layout. Select some and try again.")
         return false
       }
@@ -1279,7 +1279,7 @@ export const usePreferenceStore = defineStore('preference', {
 
       const hashCode = s => s.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
       let layoutHash = hashCode(layoutName)
-      copyTargets.forEach((item) => compontGuids.push(item.id))
+      layoutTargets.forEach((item) => compontGuids.push(item.id))
       for (const guid of compontGuids){
         let component = utilsProfile.returnPt(useProfileStore().activeProfile, guid)
         components.push(component)
@@ -1294,7 +1294,16 @@ export const usePreferenceStore = defineStore('preference', {
       for (let component of components){
         const parentId = component.parentId
         const propertyUri = component.propertyURI
-        const propertyId = component.id
+        let propertyId = component.id
+
+        //Reduce the propertyId down to the base incase an added component is used to create the layout
+        let breakPoint = propertyId.lastIndexOf("_")
+        let base = propertyId.substring(0, breakPoint)
+        let number = propertyId.substring(breakPoint+1)
+        if (!isNaN(parseInt(number))){ // if number is a number, use the base
+          propertyId = base
+        }
+
         if (Object.keys(layout.properties).includes(parentId)){
           layout.properties[parentId].push(propertyId)
         } else {
