@@ -8,6 +8,8 @@
 
     <pane>
 
+      <div>
+
       <splitpanes>
 
 
@@ -52,7 +54,7 @@
 
         </pane>
 
-        <pane class="load" v-if="displayDashboard">
+        <pane class="load" v-if="displayDashboard" >
 
 
 
@@ -202,7 +204,7 @@
 
 
       </splitpanes>
-
+      </div>
     </pane>
   </splitpanes>
 
@@ -651,9 +653,29 @@
 
 </script>
 
-<style scoped>
+<style>
+  .dt-bg-gray-50{
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')")  !important;
+    color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
+
+  }
+  .dt-bg-white{
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important;
+    color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
+
+
+
+  }
+</style>
+
+<style scoped>  
+
+
 #test-data-table{
   width:100%;
+
+
+
 }
 
 #all-records-table{
@@ -662,9 +684,15 @@
   overflow-y: auto;
 
 }
+
+
 .test-data:nth-child(odd) {
 
-  background-color: whitesmoke;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important;
+  color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
+  
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')")  !important;
+
 }
 
 .test-data a{
@@ -776,7 +804,9 @@ label{
   }
 
   .load{
-    background-color: white !important;
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important;
+    color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
+
     padding: 1em;
   }
   hr{

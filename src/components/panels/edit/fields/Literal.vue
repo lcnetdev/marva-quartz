@@ -107,6 +107,7 @@
     </div>
 
     <div class="lcc-action-zone" v-if="lccFeatureData !== false && preferenceStore.returnValue('--b-shelflist-show-cutter-helpers')">
+
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/classificationPortion'">
 
         <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://classweb.org/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan='+lccFeatureData.classNumber+'&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'" target="_blank">ClassWeb Search: {{ lccFeatureData.classNumber }}</a><br/>
@@ -888,12 +889,24 @@ fieldset{
 }
 
 .lcc-action-zone{
-  background-color: whitesmoke;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')");
   padding: 0.55em;
   border-left: solid 1px rgb(133, 133, 133);
   border-right: solid 1px rgb(133, 133, 133);
+  color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')");
+}
+.lcc-action-zone a{
+  color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')") !important;
 
 }
+.lcc-action-zone input{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')");
+  border: solid 1px;
+  color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')") !important;
+
+}
+
+
 .lang-display{
 
   border-radius: 1em;

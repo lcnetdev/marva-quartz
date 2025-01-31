@@ -333,7 +333,7 @@ export const usePreferenceStore = defineStore('preference', {
       '--b-edit-main-splitpane-edit-no-scrollbar' : {
           desc: 'Do not display a scroll bar in the edit panel.',
           descShort: 'No Scrollbar',
-          value: true,
+          value: false,
           type: 'boolean',
           unit: null,
           group: 'Edit Panel',
@@ -624,7 +624,7 @@ export const usePreferenceStore = defineStore('preference', {
   '--c-edit-main-lookup-border-color' : {
     desc: 'The border color of the entity badge',
     descShort: 'Lookup value border color',
-    value: "transparent",
+    value: "#dedede",
     type: 'color',
     group: 'Lookup Field',
     range: null
@@ -645,8 +645,22 @@ export const usePreferenceStore = defineStore('preference', {
     group: 'Lookup Field',
     range: null
   },
-
-
+  '--c-edit-main-lookup-simple-lookup-autocomplete-background-color' : {
+    desc: 'The lookup popup list background color',
+    descShort: 'Simple Lookup Popup Background Color',
+    value: "white",
+    type: 'color',
+    group: 'Lookup Field',
+    range: null
+  },
+  '--c-edit-main-lookup-simple-lookup-autocomplete-text-color' : {
+    desc: 'The lookup popup list text color',
+    descShort: 'Simple Lookup Popup Text Color',
+    value: "black",
+    type: 'color',
+    group: 'Lookup Field',
+    range: null
+  },
 
 
 
@@ -796,26 +810,78 @@ export const usePreferenceStore = defineStore('preference', {
           range: [true,false]
       },
       '--c-edit-general-action-button-menu-background-color' : {
-        value:'red',
+        value:'white',
         desc: 'Color of the Menu background',
         descShort: 'Menu background color',
         type: 'color',
         group: 'Action Button',
         range: null
       },
-      '--c-test' : {
-        value:'red',
-        desc: 'test',
-        descShort: 'test',
+      '--c-edit-general-action-button-menu-button-background-color' : {
+        value:'rgb(239, 239, 239)',
+        desc: 'Menu Button background color',
+        descShort: 'Menu Button Color',
         type: 'color',
         group: 'Action Button',
         range: null
       },
+      '--c-edit-general-action-button-menu-button-border-color' : {
+        value:'black',
+        desc: 'Menu Button Border color',
+        descShort: 'Menu Border Color',
+        type: 'color',
+        group: 'Action Button',
+        range: null
+      },
+      '--c-edit-general-action-button-menu-button-text-color' : {
+        value:'black',
+        desc: 'Menu Button text color',
+        descShort: 'Menu Text Color',
+        type: 'color',
+        group: 'Action Button',
+        range: null
+      },
+      '--n-edit-general-action-button-menu-button-text-size' : {
+        desc: 'Button text size',
+        descShort: 'Button text size',
+        value: 1,
+        step: 0.1,
+        type: 'number',
+        unit: 'em',
+        group: 'Action Button',
+        range: [1,2]
+    },
+    
 
+      // MODALS 
+
+      '--c-edit-modals-background-color' : {
+        value:'white',
+        desc: 'Background color of the popup modals',
+        descShort: 'Background Color',
+        type: 'color',
+        group: 'Modals',
+        range: null
+      },     
+      '--c-edit-modals-background-color-accent' : {
+        value:'whitesmoke',
+        desc: 'Used for off background color accents',
+        descShort: 'Background Accent Color',
+        type: 'color',
+        group: 'Modals',
+        range: null
+      },     
+      
+      '--c-edit-modals-text-color' : {
+        value:'black',
+        desc: 'Text color of popup modals',
+        descShort: 'Text Color',
+        type: 'color',
+        group: 'Modals',
+        range: null
+      }, 
 
       
-
-
 
 
       // COMPLEX LOOKUP
@@ -1265,6 +1331,12 @@ export const usePreferenceStore = defineStore('preference', {
       this.savePreferences()
     },
 
+    styleModalBackgroundColor(){ return `background-color: ${this.returnValue('--c-edit-modals-background-color')};`},
+    styleModalTextColor(){ return `color: ${this.returnValue('--c-edit-modals-text-color')};`},
+
+
+
+    
 
     /**
     * returns the value of the preference property requested
