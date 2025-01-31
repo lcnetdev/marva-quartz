@@ -38,7 +38,7 @@
 
                       <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
                         <div class="component-label 1" >
-                            <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                            <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                         </div>
@@ -87,7 +87,7 @@
                       <template v-if="this.dualEdit == false">
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
                           <div class="component-label 2" >
-                            <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                            <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" :value="profileName" :checked="layoutActiveFilter && layoutActiveFilter['properties'][profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                             <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
@@ -97,7 +97,7 @@
                     <template v-if="this.dualEdit == true">
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && (profileName.indexOf(':Instance') == -1 && profileName.indexOf(':Item') == -1 )">
                           <div class="component-label 3" >
-                          <input v-if="preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
+                          <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                           <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                           {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                             <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
