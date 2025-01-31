@@ -2499,9 +2499,18 @@ export const useProfileStore = defineStore('profile', {
             // if it is a solo subject heading
             if (subjectComponents.length==1){
 
-                currentUserValuePos['@id'] = subjectComponents[0].uri
+              console.log("subjectComponents",subjectComponents)
 
-                currentUserValuePos['@type'] = subjectComponents[0].type.replace('madsrdf:','http://www.loc.gov/mads/rdf/v1#')
+              // it might be a literal.
+                if (subjectComponents[0].uri){
+                  currentUserValuePos['@id'] = subjectComponents[0].uri
+                }
+
+                if (subjectComponents[0].type){
+                  currentUserValuePos['@type'] = subjectComponents[0].type.replace('madsrdf:','http://www.loc.gov/mads/rdf/v1#')
+                }else{
+                  currentUserValuePos['@type'] = 'madsrdf:Topic'
+                }
 
                 currentUserValuePos["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"] = [{
                     "@guid": short.generate(),
