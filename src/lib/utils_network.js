@@ -1343,10 +1343,11 @@ const utilsNetwork = {
         let collapsedDollarZ
         if (lcsh.match(/[$]z.*([$]z.*)/)){
           collapsedDollarZ = secondDollarZ.replace('$z','--')
-        }else{
+        }else if (lcsh.match(/[|]z.*([|]z.*)/)){
+          collapsedDollarZ = secondDollarZ.replace('|z','--')
+        }else {
           collapsedDollarZ = secondDollarZ.replace('‡z','--')
         }
-
         lcsh = lcsh.replace(secondDollarZ,collapsedDollarZ)
 
 		//if there is a space before the hyphens remove it. It prevents matches
@@ -1469,7 +1470,6 @@ const utilsNetwork = {
         url: [subjectUrlComplex],
         searchValue: complexHeading
       }
-
 
       for (let heading of headings){
 
@@ -1809,8 +1809,6 @@ const utilsNetwork = {
 
 
         }else{ // is not primary
-
-
           // since it is not the primary it is going to be a subdivision
           // and we have some options that cannot happen like names/works/hubs
           // next we narrow it down furtrher to the type of subdivision
@@ -1825,8 +1823,10 @@ const utilsNetwork = {
                 this.searchComplex(searchPayloadHierarchicalGeographicLCSH),
                 this.searchComplex(searchPayloadGeographicLCNAF),
                 this.searchComplex(searchPayloadGeographicLCSH)
-
             ]);
+
+            console.info("???")
+            console.info("resultsHierarchicalGeographic: ", resultsHierarchicalGeographic)
 
             resultsHierarchicalGeographic = resultsHierarchicalGeographic.filter((r)=>{ return (!r.literal) })
             resultsHierarchicalGeographicLCSH = resultsHierarchicalGeographicLCSH.filter((r)=>{ return (!r.literal) })
@@ -1836,11 +1836,15 @@ const utilsNetwork = {
             if (resultsHierarchicalGeographic.length>0){
               for (let r of resultsHierarchicalGeographic){
                 // lower case, remove end space, make double whitespace into one and remove any punctuation
+                console.info("hit: ", result.hit)
+                console.info(">>", result.hit.map((h) => {h}))
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
+                  console.info("Adding: ", heading)
                   result.hit.push(r)
 
                   foundHeading = true
+                  break
                 }
               }
               if (foundHeading){ continue }
@@ -1850,9 +1854,11 @@ const utilsNetwork = {
                 // lower case, remove end space, make double whitespace into one and remove any punctuation
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
+                  console.info("Adding: ", heading)
                   result.hit.push(r)
 
                   foundHeading = true
+                  break
                 }
               }
               if (foundHeading){ continue }
@@ -1860,15 +1866,16 @@ const utilsNetwork = {
 
 
             if (resultsGeographicLCNAF.length>0){
-
               for (let r of resultsGeographicLCNAF){
                 // lower case, remove end space, make double whitespace into one and remove any punctuation
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
+                  console.info("Adding: ", heading)
                   result.hit.push(r)
 
 
                   foundHeading = true
+                  break
                 }
               }
               if (foundHeading){ continue }
@@ -1878,10 +1885,12 @@ const utilsNetwork = {
                 // lower case, remove end space, make double whitespace into one and remove any punctuation
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
+                  console.info("Adding: ", heading)
                   result.hit.push(r)
 
 
                   foundHeading = true
+                  break
                 }
               }
               if (foundHeading){ continue }
@@ -1899,7 +1908,6 @@ const utilsNetwork = {
                 heading: heading
               })
             }
-
 
           } else if (heading.type === 'x' || heading.type === 'a'){ // general topical subdivision
 
@@ -2067,6 +2075,11 @@ const utilsNetwork = {
       // console.log("result",result)
 
       this.subjectSearchActive = false
+
+      // remove any duplicates
+      console.info("result: ", result)
+      console.info("result.hit: ", result.hit)
+      console.info("result.hit.map: ", result.hit.map((h) => h.label))
 
       return result
     },

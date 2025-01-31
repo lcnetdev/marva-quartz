@@ -614,6 +614,7 @@ export default {
               } catch {}
 
               this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue, this.searchType)
+              console.info("this.marcDeliminatedLCSHModeResults: ", this.marcDeliminatedLCSHModeResults)
               this.marcDeliminatedLCSHModeSearching = false
               let sendResults = []
               if (this.marcDeliminatedLCSHModeResults.resultType != 'ERROR'){
@@ -632,21 +633,28 @@ export default {
 
                 }else{
                   for (const [i, v] of this.marcDeliminatedLCSHModeResults.hit.entries()) {
-                    sendResults.push({
-                      complex: false,
-                      id: i,
-                      label: v.label,
-                      literal: v.literal,
-                      posEnd: 0,
-                      posStart: 0,
-                      marcKey: v.marcKey,
-                      type: v.heading.rdfType.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:'),
-                      uri: v.uri
-                    })
+                    console.info("label: ", v.label)
+                    console.info(sendResults.map((r) => r.label))
+                    console.info(sendResults.map((r) => r.label).includes(v.label))
+                    if (!sendResults.map((r) => r.label).includes(v.label)){
+                      console.info("    adding: ", v.label)
+                      sendResults.push({
+                        complex: false,
+                        id: i,
+                        label: v.label,
+                        literal: v.literal,
+                        posEnd: 0,
+                        posStart: 0,
+                        marcKey: v.marcKey,
+                        type: v.heading.rdfType.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:'),
+                        uri: v.uri
+                      })
+                    }
                   }
                 }
 
 
+                console.info("sendResults: ", sendResults)
 
                 // console.log(this.marcDeliminatedLCSHModeResults)
                 this.subjectAdded(sendResults)
