@@ -1824,6 +1824,7 @@ export const useProfileStore = defineStore('profile', {
         }
 
         // and now add in the literal value into the correct property
+        console.info("    setting value: ", value)
         blankNode[lastProperty] = value
         // for electronicLocators, update the ID, so the XML can get built correctly
         if (isLocator && Object.keys(blankNode).some((key) => key == "http://id.loc.gov/ontologies/bibframe/electronicLocator")){
