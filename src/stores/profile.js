@@ -1766,6 +1766,37 @@ export const useProfileStore = defineStore('profile', {
             // console.log("--------pt 4------------")
             // console.log(JSON.stringify(pt,null,2))
           }
+
+          // They used "Additional literal" on an empty field, add the new field
+          // without this, the user needs to run the action twice to the the additional field
+          if (currentValueCount === 0 && value=='new value'){
+            // there is already values here, so we need to insert a new value into the hiearchy
+
+            let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
+
+            if (!parent){
+              console.error("Trying to add second literal, could not find the property path parent", pt)
+              return false
+            }
+
+            if (!parent[lastProperty]){
+              console.error('Trying to find the value of this literal, unable to:',componentGuid, fieldGuid, propertyPath, value, lang, pt)
+              return false
+            }
+            let newGuid = short.generate()
+
+            // make a place for it
+            parent[lastProperty].push(
+              {
+                '@guid': newGuid,
+              }
+            )
+
+            // get a link to it we'll edit it below
+            blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
+            // set a temp value that will be over written below
+            blankNode[lastProperty] = true
+          }
           // console.log("currentValueCount",currentValueCount)
         }
 
