@@ -2149,6 +2149,11 @@ export const useProfileStore = defineStore('profile', {
                 uneditable = true
               }
 
+              // always allow editing subjects
+              if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+                uneditable = false
+              }
+
               // if it is deepHierarchy then then we are copy pasting what came into the system and they cann change it anyway.
               if (pt.deepHierarchy){uneditable=true}
 
