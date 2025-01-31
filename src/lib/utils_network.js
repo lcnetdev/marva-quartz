@@ -1825,9 +1825,6 @@ const utilsNetwork = {
                 this.searchComplex(searchPayloadGeographicLCSH)
             ]);
 
-            console.info("???")
-            console.info("resultsHierarchicalGeographic: ", resultsHierarchicalGeographic)
-
             resultsHierarchicalGeographic = resultsHierarchicalGeographic.filter((r)=>{ return (!r.literal) })
             resultsHierarchicalGeographicLCSH = resultsHierarchicalGeographicLCSH.filter((r)=>{ return (!r.literal) })
             resultsGeographicLCNAF = resultsGeographicLCNAF.filter((r)=>{ return (!r.literal) })
@@ -1836,11 +1833,8 @@ const utilsNetwork = {
             if (resultsHierarchicalGeographic.length>0){
               for (let r of resultsHierarchicalGeographic){
                 // lower case, remove end space, make double whitespace into one and remove any punctuation
-                console.info("hit: ", result.hit)
-                console.info(">>", result.hit.map((h) => {h}))
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
-                  console.info("Adding: ", heading)
                   result.hit.push(r)
 
                   foundHeading = true
@@ -1854,7 +1848,6 @@ const utilsNetwork = {
                 // lower case, remove end space, make double whitespace into one and remove any punctuation
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
-                  console.info("Adding: ", heading)
                   result.hit.push(r)
 
                   foundHeading = true
@@ -1870,7 +1863,6 @@ const utilsNetwork = {
                 // lower case, remove end space, make double whitespace into one and remove any punctuation
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
-                  console.info("Adding: ", heading)
                   result.hit.push(r)
 
 
@@ -1885,7 +1877,6 @@ const utilsNetwork = {
                 // lower case, remove end space, make double whitespace into one and remove any punctuation
                 if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
                   r.heading = heading
-                  console.info("Adding: ", heading)
                   result.hit.push(r)
 
 
@@ -2075,11 +2066,6 @@ const utilsNetwork = {
       // console.log("result",result)
 
       this.subjectSearchActive = false
-
-      // remove any duplicates
-      console.info("result: ", result)
-      console.info("result.hit: ", result.hit)
-      console.info("result.hit.map: ", result.hit.map((h) => h.label))
 
       return result
     },

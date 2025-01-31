@@ -1093,7 +1093,6 @@ methods: {
       this.linkModeResults=false
       this.linkModeSearching=true
       this.linkModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.linkModeString)
-      console.info("linkModeResults: ", this.linkModeResults)
       this.linkModeSearching=false
 
     }else if (event.key==='Enter' && event.shiftKey===true){
