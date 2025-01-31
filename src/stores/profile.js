@@ -1649,6 +1649,13 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
+      console.info("setValueLiteral")
+      console.info("componentGuid: ", componentGuid)
+      console.info("fieldGuid: ", fieldGuid)
+      console.info("propertyPath: ", propertyPath)
+      console.info("value: ", value)
+      console.info("lang: ", lang)
+      console.info("repeatedLiteral: ", repeatedLiteral)
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
 
@@ -1712,12 +1719,14 @@ export const useProfileStore = defineStore('profile', {
         // let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
 
         if (blankNode === false){
+          console.info("no blank node")
           // create the path to the blank node
           let buildBlankNodeResult
 
           let currentValueCount = utilsProfile.countValues(pt,propertyPath)
 
           if (currentValueCount === 0){
+            console.info("Populating the existing value")
             // this is the first value, we need to construct the hierarchy to the bnode
             buildBlankNodeResult = utilsProfile.buildBlanknode(pt,propertyPath, true)
 
@@ -1737,6 +1746,7 @@ export const useProfileStore = defineStore('profile', {
             // console.log(JSON.stringify(pt,null,2))
 
           }else{
+            console.info("Creating a new property")
             // there is already values here, so we need to insert a new value into the hiearchy
 
             let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
@@ -1765,6 +1775,38 @@ export const useProfileStore = defineStore('profile', {
             blankNode[lastProperty] = true
             // console.log("--------pt 4------------")
             // console.log(JSON.stringify(pt,null,2))
+          }
+
+          // They used "Additional literal" on an empty field, add the new field
+          // without this, the user needs to run the action twice to the the additional field
+          if (currentValueCount === 0 && value=='new value'){
+            console.info("Creating a new property")
+            // there is already values here, so we need to insert a new value into the hiearchy
+
+            let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
+
+            if (!parent){
+              console.error("Trying to add second literal, could not find the property path parent", pt)
+              return false
+            }
+
+            if (!parent[lastProperty]){
+              console.error('Trying to find the value of this literal, unable to:',componentGuid, fieldGuid, propertyPath, value, lang, pt)
+              return false
+            }
+            let newGuid = short.generate()
+
+            // make a place for it
+            parent[lastProperty].push(
+              {
+                '@guid': newGuid,
+              }
+            )
+
+            // get a link to it we'll edit it below
+            blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
+            // set a temp value that will be over written below
+            blankNode[lastProperty] = true
           }
           // console.log("currentValueCount",currentValueCount)
         }

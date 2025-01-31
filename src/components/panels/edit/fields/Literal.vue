@@ -661,10 +661,6 @@ export default {
 
 
     actionButtonCommand: async function(cmd,options){
-
-
-
-
       if (cmd == 'addField'){
         this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,"new value",null,true)
       }
@@ -706,22 +702,16 @@ export default {
           componentGuid: this.guid,
           values: this.profileStore.returnLiteralValueFromProfile(this.guid,this.propertyPath)
         }
-
-
         this.literalLangShow=true
-
-
       }
 
-
-      this.$refs['input_' + this.literalValues[0]['@guid']][0].focus()
-
-
-
+      try{
+        // this will fail when adding an additional literal and the current field is empty
+        this.$refs['input_' + this.literalValues[0]['@guid']][0].focus()
+      }catch(err){
+        console.error("Adding a field from an empty field: ", err)
+      }
     },
-
-
-
   },
   computed: {
     // other computed properties
