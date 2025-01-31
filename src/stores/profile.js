@@ -2149,6 +2149,11 @@ export const useProfileStore = defineStore('profile', {
                 uneditable = true
               }
 
+              // always allow editing subjects
+              if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+                uneditable = false
+              }
+
               // if it is deepHierarchy then then we are copy pasting what came into the system and they cann change it anyway.
               if (pt.deepHierarchy){uneditable=true}
 
@@ -2504,6 +2509,9 @@ export const useProfileStore = defineStore('profile', {
               // it might be a literal.
                 if (subjectComponents[0].uri){
                   currentUserValuePos['@id'] = subjectComponents[0].uri
+                }else{
+
+                  delete currentUserValuePos["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
                 }
 
                 if (subjectComponents[0].type){
@@ -2512,10 +2520,15 @@ export const useProfileStore = defineStore('profile', {
                   currentUserValuePos['@type'] = 'madsrdf:Topic'
                 }
 
-                currentUserValuePos["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"] = [{
-                    "@guid": short.generate(),
-                    "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": subjectComponents[0].label
-                }]
+                // if there is a URI add authorized label
+                if (currentUserValuePos['@id']){
+
+                  currentUserValuePos["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"] = [{
+                      "@guid": short.generate(),
+                      "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": subjectComponents[0].label
+                  }]
+                }
+
                 currentUserValuePos["http://www.w3.org/2000/01/rdf-schema#label"] = [{
                     "@guid": short.generate(),
                     "http://www.w3.org/2000/01/rdf-schema#label": subjectComponents[0].label
