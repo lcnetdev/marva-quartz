@@ -648,8 +648,6 @@ export default {
                   }
                 }
 
-
-
                 // console.log(this.marcDeliminatedLCSHModeResults)
                 this.subjectAdded(sendResults)
                 // console.log(sendResults)
