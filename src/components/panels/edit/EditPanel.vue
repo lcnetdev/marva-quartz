@@ -463,6 +463,7 @@
 
 .component-label{
   font-size: 0.85em;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
 }
 
 div.instanceInfoWrapper {
@@ -471,6 +472,8 @@ div.instanceInfoWrapper {
 
 .instanceIdentifer {
     font-weight: bold;
+    color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+
 }
 
 .instanceDeleteButton {

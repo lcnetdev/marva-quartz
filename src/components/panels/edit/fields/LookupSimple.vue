@@ -839,7 +839,7 @@ export default {
         }
 
 
-        console.log("looking for ",this.activeSelect,' in ', displayLabel, 'or',  authLabel)
+        // console.log("looking for ",this.activeSelect,' in ', displayLabel, 'or',  authLabel)
 
 
         
@@ -859,106 +859,6 @@ export default {
 
 
     },
-
-    // clickAdd: function(event){
-
-    //   this.displayAutocomplete=false
-
-
-    //   if (event && event.target && event.target.innerText){
-    //     this.activeSelect = event.target.innerText
-    //   }
-
-    //   let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
-
-    //   if (this.activeKeyword){
-    //     metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values
-    //   }
-    //   // find the active selected in the data
-    //   Object.keys(metadata).forEach((key)=>{
-    //     let idx = metadata[key].displayLabel.indexOf(this.activeSelect)
-    //     if (idx >-1){
-    //       // this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':metadata[key].label[idx],URI:metadata[key].uri})
-    //       this.activeFilter = ''
-    //       this.activeValue = ''
-    //       this.activeSelect = ''
-    //       this.displayAutocomplete=false
-    //       event.target.value = ''
-    //       // let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null
-    //       let useLabel = (metadata[key].authLabel) ? metadata[key].authLabel : metadata[key].label[idx]
-
-    //       this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, propertyPath: this.propertyPath, valueURI: metadata[key].uri, valueLabel:useLabel}).then((resultData) => {
-    //         this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':resultData.valueLabel, uri: resultData.valueURI, uriGuid: resultData.guid, labelGuid:resultData.guid})
-    //       })
-    //     }
-    //     // let data = utilsNetwork.lookupLibrary[this.uri].metadata[v]
-
-    //     // let idx = data.defaultsisplayLabel.indexOf(this.activeSelect)
-    //     // if (idx > -1){
-    //     //   this.structure.valueConstraint.defaults.push({defaultLiteral:data.label[idx],defaultURI:data.uri[idx]})
-    //     // }
-    //   })
-
-
-    //   // let label = this.displayList[event.target.dataset.idx]
-
-    //   // let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
-
-    //   // // find the active selected in the data
-    //   // Object.keys(metadata).forEach((key)=>{
-
-    //   //   let idx = metadata[key].displayLabel.indexOf(label)
-    //   //   if (idx >-1){
-    //   //     // this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':,URI:})
-    //   //     // this.activeFilter = ''
-    //   //     // this.activeValue = ''
-    //   //     // this.activeSelect = ''
-    //   //     // this.displayAutocomplete=false
-    //   //     // // this.$store.dispatch("addValueLiteral", { self: this, profileComponet: this.profileCompoent, structure: this.structure, template:this.activeTemplate, value:this.activeLookupValue }).then(() => {
-
-    //   //     // // })
-
-    //   //     // this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, parentURI: this.parentStructureObj.propertyURI, URI: this.structure.propertyURI, valueURI: metadata[key].uri, valueLabel:metadata[key].label[idx]}).then((resultData) => {
-    //   //     //   this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':resultData.valueLabel, uri: resultData.valueURI, uriGuid: resultData.guid, labelGuid:resultData.guid})
-    //   //     // })
-
-
-
-    //   //     this.activeFilter = ''
-    //   //     this.activeValue = ''
-    //   //     this.activeSelect = ''
-    //   //     this.displayAutocomplete=false
-    //   //     event.target.value = ''
-    //   //     // this.$store.dispatch("addValueLiteral", { self: this, profileComponet: this.profileCompoent, structure: this.structure, template:this.activeTemplate, value:this.activeLookupValue }).then(() => {
-
-    //   //     // })
-    //   //     let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null
-
-
-    //   //     this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, parentURI: parentURI, URI: this.structure.propertyURI, valueURI: metadata[key].uri, valueLabel:metadata[key].label[idx]}).then((resultData) => {
-    //   //       this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':resultData.valueLabel, uri: resultData.valueURI, uriGuid: resultData.guid, labelGuid:resultData.guid})
-    //   //     })
-
-
-
-    //   //     this.$store.dispatch("enableMacroNav")
-
-
-
-    //   //   }
-
-
-    //   // })
-
-    //   // refocus
-    //   this.$refs.lookupInput.focus()
-
-
-
-    // },
-
-    // submitField: uiUtils.globalMoveDown
-
 
   }
 };
@@ -1041,6 +941,7 @@ export default {
 .lookup-fake-input{
   display: flex;
   background-color: transparent;
+
 }
 
 
@@ -1056,7 +957,8 @@ export default {
   z-index: 1;
   top: -4px;
   left: 2px;
-  color: gray;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
+  pointer-events: none;
   margin-top: 1px;
 }
 
@@ -1070,6 +972,10 @@ export default {
   padding: 0;
   margin: 0;
   margin-top: 0.5em;
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
+
+
 }
 
 .lookup-action{
@@ -1085,10 +991,13 @@ export default {
   border-radius: 0.5em;
   padding: 0.35em;
   font-size: 0.75em;
-  background-color: whitesmoke;
+
   white-space: nowrap;
   display: inline-block;
   height: 2em;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-lookup-background-color')");
+  border: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+  color:  v-bind("preferenceStore.returnValue('--c-edit-main-lookup-text-color')");
 
 
 }
@@ -1111,6 +1020,12 @@ export default {
   position: absolute;
   z-index: 100;
   background-color: white;
+
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-lookup-simple-lookup-autocomplete-background-color')");
+  color:  v-bind("preferenceStore.returnValue('--c-edit-main-lookup-simple-lookup-autocomplete-text-color')");
+
+
+
   border-radius: 15px;
   -webkit-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
   -moz-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
@@ -1124,174 +1039,7 @@ export default {
   border-radius: 5px;
 }
 
-
-
-
-
-.selected-value-icon{
-/*  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;*/
-  /* padding-right: 0.3em; */
-  /* margin-left: 5px; */
-  /* border-left: 1px solid black; */
-  /* padding: 0px 7px; */
-  /* font-size: 1em; */
-}
-
-
-/*textarea{
-  border: none;
-  overflow: hidden;
-  outline: none;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  resize: none;
-  width: 100%;
-  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
-
-  height: 1.25em;
-  line-height: 1.25em;
-}
-*/
-
-
-
-
-/*
-.input-single{
-  width: 95%;
-  border:none;
-  font-size: 1.5em;
-  min-height: 2em;
-  max-height: 2em;
-  background:none;
-}
-.input-nested{
-  width: 95%;
-  border: none;
-  font-size: 1.5em;
-  padding: 0.1em;
-  background: none;
-
-}
-
-
-
-li::before{
-  content: '';
-}
-
-li{
-  padding:0.1em;
-}
-
-li span{
-  padding:0.1em;
-}
-input{
-  outline: none;
-}
-.uncontrolled{
-  margin-left: 0.25em;
-  color: darkred;
-}
-.component-container-fake-input:focus-within {
-  border: solid 1px #a6acb7;
-  background-color: #dfe5f1;
-
-
-}
-.selected-value-container{
-  margin: 0.95em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.75em;
-  background-color: whitesmoke;
-  white-space: nowrap;
-
-
-
-}
-.selected-value-container-nested{
-  margin: 0.25em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.75em;
-  background-color: whitesmoke;
-  white-space: nowrap;
-  display: inline;
-}
-.selected{
-  border:solid 4px lightblue;
-  border-radius: 5px;
-}
-.autocomplete-container{
-  padding: 0.45em;
-  position: absolute;
-  z-index: 100;
-  background-color: white;
-  border-radius: 15px;
-  -webkit-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-  -moz-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-  box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-}
-.autocomplete-container li{
-  cursor: pointer;
-}
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-form{
-  height: 100%;
-}
-
-.ani-shake{
-  animation: shake 1s 1;
-}
-
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  10%,
-  30%,
-  50%,
-  70% {
-    transform: translateX(-10px);
-  }
-
-  20%,
-  40%,
-  60% {
-    transform: translateX(10px);
-  }
-
-  80% {
-    transform: translateX(8px);
-  }
-
-  90% {
-    transform: translateX(-8px);
-  }
-}
-
-*/
-
-
-
+.component .lookup-fake-input{
+  border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')");
+} 
 </style>

@@ -4,15 +4,12 @@
 
 
     <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
-
-
       <select style="display: inline; width: 20px; border-color:whitesmoke; background-color: transparent;" @change="templateChange($event)">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
-
     </template>
     <template v-else>
-      <select :id="structure['@guid']+'-select'" @change="templateChange($event)" style=" background-color: transparent;">
+      <select :id="structure['@guid']+'-select'" @change="templateChange($event)" style="">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
     </template>
@@ -27,136 +24,10 @@
     :readOnly="readOnly" />
 
 
-  <!--
-
-  <div v-if="dynamic == 'singleTemplate'">
-
-    <EditMainComponent  v-for="(pt,idx) in activeTemplate.propertyTemplates"
-      :level="level"
-      :bnodeProperty="bnodeProperty"
-      :propertyPath="propertyPath"
-      :ptGuid="ptGuid"
-      :isMini="isMini"
-      :key="idx"
-      :position="idx"
-      :activeTemplate="Object.assign({nested:true},activeTemplate)"
-      :structure="activeTemplate.propertyTemplates[idx]"
-      :profileCompoent="profileCompoent"
-      :profileName="profileName"
-      :grandParentStructureObj="parentStructureObj"
-      :parentStructureObj="structure"
-      :parentStructure="['nothing']"
-      :nested="true">
-    </EditMainComponent>
-
-
-  </div>
-
-
-  <div v-else-if="nested == false" :class="'component-container' + ' component-container-' + settingsDisplayMode">
-
-    <div :class="'component-container-title' + ' component-container-title-' + settingsDisplayMode ">{{structure.propertyLabel}}<EditLabelRemark :remark="structure.remark" /></div>
-    <div :class="'component-container-input-container' + ' component-container-input-container-' + settingsDisplayMode">
-
-      <template  v-if="structure.valueConstraint.valueTemplateRefs.length > 1">
-        <div class="component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border" style="flex:4; max-height: 3em;">
-          <div style="display: flex">
-            <div style="flex:1">
-              <form autocomplete="off">
-                <input bfeType="EditTemplateRefComponent-nested"  :id="assignedId"  v-on:focus="focused" class="selectable-input" autocomplete="off" @keydown="multiTemplateSelectKeydown($event)" type="text" v-bind:value="multiTemplateSelect" style="width: 95%; border:none; height: 90%; font-size: 1.5em; padding: 0.1em; background: none">
-              </form>
-            </div>
-            <button tabindex="-1" class="temp-icon-switch fake-real-button simptip-position-top" :data-tooltip="labels.refComponentSwitchButton" @click="multiTemplateSelectKeydown($event, true)">
-            </button>
-          </div>
-        </div>
-      </template>
-      <div v-if="activeTemplate != null && activeTemplate.propertyTemplates.length > 0">
-
-        <EditMainComponent  v-for="(pt,idx) in activeTemplate.propertyTemplates"
-        :level="level"
-        :bnodeProperty="bnodeProperty"
-        :propertyPath="propertyPath"
-        :ptGuid="ptGuid"
-        :key="idx"
-        :isMini="isMini"
-        :activeTemplate="activeTemplate"
-        :structure="activeTemplate.propertyTemplates[idx]"
-        :parentStructureObj="structure"
-        :parentStructure="['nothing']"
-        :profileCompoent="profileCompoent"
-        :profileName="profileName"
-        :nested="true">
-        </EditMainComponent>
-      </div>
-      <div v-else>
-        <span>Missing resource template {{structure.valueConstraint.valueTemplateRefs}}</span>
-        {{activeTemplate}}
-      </div>
-
-    </div>
-
-  </div>
-
-  <div v-else-if="nested == true">
-      <template v-if="structure.valueConstraint.valueTemplateRefs.length > 1">
-        <div class="component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border" style="flex:4;  max-height: 3em">
-          <div style="display: flex">
-            <div style="flex:1">
-              <form autocomplete="off">
-                <input bfeType="EditTemplateRefComponent-unnested" :id="assignedId"  v-on:focus="focused" class="selectable-input" autocomplete="off" @keydown="multiTemplateSelectKeydown($event)" type="text" v-bind:value="multiTemplateSelect" style="width: 95%; border:none; height: 90%; font-size: 1.5em; padding: 0.1em; background: none">
-              </form>
-            </div>
-            <button tabindex="-1" class="temp-icon-switch fake-real-button simptip-position-top" :data-tooltip="labels.refComponentSwitchButton"  @click="multiTemplateSelectKeydown($event, true)">
-            </button>
-          </div>
-        </div>
-      </template>
-      <template v-if="activeTemplate != null && activeTemplate.propertyTemplates.length > 0">
-
-        <EditMainComponent  v-for="(pt,idx) in activeTemplate.propertyTemplates"
-          :ptGuid="ptGuid"
-          :level="level"
-          :bnodeProperty="bnodeProperty"
-          :propertyPath="propertyPath"
-          :key="idx"
-          :isMini="isMini"
-          :position="idx"
-          :activeTemplate="Object.assign({nested:true},activeTemplate)"
-          :structure="activeTemplate.propertyTemplates[idx]"
-          :profileCompoent="profileCompoent"
-          :profileName="profileName"
-          :grandParentStructureObj="parentStructureObj"
-          :parentStructureObj="structure"
-          :parentStructure="['nothing']"
-          :nested="true">
-        </EditMainComponent>
-      </template>
-
-  </div>
-
-
-
- -->
-
-
-
 </template>
 
 <script>
 
-
-
-// import EditMainComponent from "@/components/EditMainComponent.vue";
-
-
-// import { mapState } from 'vuex'
-// import uiUtils from "@/lib/uiUtils"
-// import labels from "@/lib/labels"
-// import EditLabelRemark from "@/components/EditLabelRemark.vue";
-
-
-// import Main from "@/components/panels/edit/fields/Main.vue";
 
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
@@ -569,45 +440,12 @@ select{
   width: 100%;
   border-bottom: none;
   border-top: none;
-}
-/*.component-container-fake-input:focus-within {
-  border: solid 1px #a6acb7;
-  background-color: #dfe5f1;
-}
-input{
-  border: none;
-  color: transparent;
-  text-shadow: 0 0 0 gray;
-  text-align: left;
-}
-.fake-real-button{
-  height: 4em;
-  min-width: 4em;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
   background-color: transparent;
-  border: none;
-  outline: none;
-  margin: 0.15em;
-}
 
-input{
-  outline:none;
+
+
+
 }
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-form{
-  height: 100%;
-}*/
 
 </style>

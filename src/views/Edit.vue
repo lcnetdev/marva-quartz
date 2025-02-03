@@ -273,6 +273,8 @@
   height: 2px;
   background-color: black !important;
 
+
+
 }
 
 .default-theme.splitpanes--horizontal>.splitpanes__splitter:before{
@@ -283,6 +285,25 @@
   width: 0;
   height: 0;
 }
+
+.splitpanes--vertical > .splitpanes__splitter {
+
+
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-slider-color')") !important;
+
+  border-left: 1px solid v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-slider-border-color')") !important;
+  border-right: 1px solid v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-slider-border-color')") !important;
+
+}
+
+.edit-main-splitpane-edit{
+  scrollbar-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-scroll-bar-thumb-color')") v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-scroll-bar-track-color')")
+}
+
+
+
+
+
 </style>
 <style scoped>
 
@@ -365,7 +386,6 @@
   border-radius: 10px;
   padding: 2px;
 }
-
 
 
 
