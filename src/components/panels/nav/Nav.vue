@@ -270,6 +270,15 @@
 
               { text: 'Field Colors', click: () => this.showFieldColorsModal = true, icon: '🌈' },
 
+              { text: 'Themes', icon: '🎨', menu: [
+
+                { text: 'Default', click: () => this.preferenceStore.setTheme('default')},
+                { text: 'Dark', click: () => this.preferenceStore.setTheme('dark')},
+                { text: 'Gray', click: () => this.preferenceStore.setTheme('gray')},
+
+
+
+              ] },
 
 
 
@@ -281,6 +290,12 @@
               { text: 'General', click: () => this.preferenceStore.togglePrefModal('General')},
               { text: 'Edit Panel', click: () => this.preferenceStore.togglePrefModal('Edit Panel')},
               { text: 'Literal Field', click: () => this.preferenceStore.togglePrefModal('Literal Field')},
+              { text: 'Lookup Field', click: () => this.preferenceStore.togglePrefModal('Lookup Field')},
+
+
+              
+              { text: 'Modals', click: () => this.preferenceStore.togglePrefModal('Modals')},
+
               { text: 'Complex Lookup', click: () => this.preferenceStore.togglePrefModal('Complex Lookup')},
               { text: 'Action Button', click: () => this.preferenceStore.togglePrefModal('Action Button')},
               { text: 'Nav Bar', click: () => this.preferenceStore.togglePrefModal('Nav Bar')},
@@ -799,7 +814,11 @@
       --bar-button-icon-size: 20px;
       --bar-button-padding: 3px 5px;
       --bar-button-radius: 4px;
-      --bar-button-hover-bkg: rgb(241, 243, 244);
+      --bar-button-hover-bkg: rgb(244, 241, 242);
+
+      
+      
+      --bar-button-hover-bkg: rgb(244, 241, 242);
       --bar-button-active-color: rgb(26, 115, 232);
       --bar-button-active-bkg: rgb(232, 240, 254);
       --bar-button-open-color: rgb(32, 33, 36);
@@ -807,7 +826,9 @@
       --bar-menu-bkg: white;
       --bar-menu-border-radius: 0 0 3px 3px;
       --bar-menu-item-chevron-margin: 0;
-      --bar-menu-item-hover-bkg: rgb(241, 243, 244);
+      /* --bar-menu-item-hover-bkg: rgb(241, 243, 244); */
+      --bar-menu-item-hover-bkg: rgb(26, 115, 232);
+
       --bar-menu-item-padding: 5px 8px 5px 35px;
       --bar-menu-item-icon-size: 15px;
       --bar-menu-item-icon-margin: 0 9px 0 -25px;
@@ -841,12 +862,19 @@
       color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
     }
 
+
+
+    
+
     .nav-icon-color{
       fill: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
     }
 
     .current-profile {
-      background: var(--bar-button-hover-bkg, #f1f3f4);
+      /* background: var(--bar-button-hover-bkg, #f1f3f4); */
+
+      background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')") !important;
+
       margin-left: 100px;
     }
     .login-menu{

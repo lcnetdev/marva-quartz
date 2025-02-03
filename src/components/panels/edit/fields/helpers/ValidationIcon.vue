@@ -11,6 +11,7 @@
 
 import { useProfileStore } from '@/stores/profile'
 import { mapStores,  } from 'pinia'
+import { usePreferenceStore } from '@/stores/preference'
 
 
 
@@ -38,6 +39,7 @@ export default {
   computed: {
 
     ...mapStores(useProfileStore),
+    ...mapStores(usePreferenceStore),
 
 
     useIcon(){
@@ -71,7 +73,7 @@ export default {
 <style>
 
 .verified {
-    color: green;
+    color: v-bind("preferenceStore.returnValue('--c-edit-main-lookup-icon-linked-color')");
     font-size: 1.5em;
     font-weight: bold;
     vertical-align: middle;

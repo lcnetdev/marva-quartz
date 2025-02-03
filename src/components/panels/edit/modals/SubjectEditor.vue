@@ -16,7 +16,7 @@
     >
 
     <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
-      <div style="position: relative" class="subject-container-outer">
+      <div :style="`position: relative; ${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`" class="subject-container-outer">
           <div style="position:absolute; right:2em; top:  0.25em; z-index: 100;">
 			      <div class="menu-buttons">
 				    <button @click="closeEditor()">Close</button>
@@ -77,10 +77,10 @@
           <template v-if="subjectEditorMode=='build'">
 
 
-            <div :class="['subject-editor-container', {'subject-editor-container-lowres':lowResMode}]">
+            <div :class="['subject-editor-container', {'subject-editor-container-lowres':lowResMode}]" :style="`${this.preferenceStore.styleModalBackgroundColor()}`" >
 
 
-              <div :class="['subject-editor-container-left', {'subject-editor-container-left-lowres':lowResMode}]">
+              <div :style="`${this.preferenceStore.styleModalBackgroundColor()};`" :class="['subject-editor-container-left', {'subject-editor-container-left-lowres':lowResMode}]">
 
                 <div id="search-in-holder" style="position: absolute; top:0">
                   <span>Search In:</span>
@@ -94,8 +94,9 @@
 
                 </div>
 
-
-                <div style="flex:1; align-self: flex-end; height: 95%" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                
+                
+                <div :style="`flex:1; align-self: flex-end; height: 95%; ${this.preferenceStore.styleModalBackgroundColor()}`" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
 
                   <div v-if="activeSearch!==false">{{activeSearch}}</div>
                   <div v-if="searchResults !== null" style="height: 95%">
@@ -151,7 +152,7 @@
                 </div>
 
 
-                <div :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
+                <div :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()};`"  :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
                   <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                   <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
                     <h3 v-if="contextData.title">
@@ -248,7 +249,7 @@
                   <div ref="toolbar" style="display: flex;">
                     <div style="flex:2">
                       <ol v-if="showTypes" :class="['type-list-ol',{'type-list-ol-lowres':lowResMode}]">
-                        <li :class="['type-item', {'type-item-selected':(type.selected)}]" v-for="type in activeTypes" :key="type.value" @click="setTypeClick($event,type.value)">{{type.label}}</li>
+                        <li :class="['type-item', {'type-item-selected':(type.selected)}]" v-for="type in activeTypes" :key="type.value" @click="setTypeClick($event,type.value)" :style="`${this.preferenceStore.styleModalTextColor()}`">{{type.label}}</li>
                       </ol>
                     </div>
                     <div style="flex:1">
@@ -575,7 +576,7 @@
     padding: 0.1em;
     margin-left: 1em;
     cursor: pointer;
-    background-color: white;
+    background-color: transparent;
   }
 
   .type-item::before{
@@ -585,6 +586,7 @@
 
   .type-item-selected{
     background-color: #0080001f;
+    border: solid 3px;
   }
 
 .input-single-subject{
