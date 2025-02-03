@@ -270,6 +270,15 @@
 
               { text: 'Field Colors', click: () => this.showFieldColorsModal = true, icon: '🌈' },
 
+              { text: 'Themes', icon: '🎨', menu: [
+
+                { text: 'Default', click: () => this.preferenceStore.setTheme('default')},
+                { text: 'Dark', click: () => this.preferenceStore.setTheme('dark')},
+                { text: 'Gray', click: () => this.preferenceStore.setTheme('gray')},
+
+
+
+              ] },
 
 
 

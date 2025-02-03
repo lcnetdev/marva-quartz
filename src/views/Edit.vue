@@ -273,6 +273,8 @@
   height: 2px;
   background-color: black !important;
 
+
+
 }
 
 .default-theme.splitpanes--horizontal>.splitpanes__splitter:before{
@@ -294,6 +296,9 @@
 
 }
 
+.edit-main-splitpane-edit{
+  scrollbar-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-scroll-bar-thumb-color')") v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-scroll-bar-track-color')")
+}
 
 
 
