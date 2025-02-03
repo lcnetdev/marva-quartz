@@ -261,7 +261,7 @@ const utilsRDF = {
     let propXml = await this.fetchOntology(propertyURI)
     let prop = XMLParser.parseFromString(propXml, "text/xml");
     let range = prop.getElementsByTagName("rdfs:range")
-
+    // console.log("propXml",propXml)
 
     // if it has a range return it
     if (range.length>0){

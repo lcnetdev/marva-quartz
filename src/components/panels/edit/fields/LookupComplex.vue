@@ -978,7 +978,7 @@ export default {
 }
 
 .component .lookup-fake-input{
-  border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')");
+  border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
 } 
 
 

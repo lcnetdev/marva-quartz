@@ -5002,6 +5002,7 @@ export const useProfileStore = defineStore('profile', {
             // we are adding a sigle one here so groups are individual (group of 1) in this case
             console.log("Adding thisone",group)
             let component = JSON.parse(JSON.stringify(group.structure))
+            
 
             // see if we can find its counter part in the acutal profile
             if (this.activeProfile.rt[component.parentId]){
@@ -5024,6 +5025,10 @@ export const useProfileStore = defineStore('profile', {
 
                   // regardless we need to set the id
                   component['@guid'] = short.generate()
+
+                  // we also need to create new @guid valuse inside the userValue in case they add multiple versions of the same
+                  component = this.componentLibraryUpdateUserValueGuid(component)
+
 
                   if (Object.keys(ptObjFound.userValue).length <= 1){
                     // if this is 1 or 0 then the userdata is empty, with just a @root property
@@ -5096,6 +5101,27 @@ export const useProfileStore = defineStore('profile', {
 
       }
 
+    },
+
+
+    componentLibraryUpdateUserValueGuid(component){
+
+
+      function traverse(target) {
+        for (const key in target) {
+          if (typeof target[key] === 'object') {
+            traverse(target[key]);
+          } else if (key === '@guid'){
+            target[key] = short.generate()
+          } else {
+            // nothing
+          }
+        }
+      }
+
+      traverse(component.userValue);
+
+      return component
     },
 
     /** Removes a component from the library
