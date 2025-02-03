@@ -241,6 +241,12 @@ export default {
           }
       }
 
+      
+      if (this.preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')){
+        return this.preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')
+      }
+
+
       return 'white'
     }
 

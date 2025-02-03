@@ -441,7 +441,7 @@ select{
   border-bottom: none;
   border-top: none;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')");
+  background-color: transparent;
 
 
 
