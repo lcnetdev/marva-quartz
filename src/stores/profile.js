@@ -249,7 +249,7 @@ export const useProfileStore = defineStore('profile', {
 
       }
 
-      // now go through and see if there are the the same group being used in multiple profiles if so 
+      // now go through and see if there are the the same group being used in multiple profiles if so
       // that means they have cross profile components (2 fields in Work 1 in instance for exmaple)
 
 
@@ -268,7 +268,7 @@ export const useProfileStore = defineStore('profile', {
               }
             }
 
-          }          
+          }
         }
       }
 
@@ -285,7 +285,7 @@ export const useProfileStore = defineStore('profile', {
           groupsOrder: [],
           label: 'Multi',
           profileId: 'Multi'
-        } 
+        }
 
         for (let groupName of groupsToMerge){
 
@@ -320,7 +320,7 @@ export const useProfileStore = defineStore('profile', {
 
 
         results.push(multiProfile)
-        
+
 
 
       }
@@ -1766,6 +1766,37 @@ export const useProfileStore = defineStore('profile', {
             // console.log("--------pt 4------------")
             // console.log(JSON.stringify(pt,null,2))
           }
+
+          // They used "Additional literal" on an empty field, add the new field
+          // without this, the user needs to run the action twice to the the additional field
+          if (currentValueCount === 0 && value=='new value'){
+            // there is already values here, so we need to insert a new value into the hiearchy
+
+            let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
+
+            if (!parent){
+              console.error("Trying to add second literal, could not find the property path parent", pt)
+              return false
+            }
+
+            if (!parent[lastProperty]){
+              console.error('Trying to find the value of this literal, unable to:',componentGuid, fieldGuid, propertyPath, value, lang, pt)
+              return false
+            }
+            let newGuid = short.generate()
+
+            // make a place for it
+            parent[lastProperty].push(
+              {
+                '@guid': newGuid,
+              }
+            )
+
+            // get a link to it we'll edit it below
+            blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
+            // set a temp value that will be over written below
+            blankNode[lastProperty] = true
+          }
           // console.log("currentValueCount",currentValueCount)
         }
 
@@ -2118,6 +2149,11 @@ export const useProfileStore = defineStore('profile', {
                 uneditable = true
               }
 
+              // always allow editing subjects
+              if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+                uneditable = false
+              }
+
               // if it is deepHierarchy then then we are copy pasting what came into the system and they cann change it anyway.
               if (pt.deepHierarchy){uneditable=true}
 
@@ -2468,14 +2504,31 @@ export const useProfileStore = defineStore('profile', {
             // if it is a solo subject heading
             if (subjectComponents.length==1){
 
-                currentUserValuePos['@id'] = subjectComponents[0].uri
+              console.log("subjectComponents",subjectComponents)
 
-                currentUserValuePos['@type'] = subjectComponents[0].type.replace('madsrdf:','http://www.loc.gov/mads/rdf/v1#')
+              // it might be a literal.
+                if (subjectComponents[0].uri){
+                  currentUserValuePos['@id'] = subjectComponents[0].uri
+                }else{
 
-                currentUserValuePos["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"] = [{
-                    "@guid": short.generate(),
-                    "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": subjectComponents[0].label
-                }]
+                  delete currentUserValuePos["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
+                }
+
+                if (subjectComponents[0].type){
+                  currentUserValuePos['@type'] = subjectComponents[0].type.replace('madsrdf:','http://www.loc.gov/mads/rdf/v1#')
+                }else{
+                  currentUserValuePos['@type'] = 'madsrdf:Topic'
+                }
+
+                // if there is a URI add authorized label
+                if (currentUserValuePos['@id']){
+
+                  currentUserValuePos["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"] = [{
+                      "@guid": short.generate(),
+                      "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": subjectComponents[0].label
+                  }]
+                }
+
                 currentUserValuePos["http://www.w3.org/2000/01/rdf-schema#label"] = [{
                     "@guid": short.generate(),
                     "http://www.w3.org/2000/01/rdf-schema#label": subjectComponents[0].label
@@ -4518,7 +4571,7 @@ export const useProfileStore = defineStore('profile', {
       return ['report','No Link']
     },
 
-    copySelected: async function(){
+    copySelected: async function(deleteSelected=false){
         let components = []
         let compontGuids = []
         let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
@@ -4536,6 +4589,9 @@ export const useProfileStore = defineStore('profile', {
             let component = utilsProfile.returnPt(this.activeProfile, guid)
             let componentString = JSON.stringify(component)
             components.push(componentString)
+            if (deleteSelected){
+              this.deleteComponent(guid)
+            }
         }
 
         //copy it
@@ -4585,13 +4641,13 @@ export const useProfileStore = defineStore('profile', {
         // in the title
         let targetRt
         if (!profile.rtOrder.includes(newComponent.parentId)){
-            if (newComponent.parentId.includes("_")){
-                targetRt = newComponent.parentId.split("_").at(0)
-            } else {
-                targetRt = newComponent.parentId
-            }
+          if (newComponent.parentId.includes("_")){
+              targetRt = newComponent.parentId.split("_").at(0)
+          } else {
+              targetRt = newComponent.parentId
+          }
         } else {
-            targetRt = newComponent.parentId
+          targetRt = newComponent.parentId
         }
 
         if (incomingTargetRt){
@@ -4600,17 +4656,17 @@ export const useProfileStore = defineStore('profile', {
 
         for (let rt in profile["rt"]){
             let frozenPts = profile["rt"][rt]["pt"]
-
             let order = profile["rt"][rt]["ptOrder"]
 
             for (let pt in frozenPts){
                 let current = profile["rt"][rt]["pt"][pt]
-
                 if (rt == targetRt){
                     let targetURI = newComponent.propertyURI
                     let targetLabel = newComponent.propertyLabel
 
                     if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
+                        let currentPos = order.indexOf(current.id)
+                        let newPos = order.indexOf(newComponent.id)
                         // if (Object.keys(current.userValue).length == 1){
                         if (this.isEmptyComponent(current)){
                             current.userValue = newComponent.userValue
@@ -4623,7 +4679,11 @@ export const useProfileStore = defineStore('profile', {
                             if (sourceRt && sourceRt != targetRt){
                               newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
                             } else {
-                              newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
+                              if (newPos < 0){
+                                newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)
+                              } else {
+                                newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
+                              }
                             }
 
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
@@ -4653,11 +4713,10 @@ export const useProfileStore = defineStore('profile', {
             }
 
         for (let item of data){
-              const dataJson = JSON.parse(item)
-              this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
+          const dataJson = JSON.parse(item)
+          this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
         }
     },
-
 
 
     //Check if the component's userValue is empty

@@ -47,6 +47,20 @@ import { isReadonly } from 'vue';
 
     methods: {
 
+      // Whether or not a component that isn't explicitly in that layout should be included
+      // this is important for adding components when a layout is open
+      includeInLayout: function(checkId, targets){
+        if (!targets){ return false }
+        if (targets.includes(checkId)){ return true}
+        //otherwise, get the base of the checkId to compare
+        let breakPoint = checkId.lastIndexOf("_")
+        let base = checkId.slice(0, breakPoint)
+        if (targets.includes(base)){ return true}
+
+        return false
+
+      },
+
       configComponentLibrary(clId){
         if (this.activeComponentLibrary == clId){
           this.activeComponentLibrary = null
@@ -363,7 +377,7 @@ import { isReadonly } from 'vue';
                             @change="change"
                             item-key="id">
                             <template #item="{element}">
-                              <template v-if="!hideAdminField(activeProfile.rt[profileName].pt[element], profileName) && !activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI) && ( (layoutActive && layoutActiveFilter['properties'][profileName] && layoutActiveFilter['properties'][profileName].includes(activeProfile.rt[profileName].pt[element].id)) || !layoutActive || (createLayoutMode && layoutActive))">
+                              <template v-if="!hideAdminField(activeProfile.rt[profileName].pt[element], profileName) && !activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI) && ( (layoutActive && layoutActiveFilter['properties'][profileName] && includeInLayout(activeProfile.rt[profileName].pt[element].id, layoutActiveFilter['properties'][profileName])) || !layoutActive || (createLayoutMode && layoutActive))">
                                 <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) && !layoutActive )}]">
                                   <a href="#" @click.stop="jumpToElement(profileName, element)" class="sidebar-property-ul-alink">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>

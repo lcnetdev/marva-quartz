@@ -33,7 +33,7 @@
 
   <template v-else>
     <div class="lookup-fake-input" v-if="showField" >
-      <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues">
+      <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues" @focusin="focused">
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
         <div class="literal-field">
 
@@ -324,9 +324,6 @@ export default {
     },
 
     focused: function(){
-
-
-
       // set the state active field
       this.activeField = this.myGuid
 
@@ -665,10 +662,6 @@ export default {
 
 
     actionButtonCommand: async function(cmd,options){
-
-
-
-
       if (cmd == 'addField'){
         this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,"new value",null,true)
       }
@@ -710,22 +703,16 @@ export default {
           componentGuid: this.guid,
           values: this.profileStore.returnLiteralValueFromProfile(this.guid,this.propertyPath)
         }
-
-
         this.literalLangShow=true
-
-
       }
 
-
-      this.$refs['input_' + this.literalValues[0]['@guid']][0].focus()
-
-
-
+      try{
+        // this will fail when adding an additional literal and the current field is empty
+        this.$refs['input_' + this.literalValues[0]['@guid']][0].focus()
+      }catch(err){
+        console.error("Adding a field from an empty field: ", err)
+      }
     },
-
-
-
   },
   computed: {
     // other computed properties
