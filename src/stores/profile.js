@@ -3807,6 +3807,36 @@ export const useProfileStore = defineStore('profile', {
                       }
                     }
                   }
+                } else {
+                  // check if the defaults are available in rtLookup
+                  let targetRef = p.valueConstraint.valueTemplateRefs[0]
+                  if (this.rtLookup[targetRef]){
+                    let defaultPropertyToUse = this.rtLookup[targetRef].propertyTemplates[0].propertyURI
+                    userValue[p.propertyURI] = []
+                    for (let d of this.rtLookup[targetRef].propertyTemplates[0].valueConstraint.defaults){
+                      let value = {
+                        '@guid': short.generate(d.defaultLiteral, d.defaultURI)
+                      }
+                      let useType = utilsRDF.suggestTypeProfile(p.propertyURI,pt)
+                      if (useType === false){
+                        // did not find it in the profile, look to the network
+                        useType = await utilsRDF.suggestTypeNetwork(p.propertyURI)
+                      }
+                      if (useType && useType != 'http://www.w3.org/2000/01/rdf-schema#Literal'){
+                        value['@type'] = useType
+                        value[defaultPropertyToUse] = [{
+                          '@guid': short.generate(d.defaultLiteral, d.defaultURI)
+                        }]
+                        if (d.defaultLiteral && d.defaultLiteral != ''){
+                          value[defaultPropertyToUse][0][defaultPropertyToUse] = this.replaceDefaultPlaceHolder(d.defaultLiteral)
+                        }
+                        if (d.defaultURI && d.defaultURI != ''){
+                          value['@id'] = d.defaultURI
+                        }
+                      }
+                      userValue[p.propertyURI].push(value)
+                    }
+                  }
                 }
               }
 

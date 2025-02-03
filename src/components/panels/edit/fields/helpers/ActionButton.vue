@@ -410,10 +410,15 @@
           let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
           if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
             for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
-              if (this.profileStore.rtLookup[vRt]){
+              if (vRt==this.structure.parentId && this.profileStore.rtLookup[vRt]){
                 for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
                   if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
-                    this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], pt)
+                    let struct = this.profileStore.returnStructureByComponentGuid(this.guid)
+                    // if (struct.parentId == this.structure.parentId){ // will this have unintended sideffects?
+                    //   this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
+                    // }
+                    this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
+
                   }
                 }
               }
