@@ -369,7 +369,7 @@ export const useProfileStore = defineStore('profile', {
 
       let startingPointData;
 
-
+      
       try{
         let response = await fetch(config.returnUrls.starting);
         startingPointData =  await response.json()
@@ -379,9 +379,7 @@ export const useProfileStore = defineStore('profile', {
       }
 
 
-
-
-
+      
       // FLAG: NEEDS_PROFILE_ALIGNMENT
       // TEMP HACK ADD IN HUBS
 

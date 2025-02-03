@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 17,
-    versionPatch: 35,
+    versionPatch: 36,
 
     regionUrls: {
 
@@ -312,8 +312,9 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2022442584',label:"test", idUrl:'https://id.loc.gov/resources/instances/2022442584.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+    {lccn:'2023537239',label:"test2", idUrl:'https://id.loc.gov/resources/instances/2023537239.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
-
+    
     
 
 
