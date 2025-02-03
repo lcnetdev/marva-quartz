@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 17,
-    versionPatch: 27,
+    versionPatch: 34,
 
     regionUrls: {
 
@@ -309,7 +309,8 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2005264032',label:"Business week", idUrl:'https://id.loc.gov/resources/instances/11138862.html', profile:'Serial',profileId:'lc:RT:bf2:Serial:Instance'},
     {lccn:'2011263182',label:"San Francisco chronicle", idUrl:'https://id.loc.gov/resources/instances/2011263182.html', profile:'Serial',profileId:'lc:RT:bf2:Serial:Instance'},
 
-    // {lccn:'2024456723',label:"test", idUrl:'https://id.loc.gov/resources/instances/2024456723.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    {lccn:'2022442584',label:"test", idUrl:'https://id.loc.gov/resources/instances/2022442584.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
 
 
