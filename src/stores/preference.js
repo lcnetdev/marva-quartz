@@ -492,18 +492,18 @@ export const usePreferenceStore = defineStore('preference', {
       },
 
 
-    //   // the field color object
-    //   '--o-edit-general-field-colors' : {
-    //     desc: 'Field Color Object',
-    //     descShort: 'Field Color Object',
-    //     value: {},
-    //     step: null,
-    //     type: 'object',
-    //     unit: null,
-    //     group: 'Edit Panel',
-    //     hide: true,
-    //     range: null
-    // },
+      // the field color object
+      '--o-edit-general-field-colors' : {
+        desc: 'Field Color Object',
+        descShort: 'Field Color Object',
+        value: {},
+        step: null,
+        type: 'object',
+        unit: null,
+        group: 'Edit Panel',
+        hide: true,
+        range: null
+    },
 
     '--c-edit-main-splitpane-edit-scroll-bar-track-color' : {
       value:'#fafafa',
