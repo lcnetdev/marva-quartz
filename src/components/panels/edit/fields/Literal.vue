@@ -1037,7 +1037,6 @@ textarea{
   min-height: 2em;
   /* background-color: transparent; */
  
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')");
 
 
 }
@@ -1084,7 +1083,7 @@ textarea:hover{
   margin-top: .5em;
   margin-bottom: .25em;
   height: auto !important;
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')");
+  background-color: transparent;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
 
