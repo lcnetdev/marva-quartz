@@ -208,6 +208,12 @@
                   this.profileStore.pasteSelected()
                 })
               }
+            },
+            { is: 'separator'},
+            {
+              text: 'Add All Defaults',
+              click: () => { this.addAllDefaults() },
+              icon: "clear_all"
             }
           ] }
           )
@@ -789,6 +795,29 @@
           }
         }
       },
+
+      addAllDefaults: function(){
+        for (let rt in this.activeProfile.rt){
+          for (let pt in this.activeProfile.rt[rt].pt){
+            let component = this.activeProfile.rt[rt].pt[pt]
+            let structure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
+            console.info("component: ", component)
+            if ( component.valueConstraint.defaults.length > 0){
+              // top level component
+              this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
+              continue
+            }
+            //go deeper
+            for (let vRt of component.valueConstraint.valueTemplateRefs){
+              for (let template of this.profileStore.rtLookup[vRt].propertyTemplates){
+                if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0){
+                  this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                }
+              }
+            }
+          }
+        }
+      }
 
     },
 
