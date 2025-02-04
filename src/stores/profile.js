@@ -369,7 +369,7 @@ export const useProfileStore = defineStore('profile', {
 
       let startingPointData;
 
-      
+
       try{
         let response = await fetch(config.returnUrls.starting);
         startingPointData =  await response.json()
@@ -379,7 +379,7 @@ export const useProfileStore = defineStore('profile', {
       }
 
 
-      
+
       // FLAG: NEEDS_PROFILE_ALIGNMENT
       // TEMP HACK ADD IN HUBS
 
@@ -3192,8 +3192,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {boolean}
     */
     returnLccInfo: function(componentGuid){
-
-
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       let classNumber = null
@@ -3210,6 +3208,7 @@ export const useProfileStore = defineStore('profile', {
 
       // find the work and pull out stuff
       for (let rtId in this.activeProfile.rt){
+        let target = false
 
         if (rtId.indexOf(":Work") > -1){
           for (let ptId in this.activeProfile.rt[rtId].pt){
@@ -3223,9 +3222,7 @@ export const useProfileStore = defineStore('profile', {
       }
       // console.log("work",work)
       if (work){
-
-        for (let ptId in work.pt){
-
+        for (let ptId of work.ptOrder){
           let pt = work.pt[ptId]
 
           /*
@@ -3317,21 +3314,12 @@ export const useProfileStore = defineStore('profile', {
 
           if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/subject' && firstSubject === null){
             let subjectUserValue = pt.userValue
-
             if (subjectUserValue && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'].length > 0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
               if (subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-
                 firstSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
-
-
               }
-
             }
-
           }
-
-
-
         }
       }
 
@@ -3583,18 +3571,17 @@ export const useProfileStore = defineStore('profile', {
     */
 
     makeSubjectHeadingPrimary: async function(componentGuid){
-
+      console.info("make primary: ", this.activeProfile)
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt !== false){
-
-
 
         // loop through all the headings and find the place the headings start
         let firstHeading = null
         let workRtId = null
         for (let rtId in this.activeProfile.rt){
           if (rtId.indexOf(":Work") > -1){
+            console.info("starting order: ", JSON.parse(JSON.stringify(this.activeProfile.rt[rtId].ptOrder)))
             workRtId = rtId
             for (let ptId of this.activeProfile.rt[rtId].ptOrder){
               if (this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
@@ -3616,13 +3603,11 @@ export const useProfileStore = defineStore('profile', {
           // insert where the first heading is
           this.activeProfile.rt[workRtId].ptOrder.splice(firstHeadingPos, 0, pt.id);
 
+          console.info("ending order: ", JSON.parse(JSON.stringify(this.activeProfile.rt[workRtId].ptOrder)))
+
           this.dataChanged()
         }
-
-
-
       }
-
     },
 
 
@@ -5030,7 +5015,7 @@ export const useProfileStore = defineStore('profile', {
             // we are adding a sigle one here so groups are individual (group of 1) in this case
             console.log("Adding thisone",group)
             let component = JSON.parse(JSON.stringify(group.structure))
-            
+
 
             // see if we can find its counter part in the acutal profile
             if (this.activeProfile.rt[component.parentId]){

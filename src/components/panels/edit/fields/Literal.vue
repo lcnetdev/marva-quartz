@@ -905,9 +905,9 @@ fieldset{
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-lang-label-font-color')");
 
 
-  
 
-  
+
+
 }
 
 .inline-mode-editable-span-input{
@@ -993,8 +993,8 @@ fieldset{
   z-index: 1;
   top: -4px;
   left: 2px;
- 
-  
+
+
 }
 
 
@@ -1012,7 +1012,7 @@ textarea{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
 
-  
+
 
 
   height: 1.25em;
@@ -1023,7 +1023,7 @@ textarea{
 .lookup-fake-input{
   min-height: 2em;
   /* background-color: transparent; */
- 
+
 
 
 }
@@ -1078,7 +1078,7 @@ textarea:hover{
 }
 .component .lookup-fake-input{
   border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
-} 
+}
 
 
 
