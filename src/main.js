@@ -21,6 +21,11 @@ const i18n = createI18n({
 
 const app = createApp(App);
 
+app.config.errorHandler = (err, vm, info) => {
+	// Handle the error
+	console.error(err, vm, info);
+  };
+  
 
 
 
@@ -46,9 +51,6 @@ app.use(i18n)
 app.use(FloatingVue)
 
 app.mount("#app");
-
-
-
 
 
 

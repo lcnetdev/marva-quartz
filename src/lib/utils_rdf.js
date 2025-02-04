@@ -257,6 +257,10 @@ const utilsRDF = {
     let propXml = await this.fetchOntology(propertyURI)
     let prop = XMLParser.parseFromString(propXml, "text/xml");
     let range = prop.getElementsByTagName("rdfs:range")
+
+    let objProp = prop.getElementsByTagName("owl:ObjectProperty")
+
+
     // console.log("propXml",propXml)
 
     // if it has a range return it
@@ -330,6 +334,18 @@ const utilsRDF = {
     if (propertyURI==='http://id.loc.gov/ontologies/bflc/simpleDate'){
       result = 'http://www.w3.org/2000/01/rdf-schema#Literal'
     }
+
+    if (objProp.length > 0){
+      // at least we know it is a resource
+
+      result = 'http://www.w3.org/2000/01/rdf-schema#Resource'
+
+    }
+
+
+
+
+
 
     if (result===false){
       console.warn('Could not @type this ',propertyURI)
