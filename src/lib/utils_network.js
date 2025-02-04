@@ -2442,10 +2442,10 @@ const utilsNetwork = {
 
       if (resultsSubjectsSimple.length>0){
         resultsSubjectsSimple.push(resultsSubjectsSimple.pop())
-        resultsSubjectsSimple.reverse()
+        // resultsSubjectsSimple.reverse()
       }
 
-      resultsSubjectsComplex.reverse()
+      // resultsSubjectsComplex.reverse()
 
 
       // don't do literals

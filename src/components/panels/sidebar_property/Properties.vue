@@ -306,8 +306,10 @@ import { isReadonly } from 'vue';
           removed = true
         }
         //jump to it
-        if (removed){
+        try {
           this.activeComponent = this.activeProfile.rt[profileName].pt[elementName]
+        } catch(err){
+          console.warning("Coudln't jump to component: ", elementName, "--", err)
         }
       },
 
