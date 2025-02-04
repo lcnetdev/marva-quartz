@@ -63,7 +63,7 @@
 
       ...mapStores(useProfileStore,usePreferenceStore),
 
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'activeProfilePosted']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode']),
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode']),
@@ -293,7 +293,7 @@
               { text: 'Lookup Field', click: () => this.preferenceStore.togglePrefModal('Lookup Field')},
 
 
-              
+
               { text: 'Modals', click: () => this.preferenceStore.togglePrefModal('Modals')},
 
               { text: 'Complex Lookup', click: () => this.preferenceStore.togglePrefModal('Complex Lookup')},
@@ -478,8 +478,10 @@
                 this.$nextTick(()=>{
                   this.$refs.postmodal.post();
                   this.profileStore.saveRecord()
+                  this.activeProfilePosted = true
                 })
-              }
+              },
+              class: (this.activeProfilePosted) ? "record-posted" : "record-unposted",
             }
           )
 
@@ -816,8 +818,8 @@
       --bar-button-radius: 4px;
       --bar-button-hover-bkg: rgb(244, 241, 242);
 
-      
-      
+
+
       --bar-button-hover-bkg: rgb(244, 241, 242);
       --bar-button-active-color: rgb(26, 115, 232);
       --bar-button-active-bkg: rgb(232, 240, 254);
@@ -864,7 +866,7 @@
 
 
 
-    
+
 
     .nav-icon-color{
       fill: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
@@ -881,6 +883,9 @@
 
       position: absolute !important;
       right: 0;
+    }
+    .record-posted{
+      color: green !important;
     }
     .save-not-saved span{
       color: orangered !important;
