@@ -113,7 +113,6 @@ const utilsRDF = {
               }else{
                   console.warn("Did not find the requested template name", rtKey)
               }
-
           }
 
           possibleTypes = [...new Set(possibleTypes)];
@@ -135,7 +134,6 @@ const utilsRDF = {
               }else{
                   lookForResourceURI = true
               }
-
           }
 
           if (lookForResourceURI){
@@ -151,7 +149,6 @@ const utilsRDF = {
           }
       }
 
-
       return false
 
   },
@@ -164,7 +161,6 @@ const utilsRDF = {
   * @return {string} URI - the uri of the type
   */
   suggestTypeProfileForLiteralParent: function(propertyURI,pt){
-
       // grab the rtLookup from the profile store
       if (!rtLookup){
         rtLookup= useProfileStore().rtLookup
