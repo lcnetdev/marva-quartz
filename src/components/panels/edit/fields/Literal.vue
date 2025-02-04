@@ -1,5 +1,4 @@
 <template>
-
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
     <template v-if="inlineModeShouldDisplay">
 
@@ -756,6 +755,11 @@ export default {
         this.hasNoData=false
       }
 
+
+      // if (this.structure.propertyLabel == "Local identifier"){
+      //   console.info("make readOnly?")
+      //   this.readOnly = true
+      // }
 
       return values
 

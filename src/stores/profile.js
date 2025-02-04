@@ -3572,7 +3572,6 @@ export const useProfileStore = defineStore('profile', {
     */
 
     makeSubjectHeadingPrimary: async function(componentGuid){
-      console.info("make primary: ", this.activeProfile)
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt !== false){
@@ -3582,7 +3581,6 @@ export const useProfileStore = defineStore('profile', {
         let workRtId = null
         for (let rtId in this.activeProfile.rt){
           if (rtId.indexOf(":Work") > -1){
-            console.info("starting order: ", JSON.parse(JSON.stringify(this.activeProfile.rt[rtId].ptOrder)))
             workRtId = rtId
             for (let ptId of this.activeProfile.rt[rtId].ptOrder){
               if (this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
@@ -3603,8 +3601,6 @@ export const useProfileStore = defineStore('profile', {
           this.activeProfile.rt[workRtId].ptOrder.splice(currentHeadingPos, 1);
           // insert where the first heading is
           this.activeProfile.rt[workRtId].ptOrder.splice(firstHeadingPos, 0, pt.id);
-
-          console.info("ending order: ", JSON.parse(JSON.stringify(this.activeProfile.rt[workRtId].ptOrder)))
 
           this.dataChanged()
         }
