@@ -305,7 +305,6 @@ import { isReadonly } from 'vue';
         } else {
           removed = true
         }
-        console.info("remeoved: ", removed)
         //jump to it
         try {
           this.activeComponent = this.activeProfile.rt[profileName].pt[elementName]
