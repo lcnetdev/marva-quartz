@@ -263,6 +263,11 @@ const utilsRDF = {
     let range = prop.getElementsByTagName("rdfs:range")
 
     let objProp = prop.getElementsByTagName("owl:ObjectProperty")
+    let dataProp = prop.getElementsByTagName("owl:DatatypeProperty")
+
+    
+
+
 
 
     // console.log("propXml",propXml)
@@ -345,7 +350,14 @@ const utilsRDF = {
       result = 'http://www.w3.org/2000/01/rdf-schema#Resource'
 
     }
+    if (dataProp.length > 0){
+      // at least we know it is a literal
 
+      result = 'http://www.w3.org/2000/01/rdf-schema#Literal'
+
+    }
+
+    
 
 
 
