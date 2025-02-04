@@ -34,8 +34,7 @@
     <div class="lookup-fake-input" v-if="showField" >
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues" @focusin="focused">
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
-        <div class="literal-field">
-
+        <div :class="['literal-field', {'read-only': structure.propertyLabel=='Local identifier'}]">
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
@@ -85,6 +84,7 @@
                   :ref="'input_' + lValue['@guid']"
                   :data-guid="lValue['@guid']"
                   :disabled="readOnly"
+                  :readonly="structure.propertyLabel=='Local identifier'"
                   ></textarea>
               </template>
 
@@ -220,6 +220,7 @@ import utilsNetwork from '@/lib/utils_network'
 
 
 import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.vue";
+import { readonly } from 'vue'
 
 export default {
   name: "Literal",
@@ -755,12 +756,6 @@ export default {
         this.hasNoData=false
       }
 
-
-      // if (this.structure.propertyLabel == "Local identifier"){
-      //   console.info("make readOnly?")
-      //   this.readOnly = true
-      // }
-
       return values
 
     },
@@ -1084,6 +1079,11 @@ textarea:hover{
   border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
 }
 
+.read-only,
+.read-only form textarea{
+  background: lightgray;
+  cursor: no-drop;
+}
 
 
 
