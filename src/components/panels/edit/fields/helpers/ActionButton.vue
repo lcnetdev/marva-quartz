@@ -14,7 +14,7 @@
  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
   
   
-    <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
+    <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small, 'hidden-mode': hidden }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
     <InstanceSelectionModal ref="instanceSelectionModal" :currentRt="currentRt" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
 
@@ -205,6 +205,7 @@
       guid: String,
       clickmode: Boolean,
       small: Boolean,
+      hidden: Boolean,
       fieldGuid: String,
       structure: Object,
       propertyPath: Array,
@@ -992,6 +993,11 @@
     height: 14px;
     background-color: red;
     margin-left: 5px;
+  }
+
+  .hidden-mode{
+    height: 1px;
+    width: 1px;
   }
 
 

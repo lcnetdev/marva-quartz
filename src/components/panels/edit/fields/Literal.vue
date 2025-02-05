@@ -8,6 +8,14 @@
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
           <!-- <span @focus="inlineEmptyFocus" contenteditable="true" class="inline-mode-editable-span" ><span class="inline-mode-editable-span-space-maker">&nbsp;</span></span>         -->
           <input type="text" @focusin="focused" @keyup="navKey"  @input="valueChanged($event,true)" class="inline-mode-editable-span-input can-select" :ref="'input_' + literalValues[0]['@guid']" :data-guid="literalValues[0]['@guid']" />
+         
+         
+          <Transition name="action">
+              <div class="literal-action-inline-mode" v-if="showActionButton && myGuid == activeField">
+                <action-button :clickmode="true" :structure="structure"  :small="true" :hidden="true" :fieldGuid="lValue['@guid']" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
+            </div>
+          </Transition>    
+
 
       </template>
       <template v-else>
@@ -15,16 +23,19 @@
         <template v-for="lValue in literalValues">
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
           <span contenteditable="true" @focusin="focused" @blur="blured" class="inline-mode-editable-span can-select" @keyup="navKey" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>
+        
+          <Transition name="action">
+              <div class="literal-action-inline-mode" v-if="showActionButton && myGuid == activeField">
+                <action-button :clickmode="true" :structure="structure"  :small="true" :hidden="true" :fieldGuid="lValue['@guid']" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
+            </div>
+          </Transition>        
+        
         </template>
 
 
       </template>
 
-      <Transition name="action">
-        <div class="literal-action-inline-mode" v-if="showActionButton && myGuid == activeField">
-          <action-button :clickmode="true" :structure="structure"  :small="true" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
-      </div>
-    </Transition>
+
 
     </template>
 

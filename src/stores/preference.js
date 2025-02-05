@@ -453,25 +453,17 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: [true,false]
       },
-      '--b-edit-main-splitpane-edit-inline-mode' : {
-          desc: 'One line edit mode via bf short code tags.',
-          descShort: 'Inline edit mode',
-          value: false,
-          type: 'boolean',
-          unit: null,
-          group: 'Edit Panel',
-          range: [true,false]
-      },
 
-      '--b-edit-main-splitpane-edit-adhoc-mode' : {
-          desc: 'Add properties as needed using a drop down list.',
-          descShort: 'Properties adhoc',
-          value: false,
-          type: 'boolean',
-          unit: null,
-          group: 'Edit Panel',
-          range: [true,false]
-      },
+
+      // '--b-edit-main-splitpane-edit-adhoc-mode' : {
+      //     desc: 'Add properties as needed using a drop down list.',
+      //     descShort: 'Properties adhoc',
+      //     value: false,
+      //     type: 'boolean',
+      //     unit: null,
+      //     group: 'Edit Panel',
+      //     range: [true,false]
+      // },
       '--b-edit-main-splitpane-edit-switch-between-resource-button' : {
           desc: 'Lets you switch displaying work and instances in the edit panel.',
           descShort: 'Resource switch button',
@@ -1161,6 +1153,30 @@ export const usePreferenceStore = defineStore('preference', {
         range: [true,false]
     },
 
+
+    '--b-edit-main-splitpane-edit-inline-mode' : {
+      desc: 'Compact Advanced Modular Mode.',
+      descShort: 'Use CAMM Mode',
+      value: true,
+      type: 'boolean',
+      unit: null,
+      group: 'CAMM Mode',
+      range: [true,false]
+    },
+    '--b-edit-main-splitpane-camm-hide-action-button' : {
+      desc: 'Hide action button in CAMM mode, only keyboard shortcut (Ctrl+\\).',
+      descShort: 'Hide Action Button',
+      value: true,
+      type: 'boolean',
+      unit: null,
+      group: 'CAMM Mode',
+      range: [true,false]
+    },
+
+
+
+
+
       // scriptshifter
       '--b-scriptshifter-capitalize-first-letter' : {
         desc: 'Capitalize the first letter of the transliterated string.',
@@ -1325,6 +1341,16 @@ export const usePreferenceStore = defineStore('preference', {
           if (prefs.styleDefault[k].group == "Shelflisting"){
             prefs.styleDefault[k].group = "Shelflisting"
           }
+
+          if (k == '--b-edit-main-splitpane-edit-inline-mode'){
+            prefs.styleDefault[k].group = 'CAMM Mode'
+            prefs.styleDefault[k].desc = 'Compact Advanced Modular Mode.'
+            prefs.styleDefault[k].descShort = 'Use CAMM Mode'
+
+            
+          }
+          
+          
         }
 
         // if there is a new style in the defaults that is not in their saved prefs.
