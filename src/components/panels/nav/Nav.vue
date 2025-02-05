@@ -799,27 +799,44 @@
       addAllDefaults: function(){
         for (let rt in this.activeProfile.rt){
           for (let pt in this.activeProfile.rt[rt].pt){
-            console.info("\n\n\n*************************************")
-            console.info(pt)
             let component = this.activeProfile.rt[rt].pt[pt]
             let structure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
             if ( component.valueConstraint.defaults.length > 0){
               // top level component
-              console.info("    pt: ", pt)
-              console.info("    component: ", JSON.parse(JSON.stringify(component)))
               if (Object.keys(component.userValue).every(k => k.startsWith("@"))){ // it's empty
                 this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
                 continue
               }
             }
             //go deeper
-            console.info("structure: ", structure)
-            console.info("component: ", component)
             for (let vRt of component.valueConstraint.valueTemplateRefs){
-              console.info("    vRt: ", vRt)
               for (let template of this.profileStore.rtLookup[vRt].propertyTemplates){
-                if (component.preferenceId.includes(vRt)){
-                  if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0){
+                if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0){
+                  // for classifiction, we want to make sure we're only working on the currently selected template
+                  if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification'){
+                    let selection = document.getElementById(structure['@guid']+'-select')
+                    let selected
+                    let target
+                    if (selection){
+                      selected = selection.options[selection.selectedIndex].text
+                      switch (selected){
+                        case 'Dewey Decimal classification':
+                          target = "lc:RT:bf2:DDC"
+                          break
+                        case 'National Library of Medicine classification':
+                          target = "lc:RT:bf2:NLM"
+                          break
+                        case 'Other classification number':
+                          target = "lc:RT:bf2:OtherClass"
+                          break
+                        default:
+                          target = "lc:RT:bf2:LCC"
+                      }
+                      if (target == vRt){
+                        this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                      }
+                    }
+                  } else {
                     this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
                   }
                 }
@@ -828,7 +845,6 @@
           }
         }
       }
-
     },
 
     created() {}

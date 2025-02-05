@@ -3668,14 +3668,13 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
-    console.info("\n\n        insertDefaultValuesComponent")
-    console.info("        componentGuid: ", componentGuid)
-    console.info("        ", structure.propertyLabel ,": ", structure)
     // console.log(componentGuid)
     // console.log("structure",structure)
 
     // locate the correct pt to work on in the activeProfile
     let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+    console.info("------pt: ", pt)
 
     //Delete related items from the cache, loading from the cache
     // sometimes causes errors after inserting defaults
@@ -3685,8 +3684,6 @@ export const useProfileStore = defineStore('profile', {
     for (let guid of Object.keys(cacheGuid)){
       cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
     }
-
-    console.info("        pt: ", JSON.parse(JSON.stringify(pt)))
 
     let isParentTop = false
 
@@ -3709,11 +3706,8 @@ export const useProfileStore = defineStore('profile', {
           if (this.rtLookup[structure.parentId]){
               for (let p of this.rtLookup[structure.parentId].propertyTemplates){
                 // dose it have a default value?
-                console.info("p: ", p)
                 if (p.valueConstraint.defaults && p.valueConstraint.defaults.length>0){
-                  console.info("    >0", p)
                   if (p.valueConstraint.valueTemplateRefs && p.valueConstraint.valueTemplateRefs.length>0){
-                    console.info("        >0", p)
                     // they are linking to another template in this template, so if we ant to populate the imformation we would need to know what predicate to use :(((((
                     if (this.rtLookup[p.valueConstraint.valueTemplateRefs[0]] && this.rtLookup[p.valueConstraint.valueTemplateRefs[0]].propertyTemplates && this.rtLookup[p.valueConstraint.valueTemplateRefs[0]].propertyTemplates.length==1){
                       let defaultPropertyToUse = this.rtLookup[p.valueConstraint.valueTemplateRefs[0]].propertyTemplates[0].propertyURI
@@ -3784,13 +3778,6 @@ export const useProfileStore = defineStore('profile', {
                           value['@type'] = blankNodeType
                         }
                       }
-                      console.info("***********************")
-                      console.info("isParentTop: ", isParentTop)
-                      console.info("p.propertyURI: ", p.propertyURI)
-                      console.info("baseURI: ", baseURI)
-                      console.info("value: ", value)
-                      console.info("pt: ", pt)
-                      console.info("p: ", p)
                       // if we're not working at the top level, just add the default values
                       if (!isParentTop){
                         userValue[p.propertyURI].push(value)
@@ -3824,7 +3811,6 @@ export const useProfileStore = defineStore('profile', {
     }else{
       console.error('insertDefaultValuesComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
     }
-    console.info("        final pt: ", JSON.parse(JSON.stringify(pt)))
   },
 
 

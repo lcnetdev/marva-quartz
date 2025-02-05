@@ -419,6 +419,7 @@
         if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
           return false
         }
+        console.info(">>>>", this.guid, "--", this.structure)
 
         //does this have defaults, or are the defaults higher up?
         let defaults = this.structure.valueConstraint.defaults
