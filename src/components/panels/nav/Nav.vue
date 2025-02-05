@@ -799,19 +799,28 @@
       addAllDefaults: function(){
         for (let rt in this.activeProfile.rt){
           for (let pt in this.activeProfile.rt[rt].pt){
+            console.info("\n\n\n*************************************")
+            console.info(pt)
             let component = this.activeProfile.rt[rt].pt[pt]
+            let structure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
             if ( component.valueConstraint.defaults.length > 0){
               // top level component
-              this.profileStore.insertDefaultValuesComponent(component['@guid'], component)
-              continue
+              console.info("    pt: ", pt)
+              console.info("    component: ", JSON.parse(JSON.stringify(component)))
+              if (Object.keys(component.userValue).every(k => k.startsWith("@"))){ // it's empty
+                this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
+                continue
+              }
             }
             //go deeper
-            let parentStructure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
+            console.info("structure: ", structure)
+            console.info("component: ", component)
             for (let vRt of component.valueConstraint.valueTemplateRefs){
+              console.info("    vRt: ", vRt)
               for (let template of this.profileStore.rtLookup[vRt].propertyTemplates){
                 if (component.preferenceId.includes(vRt)){
                   if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0){
-                    this.profileStore.insertDefaultValuesComponent(parentStructure['@guid'], template)
+                    this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
                   }
                 }
               }
