@@ -2239,8 +2239,6 @@ const utilsNetwork = {
       let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
       let subjectUrlComplexSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexSub).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
-      console.info("subjectUrlComplexSubdivison: ", subjectUrlComplexSubdivison)
-
       let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
       let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
 
@@ -2462,8 +2460,6 @@ const utilsNetwork = {
       if (resultsSubjectsComplexSubdivision.length>0){
         resultsSubjectsComplexSubdivision.pop()
       }
-
-      console.info("resultsSubjectsComplexSubdivision: ", resultsSubjectsComplexSubdivision)
 
       if (resultsSubjectsSimple.length>0){
         resultsSubjectsSimple.push(resultsSubjectsSimple.pop())

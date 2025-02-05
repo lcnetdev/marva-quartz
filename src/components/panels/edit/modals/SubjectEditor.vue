@@ -1852,13 +1852,11 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
-    console.info("selectContext: ", this.pickLookup[this.pickPostion])
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
       this.getContext()
     }
-    console.info("subjectString: ", this.subjectString)
     if (this.pickLookup[this.pickPostion].complex){ //&& !this.pickLookup[this.pickPostion].subdivision
       // if it is a complex authorized heading then just replace the whole things with it
       if (!this.pickLookup[this.pickPostion].subdivision){
@@ -2478,7 +2476,6 @@ methods: {
 
 
   add: async function(){
-    console.info("adding")
     //remove any existing thesaurus label, so it has the most current
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2546,16 +2543,13 @@ methods: {
     else {
 		// need to break up the complex heading into it's pieces so their URIs are availble
         let prevItems = 0
-        console.info("frozenComponents: ", frozenComponents)
         let allComplex = frozenComponents.every(c => c.complex)
-        console.info("allComplex: ", allComplex)
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
 			const target = frozenComponents[component]
       if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || (target.uri && target.uri.includes("childrensSubjects/sj"))) && target.complex){
         let uri = target.uri
         let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
-        console.info("uri: ", uri)
         if (uri){
           data = await this.parseComplexSubject(uri)
         } else {
@@ -2646,9 +2640,6 @@ methods: {
 				  }
 				  let marcKey = tag + "  " + sub + labels[idx]
 
-          console.info("data: ", data)
-          console.info("id: ", id)
-
 				  // newComponents.splice(id, 0, ({
             newComponents.splice(prevItems, 0, ({
 					"complex": false,
@@ -2668,9 +2659,7 @@ methods: {
 				}
 
 			} else {
-        console.info("target: ", target)
 				newComponents.push(target)
-        console.info("++")
 				prevItems++
 			}
 		}
@@ -2681,7 +2670,6 @@ methods: {
       this.components = newComponents
     }
 
-    console.info("components: ", this.components)
     this.$emit('subjectAdded', this.components)
   },
 
