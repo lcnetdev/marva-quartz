@@ -94,8 +94,8 @@
 
                 </div>
 
-                
-                
+
+
                 <div :style="`flex:1; align-self: flex-end; height: 95%; ${this.preferenceStore.styleModalBackgroundColor()}`" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
 
                   <div v-if="activeSearch!==false">{{activeSearch}}</div>
@@ -1375,7 +1375,16 @@ methods: {
     searchString=searchString.replaceAll('‑','-')
     searchStringFull=searchStringFull.replaceAll('‑','-')
 
-    that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
+    let searchStringFullPieces = searchStringFull.split('--')
+    let currentPos = searchStringFullPieces.indexOf(searchString)
+
+    let complexSub = null
+    if (currentPos > 0){
+      complexSub = searchString
+    }
+
+    // that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
+    that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, that.searchMode)
     // if they clicked around while it was doing this lookup bail out
     // if (that.activeSearchInterrupted){
 
@@ -1843,16 +1852,23 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
+    console.info("selectContext: ", this.pickLookup[this.pickPostion])
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
       this.getContext()
     }
-
-    if (this.pickLookup[this.pickPostion].complex){
+    console.info("subjectString: ", this.subjectString)
+    if (this.pickLookup[this.pickPostion].complex){ //&& !this.pickLookup[this.pickPostion].subdivision
       // if it is a complex authorized heading then just replace the whole things with it
-      this.subjectString = this.pickLookup[this.pickPostion].label
-      this.activeComponentIndex = 0
+      if (!this.pickLookup[this.pickPostion].subdivision){
+        this.subjectString = this.pickLookup[this.pickPostion].label
+        this.activeComponentIndex = 0
+      } else {
+        let splitString = this.subjectString.split('--')
+        splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
+        this.subjectString = splitString.join('--')
+      }
 
       this.componetLookup = {}
       this.componetLookup[this.activeComponentIndex] = {}
@@ -2462,6 +2478,7 @@ methods: {
 
 
   add: async function(){
+    console.info("adding")
     //remove any existing thesaurus label, so it has the most current
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2529,12 +2546,16 @@ methods: {
     else {
 		// need to break up the complex heading into it's pieces so their URIs are availble
         let prevItems = 0
+        console.info("frozenComponents: ", frozenComponents)
+        let allComplex = frozenComponents.every(c => c.complex)
+        console.info("allComplex: ", allComplex)
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
 			const target = frozenComponents[component]
       if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || (target.uri && target.uri.includes("childrensSubjects/sj"))) && target.complex){
         let uri = target.uri
         let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
+        console.info("uri: ", uri)
         if (uri){
           data = await this.parseComplexSubject(uri)
         } else {
@@ -2547,7 +2568,10 @@ methods: {
 			    subs = subs.match(/\$[axyzv]{1}/g)
 				const complexLabel = target.label
 				// build the new components
-				let id = prevItems
+				let id = 0
+        if (allComplex){
+          id = prevItems
+        }
 				let labels = complexLabel.split("--")
 				for (let idx in labels){
 				  let subfield
@@ -2622,9 +2646,13 @@ methods: {
 				  }
 				  let marcKey = tag + "  " + sub + labels[idx]
 
-				  newComponents.splice(id, 0, ({
+          console.info("data: ", data)
+          console.info("id: ", id)
+
+				  // newComponents.splice(id, 0, ({
+            newComponents.splice(prevItems, 0, ({
 					"complex": false,
-					"id": id,
+					"id": prevItems,
 					"label": labels[idx],
 					"literal": false,
 					"posEnd": labels[idx].length,
@@ -2640,7 +2668,9 @@ methods: {
 				}
 
 			} else {
+        console.info("target: ", target)
 				newComponents.push(target)
+        console.info("++")
 				prevItems++
 			}
 		}
@@ -2651,6 +2681,7 @@ methods: {
       this.components = newComponents
     }
 
+    console.info("components: ", this.components)
     this.$emit('subjectAdded', this.components)
   },
 
