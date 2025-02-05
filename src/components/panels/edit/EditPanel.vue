@@ -252,7 +252,6 @@
           }
 
           if (component.propetyLabel == 'Local identifier'){
-            console.info("make readOnly")
             return true
           }
 

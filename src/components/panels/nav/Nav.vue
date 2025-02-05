@@ -800,7 +800,6 @@
         for (let rt in this.activeProfile.rt){
           for (let pt in this.activeProfile.rt[rt].pt){
             let component = this.activeProfile.rt[rt].pt[pt]
-            console.info("\n\n", component.propertyLabel,": ", component)
             if ( component.valueConstraint.defaults.length > 0){
               // top level component
               this.profileStore.insertDefaultValuesComponent(component['@guid'], component)
@@ -808,19 +807,10 @@
             }
             //go deeper
             let parentStructure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
-            console.info("parentStructure: ", parentStructure)
             for (let vRt of component.valueConstraint.valueTemplateRefs){
-              console.info("vRt: ", vRt)
-              console.info("component: ", component)
-              console.info("this.profileStore.rtLookup[vRt]: ", this.profileStore.rtLookup[vRt])
-
               for (let template of this.profileStore.rtLookup[vRt].propertyTemplates){
-                console.info("    template: ", template)
-                // if (vRt==template.parentId && this.profileStore.rtLookup[vRt]){
-                //TODO: how is preferenceId set, and why do all classification options have the same value after the pipe?
                 if (component.preferenceId.includes(vRt)){
                   if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0){
-                    console.info("        Setting default: ", parentStructure, "--", template)
                     this.profileStore.insertDefaultValuesComponent(parentStructure['@guid'], template)
                   }
                 }
