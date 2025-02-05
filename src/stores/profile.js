@@ -369,7 +369,7 @@ export const useProfileStore = defineStore('profile', {
 
       let startingPointData;
 
-      
+
       try{
         let response = await fetch(config.returnUrls.starting);
         startingPointData =  await response.json()
@@ -379,7 +379,7 @@ export const useProfileStore = defineStore('profile', {
       }
 
 
-      
+
       // FLAG: NEEDS_PROFILE_ALIGNMENT
       // TEMP HACK ADD IN HUBS
 
@@ -4938,7 +4938,7 @@ export const useProfileStore = defineStore('profile', {
       let parentStructure = this.returnStructureByComponentGuid(newComponent['@guid'])
       if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
         for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
-          if (this.rtLookup[vRt]){
+          if (this.rtLookup[vRt] && vRt == "lc:RT:bf2:DDC"){
             for (let pt of this.rtLookup[vRt].propertyTemplates){
               if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
                 this.insertDefaultValuesComponent(newComponent['@guid'], pt)
@@ -5030,7 +5030,7 @@ export const useProfileStore = defineStore('profile', {
             // we are adding a sigle one here so groups are individual (group of 1) in this case
             console.log("Adding thisone",group)
             let component = JSON.parse(JSON.stringify(group.structure))
-            
+
 
             // see if we can find its counter part in the acutal profile
             if (this.activeProfile.rt[component.parentId]){
