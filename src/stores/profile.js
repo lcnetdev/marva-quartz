@@ -3674,8 +3674,6 @@ export const useProfileStore = defineStore('profile', {
     // locate the correct pt to work on in the activeProfile
     let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-    console.info("------pt: ", pt)
-
     //Delete related items from the cache, loading from the cache
     // sometimes causes errors after inserting defaults
     if (Object.keys(cachePt).includes(componentGuid)){

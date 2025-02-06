@@ -94,8 +94,8 @@
 
                 </div>
 
-                
-                
+
+
                 <div :style="`flex:1; align-self: flex-end; height: 95%; ${this.preferenceStore.styleModalBackgroundColor()}`" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
 
                   <div v-if="activeSearch!==false">{{activeSearch}}</div>
@@ -951,7 +951,7 @@ methods: {
             this.typeLookup[0] = 'madsrdf:GenreForm'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic" || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))){
-            this.typeLookup[0] = 'madsrdf:Geographic'
+          this.typeLookup[0] = 'madsrdf:Geographic'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
             this.typeLookup[0] = 'madsrdf:Temporal'
@@ -2325,24 +2325,26 @@ methods: {
         for (let x of this.components){
           if (this.localContextCache[x.uri]){
 
-
-            if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
-              x.type = 'madsrdf:Geographic'
-            }
-
-
-            if (this.localContextCache[x.uri].type === 'GenreForm'){
-              x.type = 'madsrdf:GenreForm'
-            } else if (this.localContextCache[x.uri].type === 'Temporal'){
-              x.type = 'madsrdf:Temporal'
-            } else if (this.localContextCache[x.uri].type === 'Geographic'){
-              x.type = 'madsrdf:Geographic'
-            } else if (this.localContextCache[x.uri].type === 'Topic'){
-              x.type = 'madsrdf:Topic'
+            if (this.activeComponent.type){
+              // don't do anything
             } else {
-                x.type = 'madsrdf:Topic'
-            }
+              if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
+                x.type = 'madsrdf:Geographic'
+              }
 
+
+              if (this.localContextCache[x.uri].type === 'GenreForm'){
+                x.type = 'madsrdf:GenreForm'
+              } else if (this.localContextCache[x.uri].type === 'Temporal'){
+                x.type = 'madsrdf:Temporal'
+              } else if (this.localContextCache[x.uri].type === 'Geographic'){
+                x.type = 'madsrdf:Geographic'
+              } else if (this.localContextCache[x.uri].type === 'Topic'){
+                x.type = 'madsrdf:Topic'
+              } else {
+                  x.type = 'madsrdf:Topic'
+              }
+            }
           }
 
         }
@@ -2474,7 +2476,10 @@ methods: {
       // if so over write the user defined type with the full type from the authority file so that
       // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
       if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]){
-        c.type = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
+        let tempType = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
+        if (!Object.keys(this.activeTypes).includes(tempType)){
+          c.type = tempType
+        }
       }
     }
 
@@ -2559,7 +2564,7 @@ methods: {
 					  subfield = subfield[idx]
 				  }
 
-				  switch(subfield){
+				switch(subfield){
 					case("$a"):
 					  subfield = "madsrdf:Topic"
 					  break
