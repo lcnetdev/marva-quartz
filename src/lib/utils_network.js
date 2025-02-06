@@ -663,7 +663,7 @@ const utilsNetwork = {
 
           // return data2
           try{
-            let response = await fetch(jsonuri, options);
+            let response = await fetch(jsonuri);
             let data =  await response.json()
             return  data;
 
