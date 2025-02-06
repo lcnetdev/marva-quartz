@@ -662,7 +662,6 @@ const utilsNetwork = {
           // data2.uri = "http://id.loc.gov/authorities/names/n79021164"
 
           // return data2
-          let options = {headers: {'Content-Type': 'plain/text', 'Accept': 'plain/text'}, mode: "cors"}
           try{
             let response = await fetch(jsonuri, options);
             let data =  await response.json()
