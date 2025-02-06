@@ -2543,12 +2543,14 @@ methods: {
 		  // we need to check the types of each element to make sure they really are the same terms
 		  let targetContext = await utilsNetwork.returnContext(target.uri)
 
-          //TODO: look up the URIs for the split up complex term
-      console.info("targetContext: ", targetContext)
-      // for HUBs, the MARCkey is still under the nodeMap
-		  let marcKey = targetContext.marcKey[0]["@value"].slice(5)
+		  let marcKey
+      if (Array.isArray(targetContext.marcKey)){
+        marcKey = targetContext.marcKey[0]
+      } else {
+        marcKey = targetContext.marcKey[0]["@value"]
+      }
 
-		  if (marcKey == componentTypes){
+		  if (marcKey.slice(5) == componentTypes){
 			//the entire built subject can be replaced by 1 term
 			match = true
 			this.components.push({
@@ -2560,7 +2562,7 @@ methods: {
 			  "posStart": 0,
 			  "type": "madsrdf:Topic",
 			  "uri": target.uri,
-              "marcKey": targetContext.marcKey[0]["@value"]
+        "marcKey": marcKey
 			})
 		  }
       }

@@ -717,7 +717,7 @@ const utilsNetwork = {
             // this is the main graph
 
             for (let k in val){
-              //add the marcKey to the nodeMap, so nothing needs to happen downstream
+              //add the marcKey to the nodeMap, so nothing needs to happen downstream //here
               if (k == 'http://id.loc.gov/ontologies/bflc/marcKey'){
                 results.nodeMap["marcKey"] = [val[k][0]['@value']]
                 results.marcKey = [val[k][0]['@value']]
