@@ -240,8 +240,9 @@
                         <form autocomplete="off" style="height: 3em;">
                           <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input">
                         </form>
+                        !!{{ components }}
                         <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
-						  {{c.label}}
+                          {{c.label}}
                         </div>
                       </div>
                     </div>
@@ -891,6 +892,7 @@ methods: {
    * @param {obj} incomingSubjects - the existing subject data
    */
   buildLookupComponents: function(incomingSubjects){
+    console.info("    buildLookupComponents--------------------------------------------------------")
     this.typeLookup = {}
 
     if (!incomingSubjects || typeof incomingSubjects == "undefined"){
@@ -985,6 +987,7 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
+    console.info("bulidingComponents")
     let subjectStringSplit = searchString.split('--')
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
@@ -1055,6 +1058,8 @@ methods: {
         type = this.typeLookup[id]
       }
 
+      console.info("setting type: ", type)
+      console.info("typeLookup: ", this.typeLookup)
       this.components.push({
         label: ss,
         uri: uri,
@@ -1843,6 +1848,7 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
+    console.info("selectContext")
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
@@ -1893,7 +1899,7 @@ methods: {
         this.componetLookup[this.activeComponentIndex]= {}
       }
 
-	  let _ = await this.getContext() //ensure the pickLookup has the marcKey
+      let _ = await this.getContext() //ensure the pickLookup has the marcKey
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-','‑')] = this.pickLookup[this.pickPostion]
 
       for (let k in this.pickLookup){
@@ -1901,6 +1907,15 @@ methods: {
       }
 
       this.pickLookup[this.pickPostion].picked=true
+
+      try {
+        let marcKey = this.pickLookup[this.pickPostion].marcKey
+        let type = marcKey.match(/\$[axyzv]{1}/g)
+        type = this.getTypeFromSubfield(type[0])
+        this.setTypeClick(null, type)
+      } catch(err) {
+        console.error("Error getting the type. ", err)
+      }
 
 
       // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
@@ -2151,6 +2166,7 @@ methods: {
 
 
   setTypeClick: function(event,type){
+    console.info("setTypeClick: ", this.activeComponentIndex, "--", type)
     this.typeLookup[this.activeComponentIndex] =type
     this.subjectStringChanged()
     this.$refs.subjectInput.focus()
@@ -2204,6 +2220,7 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    console.info("subjectStringChanged")
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
@@ -2257,6 +2274,7 @@ methods: {
       this.activeComponent = null
       this.activeComponentIndex=0
       this.componetLookup = {}
+      console.info("resetting typeLookup")
       this.typeLookup={}
       this.components=[]
 
@@ -2462,6 +2480,29 @@ methods: {
 
   },
 
+  getTypeFromSubfield: function(subfield){
+    switch(subfield){
+    case("$a"):
+      subfield = "madsrdf:Topic"
+      break
+    case("$x"):
+      subfield = "madsrdf:Topic"
+      break
+    case("$v"):
+      subfield = "madsrdf:GenreForm"
+      break
+    case("$y"):
+      subfield = "madsrdf:Temporal"
+      break
+    case("$z"):
+      subfield = "madsrdf:Geographic"
+      break
+    default:
+      subfield = false
+    }
+
+    return subfield
+  },
 
   add: async function(){
     //remove any existing thesaurus label, so it has the most current
@@ -2503,6 +2544,8 @@ methods: {
 		  let targetContext = await utilsNetwork.returnContext(target.uri)
 
           //TODO: look up the URIs for the split up complex term
+      console.info("targetContext: ", targetContext)
+      // for HUBs, the MARCkey is still under the nodeMap
 		  let marcKey = targetContext.marcKey[0]["@value"].slice(5)
 
 		  if (marcKey == componentTypes){
@@ -2564,25 +2607,7 @@ methods: {
 					  subfield = subfield[idx]
 				  }
 
-				switch(subfield){
-					case("$a"):
-					  subfield = "madsrdf:Topic"
-					  break
-					case("$x"):
-					  subfield = "madsrdf:Topic"
-					  break
-					case("$v"):
-					  subfield = "madsrdf:GenreForm"
-					  break
-					case("$y"):
-					  subfield = "madsrdf:Temporal"
-					  break
-					case("$z"):
-					  subfield = "madsrdf:Geographic"
-					  break
-					default:
-					  subfield = false
-				  }
+				subfield = this.getTypeFromSubfield(subfield)
 
 				  // Override the subfield of the first element based on the marc tag
 				  let tag = target.marcKey.slice(0,3)
