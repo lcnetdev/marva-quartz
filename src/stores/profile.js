@@ -80,6 +80,7 @@ export const useProfileStore = defineStore('profile', {
     activeProfile: {},
 
     activeProfileSaved: true,
+    activeProfilePosted: false,
 
     showPostModal: false,
     showRecoveryModal: false,
@@ -3192,8 +3193,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {boolean}
     */
     returnLccInfo: function(componentGuid){
-
-
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       let classNumber = null
@@ -3210,6 +3209,7 @@ export const useProfileStore = defineStore('profile', {
 
       // find the work and pull out stuff
       for (let rtId in this.activeProfile.rt){
+        let target = false
 
         if (rtId.indexOf(":Work") > -1){
           for (let ptId in this.activeProfile.rt[rtId].pt){
@@ -3223,9 +3223,7 @@ export const useProfileStore = defineStore('profile', {
       }
       // console.log("work",work)
       if (work){
-
-        for (let ptId in work.pt){
-
+        for (let ptId of work.ptOrder){
           let pt = work.pt[ptId]
 
           /*
@@ -3317,21 +3315,12 @@ export const useProfileStore = defineStore('profile', {
 
           if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/subject' && firstSubject === null){
             let subjectUserValue = pt.userValue
-
             if (subjectUserValue && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'].length > 0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
               if (subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-
                 firstSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
-
-
               }
-
             }
-
           }
-
-
-
         }
       }
 
@@ -3583,12 +3572,9 @@ export const useProfileStore = defineStore('profile', {
     */
 
     makeSubjectHeadingPrimary: async function(componentGuid){
-
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
       if (pt !== false){
-
-
 
         // loop through all the headings and find the place the headings start
         let firstHeading = null
@@ -3618,11 +3604,7 @@ export const useProfileStore = defineStore('profile', {
 
           this.dataChanged()
         }
-
-
-
       }
-
     },
 
 
@@ -3700,7 +3682,6 @@ export const useProfileStore = defineStore('profile', {
     for (let guid of Object.keys(cacheGuid)){
       cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
     }
-
 
     let isParentTop = false
 
@@ -3795,7 +3776,6 @@ export const useProfileStore = defineStore('profile', {
                           value['@type'] = blankNodeType
                         }
                       }
-
                       // if we're not working at the top level, just add the default values
                       if (!isParentTop){
                         userValue[p.propertyURI].push(value)
@@ -3805,36 +3785,7 @@ export const useProfileStore = defineStore('profile', {
                       }
                     }
                   }
-                } else {
-                  // check if the defaults are available in rtLookup
-                  let targetRef = p.valueConstraint.valueTemplateRefs[0]
-                  if (this.rtLookup[targetRef]){
-                    let defaultPropertyToUse = this.rtLookup[targetRef].propertyTemplates[0].propertyURI
-                    userValue[p.propertyURI] = []
-                    for (let d of this.rtLookup[targetRef].propertyTemplates[0].valueConstraint.defaults){
-                      let value = {
-                        '@guid': short.generate(d.defaultLiteral, d.defaultURI)
-                      }
-                      let useType = utilsRDF.suggestTypeProfile(p.propertyURI,pt)
-                      if (useType === false){
-                        // did not find it in the profile, look to the network
-                        useType = await utilsRDF.suggestTypeNetwork(p.propertyURI)
-                      }
-                      if (useType && useType != 'http://www.w3.org/2000/01/rdf-schema#Literal'){
-                        value['@type'] = useType
-                        value[defaultPropertyToUse] = [{
-                          '@guid': short.generate(d.defaultLiteral, d.defaultURI)
-                        }]
-                        if (d.defaultLiteral && d.defaultLiteral != ''){
-                          value[defaultPropertyToUse][0][defaultPropertyToUse] = this.replaceDefaultPlaceHolder(d.defaultLiteral)
-                        }
-                        if (d.defaultURI && d.defaultURI != ''){
-                          value['@id'] = d.defaultURI
-                        }
-                      }
-                      userValue[p.propertyURI].push(value)
-                    }
-                  }
+
                 }
               }
 

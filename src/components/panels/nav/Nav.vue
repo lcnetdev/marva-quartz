@@ -63,7 +63,7 @@
 
       ...mapStores(useProfileStore,usePreferenceStore),
 
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'activeProfilePosted']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode']),
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode']),
@@ -208,6 +208,12 @@
                   this.profileStore.pasteSelected()
                 })
               }
+            },
+            { is: 'separator'},
+            {
+              text: 'Add All Defaults',
+              click: () => { this.addAllDefaults() },
+              icon: "clear_all"
             }
           ] }
           )
@@ -293,7 +299,7 @@
               { text: 'Lookup Field', click: () => this.preferenceStore.togglePrefModal('Lookup Field')},
 
 
-              
+
               { text: 'Modals', click: () => this.preferenceStore.togglePrefModal('Modals')},
 
               { text: 'Complex Lookup', click: () => this.preferenceStore.togglePrefModal('Complex Lookup')},
@@ -478,8 +484,10 @@
                 this.$nextTick(()=>{
                   this.$refs.postmodal.post();
                   this.profileStore.saveRecord()
+                  this.activeProfilePosted = true
                 })
-              }
+              },
+              class: (this.activeProfilePosted) ? "record-posted" : "record-unposted",
             }
           )
 
@@ -788,6 +796,55 @@
         }
       },
 
+      addAllDefaults: function(){
+        for (let rt in this.activeProfile.rt){
+          for (let pt in this.activeProfile.rt[rt].pt){
+            let component = this.activeProfile.rt[rt].pt[pt]
+            let structure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
+            if ( component.valueConstraint.defaults.length > 0){
+              // top level component
+              if (Object.keys(component.userValue).every(k => k.startsWith("@"))){ // it's empty
+                this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
+                continue
+              }
+            }
+            //go deeper
+            for (let vRt of component.valueConstraint.valueTemplateRefs){
+              for (let template of this.profileStore.rtLookup[vRt].propertyTemplates){
+                if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0){
+                  // for classifiction, we want to make sure we're only working on the currently selected template
+                  if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification'){
+                    let selection = document.getElementById(structure['@guid']+'-select')
+                    let selected
+                    let target
+                    if (selection){
+                      selected = selection.options[selection.selectedIndex].text
+                      switch (selected){
+                        case 'Dewey Decimal classification':
+                          target = "lc:RT:bf2:DDC"
+                          break
+                        case 'National Library of Medicine classification':
+                          target = "lc:RT:bf2:NLM"
+                          break
+                        case 'Other classification number':
+                          target = "lc:RT:bf2:OtherClass"
+                          break
+                        default:
+                          target = "lc:RT:bf2:LCC"
+                      }
+                      if (target == vRt){
+                        this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                      }
+                    }
+                  } else {
+                    this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
 
     created() {}
@@ -816,8 +873,8 @@
       --bar-button-radius: 4px;
       --bar-button-hover-bkg: rgb(244, 241, 242);
 
-      
-      
+
+
       --bar-button-hover-bkg: rgb(244, 241, 242);
       --bar-button-active-color: rgb(26, 115, 232);
       --bar-button-active-bkg: rgb(232, 240, 254);
@@ -864,7 +921,7 @@
 
 
 
-    
+
 
     .nav-icon-color{
       fill: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
@@ -881,6 +938,9 @@
 
       position: absolute !important;
       right: 0;
+    }
+    .record-posted{
+      color: green !important;
     }
     .save-not-saved span{
       color: orangered !important;

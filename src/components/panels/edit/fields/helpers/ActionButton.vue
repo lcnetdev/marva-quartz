@@ -12,8 +12,8 @@
  -->
 
  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
-  
-  
+
+
     <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
     <InstanceSelectionModal ref="instanceSelectionModal" :currentRt="currentRt" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
@@ -289,7 +289,7 @@
         let btext = this.preferenceStore.returnValue('--c-edit-general-action-button-menu-button-text-color');
         let btsize = this.preferenceStore.returnValue('--n-edit-general-action-button-menu-button-text-size');
 
-        
+
         let style = `background-color: ${bback}; border: solid 1px ${bborder}; color: ${btext}; width:100%; font-size: ${btsize}`
 
 
@@ -419,6 +419,7 @@
         if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
           return false
         }
+
         //does this have defaults, or are the defaults higher up?
         let defaults = this.structure.valueConstraint.defaults
 
@@ -436,14 +437,15 @@
                     // if (struct.parentId == this.structure.parentId){ // will this have unintended sideffects?
                     //   this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
                     // }
-                    this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
 
+                    this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
                   }
                 }
               }
             }
           }
         }
+
         this.sendFocusHome()
       },
 
@@ -905,17 +907,17 @@
 
 <style scoped>
   .action-button-menu-background{
-    width: 250px;   
+    width: 250px;
 
-    
+
   }
 
   button{
     margin-bottom: 5px;
     position: relative;
-    
 
-    
+
+
   }
 
   hr{
@@ -951,7 +953,7 @@
       display: inline-flex;
       align-items: center;
   }
-/* 
+/*
   .action-button-list-container{
     position: absolute;
     z-index: 1000;
