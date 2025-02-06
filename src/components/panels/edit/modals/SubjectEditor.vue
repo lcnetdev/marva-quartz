@@ -240,7 +240,6 @@
                         <form autocomplete="off" style="height: 3em;">
                           <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input">
                         </form>
-                        !!{{ components }}
                         <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
                           {{c.label}}
                         </div>
@@ -858,7 +857,6 @@ methods: {
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
     let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
-
     let components = false
     let subfields = false
     let marcKey = false
@@ -892,7 +890,6 @@ methods: {
    * @param {obj} incomingSubjects - the existing subject data
    */
   buildLookupComponents: function(incomingSubjects){
-    console.info("    buildLookupComponents--------------------------------------------------------")
     this.typeLookup = {}
 
     if (!incomingSubjects || typeof incomingSubjects == "undefined"){
@@ -987,7 +984,6 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
-    console.info("bulidingComponents")
     let subjectStringSplit = searchString.split('--')
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
@@ -1058,8 +1054,6 @@ methods: {
         type = this.typeLookup[id]
       }
 
-      console.info("setting type: ", type)
-      console.info("typeLookup: ", this.typeLookup)
       this.components.push({
         label: ss,
         uri: uri,
@@ -1848,7 +1842,6 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
-    console.info("selectContext")
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
@@ -2166,7 +2159,6 @@ methods: {
 
 
   setTypeClick: function(event,type){
-    console.info("setTypeClick: ", this.activeComponentIndex, "--", type)
     this.typeLookup[this.activeComponentIndex] =type
     this.subjectStringChanged()
     this.$refs.subjectInput.focus()
@@ -2220,7 +2212,6 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
-    console.info("subjectStringChanged")
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
@@ -2274,7 +2265,6 @@ methods: {
       this.activeComponent = null
       this.activeComponentIndex=0
       this.componetLookup = {}
-      console.info("resetting typeLookup")
       this.typeLookup={}
       this.components=[]
 
@@ -2543,26 +2533,28 @@ methods: {
 		  // we need to check the types of each element to make sure they really are the same terms
 		  let targetContext = await utilsNetwork.returnContext(target.uri)
 
-          //TODO: look up the URIs for the split up complex term
-      console.info("targetContext: ", targetContext)
-      // for HUBs, the MARCkey is still under the nodeMap
-		  let marcKey = targetContext.marcKey[0]["@value"].slice(5)
+		  let marcKey
+      if (Array.isArray(targetContext.marcKey) && typeof targetContext.marcKey[0] == 'string'){
+        marcKey = targetContext.marcKey[0]
+      } else {
+        marcKey = targetContext.marcKey[0]["@value"]
+      }
 
-		  if (marcKey == componentTypes){
-			//the entire built subject can be replaced by 1 term
-			match = true
-			this.components.push({
-			  "complex": target.complex,
-			  "id": 0,
-			  "label": target.label,
-			  "literal": false,
-			  "posEnd": target.label.length,
-			  "posStart": 0,
-			  "type": "madsrdf:Topic",
-			  "uri": target.uri,
-              "marcKey": targetContext.marcKey[0]["@value"]
-			})
-		  }
+		  if (marcKey.slice(5) == componentTypes){
+        //the entire built subject can be replaced by 1 term
+        match = true
+        this.components.push({
+          "complex": target.complex,
+          "id": 0,
+          "label": target.label,
+          "literal": false,
+          "posEnd": target.label.length,
+          "posStart": 0,
+          "type": "madsrdf:Topic",
+          "uri": target.uri,
+          "marcKey": marcKey
+        })
+        }
       }
     }
 
@@ -2588,7 +2580,6 @@ methods: {
         } else {
           data = target
         }
-
 				let subs
 				subs = target.marcKey.slice(5)
 			    // subfields = subfields.match(/\$./g)
@@ -2660,10 +2651,10 @@ methods: {
 					"posEnd": labels[idx].length,
 					"posStart": 0,
 					"type": subfield,
-					"uri": data && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
+					"uri": data && data["components"] && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
 					"marcKey": marcKey,
-                    "fromComplex": true,
-                    "complexMarcKey": target.marcKey
+          "fromComplex": true,
+          "complexMarcKey": target.marcKey
 				  }))
 				  id++
 				  prevItems++

@@ -4521,7 +4521,6 @@ export const useProfileStore = defineStore('profile', {
         if (fieldValue){break}
       }
       if (fieldValue){
-
         // if it has a component list then check all the components
         if (fieldValue['http://www.loc.gov/mads/rdf/v1#componentList'] && fieldValue['http://www.loc.gov/mads/rdf/v1#componentList'].length>0){
 
