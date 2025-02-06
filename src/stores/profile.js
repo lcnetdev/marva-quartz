@@ -4889,7 +4889,7 @@ export const useProfileStore = defineStore('profile', {
       let parentStructure = this.returnStructureByComponentGuid(newComponent['@guid'])
       if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
         for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
-          if (this.rtLookup[vRt]){
+          if (this.rtLookup[vRt] && vRt == "lc:RT:bf2:DDC"){
             for (let pt of this.rtLookup[vRt].propertyTemplates){
               if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
                 this.insertDefaultValuesComponent(newComponent['@guid'], pt)
