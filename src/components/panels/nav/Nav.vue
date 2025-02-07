@@ -801,46 +801,53 @@
           for (let pt in this.activeProfile.rt[rt].pt){
             let component = this.activeProfile.rt[rt].pt[pt]
             let structure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
-            if ( component.valueConstraint.defaults.length > 0){
-              // top level component
-              if (Object.keys(component.userValue).every(k => k.startsWith("@"))){ // it's empty
-                this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
-                continue
+            console.info(structure.propertyLabel, ": ", structure)
+            if (structure.propertyLabel != 'Admin Metadata') {
+              if ( component.valueConstraint.defaults.length > 0){
+                // top level component
+                if (Object.keys(component.userValue).every(k => k.startsWith("@"))){ // it's empty
+                  this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
+                  continue
+                }
               }
-            }
-            //go deeper
-            for (let vRt of component.valueConstraint.valueTemplateRefs){
-              for (let template of this.profileStore.rtLookup[vRt].propertyTemplates){
-                if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0){
-                  // for classifiction, we want to make sure we're only working on the currently selected template
-                  if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification'){
-                    let selection = document.getElementById(structure['@guid']+'-select')
-                    let selected
-                    let target
-                    if (selection){
-                      selected = selection.options[selection.selectedIndex].text
-                      switch (selected){
-                        case 'Dewey Decimal classification':
-                          target = "lc:RT:bf2:DDC"
-                          break
-                        case 'National Library of Medicine classification':
-                          target = "lc:RT:bf2:NLM"
-                          break
-                        case 'Other classification number':
-                          target = "lc:RT:bf2:OtherClass"
-                          break
-                        default:
-                          target = "lc:RT:bf2:LCC"
+              //go deeper
+              for (let vRt of component.valueConstraint.valueTemplateRefs){
+                for (let template of this.profileStore.rtLookup[vRt].propertyTemplates){
+                  if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0){
+                    // for classifiction, we want to make sure we're only working on the currently selected template
+                    if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification'){
+                      let selection = document.getElementById(structure['@guid']+'-select')
+                      let selected
+                      let target
+                      if (selection){
+                        selected = selection.options[selection.selectedIndex].text
+                        switch (selected){
+                          case 'Dewey Decimal classification':
+                            target = "lc:RT:bf2:DDC"
+                            break
+                          case 'National Library of Medicine classification':
+                            target = "lc:RT:bf2:NLM"
+                            break
+                          case 'Other classification number':
+                            target = "lc:RT:bf2:OtherClass"
+                            break
+                          default:
+                            target = "lc:RT:bf2:LCC"
+                        }
+                        if (target == vRt){
+                          console.info("    adding: ", vRt)
+                          this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                        }
                       }
-                      if (target == vRt){
-                        this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
-                      }
+                    } else {
+                      console.info("    adding: classification")
+                      this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
                     }
-                  } else {
-                    this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
                   }
                 }
               }
+            } else {
+              console.info("    skipping")
             }
           }
         }

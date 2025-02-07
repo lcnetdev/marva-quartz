@@ -2533,10 +2533,11 @@ methods: {
 		  // we need to check the types of each element to make sure they really are the same terms
 		  let targetContext = await utilsNetwork.returnContext(target.uri)
 
-		  let marcKey
+      console.info("targetContext: ", targetContext)
+		  let marcKey = ""
       if (Array.isArray(targetContext.marcKey) && typeof targetContext.marcKey[0] == 'string'){
         marcKey = targetContext.marcKey[0]
-      } else {
+      } else if (targetContext.marcKey){
         marcKey = targetContext.marcKey[0]["@value"]
       }
 
