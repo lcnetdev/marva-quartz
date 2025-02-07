@@ -1910,14 +1910,11 @@ methods: {
         console.error("Error getting the type. ", err)
       }
 
-
       // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
       //Need something to prevent recursion
       if (update == true){
         this.subjectStringChanged()
       }
-
-
     }
 
 
@@ -2533,7 +2530,6 @@ methods: {
 		  // we need to check the types of each element to make sure they really are the same terms
 		  let targetContext = await utilsNetwork.returnContext(target.uri)
 
-      console.info("targetContext: ", targetContext)
 		  let marcKey = ""
       if (Array.isArray(targetContext.marcKey) && typeof targetContext.marcKey[0] == 'string'){
         marcKey = targetContext.marcKey[0]

@@ -801,7 +801,6 @@
           for (let pt in this.activeProfile.rt[rt].pt){
             let component = this.activeProfile.rt[rt].pt[pt]
             let structure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
-            console.info(structure.propertyLabel, ": ", structure)
             if (structure.propertyLabel != 'Admin Metadata') {
               if ( component.valueConstraint.defaults.length > 0){
                 // top level component
@@ -835,19 +834,15 @@
                             target = "lc:RT:bf2:LCC"
                         }
                         if (target == vRt){
-                          console.info("    adding: ", vRt)
                           this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
                         }
                       }
                     } else {
-                      console.info("    adding: classification")
                       this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
                     }
                   }
                 }
               }
-            } else {
-              console.info("    skipping")
             }
           }
         }
