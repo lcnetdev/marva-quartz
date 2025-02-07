@@ -837,7 +837,31 @@
                           this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
                         }
                       }
-                    } else {
+                    } else if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+                      console.info(structure.propertyURI)
+                      let selection = document.getElementById(structure['@guid']+'-select')
+                      console.info(selection)
+                      let selected
+                      let target
+                      if (selection){
+                        selected = selection.options[selection.selectedIndex].text
+                        console.info("selected: ", selected)
+                        console.info("vRt: ", vRt)
+                        switch (selected){
+                          case 'CYAC subject':
+                            target = "lc:RT:bf2:Topic:Childrens:Components"
+                            break
+                          case 'Geographic subjects':
+                            target = "lc:RT:bf2:Topic:Place:Components"
+                            break
+                          default:
+                            target = "lc:RT:bf2:Components"
+                        }
+                        if (target == vRt){
+                          this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                        }
+                      }
+                    }else {
                       this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
                     }
                   }
