@@ -812,8 +812,6 @@
               //go deeper
               for (let vRt of component.valueConstraint.valueTemplateRefs){
                 for (let template of this.profileStore.rtLookup[vRt].propertyTemplates){
-                  console.info("structure: ", structure.propertyURI)
-                  console.info("vRt: ", vRt)
                   if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0){
                     // for classifiction, we want to make sure we're only working on the currently selected template
                     if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification'){
@@ -840,15 +838,11 @@
                         }
                       }
                     } else if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
-                      console.info(structure.propertyURI)
                       let selection = document.getElementById(structure['@guid']+'-select')
-                      console.info(selection)
                       let selected
                       let target
                       if (selection){
                         selected = selection.options[selection.selectedIndex].text
-                        console.info("selected: ", selected)
-                        console.info("vRt: ", vRt)
                         switch (selected){
                           case 'CYAC subject':
                             target = "lc:RT:bf2:Topic:Childrens:Components"

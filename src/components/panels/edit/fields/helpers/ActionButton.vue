@@ -542,7 +542,6 @@
       },
 
       hasDefaultValues: function(){
-        console.info(">>> ", this.structure)
         if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
           return false
         }
