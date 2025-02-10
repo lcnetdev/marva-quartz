@@ -2563,10 +2563,10 @@ const utilsNetwork = {
       console.info("subject: ", resultsExactSubject)
 
       if (resultsExactName){
-        resultsExactName.filter((term) => { Object.keys(term).includes("suggestLabel") })
+        resultsExactName = resultsExactName.filter((term) =>  Object.keys(term).includes("suggestLabel") )
       }
       if (resultsExactSubject){
-        resultsExactSubject.filter((term) => { Object.keys(term).includes("suggestLabel") })
+        resultsExactSubject = resultsExactSubject.filter((term) =>  Object.keys(term).includes("suggestLabel") )
       }
 
       let results = {
