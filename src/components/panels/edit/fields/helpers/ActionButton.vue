@@ -542,6 +542,10 @@
       },
 
       hasDefaultValues: function(){
+        console.info(">>> ", this.structure)
+        if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
+          return false
+        }
         // if the selected item has defaults
         if (this.structure.valueConstraint.defaults.length > 0){
           return true
