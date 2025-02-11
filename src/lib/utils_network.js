@@ -2251,7 +2251,7 @@ const utilsNetwork = {
       }
       let data = await this.fetchSimpleLookup(uri,true)
 
-      if (uri.indexOf('id.loc.gov')>-1){
+      if (data && uri.indexOf('id.loc.gov')>-1){
 
         for (let d of data){
           // loop through the graphs
