@@ -1,5 +1,4 @@
 <template>
-
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
     <template v-if="inlineModeShouldDisplay">
 
@@ -48,8 +47,7 @@
     <div class="lookup-fake-input" v-if="showField" >
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues" @focusin="focused">
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
-        <div class="literal-field">
-
+        <div :class="['literal-field', {'read-only': structure.propertyLabel=='Local identifier'}]">
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
@@ -99,6 +97,7 @@
                   :ref="'input_' + lValue['@guid']"
                   :data-guid="lValue['@guid']"
                   :disabled="readOnly"
+                  :readonly="structure.propertyLabel=='Local identifier'"
                   ></textarea>
               </template>
 
@@ -234,6 +233,7 @@ import utilsNetwork from '@/lib/utils_network'
 
 
 import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.vue";
+import { readonly } from 'vue'
 
 
 
@@ -973,7 +973,6 @@ export default {
         this.hasNoData=false
       }
 
-
       return values
 
     },
@@ -1122,9 +1121,9 @@ fieldset{
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-lang-label-font-color')");
 
 
-  
 
-  
+
+
 }
 
 .inline-mode-editable-span-input{
@@ -1216,8 +1215,8 @@ fieldset{
   z-index: 1;
   top: -4px;
   left: 2px;
- 
-  
+
+
 }
 
 
@@ -1235,7 +1234,7 @@ textarea{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
 
-  
+
 
 
   height: 1.25em;
@@ -1246,7 +1245,7 @@ textarea{
 .lookup-fake-input{
   min-height: 2em;
   /* background-color: transparent; */
- 
+
 
 
 }
@@ -1307,8 +1306,13 @@ textarea:hover{
 }
 .component .lookup-fake-input{
   border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
-} 
+}
 
+.read-only,
+.read-only form textarea{
+  background: lightgray;
+  cursor: no-drop;
+}
 
 
 
