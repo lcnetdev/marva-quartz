@@ -108,6 +108,11 @@ export const useProfileStore = defineStore('profile', {
       structure: null,
     },
 
+    cammModeErrors: {
+
+
+    },
+
 
     componentLibrary : {
       profiles:{
@@ -2918,9 +2923,20 @@ export const useProfileStore = defineStore('profile', {
     * returns the label to use in bf code mode
     *
     * @param {object} structure - the structure value from the profile
+    * @param {boolean} title - return the title text not the short code
     * @return {string} - the label
     */
-    returnBfCodeLabel: function(structure){
+    returnBfCodeLabel: function(structure, returntitle, componentGuid){
+
+      if (returntitle){
+        let pt = utilsProfile.returnPt(this.activeProfile,structure['@guid'])
+        if (pt){
+          return utilsExport.namespaceUri(pt.propertyURI)
+        }else{
+          return utilsExport.namespaceUri(structure.propertyURI)
+        }
+        
+      }
 
       let code = utilsParse.namespaceUri(structure.propertyURI)
       // console.log(structure.propertyURI, code)
@@ -5213,6 +5229,33 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
+    /**
+     *
+     * @param {string} guid - guid of the component
+     * @param {string} error - the error message
+     */
+    addCammModeError: function(guid, error){
+      
+      if (!this.cammModeErrors[guid]){
+        this.cammModeErrors[guid]=[]
+      }
+
+      this.cammModeErrors[guid].push(error)
+      
+    },
+    /**
+     *
+     * @param {string} guid - guid of the component
+     */
+    clearCammModeError: function(guid){      
+      if (this.cammModeErrors[guid]){
+        delete this.cammModeErrors[guid]
+      }
+    },
+
+    
+
+    
 
 
 

@@ -247,7 +247,7 @@
               <select @change="setLanguage($event,v)" :ref="v['@guid']+'-'+'lang'">
                 <option value="" :selected="(returnLangScript(v['@language']).lang === null)">Select Language</option>
                 <template v-for="l in languages">
-                  <option v-if="returnLangScript(v['@language']).lang == l.code"  :value="l.code" selected>{{ l.name }}</option>
+                  <option v-if="returnLangScript(v['@language']).lang.toLowerCase() == l.code.toLowerCase()"  :value="l.code" selected>{{ l.name }}</option>
                   <option v-else :value="l.code">{{ l.name }}</option>
                 </template>                   
               </select>
@@ -255,7 +255,7 @@
                 <option value="" :selected="(returnLangScript(v['@language']).script === null)">Select Script</option>
 
                 <template v-for="s in scripts">
-                  <option v-if="returnLangScript(v['@language']).script == s.code"  :value="s.code" selected>{{ s.name }}</option>
+                  <option v-if="returnLangScript(v['@language']).script.toLowerCase() == s.code.toLowerCase()"  :value="s.code" selected>{{ s.name }}</option>
                   <option v-else :value="s.code">{{ s.name }}</option>
                 </template>                  
               </select>

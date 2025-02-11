@@ -455,15 +455,15 @@ export const usePreferenceStore = defineStore('preference', {
       },
 
 
-      // '--b-edit-main-splitpane-edit-adhoc-mode' : {
-      //     desc: 'Add properties as needed using a drop down list.',
-      //     descShort: 'Properties adhoc',
-      //     value: false,
-      //     type: 'boolean',
-      //     unit: null,
-      //     group: 'Edit Panel',
-      //     range: [true,false]
-      // },
+      '--b-edit-main-splitpane-edit-adhoc-mode' : {
+          desc: 'Add properties as needed using a drop down list.',
+          descShort: 'Properties adhoc',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
       '--b-edit-main-splitpane-edit-switch-between-resource-button' : {
           desc: 'Lets you switch displaying work and instances in the edit panel.',
           descShort: 'Resource switch button',

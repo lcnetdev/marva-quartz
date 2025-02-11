@@ -5,14 +5,14 @@
 
       <template v-if="literalValues.length===1 && literalValues[0].value === ''">
 
-          <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+        <span class="bfcode-display-mode-holder-label simptip-position-top" :data-tooltip="structure.propertyLabel"  :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
           <!-- <span @focus="inlineEmptyFocus" contenteditable="true" class="inline-mode-editable-span" ><span class="inline-mode-editable-span-space-maker">&nbsp;</span></span>         -->
           <input type="text" @focusin="focused" @keyup="navKey"  @input="valueChanged($event,true)" class="inline-mode-editable-span-input can-select" :ref="'input_' + literalValues[0]['@guid']" :data-guid="literalValues[0]['@guid']" />
          
          
           <Transition name="action">
-              <div class="literal-action-inline-mode" v-if="showActionButton && myGuid == activeField">
-                <action-button :clickmode="true" :structure="structure"  :small="true" :hidden="true" :fieldGuid="lValue['@guid']" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
+              <div :class="{'literal-action-inline-mode':true, 'literal-action-inline-mode-hidden': preferenceStore.returnValue('--b-edit-main-splitpane-camm-hide-action-button')}" v-if="showActionButton && myGuid == activeField">
+                <action-button :clickmode="true" :structure="structure" @keyup="navKey" @focusin="focused"  :small="true" :fieldGuid="literalValues[0]['@guid']" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
             </div>
           </Transition>    
 
@@ -21,12 +21,14 @@
       <template v-else>
 
         <template v-for="lValue in literalValues">
-          <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <span contenteditable="true" @focusin="focused" @blur="blured" class="inline-mode-editable-span can-select" @keyup="navKey" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>
+
+          <span class="bfcode-display-mode-holder-label simptip-position-top" :data-tooltip="structure.propertyLabel"   :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+
+          <span contenteditable="plaintext-only" @focusin="focused" @blur="blured" @keydown="keyDown" class="inline-mode-editable-span can-select" @keyup="navKey" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}{{(lValue['@language'] != null) ? '@'+lValue['@language'] : ''}}</span>
         
           <Transition name="action">
-              <div class="literal-action-inline-mode" v-if="showActionButton && myGuid == activeField">
-                <action-button :clickmode="true" :structure="structure"  :small="true" :hidden="true" :fieldGuid="lValue['@guid']" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
+              <div :class="{'literal-action-inline-mode':true, 'literal-action-inline-mode-hidden': preferenceStore.returnValue('--b-edit-main-splitpane-camm-hide-action-button')}" v-if="showActionButton && myGuid == activeField">
+                <action-button :clickmode="true" :structure="structure"  :small="true" :fieldGuid="lValue['@guid']" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
             </div>
           </Transition>        
         
@@ -233,6 +235,68 @@ import utilsNetwork from '@/lib/utils_network'
 
 import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.vue";
 
+
+
+
+function createRange(node, chars, range) {
+    if (!range) {
+        range = document.createRange()
+        range.selectNode(node);
+        range.setStart(node, 0);
+    }
+
+    if (chars.count === 0) {
+        range.setEnd(node, chars.count);
+    } else if (node && chars.count >0) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            if (node.textContent.length < chars.count) {
+                chars.count -= node.textContent.length;
+            } else {
+                range.setEnd(node, chars.count);
+                chars.count = 0;
+            }
+        } else {
+           for (var lp = 0; lp < node.childNodes.length; lp++) {
+                range = createRange(node.childNodes[lp], chars, range);
+
+                if (chars.count === 0) {
+                    break;
+                }
+            }
+        }
+    } 
+
+    return range;
+};
+
+
+function setCurrentCursorPosition(chars,el) {
+    if (chars >= 0) {
+        var selection = window.getSelection();
+
+        let range = createRange(el, { count: chars });
+
+        if (range) {
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export default {
   name: "Literal",
   components: {
@@ -372,11 +436,22 @@ export default {
             if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
               // console.log("run this macro", macro)
 
-              let insertAt = event.target.value.length
+              
+              // if we are in CAMM mode then the fields will be editable SPANs which do not have .value they have .innerText 
+              // so we temporarly put .innerText into the .value attr to work on it then pull it back out into .innerText at the end of the editing
+              let insertAt
+              if (event.target.tagName === 'SPAN'){
+                event.target.value = event.target.innerText
+                insertAt = this.getCaretCharOffset(event.target)
+              }else{
+                insertAt = event.target.value.length
+              }
+
 
               if (event.target && event.target.selectionStart){
                 insertAt=event.target.selectionStart
               }
+              console.log("insertAt",insertAt)
               let inputV
               if (event.target){
                 inputV = event.target
@@ -432,7 +507,16 @@ export default {
 
                   if (insertAt){
                     this.$nextTick(()=>{
-                      inputV.setSelectionRange(insertAt+1,insertAt+1)
+
+                      if (event.target.tagName === 'SPAN'){
+                        // Here we put it back in to .innerText and we need to use a 
+                        // special setRange fucntion as well because contenteditabl dont have .setSelectionRange either
+                        event.target.innerText = event.target.value
+                        setCurrentCursorPosition(insertAt+1,event.target)
+                      }else{
+                        inputV.setSelectionRange(insertAt+1,insertAt+1)
+                      }
+
 
                       this.$nextTick(()=>{
                         inputV.focus()
@@ -460,42 +544,56 @@ export default {
                   // same for Backquote key
 
                   if (event.code == 'Backquote'){
-
                     if (inputV.value.charAt(inputV.value.length-1) == '`'){
                       // remove the last char
                       inputV.value = inputV.value.slice(0, -1);
                     }
+                  }
 
-                    }
 
+                  // little cheap hack here, on macos the Alt+9 makes ª digits 1-0 do this with Alt+## but we only
+                  // have one short cut that uses Alt+9 so just remove that char for now
+                  inputV.value=inputV.value.replace('ª','')
 
-                    // little cheap hack here, on macos the Alt+9 makes ª digits 1-0 do this with Alt+## but we only
-                    // have one short cut that uses Alt+9 so just remove that char for now
-                    inputV.value=inputV.value.replace('ª','')
+                  inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
+                  // inputV.value=inputV.value+macro.codeEscape
 
-                    inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
-                    // inputV.value=inputV.value+macro.codeEscape
-
+                  if (event.target.tagName === 'SPAN'){
+                    // Here we put it back in to .innerText and we need to use a 
+                    // special setRange fucntion as well because contenteditabl dont have .setSelectionRange either
+                    event.target.innerText = event.target.value
+                    setCurrentCursorPosition(insertAt+1,event.target)
+                  }else{
                     inputV.setSelectionRange(insertAt+1,insertAt+1)
-                    inputV.focus()
+                  }
 
 
-                    if (insertAt){
+                  inputV.focus()
+
+
+                  if (insertAt){
                     this.$nextTick(()=>{
-                      inputV.setSelectionRange(insertAt+1,insertAt+1)
+
+                      if (event.target.tagName === 'SPAN'){
+                        setCurrentCursorPosition(insertAt+1,event.target)
+                      }else{
+                        inputV.setSelectionRange(insertAt+1,insertAt+1)
+                      }
+
+                      
 
                       this.$nextTick(()=>{
                         inputV.focus()
                       })
 
                     })
-                    }else{
+                  }else{
 
-                      this.$nextTick(()=>{
-                        inputV.focus()
-                      })
+                    this.$nextTick(()=>{
+                      inputV.focus()
+                    })
 
-                    }
+                  }
                 }
 
                 event.preventDefault()
@@ -506,7 +604,9 @@ export default {
 
 
 
-    },
+      },
+
+
 
 
     // we need to check to see if they are attempting to do a couple different types of macros, if they are then stop the event but kick off the macro action
@@ -533,27 +633,50 @@ export default {
           }
 
           let inputV = event.target
-          let insertAt = event.target.value.length
+          let insertAt
+          if (event.target.tagName === 'SPAN'){
+            insertAt = this.getCaretCharOffset(event.target)
+          }else{
+            insertAt = event.target.value.length
+          }
+
           if (event.target && event.target.selectionStart){
             insertAt=event.target.selectionStart
           }
 
           if (!useMacro.combining){
-          // it is not a combining unicode char so just insert it into the value
-            if (inputV.value){
-              // inputV.value=inputV.value+useMacro.codeEscape
-              inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+
+            if (event.target.tagName === 'SPAN'){
+              inputV.innerText = inputV.innerText.substring(0, insertAt) + useMacro.codeEscape + inputV.innerText.substring(insertAt);
             }else{
-              inputV.value = useMacro.codeEscape
-            }
-          }else{
+              // it is not a combining unicode char so just insert it into the value
+              if (inputV.value){
                 // inputV.value=inputV.value+useMacro.codeEscape
                 inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+              }else{
+                inputV.value = useMacro.codeEscape
+              }
+            }
+          }else{
+            if (event.target.tagName === 'SPAN'){
+              inputV.innerText = inputV.innerText.substring(0, insertAt) + useMacro.codeEscape + inputV.innerText.substring(insertAt);
+            }else{
+              if (inputV.value){
+                  inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+                }else{
+
+                }
+            }
           }
 
           if (insertAt){
           this.$nextTick(()=>{
-            inputV.setSelectionRange(insertAt+1,insertAt+1)
+            if (event.target.tagName === 'SPAN'){
+              setCurrentCursorPosition(insertAt+1,event.target)
+            }else{
+              inputV.setSelectionRange(insertAt+1,insertAt+1)
+            }
+              
 
             this.$nextTick(()=>{
               inputV.focus()
@@ -616,7 +739,7 @@ export default {
 
     valueChanged: async function(event,setFocus){
       let v = event.target.value
-
+      
       if (event.target.tagName === 'SPAN'){
         v = event.target.innerText
         if (event.data && event.data === '|'){
@@ -624,16 +747,22 @@ export default {
           event.preventDefault()
           return false
         }
+        v=v.replace(/\n/g,' ').trim()
       }
 
       let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
+      let addedTextMacroIncreasedSizeBy = 0
 
       if (useTextMacros && useTextMacros.length>0){
         for (let m of useTextMacros){
+          let oldV = v
           v = v.replace(m.lookFor,m.replaceWith)
+          if (oldV != v){
+            addedTextMacroIncreasedSizeBy=addedTextMacroIncreasedSizeBy+m.replaceWith.length-m.lookFor.length
+          }
+          
         }
       }
-
       // if the value is empty then wait 2 seconds and check if it is empty again, if it is then continue with the removal
       if (v == ''){
         await new Promise(r => setTimeout(r, 2000));
@@ -642,14 +771,44 @@ export default {
         }
       }
 
+      let useLang = event.target.dataset.lang
 
-      await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,event.target.dataset.lang)
+      // this is used in CAMM mode you can add @en-latn language and script via text
+      if (/@[A-z-]{2,}$/.test(v)){
+        let foundLang = v.match(/@[A-z-]{2,}$/)
+        if (foundLang){
+          // pull it out of the regex match
+          foundLang = foundLang[0]
+          // remove it from the value
+          v = v.replace(foundLang,'')
+          useLang = foundLang.toLowerCase().replace("@",'')
+
+          
+        }
+      }else{
+        // there is no language now, but was there before? and they are removing it or there never was
+        for (let l of this.literalValues){
+          if (l['@guid'] == event.target.dataset.guid && l['@language'] !== null){
+            // they currently have a language on this string and are removing it
+            // set the value to the remove command so setValueLiteral knows to remove it
+            useLang = 'REMOVE_COMMAND'
+          }
+        }
+      }
+      
+      let currentPos = 0
+      if (event.target.tagName === 'SPAN'){
+        currentPos = this.getCaretCharOffset(event.target)
+      }
+      console.log("3 v:",v)
+      await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,useLang)
 
       if (setFocus){
 
         let r = 'input_' + this.literalValues[0]['@guid']
         let el = this.$refs[r][0]
-
+        
+        
         el.focus();
         if (typeof window.getSelection != "undefined"
                 && typeof document.createRange != "undefined") {
@@ -667,6 +826,22 @@ export default {
         }
 
       }
+
+      // make sure the cursor is in the right place
+      // it seems like when the content editable span is updated via the vue variable the cursor pos is lost
+      // so reset it back to where it was before the content was updated
+      if (event.target.tagName === 'SPAN'){
+        console.log(currentPos,addedTextMacroIncreasedSizeBy)
+        
+        if (addedTextMacroIncreasedSizeBy>0){ 
+          setCurrentCursorPosition(currentPos+addedTextMacroIncreasedSizeBy,event.target)
+        }else{
+          setCurrentCursorPosition(currentPos,event.target)
+        }
+        
+        
+      }
+      
       this.expandHeightToContent()
     },
 
@@ -724,6 +899,31 @@ export default {
         console.error("Adding a field from an empty field: ", err)
       }
     },
+
+    getCaretCharOffset(element) {
+      var caretOffset = 0;
+
+      if (window.getSelection) {
+        var range = window.getSelection().getRangeAt(0);
+        var preCaretRange = range.cloneRange();
+        preCaretRange.selectNodeContents(element);
+        preCaretRange.setEnd(range.endContainer, range.endOffset);
+        caretOffset = preCaretRange.toString().length;
+      } 
+
+      else if (document.selection && document.selection.type != "Control") {
+        var textRange = document.selection.createRange();
+        var preCaretTextRange = document.body.createTextRange();
+        preCaretTextRange.moveToElementText(element);
+        preCaretTextRange.setEndPoint("EndToEnd", textRange);
+        caretOffset = preCaretTextRange.text.length;
+      }
+
+      return caretOffset;
+    },
+
+
+
   },
   computed: {
     // other computed properties
@@ -751,6 +951,12 @@ export default {
           '@guid': short.generate()
         }]
       }
+
+      // if (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+
+      //   values = values.map((v) = > {if (v['@lang']){  v.l  }else{ }})
+      // }
+
 
       if (values.length == 0){
         this.hasNoData=true
@@ -937,11 +1143,17 @@ fieldset{
   background-color: #dfe5f1;
 }
 .inline-mode-editable-span{
-  display: inline;
-  padding: 0.2em;
+  display: inline-block;
+  /* padding: 0.2em; */
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
   outline: none;
   margin-right: 15px;
+  padding-right: 1em;
+
+  
+  
+  
+
 }
 .inline-mode-editable-span-space-maker{
   display: inline-block;
@@ -1075,6 +1287,12 @@ textarea:hover{
 
 .literal-action-inline-mode{
   display: inline-block;
+
+}
+.literal-action-inline-mode-hidden{
+  width: 1px;
+  
+
 }
 
 #nonSort-selection{
