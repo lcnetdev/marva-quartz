@@ -1,7 +1,6 @@
 <template>
 
 
-
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true">
 
       <div style="text-align: right;">
@@ -108,7 +107,14 @@
                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
                         <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
                         <div v-if="profileName.indexOf(':Instance') > -1 && profileName.indexOf(':Item') == -1" class="inline-mode-resource-color-instance">&nbsp;</div>
-                        <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
+                        <template v-if="profileStore.cammModeErrors[activeProfile.rt[profileName].pt[profileCompoent]['@guid']]">
+                          
+                          <span class="material-icons inline-mode-error-icon simptip-position-right" @click="showErrors(activeProfile.rt[profileName].pt[profileCompoent]['@guid'])">warning</span>
+                        </template>
+                        <template v-else>
+                          <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
+                        </template>
+                        
                       </template>
 
                       <!-- index == -1 means it's the work, so just add the work -->
@@ -219,6 +225,15 @@
 
     methods: {
 
+
+        showErrors(guid){
+
+          console.log(guid)
+          let msg = this.profileStore.cammModeErrors[guid].join("\n")
+          alert(msg)
+
+
+        },
 
         showDebug: function(event,data){
 
@@ -400,6 +415,14 @@
 </script>
 <style scoped>
 
+.inline-mode-error-icon{
+  font-size: 16px;
+  color:red;
+  animation-name: grow;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  z-index: 1000;
+}
 
 .read-only{
   padding-left: 2em;
@@ -483,6 +506,17 @@ div.instanceInfoWrapper {
 .instanceDeleteButton {
     float: right;
     margin-right: 5px;
+}
+
+
+
+@keyframes grow {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.5);
+    }
 }
 
 

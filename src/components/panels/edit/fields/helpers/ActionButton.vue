@@ -13,8 +13,10 @@
 
  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
 
+    <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small, 'hidden-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-camm-hide-action-button') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') ) }">
+      <span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span>
+    </button>
 
-    <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
 
     <InstanceSelectionModal ref="instanceSelectionModal" :currentRt="currentRt" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
 
@@ -997,6 +999,24 @@
     height: 14px;
     background-color: red;
     margin-left: 5px;
+  }
+
+  .hidden-mode{
+    height: 0px;
+    width: 0px;
+    max-width: 0px;
+    border: none;
+    margin: 0;
+    padding: 0;
+
+  }
+  .hidden-mode button{
+    max-width: 1px;
+  
+  }
+  .hidden-mode span{
+    visibility: hidden;
+
   }
 
 
