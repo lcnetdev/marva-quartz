@@ -2122,9 +2122,9 @@ const utilsNetwork = {
             if (responseUri){
               r.heading.rdfType = responseUri
             }
+            // also we need the MARCKeys
+            marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
           }
-          // also we need the MARCKeys
-          marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
         }
 
         let marcKeyPromisesResults = await Promise.all(marcKeyPromises);
