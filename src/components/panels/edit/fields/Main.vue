@@ -239,9 +239,9 @@ export default {
         if (colors[id]['default']){
             return colors[id]['default']
           }
-      } 
+      }
 
-      
+
 
       if (this.preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')){
         if (this.preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color') == 'transparent'){
@@ -249,7 +249,7 @@ export default {
         }else{
           return this.preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')
         }
-        
+
       }
 
 

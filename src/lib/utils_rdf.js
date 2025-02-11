@@ -273,6 +273,7 @@ const utilsRDF = {
       range=range[0]
       if (range.attributes['rdf:resource']){
         result = range.attributes['rdf:resource'].value
+        return result
       }
     }else{
       // check if it has a rdfs:subPropertyOf, if it does then we can ask for that

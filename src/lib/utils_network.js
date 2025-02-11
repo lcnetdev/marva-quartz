@@ -662,7 +662,6 @@ const utilsNetwork = {
           // data2.uri = "http://id.loc.gov/authorities/names/n79021164"
 
           // return data2
-
           try{
             let response = await fetch(jsonuri);
             let data =  await response.json()
@@ -717,7 +716,7 @@ const utilsNetwork = {
             // this is the main graph
 
             for (let k in val){
-              //add the marcKey to the nodeMap, so nothing needs to happen downstream
+              //add the marcKey to the nodeMap, so nothing needs to happen downstream //here
               if (k == 'http://id.loc.gov/ontologies/bflc/marcKey'){
                 results.nodeMap["marcKey"] = [val[k][0]['@value']]
                 results.marcKey = [val[k][0]['@value']]
@@ -2236,7 +2235,6 @@ const utilsNetwork = {
 
       let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
       let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
-
 
       let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
       let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
