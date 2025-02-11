@@ -105,7 +105,7 @@
                       <span class="subject-results-heading">Exact Match</span>
                       <div v-for="(subject,idx) in searchResults.exact" @click="selectContext((searchResults.names.length - idx)*-1-2)" @mouseover="loadContext((searchResults.names.length - idx)*-1-2)" :data-id="((searchResults.names.length - idx)*-1-2)" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1-2 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1-2 ), 'picked': (pickLookup[(searchResults.names.length - idx)*-1-2] && pickLookup[(searchResults.names.length - idx)*-1-2].picked) }]" >
                         {{subject.label}}
-                        <span v-if="subject.collections.includes('LCNAF')"> [LCNAF]</span>
+                        <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
                         <span v-if="subject.collections"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
                       </div>
                     </div>
@@ -1828,9 +1828,6 @@ methods: {
 
 
   loadContext: async function(pickPostion){
-    console.info("loadContext: ", pickPostion)
-    console.info("this.pickLookup: ", this.pickLookup)
-    console.info("this.localContextCache: ", this.localContextCache)
     if (this.pickCurrent == null) {
       this.pickPostion = pickPostion
     } else {
@@ -1859,9 +1856,6 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
-    console.info("selectContext: ", pickPostion)
-    console.info("this.pickLookup: ", this.pickLookup)
-    console.info("this.localContextCache: ", this.localContextCache)
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion

@@ -242,11 +242,8 @@ const utilsNetwork = {
      * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
      */
     fetchExactLookup: async function(url, signal=null){
-      console.info("    fetchExactLookup: ", url)
       let options = {signal: signal}
       let response = await fetch(url,options);
-
-      console.info("    response: ", response)
 
       let results
       try {
@@ -260,7 +257,6 @@ const utilsNetwork = {
         }
         results = this.searchComplex(payload)
       } catch(err){
-        console.info("error: ", err)
         return []
       }
 
@@ -277,7 +273,6 @@ const utilsNetwork = {
     * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
     */
     fetchSimpleLookup: async function(url, json, signal=null) {
-      console.info("url: ", url)
       url = url || config.profileUrl
       if (url.includes("id.loc.gov")){
         url = url.replace('http://','https://')
@@ -368,9 +363,7 @@ const utilsNetwork = {
      */
     searchExact: async function(searchPayload){
       let urlTemplate = searchPayload.url
-      console.info("Exact Search: ", urlTemplate)
       let r = await this.fetchExactLookup(urlTemplate[0], searchPayload.signal)
-      console.info("r: ", r)
       return r
     },
 
@@ -557,7 +550,6 @@ const utilsNetwork = {
         return false
       }
 
-      console.info(">>>> uri: ", uri, "--", d)
       if (d && uri.includes('resources/works/') || uri.includes('resources/hubs/')){
         results = await this.extractContextDataWorksHubs(d)
       }else if (d){
@@ -1557,8 +1549,27 @@ const utilsNetwork = {
         let subjectChildren = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
         let childrenSubjectSubdivision = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
-
         searchVal = decodeURIComponent(searchVal)
+
+        const exactUri = 'https://id.loc.gov/authorities/<SCHEME>/label/' + searchVal
+        let exactName = exactUri.replace('<SCHEME>', 'names')
+        let exactSubject = exactUri.replace('<SCHEME>', 'subjects')
+
+        let exactPayloadName = {
+          processor: 'lcAuthorities',
+          url: [exactName],
+          searchValue: searchVal,
+          subjectSearch: true,
+          signal: this.controllers.exactName.signal,
+        }
+
+        let exactPayloadSubject = {
+          processor: 'lcAuthorities',
+          url: [exactSubject],
+          searchValue: searchVal,
+          subjectSearch: true,
+          signal: this.controllers.exactSubject.signal,
+        }
 
         // console.log('subjectUrlSimpleSubdivison',subjectUrlSimpleSubdivison)
         let searchPayloadNames = {
@@ -1673,14 +1684,15 @@ const utilsNetwork = {
         let resultsChildren = []
         let resultsChildrenSubDiv = []
 
-
         let resultsGenre=[]
 
+        let resultsExactName = []
+        let resultsExactSubject = []
 
         // if it is a primary heading then we need to search LCNAF, HUBS, WORKS, and simple subjects, and do the whole thing with complex subjects
         if (heading.primary){
           // resultsNames = await this.searchComplex(searchPayloadNames)
-          [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic,resultsHierarchicalGeographicLCSH, resultsWorksAnchored, resultsHubsAnchored, resultsChildren, resultsChildrenSubDiv] = await Promise.all([
+          [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic,resultsHierarchicalGeographicLCSH, resultsWorksAnchored, resultsHubsAnchored, resultsChildren, resultsChildrenSubDiv, resultsExactName, resultsExactSubject] = await Promise.all([
               this.searchComplex(searchPayloadNames),
               this.searchComplex(searchPayloadNamesSubdivision),
               this.searchComplex(searchPayloadSubjectsSimple),
@@ -1692,6 +1704,8 @@ const utilsNetwork = {
               this.searchComplex(searchPayloadHubsAnchored),
               this.searchComplex(searchPayloadChildren),
               this.searchComplex(searchPayloadChildrenSub),
+              this.searchExact(exactPayloadName),
+              this.searchExact(exactPayloadSubject),
           ]);
 
           // console.log("searchPayloadSubjectsSimpleSubdivision",searchPayloadSubjectsSimpleSubdivision)
@@ -1709,6 +1723,9 @@ const utilsNetwork = {
           resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
           resultsChildren = resultsChildren.filter((r)=>{ return (!r.literal) })
           resultsChildrenSubDiv = resultsChildrenSubDiv.filter((r)=>{ return (!r.literal) })
+
+          resultsExactName = resultsExactName.filter((term) =>  Object.keys(term).includes("suggestLabel") )
+          resultsExactSubject = resultsExactSubject.filter((term) =>  Object.keys(term).includes("suggestLabel") )
 
           // console.log("Yeeth")
           // console.log("resultsNames",resultsNames)
@@ -1759,6 +1776,20 @@ const utilsNetwork = {
           resultsNames = resultsNames.filter((r) => { return subdivisionUris.indexOf(r.uri) } )
 
           // console.log("resultsSubjectsSimple",resultsSubjectsSimple)
+
+          // there's an exact match on the Known-Label lookup
+          let exact = resultsExactSubject.concat(resultsExactName) // gives preference to Subjects
+          if (exact.length == 1){ // if there's only 1 exact match use it.
+            for (let r of exact){
+              result.resultType = 'KNOWN-LABEL'
+              if (!result.hit){ result.hit = [] }
+              r.heading = heading
+              result.hit.push(r)
+              foundHeading = true
+              break
+            }
+            if (foundHeading){ continue }
+          }
 
           // see if there is a match for CYAK
           if (searchType && searchType.includes(":Topic:Childrens:")){
@@ -1841,7 +1872,6 @@ const utilsNetwork = {
             }
             if (foundHeading){ continue }
           }
-
 
           if (!foundHeading){
             if (!result.hit){ result.hit = [] }
@@ -2558,10 +2588,6 @@ const utilsNetwork = {
       let searchPieces = complexVal.split("--")
       let pos = searchPieces.indexOf(searchVal)
 
-      console.info("Exact Match")
-      console.info("name: ", resultsExactName)
-      console.info("subject: ", resultsExactSubject)
-
       if (resultsExactName){
         resultsExactName = resultsExactName.filter((term) =>  Object.keys(term).includes("suggestLabel") )
       }
@@ -2580,9 +2606,6 @@ const utilsNetwork = {
       }
 
       this.subjectSearchActive = false
-
-      console.info("resutls: ", results)
-
       return results
 
     },
