@@ -2113,7 +2113,6 @@ const utilsNetwork = {
 
 
       let marcKeyPromises = []
-
       // we want to double check the rdfType heading to make sure if we need to ask id to get more clarity about the rdfType
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
@@ -2123,10 +2122,9 @@ const utilsNetwork = {
             if (responseUri){
               r.heading.rdfType = responseUri
             }
-
-            // also we need the MARCKeys
-            marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
           }
+          // also we need the MARCKeys
+          marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
         }
 
         let marcKeyPromisesResults = await Promise.all(marcKeyPromises);
@@ -2228,7 +2226,6 @@ const utilsNetwork = {
     * @return {string} - The URI of the likely MADSRDF rdf type
     */
     returnMARCKey: async function(uri){
-
       uri=uri.trim()
       let uriToLookFor = uri
 
@@ -2252,19 +2249,17 @@ const utilsNetwork = {
           uri=uri+'.json'
         }
       }
-
       let data = await this.fetchSimpleLookup(uri,true)
 
       if (uri.indexOf('id.loc.gov')>-1){
 
         for (let d of data){
-
           // loop through the graphs
           if (d && d['@id'] && d['@id'] == uriToLookFor){
             // this is the right graph
             if (d['http://id.loc.gov/ontologies/bflc/marcKey']){
               for (let marcKey of d['http://id.loc.gov/ontologies/bflc/marcKey']){
-                if (marcKey['@value']){
+                if (marcKey['@value'] && !marcKey['@language']){
                   return {marcKey: marcKey['@value'], uri: uriToLookFor}
                 }
               }
