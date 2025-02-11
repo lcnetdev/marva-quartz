@@ -1778,8 +1778,8 @@ const utilsNetwork = {
           // console.log("resultsSubjectsSimple",resultsSubjectsSimple)
 
           // there's an exact match on the Known-Label lookup
-          let exact = resultsExactSubject.concat(resultsExactName) // gives preference to Subjects
-          if (exact.length == 1){ // if there's only 1 exact match use it.
+          let exact = resultsExactSubject.concat(resultsExactName)
+          if (exact.length == 1){ // if there's only 1 exact match, use it.
             for (let r of exact){
               result.resultType = 'KNOWN-LABEL'
               if (!result.hit){ result.hit = [] }
