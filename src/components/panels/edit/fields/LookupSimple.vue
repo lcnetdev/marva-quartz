@@ -21,7 +21,7 @@
               <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span></span>
               <a href="#" class="inline-remove-x" @click="removeValue(idx)" style="">x</a>
           </template> -->
-<!-- 
+<!--
           <template v-for="(avl,idx) in simpleLookupValues" ></template>
             <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
             <input v-model="activeValue" class="inline-lookup-input can-select 1" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly"  />
@@ -203,11 +203,11 @@ export default {
       cammModeShowAutoComplete: false,
 
       findSelectListTime: null,
-      
+
       activeValue: '',
 
 
-      
+
     }
   },
 
@@ -303,7 +303,7 @@ export default {
       return false
     },
 
-    // this is the text that goes into the field when it is added in camm mode because we don't add labels or badges in camm mode    
+    // this is the text that goes into the field when it is added in camm mode because we don't add labels or badges in camm mode
     returnCAMMModeValueLiteral(){
 
       console.log(this.simpleLookupValues)
@@ -315,7 +315,7 @@ export default {
 
 
 
-  
+
   methods:{
 
     focusClick: function(){
@@ -331,7 +331,9 @@ export default {
         this.displayAutocomplete = false
       },250)
 
-      this.cammModeDelayedAdd(event)
+      if (this.returnCAMModeShowAutoComplete == true){
+        this.cammModeDelayedAdd(event)
+      }
 
     },
 
@@ -462,12 +464,12 @@ export default {
                   exactMatches.push(x)
                 }else{
                   this.displayList.push(x)
-                }               
+                }
               }
             }else{
               console.warn('Could not find the metadata in the simple lookup response, this should not happen.')
             }
-            
+
           })
         }
 
@@ -724,7 +726,7 @@ export default {
 
 
         // find the active selected in the data
-        
+
         for (let key of Object.keys(metadata)){
           // let idx = metadata[key].displayLabel.indexOf(this.activeSelect)
           // // a dumb bug here where depending on the vocab the label has extra spaces in it....
@@ -743,7 +745,7 @@ export default {
 
           let isMatch = (this.activeSelect == displayLabel)
           if (!isMatch){
-            isMatch = (this.activeSelect == authLabel)       
+            isMatch = (this.activeSelect == authLabel)
           }
 
           // if it is an array then try to match up to it
@@ -853,7 +855,7 @@ export default {
 
 
     clickAdd: function(item){
-      
+
       this.displayAutocomplete=false
 
       this.activeSelect = item
@@ -867,7 +869,7 @@ export default {
       // console.log("META",JSON.stringify(metadata,null,2))
 
       // find the active selected in the data
-      
+
       for (let key of Object.keys(metadata)){
 
         let displayLabel = metadata[key].displayLabel
@@ -875,7 +877,7 @@ export default {
         displayLabel = displayLabel.replace(/\s+/g,' ')
 
 
-        
+
         // if we don't see it in the display label it might be in the authLabel becase the display label will be sometihng like "dlc (USE United States, Library of Congress)"
         let authLabel = metadata[key].authLabel
         if (authLabel){ authLabel = authLabel.replace(/\s+/g,' ')}
@@ -883,9 +885,9 @@ export default {
         let isMatch = (this.activeSelect == displayLabel)
 
         if (!isMatch){
-          isMatch = (this.activeSelect == authLabel)       
+          isMatch = (this.activeSelect == authLabel)
         }
-        
+
         // if it is an array then try to match up to it
         if (!isMatch){
           if (Array.isArray(metadata[key].displayLabel)){
@@ -902,7 +904,7 @@ export default {
         // console.log("looking for ",this.activeSelect,' in ', displayLabel, 'or',  authLabel)
 
 
-        
+
         if (isMatch){
           this.activeFilter = ''
           this.activeValue = ''
@@ -926,25 +928,25 @@ export default {
 
       // always go through and remove everything before we process it again
       // for (let val of this.simpleLookupValues){
-      //   this.profileStore.removeValueSimple(this.guid, val['@guid'])      
+      //   this.profileStore.removeValueSimple(this.guid, val['@guid'])
       // }
 
 
-      if (inputValues.trim().length==0){ 
-          
+      if (inputValues.trim().length==0){
+
         for (let val of this.simpleLookupValues){
-          this.profileStore.removeValueSimple(this.guid, val['@guid'])      
+          this.profileStore.removeValueSimple(this.guid, val['@guid'])
         }
 
         this.profileStore.clearCammModeError(this.guid)
 
         return false
-      
+
       }
 
       // allow for multiple values seperated by a commma
       for (let inputValue of inputValues.split(",")){
-          
+
         console.log(inputValue)
 
         this.profileStore.clearCammModeError(this.guid)
@@ -986,7 +988,7 @@ export default {
         console.log(matches)
         if (matches.length == 1){
           // perfect
-          
+
           console.log("utilsNetwork.lookupLibrary.metadata[matches[0]]")
           console.log(utilsNetwork.lookupLibrary[this.uri].metadata.values)
 
@@ -997,7 +999,7 @@ export default {
           let authLabel = utilsNetwork.lookupLibrary[this.uri].metadata.values[matches[0]].authLabel
           if (authLabel){ authLabel = authLabel.replace(/\s+/g,' ')}
           let useLabel = (authLabel) ? authLabel : displayLabel
-          
+
           if (this.simpleLookupValues.length>0){
             for (let val of this.simpleLookupValues ){
               if (val.URI == matches[0]){
@@ -1011,7 +1013,7 @@ export default {
 
 
           this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,matches[0],useLabel)
-          
+
         }else if (matches.length>1){
           //bad
           this.profileStore.addCammModeError(this.guid,'Multiple values match this code, please use the auto complete dropdown (CTRL+Space) to select a value: ' +inputValue )
@@ -1034,7 +1036,7 @@ export default {
 
 
 
-      
+
     }
 
 
@@ -1224,5 +1226,5 @@ export default {
 
 .component .lookup-fake-input{
   border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')");
-} 
+}
 </style>
