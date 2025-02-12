@@ -1302,7 +1302,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
-      console.info("setValueSimple")
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
@@ -1471,7 +1470,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     removeValueSimple: async function(componentGuid, fieldGuid){
-      console.info("removeValueSimple")
 
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
