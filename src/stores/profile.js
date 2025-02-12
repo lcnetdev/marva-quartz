@@ -5002,11 +5002,110 @@ export const useProfileStore = defineStore('profile', {
 
               // see if we can find the component
               let ptObjFound = false
-              for (let pt in this.activeProfile.rt[component.parentId].pt){
-                if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
-                  ptObjFound = this.activeProfile.rt[component.parentId].pt[pt]
+
+              // if it is an admin metadata do something special
+              if (component.propertyURI == "http://id.loc.gov/ontologies/bibframe/adminMetadata"){
+
+                for (let pt in this.activeProfile.rt[component.parentId].pt){
+                  if (this.activeProfile.rt[component.parentId].pt[pt].propertyURI == component.propertyURI && this.activeProfile.rt[component.parentId].pt[pt].adminMetadataType && this.activeProfile.rt[component.parentId].pt[pt].adminMetadataType == 'primary' ){
+                    ptObjFound = this.activeProfile.rt[component.parentId].pt[pt]
+                  }
                 }
+
+                // we are going to perform a quick replace here, saving the local identifier and local 040 note from the 
+                let localId=null
+                let local040=null
+                if (ptObjFound && 
+                    ptObjFound.userValue && 
+                    ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
+                    ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
+                    ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/identifiedBy"]){
+                      for (let lId of ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/identifiedBy"] ){
+                        if (lId['@type'] == "http://id.loc.gov/ontologies/bibframe/Local"){
+                          localId = JSON.parse(JSON.stringify(lId))
+                          break
+                        }
+                      }
+                    }
+
+                if (ptObjFound && 
+                    ptObjFound.userValue && 
+                    ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
+                    ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
+                    ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/note"]){
+                      for (let n of ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/note"] ){
+                        if (JSON.stringify(n).indexOf("040") > -1){
+                          local040 = JSON.parse(JSON.stringify(n))
+                          break
+                        }
+                      }
+                    }
+                
+                    console.log("localId",localId)
+                    console.log("local040",local040)
+                
+                // okay now do the same on the component we are about to use, but replace the two values with the ones we just extracted
+                if (component && 
+                  component.userValue && 
+                  component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
+                  component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
+                  component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/identifiedBy"]){
+                    let to_replace_with = []
+                    if (localId){ to_replace_with.push(JSON.parse(JSON.stringify(localId)))}
+
+                    for (let lId of component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/identifiedBy"] ){
+                      if (lId['@type'] == "http://id.loc.gov/ontologies/bibframe/Local"){
+                        // this is the localid from the saved component, we don't want it so don't do anything
+                      }else{
+                        // this isn't one, dunno what it is? but add it to the new one
+                        to_replace_with.push(lId)
+                      }
+                    }   
+                    
+                    // replace it with what we have, if it did not find the thing then it will be [] and blank in the new data otherwise it will be replaced
+                    component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/identifiedBy"] = to_replace_with
+
+                }
+
+
+                if (component && 
+                  component.userValue && 
+                  component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
+                  component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
+                  component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/note"]){
+                    let to_replace_with = []
+                    if (local040){ to_replace_with.push(JSON.parse(JSON.stringify(local040)))}
+
+                    for (let n of component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/note"] ){
+                      if (JSON.stringify(n).indexOf("040") > -1){
+                        // this is the local040 from the saved component, we don't want it so don't do anything
+                      }else{
+                        // this isn't one, dunno what it is? but add it to the new one
+                        to_replace_with.push(n)
+                      }
+                    }                       
+                    // replace it with what we have, if it did not find the thing then it will be [] and blank in the new data otherwise it will be replaced
+                    component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/note"] = to_replace_with
+
+                }
+
+
+                // we are going to zero out the userValue of the found AdminMetadata here so the process below replaces it with the new one and not add it as another
+                ptObjFound.userValue = {'@root': "http://id.loc.gov/ontologies/bibframe/adminMetadata"}
+                
+
+              }else{
+
+                // loop till we find the first one
+                for (let pt in this.activeProfile.rt[component.parentId].pt){
+                  if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
+                    ptObjFound = this.activeProfile.rt[component.parentId].pt[pt]
+                  }
+                }
+
+
               }
+
 
               if (ptObjFound != false){
                 console.log("Found orignal here:",ptObjFound)

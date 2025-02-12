@@ -258,7 +258,7 @@ export default {
       if (this.readOnly && values.length==0){
         this.showField=false
       }
-      console.log("values",values)
+      
       return values
 
     },
