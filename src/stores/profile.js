@@ -1471,7 +1471,6 @@ export const useProfileStore = defineStore('profile', {
     */
     removeValueSimple: async function(componentGuid, fieldGuid){
 
-
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
@@ -2936,7 +2935,7 @@ export const useProfileStore = defineStore('profile', {
         }else{
           return utilsExport.namespaceUri(structure.propertyURI)
         }
-        
+
       }
 
       let code = utilsParse.namespaceUri(structure.propertyURI)
@@ -5185,27 +5184,27 @@ export const useProfileStore = defineStore('profile', {
      * @param {string} error - the error message
      */
     addCammModeError: function(guid, error){
-      
+
       if (!this.cammModeErrors[guid]){
         this.cammModeErrors[guid]=[]
       }
 
       this.cammModeErrors[guid].push(error)
-      
+
     },
     /**
      *
      * @param {string} guid - guid of the component
      */
-    clearCammModeError: function(guid){      
+    clearCammModeError: function(guid){
       if (this.cammModeErrors[guid]){
         delete this.cammModeErrors[guid]
       }
     },
 
-    
 
-    
+
+
 
 
 
