@@ -1157,7 +1157,7 @@ export const usePreferenceStore = defineStore('preference', {
     '--b-edit-main-splitpane-edit-inline-mode' : {
       desc: 'Compact Advanced Modular Mode.',
       descShort: 'Use CAMM Mode',
-      value: true,
+      value: false,
       type: 'boolean',
       unit: null,
       group: 'CAMM Mode',
@@ -1346,7 +1346,9 @@ export const usePreferenceStore = defineStore('preference', {
             prefs.styleDefault[k].group = 'CAMM Mode'
             prefs.styleDefault[k].desc = 'Compact Advanced Modular Mode.'
             prefs.styleDefault[k].descShort = 'Use CAMM Mode'
+            prefs.styleDefault[k].value = false
 
+            
             
           }
           
