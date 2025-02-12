@@ -236,8 +236,10 @@ export default {
         useVal.push(idVal)
       }
     }
-
-    this.activeValue = useVal.join(",")
+    if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+      this.activeValue = useVal.join(",")
+    }
+    
 
   },
 
