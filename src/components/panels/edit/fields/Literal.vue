@@ -800,7 +800,7 @@ export default {
       if (event.target.tagName === 'SPAN'){
         currentPos = this.getCaretCharOffset(event.target)
       }
-      console.log("3 v:",v)
+      // console.log("3 v:",v)
       await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,useLang)
 
       if (setFocus){
@@ -831,7 +831,7 @@ export default {
       // it seems like when the content editable span is updated via the vue variable the cursor pos is lost
       // so reset it back to where it was before the content was updated
       if (event.target.tagName === 'SPAN'){
-        console.log(currentPos,addedTextMacroIncreasedSizeBy)
+        
         
         if (addedTextMacroIncreasedSizeBy>0){ 
           setCurrentCursorPosition(currentPos+addedTextMacroIncreasedSizeBy,event.target)
