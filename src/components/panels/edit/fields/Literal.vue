@@ -7,13 +7,13 @@
         <span class="bfcode-display-mode-holder-label simptip-position-top" :data-tooltip="structure.propertyLabel"  :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
           <!-- <span @focus="inlineEmptyFocus" contenteditable="true" class="inline-mode-editable-span" ><span class="inline-mode-editable-span-space-maker">&nbsp;</span></span>         -->
           <input type="text" @focusin="focused" @keyup="navKey"  @input="valueChanged($event,true)" class="inline-mode-editable-span-input can-select" :ref="'input_' + literalValues[0]['@guid']" :data-guid="literalValues[0]['@guid']" />
-         
-         
+
+
           <Transition name="action">
               <div :class="{'literal-action-inline-mode':true, 'literal-action-inline-mode-hidden': preferenceStore.returnValue('--b-edit-main-splitpane-camm-hide-action-button')}" v-if="showActionButton && myGuid == activeField">
                 <action-button :clickmode="true" :structure="structure" @keyup="navKey" @focusin="focused"  :small="true" :fieldGuid="literalValues[0]['@guid']" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
             </div>
-          </Transition>    
+          </Transition>
 
 
       </template>
@@ -24,13 +24,13 @@
           <span class="bfcode-display-mode-holder-label simptip-position-top" :data-tooltip="structure.propertyLabel"   :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
 
           <span contenteditable="plaintext-only" @focusin="focused" @blur="blured" @keydown="keyDown" class="inline-mode-editable-span can-select" @keyup="navKey" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}{{(lValue['@language'] != null) ? '@'+lValue['@language'] : ''}}</span>
-        
+
           <Transition name="action">
               <div :class="{'literal-action-inline-mode':true, 'literal-action-inline-mode-hidden': preferenceStore.returnValue('--b-edit-main-splitpane-camm-hide-action-button')}" v-if="showActionButton && myGuid == activeField">
                 <action-button :clickmode="true" :structure="structure"  :small="true" :fieldGuid="lValue['@guid']" :type="'literal'" :guid="guid"  @action-button-command="actionButtonCommand" />
             </div>
-          </Transition>        
-        
+          </Transition>
+
         </template>
 
 
@@ -123,6 +123,8 @@
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/classificationPortion'">
 
         <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://classweb.org/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan='+lccFeatureData.classNumber+'&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'" target="_blank">ClassWeb Search: {{ lccFeatureData.classNumber }}</a><br/>
+        <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+lccFeatureData.classNumber" target="_blank">ClassWeb Browse: {{ lccFeatureData.classNumber }}</a><br/>
+
         <a style="color:black" v-if="lccFeatureData.firstSubject" :href="'https://classweb.org/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a>
 
 
@@ -264,7 +266,7 @@ function createRange(node, chars, range) {
                 }
             }
         }
-    } 
+    }
 
     return range;
 };
@@ -436,8 +438,8 @@ export default {
             if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
               // console.log("run this macro", macro)
 
-              
-              // if we are in CAMM mode then the fields will be editable SPANs which do not have .value they have .innerText 
+
+              // if we are in CAMM mode then the fields will be editable SPANs which do not have .value they have .innerText
               // so we temporarly put .innerText into the .value attr to work on it then pull it back out into .innerText at the end of the editing
               let insertAt
               if (event.target.tagName === 'SPAN'){
@@ -509,7 +511,7 @@ export default {
                     this.$nextTick(()=>{
 
                       if (event.target.tagName === 'SPAN'){
-                        // Here we put it back in to .innerText and we need to use a 
+                        // Here we put it back in to .innerText and we need to use a
                         // special setRange fucntion as well because contenteditabl dont have .setSelectionRange either
                         event.target.innerText = event.target.value
                         setCurrentCursorPosition(insertAt+1,event.target)
@@ -559,7 +561,7 @@ export default {
                   // inputV.value=inputV.value+macro.codeEscape
 
                   if (event.target.tagName === 'SPAN'){
-                    // Here we put it back in to .innerText and we need to use a 
+                    // Here we put it back in to .innerText and we need to use a
                     // special setRange fucntion as well because contenteditabl dont have .setSelectionRange either
                     event.target.innerText = event.target.value
                     setCurrentCursorPosition(insertAt+1,event.target)
@@ -580,7 +582,7 @@ export default {
                         inputV.setSelectionRange(insertAt+1,insertAt+1)
                       }
 
-                      
+
 
                       this.$nextTick(()=>{
                         inputV.focus()
@@ -676,7 +678,7 @@ export default {
             }else{
               inputV.setSelectionRange(insertAt+1,insertAt+1)
             }
-              
+
 
             this.$nextTick(()=>{
               inputV.focus()
@@ -739,7 +741,7 @@ export default {
 
     valueChanged: async function(event,setFocus){
       let v = event.target.value
-      
+
       if (event.target.tagName === 'SPAN'){
         v = event.target.innerText
         if (event.data && event.data === '|'){
@@ -760,7 +762,7 @@ export default {
           if (oldV != v){
             addedTextMacroIncreasedSizeBy=addedTextMacroIncreasedSizeBy+m.replaceWith.length-m.lookFor.length
           }
-          
+
         }
       }
       // if the value is empty then wait 2 seconds and check if it is empty again, if it is then continue with the removal
@@ -783,7 +785,7 @@ export default {
           v = v.replace(foundLang,'')
           useLang = foundLang.toLowerCase().replace("@",'')
 
-          
+
         }
       }else{
         // there is no language now, but was there before? and they are removing it or there never was
@@ -795,7 +797,7 @@ export default {
           }
         }
       }
-      
+
       let currentPos = 0
       if (event.target.tagName === 'SPAN'){
         currentPos = this.getCaretCharOffset(event.target)
@@ -807,8 +809,8 @@ export default {
 
         let r = 'input_' + this.literalValues[0]['@guid']
         let el = this.$refs[r][0]
-        
-        
+
+
         el.focus();
         if (typeof window.getSelection != "undefined"
                 && typeof document.createRange != "undefined") {
@@ -831,17 +833,17 @@ export default {
       // it seems like when the content editable span is updated via the vue variable the cursor pos is lost
       // so reset it back to where it was before the content was updated
       if (event.target.tagName === 'SPAN'){
-        
-        
-        if (addedTextMacroIncreasedSizeBy>0){ 
+
+
+        if (addedTextMacroIncreasedSizeBy>0){
           setCurrentCursorPosition(currentPos+addedTextMacroIncreasedSizeBy,event.target)
         }else{
           setCurrentCursorPosition(currentPos,event.target)
         }
-        
-        
+
+
       }
-      
+
       this.expandHeightToContent()
     },
 
@@ -909,7 +911,7 @@ export default {
         preCaretRange.selectNodeContents(element);
         preCaretRange.setEnd(range.endContainer, range.endOffset);
         caretOffset = preCaretRange.toString().length;
-      } 
+      }
 
       else if (document.selection && document.selection.type != "Control") {
         var textRange = document.selection.createRange();
@@ -1149,9 +1151,9 @@ fieldset{
   margin-right: 15px;
   padding-right: 1em;
 
-  
-  
-  
+
+
+
 
 }
 .inline-mode-editable-span-space-maker{
@@ -1290,7 +1292,7 @@ textarea:hover{
 }
 .literal-action-inline-mode-hidden{
   width: 1px;
-  
+
 
 }
 
