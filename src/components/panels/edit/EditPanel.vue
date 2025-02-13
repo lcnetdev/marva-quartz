@@ -108,13 +108,13 @@
                         <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
                         <div v-if="profileName.indexOf(':Instance') > -1 && profileName.indexOf(':Item') == -1" class="inline-mode-resource-color-instance">&nbsp;</div>
                         <template v-if="profileStore.cammModeErrors[activeProfile.rt[profileName].pt[profileCompoent]['@guid']]">
-                          
+
                           <span class="material-icons inline-mode-error-icon simptip-position-right" @click="showErrors(activeProfile.rt[profileName].pt[profileCompoent]['@guid'])">warning</span>
                         </template>
                         <template v-else>
                           <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
                         </template>
-                        
+
                       </template>
 
                       <!-- index == -1 means it's the work, so just add the work -->
@@ -262,7 +262,13 @@
 
         isReadOnly: function(component){
 
-          if (component.adminMetadataType && component.adminMetadataType == 'secondary'){
+          let lotsOfFields = component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] ? Object.keys(component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]).length > 7 : false
+
+          if(component.propertyLabel == 'Admin Metadata'){
+            console.info("    ", lotsOfFields, "--",component)
+          }
+
+          if (component.adminMetadataType && component.adminMetadataType == 'secondary' && !lotsOfFields){
             return true
           }
 
@@ -277,6 +283,7 @@
         //We only want the editable admin field under instances to show up
         // Don't show READONLY ADMIN fields in the instance, Don't show any admin fields in the work
         hideAdminField: function(component, profileName){
+
           let readOnly = this.isReadOnly(component)
           let isWork = profileName.includes(':Work')
           let isAdminField = component.propertyURI.includes('adminMetadata')
