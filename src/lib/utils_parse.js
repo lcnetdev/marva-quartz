@@ -1,5 +1,6 @@
 import {useConfigStore} from "../stores/config";
 import {useProfileStore} from "../stores/profile";
+import {usePreferenceStore} from "../stores/preference";
 
 import short from 'short-uuid'
 
@@ -1718,14 +1719,14 @@ const utilsParse = {
           let userValue = profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'][0]
 
           // // if it doesnt already have a cataloger id use ours
-          // if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
-          //   userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
-          //     {
-          //       "@guid": short.generate(),
-          //       "http://id.loc.gov/ontologies/bflc/catalogerId": useProfileStore().catInitials
-          //     }
-          //   ]
-          // }
+          if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
+            userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
+              {
+                "@guid": short.generate(),
+                "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
+              }
+            ]
+          }
 
           // // we need to set the procInfo, so use whatever we have in the profile
           // userValue['http://id.loc.gov/ontologies/bflc/procInfo'] = [
@@ -1736,10 +1737,13 @@ const utilsParse = {
           // ]
 
           // using MARC2BF rules 2.6+ we need to find the admin metadata that does not have a status
-          // that will be our primary adminMetadat that they edit
+          // that will be our primary adminMetadata that they edit. Except, we want the `primary` Admin field to stay primary
+          // even after it gets a status. Most of the admin fields will be hidden, but the Primary field in the instance will
+          // remain and should continue to be editable.
 
           if (userValue){
-            if (!userValue['http://id.loc.gov/ontologies/bibframe/status']){
+
+            if (profile.rt[pkey].pt[key].parentId.includes(":Instance") && (!userValue['http://id.loc.gov/ontologies/bibframe/status'] || Object.keys(userValue).length > 7)){
               profile.rt[pkey].pt[key].adminMetadataType = 'primary'
               adminMedtataPrimary = key
             }else{
