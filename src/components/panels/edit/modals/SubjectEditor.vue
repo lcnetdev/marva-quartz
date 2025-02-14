@@ -248,7 +248,7 @@
                     <div  style="display: flex;">
                       <div  style="flex:1; position: relative;">
                         <form autocomplete="off" style="height: 3em;">
-                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input">
+                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input" id="subject-input">
                         </form>
                         <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
                           {{c.label}}
@@ -772,7 +772,7 @@ props: {
   isLiteral: Boolean,
   profileData: Object,
   searchType: String,
-
+  fromPaste: Boolean,
 },
 
 watch: {
@@ -994,7 +994,10 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
+    // searchString = searchString.replace("—", "--") // when copying a heading from class web
+
     let subjectStringSplit = searchString.split('--')
+
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
 
@@ -2223,13 +2226,14 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
     if (this.initialLoad == true) {
-      let pieces = this.$refs.subjectInput.value.split("--")
+      let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
       let lastPiece = pieces.at(-1)
-      this.searchApis(lastPiece, this.$refs.subjectInput.value, this)
+      this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
       this.initialLoad = false
     }
 
@@ -2988,11 +2992,14 @@ updated: function() {
     }
   }
 
+  let searchValue = this.searchValue
+  searchValue = searchValue.replace("—", "--")
+
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
-  if (this.searchValue && this.components.length != this.searchValue.split("--").length && !this.searchValue.endsWith('-')){
+  if (searchValue && this.components.length != searchValue.split("--").length && !searchValue.endsWith('-')){
     this.buildLookupComponents(incomingSubjects)
-    this.buildComponents(this.searchValue)
+    this.buildComponents(searchValue)
 
     this.initialLoad = false
     this.subjectStringChanged()
@@ -3002,7 +3009,7 @@ updated: function() {
 
   // this supports loading existing information into the forms
   if (this.authorityLookup != null) {
-    this.authorityLookupLocal = this.authorityLookup
+    this.authorityLookupLocal = this.authorityLookup.replace("—", "--")
     this.subjectInput = this.authorityLookupLocal
     this.linkModeString = this.authorityLookupLocal
     try {
