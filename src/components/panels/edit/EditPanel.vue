@@ -262,13 +262,7 @@
 
         isReadOnly: function(component){
 
-          let lotsOfFields = component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] ? Object.keys(component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]).length > 7 : false
-
-          if(component.propertyLabel == 'Admin Metadata'){
-            console.info("    ", lotsOfFields, "--",component)
-          }
-
-          if (component.adminMetadataType && component.adminMetadataType == 'secondary' && !lotsOfFields){
+          if (component.adminMetadataType && component.adminMetadataType == 'secondary'){
             return true
           }
 
