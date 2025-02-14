@@ -102,9 +102,17 @@
                   <div v-if="searchResults !== null" style="height: 95%">
 
                     <div v-if="searchResults && searchResults.exact.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
-                      <span class="subject-results-heading">Exact Match</span>
+                      <span class="subject-results-heading">Known Label</span>
                       <div v-for="(subject,idx) in searchResults.exact" @click="selectContext((searchResults.names.length - idx)*-1-2)" @mouseover="loadContext((searchResults.names.length - idx)*-1-2)" :data-id="((searchResults.names.length - idx)*-1-2)" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1-2 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1-2 ), 'picked': (pickLookup[(searchResults.names.length - idx)*-1-2] && pickLookup[(searchResults.names.length - idx)*-1-2].picked) }]" >
-                        {{subject.label}}
+                        <template v-if="subject.label == subjectString">
+                          {{subject.label}}
+                        </template>
+                        <template v-else>
+                            {{subject.label}}
+                            <span class="subject-variant">
+                              ((VARIANT))
+                            </span>
+                        </template>
                         <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
                         <span v-if="subject.collections"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
                       </div>
@@ -248,7 +256,7 @@
                     <div  style="display: flex;">
                       <div  style="flex:1; position: relative;">
                         <form autocomplete="off" style="height: 3em;">
-                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input">
+                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input" id="subject-input">
                         </form>
                         <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
                           {{c.label}}
@@ -717,6 +725,10 @@ margin-top: 10px;
   height: 100%;
 }
 
+.subject-variant {
+  color: #ffc107;
+  font-weight: bold;
+}
 
 /*
 .left-menu-list-item-has-data::before {
@@ -772,7 +784,7 @@ props: {
   isLiteral: Boolean,
   profileData: Object,
   searchType: String,
-
+  fromPaste: Boolean,
 },
 
 watch: {
@@ -994,7 +1006,10 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
+    // searchString = searchString.replace("—", "--") // when copying a heading from class web
+
     let subjectStringSplit = searchString.split('--')
+
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
 
@@ -1486,6 +1501,7 @@ methods: {
           if (that.activeComponent.uri == that.pickLookup[k].uri){
             that.pickPostion=k
             that.pickLookup[k].picked=true
+            console.info("1")
             that.selectContext()
           }
         }else{
@@ -1672,6 +1688,11 @@ methods: {
         out.push("(SubDiv)")
       }
 
+      // favor SubDiv over GnFrm
+      if (out.includes("(GnFrm)") && collections.includes("Subdivisions")){
+        out = ["(SubDiv)"]
+      }
+
       // if (collections.includes("LCNAF")){
       //     out.push("[LCNAF]")
       // }
@@ -1856,12 +1877,14 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
+    console.info("selectContext: ", pickPostion, "--", update)
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
       this.getContext()
+      //Science—Experiments
     }
-
+    console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
     if (this.pickLookup[this.pickPostion].complex){
       // if it is a complex authorized heading then just replace the whole things with it
       this.subjectString = this.pickLookup[this.pickPostion].label
@@ -1880,6 +1903,7 @@ methods: {
       //This check is needed to prevent falling into recursive loop when loading
       // existing data.
       if (update == true) {
+        console.info("update")
         this.subjectStringChanged()
       }
 
@@ -1891,12 +1915,12 @@ methods: {
 
     }else{
       // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
-
+      console.info("this.subjectString: ", this.subjectString)
       // take the subject string and split
       let splitString = this.subjectString.split('--')
 
       // replace the string with what we selected
-
+      console.info("this.activeComponentIndex: ", this.activeComponentIndex)
       splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
 
       this.subjectString = splitString.join('--')
@@ -1968,7 +1992,7 @@ methods: {
       }
 
 
-
+      console.info("2")
       this.selectContext()
 
     }else if (event.ctrlKey && event.key == "1"){
@@ -2223,13 +2247,14 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
     if (this.initialLoad == true) {
-      let pieces = this.$refs.subjectInput.value.split("--")
+      let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
       let lastPiece = pieces.at(-1)
-      this.searchApis(lastPiece, this.$refs.subjectInput.value, this)
+      this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
       this.initialLoad = false
     }
 
@@ -2988,11 +3013,14 @@ updated: function() {
     }
   }
 
+  let searchValue = this.searchValue
+  searchValue = searchValue.replace("—", "--")
+
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
-  if (this.searchValue && this.components.length != this.searchValue.split("--").length && !this.searchValue.endsWith('-')){
+  if (searchValue && this.components.length != searchValue.split("--").length && !searchValue.endsWith('-')){
     this.buildLookupComponents(incomingSubjects)
-    this.buildComponents(this.searchValue)
+    this.buildComponents(searchValue)
 
     this.initialLoad = false
     this.subjectStringChanged()
@@ -3002,7 +3030,7 @@ updated: function() {
 
   // this supports loading existing information into the forms
   if (this.authorityLookup != null) {
-    this.authorityLookupLocal = this.authorityLookup
+    this.authorityLookupLocal = this.authorityLookup.replace("—", "--")
     this.subjectInput = this.authorityLookupLocal
     this.linkModeString = this.authorityLookupLocal
     try {
@@ -3036,8 +3064,10 @@ updated: function() {
                   } else {
                     idx = pos
                   }
-                  this.selectContext(idx, false)
-                  this.validateOkayToAdd()
+                  if (!this.fromPaste){
+                    this.selectContext(idx, false)
+                    this.validateOkayToAdd()
+                  }
                 } catch(err) {
                   console.error(err)
                 }

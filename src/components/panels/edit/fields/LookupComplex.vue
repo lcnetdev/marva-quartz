@@ -100,10 +100,10 @@
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
-              
+
 
               <div v-for="(avl,idx) in complexLookupValues" class="selected-value-container">
-                
+
                 <div class="selected-value-container-auth">
                   <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')"  :type="avl.type"/>
                 </div>
@@ -181,7 +181,7 @@
 
   </template>
   <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal" :searchType="searchType" />
-  <SubjectEditor ref="subjectEditorModal" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" />
+  <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" />
 
 </template>
 
@@ -250,6 +250,7 @@ export default {
 
       displayModal: false,
       displaySubjectModal: false,
+      fromPaste: false,
 
       showActionButton: false,
 
@@ -680,6 +681,7 @@ export default {
               this.searchType = selected
             } catch {}
 
+            this.fromPaste = event.inputType == 'insertFromPaste' ? true : false
             this.displaySubjectModal=true
             this.$nextTick(() => {
               this.$refs.subjectEditorModal.focusInput()
@@ -918,7 +920,7 @@ export default {
   align-items: center;
   justify-content: center;
   height: 2em;
-  
+
 }
 .selected-value-container a{
   color:  v-bind("preferenceStore.returnValue('--c-edit-main-lookup-text-color')") !important;
@@ -979,7 +981,7 @@ export default {
 
 .component .lookup-fake-input{
   border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
-} 
+}
 
 
 </style>
