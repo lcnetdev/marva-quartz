@@ -1489,6 +1489,7 @@ methods: {
           if (that.activeComponent.uri == that.pickLookup[k].uri){
             that.pickPostion=k
             that.pickLookup[k].picked=true
+            console.info("1")
             that.selectContext()
           }
         }else{
@@ -1859,12 +1860,14 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
+    console.info("selectContext: ", pickPostion, "--", update)
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
       this.getContext()
+      //Science—Experiments
     }
-
+    console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
     if (this.pickLookup[this.pickPostion].complex){
       // if it is a complex authorized heading then just replace the whole things with it
       this.subjectString = this.pickLookup[this.pickPostion].label
@@ -1883,6 +1886,7 @@ methods: {
       //This check is needed to prevent falling into recursive loop when loading
       // existing data.
       if (update == true) {
+        console.info("update")
         this.subjectStringChanged()
       }
 
@@ -1894,12 +1898,12 @@ methods: {
 
     }else{
       // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
-
+      console.info("this.subjectString: ", this.subjectString)
       // take the subject string and split
       let splitString = this.subjectString.split('--')
 
       // replace the string with what we selected
-
+      console.info("this.activeComponentIndex: ", this.activeComponentIndex)
       splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
 
       this.subjectString = splitString.join('--')
@@ -1971,7 +1975,7 @@ methods: {
       }
 
 
-
+      console.info("2")
       this.selectContext()
 
     }else if (event.ctrlKey && event.key == "1"){
@@ -3043,8 +3047,10 @@ updated: function() {
                   } else {
                     idx = pos
                   }
-                  this.selectContext(idx, false)
-                  this.validateOkayToAdd()
+                  if (!this.fromPaste){
+                    this.selectContext(idx, false)
+                    this.validateOkayToAdd()
+                  }
                 } catch(err) {
                   console.error(err)
                 }
