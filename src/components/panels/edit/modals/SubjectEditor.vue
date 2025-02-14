@@ -102,9 +102,17 @@
                   <div v-if="searchResults !== null" style="height: 95%">
 
                     <div v-if="searchResults && searchResults.exact.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
-                      <span class="subject-results-heading">Exact Match</span>
+                      <span class="subject-results-heading">Known Label</span>
                       <div v-for="(subject,idx) in searchResults.exact" @click="selectContext((searchResults.names.length - idx)*-1-2)" @mouseover="loadContext((searchResults.names.length - idx)*-1-2)" :data-id="((searchResults.names.length - idx)*-1-2)" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1-2 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1-2 ), 'picked': (pickLookup[(searchResults.names.length - idx)*-1-2] && pickLookup[(searchResults.names.length - idx)*-1-2].picked) }]" >
-                        {{subject.label}}
+                        <template v-if="subject.label == subjectString">
+                          {{subject.label}}
+                        </template>
+                        <template v-else>
+                            {{subject.label}}
+                            <span class="subject-variant">
+                              ((VARIANT))
+                            </span>
+                        </template>
                         <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
                         <span v-if="subject.collections"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
                       </div>
@@ -717,6 +725,10 @@ margin-top: 10px;
   height: 100%;
 }
 
+.subject-variant {
+  color: #ffc107;
+  font-weight: bold;
+}
 
 /*
 .left-menu-list-item-has-data::before {
@@ -1674,6 +1686,11 @@ methods: {
           out.push("(ChldSubj)")
       } else if (collections.includes("Subdivisions")){
         out.push("(SubDiv)")
+      }
+
+      // favor SubDiv over GnFrm
+      if (out.includes("(GnFrm)") && collections.includes("Subdivisions")){
+        out = ["(SubDiv)"]
       }
 
       // if (collections.includes("LCNAF")){
