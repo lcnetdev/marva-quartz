@@ -1720,7 +1720,6 @@ const utilsParse = {
 
           // // if it doesnt already have a cataloger id use ours
           if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
-            console.info("profileStore: ", usePreferenceStore())
             userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
               {
                 "@guid": short.generate(),
