@@ -1743,7 +1743,8 @@ const utilsParse = {
           // remain and should continue to be editable.
 
           if (userValue){
-            if (!userValue['http://id.loc.gov/ontologies/bibframe/status'] || Object.keys(userValue).length > 7){
+
+            if (profile.rt[pkey].pt[key].parentId.includes(":Instance") && (!userValue['http://id.loc.gov/ontologies/bibframe/status'] || Object.keys(userValue).length > 7)){
               profile.rt[pkey].pt[key].adminMetadataType = 'primary'
               adminMedtataPrimary = key
             }else{
