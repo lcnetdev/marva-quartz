@@ -110,11 +110,12 @@
                         <template v-if="profileStore.cammModeErrors[activeProfile.rt[profileName].pt[profileCompoent]['@guid']]">
                           
                           <span :class="{'material-icons' : true, 'inline-mode-error-icon': true, 'simptip-position-right':true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent])}" @click="showErrors(activeProfile.rt[profileName].pt[profileCompoent]['@guid'])">warning</span>
+
                         </template>
                         <template v-else>
                           <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
                         </template>
-                        
+
                       </template>
 
                       <!-- index == -1 means it's the work, so just add the work -->
@@ -277,6 +278,7 @@
         //We only want the editable admin field under instances to show up
         // Don't show READONLY ADMIN fields in the instance, Don't show any admin fields in the work
         hideAdminField: function(component, profileName){
+
           let readOnly = this.isReadOnly(component)
           let isWork = profileName.includes(':Work')
           let isAdminField = component.propertyURI.includes('adminMetadata')

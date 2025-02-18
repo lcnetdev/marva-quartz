@@ -367,6 +367,18 @@ const utilsNetwork = {
       return r
     },
 
+
+    nacoLccn: async function(){
+
+      let returnUrls = useConfigStore().returnUrls
+
+      let r = await fetch(returnUrls.util + 'lccnnaco')
+      console.log(r)
+      let data = await r.json()
+      return data.id
+
+    },
+
     /**
     * Looks for instances by LCCN against ID, returns into for them to be displayed and load the resource
     * @param {searchPayload} searchPayload - the {@link searchPayload} to look for
@@ -2598,6 +2610,25 @@ const utilsNetwork = {
         resultsExactSubject = resultsExactSubject.filter((term) =>  Object.keys(term).includes("suggestLabel") )
       }
 
+      let exact = []
+
+      // Limit the exact results based on position in the heading. If pos >=1, the term needs to be a Subdivision
+      if (pos >= 1){
+        let isSubdivisionSubject = resultsExactSubject.length > 0 ? resultsExactSubject.map((term) => term.collections)[0].some(c => {return c == 'Subdivisions'}) : false
+        let isSubdivisionName = resultsExactName.length > 0 ? resultsExactName.map((term) => term.collections)[0].some(c => {return c == 'Subdivisions'}) : false
+
+        if (isSubdivisionName){
+          exact = exact.concat(resultsExactName)
+        }
+        if (isSubdivisionSubject){
+          exact = exact.concat(resultsExactSubject)
+        }
+      }
+      if (pos == 0){
+        exact = exact.concat(resultsExactName)
+        exact = exact.concat(resultsExactSubject)
+      }
+
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': resultsSubjectsComplex,
@@ -2605,7 +2636,7 @@ const utilsNetwork = {
         'hierarchicalGeographic':  pos == 0 ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
-        'exact': resultsExactName.concat(resultsExactSubject)
+        'exact': exact
       }
 
       this.subjectSearchActive = false

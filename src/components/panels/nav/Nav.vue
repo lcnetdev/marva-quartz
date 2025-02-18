@@ -802,7 +802,7 @@
           for (let pt in this.activeProfile.rt[rt].pt){
             let component = this.activeProfile.rt[rt].pt[pt]
             let structure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
-            if (structure.propertyLabel != 'Admin Metadata') {
+            if (structure.propertyLabel != 'Admin Metadata' || structure.adminMetadataType == 'primary') {
               if ( component.valueConstraint.defaults.length > 0){
                 // top level component
                 if (Object.keys(component.userValue).every(k => k.startsWith("@"))){ // it's empty
