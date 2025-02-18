@@ -1947,7 +1947,118 @@ const utilsExport = {
 		// console.log(xml)
 		return xml
 
+	},
+
+	createNacoStubXML(oneXXParts,fourXX,mainTitle,lccn){
+		let marcNamespace = "http://www.loc.gov/MARC21/slim"
+
+		let rootEl = document.createElementNS(marcNamespace,"marcxml:record");
+
+		let leader = document.createElementNS(marcNamespace,"marcxml:leader");
+		leader.innerHTML = "     nz  a22     ni 4500"
+		rootEl.appendChild(leader)
+
+		
+
+		let field001 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field001.setAttributeNS(marcNamespace, 'tag', '001')
+		field001.innerHTML = "n"+lccn
+		rootEl.appendChild(field001)
+
+		let field003 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field003.setAttributeNS(marcNamespace, 'tag', '003')
+		field003.innerHTML = "DLC"
+		rootEl.appendChild(field003)
+
+		function pad2(n) { return n < 10 ? '0' + n : n }
+		let date = new Date();
+		let dateValue = date.getFullYear().toString() + pad2(date.getMonth() + 1) + pad2( date.getDate()) + pad2( date.getHours() ) + pad2( date.getMinutes() ) + pad2( date.getSeconds() )	
+		dateValue = dateValue + ".0"
+		
+
+		let field005 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field005.setAttributeNS(marcNamespace, 'tag', '005')
+		field005.innerHTML = dateValue
+		rootEl.appendChild(field005)
+
+		console.log(dateValue)
+		let field008 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field008.setAttributeNS(marcNamespace, 'tag', '008')
+		field008.innerHTML = dateValue.slice(0,5) + 'n| azannaabn' + " ".repeat(10) + '|n aaa' + " ".repeat(6)
+		rootEl.appendChild(field008)
+
+		let field010 = document.createElementNS(marcNamespace,"marcxml:datafield");
+		field010.setAttributeNS(marcNamespace, 'tag', '010')
+		field010.setAttributeNS(marcNamespace, 'ind1', ' ')
+		field010.setAttributeNS(marcNamespace, 'ind2', ' ')
+		let field010a = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field010a.setAttributeNS(marcNamespace, 'code', 'a')
+		field010a.innerHTML = `n ${lccn}`
+		field010.appendChild(field010a)
+		rootEl.appendChild(field010)
+
+
+
+		let field040 = document.createElementNS(marcNamespace,"marcxml:datafield");
+		field040.setAttributeNS(marcNamespace, 'tag', '010')
+		field040.setAttributeNS(marcNamespace, 'ind1', ' ')
+		field040.setAttributeNS(marcNamespace, 'ind2', ' ')
+		let field040a = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040a.setAttributeNS(marcNamespace, 'code', 'a')
+		field040a.innerHTML = 'DLC'
+		field040.appendChild(field040a)
+
+		let field040b = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040b.setAttributeNS(marcNamespace, 'code', 'b')
+		field040b.innerHTML = 'eng'
+		field040.appendChild(field040b)
+
+		let field040e = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040e.setAttributeNS(marcNamespace, 'code', 'e')
+		field040e.innerHTML = 'rda'
+		field040.appendChild(field040e)		
+
+		let field040c = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040c.setAttributeNS(marcNamespace, 'code', 'c')
+		field040c.innerHTML = 'DLC'
+		field040.appendChild(field040c)	
+
+
+		rootEl.appendChild(field040)
+
+
+		let fieldName = document.createElementNS(marcNamespace,"marcxml:datafield");
+		fieldName.setAttributeNS(marcNamespace, 'tag', oneXXParts.fieldTag)
+		fieldName.setAttributeNS(marcNamespace, 'ind1', oneXXParts.indicators.charAt(0))
+		fieldName.setAttributeNS(marcNamespace, 'ind2', oneXXParts.indicators.charAt(1))
+		for (let key of Object.keys(oneXXParts)){
+			if (key.length == 1){
+				let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+				subfield.setAttributeNS(marcNamespace, 'code', key)
+				subfield.innerHTML = oneXXParts[key]
+				fieldName.appendChild(subfield)	
+			}
+		}
+
+		// 110//$aMiller, Sam$d1933
+		rootEl.appendChild(fieldName)
+
+
+		
+
+
+
+
+
+
+
+		let xml = (new XMLSerializer()).serializeToString(rootEl)
+
+		console.log(xml)
+		return xml
+
 	}
+
 }
 
 

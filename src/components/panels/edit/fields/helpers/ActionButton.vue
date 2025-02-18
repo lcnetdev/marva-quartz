@@ -107,6 +107,13 @@
             </template>
         </template>
 
+        <template v-if="showBuildNacoStub()">
+              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildNacoStub()" :style="buttonStyle">
+                Create NACO Stub
+              </button>
+        </template>
+
+
         <template v-if="showBuildHubStub()">
               <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildHubStub()" :style="buttonStyle">
                 Create Hub
@@ -323,11 +330,10 @@
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/expressionOf"){
           return true
         }
-
-
-
         return false
       },
+
+      
 
 
       buildHubStub(){
@@ -335,21 +341,40 @@
         let info = this.profileStore.returnLccInfo(this.guid)
         this.profileStore.activeHubStubData = info
         this.profileStore.activeHubStubComponent = {
-
           type: this.type,
           guid: this.guid,
           fieldGuid: this.fieldGuid,
           structure: this.structure,
           type: this.type,
           propertyPath:this.propertyPath
-
-
-
-
-
         }
         this.profileStore.showHubStubCreateModal = true
       },
+
+      buildNacoStub(){
+        console.log(this.guid)
+        
+        this.profileStore.showNacoStubCreateModal = true
+      },
+
+
+      
+
+      showBuildNacoStub(){
+        if (!this.propertyPath) return false;
+        if (this.propertyPath && this.propertyPath.length==0) return false;
+
+        let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/contribution"){
+          return true
+        }
+  
+        return false
+      },
+
+
+
+
 
       shortCutPressed: function(){
 
