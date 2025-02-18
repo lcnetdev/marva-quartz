@@ -58,7 +58,7 @@
         oneXXResultsTimeout: null,
         fourXX: '',
         mainTitle: '',
-
+        workURI: false,
 
         tmpXML:false,
 
@@ -120,7 +120,7 @@
 
           this.postStatus='posting'
 
-          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXX, this.mainTitle)
+          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXX, this.mainTitle, this.workURI)
 
 
 
@@ -302,7 +302,8 @@
 
       this.tmpXML=false
       this.mainTitle = this.profileStore.nacoStubReturnMainTitle()
-      
+      this.workURI =  this.profileStore.nacoStubReturnWorkURI()
+      console.log("this.workURIthis.workURIthis.workURI",this.workURI)
       if (!this.mainTitle){
         this.disableAddButton = true
         this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
