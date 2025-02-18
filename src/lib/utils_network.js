@@ -2227,6 +2227,11 @@ const utilsNetwork = {
     */
     returnMARCKey: async function(uri){
       uri=uri.trim()
+
+      // marc keys don't exist on the RWO so if they are asking for a RWO switch it to a auth
+      uri = uri.replace('/rwo/agents/','/authorities/names/')
+
+
       let uriToLookFor = uri
 
       // just clean up the URI a little we are probably asking for a id.loc.gov authority url
@@ -2234,6 +2239,8 @@ const utilsNetwork = {
 
         // most uris in the id.loc.gov dataset do not have https in the data uris
         uriToLookFor = uriToLookFor.replace('https://','http://')
+
+        
 
         uriToLookFor = uriToLookFor.replace('.madsrdf_raw.jsonld','')
 
@@ -2249,6 +2256,7 @@ const utilsNetwork = {
           uri=uri+'.json'
         }
       }
+      console.log("uriuriuriuriuriuriuriuriuriuri",uri)
       let data = await this.fetchSimpleLookup(uri,true)
 
       if (data && uri.indexOf('id.loc.gov')>-1){
@@ -3028,6 +3036,67 @@ const utilsNetwork = {
 
 
     },
+
+    validUris: null, // start off null and will populate below
+
+    /**
+    * Do a head request (if ID) to validate a URI, store it in localstorage
+    *
+    * @param {string} uri - the uri to look for
+    * @return {boolean} - is it valid or not
+    */
+    async validateCAMMModeURI(uri){
+
+      if (this.validUris === null){
+        // not populated yet, so try to populate
+        if (window.localStorage.getItem("marva-valid-uris") === null){
+          this.validUris = {}
+        }else{
+          this.validUris = JSON.parse(window.localStorage.getItem("marva-valid-uris"))
+        }
+      }
+
+      // validUris should be a obj here with keys of uris
+
+      if (typeof this.validUris[uri] == 'undefined'){
+
+        // make req
+        let options = {}
+        if (uri.indexOf('id.loc.gov')>-1){
+          options = {method: 'HEAD' }
+        }
+      
+
+        let req = await fetch(uri,options)
+        console.log(req)
+        if (req.status == 200){
+
+          let preflabel = req.headers.get("x-preflabel");
+          if (req.headers.get("x-preflabel-encoded")){
+            preflabel = decodeURIComponent(req.headers.get("x-preflabel-encoded"));
+          }
+          this.validUris[uri] = preflabel
+          console.log("this.validUris",this.validUris)
+          window.localStorage.setItem("marva-valid-uris", JSON.stringify(this.validUris))
+          return preflabel
+        }else{
+          return false
+        }
+
+
+        
+
+      }else{
+        // we only put it in the local storage if we dereferenced it
+
+        return this.validUris[uri]
+
+      }
+
+
+    }
+
+
 
 
 

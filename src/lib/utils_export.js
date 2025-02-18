@@ -559,6 +559,7 @@ const utilsExport = {
 				// console.log('ptObj.userValue',ptObj.userValue)
 
 				let userValue
+				let userValueSiblings = []
 
         		// the uservalue could be stored in a few places depending on the nesting
 				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){
@@ -579,6 +580,17 @@ const utilsExport = {
 							}
 						}
 					}
+
+					if (ptObj.userValue[ptObj.propertyURI].length>1){
+						// some top level simpleLookup values like bf:content could have multiple values in it but we are really only setup to handle one
+						// so keep track of them for later						
+						userValueSiblings = JSON.parse(JSON.stringify(ptObj.userValue[ptObj.propertyURI])).slice(1) 
+						// console.log("Got the siblings:", userValueSiblings)
+						
+
+					}
+
+
 
 				}else if (ptObj.userValue[ptObj.propertyURI]){
 					userValue = ptObj.userValue[ptObj.propertyURI]
@@ -750,6 +762,8 @@ const utilsExport = {
 
 					// is it a Blank node
 					if (this.isBnode(userValue)){
+						xmlLog.push(`userValue: ${JSON.parse(JSON.stringify(userValue))}`)
+
 						// this.debug(ptObj.propertyURI,'root level element, is bnode', userValue)
 						xmlLog.push(`Root level bnode: ${ptObj.propertyURI}`)
 
@@ -974,9 +988,36 @@ const utilsExport = {
 							}
 						}
 						pLvl1.appendChild(bnodeLvl1)
-						rootEl.appendChild(pLvl1)
-
+						rootEl.appendChild(pLvl1)				
 						componentXmlLookup[`${rt}-${pt}`] = formatXML(pLvl1.outerHTML)
+
+						// this is kind of a hack here, since the system wasn't designed orgianlly to have multiple top level lookup to live in the same bnode
+						// for example bf:content there should be a single bf:content->bf:Content node for each value but in the interface it is nice to allow multiple 
+						// inputs in the same component. So allow them to do that but we will build those shallow sibling bnodes right here after we created the first one
+						if (userValueSiblings.length>0){
+							for (let uv of userValueSiblings){
+								xmlLog.push(`Root level sibling bnode: ${ptObj.propertyURI}`)
+								let pLvl1Sibling = this.createElByBestNS(ptObj.propertyURI)
+								let bnodeLvl1Sibling = this.createBnode(uv, ptObj.propertyURI)
+								//we are only checking for a label as a nested property, we will not loop through the properties looking for stuff
+
+								if (uv['http://www.w3.org/2000/01/rdf-schema#label']){
+									let rdftype = this.createElByBestNS('http://www.w3.org/2000/01/rdf-schema#label')
+									rdftype.innerHTML=escapeHTML(uv['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
+									xmlLog.push(`This bnode just has a label : ${rdftype}`)
+									bnodeLvl1Sibling.appendChild(rdftype)
+								}else{
+									console.warn("There was no label for this sibling top level bnode, so there is porbably another way the label is being passed or something else is wrong.",bnodeLvl1Sibling)
+								}
+								
+								// add to the structure
+								pLvl1Sibling.appendChild(bnodeLvl1Sibling)
+								rootEl.appendChild(pLvl1Sibling)	
+							}
+						}
+
+
+
 
 					}else{
 						// this.debug(ptObj.propertyURI, 'root level element does not look like a bnode', userValue)
@@ -1235,7 +1276,7 @@ const utilsExport = {
 		// console.log("tleLookup --- tleLookup")
 		// console.log(tleLookup)
 
-
+		// console.log("xmlLogxmlLogxmlLog",xmlLog)
 		// Add in a adminMetadata to the resources with this user id
 		// catInitals.log(profile)
 		//get user info from preferenceStore instead of the profile

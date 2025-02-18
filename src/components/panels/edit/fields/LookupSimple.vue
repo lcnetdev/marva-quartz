@@ -2,14 +2,20 @@
 
 
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
+    <!-- {{ simpleLookupValues }} -->
 
+    
     <template v-if="inlineModeShouldDisplay">
 
-
-        <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+        <span class="bfcode-display-mode-holder-label simptip-position-top" :data-tooltip="structure.propertyLabel" :title="structure.propertyLabel" >{{profileStore.returnBfCodeLabel(structure)}}:</span>
         <input v-model="activeValue" class="inline-lookup-input can-select 1" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
 
+        <Transition name="action" v-if="showActionButton && myGuid == activeField">
+            <div :class="{'lookup-action':true, 'lookup-action-camm':preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')}" >
 
+              <action-button :type="'lookupSimple'" :structure="structure" :guid="guid" :small="true" :id="`action-button-${structure['@guid']}`" @action-button-command="actionButtonCommand" />
+            </div>
+          </Transition>
 
       <!-- <template v-else> -->
 
@@ -206,6 +212,9 @@ export default {
 
       activeValue: '',
 
+      needsCAMMInitalValidation:null,
+
+      usesSuggest: false,
 
 
     }
@@ -223,11 +232,19 @@ export default {
     // this.refreshInputDisplay()
 
     // console.log("this.structure.valueConstraint.useValuesFrom[0]",this.structure.valueConstraint.useValuesFrom[0])
-
+    if (this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom[0]){
+      if (this.structure.valueConstraint.useValuesFrom[0].indexOf('/suggest2')>-1){
+        this.usesSuggest=true
+      }
+    }
 
   },
 
   mounted: function(){
+
+    
+
+
 
     let useVal = []
     for (let val of this.simpleLookupValues){
@@ -236,8 +253,26 @@ export default {
         useVal.push(idVal)
       }
     }
+
     if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
       this.activeValue = useVal.join(",")
+
+      if (useVal.length>0){
+        this.focused()
+        
+        this.needsCAMMInitalValidation = window.setInterval(()=>{
+          
+          // did we load the metadata for this lookup so we can validate it?
+          if (utilsNetwork.lookupLibrary[this.uri]){            
+            window.clearInterval(this.needsCAMMInitalValidation)
+            // ask to add it in test only mode so we don't overwrite values just trying to check for errors
+            this.cammModeDelayedAdd({target: {value: this.activeValue} }, true)
+          }
+        },Math.floor(Math.random() * 500))
+        
+
+
+      }
     }
     
 
@@ -285,10 +320,22 @@ export default {
         return true
 
       }else{
+        console.log("this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath")
         // no value in it, but maybe its the "main" property, so display it anyway
         if (this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath)){
           return true
         }
+
+        // there might be an activeValue meaning there was an error but they are still working in the field so leave it up
+        if (this.activeValue && this.activeValue.trim() != ''){
+          return true
+        }
+
+        if (this.profileStore.inlineFieldIsToggledForDisplay(this.guid,this.structure.propertyURI)){
+          return true
+        }
+
+
       }
 
       return false
@@ -305,12 +352,7 @@ export default {
       return false
     },
 
-    // this is the text that goes into the field when it is added in camm mode because we don't add labels or badges in camm mode
-    returnCAMMModeValueLiteral(){
-
-      console.log(this.simpleLookupValues)
-
-    },
+   
 
   },
 
@@ -331,11 +373,15 @@ export default {
       // so wait a bit before we close to register the click event
       window.setTimeout(()=>{
         this.displayAutocomplete = false
+
+        if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+          this.cammModeDelayedAdd(event)
+        }
+
+
       },250)
 
-      if (this.returnCAMModeShowAutoComplete == true){
-        this.cammModeDelayedAdd(event)
-      }
+
 
     },
 
@@ -356,6 +402,7 @@ export default {
       if (!this.uri.includes("suggest2")){
         utilsNetwork.loadSimpleLookup(this.uri)
       } else {
+        this.usesSuggest=true
         let uriParts = this.uri.split("/suggest2?q=")
         let results = await utilsNetwork.loadSimpleLookupKeyword(uriParts[0], uriParts[1])
         utilsNetwork.lookupLibrary[this.uri] = results
@@ -378,6 +425,7 @@ export default {
       if (recursive){
         addKeyword = 'KEYWORD'
         this.activeKeyword = true
+        this.usesSuggest=true
       }
       // console.log(`"${addKeyword}"`)
       // console.log(this.uri)
@@ -556,15 +604,27 @@ export default {
         // }
 
 
-
-
-
+      
         this.activeValue = event.target.value.trimStart()
         this.doubleDelete = false
-        this.activeValue = event.target.value.trimStart()
-        this.activeFilter = event.target.value.trimStart()
         this.displayAutocomplete = true
-        // this.$store.dispatch("disableMacroNav")
+        if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+          let av = event.target.value.trimStart()
+          if (av.indexOf(",") > -1){
+            // it already has a value with a comma so like aut,c
+            // meaning they are adding another one, so split off the first part so we dont search on the whole string
+            av = av.split(',')[av.split(',').length-1]
+          }
+          if (!av){ av = ''}
+          this.activeFilter = av
+
+        }else{
+          this.activeFilter = event.target.value.trimStart()
+        }
+        
+
+
+
         this.filter()
 
 
@@ -572,7 +632,7 @@ export default {
 
       }else if (event && event.key && event.key==='Backspace'){
 
-        if (!this.doubleDelete && this.activeValue === ''){
+        if (!this.doubleDelete && this.activeValue === '' && this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false){
           this.doubleDelete = true
           return false
         }
@@ -632,6 +692,14 @@ export default {
 
         return true
 
+      }else if (event && event.keyCode == 13 && this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true && this.displayAutocomplete){
+        // here they have triggered the auto complete and hit enter
+        // console.log(event)
+        
+
+        // return true
+
+
       }
 
 
@@ -651,8 +719,7 @@ export default {
               // see how wide the properties panel is and use that to position as well
               if (document.getElementsByClassName('edit-main-splitpane-properties').length>0){
                 ppWidth = document.getElementsByClassName('edit-main-splitpane-properties')[0].getBoundingClientRect().width
-              }
-              console.log('ppWidth',ppWidth)
+              }              
               this.$refs.selectlist.style.left = rect.left - rect.width - ppWidth + 'px'
               this.$refs.selectlist.style.minWidth = '350px'
             }
@@ -672,13 +739,17 @@ export default {
         if (!this.displayAutocomplete) this.displayAutocomplete = true
 
         this.activeFilter =''
-        this.activeValue = ''
+
+        
+
         // if there is nothing selected yet then pick the first one
         if (this.activeSelect.trim()=='' && this.displayList.length>0){
           this.activeSelect = this.displayList[0]
-          this.activeValue = this.displayList[0]
-
-
+          // only show the value in the active label if we are not in camm mode, since the active label in camm mode because the value we 
+          // cant change it like this
+          if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){            
+            this.activeValue = this.displayList[0]            
+          }          
         }else{
 
           // check if there is one further from the actively selected item
@@ -688,14 +759,18 @@ export default {
               if (event.key==='ArrowDown'){
                 if (step+1 < this.displayList.length){
                   this.activeSelect = this.displayList[step+1]
-                  this.activeValue = this.displayList[step+1]
+                  if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+                    this.activeValue = this.displayList[step+1]                                        
+                  }
                   break
                 }
               }
               if (event.key==='ArrowUp'){
                 if (step-1 >= 0){
                   this.activeSelect = this.displayList[step-1]
-                  this.activeValue = this.displayList[step-1]
+                  if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){                                        
+                    this.activeValue = this.displayList[step-1]                    
+                  }
                   break
                 }
               }
@@ -711,12 +786,15 @@ export default {
       }else if (event && event.key && event.key==='Escape'){
         this.doubleDelete = false
         this.activeFilter = ''
-        this.activeValue = ''
+        
         this.displayAutocomplete = false
 
-
+        if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){          
+          this.activeValue = ''
+        }
 
       }else if (event && event.key && event.key==='Enter'){
+
         this.doubleDelete = false
 
         let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
@@ -762,10 +840,37 @@ export default {
             }
           }
 
-
-
-
           if (isMatch){
+
+            // if they are in CAMM mode then add the URI piece to the existing active menu and trigger the delay add, dont add it via this method
+            if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') ){
+              
+              // if they are in CAMM mode then see if the current active value is the thing that will turn into the value
+              // so see if they are working on adding multiple things are just one and make the activeValue correctly
+              let valueToAdd = this.returnCAMMLabelFromDisplayListValue(metadata[key].displayLabel)
+              let valuesAdded = this.activeValue.split(",").map((v)=>{ return v.toLowerCase().trim()})
+              if (valuesAdded.indexOf(valueToAdd)>-1){
+                // its already there, do nothing               
+              }else{
+                // its not there yet, so we need to add it, if there are no other values yet just replace the exsting one
+                // if there are other values replace the last one since that is what they were typing
+                if (valuesAdded.length==1){ 
+                  valuesAdded[0] = valueToAdd
+                }else{
+                  valuesAdded[valuesAdded.length-1] = valueToAdd
+                }
+              }
+
+              this.activeValue = valuesAdded.join(",")
+              this.activeSelect = ''
+              this.displayAutocomplete=false
+
+              break
+            }
+
+
+
+
             // this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':metadata[key].label[idx],URI:metadata[key].uri})
             this.activeFilter = ''
             this.activeValue = ''
@@ -779,13 +884,9 @@ export default {
         }
 
 
-        // if (event.target.value == ''){
-        //   this.submitField()
-        // }
-
         // if there is a value still that means the value did not match a item in the list
         // so add the value as a uncontrolled value
-        if (event.target.value !== ''){
+        if (event.target.value !== '' && !this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
 
           this.activeFilter = ''
           this.activeValue = ''
@@ -827,6 +928,67 @@ export default {
 
     },
 
+    returnCAMMLabelFromDisplayListValue(displayListValue){
+
+      let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
+
+      if (this.activeKeyword){
+        metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values
+      }
+      for (let key of Object.keys(metadata)){
+        let displayLabel = metadata[key].displayLabel
+        if (Array.isArray(displayLabel)){displayLabel = displayLabel[0]}
+        displayLabel = displayLabel.replace(/\s+/g,' ')
+
+        // if we don't see it in the display label it might be in the authLabel becase the display label will be sometihng like "dlc (USE United States, Library of Congress)"
+        let authLabel = metadata[key].authLabel
+        if (authLabel){ authLabel = authLabel.replace(/\s+/g,' ')}
+
+        let isMatch = (this.activeSelect == displayLabel)
+
+        if (!isMatch){
+          isMatch = (this.activeSelect == authLabel)
+        }
+
+        // if it is an array then try to match up to it
+        if (!isMatch){
+          if (Array.isArray(metadata[key].displayLabel)){
+            for (let dlValue of metadata[key].displayLabel){
+              if (this.activeSelect == dlValue){
+                isMatch = true
+                displayLabel = dlValue
+              }
+            }
+          }
+        }
+
+        if (isMatch){
+
+          console.log("Found it",metadata[key].uri)
+
+          if (metadata[key].uri.indexOf('id.loc.gov')>-1){
+            let uri = metadata[key].uri
+            if (uri.slice(-1) == '/'){
+              uri = uri.substring(0, uri.length - 1);
+            }
+
+            let idVal = uri.split("/").slice(-1)[0]
+            return idVal           
+
+          }else{
+            return metadata[key].uri
+          }
+
+
+        }
+
+      }
+
+
+    },
+
+
+
     mouseSelectValue: function(val){
 
 
@@ -858,6 +1020,7 @@ export default {
 
     clickAdd: function(item){
 
+      
       this.displayAutocomplete=false
 
       this.activeSelect = item
@@ -908,15 +1071,45 @@ export default {
 
 
         if (isMatch){
-          this.activeFilter = ''
-          this.activeValue = ''
-          this.activeSelect = ''
-          this.displayAutocomplete=false
-          event.target.value = ''
-          let useLabel = (authLabel) ? authLabel : displayLabel
-          this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,metadata[key].uri,useLabel)
-          // refocus
-          this.$refs.lookupInput.focus()
+
+
+          if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') ){
+
+              // if they are in CAMM mode then see if the current active value is the thing that will turn into the value
+              // so see if they are working on adding multiple things are just one and make the activeValue correctly
+              let valueToAdd = this.returnCAMMLabelFromDisplayListValue(metadata[key].displayLabel)
+              let valuesAdded = this.activeValue.split(",").map((v)=>{ return v.toLowerCase().trim()})
+              if (valuesAdded.indexOf(valueToAdd)>-1){
+                // its already there, do nothing
+                this.activeSelect = ''
+                this.displayAutocomplete=false
+              }else{
+                // its not there yet, so we need to add it, if there are no other values yet just replace the exsting one
+                // if there are other values replace the last one since that is what they were typing
+                if (valuesAdded.length==1){ 
+                  valuesAdded[0] = valueToAdd
+                }else{
+                  valuesAdded[valuesAdded.length-1] = valueToAdd
+                }
+              }
+              this.activeValue = valuesAdded.join(",")
+
+
+          }else{
+
+            this.activeFilter = ''
+            this.activeValue = ''
+            this.activeSelect = ''
+            this.displayAutocomplete=false
+            event.target.value = ''
+            let useLabel = (authLabel) ? authLabel : displayLabel
+            this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,metadata[key].uri,useLabel)
+            // refocus
+            this.$refs.lookupInput.focus()
+          } 
+
+
+
           break
         }
       }
@@ -924,7 +1117,8 @@ export default {
 
     },
 
-    async cammModeDelayedAdd(event){
+    async cammModeDelayedAdd(event, testOnly){
+
 
       let inputValues = event.target.value
 
@@ -933,7 +1127,7 @@ export default {
       //   this.profileStore.removeValueSimple(this.guid, val['@guid'])
       // }
 
-
+      // it is empty, remove everything
       if (inputValues.trim().length==0){
 
         for (let val of this.simpleLookupValues){
@@ -946,23 +1140,66 @@ export default {
 
       }
 
-      // allow for multiple values seperated by a commma
-      for (let inputValue of inputValues.split(",")){
+      // there is already something in there, but we are about to edit more? so remove everything before we see what to add
 
-        console.log(inputValue)
+      if (this.simpleLookupValues.length>0){
+        for (let val of this.simpleLookupValues){
+          // don't remove anything if we are just validating 
+          if (!testOnly){
+            this.profileStore.removeValueSimple(this.guid, val['@guid'])
+          }
+        }
 
         this.profileStore.clearCammModeError(this.guid)
 
+
+      }
+
+      this.profileStore.clearCammModeError(this.guid)
+
+
+      // if we add more than one keep track to pass to the profile function so it know to append not create
+      let lastAddedFieldGuid = this.existingGuid
+
+      // allow for multiple values seperated by a commma
+      for (let inputValue of inputValues.split(",")){
+
+        inputValue=inputValue.trim()
+
+
         let uris = Object.keys(utilsNetwork.lookupLibrary[this.uri])
         // somehow they were really fast an the list hasn't loaded yet?
-        if (uris.length <= 1){
-          await new Promise(r => setTimeout(r, 2000));
+        if (uris.length <= 2){
+          await new Promise(r => setTimeout(r, 100));
         }
         uris = Object.keys(utilsNetwork.lookupLibrary[this.uri])
 
         if (uris.length <= 1){
-          this.profileStore.addCammModeError(this.guid,'Network error resolving: "' + inputValue + '" please re-key it.' )
-          return false
+            
+          // the likely cause is that it used a /suggest2 query to populate, 
+          // regardless just validate against the server itself and see if it a valid URI
+          let checkUri = this.uri
+          if (checkUri.slice(-1) != '/'){
+            checkUri = checkUri + '/';
+          }          
+          checkUri = checkUri + inputValue
+
+          let checkUriResult = await utilsNetwork.validateCAMMModeURI(checkUri) // this will return false or the string of the label of the uri dereferenced
+
+          if (!checkUriResult){
+            this.profileStore.addCammModeError(this.guid,'Network error resolving: "' + inputValue + '" please re-key it.' )
+            return false
+          }else{
+            console.log("checkUriResult",checkUriResult)
+            // it is a valid code, so don't go searchng for it, set it and go
+            if (!testOnly){
+              let addResults = await this.profileStore.setValueSimple(this.guid,lastAddedFieldGuid,this.propertyPath,checkUri,checkUriResult)
+              lastAddedFieldGuid = this.simpleLookupValues.slice(-1)[0]['@guid']
+              return true
+            }else{
+              return true
+            }            
+          }
         }
 
         let matches = []
@@ -987,12 +1224,23 @@ export default {
           }
 
         }
-        console.log(matches)
-        if (matches.length == 1){
-          // perfect
 
-          console.log("utilsNetwork.lookupLibrary.metadata[matches[0]]")
-          console.log(utilsNetwork.lookupLibrary[this.uri].metadata.values)
+        // perfect
+        if (matches.length == 1){
+
+          // normalize the lookup real quick to make sure if we have something like "http://id.loc.gov/vocabulary/descriptionConventions" and we have a uri like "http://id.loc.gov/vocabulary/descriptionconventions"
+          // it still finds it
+          for (let key of Object.keys(JSON.parse(JSON.stringify(utilsNetwork.lookupLibrary[this.uri].metadata.values)))){
+            utilsNetwork.lookupLibrary[this.uri].metadata.values[key.toLowerCase()] = utilsNetwork.lookupLibrary[this.uri].metadata.values[key]
+          }
+                  
+
+          // console.log("utilsNetwork.lookupLibrary[this.uri].metadata.values")
+          // console.log(utilsNetwork.lookupLibrary[this.uri].metadata.values)
+          // console.log("matches[0] is",JSON.stringify(matches[0]))
+          // console.log("Before check:", JSON.stringify(utilsNetwork.lookupLibrary[this.uri].metadata.values))
+          // console.log("value", JSON.stringify(utilsNetwork.lookupLibrary[this.uri].metadata.values[matches[0]]))
+
 
           let displayLabel = utilsNetwork.lookupLibrary[this.uri].metadata.values[matches[0]].displayLabel
           if (Array.isArray(displayLabel)){displayLabel = displayLabel[0]}
@@ -1013,16 +1261,22 @@ export default {
           }
 
 
-
-          this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,matches[0],useLabel)
+          if (!testOnly){
+            let addResults = await this.profileStore.setValueSimple(this.guid,lastAddedFieldGuid,this.propertyPath,matches[0],useLabel)
+            lastAddedFieldGuid = this.simpleLookupValues.slice(-1)[0]['@guid']
+          }
+          
+          
 
         }else if (matches.length>1){
           //bad
           this.profileStore.addCammModeError(this.guid,'Multiple values match this code, please use the auto complete dropdown (CTRL+Space) to select a value: ' +inputValue )
+          
 
         }else if (matches.length==0){
           // bad but not terrible
           this.profileStore.addCammModeError(this.guid,'No match coud be made for this code, please fix: ' + inputValue)
+
         }
 
         // console.log(utilsNetwork.lookupLibrary[this.uri])
@@ -1165,7 +1419,9 @@ export default {
   flex-shrink: 1;
 
 }
-
+.lookup-action-camm{
+  display: inline-block;
+}
 
 
 .selected-value-container{
