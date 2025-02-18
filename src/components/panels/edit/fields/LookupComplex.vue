@@ -350,11 +350,12 @@ export default {
 
   },
   mounted: async function(){
-
-    if (this.cammBehaviorDisplayEntities == 'text'){
-      if (this.complexLookupValues.length>0){
-        console.log("complexLookupValuescomplexLookupValuescomplexLookupValues",this.complexLookupValues)
-        this.searchValue = await this.profileStore.returnCammComplexLabel(this.guid, this.complexLookupValues[0])
+    if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+      if (this.cammBehaviorDisplayEntities == 'text'){
+        if (this.complexLookupValues.length>0){
+          console.log("complexLookupValuescomplexLookupValuescomplexLookupValues",this.complexLookupValues)
+          this.searchValue = await this.profileStore.returnCammComplexLabel(this.guid, this.complexLookupValues[0])
+        }
       }
     }
 
