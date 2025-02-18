@@ -1,21 +1,98 @@
+<script>
+  import { useProfileStore } from '@/stores/profile'
+  import { useConfigStore } from '@/stores/config'
+
+
+  import {  mapStores, mapWritableState } from 'pinia'
+  import { VueFinalModal } from 'vue-final-modal'
+  import VueDragResize from 'vue3-drag-resize'
+
+
+  export default {
+    components: {
+      VueFinalModal,
+      VueDragResize,
+    },
+    props: {
+        instances: Object,
+    },
+    data() {
+      return {
+        width: 0,
+        height: 0,
+        top: 100,
+        left: 0,
+        validationResults: {},
+        validating: false,
+        initalHeight: 400,
+        initalLeft: (window.innerWidth /2 ) - 450,
+
+
+      }
+    },
+    computed: {
+      // other computed properties
+      // ...
+      // gives access to this.counterStore and this.userStore
+      ...mapStores(useProfileStore,useConfigStore),
+
+      // ...mapState(usePreferenceStore, ['debugModalData']),
+      ...mapWritableState(useProfileStore, ['showItemInstanceSelection']),
+    },
+
+
+    methods: {
+        closeModal : function(){
+            this.$emit('hideInstanceSelectionModal', true)
+        },
+
+        dragResize: function(newRect){
+          this.width = newRect.width
+          this.height = newRect.height
+          this.top = newRect.top
+          this.left = newRect.left
+        },
+
+        setInstance: async function(event){
+            this.$emit('emitSetInstance', event.target.value)
+        },
+
+        updateLabel: function(currLabel){
+            if (currLabel.includes(":Work")){
+                return "Work"
+            } else {
+                if (currLabel.includes("_")){
+                    let parts = currLabel.split("_")
+                    return "Instance " + (parseInt(parts[1]) + 1)
+                } else {
+                    return "Instance 1"
+                }
+            }
+        }
+    },
+
+    mounted() {}
+  }
+
+
+
+</script>
+
 <template>
     <VueFinalModal
         display-directive="show"
         :hide-overlay="true"
         :overlay-transition="'vfm-fade'"
-        
+        :contentClass="instance-selection-modal-container"
       >
-       <!--  was attr in VueFinalModal... :contentClass="instance-selection-modal-container" -->
-
-        <!-- was attr in VueDragResize @resizing="dragResize" -->
-        <!-- was attr in VueDragResize @dragging="dragResize" -->
       <VueDragResize
             :is-active="true"
             :w="400"
             :h="250"
             :x="200"
             :y="50"
-
+            @resizing="dragResize"
+            @dragging="dragResize"
             :sticks="['br']"
             :stickSize="22"
             style="background-color: whitesmoke"
@@ -23,29 +100,25 @@
 
             <div class="instance-selection-modal" ref="instanceSelection">
                 <div>
-                    <h3 style="width: 80%; float: left; padding: 5px;">Select Location To Send To</h3>
+                    <h3 style="width: 80%; float: left; padding: 5px;">Select Instance the Item belongs to</h3>
                     <div class="close-button">
                         <button @click="closeModal()">Close</button>
                     </div>
                 </div>
                 <div class="toggle-btn-grp cssonly">
-                    <div>
-                        <input type="radio" id="all" value="all" class="instance-selection-radio" v-model="selectedInstance" name="instance-selection" @click="setInstance($event, 'all')" />
-                        <label onclick="" for="all" class="dewey-toggle-btn">All</label>
-                    </div>
                     <div v-for="(value, key, idx) in instances">
                         <input type="radio" :id="key" :value="key" class="instance-selection-radio" v-model="selectedInstance" name="instance-selection" @click="setInstance($event, idx)" />
-                        <label onclick="" :for="key" class="dewey-toggle-btn">{{updateLabel(key)}}</label>
+                        <label onclick="setInstance($event, idx)" :for="key" class="dewey-toggle-btn">{{ updateLabel(value) }}</label>
                     </div>
                 </div>
             </div>
         </VueDragResize>
     </VueFinalModal>
-  </template>
+</template>
 
 <style scoped>
 
-    .instance-selection-modal {
+.instance-selection-modal {
         height: inherit;
         background-color: whitesmoke;
         border: 1px solid black;
@@ -108,60 +181,3 @@
         cursor: pointer;
     }
 </style>
-
-<script>
-    import { VueFinalModal } from 'vue-final-modal'
-    import VueDragResize from 'vue3-drag-resize'
-    import { mapStores, mapState, mapWritableState } from 'pinia'
-    import { useProfileStore } from '@/stores/profile'
-
-    export default {
-    name: "InstanceSelectionModal",
-    components: {
-        VueFinalModal,
-        VueDragResize,
-    },
-    props: {
-        instances: Object,
-    },
-
-    watch: {},
-
-    data: function() {
-        return {
-            selectedInstance: null,
-        }
-    },
-
-    computed: {},
-    methods: {
-        closeModal: function(){
-            this.selectedInstance = null
-            this.$emit('hideInstanceSelectionModal', true)
-        },
-
-        setInstance: async function(event){
-            this.$emit('emitSetInstance', event.target.value)
-        },
-
-        updateLabel: function(currLabel){
-            if (currLabel.includes(":Work")){
-                return "Work"
-            } else {
-                if (currLabel.includes("_")){
-                    let parts = currLabel.split("_")
-                    return "Instance " + (parseInt(parts[1]) + 1)
-                } else {
-                    return "Instance 1"
-                }
-            }
-        }
-    },
-
-    created: function() {},
-    before: function () {},
-    mounted: function() {},
-    updated: function() {}
-  };
-
-</script>

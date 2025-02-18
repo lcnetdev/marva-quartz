@@ -561,6 +561,7 @@ const utilsExport = {
 				// console.log('ptObj.userValue',ptObj.userValue)
 
 				let userValue
+				let userValueSiblings = []
 
         		// the uservalue could be stored in a few places depending on the nesting
 				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0] && ptObj.userValue[ptObj.propertyURI].length == 1){  //why does this default to the first value, what if there are multiple
@@ -581,6 +582,17 @@ const utilsExport = {
 							}
 						}
 					}
+
+					if (ptObj.userValue[ptObj.propertyURI].length>1){
+						// some top level simpleLookup values like bf:content could have multiple values in it but we are really only setup to handle one
+						// so keep track of them for later						
+						userValueSiblings = JSON.parse(JSON.stringify(ptObj.userValue[ptObj.propertyURI])).slice(1) 
+						// console.log("Got the siblings:", userValueSiblings)
+						
+
+					}
+
+
 
 				}else if (ptObj.userValue[ptObj.propertyURI]){
 					userValue = ptObj.userValue[ptObj.propertyURI]
@@ -758,6 +770,8 @@ const utilsExport = {
 
 					// is it a Blank node
 					if (this.isBnode(userValue)){
+						xmlLog.push(`userValue: ${JSON.parse(JSON.stringify(userValue))}`)
+
 						// this.debug(ptObj.propertyURI,'root level element, is bnode', userValue)
 						xmlLog.push(`Root level bnode: ${ptObj.propertyURI}`)
 
@@ -990,9 +1004,36 @@ const utilsExport = {
 							}
 						}
 						pLvl1.appendChild(bnodeLvl1)
-						rootEl.appendChild(pLvl1)
-
+						rootEl.appendChild(pLvl1)				
 						componentXmlLookup[`${rt}-${pt}`] = formatXML(pLvl1.outerHTML)
+
+						// this is kind of a hack here, since the system wasn't designed orgianlly to have multiple top level lookup to live in the same bnode
+						// for example bf:content there should be a single bf:content->bf:Content node for each value but in the interface it is nice to allow multiple 
+						// inputs in the same component. So allow them to do that but we will build those shallow sibling bnodes right here after we created the first one
+						if (userValueSiblings.length>0){
+							for (let uv of userValueSiblings){
+								xmlLog.push(`Root level sibling bnode: ${ptObj.propertyURI}`)
+								let pLvl1Sibling = this.createElByBestNS(ptObj.propertyURI)
+								let bnodeLvl1Sibling = this.createBnode(uv, ptObj.propertyURI)
+								//we are only checking for a label as a nested property, we will not loop through the properties looking for stuff
+
+								if (uv['http://www.w3.org/2000/01/rdf-schema#label']){
+									let rdftype = this.createElByBestNS('http://www.w3.org/2000/01/rdf-schema#label')
+									rdftype.innerHTML=escapeHTML(uv['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
+									xmlLog.push(`This bnode just has a label : ${rdftype}`)
+									bnodeLvl1Sibling.appendChild(rdftype)
+								}else{
+									console.warn("There was no label for this sibling top level bnode, so there is porbably another way the label is being passed or something else is wrong.",bnodeLvl1Sibling)
+								}
+								
+								// add to the structure
+								pLvl1Sibling.appendChild(bnodeLvl1Sibling)
+								rootEl.appendChild(pLvl1Sibling)	
+							}
+						}
+
+
+
 
 					}else{
 						console.info("not a bnode: ", ptObj.propertyURI)
@@ -1328,7 +1369,7 @@ const utilsExport = {
 		// console.log("tleLookup --- tleLookup")
 		// console.log(tleLookup)
 
-
+		// console.log("xmlLogxmlLogxmlLog",xmlLog)
 		// Add in a adminMetadata to the resources with this user id
 		// catInitals.log(profile)
 		//get user info from preferenceStore instead of the profile
@@ -2040,7 +2081,134 @@ const utilsExport = {
 		// console.log(xml)
 		return xml
 
+	},
+
+	createNacoStubXML(oneXXParts,fourXX,mainTitle,lccn,workURI){
+		let marcNamespace = "http://www.loc.gov/MARC21/slim"
+
+		let rootEl = document.createElementNS(marcNamespace,"marcxml:record");
+
+		let leader = document.createElementNS(marcNamespace,"marcxml:leader");
+		leader.innerHTML = "     nz  a22     ni 4500"
+		rootEl.appendChild(leader)
+
+		
+
+		let field001 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field001.setAttributeNS(marcNamespace, 'tag', '001')
+		field001.innerHTML = "n"+lccn
+		rootEl.appendChild(field001)
+
+		let field003 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field003.setAttributeNS(marcNamespace, 'tag', '003')
+		field003.innerHTML = "DLC"
+		rootEl.appendChild(field003)
+
+		function pad2(n) { return n < 10 ? '0' + n : n }
+		let date = new Date();
+		let dateValue = date.getFullYear().toString() + pad2(date.getMonth() + 1) + pad2( date.getDate()) + pad2( date.getHours() ) + pad2( date.getMinutes() ) + pad2( date.getSeconds() )	
+		dateValue = dateValue + ".0"
+		
+
+		let field005 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field005.setAttributeNS(marcNamespace, 'tag', '005')
+		field005.innerHTML = dateValue
+		rootEl.appendChild(field005)
+
+		console.log(dateValue)
+		let field008 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field008.setAttributeNS(marcNamespace, 'tag', '008')
+		field008.innerHTML = dateValue.slice(0,5) + 'n| azannaabn' + " ".repeat(10) + '|n aaa' + " ".repeat(6)
+		rootEl.appendChild(field008)
+
+		let field010 = document.createElementNS(marcNamespace,"marcxml:datafield");
+		field010.setAttributeNS(marcNamespace, 'tag', '010')
+		field010.setAttributeNS(marcNamespace, 'ind1', ' ')
+		field010.setAttributeNS(marcNamespace, 'ind2', ' ')
+		let field010a = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field010a.setAttributeNS(marcNamespace, 'code', 'a')
+		field010a.innerHTML = `n ${lccn}`
+		field010.appendChild(field010a)
+		rootEl.appendChild(field010)
+
+
+
+		let field040 = document.createElementNS(marcNamespace,"marcxml:datafield");
+		field040.setAttributeNS(marcNamespace, 'tag', '010')
+		field040.setAttributeNS(marcNamespace, 'ind1', ' ')
+		field040.setAttributeNS(marcNamespace, 'ind2', ' ')
+		let field040a = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040a.setAttributeNS(marcNamespace, 'code', 'a')
+		field040a.innerHTML = 'DLC'
+		field040.appendChild(field040a)
+
+		let field040b = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040b.setAttributeNS(marcNamespace, 'code', 'b')
+		field040b.innerHTML = 'eng'
+		field040.appendChild(field040b)
+
+		let field040e = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040e.setAttributeNS(marcNamespace, 'code', 'e')
+		field040e.innerHTML = 'rda'
+		field040.appendChild(field040e)		
+
+		let field040c = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040c.setAttributeNS(marcNamespace, 'code', 'c')
+		field040c.innerHTML = 'DLC'
+		field040.appendChild(field040c)	
+
+
+		rootEl.appendChild(field040)
+
+
+		let fieldName = document.createElementNS(marcNamespace,"marcxml:datafield");
+		fieldName.setAttributeNS(marcNamespace, 'tag', oneXXParts.fieldTag)
+		fieldName.setAttributeNS(marcNamespace, 'ind1', oneXXParts.indicators.charAt(0))
+		fieldName.setAttributeNS(marcNamespace, 'ind2', oneXXParts.indicators.charAt(1))
+		for (let key of Object.keys(oneXXParts)){
+			if (key.length == 1){
+				let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+				subfield.setAttributeNS(marcNamespace, 'code', key)
+				subfield.innerHTML = oneXXParts[key]
+				fieldName.appendChild(subfield)	
+			}
+		}
+		// 110//$aMiller, Sam$d1933
+		rootEl.appendChild(fieldName)
+
+
+		let field670 = document.createElementNS(marcNamespace,"marcxml:datafield");
+		field670.setAttributeNS(marcNamespace, 'tag', '670')
+		field670.setAttributeNS(marcNamespace, 'ind1', ' ')
+		field670.setAttributeNS(marcNamespace, 'ind2', ' ')
+		let field670a = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field670a.setAttributeNS(marcNamespace, 'code', 'a')
+		field670a.innerHTML = mainTitle
+		field670.appendChild(field670a)
+
+		let field670b = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field670b.setAttributeNS(marcNamespace, 'code', 'u')
+		field670b.innerHTML = workURI
+		field670.appendChild(field670b)
+
+		rootEl.appendChild(field670)
+
+
+		
+
+
+
+
+
+
+
+		let xml = (new XMLSerializer()).serializeToString(rootEl)
+
+		console.log(xml)
+		return xml
+
 	}
+
 }
 
 

@@ -2,37 +2,39 @@
 
 
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
+    <!-- {{ simpleLookupValues }} -->
 
+    
     <template v-if="inlineModeShouldDisplay">
 
-      <template v-if="simpleLookupValues.length===0">
+        <span class="bfcode-display-mode-holder-label simptip-position-top" :data-tooltip="structure.propertyLabel" :title="structure.propertyLabel" >{{profileStore.returnBfCodeLabel(structure)}}:</span>
+        <input v-model="activeValue" class="inline-lookup-input can-select 1" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
 
-          <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <input v-model="activeValue" class="inline-lookup-input can-select 1" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
+        <Transition name="action" v-if="showActionButton && myGuid == activeField">
+            <div :class="{'lookup-action':true, 'lookup-action-camm':preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')}" >
 
+              <action-button :type="'lookupSimple'" :structure="structure" :guid="guid" :small="true" :id="`action-button-${structure['@guid']}`" @action-button-command="actionButtonCommand" />
+            </div>
+          </Transition>
 
-      </template>
-      <template v-else>
+      <!-- <template v-else> -->
 
-          <template v-for="(avl,idx) in simpleLookupValues" >
+          <!-- <template v-for="(avl,idx) in simpleLookupValues" >
               <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-
-
-
-
               <span v-if="!avl.needsDereference" style="">
-                <!-- <span class="material-icons icon inline-icon">playlist_add_check</span> -->
                 {{avl.label}}
-                <span class="uncontrolled" v-if="avl.isLiteral"> (uncontrolled)</span></span>
-              <!-- <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""><span class="material-icons check-mark">check_circle_outline</span></span></span> -->
-
+              <span class="uncontrolled" v-if="avl.isLiteral"> (uncontrolled)</span></span>
               <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span></span>
-
               <a href="#" class="inline-remove-x" @click="removeValue(idx)" style="">x</a>
-          </template>
+          </template> -->
+<!--
+          <template v-for="(avl,idx) in simpleLookupValues" ></template>
+            <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+            <input v-model="activeValue" class="inline-lookup-input can-select 1" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly"  />
+          </template> -->
 
 
-      </template>
+      <!-- </template> -->
 
 
     </template>
@@ -130,7 +132,7 @@
       </form>
 
   </template>
-    <div v-if="displayAutocomplete==true" ref="selectlist" class="autocomplete-container">
+    <div v-if="displayAutocomplete==true" ref="selectlist" :class="{'autocomplete-container':true, 'autocomplete-container-camm-mode': returnCAMModeShowAutoComplete}">
       <ul>
         <li v-for="(item, idx) in displayList" :data-idx="idx" v-bind:key="idx" @click="clickAdd(item)">
             <span v-if="item==activeSelect"  :data-idx="idx" class="selected">{{item}}</span>
@@ -204,11 +206,17 @@ export default {
 
       showField: true,
 
-      
+      cammModeShowAutoComplete: false,
+
+      findSelectListTime: null,
+
       activeValue: '',
 
+      needsCAMMInitalValidation:null,
 
-      
+      usesSuggest: false,
+
+
     }
   },
 
@@ -224,7 +232,49 @@ export default {
     // this.refreshInputDisplay()
 
     // console.log("this.structure.valueConstraint.useValuesFrom[0]",this.structure.valueConstraint.useValuesFrom[0])
+    if (this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom[0]){
+      if (this.structure.valueConstraint.useValuesFrom[0].indexOf('/suggest2')>-1){
+        this.usesSuggest=true
+      }
+    }
 
+  },
+
+  mounted: function(){
+
+    
+
+
+
+    let useVal = []
+    for (let val of this.simpleLookupValues){
+      if (val.URI && val.URI.indexOf("id.loc.gov")>-1){
+        let idVal = val.URI.split("/").slice(-1)[0]
+        useVal.push(idVal)
+      }
+    }
+
+    if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+      this.activeValue = useVal.join(",")
+
+      if (useVal.length>0){
+        this.focused()
+        
+        this.needsCAMMInitalValidation = window.setInterval(()=>{
+          
+          // did we load the metadata for this lookup so we can validate it?
+          if (utilsNetwork.lookupLibrary[this.uri]){            
+            window.clearInterval(this.needsCAMMInitalValidation)
+            // ask to add it in test only mode so we don't overwrite values just trying to check for errors
+            this.cammModeDelayedAdd({target: {value: this.activeValue} }, true)
+          }
+        },Math.floor(Math.random() * 500))
+        
+
+
+      }
+    }
+    
 
   },
 
@@ -243,7 +293,7 @@ export default {
       if (this.readOnly && values.length==0){
         this.showField=false
       }
-
+      
       return values
 
     },
@@ -270,22 +320,46 @@ export default {
         return true
 
       }else{
+        console.log("this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath")
         // no value in it, but maybe its the "main" property, so display it anyway
         if (this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath)){
           return true
         }
+
+        // there might be an activeValue meaning there was an error but they are still working in the field so leave it up
+        if (this.activeValue && this.activeValue.trim() != ''){
+          return true
+        }
+
+        if (this.profileStore.inlineFieldIsToggledForDisplay(this.guid,this.structure.propertyURI)){
+          return true
+        }
+
+
       }
 
       return false
 
-    }
+    },
+
+    returnCAMModeShowAutoComplete(){
+
+      if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+        if (this.cammModeShowAutoComplete == false){
+          return true
+        }
+      }
+      return false
+    },
+
+   
 
   },
 
 
 
 
-  
+
   methods:{
 
     focusClick: function(){
@@ -293,13 +367,21 @@ export default {
       this.$refs.lookupInput.focus()
     },
 
-    blur: function(){
+    blur: function(event){
 
       // when we blur they may be clicking a value in the list
       // so wait a bit before we close to register the click event
       window.setTimeout(()=>{
         this.displayAutocomplete = false
+
+        if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+          this.cammModeDelayedAdd(event)
+        }
+
+
       },250)
+
+
 
     },
 
@@ -320,6 +402,7 @@ export default {
       if (!this.uri.includes("suggest2")){
         utilsNetwork.loadSimpleLookup(this.uri)
       } else {
+        this.usesSuggest=true
         let uriParts = this.uri.split("/suggest2?q=")
         let results = await utilsNetwork.loadSimpleLookupKeyword(uriParts[0], uriParts[1])
         utilsNetwork.lookupLibrary[this.uri] = results
@@ -342,6 +425,7 @@ export default {
       if (recursive){
         addKeyword = 'KEYWORD'
         this.activeKeyword = true
+        this.usesSuggest=true
       }
       // console.log(`"${addKeyword}"`)
       // console.log(this.uri)
@@ -353,23 +437,23 @@ export default {
       if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
         this.displayList.push("Loading Data.")
         // if the data isn't loaded yet we will wait a few times
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 1250));
         this.displayList=[]
 
         if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
           this.displayList.push("Loading Data..")
-          await new Promise(r => setTimeout(r, 1000));
+          await new Promise(r => setTimeout(r, 1250));
           this.displayList=[]
 
 
           if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
             this.displayList.push("Loading Data...")
-            await new Promise(r => setTimeout(r, 1000));
+            await new Promise(r => setTimeout(r, 1250));
             this.displayList=[]
 
             if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
               this.displayList.push("Loading Data....")
-              await new Promise(r => setTimeout(r, 1000));
+              await new Promise(r => setTimeout(r, 1250));
               this.displayList=[]
 
               if (!utilsNetwork.lookupLibrary[this.uri+addKeyword]){
@@ -430,12 +514,12 @@ export default {
                   exactMatches.push(x)
                 }else{
                   this.displayList.push(x)
-                }               
+                }
               }
             }else{
               console.warn('Could not find the metadata in the simple lookup response, this should not happen.')
             }
-            
+
           })
         }
 
@@ -489,11 +573,11 @@ export default {
         this.displayAutocomplete = true
       }
 
-      if (this.displayAutocomplete){
-        // this.$store.dispatch("disableMacroNav")
-      }else{
-        // this.$store.dispatch("enableMacroNav")
-      }
+      // if (this.displayAutocomplete){
+      //   // this.$store.dispatch("disableMacroNav")
+      // }else{
+      //   // this.$store.dispatch("enableMacroNav")
+      // }
 
     },
 
@@ -520,15 +604,27 @@ export default {
         // }
 
 
-
-
-
+      
         this.activeValue = event.target.value.trimStart()
         this.doubleDelete = false
-        this.activeValue = event.target.value.trimStart()
-        this.activeFilter = event.target.value.trimStart()
         this.displayAutocomplete = true
-        // this.$store.dispatch("disableMacroNav")
+        if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+          let av = event.target.value.trimStart()
+          if (av.indexOf(",") > -1){
+            // it already has a value with a comma so like aut,c
+            // meaning they are adding another one, so split off the first part so we dont search on the whole string
+            av = av.split(',')[av.split(',').length-1]
+          }
+          if (!av){ av = ''}
+          this.activeFilter = av
+
+        }else{
+          this.activeFilter = event.target.value.trimStart()
+        }
+        
+
+
+
         this.filter()
 
 
@@ -536,7 +632,7 @@ export default {
 
       }else if (event && event.key && event.key==='Backspace'){
 
-        if (!this.doubleDelete && this.activeValue === ''){
+        if (!this.doubleDelete && this.activeValue === '' && this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false){
           this.doubleDelete = true
           return false
         }
@@ -585,18 +681,52 @@ export default {
           document.getElementById(id).children[0].click()
         }
         return false
+      }else if (event && event.keyCode == 32 && event.ctrlKey == true){
+
+        // trigger the picklist being visable in this mode
+        this.cammModeShowAutoComplete=true
+
+      }else if (event && event.keyCode == 13 && this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true && this.returnCAMModeShowAutoComplete == true ){
+
+        this.cammModeDelayedAdd(event)
+
+        return true
+
+      }else if (event && event.keyCode == 13 && this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true && this.displayAutocomplete){
+        // here they have triggered the auto complete and hit enter
+        // console.log(event)
+        
+
+        // return true
+
+
       }
 
 
 
       if (reposLeft){
-        this.findSelectListTime = window.setInterval(()=>{
-          if (this.$refs.selectlist && this.$refs.selectlist.style){
-            window.clearTimeout(this.findSelectListTime)
-            var rect = event.target.getBoundingClientRect();
-            this.$refs.selectlist.style.left = rect.left + 'px'
-          }
-        },100)
+
+
+        // if (this.$refs.selectlist && this.$refs.selectlist.style && this.$refs.selectlist.style.minWidth && this.$refs.selectlist.style.minWidth == '350px'){
+        //   // its already positioned so dont do anything for now.
+        // }else{
+
+          this.findSelectListTime = window.setTimeout(()=>{
+            if (this.$refs.selectlist && this.$refs.selectlist.style){
+              window.clearTimeout(this.findSelectListTime)
+              var rect = event.target.getBoundingClientRect();
+              let ppWidth = 0
+              // see how wide the properties panel is and use that to position as well
+              if (document.getElementsByClassName('edit-main-splitpane-properties').length>0){
+                ppWidth = document.getElementsByClassName('edit-main-splitpane-properties')[0].getBoundingClientRect().width
+              }              
+              this.$refs.selectlist.style.left = rect.left - rect.width - ppWidth + 'px'
+              this.$refs.selectlist.style.minWidth = '350px'
+            }
+          },200)
+
+        // }
+
       }
 
       this.activeValue = event.target.value
@@ -609,13 +739,17 @@ export default {
         if (!this.displayAutocomplete) this.displayAutocomplete = true
 
         this.activeFilter =''
-        this.activeValue = ''
+
+        
+
         // if there is nothing selected yet then pick the first one
         if (this.activeSelect.trim()=='' && this.displayList.length>0){
           this.activeSelect = this.displayList[0]
-          this.activeValue = this.displayList[0]
-
-
+          // only show the value in the active label if we are not in camm mode, since the active label in camm mode because the value we 
+          // cant change it like this
+          if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){            
+            this.activeValue = this.displayList[0]            
+          }          
         }else{
 
           // check if there is one further from the actively selected item
@@ -625,14 +759,18 @@ export default {
               if (event.key==='ArrowDown'){
                 if (step+1 < this.displayList.length){
                   this.activeSelect = this.displayList[step+1]
-                  this.activeValue = this.displayList[step+1]
+                  if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+                    this.activeValue = this.displayList[step+1]                                        
+                  }
                   break
                 }
               }
               if (event.key==='ArrowUp'){
                 if (step-1 >= 0){
                   this.activeSelect = this.displayList[step-1]
-                  this.activeValue = this.displayList[step-1]
+                  if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){                                        
+                    this.activeValue = this.displayList[step-1]                    
+                  }
                   break
                 }
               }
@@ -648,12 +786,15 @@ export default {
       }else if (event && event.key && event.key==='Escape'){
         this.doubleDelete = false
         this.activeFilter = ''
-        this.activeValue = ''
+        
         this.displayAutocomplete = false
 
-
+        if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){          
+          this.activeValue = ''
+        }
 
       }else if (event && event.key && event.key==='Enter'){
+
         this.doubleDelete = false
 
         let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
@@ -665,7 +806,7 @@ export default {
 
 
         // find the active selected in the data
-        
+
         for (let key of Object.keys(metadata)){
           // let idx = metadata[key].displayLabel.indexOf(this.activeSelect)
           // // a dumb bug here where depending on the vocab the label has extra spaces in it....
@@ -684,7 +825,7 @@ export default {
 
           let isMatch = (this.activeSelect == displayLabel)
           if (!isMatch){
-            isMatch = (this.activeSelect == authLabel)       
+            isMatch = (this.activeSelect == authLabel)
           }
 
           // if it is an array then try to match up to it
@@ -699,10 +840,37 @@ export default {
             }
           }
 
-
-
-
           if (isMatch){
+
+            // if they are in CAMM mode then add the URI piece to the existing active menu and trigger the delay add, dont add it via this method
+            if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') ){
+              
+              // if they are in CAMM mode then see if the current active value is the thing that will turn into the value
+              // so see if they are working on adding multiple things are just one and make the activeValue correctly
+              let valueToAdd = this.returnCAMMLabelFromDisplayListValue(metadata[key].displayLabel)
+              let valuesAdded = this.activeValue.split(",").map((v)=>{ return v.toLowerCase().trim()})
+              if (valuesAdded.indexOf(valueToAdd)>-1){
+                // its already there, do nothing               
+              }else{
+                // its not there yet, so we need to add it, if there are no other values yet just replace the exsting one
+                // if there are other values replace the last one since that is what they were typing
+                if (valuesAdded.length==1){ 
+                  valuesAdded[0] = valueToAdd
+                }else{
+                  valuesAdded[valuesAdded.length-1] = valueToAdd
+                }
+              }
+
+              this.activeValue = valuesAdded.join(",")
+              this.activeSelect = ''
+              this.displayAutocomplete=false
+
+              break
+            }
+
+
+
+
             // this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':metadata[key].label[idx],URI:metadata[key].uri})
             this.activeFilter = ''
             this.activeValue = ''
@@ -716,13 +884,9 @@ export default {
         }
 
 
-        // if (event.target.value == ''){
-        //   this.submitField()
-        // }
-
         // if there is a value still that means the value did not match a item in the list
         // so add the value as a uncontrolled value
-        if (event.target.value !== ''){
+        if (event.target.value !== '' && !this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
 
           this.activeFilter = ''
           this.activeValue = ''
@@ -764,6 +928,67 @@ export default {
 
     },
 
+    returnCAMMLabelFromDisplayListValue(displayListValue){
+
+      let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
+
+      if (this.activeKeyword){
+        metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values
+      }
+      for (let key of Object.keys(metadata)){
+        let displayLabel = metadata[key].displayLabel
+        if (Array.isArray(displayLabel)){displayLabel = displayLabel[0]}
+        displayLabel = displayLabel.replace(/\s+/g,' ')
+
+        // if we don't see it in the display label it might be in the authLabel becase the display label will be sometihng like "dlc (USE United States, Library of Congress)"
+        let authLabel = metadata[key].authLabel
+        if (authLabel){ authLabel = authLabel.replace(/\s+/g,' ')}
+
+        let isMatch = (this.activeSelect == displayLabel)
+
+        if (!isMatch){
+          isMatch = (this.activeSelect == authLabel)
+        }
+
+        // if it is an array then try to match up to it
+        if (!isMatch){
+          if (Array.isArray(metadata[key].displayLabel)){
+            for (let dlValue of metadata[key].displayLabel){
+              if (this.activeSelect == dlValue){
+                isMatch = true
+                displayLabel = dlValue
+              }
+            }
+          }
+        }
+
+        if (isMatch){
+
+          console.log("Found it",metadata[key].uri)
+
+          if (metadata[key].uri.indexOf('id.loc.gov')>-1){
+            let uri = metadata[key].uri
+            if (uri.slice(-1) == '/'){
+              uri = uri.substring(0, uri.length - 1);
+            }
+
+            let idVal = uri.split("/").slice(-1)[0]
+            return idVal           
+
+          }else{
+            return metadata[key].uri
+          }
+
+
+        }
+
+      }
+
+
+    },
+
+
+
     mouseSelectValue: function(val){
 
 
@@ -794,6 +1019,8 @@ export default {
 
 
     clickAdd: function(item){
+
+      
       this.displayAutocomplete=false
 
       this.activeSelect = item
@@ -807,14 +1034,14 @@ export default {
       // console.log("META",JSON.stringify(metadata,null,2))
 
       // find the active selected in the data
-      
+
       for (let key of Object.keys(metadata)){
 
         let displayLabel = metadata[key].displayLabel
         if (Array.isArray(displayLabel)){displayLabel = displayLabel[0]}
         displayLabel = displayLabel.replace(/\s+/g,' ')
 
-        console.log(metadata[key])
+
 
         // if we don't see it in the display label it might be in the authLabel becase the display label will be sometihng like "dlc (USE United States, Library of Congress)"
         let authLabel = metadata[key].authLabel
@@ -823,9 +1050,9 @@ export default {
         let isMatch = (this.activeSelect == displayLabel)
 
         if (!isMatch){
-          isMatch = (this.activeSelect == authLabel)       
+          isMatch = (this.activeSelect == authLabel)
         }
-        
+
         // if it is an array then try to match up to it
         if (!isMatch){
           if (Array.isArray(metadata[key].displayLabel)){
@@ -839,20 +1066,50 @@ export default {
         }
 
 
-        console.log("looking for ",this.activeSelect,' in ', displayLabel, 'or',  authLabel)
+        // console.log("looking for ",this.activeSelect,' in ', displayLabel, 'or',  authLabel)
 
 
-        
+
         if (isMatch){
-          this.activeFilter = ''
-          this.activeValue = ''
-          this.activeSelect = ''
-          this.displayAutocomplete=false
-          event.target.value = ''
-          let useLabel = (authLabel) ? authLabel : displayLabel
-          this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,metadata[key].uri,useLabel)
-          // refocus
-          this.$refs.lookupInput.focus()
+
+
+          if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') ){
+
+              // if they are in CAMM mode then see if the current active value is the thing that will turn into the value
+              // so see if they are working on adding multiple things are just one and make the activeValue correctly
+              let valueToAdd = this.returnCAMMLabelFromDisplayListValue(metadata[key].displayLabel)
+              let valuesAdded = this.activeValue.split(",").map((v)=>{ return v.toLowerCase().trim()})
+              if (valuesAdded.indexOf(valueToAdd)>-1){
+                // its already there, do nothing
+                this.activeSelect = ''
+                this.displayAutocomplete=false
+              }else{
+                // its not there yet, so we need to add it, if there are no other values yet just replace the exsting one
+                // if there are other values replace the last one since that is what they were typing
+                if (valuesAdded.length==1){ 
+                  valuesAdded[0] = valueToAdd
+                }else{
+                  valuesAdded[valuesAdded.length-1] = valueToAdd
+                }
+              }
+              this.activeValue = valuesAdded.join(",")
+
+
+          }else{
+
+            this.activeFilter = ''
+            this.activeValue = ''
+            this.activeSelect = ''
+            this.displayAutocomplete=false
+            event.target.value = ''
+            let useLabel = (authLabel) ? authLabel : displayLabel
+            this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,metadata[key].uri,useLabel)
+            // refocus
+            this.$refs.lookupInput.focus()
+          } 
+
+
+
           break
         }
       }
@@ -860,104 +1117,184 @@ export default {
 
     },
 
-    // clickAdd: function(event){
-
-    //   this.displayAutocomplete=false
+    async cammModeDelayedAdd(event, testOnly){
 
 
-    //   if (event && event.target && event.target.innerText){
-    //     this.activeSelect = event.target.innerText
-    //   }
+      let inputValues = event.target.value
 
-    //   let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
+      // always go through and remove everything before we process it again
+      // for (let val of this.simpleLookupValues){
+      //   this.profileStore.removeValueSimple(this.guid, val['@guid'])
+      // }
 
-    //   if (this.activeKeyword){
-    //     metadata = utilsNetwork.lookupLibrary[this.uri+'KEYWORD'].metadata.values
-    //   }
-    //   // find the active selected in the data
-    //   Object.keys(metadata).forEach((key)=>{
-    //     let idx = metadata[key].displayLabel.indexOf(this.activeSelect)
-    //     if (idx >-1){
-    //       // this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':metadata[key].label[idx],URI:metadata[key].uri})
-    //       this.activeFilter = ''
-    //       this.activeValue = ''
-    //       this.activeSelect = ''
-    //       this.displayAutocomplete=false
-    //       event.target.value = ''
-    //       // let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null
-    //       let useLabel = (metadata[key].authLabel) ? metadata[key].authLabel : metadata[key].label[idx]
+      // it is empty, remove everything
+      if (inputValues.trim().length==0){
 
-    //       this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, propertyPath: this.propertyPath, valueURI: metadata[key].uri, valueLabel:useLabel}).then((resultData) => {
-    //         this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':resultData.valueLabel, uri: resultData.valueURI, uriGuid: resultData.guid, labelGuid:resultData.guid})
-    //       })
-    //     }
-    //     // let data = utilsNetwork.lookupLibrary[this.uri].metadata[v]
+        for (let val of this.simpleLookupValues){
+          this.profileStore.removeValueSimple(this.guid, val['@guid'])
+        }
 
-    //     // let idx = data.defaultsisplayLabel.indexOf(this.activeSelect)
-    //     // if (idx > -1){
-    //     //   this.structure.valueConstraint.defaults.push({defaultLiteral:data.label[idx],defaultURI:data.uri[idx]})
-    //     // }
-    //   })
+        this.profileStore.clearCammModeError(this.guid)
+
+        return false
+
+      }
+
+      // there is already something in there, but we are about to edit more? so remove everything before we see what to add
+
+      if (this.simpleLookupValues.length>0){
+        for (let val of this.simpleLookupValues){
+          // don't remove anything if we are just validating 
+          if (!testOnly){
+            this.profileStore.removeValueSimple(this.guid, val['@guid'])
+          }
+        }
+
+        this.profileStore.clearCammModeError(this.guid)
 
 
-    //   // let label = this.displayList[event.target.dataset.idx]
+      }
 
-    //   // let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
-
-    //   // // find the active selected in the data
-    //   // Object.keys(metadata).forEach((key)=>{
-
-    //   //   let idx = metadata[key].displayLabel.indexOf(label)
-    //   //   if (idx >-1){
-    //   //     // this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':,URI:})
-    //   //     // this.activeFilter = ''
-    //   //     // this.activeValue = ''
-    //   //     // this.activeSelect = ''
-    //   //     // this.displayAutocomplete=false
-    //   //     // // this.$store.dispatch("addValueLiteral", { self: this, profileComponet: this.profileCompoent, structure: this.structure, template:this.activeTemplate, value:this.activeLookupValue }).then(() => {
-
-    //   //     // // })
-
-    //   //     // this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, parentURI: this.parentStructureObj.propertyURI, URI: this.structure.propertyURI, valueURI: metadata[key].uri, valueLabel:metadata[key].label[idx]}).then((resultData) => {
-    //   //     //   this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':resultData.valueLabel, uri: resultData.valueURI, uriGuid: resultData.guid, labelGuid:resultData.guid})
-    //   //     // })
+      this.profileStore.clearCammModeError(this.guid)
 
 
+      // if we add more than one keep track to pass to the profile function so it know to append not create
+      let lastAddedFieldGuid = this.existingGuid
 
-    //   //     this.activeFilter = ''
-    //   //     this.activeValue = ''
-    //   //     this.activeSelect = ''
-    //   //     this.displayAutocomplete=false
-    //   //     event.target.value = ''
-    //   //     // this.$store.dispatch("addValueLiteral", { self: this, profileComponet: this.profileCompoent, structure: this.structure, template:this.activeTemplate, value:this.activeLookupValue }).then(() => {
+      // allow for multiple values seperated by a commma
+      for (let inputValue of inputValues.split(",")){
 
-    //   //     // })
-    //   //     let parentURI = (this.parentStructureObj) ? this.parentStructureObj.propertyURI : null
+        inputValue=inputValue.trim()
 
 
-    //   //     this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, parentURI: parentURI, URI: this.structure.propertyURI, valueURI: metadata[key].uri, valueLabel:metadata[key].label[idx]}).then((resultData) => {
-    //   //       this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':resultData.valueLabel, uri: resultData.valueURI, uriGuid: resultData.guid, labelGuid:resultData.guid})
-    //   //     })
+        let uris = Object.keys(utilsNetwork.lookupLibrary[this.uri])
+        // somehow they were really fast an the list hasn't loaded yet?
+        if (uris.length <= 2){
+          await new Promise(r => setTimeout(r, 100));
+        }
+        uris = Object.keys(utilsNetwork.lookupLibrary[this.uri])
+
+        if (uris.length <= 1){
+            
+          // the likely cause is that it used a /suggest2 query to populate, 
+          // regardless just validate against the server itself and see if it a valid URI
+          let checkUri = this.uri
+          if (checkUri.slice(-1) != '/'){
+            checkUri = checkUri + '/';
+          }          
+          checkUri = checkUri + inputValue
+
+          let checkUriResult = await utilsNetwork.validateCAMMModeURI(checkUri) // this will return false or the string of the label of the uri dereferenced
+
+          if (!checkUriResult){
+            this.profileStore.addCammModeError(this.guid,'Network error resolving: "' + inputValue + '" please re-key it.' )
+            return false
+          }else{
+            console.log("checkUriResult",checkUriResult)
+            // it is a valid code, so don't go searchng for it, set it and go
+            if (!testOnly){
+              let addResults = await this.profileStore.setValueSimple(this.guid,lastAddedFieldGuid,this.propertyPath,checkUri,checkUriResult)
+              lastAddedFieldGuid = this.simpleLookupValues.slice(-1)[0]['@guid']
+              return true
+            }else{
+              return true
+            }            
+          }
+        }
+
+        let matches = []
+        for (let uri of uris){
+          uri = uri.toLowerCase()
+          if (uri == 'metadata'){ continue }
+
+          if (uri.indexOf('id.loc.gov')>-1){
+            if (uri.slice(-1) == '/'){
+              uri = uri.substring(0, uri.length - 1);
+            }
+
+            let idVal = uri.split("/").slice(-1)[0]
+            if (idVal == inputValue.toLowerCase()){
+              matches.push(uri)
+            }
+
+          }else{
+            this.profileStore.addCammModeError(this.guid,'Do not know how to parse this vocab\'s URIs: "' +  inputValue + '" please report this error.' )
+            break
+
+          }
+
+        }
+
+        // perfect
+        if (matches.length == 1){
+
+          // normalize the lookup real quick to make sure if we have something like "http://id.loc.gov/vocabulary/descriptionConventions" and we have a uri like "http://id.loc.gov/vocabulary/descriptionconventions"
+          // it still finds it
+          for (let key of Object.keys(JSON.parse(JSON.stringify(utilsNetwork.lookupLibrary[this.uri].metadata.values)))){
+            utilsNetwork.lookupLibrary[this.uri].metadata.values[key.toLowerCase()] = utilsNetwork.lookupLibrary[this.uri].metadata.values[key]
+          }
+                  
+
+          // console.log("utilsNetwork.lookupLibrary[this.uri].metadata.values")
+          // console.log(utilsNetwork.lookupLibrary[this.uri].metadata.values)
+          // console.log("matches[0] is",JSON.stringify(matches[0]))
+          // console.log("Before check:", JSON.stringify(utilsNetwork.lookupLibrary[this.uri].metadata.values))
+          // console.log("value", JSON.stringify(utilsNetwork.lookupLibrary[this.uri].metadata.values[matches[0]]))
+
+
+          let displayLabel = utilsNetwork.lookupLibrary[this.uri].metadata.values[matches[0]].displayLabel
+          if (Array.isArray(displayLabel)){displayLabel = displayLabel[0]}
+          displayLabel = displayLabel.replace(/\s+/g,' ')
+
+          let authLabel = utilsNetwork.lookupLibrary[this.uri].metadata.values[matches[0]].authLabel
+          if (authLabel){ authLabel = authLabel.replace(/\s+/g,' ')}
+          let useLabel = (authLabel) ? authLabel : displayLabel
+
+          if (this.simpleLookupValues.length>0){
+            for (let val of this.simpleLookupValues ){
+              if (val.URI == matches[0]){
+                // don't add the same one over and over
+                return false
+              }
+            }
+
+          }
+
+
+          if (!testOnly){
+            let addResults = await this.profileStore.setValueSimple(this.guid,lastAddedFieldGuid,this.propertyPath,matches[0],useLabel)
+            lastAddedFieldGuid = this.simpleLookupValues.slice(-1)[0]['@guid']
+          }
+          
+          
+
+        }else if (matches.length>1){
+          //bad
+          this.profileStore.addCammModeError(this.guid,'Multiple values match this code, please use the auto complete dropdown (CTRL+Space) to select a value: ' +inputValue )
+          
+
+        }else if (matches.length==0){
+          // bad but not terrible
+          this.profileStore.addCammModeError(this.guid,'No match coud be made for this code, please fix: ' + inputValue)
+
+        }
+
+        // console.log(utilsNetwork.lookupLibrary[this.uri])
+
+      }
+
+
+    },
+
+    returnCammLabel(simpleLookupValue){
 
 
 
-    //   //     this.$store.dispatch("enableMacroNav")
 
 
 
-    //   //   }
+    }
 
-
-    //   // })
-
-    //   // refocus
-    //   this.$refs.lookupInput.focus()
-
-
-
-    // },
-
-    // submitField: uiUtils.globalMoveDown
 
 
   }
@@ -1041,6 +1378,7 @@ export default {
 .lookup-fake-input{
   display: flex;
   background-color: transparent;
+
 }
 
 
@@ -1056,7 +1394,8 @@ export default {
   z-index: 1;
   top: -4px;
   left: 2px;
-  color: gray;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
+  pointer-events: none;
   margin-top: 1px;
 }
 
@@ -1070,13 +1409,19 @@ export default {
   padding: 0;
   margin: 0;
   margin-top: 0.5em;
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
+
+
 }
 
 .lookup-action{
   flex-shrink: 1;
 
 }
-
+.lookup-action-camm{
+  display: inline-block;
+}
 
 
 .selected-value-container{
@@ -1085,10 +1430,13 @@ export default {
   border-radius: 0.5em;
   padding: 0.35em;
   font-size: 0.75em;
-  background-color: whitesmoke;
+
   white-space: nowrap;
   display: inline-block;
   height: 2em;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-lookup-background-color')");
+  border: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+  color:  v-bind("preferenceStore.returnValue('--c-edit-main-lookup-text-color')");
 
 
 }
@@ -1111,6 +1459,12 @@ export default {
   position: absolute;
   z-index: 100;
   background-color: white;
+
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-lookup-simple-lookup-autocomplete-background-color')");
+  color:  v-bind("preferenceStore.returnValue('--c-edit-main-lookup-simple-lookup-autocomplete-text-color')");
+
+
+
   border-radius: 15px;
   -webkit-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
   -moz-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
@@ -1124,174 +1478,11 @@ export default {
   border-radius: 5px;
 }
 
-
-
-
-
-.selected-value-icon{
-/*  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;*/
-  /* padding-right: 0.3em; */
-  /* margin-left: 5px; */
-  /* border-left: 1px solid black; */
-  /* padding: 0px 7px; */
-  /* font-size: 1em; */
+.autocomplete-container-camm-mode{
+ display: none;
 }
 
-
-/*textarea{
-  border: none;
-  overflow: hidden;
-  outline: none;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  resize: none;
-  width: 100%;
-  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
-
-  height: 1.25em;
-  line-height: 1.25em;
+.component .lookup-fake-input{
+  border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')");
 }
-*/
-
-
-
-
-/*
-.input-single{
-  width: 95%;
-  border:none;
-  font-size: 1.5em;
-  min-height: 2em;
-  max-height: 2em;
-  background:none;
-}
-.input-nested{
-  width: 95%;
-  border: none;
-  font-size: 1.5em;
-  padding: 0.1em;
-  background: none;
-
-}
-
-
-
-li::before{
-  content: '';
-}
-
-li{
-  padding:0.1em;
-}
-
-li span{
-  padding:0.1em;
-}
-input{
-  outline: none;
-}
-.uncontrolled{
-  margin-left: 0.25em;
-  color: darkred;
-}
-.component-container-fake-input:focus-within {
-  border: solid 1px #a6acb7;
-  background-color: #dfe5f1;
-
-
-}
-.selected-value-container{
-  margin: 0.95em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.75em;
-  background-color: whitesmoke;
-  white-space: nowrap;
-
-
-
-}
-.selected-value-container-nested{
-  margin: 0.25em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.75em;
-  background-color: whitesmoke;
-  white-space: nowrap;
-  display: inline;
-}
-.selected{
-  border:solid 4px lightblue;
-  border-radius: 5px;
-}
-.autocomplete-container{
-  padding: 0.45em;
-  position: absolute;
-  z-index: 100;
-  background-color: white;
-  border-radius: 15px;
-  -webkit-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-  -moz-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-  box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-}
-.autocomplete-container li{
-  cursor: pointer;
-}
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-form{
-  height: 100%;
-}
-
-.ani-shake{
-  animation: shake 1s 1;
-}
-
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  10%,
-  30%,
-  50%,
-  70% {
-    transform: translateX(-10px);
-  }
-
-  20%,
-  40%,
-  60% {
-    transform: translateX(10px);
-  }
-
-  80% {
-    transform: translateX(8px);
-  }
-
-  90% {
-    transform: translateX(-8px);
-  }
-}
-
-*/
-
-
-
 </style>

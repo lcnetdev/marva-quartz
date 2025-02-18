@@ -30,6 +30,7 @@ export default {
 
   props: {
     guid: String,
+    structure: Object
   },
 
   data:function() {
@@ -67,8 +68,8 @@ export default {
     codeInput(){
 
 
-      console.log(this.$refs.dropdown.style.left)
-      console.log(this.$refs.input.getBoundingClientRect())
+      // console.log(this.$refs.dropdown.style.left)
+      // console.log(this.$refs.input.getBoundingClientRect())
 
       const rect = this.$refs.input.getBoundingClientRect();
 
@@ -90,8 +91,7 @@ export default {
 
 
     addToDisplay(p){
-
-      this.profileStore.setInlineDisplay(this.guid, p.label)
+      this.profileStore.setInlineDisplay(this.guid, p.uri)
 
     }
 
@@ -107,6 +107,7 @@ export default {
     width: 50px;
     background-color: transparent;
     border: none;
+    font-family: monospace;
   }
   input:hover{
     background-color: whitesmoke;
@@ -121,6 +122,9 @@ input:focus {
     display: none;
     border: solid 1px black;
     padding: 0.2em;
+    font-family: monospace;
+
+
 }
 .dropdown-item:hover{
   background-color: cornflowerblue;

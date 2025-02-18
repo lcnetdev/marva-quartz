@@ -12,42 +12,45 @@
  -->
 
  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
-    <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
+
+    <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small, 'hidden-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-camm-hide-action-button') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') ) }">
+      <span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span>
+    </button>
+
 
     <InstanceSelectionModal ref="instanceSelectionModal" :currentRt="currentRt" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
 
     <template #popper>
 
-      <div style="width: 250px;">
-
-        <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-1`" @click="duplicateComponent()">
+      <div class="action-button-menu-background" :style="'background-color: ' + preferenceStore.returnValue('--c-edit-general-action-button-menu-background-color')  + ';'">
+        <button  class="" :id="`action-button-command-${fieldGuid}-1`" @click="duplicateComponent()" :style="buttonStyle">
           <span class="button-shortcut-label">1</span>
           Add Another Component
         </button>
-        <button v-if="hasDefaultValues()" style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="insertDefaultValues()">
+        <button v-if="hasDefaultValues()"  class="" :id="`action-button-command-${fieldGuid}-2`" @click="insertDefaultValues()" :style="buttonStyle">
           <span class="button-shortcut-label">2</span>
           Insert Default Values
         </button>
 
-        <button v-if="isContribComponent()" style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="promoteContrib()">
+        <button v-if="isContribComponent()"  class="" :id="`action-button-command-${fieldGuid}-2`" @click="promoteContrib()" :style="buttonStyle">
           <span class="button-shortcut-label">2</span>
           {{ this.profileStore.returnStructureByComponentGuid(this.guid).propertyLabel == "Creator of Work" ? "Demote" : "Promote" }} Contributor
         </button>
 
-        <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-3`" @click="deleteComponent()">
+        <button  class="" :id="`action-button-command-${fieldGuid}-3`" @click="deleteComponent()" :style="buttonStyle">
           <span class="button-shortcut-label">3</span>
           Delete Component
         </button>
 
         <template v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic'">
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-4`" @click="makeSubjectHeadingPrimary()">
+          <button  class="" :id="`action-button-command-${fieldGuid}-4`" @click="makeSubjectHeadingPrimary()" :style="buttonStyle">
             <span class="button-shortcut-label">4</span>
             Make Primary Heading
           </button>
         </template>
 
         <template v-if="['lc:RT:bf2:WorkTitle', 'lc:RT:bf2:InstanceTitle', 'lc:RT:bf2:Title:VarTitle', 'lc:RT:bf2:ParallelTitle'].includes(structure.parentId)">
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-4`" @click="sendToOtherProfile()">
+          <button  class="" :id="`action-button-command-${fieldGuid}-4`" @click="sendToOtherProfile()" :style="buttonStyle">
             <span class="button-shortcut-label">4</span>
             Send to {{ this.profileStore.returnRtByGUID(this.guid).includes(":Work") ? "Instance" : (Object.keys(this.profileStore.activeProfile.rt).length > 2 ? "Work/Instance" : "Work") }}
           </button>
@@ -57,20 +60,20 @@
 
         <template v-if="type=='literal'">
 
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-5`" @click="$emit('actionButtonCommand', 'addField')">
+          <button  class="" :id="`action-button-command-${fieldGuid}-5`" @click="$emit('actionButtonCommand', 'addField')" :style="buttonStyle">
               <span class="button-shortcut-label">5</span>
 
               Additional Literal
             </button><br>
 
-            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-6`" @click="$emit('actionButtonCommand', 'setLiteralLang')">
+            <button  class="" :id="`action-button-command-${fieldGuid}-6`" @click="$emit('actionButtonCommand', 'setLiteralLang')" :style="buttonStyle">
               <span class="button-shortcut-label">6</span>
               Set Language
             </button><br>
 
             <template v-for="(lang,index) in scriptShifterOptionsForMenu">
 
-                <button   style="width:100%"   class="" :id="`action-button-command-${fieldGuid}-${index + 7}`"  @click="$emit('actionButtonCommand', 'trans', {lang:lang.lang,dir:lang.dir, fieldGuid: fieldGuid} )">
+                <button      class="" :id="`action-button-command-${fieldGuid}-${index + 7}`"  @click="$emit('actionButtonCommand', 'trans', {lang:lang.lang,dir:lang.dir, fieldGuid: fieldGuid} )" :style="buttonStyle">
                   <span v-if="index<3" class="button-shortcut-label">{{index + 7}}</span>
                   <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{ lang.label||lang.name }}</span>
 
@@ -89,7 +92,7 @@
         <template v-if="type=='lookupComplex'">
             <!-- template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.parentId.includes(':Form') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[0]" -->
             <template v-if="showUpDownButtons()[0]">
-              <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-u`" @click="moveUp()">
+              <button  class="" :id="`action-button-command-${fieldGuid}-u`" @click="moveUp()" :style="buttonStyle">
                 <span class="button-shortcut-label">u</span>
                 Move Up
               </button>
@@ -97,31 +100,48 @@
 
             <!-- <template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.parentId.includes(':Form') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[1]"> -->
             <template v-if="showUpDownButtons()[1]">
-              <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-d`" @click="moveDown()">
+              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="moveDown()" :style="buttonStyle">
                 <span class="button-shortcut-label">d</span>
                 Move Down
               </button>
             </template>
         </template>
 
+        <template v-if="showBuildNacoStub()">
+              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildNacoStub()" :style="buttonStyle">
+                Create NACO Stub
+              </button>
+        </template>
+
+
         <template v-if="showBuildHubStub()">
-              <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildHubStub()">
+              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildHubStub()" :style="buttonStyle">
                 Create Hub
               </button>
         </template>
 
         <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
-          <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="convertLcc2Dewey()">
+          <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="convertLcc2Dewey()" :style="buttonStyle">
             <span class="">🤖</span>AutoDewey
           </button>
         </template>
 
-        <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
+        <template v-if="showHideElementButton()">
+          <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="hideElement()" :style="buttonStyle">
+            <span class="">🙈</span>Hide Element
+          </button>
+        </template>
+
+        <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()" :style="buttonStyle">
           <span class="button-shortcut-label">0</span>
           Debug
         </button>
+        <button  :id="`action-button-command-${fieldGuid}-cl`" class="" @click="addToLibrary()" :style="buttonStyle">
+          Add To Library
+        </button>
+
         <template v-if="this.returnRemark()">
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}--`" @click="openRemark()">
+          <button  class="" :id="`action-button-command-${fieldGuid}--`" @click="openRemark()" :style="buttonStyle">
             <span class="button-shortcut-label">-</span>
             View Documentation<span class="material-icons action-button-icon">open_in_new</span>
           </button>
@@ -129,24 +149,24 @@
 
 
         <template v-if="catInitals.toLowerCase().indexOf('matt') > -1">
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="breakRecord()">
+          <button  class="" :id="`action-button-command-${fieldGuid}-2`" @click="breakRecord()" :style="buttonStyle">
           <span class="button-shortcut-label">2</span>
           💀 Break Record 💀
           </button>
         </template>
 
         <template v-if="preferenceStore.copyMode && showCopyPasteButtons()">
-            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-c`" @click="copyComponent()">
+            <button  class="" :id="`action-button-command-${fieldGuid}-c`" @click="copyComponent()" :style="buttonStyle">
                 <span class="button-shortcut-label">c</span>
                 Copy<span class="material-icons action-button-icon">content_copy</span>
             </button>
 
-            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-p`" @click="pasteComponent()">
+            <button  class="" :id="`action-button-command-${fieldGuid}-p`" @click="pasteComponent()" :style="buttonStyle">
                 <span class="button-shortcut-label">p</span>
                 Paste<span class="material-icons action-button-icon">content_paste</span>
             </button>
 
-            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-r`" @click="repeatComponent()">
+            <button  class="" :id="`action-button-command-${fieldGuid}-r`" @click="repeatComponent()" :style="buttonStyle">
                 <span class="button-shortcut-label">r</span>
                 Repeat Component<span class="material-icons action-button-icon">repeat</span>
             </button>
@@ -229,7 +249,7 @@
 
 
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
-      ...mapWritableState(useProfileStore, ['showAutoDeweyModal', 'deweyData']),
+      ...mapWritableState(useProfileStore, ['showAutoDeweyModal', 'deweyData', 'emptyComponents']),
 
       scriptShifterOptionsForMenu(){
 
@@ -270,6 +290,23 @@
 
       },
 
+
+      buttonStyle(){
+
+        let bback = this.preferenceStore.returnValue('--c-edit-general-action-button-menu-button-background-color');
+        let bborder = this.preferenceStore.returnValue('--c-edit-general-action-button-menu-button-border-color');
+        let btext = this.preferenceStore.returnValue('--c-edit-general-action-button-menu-button-text-color');
+        let btsize = this.preferenceStore.returnValue('--n-edit-general-action-button-menu-button-text-size');
+
+
+        let style = `background-color: ${bback}; border: solid 1px ${bborder}; color: ${btext}; width:100%; font-size: ${btsize}`
+
+
+        return style
+
+
+      }
+
     },
 
     methods: {
@@ -281,9 +318,8 @@
         this.displayDewey = false
       },
 
-      showBuildHubStub(){
-        console.log("this.propertyPath",this.propertyPath)
 
+      showBuildHubStub(){
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
 
@@ -294,11 +330,10 @@
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/expressionOf"){
           return true
         }
-
-
-
         return false
       },
+
+      
 
 
       buildHubStub(){
@@ -306,21 +341,40 @@
         let info = this.profileStore.returnLccInfo(this.guid)
         this.profileStore.activeHubStubData = info
         this.profileStore.activeHubStubComponent = {
-
           type: this.type,
           guid: this.guid,
           fieldGuid: this.fieldGuid,
           structure: this.structure,
           type: this.type,
           propertyPath:this.propertyPath
-
-
-
-
-
         }
         this.profileStore.showHubStubCreateModal = true
       },
+
+      buildNacoStub(){
+        console.log(this.guid)
+        
+        this.profileStore.showNacoStubCreateModal = true
+      },
+
+
+      
+
+      showBuildNacoStub(){
+        if (!this.propertyPath) return false;
+        if (this.propertyPath && this.propertyPath.length==0) return false;
+
+        let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/contribution"){
+          return true
+        }
+  
+        return false
+      },
+
+
+
+
 
       shortCutPressed: function(){
 
@@ -374,6 +428,15 @@
 
       },
 
+
+
+      addToLibrary: function(){
+
+        this.profileStore.addToComponentLibrary(this.guid);
+        this.sendFocusHome()
+
+      },
+
       duplicateComponent: function(){
         this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
         this.sendFocusHome()
@@ -383,6 +446,7 @@
         if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
           return false
         }
+
         //does this have defaults, or are the defaults higher up?
         let defaults = this.structure.valueConstraint.defaults
 
@@ -393,16 +457,22 @@
           let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
           if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
             for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
-              if (this.profileStore.rtLookup[vRt]){
+              if (vRt==this.structure.parentId && this.profileStore.rtLookup[vRt]){
                 for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
                   if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
-                    this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], pt)
+                    let struct = this.profileStore.returnStructureByComponentGuid(this.guid)
+                    // if (struct.parentId == this.structure.parentId){ // will this have unintended sideffects?
+                    //   this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
+                    // }
+
+                    this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
                   }
                 }
               }
             }
           }
         }
+
         this.sendFocusHome()
       },
 
@@ -499,6 +569,9 @@
       },
 
       hasDefaultValues: function(){
+        if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
+          return false
+        }
         // if the selected item has defaults
         if (this.structure.valueConstraint.defaults.length > 0){
           return true
@@ -842,6 +915,18 @@
         this.profileStore.deleteComponent(this.guid)
       },
 
+      showHideElementButton: function(){
+        let component = this.profileStore.returnStructureByComponentGuid(this.guid)
+        let empty = this.profileStore.isEmptyComponent(component)
+
+        return empty && this.preferenceStore.returnValue('--c-general-ad-hoc') && component.mandatory != 'true'
+      },
+      // Hide empty element in ad hoc mode
+      hideElement: function(){
+        let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+        this.profileStore.addToAdHocMode(structure.parentId, structure.id)
+      },
+
     },
     watch: {
 
@@ -849,10 +934,19 @@
   }
 </script>
 
+
 <style scoped>
+  .action-button-menu-background{
+    width: 250px;
+
+
+  }
+
   button{
     margin-bottom: 5px;
     position: relative;
+
+
 
   }
 
@@ -870,6 +964,7 @@
     left: 0;
     font-family: monospace;
     background-color:lightgoldenrodyellow;
+    color: black;
     border: solid 1px lightslategray;
     padding-left: 2px;
     padding-right: 2px;
@@ -888,7 +983,7 @@
       display: inline-flex;
       align-items: center;
   }
-
+/*
   .action-button-list-container{
     position: absolute;
     z-index: 1000;
@@ -913,7 +1008,7 @@
   }
   .action-button-list-container a:hover{
     background-color: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-continer-background-highlight-color')");
-  }
+  } */
 
   .action-enter-active,
   .action-leave-active {
@@ -930,5 +1025,24 @@
     background-color: red;
     margin-left: 5px;
   }
+
+  .hidden-mode{
+    height: 0px;
+    width: 0px;
+    max-width: 0px;
+    border: none;
+    margin: 0;
+    padding: 0;
+
+  }
+  .hidden-mode button{
+    max-width: 1px;
+  
+  }
+  .hidden-mode span{
+    visibility: hidden;
+
+  }
+
 
 </style>

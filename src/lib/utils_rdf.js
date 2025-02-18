@@ -64,7 +64,7 @@ const utilsRDF = {
   * @return {bolean}
   */
   isUriALiteral: function(URI){
-      if (this.LITERAL_TYPES.map((v) => {return v.toLowerCase()}).indexOf(URI.toLowerCase()) > -1){
+      if (URI && this.LITERAL_TYPES.map((v) => {return v.toLowerCase()}).indexOf(URI.toLowerCase()) > -1){
           return true
       }
       return false
@@ -78,11 +78,10 @@ const utilsRDF = {
   * @return {string} URI - the uri of the type
   */
   suggestTypeProfile: function(propertyURI,pt){
-
       // grab the rtLookup from the profile store
       if (!rtLookup){
         rtLookup= useProfileStore().rtLookup
-      } 
+      }
 
       // if the component itself has it set then just return it we dont need to dig around
       if (propertyURI == pt.propertyURI){
@@ -114,7 +113,6 @@ const utilsRDF = {
               }else{
                   console.warn("Did not find the requested template name", rtKey)
               }
-
           }
 
           possibleTypes = [...new Set(possibleTypes)];
@@ -129,14 +127,13 @@ const utilsRDF = {
           if (!pt.userValue[pt.propertyURI]){
               lookForResourceURI = true
           }else{
-              if (pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){                  
+              if (pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){
                   if (!pt.userValue[pt.propertyURI][0]['@type']){
                       lookForResourceURI = true
                   }
               }else{
                   lookForResourceURI = true
               }
-
           }
 
           if (lookForResourceURI){
@@ -152,24 +149,22 @@ const utilsRDF = {
           }
       }
 
-      
       return false
 
   },
 
   /**
-  * 
-  * 
+  *
+  *
   * @param {string} propertyURI - the string URI to test
   * @param {obj} pt - the pt template from the profile
   * @return {string} URI - the uri of the type
   */
   suggestTypeProfileForLiteralParent: function(propertyURI,pt){
-
       // grab the rtLookup from the profile store
       if (!rtLookup){
         rtLookup= useProfileStore().rtLookup
-      } 
+      }
       // only do this on templates that have one reference templates for now (may need to expand)
       if (pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length==1){
         let valueTemplateRef = pt.valueConstraint.valueTemplateRefs[0]
@@ -195,7 +190,7 @@ const utilsRDF = {
       // grab the rtLookup from the profile store
       if (!rtLookup){
         rtLookup= useProfileStore().rtLookup
-      } 
+      }
 
       let template = rtLookup[valueTemplateRef]
       let foundProperty = null
@@ -234,7 +229,6 @@ const utilsRDF = {
   * @return {string|boolean} URI - the uri of the type or false
   */
   suggestTypeNetwork: async function(propertyURI){
-
     let result = false
 
     // some very common hardcoded options
@@ -255,7 +249,7 @@ const utilsRDF = {
       return 'http://www.w3.org/2000/01/rdf-schema#Resource'
     }
 
-    
+
 
 
     // at this point we have a well cached lookup of the whole onotlogy in localstorage
@@ -264,18 +258,28 @@ const utilsRDF = {
     let prop = XMLParser.parseFromString(propXml, "text/xml");
     let range = prop.getElementsByTagName("rdfs:range")
 
+    let objProp = prop.getElementsByTagName("owl:ObjectProperty")
+    let dataProp = prop.getElementsByTagName("owl:DatatypeProperty")
+
+    
+
+
+
+
+    // console.log("propXml",propXml)
 
     // if it has a range return it
     if (range.length>0){
       range=range[0]
       if (range.attributes['rdf:resource']){
         result = range.attributes['rdf:resource'].value
+        return result
       }
     }else{
       // check if it has a rdfs:subPropertyOf, if it does then we can ask for that
       let subPropertyOf = prop.getElementsByTagName("rdfs:subPropertyOf")
       if (subPropertyOf.length>0){
-        if (subPropertyOf[0].attributes['rdf:resource']){          
+        if (subPropertyOf[0].attributes['rdf:resource']){
           let subPropertyResult = await this.suggestTypeNetwork(subPropertyOf[0].attributes['rdf:resource'].value)
           if (subPropertyResult){
             return subPropertyResult
@@ -336,6 +340,25 @@ const utilsRDF = {
     if (propertyURI==='http://id.loc.gov/ontologies/bflc/simpleDate'){
       result = 'http://www.w3.org/2000/01/rdf-schema#Literal'
     }
+
+    if (objProp.length > 0){
+      // at least we know it is a resource
+
+      result = 'http://www.w3.org/2000/01/rdf-schema#Resource'
+
+    }
+    if (dataProp.length > 0){
+      // at least we know it is a literal
+
+      result = 'http://www.w3.org/2000/01/rdf-schema#Literal'
+
+    }
+
+    
+
+
+
+
 
     if (result===false){
       console.warn('Could not @type this ',propertyURI)

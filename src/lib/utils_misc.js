@@ -53,7 +53,7 @@ const utilsMisc = {
     authorName = authorName.normalize('NFKD').replace(/[^\w]/g, '');
     authorName = authorName.replace(/[^A-Za-z]/g,"");
     //var authorNameLength = authorName.length;
-    authorName = authorName.replace(/^QU/i,"@");
+    authorName = authorName.replace(/^QU/i,"Q");
     authorName = authorName.replace(/(^.)CH/i,"$1#");
     var cutter = "";
 
@@ -86,7 +86,7 @@ const utilsMisc = {
           if (secondLetter.match(/^U|V$/)) {cutter += "8"}
           if (secondLetter.match(/^W|X|Y|Z$/)) {cutter += "9"}
         }
-        else if (initialLetter.match(/^@$/)) {
+        else if (initialLetter.match(/^Q$/)) {
           if (secondLetter.match(/^A|B|C|D$/)) {cutter += "3"}
           if (secondLetter.match(/^E|F|G|H$/)) {cutter += "4"}
           if (secondLetter.match(/^I|J|K|L|M|N$/)) {cutter += "5"}

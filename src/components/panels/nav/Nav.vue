@@ -12,9 +12,16 @@
         <PostModal ref="postmodal" v-model="showPostModal" />
       </template>
 
-
       <template v-if="showRecoveryModal==true">
         <RecoveryModal ref="recoverymodal" v-model="showRecoveryModal" />
+      </template>
+
+      <template v-if="showItemInstanceSelection==true">
+        <ItemInstanceSelectionModal ref="itemselectionmodal" v-model="showItemInstanceSelection" :instances="instances" @emitSetInstance="setInstance" @hideInstanceSelectionModal="hideInstanceSelectionModal()" />
+      </template>
+
+      <template v-if="showAdHocModal==true">
+        <AdHocModal ref="adHocModal" v-model="showAdHocModal" />
       </template>
 
     </Teleport>
@@ -33,13 +40,16 @@
   import PostModal from "@/components/panels/nav/PostModal.vue";
   import ValidateModal from "@/components/panels/nav/ValidateModal.vue";
   import RecoveryModal from "@/components/panels/nav/RecoveryModal.vue";
-
+  import ItemInstanceSelectionModal from "@/components/panels/nav/ItemInstanceSelectionModal.vue";
+  import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
 
   export default {
-    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal },
     data() {
       return {
         allSelected: false,
+        instances: [],
+        layoutHash: null,
       }
     },
     props:{
@@ -53,11 +63,11 @@
 
       ...mapStores(useProfileStore,usePreferenceStore),
 
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved']),
-      ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'activeProfilePosted']),
+      ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode']),
       ...mapState(useConfigStore, ['layouts']),
-      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal']),
+      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -136,11 +146,15 @@
           menuButtonSubMenu.push(
             {
               text: 'Add Additional Instance',
-              click: () => { this.profileStore.createInstance(false) }
+              click: () => { this.addInstance(false) }
             },
             {
               text: 'Add Secondary Instance',
-              click: () => { this.profileStore.createInstance(true) }
+              click: () => { this.addInstance(true) }
+            },
+            {
+              text: 'Add Item',
+              click: () => { this.addItem() }
             }
           )
         }
@@ -194,12 +208,40 @@
                   this.profileStore.pasteSelected()
                 })
               }
+            },
+            { is: 'separator'},
+            {
+              text: 'Add All Defaults',
+              click: () => { this.addAllDefaults() },
+              icon: "clear_all"
             }
           ] }
           )
+        }
 
-
-
+        if(this.$route.path.startsWith('/edit/') && this.preferenceStore.returnValue('--c-general-ad-hoc')){
+          for (let sub in menu){
+            if (menu[sub].text == 'Tools'){
+              menu[sub].menu.push(
+                { is: 'separator'},
+                {
+                  text: 'Show/Hide Elements',
+                  icon: 'menu',
+                  click: () => { this.showAdHocModal = true },
+                },
+                {
+                  text: 'Show Empty Elements',
+                  click: () => this.showAllElements(),
+                  icon: 'visibility'
+                },
+                {
+                  text: 'Hide Empty Elements',
+                  click: () => this.hideAllElements(),
+                  icon: 'visibility_off'
+                },
+              )
+            }
+          }
         }
 
 
@@ -234,6 +276,15 @@
 
               { text: 'Field Colors', click: () => this.showFieldColorsModal = true, icon: '🌈' },
 
+              { text: 'Themes', icon: '🎨', menu: [
+
+                { text: 'Default', click: () => this.preferenceStore.setTheme('default')},
+                { text: 'Dark', click: () => this.preferenceStore.setTheme('dark')},
+                { text: 'Gray', click: () => this.preferenceStore.setTheme('gray')},
+
+
+
+              ] },
 
 
 
@@ -245,12 +296,19 @@
               { text: 'General', click: () => this.preferenceStore.togglePrefModal('General')},
               { text: 'Edit Panel', click: () => this.preferenceStore.togglePrefModal('Edit Panel')},
               { text: 'Literal Field', click: () => this.preferenceStore.togglePrefModal('Literal Field')},
+              { text: 'Lookup Field', click: () => this.preferenceStore.togglePrefModal('Lookup Field')},
+
+
+
+              { text: 'Modals', click: () => this.preferenceStore.togglePrefModal('Modals')},
+
               { text: 'Complex Lookup', click: () => this.preferenceStore.togglePrefModal('Complex Lookup')},
               { text: 'Action Button', click: () => this.preferenceStore.togglePrefModal('Action Button')},
               { text: 'Nav Bar', click: () => this.preferenceStore.togglePrefModal('Nav Bar')},
               { text: 'Sidebars - Previews', click: () => this.preferenceStore.togglePrefModal('Sidebars - Previews')},
               { text: 'Sidebars - Property', click: () => this.preferenceStore.togglePrefModal('Sidebars - Property')},
               { text: 'Shelflisting', click: () => this.preferenceStore.togglePrefModal('Shelflisting')},
+              // { text: 'CAMM Mode', click: () => this.preferenceStore.togglePrefModal('CAMM Mode')},
 
               { is: 'separator'},
               { text: 'Export Prefs', click: () => this.exportPreferences(), icon: 'download' },
@@ -273,30 +331,117 @@
               icon: "reorder",
               disabled: (this.layoutActive) ? false : true,
               class: (this.layoutActive) ? "layout-active" : "layout-not-active",
+              title: "Turn off layout",
 
               click: () => {
                 this.layoutActive=false
                 this.layoutActiveFilter=null
+                this.layoutHash=null
+                this.createLayoutMode=false
               }
             }
           )
 
+
            let layoutsMenu = []
+           // If there is a custom layout loaded, options should be edit & delete
+           let layoutOptions
+
+           if (!this.layoutHash){
+            layoutOptions = [{
+              text: "Create Layout",
+              click: (e) => {
+                e.stopPropagation()
+                this.createLayout()
+              },
+              icon: "add"
+            }]
+           } else {
+            layoutOptions = [{
+              text: "Edit Layout",
+              click: (e) => {
+                e.stopPropagation()
+                this.editLayout()
+              },
+              icon: "edit",
+              hotkey: "ctrl+shift+e"
+            },
+            {
+              text: "Delete Layout",
+              click: () => {
+                if (window.confirm("Do you really want to delete this layout?")){
+                  this.deleteLayout()
+                }
+              },
+              icon: "delete",
+              hotkey: "ctrl+shift+d"
+            }]
+           }
+
+           for (let opt in layoutOptions){
+            layoutsMenu.push(layoutOptions[opt])
+           }
+            layoutsMenu.push({ is: "separator" })
 
            for (let l in this.layouts.all ){
-
             layoutsMenu.push({
               text: this.layouts.all[l].label,
               click: () => {
                 this.activateLayout(this.layouts.all[l])
-              }
+              },
 
             })
            }
 
+           const customLayouts = this.preferenceStore.returnValue("--l-custom-layouts")
+           if (customLayouts != {}){
+            layoutsMenu.push({ is: "separator" })
+            const layoutList = Object.keys(customLayouts)
+            for (let idx in layoutList){
+              let layout = customLayouts[layoutList[idx]]
+              layoutsMenu.push({
+                text: layout.label,
+                hotkey: "ctrl+" + idx,
+                click: () => {
+                  this.layoutHash = layoutList[idx]
+                  this.activateLayout(layout)
+                },
+                emoji: layout.profileId == this.activeProfile.id ? "heavy_check_mark" : "x",
+                title: layout.profileId == this.activeProfile.id ? "Layout Matches Profile." : "Can't use ''" + layout.profileId  + "'' layout with ''" + this.activeProfile.id + "'' profile."
+              })
+            }
+           }
+
+          //  menu.push(
+          //     !this.createLayoutMode ? { text: "Layouts",  menu: layoutsMenu } : { text: "Save Layout", click: () => { this.saveLayout() }}
+          //   )
+
+           if (!this.createLayoutMode){
             menu.push(
-              { text: "Layouts",  menu: layoutsMenu }
+              { text: "Layouts",  menu: layoutsMenu, menu_width: 250 }
             )
+            if(this.layoutActive){
+              if (this.layoutActiveFilter){
+                menu.push(
+                  {
+                    text: this.layoutActiveFilter.label,
+                    class: 'active-layout-label'
+                  }
+                )
+              }
+            }
+           } else {
+            menu.push(
+              { text: "Save Layout", click: (e) => {
+                e.stopPropagation()
+                this.saveLayout()
+               }},
+              { text: "Cancel Layout", click: (e) => {
+                e.stopPropagation()
+                this.cancelLayout()
+              }},
+            )
+           }
 
         }
 
@@ -340,8 +485,10 @@
                 this.$nextTick(()=>{
                   this.$refs.postmodal.post();
                   this.profileStore.saveRecord()
+                  this.activeProfilePosted = true
                 })
-              }
+              },
+              class: (this.activeProfilePosted) ? "record-posted" : "record-unposted",
             }
           )
 
@@ -357,10 +504,7 @@
                       this.profileStore.copySelected()
                     })
                   }
-                }
-              )
-
-              menu.push(
+                },
                 {
                   text: "Paste Content",
                   icon: "content_paste",
@@ -369,7 +513,20 @@
                       this.profileStore.pasteSelected()
                     })
                   }
-                }
+                },
+                {
+                  text: "Cut Selected",
+                  icon: "content_cut",
+                  click: () => {
+                    this.$nextTick(()=>{
+                      this.profileStore.copySelected(true)
+                    })
+                  }
+                },
+              )
+
+              menu.push(
+
               )
 
               menu.push(
@@ -386,10 +543,14 @@
           }
         }
 
-
-
-
-
+        if (this.activeProfile.id){
+          menu.push(
+            {
+              text: "Profile: " + this.activeProfile.id,
+              class: "current-profile"
+            }
+          )
+          }
 
         menu.push(
 
@@ -436,6 +597,48 @@
         this.layoutActiveFilter = layout
       },
 
+      createLayout: function(){
+        this.createLayoutMode = true
+      },
+
+      editLayout: function(){
+        let target = this.layoutActiveFilter
+        this.createLayoutMode = true
+      },
+
+      deleteLayout: function(hash=null){
+        let targetHash
+        if (hash){
+          targetHash = hash
+        } else {
+          targetHash = this.layoutHash
+        }
+        this.preferenceStore.deleteLayout(targetHash)
+        this.layoutActive = false
+        this.layoutActiveFilter = null
+        this.layoutHash = null
+      },
+
+      saveLayout: function(){
+        let saved = this.preferenceStore.saveLayout()
+        let l
+        const customLayouts = this.preferenceStore.returnValue("--l-custom-layouts")
+        this.layoutHash = saved
+        l = customLayouts[this.layoutHash]
+        // switch to the new layout
+        this.activateLayout(l)
+        if (saved){
+          this.createLayoutMode = false
+        }
+      },
+
+      cancelLayout: function(){
+        this.createLayoutMode = false
+        this.layoutActive = false
+        this.layoutActiveFilter = null
+        this.layoutHash = null
+      },
+
       selectAll: function(){
           let checkBoxes = document.getElementsByClassName("copy-selection")
           this.allSelected = !this.allSelected
@@ -453,6 +656,7 @@
         let prefs = null
         let scriptShifterOptions = null
         let diacriticUse = null
+        let marvaComponentLibrary = null
 
         let data = {}
 
@@ -474,6 +678,14 @@
         } else {
           console.warn("Couldn't find Diacritic preferences to export. :(")
         }
+
+        if (window.localStorage.getItem('marva-componentLibrary')){
+          marvaComponentLibrary = JSON.parse(window.localStorage.getItem('marva-componentLibrary'))
+          data["marvaComponentLibrary"] = marvaComponentLibrary
+        } else {
+          console.warn("Couldn't find marva-componentLibrary preferences to export. :(")
+        }
+
 
         let today = new Date()
         let dd = String(today.getDate()).padStart(2, '0')
@@ -509,6 +721,12 @@
               that.preferenceStore.scriptShifterOptions = contents["scriptShifterOptions"]
               window.localStorage.setItem('marva-scriptShifterOptions', JSON.stringify(contents["scriptShifterOptions"]))
             }
+
+            if (contents["marvaComponentLibrary"]){
+              that.preferenceStore.componentLibrary = contents["marvaComponentLibrary"]
+              window.localStorage.setItem('marva-componentLibrary', JSON.stringify(contents["marvaComponentLibrary"]))
+            }
+
             if (contents["diacriticUse"]){
               that.preferenceStore.diacriticUse = contents["diacriticUse"]
               window.localStorage.setItem('marva-diacriticUse', JSON.stringify(contents["diacriticUse"]))
@@ -523,6 +741,133 @@
         document.body.removeChild(temp)
       },
 
+      addInstance: function(secondary=false){
+        let lccn = "" //prompt("Enter an LCCN for this Instance.")
+        this.profileStore.createInstance(secondary, lccn)
+      },
+
+      addItem: function(){
+        let lccn = "" //prompt("Enter an LCCN for this Item.")
+        let instanceCount = 0
+        let instance = null
+        for (let p in this.activeProfile.rt){
+          if (p.includes(":Instance")){
+            this.instances.push(p)
+            instanceCount++
+          }
+        }
+        if (instanceCount == 0){
+          alert("There are no instances in the record. You need to crete one before you can add an item.")
+          return
+        }
+        if (instanceCount>1){
+          // show a modal to select which instance the item belongs too
+          this.showItemInstanceSelection = true
+        } else {
+          this.profileStore.createItem(this.targetInstance, lccn)
+        }
+      },
+
+      setInstance: function(data){
+        this.targetInstance = this.instances[data]
+        this.showItemInstanceSelection = false
+        this.instances = []
+        this.profileStore.createItem(this.targetInstance)
+      },
+
+      hideInstanceSelectionModal: function(){
+        this.instances = []
+        this.showItemInstanceSelection = false;
+      },
+
+      // Show all hidden elements
+      showAllElements: function(){
+        for (let key in this.emptyComponents){
+          this.emptyComponents[key] = []
+        }
+      },
+
+      // Hide all empty elements
+      hideAllElements: function(){
+        for (let rt in this.activeProfile.rt){
+          this.emptyComponents[rt] = []
+          for (let element in this.activeProfile.rt[rt].pt){
+            this.profileStore.addToAdHocMode(rt, element)
+          }
+        }
+      },
+
+      addAllDefaults: function(){
+        for (let rt in this.activeProfile.rt){
+          for (let pt in this.activeProfile.rt[rt].pt){
+            let component = this.activeProfile.rt[rt].pt[pt]
+            let structure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
+            if (structure.propertyLabel != 'Admin Metadata' || structure.adminMetadataType == 'primary') {
+              if ( component.valueConstraint.defaults.length > 0){
+                // top level component
+                if (Object.keys(component.userValue).every(k => k.startsWith("@"))){ // it's empty
+                  this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
+                  continue
+                }
+              }
+              //go deeper
+              for (let vRt of component.valueConstraint.valueTemplateRefs){
+                for (let template of this.profileStore.rtLookup[vRt].propertyTemplates){
+                  if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0){
+                    // for classifiction, we want to make sure we're only working on the currently selected template
+                    if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification'){
+                      let selection = document.getElementById(structure['@guid']+'-select')
+                      let selected
+                      let target
+                      if (selection){
+                        selected = selection.options[selection.selectedIndex].text
+                        switch (selected){
+                          case 'Dewey Decimal classification':
+                            target = "lc:RT:bf2:DDC"
+                            break
+                          case 'National Library of Medicine classification':
+                            target = "lc:RT:bf2:NLM"
+                            break
+                          case 'Other classification number':
+                            target = "lc:RT:bf2:OtherClass"
+                            break
+                          default:
+                            target = "lc:RT:bf2:LCC"
+                        }
+                        if (target == vRt){
+                          this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                        }
+                      }
+                    } else if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+                      let selection = document.getElementById(structure['@guid']+'-select')
+                      let selected
+                      let target
+                      if (selection){
+                        selected = selection.options[selection.selectedIndex].text
+                        switch (selected){
+                          case 'CYAC subject':
+                            target = "lc:RT:bf2:Topic:Childrens:Components"
+                            break
+                          case 'Geographic subjects':
+                            target = "lc:RT:bf2:Topic:Place:Components"
+                            break
+                          default:
+                            target = "lc:RT:bf2:Components"
+                        }
+                        if (target == vRt){
+                          this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                        }
+                      }
+                    }else if (vRt != 'lc:RT:bf2:SeriesHub'){
+                      this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
 
     created() {}
@@ -549,7 +894,11 @@
       --bar-button-icon-size: 20px;
       --bar-button-padding: 3px 5px;
       --bar-button-radius: 4px;
-      --bar-button-hover-bkg: rgb(241, 243, 244);
+      --bar-button-hover-bkg: rgb(244, 241, 242);
+
+
+
+      --bar-button-hover-bkg: rgb(244, 241, 242);
       --bar-button-active-color: rgb(26, 115, 232);
       --bar-button-active-bkg: rgb(232, 240, 254);
       --bar-button-open-color: rgb(32, 33, 36);
@@ -557,7 +906,9 @@
       --bar-menu-bkg: white;
       --bar-menu-border-radius: 0 0 3px 3px;
       --bar-menu-item-chevron-margin: 0;
-      --bar-menu-item-hover-bkg: rgb(241, 243, 244);
+      /* --bar-menu-item-hover-bkg: rgb(241, 243, 244); */
+      --bar-menu-item-hover-bkg: rgb(26, 115, 232);
+
       --bar-menu-item-padding: 5px 8px 5px 35px;
       --bar-menu-item-icon-size: 15px;
       --bar-menu-item-icon-margin: 0 9px 0 -25px;
@@ -591,14 +942,28 @@
       color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
     }
 
+
+
+
+
     .nav-icon-color{
       fill: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
     }
 
+    .current-profile {
+      /* background: var(--bar-button-hover-bkg, #f1f3f4); */
+
+      background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')") !important;
+
+      margin-left: 100px;
+    }
     .login-menu{
 
       position: absolute !important;
       right: 0;
+    }
+    .record-posted{
+      color: green !important;
     }
     .save-not-saved span{
       color: orangered !important;
@@ -612,6 +977,11 @@
     }
     .layout-not-active{
       display: none !important;
+    }
+
+    .active-layout-label:hover,
+    .active-layout-label {
+      background: rgb(30, 231, 57) !important;
     }
 
 

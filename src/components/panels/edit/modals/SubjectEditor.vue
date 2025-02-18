@@ -16,7 +16,7 @@
     >
 
     <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
-      <div style="position: relative;">
+      <div :style="`position: relative; ${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`" class="subject-container-outer">
           <div style="position:absolute; right:2em; top:  0.25em; z-index: 100;">
 			      <div class="menu-buttons">
 				    <button @click="closeEditor()">Close</button>
@@ -77,10 +77,10 @@
           <template v-if="subjectEditorMode=='build'">
 
 
-            <div :class="['subject-editor-container', {'subject-editor-container-lowres':lowResMode}]">
+            <div :class="['subject-editor-container', {'subject-editor-container-lowres':lowResMode}]" :style="`${this.preferenceStore.styleModalBackgroundColor()}`" >
 
 
-              <div :class="['subject-editor-container-left', {'subject-editor-container-left-lowres':lowResMode}]">
+              <div :style="`${this.preferenceStore.styleModalBackgroundColor()};`" :class="['subject-editor-container-left', {'subject-editor-container-left-lowres':lowResMode}]">
 
                 <div id="search-in-holder" style="position: absolute; top:0">
                   <span>Search In:</span>
@@ -95,31 +95,50 @@
                 </div>
 
 
-                <div style="flex:1; align-self: flex-end;">
+
+                <div :style="`flex:1; align-self: flex-end; height: 95%; ${this.preferenceStore.styleModalBackgroundColor()}`" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
 
                   <div v-if="activeSearch!==false">{{activeSearch}}</div>
-                  <div v-if="searchResults !== null">
-                    <div v-if="searchResults && searchResults.names.length>0 && !this.searching">
+                  <div v-if="searchResults !== null" style="height: 95%">
 
+                    <div v-if="searchResults && searchResults.exact.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">Known Label</span>
+                      <div v-for="(subject,idx) in searchResults.exact" @click="selectContext((searchResults.names.length - idx)*-1-2)" @mouseover="loadContext((searchResults.names.length - idx)*-1-2)" :data-id="((searchResults.names.length - idx)*-1-2)" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1-2 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1-2 ), 'picked': (pickLookup[(searchResults.names.length - idx)*-1-2] && pickLookup[(searchResults.names.length - idx)*-1-2].picked) }]" >
+                        <template v-if="subject.label == activeComponent.label">
+                          {{subject.label}}
+                        </template>
+                        <template v-else>
+                            {{subject.label}}
+                            <span class="subject-variant">
+                              ((VARIANT))
+                            </span>
+                        </template>
+                        <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
+                        <span v-if="subject.collections"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                      </div>
+                    </div>
+
+                    <div v-if="searchResults && searchResults.names.length>0 && !this.searching" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">LCNAF</span>
                       <div v-for="(name,idx) in searchResults.names" @click="selectContext((searchResults.names.length - idx)*-1)" @mouseover="loadContext((searchResults.names.length - idx)*-1)" :data-id="(searchResults.names.length - idx)*-1" :key="name.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1 ),'picked': (pickLookup[(searchResults.names.length - idx)*-1] && pickLookup[(searchResults.names.length - idx)*-1].picked)}]">
-                          <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
+                        <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
                           <span v-if="name.collections"> {{ this.buildAddtionalInfo(name.collections) }}</span>
                         </div>
-                      <hr>
                     </div>
 
                     <!-- LCSH -->
-                    <div v-if="searchResults && searchResults.subjectsComplex.length>0">
+                    <div v-if="searchResults && searchResults.subjectsComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()>=3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
                       </div>
-                      <hr>
                     </div>
 
-                    <div v-if="searchResults && searchResults.subjectsSimple.length>0">
+                    <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
@@ -128,15 +147,16 @@
 
 
                     <!-- ChildrenSubjects -->
-                    <div v-if="searchResults && searchResults.subjectsChildrenComplex.length>0">
+                    <div v-if="searchResults && searchResults.subjectsChildrenComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">CYAC Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
                       </div>
-                      <hr>
                     </div>
 
-                  <div v-if="searchResults && searchResults.subjectsChildren.length>0">
+                  <div v-if="searchResults && searchResults.subjectsChildren.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                    <span class="subject-results-heading">CYAC Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
@@ -150,7 +170,7 @@
                 </div>
 
 
-                <div :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
+                <div :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()};`"  :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
                   <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                   <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
                     <h3 v-if="contextData.title">
@@ -188,7 +208,6 @@
                     <div v-else>
                       <div class="modal-context-data-title">{{ contextData.label }} [Literal]</div>
                     </div>
-
 
                     <div v-if="contextData.source && contextData.source.length>0">
                       <div class="modal-context-data-title">Sources:</div>
@@ -237,10 +256,10 @@
                     <div  style="display: flex;">
                       <div  style="flex:1; position: relative;">
                         <form autocomplete="off" style="height: 3em;">
-                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input">
+                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input" id="subject-input">
                         </form>
                         <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
-						  {{c.label}}
+                          {{c.label}}
                         </div>
                       </div>
                     </div>
@@ -248,7 +267,7 @@
                   <div ref="toolbar" style="display: flex;">
                     <div style="flex:2">
                       <ol v-if="showTypes" :class="['type-list-ol',{'type-list-ol-lowres':lowResMode}]">
-                        <li :class="['type-item', {'type-item-selected':(type.selected)}]" v-for="type in activeTypes" :key="type.value" @click="setTypeClick($event,type.value)">{{type.label}}</li>
+                        <li :class="['type-item', {'type-item-selected':(type.selected)}]" v-for="type in activeTypes" :key="type.value" @click="setTypeClick($event,type.value)" :style="`${this.preferenceStore.styleModalTextColor()}`">{{type.label}}</li>
                       </ol>
                     </div>
                     <div style="flex:1">
@@ -393,7 +412,8 @@
     width: 99%;
     margin-left: auto;
     margin-right: auto;
-    height: 470px;
+    /* height: 470px; */
+    height: 90%;
   }
 
   .subject-editor-container-lowres{
@@ -407,7 +427,7 @@
 
   .subject-editor-container-left{
     display: flex;
-    height: 468px;
+    height: 95%;
     position: relative;
     overflow-y: hidden;
   }
@@ -427,7 +447,8 @@
     flex:1;
     align-self: flex-start;
     padding: 2em;
-    height: 503px;
+    /* height: 503px; */
+    height: 100%;
     overflow-y: scroll;
     background: whitesmoke;
   }
@@ -529,8 +550,6 @@
     font-weight: bold;
     color: green;
     font-size: larger;
-
-
   }
 
 
@@ -575,7 +594,7 @@
     padding: 0.1em;
     margin-left: 1em;
     cursor: pointer;
-    background-color: white;
+    background-color: transparent;
   }
 
   .type-item::before{
@@ -585,6 +604,7 @@
 
   .type-item-selected{
     background-color: #0080001f;
+    border: solid 3px;
   }
 
 .input-single-subject{
@@ -676,6 +696,40 @@ margin-top: 10px;
 	float: right;
 }
 
+.subject-section{
+  border-top: solid black;
+  border-bottom: solid-black;
+}
+
+.scrollable-subjects {
+  overflow-y: scroll;
+}
+
+.small-container{
+  height: 33%;
+}
+.medium-container{
+  height: 50%;
+}
+.large-container{
+  height: 90%;
+}
+
+/* document.documentElement.clientHeight */
+.scroll-all {
+  overflow-y: scroll;
+}
+
+.subject-container-outer{
+  /* height: v-bind('returnBrowserHeight()'); */
+  height: 100%;
+}
+
+.subject-variant {
+  color: #ffc107;
+  font-weight: bold;
+}
+
 /*
 .left-menu-list-item-has-data::before {
   content: "✓ " !important;
@@ -730,7 +784,7 @@ props: {
   isLiteral: Boolean,
   profileData: Object,
   searchType: String,
-
+  fromPaste: Boolean,
 },
 
 watch: {
@@ -786,7 +840,6 @@ data: function() {
 
     nextInputIsVoyagerModeDiacritics: false,
 
-
     activeTypes: {
       'madsrdf:Topic': {label:'Topic / Heading ($a $x)', value:'madsrdf:Topic',selected:false},
       'madsrdf:GenreForm': {label:'Genre ($v)', value:'madsrdf:GenreForm',selected:false},
@@ -807,11 +860,25 @@ computed: {
 
 },
 methods: {
+  hasOverFlow: function(element){
+    let overflow = element.scrollHeight > element.clientHeight
+    return overflow
+  },
+  // Return the number of search results that are populated.
+  // Used to determine how tall to make each set of search results
+  numPopulatedResults: function(){
+    let count = 0
+    for (let key of Object.keys(this.searchResults)){
+      if (this.searchResults[key].length>=1){
+        count++
+      }
+    }
+    return count
+  },
 
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
     let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
-
     let components = false
     let subfields = false
     let marcKey = false
@@ -905,7 +972,7 @@ methods: {
             this.typeLookup[0] = 'madsrdf:GenreForm'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic" || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))){
-            this.typeLookup[0] = 'madsrdf:Geographic'
+          this.typeLookup[0] = 'madsrdf:Geographic'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
             this.typeLookup[0] = 'madsrdf:Temporal'
@@ -939,7 +1006,10 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
+    // searchString = searchString.replace("—", "--") // when copying a heading from class web
+
     let subjectStringSplit = searchString.split('--')
+
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
 
@@ -1419,6 +1489,10 @@ methods: {
       that.pickLookup[(that.searchResults.names.length - x)*-1] = that.searchResults.names[x]
     }
 
+    for (let x in that.searchResults.exact){
+      that.pickLookup[(that.searchResults.names.length - x)*-1-2] = that.searchResults.exact[x]
+    }
+
     for (let k in that.pickLookup){
       that.pickLookup[k].picked = false
       if (searchString.toLowerCase() == that.pickLookup[k].label.toLowerCase() && !that.pickLookup[k].literal ){
@@ -1607,10 +1681,15 @@ methods: {
         out.push("(GnFrm)")
       } else if (collections.includes("GeographicSubdivisions")){
         out.push("(GeoSubDiv)")
-      } else if (collections.includes("Subdivisions")){
-        out.push("(SubDiv)")
       } else if (collections.includes("LCSH_Childrens")){
           out.push("(ChldSubj)")
+      } else if (collections.includes("Subdivisions")){
+        out.push("(SubDiv)")
+      }
+
+      // favor SubDiv over GnFrm
+      if (out.includes("(GnFrm)") && collections.includes("Subdivisions")){
+        out = ["(SubDiv)"]
       }
 
       // if (collections.includes("LCNAF")){
@@ -1801,8 +1880,8 @@ methods: {
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
       this.getContext()
+      //Science—Experiments
     }
-
     if (this.pickLookup[this.pickPostion].complex){
       // if it is a complex authorized heading then just replace the whole things with it
       this.subjectString = this.pickLookup[this.pickPostion].label
@@ -1832,12 +1911,10 @@ methods: {
 
     }else{
       // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
-
       // take the subject string and split
       let splitString = this.subjectString.split('--')
 
       // replace the string with what we selected
-
       splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
 
       this.subjectString = splitString.join('--')
@@ -1847,7 +1924,7 @@ methods: {
         this.componetLookup[this.activeComponentIndex]= {}
       }
 
-	  let _ = await this.getContext() //ensure the pickLookup has the marcKey
+      let _ = await this.getContext() //ensure the pickLookup has the marcKey
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-','‑')] = this.pickLookup[this.pickPostion]
 
       for (let k in this.pickLookup){
@@ -1856,14 +1933,20 @@ methods: {
 
       this.pickLookup[this.pickPostion].picked=true
 
+      try {
+        let marcKey = this.pickLookup[this.pickPostion].marcKey
+        let type = marcKey.match(/\$[axyzv]{1}/g)
+        type = this.getTypeFromSubfield(type[0])
+        this.setTypeClick(null, type)
+      } catch(err) {
+        console.error("Error getting the type. ", err)
+      }
 
       // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
       //Need something to prevent recursion
       if (update == true){
         this.subjectStringChanged()
       }
-
-
     }
 
 
@@ -1901,8 +1984,6 @@ methods: {
         this.add()
         return
       }
-
-
 
       this.selectContext()
 
@@ -2158,13 +2239,14 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
     if (this.initialLoad == true) {
-      let pieces = this.$refs.subjectInput.value.split("--")
+      let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
       let lastPiece = pieces.at(-1)
-      this.searchApis(lastPiece, this.$refs.subjectInput.value, this)
+      this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
       this.initialLoad = false
     }
 
@@ -2279,24 +2361,26 @@ methods: {
         for (let x of this.components){
           if (this.localContextCache[x.uri]){
 
-
-            if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
-              x.type = 'madsrdf:Geographic'
-            }
-
-
-            if (this.localContextCache[x.uri].type === 'GenreForm'){
-              x.type = 'madsrdf:GenreForm'
-            } else if (this.localContextCache[x.uri].type === 'Temporal'){
-              x.type = 'madsrdf:Temporal'
-            } else if (this.localContextCache[x.uri].type === 'Geographic'){
-              x.type = 'madsrdf:Geographic'
-            } else if (this.localContextCache[x.uri].type === 'Topic'){
-              x.type = 'madsrdf:Topic'
+            if (this.activeComponent.type){
+              // don't do anything
             } else {
-                x.type = 'madsrdf:Topic'
-            }
+              if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
+                x.type = 'madsrdf:Geographic'
+              }
 
+
+              if (this.localContextCache[x.uri].type === 'GenreForm'){
+                x.type = 'madsrdf:GenreForm'
+              } else if (this.localContextCache[x.uri].type === 'Temporal'){
+                x.type = 'madsrdf:Temporal'
+              } else if (this.localContextCache[x.uri].type === 'Geographic'){
+                x.type = 'madsrdf:Geographic'
+              } else if (this.localContextCache[x.uri].type === 'Topic'){
+                x.type = 'madsrdf:Topic'
+              } else {
+                  x.type = 'madsrdf:Topic'
+              }
+            }
           }
 
         }
@@ -2414,6 +2498,29 @@ methods: {
 
   },
 
+  getTypeFromSubfield: function(subfield){
+    switch(subfield){
+    case("$a"):
+      subfield = "madsrdf:Topic"
+      break
+    case("$x"):
+      subfield = "madsrdf:Topic"
+      break
+    case("$v"):
+      subfield = "madsrdf:GenreForm"
+      break
+    case("$y"):
+      subfield = "madsrdf:Temporal"
+      break
+    case("$z"):
+      subfield = "madsrdf:Geographic"
+      break
+    default:
+      subfield = false
+    }
+
+    return subfield
+  },
 
   add: async function(){
     //remove any existing thesaurus label, so it has the most current
@@ -2428,7 +2535,10 @@ methods: {
       // if so over write the user defined type with the full type from the authority file so that
       // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
       if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]){
-        c.type = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
+        let tempType = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
+        if (!Object.keys(this.activeTypes).includes(tempType)){
+          c.type = tempType
+        }
       }
     }
 
@@ -2451,24 +2561,28 @@ methods: {
 		  // we need to check the types of each element to make sure they really are the same terms
 		  let targetContext = await utilsNetwork.returnContext(target.uri)
 
-          //TODO: look up the URIs for the split up complex term
-		  let marcKey = targetContext.marcKey[0]["@value"].slice(5)
+		  let marcKey = ""
+      if (Array.isArray(targetContext.marcKey) && typeof targetContext.marcKey[0] == 'string'){
+        marcKey = targetContext.marcKey[0]
+      } else if (targetContext.marcKey){
+        marcKey = targetContext.marcKey[0]["@value"]
+      }
 
-		  if (marcKey == componentTypes){
-			//the entire built subject can be replaced by 1 term
-			match = true
-			this.components.push({
-			  "complex": target.complex,
-			  "id": 0,
-			  "label": target.label,
-			  "literal": false,
-			  "posEnd": target.label.length,
-			  "posStart": 0,
-			  "type": "madsrdf:Topic",
-			  "uri": target.uri,
-              "marcKey": targetContext.marcKey[0]["@value"]
-			})
-		  }
+		  if (marcKey.slice(5) == componentTypes){
+        //the entire built subject can be replaced by 1 term
+        match = true
+        this.components.push({
+          "complex": target.complex,
+          "id": 0,
+          "label": target.label,
+          "literal": false,
+          "posEnd": target.label.length,
+          "posStart": 0,
+          "type": "madsrdf:Topic",
+          "uri": target.uri,
+          "marcKey": marcKey
+        })
+        }
       }
     }
 
@@ -2486,12 +2600,14 @@ methods: {
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
 			const target = frozenComponents[component]
-
-            if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || target.uri.includes("childrensSubjects/sj")) && target.complex){
+      if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || (target.uri && target.uri.includes("childrensSubjects/sj"))) && target.complex){
         let uri = target.uri
         let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
-        data = await this.parseComplexSubject(uri)
-
+        if (uri){
+          data = await this.parseComplexSubject(uri)
+        } else {
+          data = target
+        }
 				let subs
 				subs = target.marcKey.slice(5)
 			    // subfields = subfields.match(/\$./g)
@@ -2510,25 +2626,7 @@ methods: {
 					  subfield = subfield[idx]
 				  }
 
-				  switch(subfield){
-					case("$a"):
-					  subfield = "madsrdf:Topic"
-					  break
-					case("$x"):
-					  subfield = "madsrdf:Topic"
-					  break
-					case("$v"):
-					  subfield = "madsrdf:GenreForm"
-					  break
-					case("$y"):
-					  subfield = "madsrdf:Temporal"
-					  break
-					case("$z"):
-					  subfield = "madsrdf:Geographic"
-					  break
-					default:
-					  subfield = false
-				  }
+				subfield = this.getTypeFromSubfield(subfield)
 
 				  // Override the subfield of the first element based on the marc tag
 				  let tag = target.marcKey.slice(0,3)
@@ -2581,10 +2679,10 @@ methods: {
 					"posEnd": labels[idx].length,
 					"posStart": 0,
 					"type": subfield,
-					"uri": data && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
+					"uri": data && data["components"] && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
 					"marcKey": marcKey,
-                    "fromComplex": true,
-                    "complexMarcKey": target.marcKey
+          "fromComplex": true,
+          "complexMarcKey": target.marcKey
 				  }))
 				  id++
 				  prevItems++
@@ -2626,8 +2724,8 @@ methods: {
   },
 
   cleanState: function(){
-	this.searchMode = "LCSHNAF"
-	this.components= []
+    this.searchMode = "LCSHNAF"
+    this.components= []
     this.lookup= {}
     this.searchResults= null
     this.activeSearch= false
@@ -2907,11 +3005,14 @@ updated: function() {
     }
   }
 
+  let searchValue = this.searchValue
+  searchValue = searchValue.replace("—", "--")
+
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
-  if (this.searchValue && this.components.length != this.searchValue.split("--").length && !this.searchValue.endsWith('-')){
+  if (searchValue && this.components.length != searchValue.split("--").length && !searchValue.endsWith('-')){
     this.buildLookupComponents(incomingSubjects)
-    this.buildComponents(this.searchValue)
+    this.buildComponents(searchValue)
 
     this.initialLoad = false
     this.subjectStringChanged()
@@ -2921,7 +3022,7 @@ updated: function() {
 
   // this supports loading existing information into the forms
   if (this.authorityLookup != null) {
-    this.authorityLookupLocal = this.authorityLookup
+    this.authorityLookupLocal = this.authorityLookup.replace("—", "--")
     this.subjectInput = this.authorityLookupLocal
     this.linkModeString = this.authorityLookupLocal
     try {
@@ -2955,8 +3056,10 @@ updated: function() {
                   } else {
                     idx = pos
                   }
-                  this.selectContext(idx, false)
-                  this.validateOkayToAdd()
+                  if (!this.fromPaste){
+                    this.selectContext(idx, false)
+                    this.validateOkayToAdd()
+                  }
                 } catch(err) {
                   console.error(err)
                 }

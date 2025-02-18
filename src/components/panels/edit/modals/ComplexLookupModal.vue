@@ -96,6 +96,13 @@
       modalSelectOptionsLabels(){
         return this.modalSelectOptions.map((o)=>{return o.label})
       },
+
+
+
+      
+
+
+
     },
 
     watch: {
@@ -755,7 +762,7 @@
       content-class="complex-lookup-modal-content"
       >
 
-        <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
+      <div ref="complexLookupModalContainer" class="complex-lookup-modal-container" :style="`${this.preferenceStore.styleModalBackgroundColor()}`">
 			<div class="menu-buttons">
 				<button @click="reset(); $emit('hideComplexModal')">x</button>
 			</div>
@@ -769,19 +776,19 @@
 				  </div>
 
                   <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % 25 ) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
-                    <span>
+                    <span :style="`${this.preferenceStore.styleModalTextColor()}`">
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
-                        <span class="material-icons pagination">keyboard_double_arrow_left</span>
+                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
                       </a>
                       <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
-                        <span class="material-icons pagination">chevron_left</span>
+                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
                       </a>
-                      <span class="pagination-label"> Page {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last Page"}} </span>
+                      <span class="pagination-label" > Page {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last Page"}} </span>
                       <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
-                        <span class="material-icons pagination">chevron_right</span>
+                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
                       </a>
                       <a href="#" title="last page" class="last" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="lastPage()">
-                        <span class="material-icons pagination">keyboard_double_arrow_right</span>
+                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
                       </a>
                     </span>
                   </div>
@@ -800,11 +807,11 @@
                   <option  v-for="opt in modalSelectOptions">{{opt.label}}</option>
                 </select>
               </template>
-              <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" @keyup="inputKeyup($event)" type="text" />
+              <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" @keyup="inputKeyup($event)" type="text" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`" />
               <button @click="forceSearch()">Search</button>
               <hr style="margin-top: 5px;">
               <div>
-                  <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)">
+                  <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`">
 
                     <option v-if="activeComplexSearch.length == 0 && activeComplexSearchInProgress == false && initalSearchState != true">
                       No results found.
@@ -813,7 +820,7 @@
                       Searching...
                     </option>
 
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + (!r.literal ? r.suggestLabel : r.label) + ((r.literal) ? ' [Literal]' : '')">
+                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + (!r.literal ? r.suggestLabel : r.label) + ((r.literal) ? ' [Literal]' : '')">
                     </option>
                   </select>
 
@@ -825,7 +832,7 @@
             </div>
 
 
-            <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display">
+            <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display" :style="`${this.preferenceStore.styleModalTextColor()};`">
 
               <template v-if="activeContext !== null">
 
@@ -838,7 +845,10 @@
                         <div v-if="activeContext.depreciated" style="background: pink;">
                           DEPRECIATED AUTHORITY
                         </div>
-                        <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank">view on id.loc.gov</a>
+                        <div v-if="activeContext.nodeMap['MADS Collection'] && activeContext.nodeMap['MADS Collection'].includes('NamesUndifferentiated')" style="background: pink;">
+                          THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN <a href="https://www.loc.gov/aba/pcc/rda/PCC%20RDA%20guidelines/Z01%20008%2032%202014rfeb.pdf" target="_blank">DCM Z1 008/32</a>.
+                        </div>
+                        <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on id.loc.gov</a>
 
                     </div>
                     <div class="complex-lookup-modal-display-buttons">
@@ -917,7 +927,10 @@
 .complex-lookup-modal-container{
   margin-left: auto;
   margin-right: auto;
-  background-color: white;
+  
+  
+
+  
   width: 85vw;
   height: 95vh;
 }
@@ -931,6 +944,7 @@
   /* CSS rules here for screens lower than 750px */
   .complex-lookup-modal-container{
 
+    
     width: 99vw;
     height: 95vh;
   }

@@ -226,10 +226,10 @@
                   <div class="option-title-header">{{option.descShort}}</div>
                   <div class="option-title-desc">{{option.desc}}</div>
 
-                  <div style="font-style: italic; color:orange" v-if="option.id == '--b-edit-main-splitpane-edit-inline-mode'">This mode is disabled right now, we need to fix/improve it.</div>
+                  <!-- <div style="font-style: italic; color:orange" v-if="option.id == '--b-edit-main-splitpane-edit-inline-mode'">This mode is disabled right now, we need to fix/improve it.</div> -->
 
                 </div>
-                <div class="option-control" v-if="option.id != '--b-edit-main-splitpane-edit-inline-mode'">
+                <div class="option-control" >
 
                     <template v-if="option.type==='color'">
 

@@ -167,6 +167,9 @@ li{
 
 .marc-preview-content{
   padding: 0.25em;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
+  
+
 }
 .version-number{
   font-size: 1.25em;
