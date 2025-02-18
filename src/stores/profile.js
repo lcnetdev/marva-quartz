@@ -4902,6 +4902,23 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+    nacoStubReturnWorkURI(){
+      
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Work")>-1){
+          
+          if (this.activeProfile.rt[rt].URI){
+            return this.activeProfile.rt[rt].URI
+          }
+        }
+      }
+      return false
+
+
+    },
+
+    
+
 
 
     /**
@@ -4912,12 +4929,12 @@ export const useProfileStore = defineStore('profile', {
       * @param {string} langObj - {uri:"",label:""}
       * @return {String}
       */
-    async buildPostNacoStub(oneXX,fourXX,mainTitle){
+    async buildPostNacoStub(oneXX,fourXX,mainTitle,workURI){
 
 
       let lccn = await utilsNetwork.nacoLccn()
 
-      let xml = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn)
+      let xml = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI)
 
       return xml
       

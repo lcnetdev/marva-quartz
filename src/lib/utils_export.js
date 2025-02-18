@@ -1949,7 +1949,7 @@ const utilsExport = {
 
 	},
 
-	createNacoStubXML(oneXXParts,fourXX,mainTitle,lccn){
+	createNacoStubXML(oneXXParts,fourXX,mainTitle,lccn,workURI){
 		let marcNamespace = "http://www.loc.gov/MARC21/slim"
 
 		let rootEl = document.createElementNS(marcNamespace,"marcxml:record");
@@ -2039,9 +2039,25 @@ const utilsExport = {
 				fieldName.appendChild(subfield)	
 			}
 		}
-
 		// 110//$aMiller, Sam$d1933
 		rootEl.appendChild(fieldName)
+
+
+		let field670 = document.createElementNS(marcNamespace,"marcxml:datafield");
+		field670.setAttributeNS(marcNamespace, 'tag', '670')
+		field670.setAttributeNS(marcNamespace, 'ind1', ' ')
+		field670.setAttributeNS(marcNamespace, 'ind2', ' ')
+		let field670a = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field670a.setAttributeNS(marcNamespace, 'code', 'a')
+		field670a.innerHTML = mainTitle
+		field670.appendChild(field670a)
+
+		let field670b = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field670b.setAttributeNS(marcNamespace, 'code', 'u')
+		field670b.innerHTML = workURI
+		field670.appendChild(field670b)
+
+		rootEl.appendChild(field670)
 
 
 		
