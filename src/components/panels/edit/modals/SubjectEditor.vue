@@ -104,7 +104,7 @@
                     <div v-if="searchResults && searchResults.exact.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
                       <span class="subject-results-heading">Known Label</span>
                       <div v-for="(subject,idx) in searchResults.exact" @click="selectContext((searchResults.names.length - idx)*-1-2)" @mouseover="loadContext((searchResults.names.length - idx)*-1-2)" :data-id="((searchResults.names.length - idx)*-1-2)" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1-2 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1-2 ), 'picked': (pickLookup[(searchResults.names.length - idx)*-1-2] && pickLookup[(searchResults.names.length - idx)*-1-2].picked) }]" >
-                        <template v-if="subject.label == subjectString">
+                        <template v-if="subject.label == activeComponent.label">
                           {{subject.label}}
                         </template>
                         <template v-else>
@@ -1501,7 +1501,6 @@ methods: {
           if (that.activeComponent.uri == that.pickLookup[k].uri){
             that.pickPostion=k
             that.pickLookup[k].picked=true
-            console.info("1")
             that.selectContext()
           }
         }else{
@@ -1877,14 +1876,12 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
-    console.info("selectContext: ", pickPostion, "--", update)
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
       this.getContext()
       //Science—Experiments
     }
-    console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
     if (this.pickLookup[this.pickPostion].complex){
       // if it is a complex authorized heading then just replace the whole things with it
       this.subjectString = this.pickLookup[this.pickPostion].label
@@ -1903,7 +1900,6 @@ methods: {
       //This check is needed to prevent falling into recursive loop when loading
       // existing data.
       if (update == true) {
-        console.info("update")
         this.subjectStringChanged()
       }
 
@@ -1915,12 +1911,10 @@ methods: {
 
     }else{
       // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
-      console.info("this.subjectString: ", this.subjectString)
       // take the subject string and split
       let splitString = this.subjectString.split('--')
 
       // replace the string with what we selected
-      console.info("this.activeComponentIndex: ", this.activeComponentIndex)
       splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
 
       this.subjectString = splitString.join('--')
@@ -1991,8 +1985,6 @@ methods: {
         return
       }
 
-
-      console.info("2")
       this.selectContext()
 
     }else if (event.ctrlKey && event.key == "1"){
