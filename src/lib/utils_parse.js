@@ -10,6 +10,17 @@ import utilsRDF from './utils_rdf';
 const hashCode = s => s.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
 
 
+const unEscapeHTML = str => str.replace(/&amp;|&lt;|&gt;|&#39;|&quot;/g,
+  tag => ({
+      '&amp;': '&',
+      '&lt;': '<',
+      '&gt;': '>',
+      "&#39;": "'",
+      '&quot;': '"'
+    }[tag]));
+
+
+
 const utilsParse = {
 
   data: {
@@ -868,7 +879,7 @@ const utilsParse = {
                 }
 
                 if (e.innerHTML != null && e.innerHTML.trim() != ''){
-                  userValue[eProperty] = e.innerHTML
+                  userValue[eProperty] = unEscapeHTML(e.innerHTML)
 
                   // does it have a data type or lang
                   if (e.attributes && e.attributes['rdf:datatype']){
@@ -968,7 +979,7 @@ const utilsParse = {
                           "http://www.w3.org/2000/01/rdf-schema#label": [
                             {
                             "@guid": short.generate(),
-                            "http://www.w3.org/2000/01/rdf-schema#label": gChild.innerHTML
+                            "http://www.w3.org/2000/01/rdf-schema#label": unEscapeHTML(gChild.innerHTML)
                             }
                           ]
                           }
@@ -995,7 +1006,7 @@ const utilsParse = {
 
                     let gChildProperty = this.UriNamespace(gChild.tagName)
 
-
+                    
                     // if it a one liner Class w/ no children add it in as its own obj otherwise it is a
                     // literal or something
                     if (this.isClass(gChild.tagName)){
@@ -1021,7 +1032,7 @@ const utilsParse = {
                       }
 
                       if (gChild.innerHTML != null && gChild.innerHTML.trim() != ''){
-                        gChildData[gChildProperty] = gChild.innerHTML
+                        gChildData[gChildProperty] = unEscapeHTML(gChild.innerHTML)
 
                         // does it have a data type or lang
                         if (gChild.attributes && gChild.attributes['rdf:datatype']){
@@ -1149,7 +1160,7 @@ const utilsParse = {
                               }
 
                               if (gggChild.innerHTML != null && gggChild.innerHTML.trim() != ''){
-                                gggChildData[gggChildProperty] = gggChild.innerHTML
+                                gggChildData[gggChildProperty] = unEscapeHTML(gggChild.innerHTML)
                                 // does it have a data type or lang
                                 if (gggChild.attributes && gggChild.attributes['rdf:datatype']){
                                   gggChildData['@datatype'] = gggChild.attributes['rdf:datatype'].value
@@ -1266,7 +1277,7 @@ const utilsParse = {
                                       }
 
                                       if (gggggChild.innerHTML != null && gggggChild.innerHTML.trim() != ''){
-                                        ggggChildData[gggggChildProperty] = gggggChild.innerHTML
+                                        ggggChildData[gggggChildProperty] = unEscapeHTML(gggggChild.innerHTML)
 
                                         // does it have a data type or lang
                                         if (gggggChild.attributes && gggggChild.attributes['rdf:datatype']){
@@ -1360,7 +1371,7 @@ const utilsParse = {
                                             }
 
                                             if (g7Child.innerHTML != null && g7Child.innerHTML.trim() != ''){
-                                              g6ChildData[g7ChildProperty] = g7Child.innerHTML
+                                              g6ChildData[g7ChildProperty] = unEscapeHTML(g7Child.innerHTML)
 
                                               // does it have a data type or lang
                                               if (g7Child.attributes && g7Child.attributes['rdf:datatype']){
@@ -1491,7 +1502,7 @@ const utilsParse = {
                                 let ggggChildData = {'@guid': short.generate()}
 
                                 if (ggggChild.innerHTML != null && ggggChild.innerHTML.trim() != ''){
-                                  ggggChildData[ggggChildProperty] = ggggChild.innerHTML
+                                  ggggChildData[ggggChildProperty] = unEscapeHTML(ggggChild.innerHTML)
 
                                   // does it have a data type or lang
                                   if (ggggChild.attributes && ggggChild.attributes['rdf:datatype']){
@@ -1562,7 +1573,7 @@ const utilsParse = {
                             }
 
                             if (ggChild.innerHTML != null && ggChild.innerHTML.trim() != ''){
-                              ggChildData[ggChildProperty] = ggChild.innerHTML
+                              ggChildData[ggChildProperty] = unEscapeHTML(ggChild.innerHTML)
                               // does it have a data type or lang
                               if (ggChild.attributes && ggChild.attributes['rdf:datatype']){
                                 ggChildData['@datatype'] = ggChild.attributes['rdf:datatype'].value

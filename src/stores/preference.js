@@ -1346,7 +1346,7 @@ export const usePreferenceStore = defineStore('preference', {
             prefs.styleDefault[k].group = 'CAMM Mode'
             prefs.styleDefault[k].desc = 'Compact Advanced Modular Mode.'
             prefs.styleDefault[k].descShort = 'Use CAMM Mode'
-            prefs.styleDefault[k].value = false
+            // prefs.styleDefault[k].value = false
 
             
             

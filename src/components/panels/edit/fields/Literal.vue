@@ -237,6 +237,7 @@ import utilsNetwork from '@/lib/utils_network'
 import ActionButton from "@/components/panels/edit/fields/helpers/ActionButton.vue";
 import { readonly } from 'vue'
 
+import isoLangLib from "@/lib/iso_lang.json"
 
 
 
@@ -759,6 +760,7 @@ export default {
         for (let m of useTextMacros){
           let oldV = v
           v = v.replace(m.lookFor,m.replaceWith)
+          // if we acutally did replace something keep track of the length so we can reposition the cursor later if needed
           if (oldV != v){
             addedTextMacroIncreasedSizeBy=addedTextMacroIncreasedSizeBy+m.replaceWith.length-m.lookFor.length
           }
@@ -798,6 +800,67 @@ export default {
         }
       }
 
+      // double check that the language and script about to be added is acutally a valid lang tag
+      // this can be manually changed in camm mode, so if it itsn't set the error but don't stop them
+      if (useLang && useLang != 'REMOVE_COMMAND'){
+
+        let lang = useLang.split("-")[0]
+        let script = useLang.split("-")[1]
+
+        let validLang = false
+        let validScript = false
+        if (lang){
+          lang=lang.trim()
+          for (let l of isoLangLib.iso639_1){
+            if (lang == l.code){
+              validLang=true
+              break
+            }
+          }
+          if (!validLang){
+              for (let l of isoLangLib.iso639_2){
+              if (lang == l.alpha_3){
+                validLang=true
+                break
+              }
+            }    
+          }   
+        } 
+        
+        
+        if (script){
+          script=script.trim().toLowerCase()
+          for (let l of isoLangLib.iso15924){
+            if (script == l.alpha_4.toLowerCase()){
+              validScript=true
+              break
+            }
+          }
+
+          
+        }else{
+          // no script found, its fine then
+          validScript=true
+        }
+
+        if (!validScript || !validLang){
+          // if they are typing it in we don't want to flash the warning with each keystroke, so wait
+          // until after they are done typing and trigger the validation warning if needed
+          window.clearTimeout(this.cammModeLangScriptValidationTimeout)
+          this.cammModeLangScriptValidationTimeout = window.setTimeout(()=>{
+            this.profileStore.addCammModeError(this.guid,'Invalid Language or Script code, needs to use ISO639 & ISO15924: ' + useLang )
+
+          },1000)
+
+        }else{
+          window.clearTimeout(this.cammModeLangScriptValidationTimeout)
+          this.profileStore.clearCammModeError(this.guid)
+        }
+
+      }
+
+
+      
       let currentPos = 0
       if (event.target.tagName === 'SPAN'){
         currentPos = this.getCaretCharOffset(event.target)
@@ -838,6 +901,9 @@ export default {
         if (addedTextMacroIncreasedSizeBy>0){
           setCurrentCursorPosition(currentPos+addedTextMacroIncreasedSizeBy,event.target)
         }else{
+          if (currentPos > event.target.innerText.length){
+            currentPos= event.target.innerText.length
+          }
           setCurrentCursorPosition(currentPos,event.target)
         }
 
@@ -1053,6 +1119,8 @@ export default {
       nextInputIsVoyagerModeDiacritics: false,
 
       preferences: {},
+
+      cammModeLangScriptValidationTimeout: null,
 
     }
   },

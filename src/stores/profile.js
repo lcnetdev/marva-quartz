@@ -12,6 +12,7 @@ import utilsRDF from '@/lib/utils_rdf';
 import utilsExport from '@/lib/utils_export';
 // import utilsMisc from '@/lib/utils_misc';
 
+import shortCodesOverrides from "@/lib/shortCodesOverrides.json"
 
 
 import utilsProfile from '../lib/utils_profile'
@@ -1303,6 +1304,8 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
+      console.log("componentGuid, fieldGuid, propertyPath, URI, label")
+      console.log(componentGuid, fieldGuid, propertyPath, URI, label)
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
@@ -1377,7 +1380,49 @@ export const useProfileStore = defineStore('profile', {
               }
             }
             parent[lastProperty].push(toadd)
+          }else if (propertyPath.length==1){
+
+            // this is a top level component, like bf:content
+            // there will be no lastProperty, just add it to the parent directly
+            let toadd = {
+              '@id': URI,
+              '@guid' : short.generate(),
+              'http://www.w3.org/2000/01/rdf-schema#label' : [
+                {
+                  '@guid': short.generate(),
+                  'http://www.w3.org/2000/01/rdf-schema#label' : label
+                }
+              ]
+            }
+            let type = utilsRDF.suggestTypeProfile(lastProperty,pt)
+            if (type === false){
+              // did not find it in the profile, look to the network
+              type = await utilsRDF.suggestTypeNetwork(lastProperty)
+            }
+            if (type !== false){
+              // first we test to see if the type is a literal, if so then we
+              // don't need to set the type, as its not a blank node, just a nested property
+              if (utilsRDF.isUriALiteral(type) === false){
+                // if it doesn't yet have a type then go ahead and set it
+                toadd['@type'] = type
+              }else{
+                // nothing to do, its a literal
+              }
+            }
+            parent.push(toadd)
+
+
+
+
+
+          
           }else{
+
+
+
+            console.log("lastProperty",lastProperty)
+            console.log('propertyPath',propertyPath)
+
             console.error("Could not find the parent[lastProperty] of the existing value", {'parent':parent,'pt.userValue':pt.userValue, 'fieldGuid':fieldGuid})
           }
 
@@ -2962,6 +3007,13 @@ export const useProfileStore = defineStore('profile', {
         code = code.substring(0, 3) + code.charAt(3).toLowerCase() + code.substring(3 + 1);
       }
       // console.log("code=",code)
+
+      // if we have it customized then just return that
+      if (shortCodesOverrides[code]){
+        return shortCodesOverrides[code]
+      }
+
+
       let justProperty = code.split(':')[1]
 
       let numUpper = justProperty.length - justProperty.replace(/[A-Z]/g, '').length;
@@ -2994,7 +3046,7 @@ export const useProfileStore = defineStore('profile', {
         code = code.split(':')[1]
       }
 
-      console.log('****!',orgCode, ',', (orgCode.includes('bf:')) ? `https://id.loc.gov/ontologies/bibframe.html#p_${orgCode.split(':')[1]}` : 'bflc or other', ',',code)
+      // console.log('****!',orgCode, ',', (orgCode.includes('bf:')) ? `https://id.loc.gov/ontologies/bibframe.html#p_${orgCode.split(':')[1]}` : 'bflc or other', ',',code)
 
       // console.log(code)
       // console.log(structure.propertyURI)
@@ -3098,8 +3150,7 @@ export const useProfileStore = defineStore('profile', {
       // let codes = this.returnBfCodeLabel(pt)
       let useReturn = []
       for (let p of use){
-
-        useReturn.push({'code':this.returnBfCodeLabel(p), 'label' : p.propertyLabel})
+        useReturn.push({'code':this.returnBfCodeLabel(p), 'label' : p.propertyLabel, 'uri': p.propertyURI})
 
       }
       return useReturn
@@ -3128,15 +3179,14 @@ export const useProfileStore = defineStore('profile', {
     *
     * @return {array} - array of the fields
     */
-    inlineFieldIsToggledForDisplay: function(componentGuid, structure){
+    inlineFieldIsToggledForDisplay: function(componentGuid, label){
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       if (!pt.inlineModeDisplay){
         return false
       }
 
-
-      if (pt.inlineModeDisplay[structure.propertyLabel]){
+      if (pt.inlineModeDisplay[label]){
         return true
       }
 
@@ -5425,7 +5475,67 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
+    /**
+     * Returns the marc label or auth label of the entitiy 
+     * 
+     * @param {object} guid - the guid of the component
+     */
+    async returnCammComplexLabel(guid,complexValue){
 
+      console.log("guidguidguidguidguidguid",guid)
+      let pt = utilsProfile.returnPt(this.activeProfile,guid)
+
+      // just look for the expected place to fidn the MARC key first
+
+      if (pt && pt.userValue && pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){
+        for (let key of Object.keys(pt.userValue[pt.propertyURI][0])){
+          let x = pt.userValue[pt.propertyURI][0][key]
+          if (x && x[0] && x[0]['http://id.loc.gov/ontologies/bflc/marcKey']){
+            if (x[0]['http://id.loc.gov/ontologies/bflc/marcKey']){
+              let marcKey = x[0]['http://id.loc.gov/ontologies/bflc/marcKey']
+              if (marcKey[0] && marcKey[0]['http://id.loc.gov/ontologies/bflc/marcKey']){
+                marcKey=marcKey[0]['http://id.loc.gov/ontologies/bflc/marcKey']
+              }
+              if (marcKey.indexOf("$")>-1){
+                marcKey = marcKey.slice(marcKey.indexOf("$"))
+              }
+              console.log("marcKeymarcKeymarcKeymarcKey",marcKey)
+              // return marcKey
+            }
+          }
+        }
+      }
+
+      if (complexValue && complexValue.URI){
+        console.log("complexValuecomplexValuecomplexValuecomplexValue",complexValue)
+        // ask the internet
+        if (complexValue.URI.indexOf("id.loc.gov")>-1){
+
+          let marcKey = await utilsNetwork.returnMARCKey(complexValue.URI + '.madsrdf_raw.jsonld')
+          if (marcKey && marcKey['marcKey']){
+            marcKey = marcKey['marcKey']
+            if (marcKey.indexOf("$")>-1){
+              marcKey = marcKey.slice(marcKey.indexOf("$"))
+            }
+            return marcKey
+          }
+          
+          
+
+        }
+
+
+      }
+
+      console.log(complexValue)
+
+
+      return "Errr"
+
+
+
+      
+    }
 
 
 

@@ -4,7 +4,13 @@
 
     <template v-if="inlineModeShouldDisplay">
 
-      <template v-if="complexLookupValues.length===0">
+
+      <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+      <input class="input-inline-mode can-select" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" />
+
+      
+
+      <!-- <template v-if="complexLookupValues.length===0">
 
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
           <input class="input-inline-mode can-select" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" />
@@ -24,30 +30,14 @@
             <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class=""><span class="material-icons check-mark inline-mode-validation-icon">check_circle_outline</span></span></span>
           </a>
 
-<!--           <div class="selected-value-container-auth">
-            <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type" :type="avl.type"/>
-          </div>
-          <div class="selected-value-container-title">
 
-            <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
-            <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
-          </div>
-          <div class="selected-value-container-action">
-            <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
-          </div> -->
         <a href="#" @click="removeValue(idx)" style="padding: 0 0 0 2.5px; text-decoration: none; font-size: 1em; cursor: pointer; color: gray;">x</a>
 
         </template>
         <input class="input-inline-mode can-select" style="width: 20px;" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" :data-guid="structure['@guid']" @input="textInputEvent($event)" :disabled="readOnly" />
 
-<!--
-        <template v-for="lValue in literalValues">
-          <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <span contenteditable="true" class="inline-mode-editable-span" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>
-        </template>
- -->
 
-      </template>
+      </template> -->
 
 
     </template>
@@ -268,42 +258,6 @@ export default {
       searchType: "", // the type of search this is
 
 
-      // lookups: this.structure.valueConstraint.useValuesFrom,
-      // lookupConfig: config.lookupConfig,
-      // modeSelect: null,
-      // searchValue: "",
-      // searchTimeout: null,
-      // selectLastIndex: null,
-      // initalSearchState: true,
-      // selectNavTimeout: null,
-      // componentKey: 0,
-      // displaySelectedDetails: false,
-      // doubleDelete: false,
-      // precoordinated: [],
-      // displayPreCoordinated: false,
-
-      // displayLabel: null,
-      // displayLabelDreferenced: null,
-      // displayType: null,
-      // displayGuid: null,
-      // displayContext: {},
-
-      // editLabelDereferenceKey: Date.now(),
-
-      // contextRequestInProgress: false,
-      // validated: false,
-      // validationMessage: "",
-
-      // lowResMode:false,
-
-      // displayMini: false,
-
-      // allowHubCreation: false,
-
-      // userData: {},
-
-      // internalAssignID: false,
-
 
     }
   },
@@ -365,8 +319,44 @@ export default {
 
       return false
 
-    }
+    },
 
+    cammBehaviorDisplayEntities(){
+
+      console.log('structure',this.structure)
+
+      if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
+        return 'text'
+      }
+      if (this.structure.propertyURI == "http://id.loc.gov/ontologies/bibframe/contribution"){
+        return 'text'
+      }
+      if (this.structure.propertyURI == "http://www.w3.org/2002/07/owl#sameAs"){
+        return 'text'
+      }
+
+      
+
+
+      if (this.structure.propertyURI == "http://id.loc.gov/ontologies/bibframe/relation"){
+        return 'entity'
+      }
+
+      return 'entity'
+    },
+
+
+
+
+  },
+  mounted: async function(){
+
+    if (this.cammBehaviorDisplayEntities == 'text'){
+      if (this.complexLookupValues.length>0){
+        console.log("complexLookupValuescomplexLookupValuescomplexLookupValues",this.complexLookupValues)
+        this.searchValue = await this.profileStore.returnCammComplexLabel(this.guid, this.complexLookupValues[0])
+      }
+    }
 
   },
 
@@ -382,88 +372,6 @@ export default {
 
 
   },
-  // computed:  mapState({
-
-  //   lookupLibrary: 'lookupLibrary',
-  //   activeInput: 'activeInput',
-  //   activeProfile: 'activeProfile',
-  //   activeProfileMini: 'activeProfileMini',
-  //   workingOnMiniProfile: 'workingOnMiniProfile',
-  //   settingsDisplayMode: 'settingsDisplayMode',
-
-  //   activeProfileName: 'activeProfileName',
-  //   activeComplexSearch: 'activeComplexSearch',
-  //   activeComplexSearchInProgress: 'activeComplexSearchInProgress',
-  //   settingsLookupsUseTextSubjectEditor:'settingsLookupsUseTextSubjectEditor',
-  //   contextData: 'contextData',
-
-  //   undoCounter: 'undoCounter',
-
-  //   assignedId (){
-  //     if (this.internalAssignID){
-  //       return this.internalAssignID
-  //     }else{
-  //       this.internalAssignID = uiUtils.assignID(this.structure,this.parentStructure,config)
-  //       return this.internalAssignID
-  //     }
-  //     // return uiUtils.assignID(this.structure,this.parentStructure,config)
-  //   },
-
-  //   modalSelectOptions(){
-
-  //     let options = []
-
-
-  //     // add in the the defaul search ALL of everything possible
-  //     //options.push({label: 'All', urls:null, processor:null})
-  //     this.structure.valueConstraint.useValuesFrom.forEach((l)=>{
-  //       if (this.lookupConfig[l]){
-  //         this.lookupConfig[l].modes.forEach((mode)=>{
-
-  //           Object.keys(mode).forEach((k)=>{
-  //             options.push({label: k, urls:mode[k].url, processor:this.lookupConfig[l].processor, minCharBeforeSearch: (this.lookupConfig[l].minCharBeforeSearch ? this.lookupConfig[l].minCharBeforeSearch : false), all:mode[k].all })
-  //             // mark the first All one we find as the first one
-  //             if (!this.modeSelect && mode[k].all){
-  //               this.modeSelect = k
-  //             }
-
-  //           })
-  //         })
-  //       }
-  //     })
-
-  //     return options
-  //   },
-
-  //   modalSelectOptionsLabels(){
-  //     return this.modalSelectOptions.map((o)=>{return o.label})
-  //   },
-
-
-
-
-
-  //   // to access local state with `this`, a normal function must be used
-  //   lookupVocab (state) {
-  //     // let uri = this.structure.valueConstraint.useValuesFrom[0]
-
-  //     // let returnVal = []
-  //     // Object.keys(state.lookupLibrary).forEach((s)=>{
-  //     //
-  //     // })
-  //     //
-  //     // if (state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]){
-  //     //
-  //     //   return state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]
-  //     // }else{
-  //     //   return []
-  //     // }
-
-  //     return state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]
-
-
-  //   }
-  // }),
 
 
   methods:{
@@ -497,16 +405,6 @@ export default {
 
     },
 
-
-    // showComplexModal: function(){
-    //   console.log(configStore.useSubjectEditor)
-    //   if (configStore.useSubjectEditor.contains(this.structure.propertyURI)){
-    //     this.displaySubjectModal=true
-    //   }else{
-    //     this.displayModal=true
-    //   }
-
-    // },
 
     actionButtonCommand: function(cmd){
       this.$refs.lookupInput.focus()
@@ -548,24 +446,7 @@ export default {
     },
 
 
-    // /**
-    // * emited from the modal to set the value
-    // * @return {object} profile
-    // */
-    // setComplexSubjectValue: function(contextValue){
-    //   delete contextValue.typeFull
-    //   this.profileStore.setComplexSubjectValue(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
-    //   this.searchValue=''
-    //   this.displaySubjectModal=false
-
-    //   this.$nextTick(() => {
-    //     window.setTimeout(()=>{
-    //       this.$refs.lookupInput.focus()
-    //     },10)
-    //   })
-    // },
-
-
+  
 
     removeValue: function(){
       this.profileStore.removeValueComplex(this.guid, this.complexLookupValues[0]['@guid'])
@@ -584,20 +465,6 @@ export default {
       }
 
       if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
-        // this.displaySubjectModal=true
-        // this.$nextTick(() => {
-        //   this.$refs.subjectEditorModal.focusInput()
-        // })
-
-        // check if it is a string with a lcsh delimiters in it if so skip the modal and just process the heading now
-
-
-
-
-
-
-
-
 
           if (this.searchValue.match(/[$‡|]/)){
 
@@ -717,28 +584,7 @@ export default {
     subjectAdded: function(components){
       this.profileStore.setValueSubject(this.guid,components,this.propertyPath)
       this.hideSubjectModal()
-      // this.profileStore.setComplexSubjectValue(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
-
-
-      // this.$store.dispatch("setValueSubject", { self: this, profileComponet: this.profileCompoent, subjectComponents: components, propertyPath: this.propertyPath }).then(() => {
-      //   this.componentKey++
-      //   this.displayModal = false
-      //   this.checkForUserData()
-      //   this.$emit('updated', null)
-
-      //   this.validated = false
-      //   this.validateHeading()
-
-      //   // put the focus back on the input
-      //   setTimeout(()=>{
-      //       document.getElementById(this.assignedId).focus()
-      //         this.$store.dispatch("enableMacroNav", { self: this})
-
-      //   },0)
-
-      //   this.$store.dispatch("setSubjectList")
-
-      // })
+ 
 
     },
 
