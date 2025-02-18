@@ -367,6 +367,18 @@ const utilsNetwork = {
       return r
     },
 
+
+    nacoLccn: async function(){
+
+      let returnUrls = useConfigStore().returnUrls
+
+      let r = await fetch(returnUrls.util + 'lccnnaco')
+      console.log(r)
+      let data = await r.json()
+      return data.id
+
+    },
+
     /**
     * Looks for instances by LCCN against ID, returns into for them to be displayed and load the resource
     * @param {searchPayload} searchPayload - the {@link searchPayload} to look for

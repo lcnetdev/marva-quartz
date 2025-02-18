@@ -11,6 +11,7 @@ import NonLatinBulkModal from "@/components/panels/edit/modals/NonLatinBulkModal
 import NonLatinAgentModal from "@/components/panels/edit/modals/NonLatinAgentModal.vue";
 import FieldColorsModal from "@/components/panels/edit/modals/FieldColorsModal.vue";
 import HubStubCreateModal from "@/components/panels/edit/modals/HubStubCreateModal.vue";
+import NacoStubCreateModal from "@/components/panels/edit/modals/NacoStubCreateModal.vue";
 
 
 
@@ -46,7 +47,8 @@ export default {
     NonLatinBulkModal,
     NonLatinAgentModal,
     FieldColorsModal,
-    HubStubCreateModal
+    HubStubCreateModal,
+    NacoStubCreateModal
 
   },
   data() {
@@ -61,7 +63,7 @@ export default {
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
     ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal', 'showItemInstanceSelection']),
-    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal']),
+    ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showNacoStubCreateModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
     ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','showFieldColorsModal']),
@@ -168,6 +170,10 @@ export default {
     <HubStubCreateModal v-model="showHubStubCreateModal"  />
   </template>
 
+  <template v-if="showNacoStubCreateModal==true">
+    <NacoStubCreateModal v-model="showNacoStubCreateModal"  />
+  </template>
+  
   <template v-if="showAutoDeweyModal==true">
     <AutoDeweyModal v-model="showAutoDeweyModal"  />
   </template>
