@@ -190,7 +190,7 @@ const utilsNetwork = {
     * @return {object} - returns the result of the suggest search
     */
 
-    loadSimpleLookupKeyword: async function(uris,keyword){
+    loadSimpleLookupKeyword: async function(uris,keyword,inclueUsage){
       if (!Array.isArray(uris)){
         uris=[uris]
       }
@@ -199,27 +199,37 @@ const utilsNetwork = {
       for (let uri of uris){
 
 
-        // let orignalURI = uri
-        // build the url
-
+        // build the url,  dont end in a slash
         if (uri.at(-1) == '/'){
           uri[-1] = ''
         }
 
+        // if we are in production do a special check here to use internal servers
+        let returnUrls = useConfigStore().returnUrls
+        if (returnUrls.env == "production"){
+          uri = uri.replace('http://id.loc.gov/', returnUrls.id)
+          uri = uri.replace('https://id.loc.gov/', returnUrls.id)
+        }
 
         let url = `${uri}/suggest2/?q=${keyword}&count=25`
+        if (inclueUsage){
+          url = url + "&usage=true"
+        }
 
         let r = await this.fetchSimpleLookup(url)
 
         if (r.hits && r.hits.length==0){
           url = `${uri}/suggest2/?q=${keyword}&count=25&searchtype=keyword`
+          if (inclueUsage){
+            url = url + "&usage=true"
+          }
           r = await this.fetchSimpleLookup(url)
         }
 
 
         if (r.hits && r.hits.length>0){
           for (let hit of r.hits){
-            results.metadata.values[hit.uri] = {uri:hit.uri, label: [hit.suggestLabel], authLabel:hit.aLabel, code: (hit.code) ? hit.code.split(" ") : [], displayLabel: [hit.suggestLabel] }
+            results.metadata.values[hit.uri] = {uri:hit.uri, label: [hit.suggestLabel], authLabel:hit.aLabel, code: (hit.code) ? hit.code.split(" ") : [], displayLabel: [hit.suggestLabel], contributions: (hit.contributions) ? hit.contributions : null, more: (hit.more) ? hit.more : {}}
             results[hit.uri] = [hit.suggestLabel.includes("USE") ? hit.aLabel : hit.suggestLabel]
           }
 
