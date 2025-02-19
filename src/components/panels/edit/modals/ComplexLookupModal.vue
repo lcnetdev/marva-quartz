@@ -38,7 +38,6 @@
         activeComplexSearch: [],
         activeComplexSearchInProgress: false,
         activeSimpleLookup: [],
-        activeSimpleLookupCache: [],
         controller: new AbortController(),
 
         initalSearchState: true,
@@ -244,15 +243,9 @@
             return result
           }
 
-          let results
-          if (this.activeSimpleLookupCache){
-            results = this.activeSimpleLookupCache
-          } else {
-            results = await utilsNetwork.loadSimpleLookup(searchPayload.url)
-          }
+          let results = await utilsNetwork.loadSimpleLookup(searchPayload.url)
           utilsNetwork.lookupLibrary[searchPayload.url] = results
           this.activeSimpleLookup = filter(results.metadata.values, searchPayload.url).sort((a,b) => (a.label[0] > b.label[0]) ? 1 : (a.label[0] < b.label[0]) ? -1 : 0)
-          this.activeSimpleLookupCache = this.activeSimpleLookup
           if (this.searchValueLocal && this.searchValueLocal.length > 1){
             this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].includes(this.searchValueLocal))
           }
