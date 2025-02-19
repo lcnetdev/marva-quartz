@@ -713,11 +713,23 @@
         this.importTitle = "Which Preferences would you like to import?"
         this.importOptions = [
           {
-            label: "test1",
+            label: "Text Macro Settings",
             value: "teset1"
           },
           {
-            label: "test2",
+            label: "Diacritic Macro Settings",
+            value: "teset2"
+          },
+          {
+            label: "Layouts",
+            value: "teset2"
+          },
+          {
+            label: "Diacritic Macro Settings",
+            value: "teset2"
+          },
+          {
+            label: "Everything",
             value: "teset2"
           }
         ]
