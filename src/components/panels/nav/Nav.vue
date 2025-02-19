@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <Teleport to="body">
       <div id="nav-holder">
         <vue-file-toolbar-menu :content="my_menu" />
@@ -24,6 +23,10 @@
         <AdHocModal ref="adHocModal" v-model="showAdHocModal" />
       </template>
 
+      <template v-if="showSelectionModal==true">
+        <GenericSelectionModal :title="importTitle" :options="importOptions" :multiple="true" v-model="showSelectionModal" />
+      </template>
+
     </Teleport>
 
   </div>
@@ -42,14 +45,19 @@
   import RecoveryModal from "@/components/panels/nav/RecoveryModal.vue";
   import ItemInstanceSelectionModal from "@/components/panels/nav/ItemInstanceSelectionModal.vue";
   import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
+  import GenericSelectionModal from '../edit/modals/GenericSelectionModal.vue'
+
 
   export default {
-    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal },
     data() {
       return {
         allSelected: false,
         instances: [],
         layoutHash: null,
+        importTitle: "",
+        importOptions: [],
+        showSelectionModal: false,
       }
     },
     props:{
@@ -312,7 +320,7 @@
 
               { is: 'separator'},
               { text: 'Export Prefs', click: () => this.exportPreferences(), icon: 'download' },
-              { text: 'Import Prefs', click: () => this.importPreferences(), icon: 'upload' },
+              { text: 'Import Prefs', click: () => this.showImportSelectionModal(), icon: 'upload' },
               { is: 'separator'},
               { text: 'Reset Prefs', click: () => this.preferenceStore.resetPreferences(), icon: 'restart_alt' },
 
@@ -699,6 +707,24 @@
         document.body.appendChild(temp)
         temp.click()
         document.body.removeChild(temp)
+      },
+
+      showImportSelectionModal: function(){
+        this.importTitle = "Which Preferences would you like to import?"
+        this.importOptions = [
+          {
+            label: "test1",
+            value: "teset1"
+          },
+          {
+            label: "test2",
+            value: "teset2"
+          }
+        ]
+        this.showSelectionModal = true
+        console.info("show modal??!!")
+
+        // this.importPreferences()
       },
 
       importPreferences: function(){
