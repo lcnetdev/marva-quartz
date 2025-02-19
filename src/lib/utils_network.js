@@ -56,7 +56,6 @@ const utilsNetwork = {
         }
         for (let uri of uris){
           let url = uri
-          console.info("uri: ", uri)
           // TODO more checks here
           if (!uri.includes('.json') && !uri.includes("suggest2")){
               url = url + '.json'

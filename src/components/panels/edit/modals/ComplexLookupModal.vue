@@ -135,7 +135,7 @@
         this.activeComplexSearch = []
         this.activeSimpleLookup = []
         this.searchValueLocal = null
-            this.authorityLookupLocal = null
+        this.authorityLookupLocal = null
       },
 
       // watching the search input, when it changes kick off a search
@@ -146,12 +146,17 @@
           this.controller = new AbortController()
         }
 
-        if (!this.searchValueLocal){ return false}
+        if (!this.isSimpleLookup()){
+          if (!this.searchValueLocal){ return false}
 
-        if (this.searchValueLocal.trim()==''){
-          return false
+          if (this.searchValueLocal.trim()==''){
+            return false
+          }
+        } else {
+          if (!this.searchValueLocal){
+            this.searchValueLocal = ""
+          }
         }
-
         if (this.searchValueLocal.length<3){
           // if it is non-latin
           if (this.searchValueLocal.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/)){
@@ -160,6 +165,9 @@
             // check the config, some vocabs have very short codes, like the marc geo
             // so if it is configed to allow short search overtide the < 3 rule
             let minCharBeforeSearch = 3
+            if (this.isSimpleLookup()){
+              minCharBeforeSearch = -1
+            }
             this.modalSelectOptions.forEach((a)=>{
               if (a.minCharBeforeSearch && a.minCharBeforeSearch < minCharBeforeSearch){
                 minCharBeforeSearch = a.minCharBeforeSearch
@@ -213,7 +221,6 @@
             }
           })
 
-        console.info("payload: ", searchPayload)
         // wrapping this in setTimeout might not be needed anymore
         if (searchPayload.type == 'complex'){
           this.searchTimeout = window.setTimeout(async ()=>{
@@ -238,6 +245,9 @@
           let results = await utilsNetwork.loadSimpleLookup(searchPayload.url)
           utilsNetwork.lookupLibrary[searchPayload.url] = results
           this.activeSimpleLookup = filter(results.metadata.values, searchPayload.url).sort((a,b) => (a.label[0] > b.label[0]) ? 1 : (a.label[0] < b.label[0]) ? -1 : 0)
+          if (this.searchValueLocal && this.searchValueLocal.length > 1){
+            this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].includes(this.searchValueLocal))
+          }
         }
       },
 
@@ -570,15 +580,10 @@
         if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
           toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
           if (!toLoad){
-            console.info("this.activeSimpleLookup: ", this.activeSimpleLookup)
-            console.info("this.$refs.selectOptions.selectedIndex: ", this.$refs.selectOptions.selectedIndex)
             let label = this.activeSimpleLookup[this.$refs.selectOptions.selectedIndex].label
             let uri = this.$refs.selectOptions.value
-            console.info("label: ", label)
-            console.info("uri: ", uri)
             toLoad = {label: label, uri: uri, literal: false, undifferentiated: false}
           }
-          console.info("toLoad: ", toLoad)
         } else {
           // We're loading existing data and want to preselect the search result
           // that matches that value
@@ -700,14 +705,22 @@
         this.doSearch()
       },
 
-	  changeSearchType: function(event){
-		if (event.target.checked){
-			this.searchType = "keyword"
-		} else {
-			this.searchType = "left"
-		}
-		this.doSearch()
-	  },
+      changeSearchType: function(event){
+        if (event.target.checked){
+          this.searchType = "keyword"
+        } else {
+          this.searchType = "left"
+        }
+        this.doSearch()
+      },
+
+      isSimpleLookup: function(){
+        const mode = this.modeSelect
+        const options = this.modalSelectOptions
+        const activeMode = options.filter((opt) => opt.label == mode)[0]
+
+        return !activeMode.urls.includes("<QUERY>")
+      },
 
     },
 
@@ -734,7 +747,10 @@
               this.selectChange()
             }, (2 * 1000)
             )
-          } else {
+          } else if (this.isSimpleLookup()){
+            this.searchValueLocal = this.searchValue
+            this.doSearch()
+          }else {
             this.searchValueLocal = this.searchValue
           }
 
@@ -853,7 +869,7 @@
                     <option v-if="activeComplexSearchInProgress == true">
                       Searching...
                     </option>
-                    <template v-if="modeSelect != 'MARC Audience'">
+                    <template v-if="!isSimpleLookup()">
                       <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + (!r.literal ? r.suggestLabel : r.label) + ((r.literal) ? ' [Literal]' : '')">
                       </option>
                     </template>

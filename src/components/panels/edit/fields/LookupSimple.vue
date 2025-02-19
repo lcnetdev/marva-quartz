@@ -673,8 +673,6 @@ export default {
 
     },
     keyDownEvent: function(event, reposLeft){
-      console.info("keyDownEvent: ", event, "--", reposLeft)
-      console.info(">> ", this.displayAutocomplete)
       if (event && event.keyCode == 220 && event.ctrlKey == true){
         let id = `action-button-${event.target.dataset.guid}`
         document.getElementById(id).click()
