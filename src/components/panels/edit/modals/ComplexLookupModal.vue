@@ -276,7 +276,11 @@
       inputKeydown: function(event){
         if (event.key==='ArrowDown'){
           this.$refs.selectOptions.focus()
-          this.$refs.selectOptions.value=this.activeComplexSearch[0].uri
+          try {
+            this.$refs.selectOptions.value=this.activeComplexSearch[0].uri
+          } catch {
+            this.$refs.selectOptions.value=this.activeSimpleLookup[0].uri
+          }
           this.selectChange()
           return true
         }
