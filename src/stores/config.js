@@ -326,6 +326,17 @@ export const useConfigStore = defineStore('config', {
                 }
             ]
      },
+     "http://id.loc.gov/bflists/intendedAudiences" : {
+        "name":"intendedAudiences", 
+        "type":"complex", 
+        "processor" : 'lcAuthorities',
+        "modes":[
+            {
+                'LCDGT':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all": true},
+                'MARC':{"url":"https://id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=10&offset=<OFFSET>", "all": true}
+            }
+        ]
+     },
     "http://id.loc.gov/authorities/demographicTerms" : {"name":"demographicTerms", "type":"complex", "modes":[
       {
       'LCDGT All':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
