@@ -4,7 +4,7 @@
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
     <!-- {{ simpleLookupValues }} -->
 
-    
+
     <template v-if="inlineModeShouldDisplay">
 
         <span class="bfcode-display-mode-holder-label simptip-position-top" :data-tooltip="structure.propertyLabel" :title="structure.propertyLabel" >{{profileStore.returnBfCodeLabel(structure)}}:</span>
@@ -242,7 +242,7 @@ export default {
 
   mounted: function(){
 
-    
+
 
 
 
@@ -259,22 +259,22 @@ export default {
 
       if (useVal.length>0){
         this.focused()
-        
+
         this.needsCAMMInitalValidation = window.setInterval(()=>{
-          
+
           // did we load the metadata for this lookup so we can validate it?
-          if (utilsNetwork.lookupLibrary[this.uri]){            
+          if (utilsNetwork.lookupLibrary[this.uri]){
             window.clearInterval(this.needsCAMMInitalValidation)
             // ask to add it in test only mode so we don't overwrite values just trying to check for errors
             this.cammModeDelayedAdd({target: {value: this.activeValue} }, true)
           }
         },Math.floor(Math.random() * 500))
-        
+
 
 
       }
     }
-    
+
 
   },
 
@@ -293,7 +293,7 @@ export default {
       if (this.readOnly && values.length==0){
         this.showField=false
       }
-      
+
       return values
 
     },
@@ -352,7 +352,7 @@ export default {
       return false
     },
 
-   
+
 
   },
 
@@ -604,7 +604,7 @@ export default {
         // }
 
 
-      
+
         this.activeValue = event.target.value.trimStart()
         this.doubleDelete = false
         this.displayAutocomplete = true
@@ -621,7 +621,7 @@ export default {
         }else{
           this.activeFilter = event.target.value.trimStart()
         }
-        
+
 
 
 
@@ -673,6 +673,8 @@ export default {
 
     },
     keyDownEvent: function(event, reposLeft){
+      console.info("keyDownEvent: ", event, "--", reposLeft)
+      console.info(">> ", this.displayAutocomplete)
       if (event && event.keyCode == 220 && event.ctrlKey == true){
         let id = `action-button-${event.target.dataset.guid}`
         document.getElementById(id).click()
@@ -695,7 +697,7 @@ export default {
       }else if (event && event.keyCode == 13 && this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true && this.displayAutocomplete){
         // here they have triggered the auto complete and hit enter
         // console.log(event)
-        
+
 
         // return true
 
@@ -719,7 +721,7 @@ export default {
               // see how wide the properties panel is and use that to position as well
               if (document.getElementsByClassName('edit-main-splitpane-properties').length>0){
                 ppWidth = document.getElementsByClassName('edit-main-splitpane-properties')[0].getBoundingClientRect().width
-              }              
+              }
               this.$refs.selectlist.style.left = rect.left - rect.width - ppWidth + 'px'
               this.$refs.selectlist.style.minWidth = '350px'
             }
@@ -740,16 +742,16 @@ export default {
 
         this.activeFilter =''
 
-        
+
 
         // if there is nothing selected yet then pick the first one
         if (this.activeSelect.trim()=='' && this.displayList.length>0){
           this.activeSelect = this.displayList[0]
-          // only show the value in the active label if we are not in camm mode, since the active label in camm mode because the value we 
+          // only show the value in the active label if we are not in camm mode, since the active label in camm mode because the value we
           // cant change it like this
-          if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){            
-            this.activeValue = this.displayList[0]            
-          }          
+          if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+            this.activeValue = this.displayList[0]
+          }
         }else{
 
           // check if there is one further from the actively selected item
@@ -760,7 +762,7 @@ export default {
                 if (step+1 < this.displayList.length){
                   this.activeSelect = this.displayList[step+1]
                   if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
-                    this.activeValue = this.displayList[step+1]                                        
+                    this.activeValue = this.displayList[step+1]
                   }
                   break
                 }
@@ -768,8 +770,8 @@ export default {
               if (event.key==='ArrowUp'){
                 if (step-1 >= 0){
                   this.activeSelect = this.displayList[step-1]
-                  if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){                                        
-                    this.activeValue = this.displayList[step-1]                    
+                  if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+                    this.activeValue = this.displayList[step-1]
                   }
                   break
                 }
@@ -786,10 +788,10 @@ export default {
       }else if (event && event.key && event.key==='Escape'){
         this.doubleDelete = false
         this.activeFilter = ''
-        
+
         this.displayAutocomplete = false
 
-        if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){          
+        if (!this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
           this.activeValue = ''
         }
 
@@ -844,17 +846,17 @@ export default {
 
             // if they are in CAMM mode then add the URI piece to the existing active menu and trigger the delay add, dont add it via this method
             if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') ){
-              
+
               // if they are in CAMM mode then see if the current active value is the thing that will turn into the value
               // so see if they are working on adding multiple things are just one and make the activeValue correctly
               let valueToAdd = this.returnCAMMLabelFromDisplayListValue(metadata[key].displayLabel)
               let valuesAdded = this.activeValue.split(",").map((v)=>{ return v.toLowerCase().trim()})
               if (valuesAdded.indexOf(valueToAdd)>-1){
-                // its already there, do nothing               
+                // its already there, do nothing
               }else{
                 // its not there yet, so we need to add it, if there are no other values yet just replace the exsting one
                 // if there are other values replace the last one since that is what they were typing
-                if (valuesAdded.length==1){ 
+                if (valuesAdded.length==1){
                   valuesAdded[0] = valueToAdd
                 }else{
                   valuesAdded[valuesAdded.length-1] = valueToAdd
@@ -973,7 +975,7 @@ export default {
             }
 
             let idVal = uri.split("/").slice(-1)[0]
-            return idVal           
+            return idVal
 
           }else{
             return metadata[key].uri
@@ -1020,7 +1022,7 @@ export default {
 
     clickAdd: function(item){
 
-      
+
       this.displayAutocomplete=false
 
       this.activeSelect = item
@@ -1086,7 +1088,7 @@ export default {
               }else{
                 // its not there yet, so we need to add it, if there are no other values yet just replace the exsting one
                 // if there are other values replace the last one since that is what they were typing
-                if (valuesAdded.length==1){ 
+                if (valuesAdded.length==1){
                   valuesAdded[0] = valueToAdd
                 }else{
                   valuesAdded[valuesAdded.length-1] = valueToAdd
@@ -1106,7 +1108,7 @@ export default {
             this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,metadata[key].uri,useLabel)
             // refocus
             this.$refs.lookupInput.focus()
-          } 
+          }
 
 
 
@@ -1144,7 +1146,7 @@ export default {
 
       if (this.simpleLookupValues.length>0){
         for (let val of this.simpleLookupValues){
-          // don't remove anything if we are just validating 
+          // don't remove anything if we are just validating
           if (!testOnly){
             this.profileStore.removeValueSimple(this.guid, val['@guid'])
           }
@@ -1175,13 +1177,13 @@ export default {
         uris = Object.keys(utilsNetwork.lookupLibrary[this.uri])
 
         if (uris.length <= 1){
-            
-          // the likely cause is that it used a /suggest2 query to populate, 
+
+          // the likely cause is that it used a /suggest2 query to populate,
           // regardless just validate against the server itself and see if it a valid URI
           let checkUri = this.uri
           if (checkUri.slice(-1) != '/'){
             checkUri = checkUri + '/';
-          }          
+          }
           checkUri = checkUri + inputValue
 
           let checkUriResult = await utilsNetwork.validateCAMMModeURI(checkUri) // this will return false or the string of the label of the uri dereferenced
@@ -1198,7 +1200,7 @@ export default {
               return true
             }else{
               return true
-            }            
+            }
           }
         }
 
@@ -1233,7 +1235,7 @@ export default {
           for (let key of Object.keys(JSON.parse(JSON.stringify(utilsNetwork.lookupLibrary[this.uri].metadata.values)))){
             utilsNetwork.lookupLibrary[this.uri].metadata.values[key.toLowerCase()] = utilsNetwork.lookupLibrary[this.uri].metadata.values[key]
           }
-                  
+
 
           // console.log("utilsNetwork.lookupLibrary[this.uri].metadata.values")
           // console.log(utilsNetwork.lookupLibrary[this.uri].metadata.values)
@@ -1265,13 +1267,13 @@ export default {
             let addResults = await this.profileStore.setValueSimple(this.guid,lastAddedFieldGuid,this.propertyPath,matches[0],useLabel)
             lastAddedFieldGuid = this.simpleLookupValues.slice(-1)[0]['@guid']
           }
-          
-          
+
+
 
         }else if (matches.length>1){
           //bad
           this.profileStore.addCammModeError(this.guid,'Multiple values match this code, please use the auto complete dropdown (CTRL+Space) to select a value: ' +inputValue )
-          
+
 
         }else if (matches.length==0){
           // bad but not terrible

@@ -56,7 +56,7 @@ const utilsNetwork = {
         }
         for (let uri of uris){
           let url = uri
-
+          console.info("uri: ", uri)
           // TODO more checks here
           if (!uri.includes('.json') && !uri.includes("suggest2")){
               url = url + '.json'
@@ -2252,7 +2252,7 @@ const utilsNetwork = {
         // most uris in the id.loc.gov dataset do not have https in the data uris
         uriToLookFor = uriToLookFor.replace('https://','http://')
 
-        
+
 
         uriToLookFor = uriToLookFor.replace('.madsrdf_raw.jsonld','')
 
@@ -3096,7 +3096,7 @@ const utilsNetwork = {
         if (uri.indexOf('id.loc.gov')>-1){
           options = {method: 'HEAD' }
         }
-      
+
 
         let req = await fetch(uri,options)
         console.log(req)
@@ -3115,7 +3115,7 @@ const utilsNetwork = {
         }
 
 
-        
+
 
       }else{
         // we only put it in the local storage if we dereferenced it

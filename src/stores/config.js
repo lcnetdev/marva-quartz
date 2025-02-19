@@ -428,6 +428,18 @@ export const useConfigStore = defineStore('config', {
 			]
 		},
 
+    "http://id.loc.gov/vocabulary/maudience" : {
+			"name":"audience",
+			"type":"complex",
+			"processor" : 'lcAuthorities',
+			"modes":[
+				{
+					'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience.html"},
+					'LCDGT':{"url": "https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+				}
+			]
+		},
+
 
     "HierarchicalGeographic": {
       "name":"names",
@@ -640,7 +652,7 @@ export const useConfigStore = defineStore('config', {
     "http://id.loc.gov/vocabulary/marcauthen" : {"name":"marcauthen", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/marcgt" : {"name":"marcgt", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/maspect" : {"name":"maspect", "type":"simple", "modes":[]},
-    "http://id.loc.gov/vocabulary/maudience" : {"name":"maudience", "type":"simple", "modes":[]},
+    // "http://id.loc.gov/vocabulary/maudience" : {"name":"maudience", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mbroadstd" : {"name":"mbroadstd", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mcapturestorage" : {"name":"mcapturestorage", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mcolor" : {"name":"mcolor", "type":"simple", "modes":[]},
