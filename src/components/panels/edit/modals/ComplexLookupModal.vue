@@ -258,7 +258,7 @@
           if (this.searchValueLocal && this.searchValueLocal.length > 1){
             this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].includes(this.searchValueLocal))
           }
-          this.selectChange()
+          // this.selectChange()
         }
       },
 
@@ -739,7 +739,7 @@
 
     },
 
-    updated: function(){
+    updated: function(event){
       if (this.authorityLookup == null){
         //Reset this so the input field isn't loaded with the old data
         this.activeComplexSearch = []
@@ -827,6 +827,7 @@
       :lock-scroll="true"
       class="complex-lookup-modal"
       content-class="complex-lookup-modal-content"
+      @before-close="reset();"
       >
 
       <div ref="complexLookupModalContainer" class="complex-lookup-modal-container" :style="`${this.preferenceStore.styleModalBackgroundColor()}`">
@@ -924,7 +925,7 @@
                     <div class="complex-lookup-modal-display-buttons">
 
                       <button @click="$emit('emitComplexValue', activeContext)">Add [Shift+Enter]</button>
-                      <button @click="$emit('hideComplexModal')">Cancel [ESC]</button>
+                      <button @click=" reset(); $emit('hideComplexModal')">Cancel [ESC]</button>
 
                     </div>
 
