@@ -912,7 +912,6 @@ methods: {
    * @param {obj} incomingSubjects - the existing subject data
    */
   buildLookupComponents: function(incomingSubjects){
-    console.info("buildLookupComponents")
     this.typeLookup = {}
 
     if (!incomingSubjects || typeof incomingSubjects == "undefined"){
@@ -927,9 +926,6 @@ methods: {
           this.componetLookup[subjIdx] = {}
           let type = incomingSubjects[subjIdx]["@type"]
 
-          console.info("incomingSubjects[subjIdx]: ", incomingSubjects[subjIdx])
-          console.info("    type: ", type)
-
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")){
             this.typeLookup[subjIdx] = 'madsrdf:Topic'
           }
@@ -942,8 +938,6 @@ methods: {
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
             this.typeLookup[subjIdx] = 'madsrdf:Temporal'
           }
-
-          console.info("this.typeLookup: ", this.typeLookup)
 
           if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
             lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
@@ -970,8 +964,6 @@ methods: {
         // dealing with a complex subject
         this.componetLookup[0] = {}
         let type = incomingSubjects["@type"] ? incomingSubjects["@type"] : ""
-
-        console.info("    >>>>type: ", type)
 
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic") ){
             this.typeLookup[0] = 'madsrdf:Topic'
@@ -1014,20 +1006,15 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
-    console.info("buildComponents")
-    console.info("this.componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
     // searchString = searchString.replace("—", "--") // when copying a heading from class web
 
     let subjectStringSplit = searchString.split('--')
-
-    console.info("subjectStringSplit: ", subjectStringSplit)
 
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
 
     if (componentLookUpCount > 0){ //We might be dealing with something that needs to stitch some terms together
       if (componentLookUpCount < subjectStringSplit.length){
-        console.info("    Doing this thing?")
         let target = false
         let targetType = null
         let splitTarget = false
@@ -1037,10 +1024,8 @@ methods: {
 
             if (this.componetLookup[i][j].label.includes("--")){
               target = this.componetLookup[i][j].label.replaceAll("--", "‑‑")
-              console.info("target: ", target)
               targetIndex = i  // needs this to ensure the target will go into the search string in the right place
               splitTarget = target.split('‑‑')
-              console.info("splitTarget: ", splitTarget)
             }
 
             let matchIndx = []
@@ -1082,22 +1067,15 @@ methods: {
 
     let offset = 0
     for (let ss of subjectStringSplit){
-      console.info("looking at ", ss, "--", id)
       if (subjectStringSplit.length < Object.keys(this.componetLookup).length){
         diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes( Object.keys(this.componetLookup[x])[0]))
       }
 
-      console.info("diff: ", diff)
       if(diff.length > 0){
-        console.info("====", diff.every(el => el < id.toString()))
-        // if (diff.includes(id.toString()) && diff.every(el => el < id.toString())){
         if ( diff.includes(id.toString()) && id.toString() == diff.at(-1)){
-          console.info("fake id: ", id+1)
           offset = Object.keys(this.componetLookup).length - subjectStringSplit.length
         }
       }
-
-      console.info("id: ", id, "--", offset)
 
       // check the lookup to see if we have the data for this label
       let uri = null
@@ -1115,13 +1093,8 @@ methods: {
         nonLatinMarcKey = this.componetLookup[id+offset][ss].nonLatinMarcKey
       }
 
-      console.info("id: ", id)
-      console.info("offset: ", offset)
-      console.info("this.typeLookup: ", JSON.parse(JSON.stringify(this.typeLookup)))
-
       if (this.typeLookup[id+offset]){
         type = this.typeLookup[id+offset]
-        console.info("                    type: ", type)
       }
 
       this.components.push({
@@ -1144,10 +1117,8 @@ methods: {
       id++
     }
 
-    console.info("final: ", JSON.parse(JSON.stringify(this.components)))
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
-    console.info("FINAL this.subjectString: ", this.subjectString)
   },
 
   /**
@@ -2000,9 +1971,6 @@ methods: {
 
 
   navInput: function(event){
-    console.info("\n\n\nnavInput")
-    console.info(this.searchMode)
-    console.info(event.key)
     if (event.key == 'ArrowUp'){
       if (parseInt(this.pickPostion) <= this.searchResults.names.length*-1){
         return false
@@ -2049,15 +2017,12 @@ methods: {
 
     }else if (this.searchMode == 'GEO' && event.key == "-"){
       if (this.components.length>0){
-        console.info("active", this.activeComponent)
-        console.info("active", this.activeComponentIndex)
         let lastC = this.components[this.components.length-1]
 
         // if the last component has a URI then it was just selected
         // so we are not in the middle of a indirect heading, we are about to type it
         // so let them put in normal --
         if (lastC.uri && this.activeComponentIndex == this.components.length-1){
-          console.info("return lastC")
           return true
         }
 
@@ -2085,7 +2050,7 @@ methods: {
 
       })
 
-      this.subjectStringChanged()
+      this.subjectStringChanged(event)
 
       event.preventDefault()
       return false
@@ -2292,9 +2257,8 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
-    console.info("subjectStringChanged")
+    console.info("subjectStringChanged: ", event)
     this.subjectString=this.subjectString.replace("—", "--")
-    console.info("this.subjectString: ", this.subjectString)
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
@@ -2313,7 +2277,6 @@ methods: {
 
     // if the event coming in is the keystroke after a '$' then check to change the type
     if (event && this.nextInputIsTypeSelection){
-      console.info("setting types::>>")
       if (event.data.toLowerCase()==='a' || event.data.toLowerCase()==='x'){
         this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
         this.subjectString=this.subjectString.replace('$'+event.data,'')
@@ -2370,6 +2333,9 @@ methods: {
         if (event.target.selectionStart >= c.posStart && event.target.selectionStart <= c.posEnd+1){
           this.activeComponent = c
           this.activeComponentIndex = c.id
+
+          console.info("active: ", this.activeComponent)
+
           // it is not empty
           // it dose not end with "-" so it the '--' typing doesn't trigger
           if (c.label.trim() != '' && !c.label.endsWith('-')){
@@ -2435,7 +2401,7 @@ methods: {
               } else if (this.localContextCache[x.uri].type === 'Topic'){
                 x.type = 'madsrdf:Topic'
               } else {
-                  x.type = 'madsrdf:Topic'
+                x.type = 'madsrdf:Topic'
               }
             }
           }
@@ -2960,7 +2926,6 @@ methods: {
           }
 
           if (type){
-            console.info("setting type from loadUserValue")
             this.typeLookup[id]=type
           }
 
@@ -3071,9 +3036,6 @@ updated: function() {
   if (searchValue && this.components.length != searchValue.split("--").length && !searchValue.endsWith('-')){
     this.buildLookupComponents(incomingSubjects)
     this.buildComponents(searchValue)
-
-    console.info("searchValue: ", searchValue)
-    console.info("components: ", this.components)
 
     this.initialLoad = false
     this.subjectStringChanged()
