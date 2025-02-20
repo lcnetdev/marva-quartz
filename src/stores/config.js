@@ -7,11 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 18,
-<<<<<<< HEAD
-    versionPatch: 2,
-=======
     versionPatch: 1,
->>>>>>> main
 
     regionUrls: {
 
@@ -331,8 +327,8 @@ export const useConfigStore = defineStore('config', {
             ]
      },
      "http://id.loc.gov/bflists/intendedAudiences" : {
-        "name":"intendedAudiences", 
-        "type":"complex", 
+        "name":"intendedAudiences",
+        "type":"complex",
         "processor" : 'lcAuthorities',
         "modes":[
             {
