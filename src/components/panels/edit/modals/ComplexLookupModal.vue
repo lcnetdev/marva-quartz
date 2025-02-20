@@ -249,6 +249,7 @@
           if (this.searchValueLocal && this.searchValueLocal.length > 1){
             this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].includes(this.searchValueLocal))
           }
+          this.selectChange()
         }
       },
 
@@ -879,7 +880,7 @@
                       </option>
                     </template>
                     <template v-else-if="activeSimpleLookup && Object.keys(activeSimpleLookup).length > 0">
-                      <option v-for="(r, idx) in activeSimpleLookup" :data-label="r.uri" :value="r.uri" v-bind:key="idx" class="complex-lookup-result" v-html="r.label">
+                      <option v-for="(r, idx) in activeSimpleLookup" @click="selectChange()" :data-label="r.label" :value="r.uri" v-bind:key="idx" class="complex-lookup-result" v-html="r.label">
                       </option>
                     </template>
                   </select>
