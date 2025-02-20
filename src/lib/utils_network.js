@@ -414,7 +414,7 @@ const utilsNetwork = {
                 //   }
                 // }
 
-            }else if (r.hits && searchPayload.processor == 'wikidataAPI'){
+            }else if (r.search && searchPayload.processor == 'wikidataAPI'){
 
                 for (let hit of r.search){
                   results.push({
