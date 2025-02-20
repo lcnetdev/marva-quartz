@@ -93,6 +93,9 @@
       modalSelectOptionsLabels(){
         return this.modalSelectOptions.map((o)=>{return o.label})
       },
+      activeSimpleLookup() {
+        return Array.isArray(this.activeComplexSearch) ? this.activeComplexSearch : [];
+      },
     },
 
     watch: {
@@ -554,9 +557,18 @@
                       Searching...
                     </option>
 
+                    <template v-else-if="activeSimpleLookup && Object.keys(activeSimpleLookup).length > 0">
+                      <option 
+                        v-for="(r, idx) in activeSimpleLookup"
+                        :key="idx"
+                        @click="selectChange()"
+                        :data-label="r.label || (r.displayLabel ? r.displayLabel[0] : '')"
+                        :value="r.uri"
+                        class="complex-lookup-result"
+                        v-html="r.displayLabel ? r.displayLabel[0] : (r.label || '')">
+                      </option>
+                    </template>
 
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + r.suggestLabel + ((r.literal) ? ' [Literal]' : '')">
-                    </option>
                   </select>
 
 

@@ -2611,7 +2611,7 @@ updated: function() {
     try {
       if (
             profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"]
-            && !profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bflc/marcKey"]
+            && !profileData["userValue"]["http://id.loc.gov/ontologies/bflc/marcKey"]
       ){
         incomingSubjects = profileData["userValue"]["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://www.loc.gov/mads/rdf/v1#componentList"]
       } else {
