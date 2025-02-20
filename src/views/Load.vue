@@ -92,7 +92,7 @@
 
                             <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.label}}</span></div>
                             <div style="flex:1">
-                              <a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">View on ID.LOC.GOV</a>
+                              <a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">View online</a>
                               <span v-if="searchByLccnResults.length == 1" style="display:none;">
                                 <label :for="'lccnsearch'+idx">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" checked="true" />
                               </span>

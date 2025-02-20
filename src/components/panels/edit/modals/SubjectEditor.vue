@@ -160,7 +160,7 @@
                         {{Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
                     </h3>
                     <div class="modal-context-data-title">{{contextData.type}}</div>
-                    <a style="color:#2c3e50" :href="contextData.uri" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
+                    <a style="color:#2c3e50" :href="contextData.uri" target="_blank" v-if="contextData.literal != true">view online</a>
 
                     <div v-if="contextData.nonLatinTitle && contextData.nonLatinTitle.length>0">
                       <div class="modal-context-data-title">Non-Latin Auth Label:</div>
