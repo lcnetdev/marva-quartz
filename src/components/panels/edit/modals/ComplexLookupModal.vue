@@ -246,6 +246,15 @@
           let results = await utilsNetwork.loadSimpleLookup(searchPayload.url)
           utilsNetwork.lookupLibrary[searchPayload.url] = results
           this.activeSimpleLookup = filter(results.metadata.values, searchPayload.url).sort((a,b) => (a.label[0] > b.label[0]) ? 1 : (a.label[0] < b.label[0]) ? -1 : 0)
+
+          if (this.searchValueLocal.length > 0){
+            this.activeSimpleLookup.push({
+              uri: "",
+              label: [this.searchValueLocal],
+              code: [],
+              displayLabel: [this.searchValueLocal + " [Literal]"]
+            })
+          }
           if (this.searchValueLocal && this.searchValueLocal.length > 1){
             this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].includes(this.searchValueLocal))
           }
@@ -635,7 +644,7 @@
             results = await utilsNetwork.returnContext(toLoad.uri)
             results.loading = false
         } catch {
-            results = null
+            results = this.activeContext
         }
 
         // if this happens it means they selected something else very quickly
@@ -880,7 +889,7 @@
                       </option>
                     </template>
                     <template v-else-if="activeSimpleLookup && Object.keys(activeSimpleLookup).length > 0">
-                      <option v-for="(r, idx) in activeSimpleLookup" @click="selectChange()" :data-label="r.label" :value="r.uri" v-bind:key="idx" class="complex-lookup-result" v-html="r.label">
+                      <option v-for="(r, idx) in activeSimpleLookup" @click="selectChange()" :data-label="r.label" :value="r.uri" v-bind:key="idx" class="complex-lookup-result" v-html="r.displayLabel">
                       </option>
                     </template>
                   </select>
