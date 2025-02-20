@@ -912,6 +912,7 @@ methods: {
    * @param {obj} incomingSubjects - the existing subject data
    */
   buildLookupComponents: function(incomingSubjects){
+    console.info("buildLookupComponents")
     this.typeLookup = {}
 
     if (!incomingSubjects || typeof incomingSubjects == "undefined"){
@@ -926,6 +927,9 @@ methods: {
           this.componetLookup[subjIdx] = {}
           let type = incomingSubjects[subjIdx]["@type"]
 
+          console.info("incomingSubjects[subjIdx]: ", incomingSubjects[subjIdx])
+          console.info("    type: ", type)
+
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")){
             this.typeLookup[subjIdx] = 'madsrdf:Topic'
           }
@@ -938,6 +942,8 @@ methods: {
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
             this.typeLookup[subjIdx] = 'madsrdf:Temporal'
           }
+
+          console.info("this.typeLookup: ", this.typeLookup)
 
           if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
             lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
@@ -964,6 +970,8 @@ methods: {
         // dealing with a complex subject
         this.componetLookup[0] = {}
         let type = incomingSubjects["@type"] ? incomingSubjects["@type"] : ""
+
+        console.info("    >>>>type: ", type)
 
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic") ){
             this.typeLookup[0] = 'madsrdf:Topic'
@@ -1006,15 +1014,20 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
+    console.info("buildComponents")
+    console.info("this.componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
     // searchString = searchString.replace("—", "--") // when copying a heading from class web
 
     let subjectStringSplit = searchString.split('--')
+
+    console.info("subjectStringSplit: ", subjectStringSplit)
 
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
 
     if (componentLookUpCount > 0){ //We might be dealing with something that needs to stitch some terms together
       if (componentLookUpCount < subjectStringSplit.length){
+        console.info("    Doing this thing?")
         let target = false
         let targetType = null
         let splitTarget = false
@@ -1024,8 +1037,10 @@ methods: {
 
             if (this.componetLookup[i][j].label.includes("--")){
               target = this.componetLookup[i][j].label.replaceAll("--", "‑‑")
+              console.info("target: ", target)
               targetIndex = i  // needs this to ensure the target will go into the search string in the right place
               splitTarget = target.split('‑‑')
+              console.info("splitTarget: ", splitTarget)
             }
 
             let matchIndx = []
@@ -1056,7 +1071,34 @@ methods: {
 
     let activePosStart = 0
 
+    /**
+     * When a string in the middle of a heading changes, the typeLookup will get thrown off.
+     * Need a way to track this.
+     */
+    let diff = []
+    // if (subjectStringSplit.length < Object.keys(this.componetLookup).length){
+    //   diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes( Object.keys(this.componetLookup[x])[0]))
+    // }
+
+    let offset = 0
     for (let ss of subjectStringSplit){
+      console.info("looking at ", ss, "--", id)
+      if (subjectStringSplit.length < Object.keys(this.componetLookup).length){
+        diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes( Object.keys(this.componetLookup[x])[0]))
+      }
+
+      console.info("diff: ", diff)
+      if(diff.length > 0){
+        console.info("====", diff.every(el => el < id.toString()))
+        // if (diff.includes(id.toString()) && diff.every(el => el < id.toString())){
+        if ( diff.includes(id.toString()) && id.toString() == diff.at(-1)){
+          console.info("fake id: ", id+1)
+          offset = Object.keys(this.componetLookup).length - subjectStringSplit.length
+        }
+      }
+
+      console.info("id: ", id, "--", offset)
+
       // check the lookup to see if we have the data for this label
       let uri = null
       let type = null
@@ -1065,18 +1107,21 @@ methods: {
       let nonLatinLabel = null
       let nonLatinMarcKey = null
 
-
-      if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        literal = this.componetLookup[id][ss].literal
-        uri = this.componetLookup[id][ss].uri
-        marcKey = this.componetLookup[id][ss].marcKey
-        nonLatinLabel = this.componetLookup[id][ss].nonLatinTitle
-        nonLatinMarcKey = this.componetLookup[id][ss].nonLatinMarcKey
-
+      if (this.componetLookup[id+offset] && this.componetLookup[id+offset][ss]){
+        literal = this.componetLookup[id+offset][ss].literal
+        uri = this.componetLookup[id+offset][ss].uri
+        marcKey = this.componetLookup[id+offset][ss].marcKey
+        nonLatinLabel = this.componetLookup[id+offset][ss].nonLatinTitle
+        nonLatinMarcKey = this.componetLookup[id+offset][ss].nonLatinMarcKey
       }
 
-      if (this.typeLookup[id]){
-        type = this.typeLookup[id]
+      console.info("id: ", id)
+      console.info("offset: ", offset)
+      console.info("this.typeLookup: ", JSON.parse(JSON.stringify(this.typeLookup)))
+
+      if (this.typeLookup[id+offset]){
+        type = this.typeLookup[id+offset]
+        console.info("                    type: ", type)
       }
 
       this.components.push({
@@ -1099,8 +1144,10 @@ methods: {
       id++
     }
 
+    console.info("final: ", JSON.parse(JSON.stringify(this.components)))
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
+    console.info("FINAL this.subjectString: ", this.subjectString)
   },
 
   /**
@@ -1196,7 +1243,6 @@ methods: {
      */
 
     if (mode == "GEO"){
-      this.typeLookup[this.activeComponentIndex] = 'madsrdf:Geographic'
       /**
        * When dealing with a switch to GEO, we need to combine the "loose" components
        * into 1 so the search will work.
@@ -1215,90 +1261,89 @@ methods: {
         }
       }
 
-	  //only stitch the loose components togethere if there are 2 next to each other
-	  if (indx.length == 2 && indx[1]-1 == indx[0]){
-		  /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		   *  !! the `not` hyphens are very important !!
-		   *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		   */
-		  // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
-		  this.activeComponentIndex = Number(indx[0])
+      //only stitch the loose components togethere if there are 2 next to each other
+      if (indx.length == 2 && indx[1]-1 == indx[0]){
+        /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         *  !! the `not` hyphens are very important !!
+         *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         */
+        // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
+        this.activeComponentIndex = Number(indx[0])
 
-		  //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
-		  this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
-		  //this.activeComponent = looseComponents[this.activeComponentIndex]
+        //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
+        this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
+        //this.activeComponent = looseComponents[this.activeComponentIndex]
 
-		  this.activeComponent.id = this.activeComponentIndex
+        this.activeComponent.id = this.activeComponentIndex
 
-		  //update the active component with the loose components
-		  for (let c in looseComponents){
-			if (c != 0){
-			  let part1 = ""
-				if (c == 1){
-				  part1 = looseComponents[0].label
-				} else {
-				  part1 = this.activeComponent.label
-				}
-			  const part2 = looseComponents[c].label
-			  this.activeComponent.label = part1 + "‑‑" + part2
-			  this.activeComponent.posEnd = looseComponents[c].posEnd
-			}
-		  }
-		  this.activeComponent.posStart = looseComponents[0].posStart
+        //update the active component with the loose components
+        for (let c in looseComponents){
+          if (c != 0){
+            let part1 = ""
+            if (c == 1){
+              part1 = looseComponents[0].label
+            } else {
+              part1 = this.activeComponent.label
+            }
+            const part2 = looseComponents[c].label
+            this.activeComponent.label = part1 + "‑‑" + part2
+            this.activeComponent.posEnd = looseComponents[c].posEnd
+          }
+        }
+        this.activeComponent.posStart = looseComponents[0].posStart
 
-		  // we need to make sure the order is maintained
-		  // use the component map to determine maintain order
-		  let final = []
-		  for (let el in componentMap){
-			let good = componentMap[el] != '-'
-			if (good){
-			  final.push(this.components[el].label)
-			} else {
-			  final.push(this.activeComponent.label)
-			}
-		  }
+        // we need to make sure the order is maintained
+        // use the component map to determine maintain order
+        let final = []
+        for (let el in componentMap){
+          let good = componentMap[el] != '-'
+          if (good){
+            final.push(this.components[el].label)
+          } else {
+            final.push(this.activeComponent.label)
+          }
+        }
 
-		  final = new Set(final)
-		  final = Array.from(final)
+        final = new Set(final)
+        final = Array.from(final)
 
-		  this.subjectString =  final.join("--")
+        this.subjectString =  final.join("--")
 
-		  //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
-		  this.components.splice(indx[0], indx.length, this.activeComponent)
+        //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
+        this.components.splice(indx[0], indx.length, this.activeComponent)
 
-		  // need to make sure postStart and posEnd are correct, and the id
-		  this.adjustStartEndPos(this.components)
-		  for (let x in this.components){
-			let prev = null
-			let current = this.components[x]
+        // need to make sure postStart and posEnd are correct, and the id
+        this.adjustStartEndPos(this.components)
+        for (let x in this.components){
+          let prev = null
+          let current = this.components[x]
 
-			if (x > 0){
-			  prev = this.components[x] - 1
-			} else if (x == 0) {
-			  current.posStart = 0
-			} else {
-			  current.posStart = prev.posEnd + 2
-			}
-			current.posEnd = current.posStart + current.label.length
+          if (x > 0){
+            prev = this.components[x] - 1
+          } else if (x == 0) {
+            current.posStart = 0
+          } else {
+            current.posStart = prev.posEnd + 2
+          }
+          current.posEnd = current.posStart + current.label.length
 
-			current.id = x
-		  }
+          current.id = x
+        }
 
-		  // get the boxes lined up correctly
-		  this.renderHintBoxes()
+        // get the boxes lined up correctly
+        this.renderHintBoxes()
 
-		  // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
-		  for (let i in this.components){
-			for (let j in this.componetLookup){
-			  const key = Object.keys(this.componetLookup[j])[0]
-			  if (this.components[i].label == key){
-				this.componetLookup[i] = this.componetLookup[j]
-			  }
-			}
-		  }
-	  }
+        // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
+        for (let i in this.components){
+          for (let j in this.componetLookup){
+            const key = Object.keys(this.componetLookup[j])[0]
+            if (this.components[i].label == key){
+            this.componetLookup[i] = this.componetLookup[j]
+            }
+          }
+        }
+      }
     } else {
-      this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
       // Above we took loose components and combined them,
       // here we undo that incase someone made a mistake and the geo
       // term has a subject in it that needs to be split out.
@@ -1955,6 +2000,9 @@ methods: {
 
 
   navInput: function(event){
+    console.info("\n\n\nnavInput")
+    console.info(this.searchMode)
+    console.info(event.key)
     if (event.key == 'ArrowUp'){
       if (parseInt(this.pickPostion) <= this.searchResults.names.length*-1){
         return false
@@ -2001,12 +2049,15 @@ methods: {
 
     }else if (this.searchMode == 'GEO' && event.key == "-"){
       if (this.components.length>0){
+        console.info("active", this.activeComponent)
+        console.info("active", this.activeComponentIndex)
         let lastC = this.components[this.components.length-1]
 
         // if the last component has a URI then it was just selected
         // so we are not in the middle of a indirect heading, we are about to type it
         // so let them put in normal --
-        if (lastC.uri){
+        if (lastC.uri && this.activeComponentIndex == this.components.length-1){
+          console.info("return lastC")
           return true
         }
 
@@ -2017,7 +2068,6 @@ methods: {
 
       }
 
-
       let start = event.target.selectionStart
       let end = event.target.selectionEnd
       // console.log(this.subjectString.substring(0,start),'|',this.subjectString.substring(end,this.subjectString.length))
@@ -2025,10 +2075,13 @@ methods: {
       this.subjectString = this.subjectString.substring(0,start) + '‑' + this.subjectString.substring(end,this.subjectString.length)
       this.subjectString=this.subjectString.trim()
 
-
       this.$nextTick(() => {
           // console.log(start,end)
-          event.target.setSelectionRange(start+1,end+1)
+          if (end-start > 1){
+            event.target.setSelectionRange(start+1,start+1)
+          } else {
+            event.target.setSelectionRange(start+1,end+1)
+          }
 
       })
 
@@ -2239,7 +2292,9 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    console.info("subjectStringChanged")
     this.subjectString=this.subjectString.replace("—", "--")
+    console.info("this.subjectString: ", this.subjectString)
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
@@ -2258,6 +2313,7 @@ methods: {
 
     // if the event coming in is the keystroke after a '$' then check to change the type
     if (event && this.nextInputIsTypeSelection){
+      console.info("setting types::>>")
       if (event.data.toLowerCase()==='a' || event.data.toLowerCase()==='x'){
         this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
         this.subjectString=this.subjectString.replace('$'+event.data,'')
@@ -2309,6 +2365,7 @@ methods: {
 
     // if they are typing in the heading select it as we go
     if (event){
+
       for (let c of this.components){
         if (event.target.selectionStart >= c.posStart && event.target.selectionStart <= c.posEnd+1){
           this.activeComponent = c
@@ -2903,6 +2960,7 @@ methods: {
           }
 
           if (type){
+            console.info("setting type from loadUserValue")
             this.typeLookup[id]=type
           }
 
@@ -3013,6 +3071,9 @@ updated: function() {
   if (searchValue && this.components.length != searchValue.split("--").length && !searchValue.endsWith('-')){
     this.buildLookupComponents(incomingSubjects)
     this.buildComponents(searchValue)
+
+    console.info("searchValue: ", searchValue)
+    console.info("components: ", this.components)
 
     this.initialLoad = false
     this.subjectStringChanged()
