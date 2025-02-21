@@ -2042,7 +2042,7 @@ methods: {
 
       this.$nextTick(() => {
           // console.log(start,end)
-          if (end-start > 1){
+          if (end-start > 0){
             event.target.setSelectionRange(start+1,start+1)
           } else {
             event.target.setSelectionRange(start+1,end+1)
