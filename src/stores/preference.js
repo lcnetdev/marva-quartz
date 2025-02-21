@@ -1491,13 +1491,9 @@ export const usePreferenceStore = defineStore('preference', {
     buildDiacriticSettings: function(){
 
       this.diacriticUse = this.returnValue('--c-diacritics-enabled-macros')
-
-
       this.diacriticUse = [...new Set(this.diacriticUse)];
 
       console.log(this.diacriticUse)
-
-
       for (let d in this.diacriticPacks.macroExpress){
 
         let macros = this.diacriticPacks.macroExpress[d]
@@ -1507,12 +1503,8 @@ export const usePreferenceStore = defineStore('preference', {
             this.diacriticUseValues.push(macro)
           }
         }
-
-
       }
       console.log(this.diacriticUseValues)
-
-
     },
 
     // turn copy mode on/off

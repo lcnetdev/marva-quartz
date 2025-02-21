@@ -24,7 +24,7 @@
       </template>
 
       <template v-if="showSelectionModal==true">
-        <GenericSelectionModal :title="importTitle" :options="importOptions" :multiple="true" v-model="showSelectionModal" />
+        <GenericSelectionModal @emitSelection="getImportSelection" @closeModal="closeImportSelection" :title="importTitle" :options="importOptions" :modalSettings="modalSettings" :multiple="true" v-model="showSelectionModal" />
       </template>
 
     </Teleport>
@@ -56,7 +56,9 @@
         instances: [],
         layoutHash: null,
         importTitle: "",
-        importOptions: [],
+        importOptions: {},
+        modalSettings: [],
+        importSelection: [],
         showSelectionModal: false,
       }
     },
@@ -709,37 +711,70 @@
         document.body.removeChild(temp)
       },
 
+      getImportSelection: function(selection){
+        console.info("emited: ", selection)
+        this.importSelection = selection
+
+        if (this.importSelection.length > 0){
+          this.showSelectionModal = false
+        } else {
+          alert("Nothing is selected.")
+        }
+
+        this.importPreferences(this.importSelection)
+      },
+
+      closeImportSelection: function(){
+        this.showSelectionModal = false
+      },
+
       showImportSelectionModal: function(){
         this.importTitle = "Which Preferences would you like to import?"
         this.importOptions = [
           {
-            label: "Text Macro Settings",
-            value: "teset1"
-          },
-          {
-            label: "Diacritic Macro Settings",
-            value: "teset2"
-          },
-          {
-            label: "Layouts",
-            value: "teset2"
-          },
-          {
-            label: "Diacritic Macro Settings",
-            value: "teset2"
-          },
-          {
             label: "Everything",
-            value: "teset2"
+            value: "all"
+          },
+          {
+            label: "Marva Styling",
+            value: "style"
+          },
+          {
+            label: "Script Shifter Settings",
+            value: "scriptShifter"
+          },
+          {
+            label: "Text Macro Settings",
+            value: "textMacro"
+          },
+          {
+            label: "Diacritic Macro Settings",
+            value: "diacriticMacro"
+          },
+          {
+            label: "Custom Layouts",
+            value: "layouts"
+          }
+          ,
+          {
+            label: "Component Library",
+            value: "componentLibrary"
           }
         ]
+        this.modalSettings = {
+          height: "300",
+          width: "500",
+          buttonText: "Import",
+          initalLeft: "300",
+          initalTop: "250"
+        }
         this.showSelectionModal = true
         console.info("show modal??!!")
+        console.info("selection: ", this.importSelection)
 
-        // this.importPreferences()
       },
 
-      importPreferences: function(){
+      importPreferences: function(selection=null){
         const that = this
 
         var temp = document.createElement("input")
@@ -753,23 +788,51 @@
           reader.onload = function(e){
             var contents = JSON.parse(e.target.result)
 
-            that.preferenceStore.loadPreferences(contents["prefs"])
-            window.localStorage.setItem('marva-preferences', JSON.stringify(contents["prefs"]))
-            if (contents["scriptShifterOptions"]){
+            console.info("contents: ", contents)
+
+            if (selection && selection.includes('all')){
+              that.preferenceStore.loadPreferences(contents["prefs"])
+              window.localStorage.setItem('marva-preferences', JSON.stringify(contents["prefs"]))
+            }
+
+            if (contents["scriptShifterOptions"] && (selection && (selection.includes('scriptShifter') || selection.includes('all')))){
               that.preferenceStore.scriptShifterOptions = contents["scriptShifterOptions"]
               window.localStorage.setItem('marva-scriptShifterOptions', JSON.stringify(contents["scriptShifterOptions"]))
             }
 
-            if (contents["marvaComponentLibrary"]){
+            if (contents["marvaComponentLibrary"] && (selection && (selection.includes('componentLibrary') || selection.includes('all')))){
               that.preferenceStore.componentLibrary = contents["marvaComponentLibrary"]
               window.localStorage.setItem('marva-componentLibrary', JSON.stringify(contents["marvaComponentLibrary"]))
             }
 
-            if (contents["diacriticUse"]){
+            if (contents["diacriticUse"] && (selection && (selection.includes('diacriticMacro') || selection.includes('all')))){
               that.preferenceStore.diacriticUse = contents["diacriticUse"]
               window.localStorage.setItem('marva-diacriticUse', JSON.stringify(contents["diacriticUse"]))
+              that.preferenceStore.buildDiacriticSettings()
+
+              const incoming = contents.prefs['styleDefault']['--c-diacritics-enabled-macros'].value
+              that.preferenceStore.setValue('--c-diacritics-enabled-macros', incoming)
             }
-            that.preferenceStore.buildDiacriticSettings()
+
+            if (selection && (selection.includes('textMacro') || selection.includes('all'))){
+              const incoming = contents.prefs['styleDefault']['--o-diacritics-text-macros'].value
+              that.preferenceStore.setValue('--o-diacritics-text-macros', incoming)
+            }
+
+            if (selection && (selection.includes('layouts') || selection.includes('all'))){
+              const incoming = contents.prefs['styleDefault']['--l-custom-layouts'].value
+              that.preferenceStore.setValue('--l-custom-layouts', incoming)
+            }
+
+            if (selection && (selection.includes('style') || selection.includes('all'))){
+              for (let item in contents.prefs['styleDefault']){
+                if (!['--l-custom-layouts', '--o-diacritics-text-macros'].includes(item)){
+                  const incoming = contents.prefs['styleDefault'][item].value
+                  that.preferenceStore.setValue(item, incoming)
+                }
+              }
+            }
+
           }
 
           reader.readAsText(file)
