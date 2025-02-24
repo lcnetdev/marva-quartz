@@ -210,7 +210,7 @@
                   <svg v-if="profileName.includes(':Item')"  viewBox="0 -32 50 72" version="1.1" xmlns="http://www.w3.org/2000/svg">
                     <rect width="40px" height="40px" class="item-icon" />
                   </svg>
-                  <svg  v-if="profileName.endsWith(':Hub')" version="1.1" viewBox="0 -20 100 100" xmlns="http://www.w3.org/2000/svg">
+                  <svg  v-if="profileName.endsWith(':Hub')" version="1.1" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
                     <path fill="royalblue" d="m62.113 24.66 1.9023-15.238 18.875 32.691-7.5469 20.004 15.238 1.9023-32.691 18.875-20.004-7.5469-1.9023 15.238-18.875-32.691 7.5469-20.004-15.238-1.9023 32.691-18.875zm-17.684 15.695-4.0781 15.215 15.215 4.0781 4.0781-15.215z" fill-rule="evenodd"/>
                   </svg>
                   <span class="sidebar-header-text" v-if="profileName.split(':').slice(-1)[0] == 'Work'">{{$t("message.wordWork")}}</span>
@@ -313,6 +313,9 @@
   padding-left:0.4em;
   font-size:0.85em;
   margin-bottom:0.5em;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
+
+
 }
 
 .sidebar-opac-li-value a{

@@ -1,18 +1,13 @@
 <template>
 
   <template  v-if="structure.valueConstraint.valueTemplateRefs.length > 1">
-
-
     <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
-
-
       <select style="display: inline; width: 20px; border-color:whitesmoke; background-color: transparent;" @change="templateChange($event)">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
-
     </template>
     <template v-else>
-      <select :id="structure['@guid']" @change="templateChange($event)" style=" background-color: transparent;">
+      <select :id="structure['@guid']+'-select'" @change="templateChange($event)" style="">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
     </template>
@@ -24,139 +19,13 @@
     :nested="true"
     :guid="guid"
     :inheritedStructure="thisRtTemplate.propertyTemplates[idx]"
-    :readOnly="readOnly"/>
-
-
-  <!--
-
-  <div v-if="dynamic == 'singleTemplate'">
-
-    <EditMainComponent  v-for="(pt,idx) in activeTemplate.propertyTemplates"
-      :level="level"
-      :bnodeProperty="bnodeProperty"
-      :propertyPath="propertyPath"
-      :ptGuid="ptGuid"
-      :isMini="isMini"
-      :key="idx"
-      :position="idx"
-      :activeTemplate="Object.assign({nested:true},activeTemplate)"
-      :structure="activeTemplate.propertyTemplates[idx]"
-      :profileCompoent="profileCompoent"
-      :profileName="profileName"
-      :grandParentStructureObj="parentStructureObj"
-      :parentStructureObj="structure"
-      :parentStructure="['nothing']"
-      :nested="true">
-    </EditMainComponent>
-
-
-  </div>
-
-
-  <div v-else-if="nested == false" :class="'component-container' + ' component-container-' + settingsDisplayMode">
-
-    <div :class="'component-container-title' + ' component-container-title-' + settingsDisplayMode ">{{structure.propertyLabel}}<EditLabelRemark :remark="structure.remark" /></div>
-    <div :class="'component-container-input-container' + ' component-container-input-container-' + settingsDisplayMode">
-
-      <template  v-if="structure.valueConstraint.valueTemplateRefs.length > 1">
-        <div class="component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border" style="flex:4; max-height: 3em;">
-          <div style="display: flex">
-            <div style="flex:1">
-              <form autocomplete="off">
-                <input bfeType="EditTemplateRefComponent-nested"  :id="assignedId"  v-on:focus="focused" class="selectable-input" autocomplete="off" @keydown="multiTemplateSelectKeydown($event)" type="text" v-bind:value="multiTemplateSelect" style="width: 95%; border:none; height: 90%; font-size: 1.5em; padding: 0.1em; background: none">
-              </form>
-            </div>
-            <button tabindex="-1" class="temp-icon-switch fake-real-button simptip-position-top" :data-tooltip="labels.refComponentSwitchButton" @click="multiTemplateSelectKeydown($event, true)">
-            </button>
-          </div>
-        </div>
-      </template>
-      <div v-if="activeTemplate != null && activeTemplate.propertyTemplates.length > 0">
-
-        <EditMainComponent  v-for="(pt,idx) in activeTemplate.propertyTemplates"
-        :level="level"
-        :bnodeProperty="bnodeProperty"
-        :propertyPath="propertyPath"
-        :ptGuid="ptGuid"
-        :key="idx"
-        :isMini="isMini"
-        :activeTemplate="activeTemplate"
-        :structure="activeTemplate.propertyTemplates[idx]"
-        :parentStructureObj="structure"
-        :parentStructure="['nothing']"
-        :profileCompoent="profileCompoent"
-        :profileName="profileName"
-        :nested="true">
-        </EditMainComponent>
-      </div>
-      <div v-else>
-        <span>Missing resource template {{structure.valueConstraint.valueTemplateRefs}}</span>
-        {{activeTemplate}}
-      </div>
-
-    </div>
-
-  </div>
-
-  <div v-else-if="nested == true">
-      <template v-if="structure.valueConstraint.valueTemplateRefs.length > 1">
-        <div class="component-container-fake-input no-upper-right-border-radius no-lower-right-border-radius no-upper-border" style="flex:4;  max-height: 3em">
-          <div style="display: flex">
-            <div style="flex:1">
-              <form autocomplete="off">
-                <input bfeType="EditTemplateRefComponent-unnested" :id="assignedId"  v-on:focus="focused" class="selectable-input" autocomplete="off" @keydown="multiTemplateSelectKeydown($event)" type="text" v-bind:value="multiTemplateSelect" style="width: 95%; border:none; height: 90%; font-size: 1.5em; padding: 0.1em; background: none">
-              </form>
-            </div>
-            <button tabindex="-1" class="temp-icon-switch fake-real-button simptip-position-top" :data-tooltip="labels.refComponentSwitchButton"  @click="multiTemplateSelectKeydown($event, true)">
-            </button>
-          </div>
-        </div>
-      </template>
-      <template v-if="activeTemplate != null && activeTemplate.propertyTemplates.length > 0">
-
-        <EditMainComponent  v-for="(pt,idx) in activeTemplate.propertyTemplates"
-          :ptGuid="ptGuid"
-          :level="level"
-          :bnodeProperty="bnodeProperty"
-          :propertyPath="propertyPath"
-          :key="idx"
-          :isMini="isMini"
-          :position="idx"
-          :activeTemplate="Object.assign({nested:true},activeTemplate)"
-          :structure="activeTemplate.propertyTemplates[idx]"
-          :profileCompoent="profileCompoent"
-          :profileName="profileName"
-          :grandParentStructureObj="parentStructureObj"
-          :parentStructureObj="structure"
-          :parentStructure="['nothing']"
-          :nested="true">
-        </EditMainComponent>
-      </template>
-
-  </div>
-
-
-
- -->
-
+    :readOnly="readOnly" />
 
 
 </template>
 
 <script>
 
-
-
-// import EditMainComponent from "@/components/EditMainComponent.vue";
-
-
-// import { mapState } from 'vuex'
-// import uiUtils from "@/lib/uiUtils"
-// import labels from "@/lib/labels"
-// import EditLabelRemark from "@/components/EditLabelRemark.vue";
-
-
-// import Main from "@/components/panels/edit/fields/Main.vue";
 
 import { useProfileStore } from '@/stores/profile'
 import { usePreferenceStore } from '@/stores/preference'
@@ -246,8 +115,10 @@ export default {
       if (userValue['@type']){
         // loop thrugh all the refs and see if there is a URI that matches it better
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
+          //if tmpid is 'lc:RT:bf2:Agents:Contribution', need to look somehwere else
           if (foundBetter) return false
-          if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
+          if (tmpid == "lc:RT:bf2:Agents:Contribution"){
+          } else if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
             useId = tmpid
             foundBetter = true
           }
@@ -265,30 +136,47 @@ export default {
 
         })
       } else {
-		  //There's no userValue, we'll use the parent's userValue to check
-		  //	if there's a template that might be even better-er
-		  // But, we're only going to look deeper for bf:contribution
+        //There's no userValue, we'll use the parent's userValue to check
+        //	if there's a template that might be even better-er
+        // But, we're only going to look deeper for bf:contribution
 
-		  let parentUserValue
-		  try {
-			  parentUserValue = this.$parent.$parent.structure.userValue
-	      } catch {
-			  parentUserValue = null
-		  }
+        let parentUserValue
+        try {
+          parentUserValue = this.$parent.$parent.structure.userValue
+          } catch {
+          parentUserValue = null
+        }
 
-		  for (let idx in this.structure.valueConstraint.valueTemplateRefs){
-			  let template = this.structure.valueConstraint.valueTemplateRefs[idx]
-			  if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
-				  let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
-				  if (target){
-                      let type = target[0]["@type"]
-                      if (type && this.rtLookup[template].resourceURI === type){
-                        useId = template
-                      }
-				  }
-			  }
-		  }
-	  }
+        // resourceURI :: type
+        const typeMap = {
+          "http://id.loc.gov/ontologies/bibframe/Person": "lc:RT:bf2:Agent:bfPerson",
+          "http://id.loc.gov/ontologies/bibframe/Family": "lc:RT:bf2:Agent:bfFamily",
+          "http://www.loc.gov/mads/rdf/v1#CorporateName": "lc:RT:bf2:Agent:bfCorp",
+          "http://id.loc.gov/ontologies/bibframe/Jurisdiction": "lc:RT:bf2:Agent:bfJurisdiction",
+          "http://id.loc.gov/ontologies/bibframe/Meeting": "lc:RT:bf2:Agent:bfConf",
+        }
+
+        for (let idx in this.structure.valueConstraint.valueTemplateRefs){
+          let template = this.structure.valueConstraint.valueTemplateRefs[idx]
+          if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
+            let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
+            if (target){
+              let type = target[0]["@type"]
+              if (type && this.rtLookup[template].resourceURI === type){   // the resourceURIs don't match the types
+                useId = template
+              } else if (type && Object.keys(typeMap).includes(type)){
+                useId = typeMap[type]
+              }
+            } else { //there's no user agent
+            let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]
+              let type = target[0]["@type"]
+              if (type && this.rtLookup[template].resourceURI === type){
+                useId = template
+              }
+            }
+          }
+        }
+      }
 
 
       // do not render recursivly if the thing we are trying to render recursivly is one the of the things thAT WER ARE RENDERING TO BEGIN WITHHHHH!!!1
@@ -550,45 +438,12 @@ select{
   width: 100%;
   border-bottom: none;
   border-top: none;
-}
-/*.component-container-fake-input:focus-within {
-  border: solid 1px #a6acb7;
-  background-color: #dfe5f1;
-}
-input{
-  border: none;
-  color: transparent;
-  text-shadow: 0 0 0 gray;
-  text-align: left;
-}
-.fake-real-button{
-  height: 4em;
-  min-width: 4em;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
   background-color: transparent;
-  border: none;
-  outline: none;
-  margin: 0.15em;
-}
 
-input{
-  outline:none;
+
+
+
 }
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-form{
-  height: 100%;
-}*/
 
 </style>

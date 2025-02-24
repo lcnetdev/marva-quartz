@@ -10,24 +10,22 @@
 
       <splitpanes>
         <pane  v-if="panelDisplay.properties"
-          :class="{'edit-main-splitpane-properties': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-properties-no-scrollbar')}"
+          :class="{'edit-main-splitpane-properties': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-properties-no-scrollbar'), 'edit-layout-properties':  createLayoutMode}"
           :size="preferenceStore.returnValue('--n-edit-main-splitpane-properties-width')"
           min-size="5">
           <Properties/>
 
         </pane>
 
-
         <template v-if="panelDisplay.dualEdit">
-
           <pane
-            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}"
+            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar'), 'edit-layout-main':  createLayoutMode}"
             :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
             <EditPanel :instanceMode="false" :dualEdit="true" />
           </pane>
 
           <pane
-            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}"
+            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar'), 'edit-layout-main':  createLayoutMode}"
             :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
             <EditPanel :instanceMode="true" :dualEdit="true"/>
           </pane>
@@ -39,7 +37,7 @@
         <template v-else>
 
             <pane
-              :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar')}"
+              :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar'), 'edit-layout-main':  createLayoutMode}"
               :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
 
               <EditPanel :key="test" :instanceMode="false" :dualEdit="false"/>
@@ -50,21 +48,21 @@
 
 
         <pane v-if="panelDisplay.opac"
-          :class="{'edit-main-splitpane-opac': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}"
+          :class="{'edit-main-splitpane-opac': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar'), 'edit-layout-opac':  createLayoutMode}"
           :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')"
         >
           <Opac/>
         </pane>
 
         <pane v-if="panelDisplay.xml"
-          :class="{'edit-main-splitpane-xml': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}"
+          :class="{'edit-main-splitpane-xml': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar'), 'edit-layout-xml':  createLayoutMode}"
           :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')"
         >
           <Xml/>
 
         </pane>
         <pane v-if="panelDisplay.marc"
-          :class="{'edit-main-splitpane-marc': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar')}"
+          :class="{'edit-main-splitpane-marc': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar'), 'edit-layout-marc':  createLayoutMode}"
           :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')"
         >
           <Marc/>
@@ -135,11 +133,11 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore,useProfileStore),
-      ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
+      ...mapState(usePreferenceStore, ['styleDefault','panelDisplay', 'createLayoutMode']),
       ...mapState(useProfileStore, ['profilesLoaded','activeProfileSaved']),
 
 
-      ...mapWritableState(usePreferenceStore, ['showDebugModal']),
+      ...mapWritableState(usePreferenceStore, ['showDebugModal', 'createLayoutMode']),
 
       ...mapWritableState(useProfileStore, ['literalLangGuid','literalLangShow','activeProfile']),
 
@@ -180,7 +178,7 @@
 
       console.log("Mounted called", this.$route.params.action, this.$route.params.recordId )
       console.log(this.$route.params)
-      this.profileStore.resetLocalComponentCache()      
+      this.profileStore.resetLocalComponentCache()
       if (this.profilesLoaded && this.activeProfile){
 
         if (this.activeProfile.neweId){
@@ -198,7 +196,7 @@
       }
 
 
-      
+
 
 
 
@@ -275,6 +273,8 @@
   height: 2px;
   background-color: black !important;
 
+
+
 }
 
 .default-theme.splitpanes--horizontal>.splitpanes__splitter:before{
@@ -285,6 +285,25 @@
   width: 0;
   height: 0;
 }
+
+.splitpanes--vertical > .splitpanes__splitter {
+
+
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-slider-color')") !important;
+
+  border-left: 1px solid v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-slider-border-color')") !important;
+  border-right: 1px solid v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-slider-border-color')") !important;
+
+}
+
+.edit-main-splitpane-edit{
+  scrollbar-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-scroll-bar-thumb-color')") v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-scroll-bar-track-color')")
+}
+
+
+
+
+
 </style>
 <style scoped>
 
@@ -354,9 +373,19 @@
     height: 0;
 }
 
+/* Layout Edit */
+.edit-layout-properties,
+.edit-layout-opac,
+.edit-layout-xml,
+.edit-layout-marc {
+  opacity: 50%;
+}
 
-
-
+.edit-layout-main {
+  border: solid rgb(30, 231, 57) 5px;
+  border-radius: 10px;
+  padding: 2px;
+}
 
 
 

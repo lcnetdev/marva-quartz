@@ -50,240 +50,6 @@
 
 <script>
 
-
-//   <div class="main-component-container">
-
-
-
-//     <div v-if="nested == false" :id="profileName+'|'+profileCompoent" style="display: flex; position: relative;">
-
-//       <div style="flex:15;">
-
-
-//           <template v-else>
-
-
-//             <EditMetaComponent v-if="returnLookupType(structure) == 'meta'"
-//               :isMini="isMini"
-//               :ptGuid="ptGuid"
-//               :parentURI="parentURI"
-//               :nested="nested"
-//               :structure="structure"
-//               :profileName="profileName"
-//               :level="levelPlusOne"
-//               :propertyPath="buildPropertyPath(propertyPath)"
-
-//               :profileCompoent="profileCompoent"
-//               :parentStructureObj="parentStructureObj"
-//               :parentStructure="parentStructure"
-//               :activeTemplate="activeTemplate" >
-//             </EditMetaComponent>
-//             <!-- <EditAdminComponent v-else-if="returnLookupType(structure) == 'admin'" :ptGuid="ptGuid" :parentURI="parentURI" :nested="nested" :structure="structure" :profileName="profileName" :profileCompoent="profileCompoent" :parentStructureObj="parentStructureObj" :parentStructure="parentStructure" :activeTemplate="activeTemplate" ></EditAdminComponent> -->
-//             <EditLiteralComponent v-else-if="structure.type == 'literal' || structure.type == 'literal-lang'"
-//               :key="useKey"
-//               :isMini="isMini"
-//               :ptGuid="ptGuid"
-//               :parentURI="parentURI"
-//               :nested="nested"
-//               :structure="structure"
-//               :level="levelPlusOne"
-//               :propertyPath="buildPropertyPath(propertyPath)"
-
-//               :profileName="profileName"
-//               :profileCompoent="profileCompoent"
-//               :parentStructureObj="parentStructureObj"
-//               :parentStructure="parentStructure"
-//               :activeTemplate="activeTemplate" >
-//             </EditLiteralComponent>
-
-//             <EditSimpleLookupComponent v-else-if="returnLookupType(structure) == 'simple'"
-//               :ptGuid="ptGuid"
-//               :key="useKey"
-//               :isMini="isMini"
-//               :parentURI="parentURI"
-//               :structure="structure"
-//               :parentStructureObj="parentStructureObj"
-//               :parentStructure="parentStructure"
-//               :nested="nested"
-//               :level="levelPlusOne"
-//               :propertyPath="buildPropertyPath(propertyPath)"
-
-//               :profileName="profileName"
-//               :profileCompoent="profileCompoent"
-//               :activeTemplate="activeTemplate" >
-//             </EditSimpleLookupComponent>
-
-//             <EditComplexLookupComponent v-on="$listeners" v-else-if="returnLookupType(structure) == 'complex'"
-//               :key="useKey"
-//               :isMini="isMini"
-//               @updated="forceUpdate"
-//               :ptGuid="ptGuid"
-//               :parentURI="parentURI"
-//               :structure="structure"
-//               :parentStructureObj="parentStructureObj"
-//               :parentStructure="parentStructure"
-//               :nested="nested"
-//               :level="levelPlusOne"
-//               :propertyPath="buildPropertyPath(propertyPath)"
-
-//               :profileName="profileName"
-//               :profileCompoent="profileCompoent"
-//               :activeTemplate="activeTemplate"  >
-//             </EditComplexLookupComponent>
-
-//            <EditTemplateRefComponent v-on="$listeners" v-else-if="structure.valueConstraint.valueTemplateRefs.length > 0"
-//               :isMini="isMini"
-//               :key="useKey"
-//               :ptGuid="ptGuid"
-//               :parentURI="parentURI"
-//               :structure="structure"
-//               :parentStructureObj="parentStructureObj"
-//               :parentStructure="parentStructure"
-//               :nested="nested"
-//               :level="levelPlusOne"
-//               :propertyPath="buildPropertyPath(propertyPath)"
-
-//               :profileName="profileName"
-//               :profileCompoent="profileCompoent"
-//               :activeTemplate="activeTemplate">
-//             </EditTemplateRefComponent>
-
-
-
-//           </template>
-
-
-
-
-
-//       </div>
-
-//       <template v-if="settingsLeftMenuEnriched==false">
-//         <div class="property-button-container" v-if="showDupeRemove()">
-
-//           <button tabindex="-1" class="property-button property-duplicate simptip-position-left" :data-tooltip="labels.propertyDuplicateTip" @click="duplicateProperty">{{labels.propertyDuplicateSymbol}}</button>
-//           <button tabindex="-1" class="property-button property-remove" @click="removeProperty">{{labels.propertyRemoveSymbol}}</button>
-
-//         </div>
-//       </template>
-
-//       <div v-if="settingsDisplayMode!='compact'" class="debug-toggle" style="position: relative; visibility: hidden; color:red; left: -26%;font-size: 0.85em;font-family: monospace;top: 8px; cursor: pointer; height: 0.85em;" @click="toggleDebug">debug</div>
-
-
-
-//     </div>
-
-
-
-//     <!-- This block renders the recursive componets being sent in from the TemplateRefComponent -->
-//     <div v-else>
-
-//         <EditLiteralComponent v-if="structure.type == 'literal' || structure.type == 'literal-lang'"
-//           :key="useKey"
-//           :isMini="isMini"
-//           :ptGuid="ptGuid"
-//           :parentURI="parentURI"
-//           :activeTemplate="activeTemplate"
-//           :nested="nested"
-//           :level="levelPlusOne"
-//           :propertyPath="buildPropertyPath(propertyPath)"
-
-//           :structure="structure"
-//           :profileName="profileName"
-//           :profileCompoent="profileCompoent"
-//           :parentStructureObj="parentStructureObj"
-//           :parentStructure="parentStructure" >
-
-//         </EditLiteralComponent>
-//         <EditSimpleLookupComponent v-else-if="returnLookupType(structure) == 'simple'"
-//           :key="useKey"
-//           :ptGuid="ptGuid"
-//           :isMini="isMini"
-//           :parentURI="parentURI"
-//           :activeTemplate="activeTemplate"
-//           :structure="structure"
-//           :parentStructureObj="parentStructureObj"
-//           :parentStructure="parentStructure"
-//           :nested="nested"
-//           :level="levelPlusOne"
-//           :propertyPath="buildPropertyPath(propertyPath)"
-
-//           :profileName="profileName"
-//           :profileCompoent="profileCompoent"  >
-//         </EditSimpleLookupComponent>
-//         <EditComplexLookupComponent v-on="$listeners" v-else-if="returnLookupType(structure) == 'complex'"
-//           :key="useKey"
-//           :isMini="isMini" @updated="forceUpdate"
-//           :ptGuid="ptGuid"
-//           :parentURI="parentURI"
-//           :activeTemplate="activeTemplate"
-//           :structure="structure"
-//           :parentStructureObj="parentStructureObj"
-//           :parentStructure="parentStructure"
-//           :nested="nested"
-//           :level="levelPlusOne"
-//           :propertyPath="buildPropertyPath(propertyPath)"
-
-//           :profileName="profileName"
-//           :profileCompoent="profileCompoent"   >
-//         </EditComplexLookupComponent>
-//         <EditTemplateRefComponent v-on="$listeners" v-else-if="structure.valueConstraint.valueTemplateRefs.length > 0"
-//           :isMini="isMini"
-//           :key="useKey"
-//           :ptGuid="ptGuid"
-//           :parentURI="parentURI"
-//           :activeTemplate="activeTemplate"
-//           :structure="structure"
-//           :level="levelPlusOne"
-//           :propertyPath="buildPropertyPath(propertyPath)"
-
-//           :parentStructureObj="parentStructureObj"
-//           :parentStructure="parentStructure"
-//           :profileName="profileName"
-//           :profileCompoent="profileCompoent" :nested="nested">
-//         </EditTemplateRefComponent>
-
-
-
-//     </div>
-
-
-//     <div v-if="nested == false && displayDebug" style="font-family: monospace;width: 69%; background-color: whitesmoke; margin-left: 5%;">
-
-//       <code v-if="structure.xmlSource"><pre>{{prettifyXml(structure.xmlSource)}}</pre></code>
-//       <vue-json-pretty
-//         :path="'res'"
-//         :highlightMouseoverNode="true"
-//         :collapsedOnClickBrackets="true"
-//         :data="structure"
-//         >
-//       </vue-json-pretty>
-
-//     </div>
-
-
-
-
-//   </div>
-
-
-
-// <!--   <pre>{{JSON.stringify(structure,null,2)}}</pre>
-//   <h1>{{nested}}-{{nestedOrder}}-{{nestedOrderType}}</h1>
-//   <h1>{{nestedOrderParentType}}</h1> -->
-
-
-
-// import EditLiteralComponent from "@/components/EditLiteralComponent.vue";
-// import EditSimpleLookupComponent from "@/components/EditSimpleLookupComponent.vue";
-
-// import EditComplexLookupComponent from "@/components/EditComplexLookupComponent.vue";
-// import EditMetaComponent from "@/components/EditMetaComponent.vue";
-// import EditAdminComponent from "@/components/EditAdminComponent.vue";
-
-
-
-
 ///////////// import VueJsonPretty from 'vue-json-pretty'
 // <template>
 //   <div>
@@ -455,11 +221,16 @@ export default {
 
       let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
 
+      const mandatory = this.structure.mandatory
 
       let id = this.preferenceId
 
-      if (colors[id]){
+      //If the mandatory color is set, it overrides everything
+      if (mandatory == "true" && Object.keys(colors).includes('req')){
+        return colors['req']['req']
+      }
 
+      if (colors[id]){
         if (this.userModified){
           if (colors[id]['edited']){
             return colors[id]['edited']
@@ -468,14 +239,21 @@ export default {
         if (colors[id]['default']){
             return colors[id]['default']
           }
-
-
       }
 
 
 
-      return 'white'
+      if (this.preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')){
+        if (this.preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color') == 'transparent'){
+          return 'white'
+        }else{
+          return this.preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-color')
+        }
 
+      }
+
+
+      return 'white'
     }
 
 

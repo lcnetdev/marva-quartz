@@ -37,6 +37,7 @@
 
         activeComplexSearch: [],
         activeComplexSearchInProgress: false,
+        activeSimpleLookup: [],
         controller: new AbortController(),
 
         initalSearchState: true,
@@ -48,8 +49,11 @@
         maxPage: 0,
 
         activeContext: null,
-		
-		searchType: "left",
+
+
+        nextInputIsVoyagerModeDiacritics: false,
+
+		    searchType: "left",
       }
     },
     computed: {
@@ -64,7 +68,7 @@
 
       ...mapState(useConfigStore, ['lookupConfig']),
 
-
+      ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
 
 
@@ -74,7 +78,7 @@
         let options = []
         // add in the the defaul search ALL of everything possible
         //options.push({label: 'All', urls:null, processor:null})
-        console.log("this.structure.valueConstraint",this.structure.valueConstraint)
+
         this.structure.valueConstraint.useValuesFrom.forEach((l)=>{
           if (this.lookupConfig[l]){
             this.lookupConfig[l].modes.forEach((mode)=>{
@@ -108,6 +112,8 @@
 
 
       modeSelect: async function(){
+        this.activeComplexSearch = []
+        this.activeSimpleLookup = []
         this.doSearch()
 
       }
@@ -123,8 +129,10 @@
       reset: function(){
         this.activeContext = null
         this.activeComplexSearch = []
+        this.activeSimpleLookup = []
+        this.activeSimpleLookupCache = []
         this.searchValueLocal = null
-            this.authorityLookupLocal = null
+        this.authorityLookupLocal = null
       },
 
       // watching the search input, when it changes kick off a search
@@ -135,12 +143,17 @@
           this.controller = new AbortController()
         }
 
-        if (!this.searchValueLocal){ return false}
+        if (!this.isSimpleLookup()){
+          if (!this.searchValueLocal){ return false}
 
-        if (this.searchValueLocal.trim()==''){
-          return false
+          if (this.searchValueLocal.trim()==''){
+            return false
+          }
+        } else {
+          if (!this.searchValueLocal){
+            this.searchValueLocal = ""
+          }
         }
-
         if (this.searchValueLocal.length<3){
           // if it is non-latin
           if (this.searchValueLocal.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/)){
@@ -149,6 +162,9 @@
             // check the config, some vocabs have very short codes, like the marc geo
             // so if it is configed to allow short search overtide the < 3 rule
             let minCharBeforeSearch = 3
+            if (this.isSimpleLookup()){
+              minCharBeforeSearch = -1
+            }
             this.modalSelectOptions.forEach((a)=>{
               if (a.minCharBeforeSearch && a.minCharBeforeSearch < minCharBeforeSearch){
                 minCharBeforeSearch = a.minCharBeforeSearch
@@ -161,8 +177,8 @@
           }
         }
         window.clearTimeout(this.searchTimeout)
-		
-		let searchType = this.searchType
+
+		    let searchType = this.searchType
         let offset = this.offsetStart
         if (this.activeComplexSearch != []) {
           offset = this.offsetStep * (this.currentPage - 1)
@@ -172,7 +188,8 @@
           processor: null,
           url: [],
           searchValue: this.searchValueLocal,   //This changed from searchValueLocal, to match what is expected in `utils_network.js`
-          signal: this.controller.signal        //Allows canceling the correct call
+          signal: this.controller.signal,        //Allows canceling the correct call
+          type: 'simple'
         }
         // if (this.modeSelect == 'All'){
         //   this.modalSelectOptions.forEach((a)=>{
@@ -187,33 +204,327 @@
           this.modalSelectOptions.forEach((a)=>{
             if (a.label==this.modeSelect){
               searchPayload.processor=a.processor
-              searchPayload.url.push(
-                a.urls
-                  .replace('<QUERY>', this.searchValueLocal)
-                  .replace('<OFFSET>', offset)
-				  .replace('<TYPE>', searchType)
-              )
+              if (a.urls.includes("<QUERY>")){
+                searchPayload.type = 'complex'
+                searchPayload.url.push(
+                  a.urls
+                    .replace('<QUERY>', this.searchValueLocal)
+                    .replace('<OFFSET>', offset)
+                    .replace('<TYPE>', searchType)
+                )
+              } else { // we're mixing a simple lookup and a complex one
+                searchPayload.url.push(a.urls)
+              }
             }
           })
 
         // wrapping this in setTimeout might not be needed anymore
-        this.searchTimeout = window.setTimeout(async ()=>{
-          this.activeComplexSearchInProgress = true
-          this.activeComplexSearch = []
-          this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
-          this.activeComplexSearchInProgress = false
-          this.initalSearchState =false
-        }, 400)
+        if (searchPayload.type == 'complex'){
+          this.searchTimeout = window.setTimeout(async ()=>{
+            this.activeComplexSearchInProgress = true
+            this.activeComplexSearch = []
+            this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
+            this.activeComplexSearchInProgress = false
+            this.initalSearchState =false
+          }, 400)
+        } else {
+          let filter = function(obj, target){
+            let result = []
+            for (let key in obj){
+              if (key != target[0].replace(".html", "").replace("https", "http")){
+                result.push(obj[key])
+              }
+            }
+
+            return result
+          }
+
+          let results = await utilsNetwork.loadSimpleLookup(searchPayload.url)
+          utilsNetwork.lookupLibrary[searchPayload.url] = results
+          this.activeSimpleLookup = filter(results.metadata.values, searchPayload.url).sort((a,b) => (a.label[0] > b.label[0]) ? 1 : (a.label[0] < b.label[0]) ? -1 : 0)
+
+          if (this.searchValueLocal.length > 0){
+            this.activeSimpleLookup.push({
+              uri: "",
+              label: [this.searchValueLocal],
+              code: [],
+              displayLabel: [this.searchValueLocal + " [Literal]"]
+            })
+          }
+          if (this.searchValueLocal && this.searchValueLocal.length > 1){
+            this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].includes(this.searchValueLocal))
+          }
+          // this.selectChange()
+        }
       },
+
+
+
+      inputKeyup: function(event){
+
+
+        // text macros
+        let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
+        if (useTextMacros && useTextMacros.length>0){
+          for (let m of useTextMacros){
+            if (event.target.value.indexOf(m.lookFor) > -1){
+              event.target.value = event.target.value.replace(m.lookFor,m.replaceWith)
+              this.searchValueLocal = event.target.value
+            }
+          }
+        }
+      },
+
+
+
 
 
       inputKeydown: function(event){
         if (event.key==='ArrowDown'){
           this.$refs.selectOptions.focus()
-          this.$refs.selectOptions.value=this.activeComplexSearch[0].uri
+          try {
+            this.$refs.selectOptions.value=this.activeComplexSearch[0].uri
+          } catch {
+            this.$refs.selectOptions.value=this.activeSimpleLookup[0].uri
+          }
           this.selectChange()
+          return true
         }
+
+        // do a bunch of diacritic checks to see if they are trying to trigger a diacrtiic macro
+
+
+
+
+        // This mode is they press Crtl+e to enter diacritic macro mode, so they did that on the last kedown and now we need to act on the next keystroke and interpret it as a macro code
+        if (this.nextInputIsVoyagerModeDiacritics){
+            // they are pressing shift in about to press antoher macro shrotcut
+            if (event.key == 'Shift'){
+              return false
+            }
+
+            if (this.diacriticPacks.voyager[event.code]){
+              let useMacro
+              for (let macro of this.diacriticPacks.voyager[event.code]){
+                if (macro.shiftKey == event.shiftKey){
+                  useMacro = macro
+                  break
+                }
+              }
+
+              let inputV = event.target
+              let insertAt = event.target.value.length
+              if (event.target && event.target.selectionStart){
+                insertAt=event.target.selectionStart
+              }
+
+              if (!useMacro.combining){
+              // it is not a combining unicode char so just insert it into the value
+                if (inputV.value){
+                  // inputV.value=inputV.value+useMacro.codeEscape
+                  inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+                }else{
+                  inputV.value = useMacro.codeEscape
+                }
+                this.searchValueLocal = inputV.value
+              }else{
+                    // inputV.value=inputV.value+useMacro.codeEscape
+                    inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+                    this.searchValueLocal = inputV.value
+              }
+
+              if (insertAt){
+              this.$nextTick(()=>{
+                inputV.setSelectionRange(insertAt+1,insertAt+1)
+                this.searchValueLocal = inputV.value
+                this.$nextTick(()=>{
+                  inputV.focus()
+                })
+
+              })
+              }else{
+                this.$nextTick(()=>{
+                  inputV.focus()
+                })
+              }
+            }
+            // turn off mode
+            this.nextInputIsVoyagerModeDiacritics  =false
+            event.target.style.removeProperty('background-color')
+            event.preventDefault()
+            return false
+        }
+        // all macros use the ctrl key
+        if (event.ctrlKey == true){
+          if (this.diacriticUse.length>0){
+            for (let macro of this.diacriticUseValues){
+              if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
+                // console.log("run this macro", macro)
+                event.preventDefault()
+                this.runMacroExpressMacro(event)
+                return false
+
+              }
+            }
+          }
+
+         // they are entering into voyager diacritic mode
+          if (event.code == 'KeyE'){
+            if (!this.preferenceStore.returnValue('--b-diacritics-disable-voyager-mode')){
+              event.target.style.backgroundColor="chartreuse"
+              this.nextInputIsVoyagerModeDiacritics = true
+              event.preventDefault()
+              return false
+            }
+
+          }
+
+          //
+
+        }
+
+
+
+
+
+
+
       },
+
+
+      runMacroExpressMacro(event){
+
+        for (let macro of this.diacriticUseValues){
+              if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
+                // console.log("run this macro", macro)
+                let insertAt = event.target.value.length
+
+                if (event.target && event.target.selectionStart){
+                  insertAt=event.target.selectionStart
+                }
+                let inputV
+                if (event.target){
+                  inputV = event.target
+                }else{
+                  console.warn("ERROR: Field not found")
+                  return false
+                }
+                if (!macro.combining){
+                  // there is behavior where if it is a digit shortcut the numerial is still sent
+                  // so if thats the case remove the last digit from the value
+                  if (event.code.includes('Digit')){
+                    // if it is in fact a digit char then remove it
+                    if (inputV.value.charAt(insertAt) == event.code.replace('Digit','')){
+                      // remove the last char
+                      // inputV.value = inputV.value.slice(0, -1);
+                      inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+
+                    }
+                  }
+                  // same for euqal key
+                  if (event.code == 'Equal'){
+                    if (inputV.value.charAt(inputV.value.length-1) == '='){
+                      // remove the last char
+                      // inputV.value = inputV.value.slice(0, -1);
+                      inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+                    }
+                  }
+                  // same for Backquote key
+
+                  if (event.code == 'Backquote'){
+                    if (inputV.value.charAt(inputV.value.length-1) == '`'){
+                      // remove the last char
+                      // inputV.value = inputV.value.slice(0, -1);
+                      inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+                    }
+                  }
+                  // it is not a combining unicode char so just insert it into the value
+                  if (inputV.value){
+                    // inputV.value=inputV.value+macro.codeEscape
+                    inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
+                    this.searchValueLocal = inputV.value
+                    if (insertAt){
+                      this.$nextTick(()=>{
+                        inputV.setSelectionRange(insertAt+1,insertAt+1)
+                        this.$nextTick(()=>{
+                          inputV.focus()
+                          // this.doSearch()
+                        })
+                      })
+                    }else{
+                        this.$nextTick(()=>{
+                          inputV.focus()
+                        })
+                    }
+                  }else{
+                    inputV.value = macro.codeEscape
+                    this.searchValueLocal = inputV.value
+                  }
+
+
+                }else{
+
+
+                  // same for Backquote key
+
+                  if (event.code == 'Backquote'){
+
+                    if (inputV.value.charAt(inputV.value.length-1) == '`'){
+                      // remove the last char
+                      inputV.value = inputV.value.slice(0, -1);
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+                    }
+
+                    }
+
+
+                    // little cheap hack here, on macos the Alt+9 makes ª digits 1-0 do this with Alt+## but we only
+                    // have one short cut that uses Alt+9 so just remove that char for now
+                    inputV.value=inputV.value.replace('ª','')
+
+                    inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
+                    // inputV.value=inputV.value+macro.codeEscape
+
+                    inputV.setSelectionRange(insertAt+1,insertAt+1)
+                    inputV.focus()
+
+
+                    if (insertAt){
+                    this.$nextTick(()=>{
+                      inputV.setSelectionRange(insertAt+1,insertAt+1)
+                      this.searchValueLocal = inputV.value
+                      this.$nextTick(()=>{
+                        inputV.focus()
+                      })
+
+                    })
+                    }else{
+
+                      this.$nextTick(()=>{
+                        inputV.focus()
+                      })
+
+                    }
+                }
+
+                event.preventDefault()
+                event.stopPropagation()
+                return false
+              }
+            }
+
+
+
+        },
+
+
 
       returnContextTitle(title){
 
@@ -227,7 +538,7 @@
         let noLang = title.filter((v)=> typeof v['@language'] == "undefined" || (v['@language'] && v['@language'] == "en") )
 
         if (noLang && noLang[0] && noLang[0]['@value']){ return noLang[0]['@value']}
-        
+
         return 'ERROR - Cannot find label'
 
       },
@@ -239,7 +550,7 @@
         if (title[0] && typeof title[0] == 'string'){ return []}
 
         let hasLang = title.filter((v)=>{ if (v['@language'] && v['@language'] != "en"){return true}else{return false} })
-        
+
         let results = []
         for (let l of hasLang){
           results.push(`${l['@value']} @ ${l['@language']}`)
@@ -279,6 +590,11 @@
         let toLoad = null
         if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
           toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
+          if (!toLoad){
+            let label = this.activeSimpleLookup[this.$refs.selectOptions.selectedIndex].label
+            let uri = this.$refs.selectOptions.value
+            toLoad = {label: label, uri: uri, literal: false, undifferentiated: false}
+          }
         } else {
           // We're loading existing data and want to preselect the search result
           // that matches that value
@@ -302,10 +618,10 @@
         this.activeContext = {
             "contextValue": true,
             "source": [],
-            "type": (toLoad !== null && toLoad.literal) ? "Literal Value" : null,
+            "type": (toLoad && toLoad.literal) ? "Literal Value" : null,
             "variant": [],
             "uri": (toLoad == null || toLoad.literal) ? null : toLoad.uri,
-            "title": toLoad !== null ? toLoad.label : "",
+            "title": (toLoad)  ? toLoad.label : "",
             "contributor": [],
             "date": null,
             "genreForm": null,
@@ -324,7 +640,7 @@
             results = await utilsNetwork.returnContext(toLoad.uri)
             results.loading = false
         } catch {
-            results = null
+            results = this.activeContext
         }
 
         // if this happens it means they selected something else very quickly
@@ -399,19 +715,27 @@
         this.currentPage = 1
         this.doSearch()
       },
-	  
-	  changeSearchType: function(event){ 
-		if (event.target.checked){
-			this.searchType = "keyword"
-		} else {
-			this.searchType = "left"
-		}
-		this.doSearch()
-	  },
+
+      changeSearchType: function(event){
+        if (event.target.checked){
+          this.searchType = "keyword"
+        } else {
+          this.searchType = "left"
+        }
+        this.doSearch()
+      },
+
+      isSimpleLookup: function(){
+        const mode = this.modeSelect
+        const options = this.modalSelectOptions
+        const activeMode = options.filter((opt) => opt.label == mode)[0]
+
+        return !activeMode.urls.includes("<QUERY>")
+      },
 
     },
 
-    updated: function(){
+    updated: function(event){
       if (this.authorityLookup == null){
         //Reset this so the input field isn't loaded with the old data
         this.activeComplexSearch = []
@@ -434,7 +758,10 @@
               this.selectChange()
             }, (2 * 1000)
             )
-          } else {
+          } else if (this.isSimpleLookup()){
+            this.searchValueLocal = this.searchValue
+            this.doSearch()
+          }else {
             this.searchValueLocal = this.searchValue
           }
 
@@ -446,7 +773,7 @@
 
             this.$refs.complexLookupModalDisplay.style.height = this.$refs.complexLookupModalContainer.getBoundingClientRect().height + 'px'
           }
-		  
+
 		  if (this.$refs.toggle){
 			if (this.$refs.toggle.checked){
 				this.searchType = "keyword"
@@ -456,9 +783,9 @@
 		  }
         })
       })
-	  
 
-		
+
+
     },
 
     mounted() {
@@ -496,39 +823,39 @@
       :lock-scroll="true"
       class="complex-lookup-modal"
       content-class="complex-lookup-modal-content"
+      @before-close="reset();"
       >
 
-        <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
+      <div ref="complexLookupModalContainer" class="complex-lookup-modal-container" :style="`${this.preferenceStore.styleModalBackgroundColor()}`">
 			<div class="menu-buttons">
 				<button @click="reset(); $emit('hideComplexModal')">x</button>
 			</div>
           <div class="complex-lookup-modal-container-parts">
 
             <div class="complex-lookup-modal-search">
-
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
 				  </div>
-				  
+
                   <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % 25 ) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
-                    <span>
+                    <span :style="`${this.preferenceStore.styleModalTextColor()}`">
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
-                        <span class="material-icons pagination">keyboard_double_arrow_left</span>
+                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
                       </a>
                       <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
-                        <span class="material-icons pagination">chevron_left</span>
+                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
                       </a>
-                      <span class="pagination-label"> Page {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last Page"}} </span>
+                      <span class="pagination-label" > Page {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last Page"}} </span>
                       <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
-                        <span class="material-icons pagination">chevron_right</span>
+                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
                       </a>
                       <a href="#" title="last page" class="last" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="lastPage()">
-                        <span class="material-icons pagination">keyboard_double_arrow_right</span>
+                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
                       </a>
                     </span>
                   </div>
-				  
+
 				  <div id="container" v-if="modalSelectOptions.length == 10 && modalSelectOptions[8].label == 'NAF Geo SubDiv'">
 					<input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
 					<label for="search-type" class="toggle-container">
@@ -536,21 +863,19 @@
 						<div>Keyword</div>
 					</label>
 				  </div>
-				  
+
               </template>
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === true">
                 <select v-model="modeSelect">
                   <option  v-for="opt in modalSelectOptions">{{opt.label}}</option>
                 </select>
               </template>
-              <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" type="text" />
+              <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" @keyup="inputKeyup($event)" type="text" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`" />
               <button @click="forceSearch()">Search</button>
               <hr style="margin-top: 5px;">
               <div>
-
-                  <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)">
-
-                    <option v-if="activeComplexSearch.length == 0 && activeComplexSearchInProgress == false && initalSearchState != true">
+                  <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`">
+                    <option v-if="(activeComplexSearch.length == 0 && activeSimpleLookup.length == 0)&& activeComplexSearchInProgress == false && initalSearchState != true">
                       No results found.
                     </option>
                     <option v-if="activeComplexSearchInProgress == true">
@@ -570,7 +895,7 @@
                     </template>
 
                   </select>
-
+                  <br>
 
               </div>
 
@@ -579,7 +904,7 @@
             </div>
 
 
-            <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display">
+            <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display" :style="`${this.preferenceStore.styleModalTextColor()};`">
 
               <template v-if="activeContext !== null">
 
@@ -598,7 +923,7 @@
                     <div class="complex-lookup-modal-display-buttons">
 
                       <button @click="$emit('emitComplexValue', activeContext)">Add [Shift+Enter]</button>
-                      <button @click="$emit('hideComplexModal')">Cancel [ESC]</button>
+                      <button @click=" reset(); $emit('hideComplexModal')">Cancel [ESC]</button>
 
                     </div>
 
@@ -671,7 +996,10 @@
 .complex-lookup-modal-container{
   margin-left: auto;
   margin-right: auto;
-  background-color: white;
+
+
+
+
   width: 85vw;
   height: 95vh;
 }
@@ -684,6 +1012,7 @@
 @media all and (max-width: 1024px) {
   /* CSS rules here for screens lower than 750px */
   .complex-lookup-modal-container{
+
 
     width: 99vw;
     height: 95vh;

@@ -16,11 +16,11 @@
     >
 
     <div ref="complexLookupModalContainer" class="complex-lookup-modal-container">
-      <div style="position: relative;">
+      <div :style="`position: relative; ${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`" class="subject-container-outer">
           <div style="position:absolute; right:2em; top:  0.25em; z-index: 100;">
-			  <div class="menu-buttons">
-				<button @click="closeEditor()">Close</button>
-			  </div>
+			      <div class="menu-buttons">
+				    <button @click="closeEditor()">Close</button>
+			    </div>
             <button @click="editorModeSwitch('build')" data-tooltip="Build LCSH headings using a lookup list" class="subjectEditorModeButtons simptip-position-left" style="margin-right: 1em; background-color: black; height: 2em; display: inline-flex;">
       <!--         <svg fill="#F2F2F2" width="20px" height="20px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                <g>
@@ -77,10 +77,10 @@
           <template v-if="subjectEditorMode=='build'">
 
 
-            <div :class="['subject-editor-container', {'subject-editor-container-lowres':lowResMode}]">
+            <div :class="['subject-editor-container', {'subject-editor-container-lowres':lowResMode}]" :style="`${this.preferenceStore.styleModalBackgroundColor()}`" >
 
 
-              <div :class="['subject-editor-container-left', {'subject-editor-container-left-lowres':lowResMode}]">
+              <div :style="`${this.preferenceStore.styleModalBackgroundColor()};`" :class="['subject-editor-container-left', {'subject-editor-container-left-lowres':lowResMode}]">
 
                 <div id="search-in-holder" style="position: absolute; top:0">
                   <span>Search In:</span>
@@ -95,51 +95,71 @@
                 </div>
 
 
-                <div style="flex:1; align-self: flex-end;">
+
+                <div :style="`flex:1; align-self: flex-end; height: 95%; ${this.preferenceStore.styleModalBackgroundColor()}`" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
 
                   <div v-if="activeSearch!==false">{{activeSearch}}</div>
-                  <div v-if="searchResults !== null">
-                    <div v-if="searchResults && searchResults.names.length>0 && !this.searching">
+                  <div v-if="searchResults !== null" style="height: 95%">
 
+                    <div v-if="searchResults && searchResults.exact.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">Known Label</span>
+                      <div v-for="(subject,idx) in searchResults.exact" @click="selectContext((searchResults.names.length - idx)*-1-2)" @mouseover="loadContext((searchResults.names.length - idx)*-1-2)" :data-id="((searchResults.names.length - idx)*-1-2)" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1-2 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1-2 ), 'picked': (pickLookup[(searchResults.names.length - idx)*-1-2] && pickLookup[(searchResults.names.length - idx)*-1-2].picked) }]" >
+                        <template v-if="subject.label == activeComponent.label">
+                          {{subject.label}}
+                        </template>
+                        <template v-else>
+                            {{subject.label}}
+                            <span class="subject-variant">
+                              ((VARIANT))
+                            </span>
+                        </template>
+                        <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
+                        <span v-if="subject.collections"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                      </div>
+                    </div>
+
+                    <div v-if="searchResults && searchResults.names.length>0 && !this.searching" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">LCNAF</span>
                       <div v-for="(name,idx) in searchResults.names" @click="selectContext((searchResults.names.length - idx)*-1)" @mouseover="loadContext((searchResults.names.length - idx)*-1)" :data-id="(searchResults.names.length - idx)*-1" :key="name.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1 ),'picked': (pickLookup[(searchResults.names.length - idx)*-1] && pickLookup[(searchResults.names.length - idx)*-1].picked)}]">
-                          <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
+                        <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
-                          <span v-if="name.collections"> ({{ this.buildAddtionalInfo(name.collections) }})</span>
+                          <span v-if="name.collections"> {{ this.buildAddtionalInfo(name.collections) }}</span>
                         </div>
-                      <hr>
                     </div>
 
                     <!-- LCSH -->
-                    <div v-if="searchResults && searchResults.subjectsComplex.length>0">
+                    <div v-if="searchResults && searchResults.subjectsComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()>=3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
-                        <span v-if="subjectC.collections"> ({{ this.buildAddtionalInfo(subjectC.collections) }})</span>
+                        <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
                       </div>
-                      <hr>
                     </div>
 
-                    <div v-if="searchResults && searchResults.subjectsSimple.length>0">
+                    <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
-                        <span v-if="!subject.literal"> ({{ this.buildAddtionalInfo(subject.collections) }})</span>
+                        <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
                       </div>
                     </div>
 
 
                     <!-- ChildrenSubjects -->
-                    <div v-if="searchResults && searchResults.subjectsChildrenComplex.length>0">
+                    <div v-if="searchResults && searchResults.subjectsChildrenComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">CYAC Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
-                        <span v-if="subjectC.collections"> ({{ this.buildAddtionalInfo(subjectC.collections) }})</span>
+                        <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
                       </div>
-                      <hr>
                     </div>
 
-                  <div v-if="searchResults && searchResults.subjectsChildren.length>0">
+                  <div v-if="searchResults && searchResults.subjectsChildren.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                    <span class="subject-results-heading">CYAC Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
-                        <span v-if="!subject.literal"> ({{ this.buildAddtionalInfo(subject.collections) }})</span>
+                        <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
                       </div>
                     </div>
 
@@ -150,7 +170,7 @@
                 </div>
 
 
-                <div :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
+                <div :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()};`"  :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
                   <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                   <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
                     <h3 v-if="contextData.title">
@@ -188,7 +208,6 @@
                     <div v-else>
                       <div class="modal-context-data-title">{{ contextData.label }} [Literal]</div>
                     </div>
-
 
                     <div v-if="contextData.source && contextData.source.length>0">
                       <div class="modal-context-data-title">Sources:</div>
@@ -237,10 +256,10 @@
                     <div  style="display: flex;">
                       <div  style="flex:1; position: relative;">
                         <form autocomplete="off" style="height: 3em;">
-                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input">
+                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input" id="subject-input">
                         </form>
                         <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
-						  {{c.label}}
+                          {{c.label}}
                         </div>
                       </div>
                     </div>
@@ -248,7 +267,7 @@
                   <div ref="toolbar" style="display: flex;">
                     <div style="flex:2">
                       <ol v-if="showTypes" :class="['type-list-ol',{'type-list-ol-lowres':lowResMode}]">
-                        <li :class="['type-item', {'type-item-selected':(type.selected)}]" v-for="type in activeTypes" :key="type.value" @click="setTypeClick($event,type.value)">{{type.label}}</li>
+                        <li :class="['type-item', {'type-item-selected':(type.selected)}]" v-for="type in activeTypes" :key="type.value" @click="setTypeClick($event,type.value)" :style="`${this.preferenceStore.styleModalTextColor()}`">{{type.label}}</li>
                       </ol>
                     </div>
                     <div style="flex:1">
@@ -393,7 +412,8 @@
     width: 99%;
     margin-left: auto;
     margin-right: auto;
-    height: 470px;
+    /* height: 470px; */
+    height: 90%;
   }
 
   .subject-editor-container-lowres{
@@ -407,7 +427,7 @@
 
   .subject-editor-container-left{
     display: flex;
-    height: 468px;
+    height: 95%;
     position: relative;
     overflow-y: hidden;
   }
@@ -416,23 +436,19 @@
     /*font-size: 1em;*/
   }
 
-
-
   .subject-editor-container-left-lowres{
-
     font-size: 0.75em !important;
     height: 352px;
     max-height: 352px;
 
   }
 
-
-
   .subject-editor-container-right{
     flex:1;
     align-self: flex-start;
     padding: 2em;
-    height: 503px;
+    /* height: 503px; */
+    height: 100%;
     overflow-y: scroll;
     background: whitesmoke;
   }
@@ -455,7 +471,6 @@
 
 
   .color-holder{
-
     font-size: 1.5em;
     position: absolute;
     padding-top: 0.3em;
@@ -535,8 +550,6 @@
     font-weight: bold;
     color: green;
     font-size: larger;
-
-
   }
 
 
@@ -581,7 +594,7 @@
     padding: 0.1em;
     margin-left: 1em;
     cursor: pointer;
-    background-color: white;
+    background-color: transparent;
   }
 
   .type-item::before{
@@ -591,6 +604,7 @@
 
   .type-item-selected{
     background-color: #0080001f;
+    border: solid 3px;
   }
 
 .input-single-subject{
@@ -682,6 +696,40 @@ margin-top: 10px;
 	float: right;
 }
 
+.subject-section{
+  border-top: solid black;
+  border-bottom: solid-black;
+}
+
+.scrollable-subjects {
+  overflow-y: scroll;
+}
+
+.small-container{
+  height: 33%;
+}
+.medium-container{
+  height: 50%;
+}
+.large-container{
+  height: 90%;
+}
+
+/* document.documentElement.clientHeight */
+.scroll-all {
+  overflow-y: scroll;
+}
+
+.subject-container-outer{
+  /* height: v-bind('returnBrowserHeight()'); */
+  height: 100%;
+}
+
+.subject-variant {
+  color: #ffc107;
+  font-weight: bold;
+}
+
 /*
 .left-menu-list-item-has-data::before {
   content: "✓ " !important;
@@ -736,7 +784,7 @@ props: {
   isLiteral: Boolean,
   profileData: Object,
   searchType: String,
-
+  fromPaste: Boolean,
 },
 
 watch: {
@@ -790,6 +838,8 @@ data: function() {
 
     initialLoad: true, // when this load the first time
 
+    nextInputIsVoyagerModeDiacritics: false,
+
     activeTypes: {
       'madsrdf:Topic': {label:'Topic / Heading ($a $x)', value:'madsrdf:Topic',selected:false},
       'madsrdf:GenreForm': {label:'Genre ($v)', value:'madsrdf:GenreForm',selected:false},
@@ -803,15 +853,32 @@ data: function() {
 
 computed: {
 
+  ...mapStores(usePreferenceStore),
+  ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
+
 
 
 },
 methods: {
+  hasOverFlow: function(element){
+    let overflow = element.scrollHeight > element.clientHeight
+    return overflow
+  },
+  // Return the number of search results that are populated.
+  // Used to determine how tall to make each set of search results
+  numPopulatedResults: function(){
+    let count = 0
+    for (let key of Object.keys(this.searchResults)){
+      if (this.searchResults[key].length>=1){
+        count++
+      }
+    }
+    return count
+  },
 
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
     let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
-
     let components = false
     let subfields = false
     let marcKey = false
@@ -859,7 +926,7 @@ methods: {
           this.componetLookup[subjIdx] = {}
           let type = incomingSubjects[subjIdx]["@type"]
 
-          if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")){
             this.typeLookup[subjIdx] = 'madsrdf:Topic'
           }
           if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
@@ -898,14 +965,14 @@ methods: {
         this.componetLookup[0] = {}
         let type = incomingSubjects["@type"] ? incomingSubjects["@type"] : ""
 
-        if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic")){
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic") ){
             this.typeLookup[0] = 'madsrdf:Topic'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")){
             this.typeLookup[0] = 'madsrdf:GenreForm'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic" || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))){
-            this.typeLookup[0] = 'madsrdf:Geographic'
+          this.typeLookup[0] = 'madsrdf:Geographic'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
             this.typeLookup[0] = 'madsrdf:Temporal'
@@ -939,27 +1006,35 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
+    // searchString = searchString.replace("—", "--") // when copying a heading from class web
+
     let subjectStringSplit = searchString.split('--')
+
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
 
-    if (componentLookUpCount > 0){ //We are dealing with a hierarchical GEO and need to stitch some terms together
+    if (componentLookUpCount > 0){ //We might be dealing with something that needs to stitch some terms together
       if (componentLookUpCount < subjectStringSplit.length){
         let target = false
+        let targetType = null
+        let splitTarget = false
         for (let i in this.componetLookup){
           for (let j in this.componetLookup[i]) {
+            targetType = this.componetLookup[i][j].type
 
             if (this.componetLookup[i][j].label.includes("--")){
               target = this.componetLookup[i][j].label.replaceAll("--", "‑‑")
               targetIndex = i  // needs this to ensure the target will go into the search string in the right place
+              splitTarget = target.split('‑‑')
             }
 
             let matchIndx = []
-            if (target){
-              for (let i in subjectStringSplit){
-                if (target.includes(subjectStringSplit[i])){
-                  matchIndx.push(i)
-                }
+            if (target){  // && targetType == 'madsrdf:Geographic'
+                for (let i in subjectStringSplit){
+                  if (target == subjectStringSplit[i]){ matchIndx.push(i); break } // if there is an exact match, keep it and move on
+                  if (target.includes(subjectStringSplit[i])){  //&& subjectStringSplit[i].length > 3
+                    matchIndx.push(i)
+                  }
               }
 
               //remove them
@@ -981,7 +1056,27 @@ methods: {
 
     let activePosStart = 0
 
+    /**
+     * When a string in the middle of a heading changes, the typeLookup will get thrown off.
+     * Need a way to track this.
+     */
+    let diff = []
+    // if (subjectStringSplit.length < Object.keys(this.componetLookup).length){
+    //   diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes( Object.keys(this.componetLookup[x])[0]))
+    // }
+
+    let offset = 0
     for (let ss of subjectStringSplit){
+      if (subjectStringSplit.length < Object.keys(this.componetLookup).length){
+        diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes( Object.keys(this.componetLookup[x])[0]))
+      }
+
+      if(diff.length > 0){
+        if ( diff.includes(id.toString()) && id.toString() == diff.at(-1)){
+          offset = Object.keys(this.componetLookup).length - subjectStringSplit.length
+        }
+      }
+
       // check the lookup to see if we have the data for this label
       let uri = null
       let type = null
@@ -990,18 +1085,16 @@ methods: {
       let nonLatinLabel = null
       let nonLatinMarcKey = null
 
-
-      if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        literal = this.componetLookup[id][ss].literal
-        uri = this.componetLookup[id][ss].uri
-		marcKey = this.componetLookup[id][ss].marcKey
-        nonLatinLabel = this.componetLookup[id][ss].nonLatinTitle
-        nonLatinMarcKey = this.componetLookup[id][ss].nonLatinMarcKey
-
+      if (this.componetLookup[id+offset] && this.componetLookup[id+offset][ss]){
+        literal = this.componetLookup[id+offset][ss].literal
+        uri = this.componetLookup[id+offset][ss].uri
+        marcKey = this.componetLookup[id+offset][ss].marcKey
+        nonLatinLabel = this.componetLookup[id+offset][ss].nonLatinTitle
+        nonLatinMarcKey = this.componetLookup[id+offset][ss].nonLatinMarcKey
       }
 
-      if (this.typeLookup[id]){
-        type = this.typeLookup[id]
+      if (this.typeLookup[id+offset]){
+        type = this.typeLookup[id+offset]
       }
 
       this.components.push({
@@ -1121,7 +1214,6 @@ methods: {
      */
 
     if (mode == "GEO"){
-      this.typeLookup[this.activeComponentIndex] = 'madsrdf:Geographic'
       /**
        * When dealing with a switch to GEO, we need to combine the "loose" components
        * into 1 so the search will work.
@@ -1140,90 +1232,89 @@ methods: {
         }
       }
 
-	  //only stitch the loose components togethere if there are 2 next to each other
-	  if (indx.length == 2 && indx[1]-1 == indx[0]){
-		  /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		   *  !! the `not` hyphens are very important !!
-		   *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		   */
-		  // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
-		  this.activeComponentIndex = Number(indx[0])
+      //only stitch the loose components togethere if there are 2 next to each other
+      if (indx.length == 2 && indx[1]-1 == indx[0]){
+        /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         *  !! the `not` hyphens are very important !!
+         *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         */
+        // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
+        this.activeComponentIndex = Number(indx[0])
 
-		  //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
-		  this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
-		  //this.activeComponent = looseComponents[this.activeComponentIndex]
+        //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
+        this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
+        //this.activeComponent = looseComponents[this.activeComponentIndex]
 
-		  this.activeComponent.id = this.activeComponentIndex
+        this.activeComponent.id = this.activeComponentIndex
 
-		  //update the active component with the loose components
-		  for (let c in looseComponents){
-			if (c != 0){
-			  let part1 = ""
-				if (c == 1){
-				  part1 = looseComponents[0].label
-				} else {
-				  part1 = this.activeComponent.label
-				}
-			  const part2 = looseComponents[c].label
-			  this.activeComponent.label = part1 + "‑‑" + part2
-			  this.activeComponent.posEnd = looseComponents[c].posEnd
-			}
-		  }
-		  this.activeComponent.posStart = looseComponents[0].posStart
+        //update the active component with the loose components
+        for (let c in looseComponents){
+          if (c != 0){
+            let part1 = ""
+            if (c == 1){
+              part1 = looseComponents[0].label
+            } else {
+              part1 = this.activeComponent.label
+            }
+            const part2 = looseComponents[c].label
+            this.activeComponent.label = part1 + "‑‑" + part2
+            this.activeComponent.posEnd = looseComponents[c].posEnd
+          }
+        }
+        this.activeComponent.posStart = looseComponents[0].posStart
 
-		  // we need to make sure the order is maintained
-		  // use the component map to determine maintain order
-		  let final = []
-		  for (let el in componentMap){
-			let good = componentMap[el] != '-'
-			if (good){
-			  final.push(this.components[el].label)
-			} else {
-			  final.push(this.activeComponent.label)
-			}
-		  }
+        // we need to make sure the order is maintained
+        // use the component map to determine maintain order
+        let final = []
+        for (let el in componentMap){
+          let good = componentMap[el] != '-'
+          if (good){
+            final.push(this.components[el].label)
+          } else {
+            final.push(this.activeComponent.label)
+          }
+        }
 
-		  final = new Set(final)
-		  final = Array.from(final)
+        final = new Set(final)
+        final = Array.from(final)
 
-		  this.subjectString =  final.join("--")
+        this.subjectString =  final.join("--")
 
-		  //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
-		  this.components.splice(indx[0], indx.length, this.activeComponent)
+        //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
+        this.components.splice(indx[0], indx.length, this.activeComponent)
 
-		  // need to make sure postStart and posEnd are correct, and the id
-		  this.adjustStartEndPos(this.components)
-		  for (let x in this.components){
-			let prev = null
-			let current = this.components[x]
+        // need to make sure postStart and posEnd are correct, and the id
+        this.adjustStartEndPos(this.components)
+        for (let x in this.components){
+          let prev = null
+          let current = this.components[x]
 
-			if (x > 0){
-			  prev = this.components[x] - 1
-			} else if (x == 0) {
-			  current.posStart = 0
-			} else {
-			  current.posStart = prev.posEnd + 2
-			}
-			current.posEnd = current.posStart + current.label.length
+          if (x > 0){
+            prev = this.components[x] - 1
+          } else if (x == 0) {
+            current.posStart = 0
+          } else {
+            current.posStart = prev.posEnd + 2
+          }
+          current.posEnd = current.posStart + current.label.length
 
-			current.id = x
-		  }
+          current.id = x
+        }
 
-		  // get the boxes lined up correctly
-		  this.renderHintBoxes()
+        // get the boxes lined up correctly
+        this.renderHintBoxes()
 
-		  // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
-		  for (let i in this.components){
-			for (let j in this.componetLookup){
-			  const key = Object.keys(this.componetLookup[j])[0]
-			  if (this.components[i].label == key){
-				this.componetLookup[i] = this.componetLookup[j]
-			  }
-			}
-		  }
-	  }
+        // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
+        for (let i in this.components){
+          for (let j in this.componetLookup){
+            const key = Object.keys(this.componetLookup[j])[0]
+            if (this.components[i].label == key){
+            this.componetLookup[i] = this.componetLookup[j]
+            }
+          }
+        }
+      }
     } else {
-      this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
       // Above we took loose components and combined them,
       // here we undo that incase someone made a mistake and the geo
       // term has a subject in it that needs to be split out.
@@ -1414,6 +1505,10 @@ methods: {
       that.pickLookup[(that.searchResults.names.length - x)*-1] = that.searchResults.names[x]
     }
 
+    for (let x in that.searchResults.exact){
+      that.pickLookup[(that.searchResults.names.length - x)*-1-2] = that.searchResults.exact[x]
+    }
+
     for (let k in that.pickLookup){
       that.pickLookup[k].picked = false
       if (searchString.toLowerCase() == that.pickLookup[k].label.toLowerCase() && !that.pickLookup[k].literal ){
@@ -1521,6 +1616,27 @@ methods: {
         this.subjectStringChanged(event)
       }
     }
+    // text macros
+    let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
+    if (useTextMacros && useTextMacros.length>0){
+      for (let m of useTextMacros){
+        if (event.target.value.indexOf(m.lookFor) > -1){
+          event.target.value = event.target.value.replace(m.lookFor,m.replaceWith)
+          // manually change the v-model var and force a update
+          this.$nextTick(() => {
+              this.subjectString = event.target.value
+              this.subjectStringChanged()
+              this.navString({key:'ArrowRight'})
+          })
+
+
+
+
+        }
+      }
+    }
+
+
   },
 
   getContext: async function(){
@@ -1576,22 +1692,176 @@ methods: {
     if (collections){
       let out = []
       if (collections.includes("LCSHAuthorizedHeadings") || collections.includes("NamesAuthorizedHeadings")){
-        out.push("Auth Hd")
+        out.push("(Auth Hd)")
       } else if (collections.includes("GenreFormSubdivisions")){
-        out.push("GnFrm")
+        out.push("(GnFrm)")
       } else if (collections.includes("GeographicSubdivisions")){
-        out.push("GeoSubDiv")
-      } else if (collections.includes("Subdivisions")){
-        out.push("SubDiv")
+        out.push("(GeoSubDiv)")
       } else if (collections.includes("LCSH_Childrens")){
-          out.push("ChldSubj")
+          out.push("(ChldSubj)")
+      } else if (collections.includes("Subdivisions")){
+        out.push("(SubDiv)")
       }
 
-      return out.join(", ")
+      // favor SubDiv over GnFrm
+      if (out.includes("(GnFrm)") && collections.includes("Subdivisions")){
+        out = ["(SubDiv)"]
+      }
+
+      // if (collections.includes("LCNAF")){
+      //     out.push("[LCNAF]")
+      // }
+
+      return out.join(" ")
     } else {
       return ""
     }
   },
+
+  runMacroExpressMacro(event){
+    for (let macro of this.diacriticUseValues){
+          if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
+            // console.log("run this macro", macro)
+            let insertAt = event.target.value.length
+
+            if (event.target && event.target.selectionStart){
+              insertAt=event.target.selectionStart
+            }
+            let inputV
+            if (event.target){
+              inputV = event.target
+            }else{
+              console.warn("ERROR: Field not found")
+              return false
+            }
+            if (!macro.combining){
+              // there is behavior where if it is a digit shortcut the numerial is still sent
+              // so if thats the case remove the last digit from the value
+              if (event.code.includes('Digit')){
+                // if it is in fact a digit char then remove it
+                if (inputV.value.charAt(insertAt) == event.code.replace('Digit','')){
+                  // remove the last char
+                  // inputV.value = inputV.value.slice(0, -1);
+                  inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                  // this.searchValueLocal = inputV.value
+
+                  // this.subjectString = inputV.value
+                  // this.doSearch()
+
+                }
+              }
+              // same for euqal key
+              if (event.code == 'Equal'){
+                if (inputV.value.charAt(inputV.value.length-1) == '='){
+                  // remove the last char
+                  // inputV.value = inputV.value.slice(0, -1);
+                  inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                  // this.searchValueLocal = inputV.value
+
+                  // this.subjectString = inputV.value
+                  // this.doSearch()
+                }
+              }
+              // same for Backquote key
+
+              if (event.code == 'Backquote'){
+                if (inputV.value.charAt(inputV.value.length-1) == '`'){
+                  // remove the last char
+                  // inputV.value = inputV.value.slice(0, -1);
+                  inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                  // this.searchValueLocal = inputV.value
+
+                  // this.subjectString = inputV.value
+                  // this.doSearch()
+                }
+              }
+              // it is not a combining unicode char so just insert it into the value
+              if (inputV.value){
+                // inputV.value=inputV.value+macro.codeEscape
+                inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
+                // this.searchValueLocal = inputV.value
+
+                // this.subjectString = inputV.value
+                if (insertAt){
+                  this.$nextTick(()=>{
+                    inputV.setSelectionRange(insertAt+1,insertAt+1)
+                    this.$nextTick(()=>{
+                      inputV.focus()
+                      // this.doSearch()
+                    })
+                  })
+                }else{
+                    this.$nextTick(()=>{
+                      inputV.focus()
+                    })
+                }
+              }else{
+                inputV.value = macro.codeEscape
+                // this.searchValueLocal = inputV.value
+
+                // this.subjectString = inputV.value
+              }
+
+
+            }else{
+
+
+              // same for Backquote key
+
+              if (event.code == 'Backquote'){
+
+                if (inputV.value.charAt(inputV.value.length-1) == '`'){
+                  // remove the last char
+                  inputV.value = inputV.value.slice(0, -1);
+                  // this.searchValueLocal = inputV.value
+                  // this.subjectString = inputV.value
+                  // this.doSearch()
+                }
+
+                }
+
+
+                // little cheap hack here, on macos the Alt+9 makes ª digits 1-0 do this with Alt+## but we only
+                // have one short cut that uses Alt+9 so just remove that char for now
+                inputV.value=inputV.value.replace('ª','')
+
+                inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
+                // inputV.value=inputV.value+macro.codeEscape
+
+                inputV.setSelectionRange(insertAt+1,insertAt+1)
+                inputV.focus()
+
+
+                if (insertAt){
+                this.$nextTick(()=>{
+                  inputV.setSelectionRange(insertAt+1,insertAt+1)
+                  // this.searchValueLocal = inputV.value
+                  // this.subjectString = inputV.value
+                  this.$nextTick(()=>{
+                    inputV.focus()
+                  })
+
+                })
+                }else{
+
+                  this.$nextTick(()=>{
+                    inputV.focus()
+                  })
+
+                }
+            }
+
+            event.preventDefault()
+            event.stopPropagation()
+            return false
+          }
+        }
+
+
+
+  },
+
+
 
   loadContext: async function(pickPostion){
     if (this.pickCurrent == null) {
@@ -1626,8 +1896,8 @@ methods: {
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
       this.getContext()
+      //Science—Experiments
     }
-
     if (this.pickLookup[this.pickPostion].complex){
       // if it is a complex authorized heading then just replace the whole things with it
       this.subjectString = this.pickLookup[this.pickPostion].label
@@ -1657,12 +1927,10 @@ methods: {
 
     }else{
       // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
-
       // take the subject string and split
       let splitString = this.subjectString.split('--')
 
       // replace the string with what we selected
-
       splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
 
       this.subjectString = splitString.join('--')
@@ -1672,7 +1940,7 @@ methods: {
         this.componetLookup[this.activeComponentIndex]= {}
       }
 
-	  let _ = await this.getContext() //ensure the pickLookup has the marcKey
+      let _ = await this.getContext() //ensure the pickLookup has the marcKey
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-','‑')] = this.pickLookup[this.pickPostion]
 
       for (let k in this.pickLookup){
@@ -1681,14 +1949,20 @@ methods: {
 
       this.pickLookup[this.pickPostion].picked=true
 
+      try {
+        let marcKey = this.pickLookup[this.pickPostion].marcKey
+        let type = marcKey.match(/\$[axyzv]{1}/g)
+        type = this.getTypeFromSubfield(type[0])
+        this.setTypeClick(null, type)
+      } catch(err) {
+        console.error("Error getting the type. ", err)
+      }
 
       // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
       //Need something to prevent recursion
       if (update == true){
         this.subjectStringChanged()
       }
-
-
     }
 
 
@@ -1727,8 +2001,6 @@ methods: {
         return
       }
 
-
-
       this.selectContext()
 
     }else if (event.ctrlKey && event.key == "1"){
@@ -1750,7 +2022,7 @@ methods: {
         // if the last component has a URI then it was just selected
         // so we are not in the middle of a indirect heading, we are about to type it
         // so let them put in normal --
-        if (lastC.uri){
+        if (lastC.uri && this.activeComponentIndex == this.components.length-1){
           return true
         }
 
@@ -1761,7 +2033,6 @@ methods: {
 
       }
 
-
       let start = event.target.selectionStart
       let end = event.target.selectionEnd
       // console.log(this.subjectString.substring(0,start),'|',this.subjectString.substring(end,this.subjectString.length))
@@ -1769,18 +2040,129 @@ methods: {
       this.subjectString = this.subjectString.substring(0,start) + '‑' + this.subjectString.substring(end,this.subjectString.length)
       this.subjectString=this.subjectString.trim()
 
-
       this.$nextTick(() => {
           // console.log(start,end)
-          event.target.setSelectionRange(start+1,end+1)
+          if (end-start > 0){
+            event.target.setSelectionRange(start+1,start+1)
+          } else {
+            event.target.setSelectionRange(start+1,end+1)
+          }
 
       })
 
-      this.subjectStringChanged()
+      this.subjectStringChanged(event)
 
       event.preventDefault()
       return false
 
+    }else{
+      // they might be trying to insert a diacritic here
+
+        // This mode is they press Crtl+e to enter diacritic macro mode, so they did that on the last kedown and now we need to act on the next keystroke and interpret it as a macro code
+        if (this.nextInputIsVoyagerModeDiacritics){
+            // they are pressing shift in about to press antoher macro shrotcut
+            if (event.key == 'Shift'){
+              return false
+            }
+
+            if (this.diacriticPacks.voyager[event.code]){
+              let useMacro
+              for (let macro of this.diacriticPacks.voyager[event.code]){
+                if (macro.shiftKey == event.shiftKey){
+                  useMacro = macro
+                  break
+                }
+              }
+
+              let inputV = event.target
+              let insertAt = event.target.value.length
+              if (event.target && event.target.selectionStart){
+                insertAt=event.target.selectionStart
+              }
+
+              if (!useMacro.combining){
+              // it is not a combining unicode char so just insert it into the value
+                if (inputV.value){
+                  // inputV.value=inputV.value+useMacro.codeEscape
+                  inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+                }else{
+                  inputV.value = useMacro.codeEscape
+                }
+                // this.searchValueLocal = inputV.value
+
+              }else{
+                    // inputV.value=inputV.value+useMacro.codeEscape
+                    inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+                    // this.searchValueLocal = inputV.value
+
+              }
+
+              if (insertAt){
+                this.$nextTick(()=>{
+                  inputV.setSelectionRange(insertAt+1,insertAt+1)
+                  // this.searchValueLocal = inputV.value
+
+                  this.$nextTick(()=>{
+                    inputV.focus()
+                  })
+
+                })
+              }else{
+                this.$nextTick(()=>{
+                  inputV.focus()
+                })
+              }
+
+              // manually change the v-model var and force a update
+              this.$nextTick(() => {
+                  this.subjectString = inputV.value
+                  this.subjectStringChanged()
+                  this.navString({key:'ArrowRight'})
+              })
+
+
+            }
+            // turn off mode
+            this.nextInputIsVoyagerModeDiacritics  =false
+            event.target.style.removeProperty('background-color')
+            event.preventDefault()
+            return false
+        }
+        // all macros use the ctrl key
+        if (event.ctrlKey == true){
+          if (this.diacriticUse.length>0){
+            for (let macro of this.diacriticUseValues){
+              if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
+                // console.log("run this macro", macro)
+                event.preventDefault()
+                this.runMacroExpressMacro(event)
+
+                // manually change the v-model var and force a update
+                this.$nextTick(() => {
+                  this.subjectString = event.target.value
+                  this.subjectStringChanged()
+                  this.navString({key:'ArrowRight'})
+                })
+                //
+
+                return false
+
+              }
+            }
+          }
+
+         // they are entering into voyager diacritic mode
+          if (event.code == 'KeyE'){
+            if (!this.preferenceStore.returnValue('--b-diacritics-disable-voyager-mode')){
+              event.target.style.backgroundColor="chartreuse"
+              this.nextInputIsVoyagerModeDiacritics = true
+              event.preventDefault()
+              return false
+            }
+
+          }
+          //
+        }
     }
 
 
@@ -1875,13 +2257,15 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    console.info("subjectStringChanged: ", event)
+    this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
     if (this.initialLoad == true) {
-      let pieces = this.$refs.subjectInput.value.split("--")
+      let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
       let lastPiece = pieces.at(-1)
-      this.searchApis(lastPiece, this.$refs.subjectInput.value, this)
+      this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
       this.initialLoad = false
     }
 
@@ -1944,10 +2328,14 @@ methods: {
 
     // if they are typing in the heading select it as we go
     if (event){
+
       for (let c of this.components){
         if (event.target.selectionStart >= c.posStart && event.target.selectionStart <= c.posEnd+1){
           this.activeComponent = c
           this.activeComponentIndex = c.id
+
+          console.info("active: ", this.activeComponent)
+
           // it is not empty
           // it dose not end with "-" so it the '--' typing doesn't trigger
           if (c.label.trim() != '' && !c.label.endsWith('-')){
@@ -1996,24 +2384,26 @@ methods: {
         for (let x of this.components){
           if (this.localContextCache[x.uri]){
 
-
-            if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
-              x.type = 'madsrdf:Geographic'
-            }
-
-
-            if (this.localContextCache[x.uri].type === 'GenreForm'){
-              x.type = 'madsrdf:GenreForm'
-            } else if (this.localContextCache[x.uri].type === 'Temporal'){
-              x.type = 'madsrdf:Temporal'
-            } else if (this.localContextCache[x.uri].type === 'Geographic'){
-              x.type = 'madsrdf:Geographic'
-            } else if (this.localContextCache[x.uri].type === 'Topic'){
-              x.type = 'madsrdf:Topic'
+            if (this.activeComponent.type){
+              // don't do anything
             } else {
-                x.type = 'madsrdf:Topic'
-            }
+              if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
+                x.type = 'madsrdf:Geographic'
+              }
 
+
+              if (this.localContextCache[x.uri].type === 'GenreForm'){
+                x.type = 'madsrdf:GenreForm'
+              } else if (this.localContextCache[x.uri].type === 'Temporal'){
+                x.type = 'madsrdf:Temporal'
+              } else if (this.localContextCache[x.uri].type === 'Geographic'){
+                x.type = 'madsrdf:Geographic'
+              } else if (this.localContextCache[x.uri].type === 'Topic'){
+                x.type = 'madsrdf:Topic'
+              } else {
+                x.type = 'madsrdf:Topic'
+              }
+            }
           }
 
         }
@@ -2131,6 +2521,29 @@ methods: {
 
   },
 
+  getTypeFromSubfield: function(subfield){
+    switch(subfield){
+    case("$a"):
+      subfield = "madsrdf:Topic"
+      break
+    case("$x"):
+      subfield = "madsrdf:Topic"
+      break
+    case("$v"):
+      subfield = "madsrdf:GenreForm"
+      break
+    case("$y"):
+      subfield = "madsrdf:Temporal"
+      break
+    case("$z"):
+      subfield = "madsrdf:Geographic"
+      break
+    default:
+      subfield = false
+    }
+
+    return subfield
+  },
 
   add: async function(){
     //remove any existing thesaurus label, so it has the most current
@@ -2145,7 +2558,10 @@ methods: {
       // if so over write the user defined type with the full type from the authority file so that
       // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
       if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]){
-        c.type = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
+        let tempType = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
+        if (!Object.keys(this.activeTypes).includes(tempType)){
+          c.type = tempType
+        }
       }
     }
 
@@ -2168,24 +2584,28 @@ methods: {
 		  // we need to check the types of each element to make sure they really are the same terms
 		  let targetContext = await utilsNetwork.returnContext(target.uri)
 
-          //TODO: look up the URIs for the split up complex term
-		  let marcKey = targetContext.marcKey[0]["@value"].slice(5)
+		  let marcKey = ""
+      if (Array.isArray(targetContext.marcKey) && typeof targetContext.marcKey[0] == 'string'){
+        marcKey = targetContext.marcKey[0]
+      } else if (targetContext.marcKey){
+        marcKey = targetContext.marcKey[0]["@value"]
+      }
 
-		  if (marcKey == componentTypes){
-			//the entire built subject can be replaced by 1 term
-			match = true
-			this.components.push({
-			  "complex": target.complex,
-			  "id": 0,
-			  "label": target.label,
-			  "literal": false,
-			  "posEnd": target.label.length,
-			  "posStart": 0,
-			  "type": "madsrdf:Topic",
-			  "uri": target.uri,
-              "marcKey": targetContext.marcKey[0]["@value"]
-			})
-		  }
+		  if (marcKey.slice(5) == componentTypes){
+        //the entire built subject can be replaced by 1 term
+        match = true
+        this.components.push({
+          "complex": target.complex,
+          "id": 0,
+          "label": target.label,
+          "literal": false,
+          "posEnd": target.label.length,
+          "posStart": 0,
+          "type": "madsrdf:Topic",
+          "uri": target.uri,
+          "marcKey": marcKey
+        })
+        }
       }
     }
 
@@ -2203,12 +2623,14 @@ methods: {
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
 			const target = frozenComponents[component]
-
-            if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || target.uri.includes("childrensSubjects/sj")) && target.complex){
+      if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || (target.uri && target.uri.includes("childrensSubjects/sj"))) && target.complex){
         let uri = target.uri
         let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
-        data = await this.parseComplexSubject(uri)
-
+        if (uri){
+          data = await this.parseComplexSubject(uri)
+        } else {
+          data = target
+        }
 				let subs
 				subs = target.marcKey.slice(5)
 			    // subfields = subfields.match(/\$./g)
@@ -2227,25 +2649,7 @@ methods: {
 					  subfield = subfield[idx]
 				  }
 
-				  switch(subfield){
-					case("$a"):
-					  subfield = "madsrdf:Topic"
-					  break
-					case("$x"):
-					  subfield = "madsrdf:Topic"
-					  break
-					case("$v"):
-					  subfield = "madsrdf:GenreForm"
-					  break
-					case("$y"):
-					  subfield = "madsrdf:Temporal"
-					  break
-					case("$z"):
-					  subfield = "madsrdf:Geographic"
-					  break
-					default:
-					  subfield = false
-				  }
+				subfield = this.getTypeFromSubfield(subfield)
 
 				  // Override the subfield of the first element based on the marc tag
 				  let tag = target.marcKey.slice(0,3)
@@ -2298,10 +2702,10 @@ methods: {
 					"posEnd": labels[idx].length,
 					"posStart": 0,
 					"type": subfield,
-					"uri": data && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
+					"uri": data && data["components"] && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
 					"marcKey": marcKey,
-                    "fromComplex": true,
-                    "complexMarcKey": target.marcKey
+          "fromComplex": true,
+          "complexMarcKey": target.marcKey
 				  }))
 				  id++
 				  prevItems++
@@ -2343,8 +2747,8 @@ methods: {
   },
 
   cleanState: function(){
-	this.searchMode = "LCSHNAF"
-	this.components= []
+    this.searchMode = "LCSHNAF"
+    this.components= []
     this.lookup= {}
     this.searchResults= null
     this.activeSearch= false
@@ -2599,6 +3003,8 @@ updated: function() {
   // preselect the search type, if a children's subject
   if (this.searchType.includes("Childrens")){
     this.searchMode = "CHILD"
+  } else {
+    this.searchMode = "LCSHNAF"
   }
   // this was opened from an existing subject
   let profileData = this.profileData
@@ -2622,11 +3028,14 @@ updated: function() {
     }
   }
 
+  let searchValue = this.searchValue
+  searchValue = searchValue.replace("—", "--")
+
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
-  if (this.searchValue && this.components.length != this.searchValue.split("--") && !this.searchValue.endsWith('-')){
+  if (searchValue && this.components.length != searchValue.split("--").length && !searchValue.endsWith('-')){
     this.buildLookupComponents(incomingSubjects)
-    this.buildComponents(this.searchValue)
+    this.buildComponents(searchValue)
 
     this.initialLoad = false
     this.subjectStringChanged()
@@ -2636,7 +3045,7 @@ updated: function() {
 
   // this supports loading existing information into the forms
   if (this.authorityLookup != null) {
-    this.authorityLookupLocal = this.authorityLookup
+    this.authorityLookupLocal = this.authorityLookup.replace("—", "--")
     this.subjectInput = this.authorityLookupLocal
     this.linkModeString = this.authorityLookupLocal
     try {
@@ -2670,8 +3079,10 @@ updated: function() {
                   } else {
                     idx = pos
                   }
-                  this.selectContext(idx, false)
-                  this.validateOkayToAdd()
+                  if (!this.fromPaste){
+                    this.selectContext(idx, false)
+                    this.validateOkayToAdd()
+                  }
                 } catch(err) {
                   console.error(err)
                 }

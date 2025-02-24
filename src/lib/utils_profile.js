@@ -320,15 +320,15 @@ const utilsProfile = {
                     console.warn("It looks like ", JSON.stringify(pointerParent[parentP][0]['@type'],null,2))
                     console.warn("Should not have the type ",pointerParent[parentP][0]['@type'])
                     console.warn("But instead it should have", possibleParentType)
-                    console.warn("-------------------------")  
+                    console.warn("-------------------------")
                   }
                 }
               }
-              
+
             }
           }
 
-      
+
 
 
         }else{
@@ -351,10 +351,10 @@ const utilsProfile = {
   * @return {array} - will return the value array at the end of the property path if it exists
   */
   returnValueFromPropertyPath: function(pt,propertyPath){
-        
+
       // this needs to include a check for "supplementaryContent", so the note will populate in the form
       let isLocator = propertyPath.some((pp) => pp.propertyURI.includes("electronicLocator") || pp.propertyURI.includes("supplementaryContent") )
-            
+
       let deepestLevel
       if (propertyPath[propertyPath.length-1]){
         deepestLevel = propertyPath[propertyPath.length-1].level
@@ -363,9 +363,9 @@ const utilsProfile = {
       }
 
       let pointer = pt.userValue
-      
+
       // The note in the supplementaryContent is not in the propertyPath
-      //    
+      //
       for (let p of propertyPath){
         // the property path has two parts
         // {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/title'}
@@ -395,12 +395,12 @@ const utilsProfile = {
             return false
         }
       }
-      
-      if (isLocator){ 
+
+      if (isLocator){
         // deleting this avoids the creation of a "rdf:Resource" tag for "URL of Instance"
         delete pointer[0]["@type"]
       }
-      
+
       return pointer
 
 
@@ -692,12 +692,16 @@ const utilsProfile = {
                     }
                 }
                 let itemCountLabel = String(itemCount).padStart(4, '0');
-                newURI = newURI + '-' + itemCountLabel
+                //if there is only 1 item, it should match the instance URI
+                if (itemCount == 1){
+                  newURI = newURI
+                } else {
+                  newURI = newURI + '-' + itemCountLabel
+                }
                 return newURI
             }
         }
     }
-
 
     if (type === 'bf:Instance'){
         let instanceURIbasedOnWork = URI.replace('/works/','/instances/')
@@ -733,11 +737,11 @@ const utilsProfile = {
                 }
             }
         }
-        
+
         return false
   },
 
-  
+
 
   /**
   * This will select the best possbile script to use based on the ones avaiable to use
@@ -745,7 +749,7 @@ const utilsProfile = {
   *
   * @param {string} scriptWanted - requested script
   * @param {array} scriptOptions - array of script strings
-  * @return {object} - the profile
+  * @return {string} - the sript code to use
   */
 
   pickBestNonLatinScriptOption: function(scriptWanted, scriptOptions){
@@ -795,7 +799,7 @@ const utilsProfile = {
   * @return {string} - the AAP
   */
   returnAap: function(contributor,title){
-    if (!contributor || !title){
+    if (contributor == null || !title || typeof(contributor) == 'undefined'){
         return false
     }
 

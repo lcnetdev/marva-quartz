@@ -4,7 +4,13 @@
 
     <template v-if="inlineModeShouldDisplay">
 
-      <template v-if="complexLookupValues.length===0">
+
+      <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
+      <input class="input-inline-mode can-select" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" />
+
+
+
+      <!-- <template v-if="complexLookupValues.length===0">
 
           <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
           <input class="input-inline-mode can-select" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" />
@@ -24,30 +30,14 @@
             <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class=""><span class="material-icons check-mark inline-mode-validation-icon">check_circle_outline</span></span></span>
           </a>
 
-<!--           <div class="selected-value-container-auth">
-            <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type" :type="avl.type"/>
-          </div>
-          <div class="selected-value-container-title">
 
-            <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
-            <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
-          </div>
-          <div class="selected-value-container-action">
-            <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
-          </div> -->
         <a href="#" @click="removeValue(idx)" style="padding: 0 0 0 2.5px; text-decoration: none; font-size: 1em; cursor: pointer; color: gray;">x</a>
 
         </template>
         <input class="input-inline-mode can-select" style="width: 20px;" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" :data-guid="structure['@guid']" @input="textInputEvent($event)" :disabled="readOnly" />
 
-<!--
-        <template v-for="lValue in literalValues">
-          <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-          <span contenteditable="true" class="inline-mode-editable-span" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}</span>
-        </template>
- -->
 
-      </template>
+      </template> -->
 
 
     </template>
@@ -101,7 +91,9 @@
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
 
+
               <div v-for="(avl,idx) in complexLookupValues" class="selected-value-container">
+
                 <div class="selected-value-container-auth">
                   <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')"  :type="avl.type"/>
                 </div>
@@ -137,7 +129,7 @@
 
           <Transition name="action">
             <div class="lookup-action" v-if="showActionButton && myGuid == activeField">
-              <action-button :type="'lookupComplex'" :id="`action-button-${structure['@guid']}`" :structure="structure" :guid="guid" @action-button-command="actionButtonCommand" />
+              <action-button :type="'lookupComplex'" :id="`action-button-${structure['@guid']}`" :structure="structure" :guid="guid" :propertyPath="propertyPath" @action-button-command="actionButtonCommand" />
             </div>
           </Transition>
 
@@ -179,7 +171,7 @@
 
   </template>
   <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal" :searchType="searchType" />
-  <SubjectEditor ref="subjectEditorModal" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" />
+  <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" />
 
 </template>
 
@@ -248,6 +240,7 @@ export default {
 
       displayModal: false,
       displaySubjectModal: false,
+      fromPaste: false,
 
       showActionButton: false,
 
@@ -264,42 +257,6 @@ export default {
 
       searchType: "", // the type of search this is
 
-
-      // lookups: this.structure.valueConstraint.useValuesFrom,
-      // lookupConfig: config.lookupConfig,
-      // modeSelect: null,
-      // searchValue: "",
-      // searchTimeout: null,
-      // selectLastIndex: null,
-      // initalSearchState: true,
-      // selectNavTimeout: null,
-      // componentKey: 0,
-      // displaySelectedDetails: false,
-      // doubleDelete: false,
-      // precoordinated: [],
-      // displayPreCoordinated: false,
-
-      // displayLabel: null,
-      // displayLabelDreferenced: null,
-      // displayType: null,
-      // displayGuid: null,
-      // displayContext: {},
-
-      // editLabelDereferenceKey: Date.now(),
-
-      // contextRequestInProgress: false,
-      // validated: false,
-      // validationMessage: "",
-
-      // lowResMode:false,
-
-      // displayMini: false,
-
-      // allowHubCreation: false,
-
-      // userData: {},
-
-      // internalAssignID: false,
 
 
     }
@@ -362,8 +319,45 @@ export default {
 
       return false
 
-    }
+    },
 
+    cammBehaviorDisplayEntities(){
+
+      console.log('structure',this.structure)
+
+      if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
+        return 'text'
+      }
+      if (this.structure.propertyURI == "http://id.loc.gov/ontologies/bibframe/contribution"){
+        return 'text'
+      }
+      if (this.structure.propertyURI == "http://www.w3.org/2002/07/owl#sameAs"){
+        return 'text'
+      }
+
+
+
+
+      if (this.structure.propertyURI == "http://id.loc.gov/ontologies/bibframe/relation"){
+        return 'entity'
+      }
+
+      return 'entity'
+    },
+
+
+
+
+  },
+  mounted: async function(){
+    if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
+      if (this.cammBehaviorDisplayEntities == 'text'){
+        if (this.complexLookupValues.length>0){
+          console.log("complexLookupValuescomplexLookupValuescomplexLookupValues",this.complexLookupValues)
+          this.searchValue = await this.profileStore.returnCammComplexLabel(this.guid, this.complexLookupValues[0])
+        }
+      }
+    }
 
   },
 
@@ -379,88 +373,6 @@ export default {
 
 
   },
-  // computed:  mapState({
-
-  //   lookupLibrary: 'lookupLibrary',
-  //   activeInput: 'activeInput',
-  //   activeProfile: 'activeProfile',
-  //   activeProfileMini: 'activeProfileMini',
-  //   workingOnMiniProfile: 'workingOnMiniProfile',
-  //   settingsDisplayMode: 'settingsDisplayMode',
-
-  //   activeProfileName: 'activeProfileName',
-  //   activeComplexSearch: 'activeComplexSearch',
-  //   activeComplexSearchInProgress: 'activeComplexSearchInProgress',
-  //   settingsLookupsUseTextSubjectEditor:'settingsLookupsUseTextSubjectEditor',
-  //   contextData: 'contextData',
-
-  //   undoCounter: 'undoCounter',
-
-  //   assignedId (){
-  //     if (this.internalAssignID){
-  //       return this.internalAssignID
-  //     }else{
-  //       this.internalAssignID = uiUtils.assignID(this.structure,this.parentStructure,config)
-  //       return this.internalAssignID
-  //     }
-  //     // return uiUtils.assignID(this.structure,this.parentStructure,config)
-  //   },
-
-  //   modalSelectOptions(){
-
-  //     let options = []
-
-
-  //     // add in the the defaul search ALL of everything possible
-  //     //options.push({label: 'All', urls:null, processor:null})
-  //     this.structure.valueConstraint.useValuesFrom.forEach((l)=>{
-  //       if (this.lookupConfig[l]){
-  //         this.lookupConfig[l].modes.forEach((mode)=>{
-
-  //           Object.keys(mode).forEach((k)=>{
-  //             options.push({label: k, urls:mode[k].url, processor:this.lookupConfig[l].processor, minCharBeforeSearch: (this.lookupConfig[l].minCharBeforeSearch ? this.lookupConfig[l].minCharBeforeSearch : false), all:mode[k].all })
-  //             // mark the first All one we find as the first one
-  //             if (!this.modeSelect && mode[k].all){
-  //               this.modeSelect = k
-  //             }
-
-  //           })
-  //         })
-  //       }
-  //     })
-
-  //     return options
-  //   },
-
-  //   modalSelectOptionsLabels(){
-  //     return this.modalSelectOptions.map((o)=>{return o.label})
-  //   },
-
-
-
-
-
-  //   // to access local state with `this`, a normal function must be used
-  //   lookupVocab (state) {
-  //     // let uri = this.structure.valueConstraint.useValuesFrom[0]
-
-  //     // let returnVal = []
-  //     // Object.keys(state.lookupLibrary).forEach((s)=>{
-  //     //
-  //     // })
-  //     //
-  //     // if (state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]){
-  //     //
-  //     //   return state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]
-  //     // }else{
-  //     //   return []
-  //     // }
-
-  //     return state.lookupLibrary[this.structure.valueConstraint.useValuesFrom[0]]
-
-
-  //   }
-  // }),
 
 
   methods:{
@@ -494,16 +406,6 @@ export default {
 
     },
 
-
-    // showComplexModal: function(){
-    //   console.log(configStore.useSubjectEditor)
-    //   if (configStore.useSubjectEditor.contains(this.structure.propertyURI)){
-    //     this.displaySubjectModal=true
-    //   }else{
-    //     this.displayModal=true
-    //   }
-
-    // },
 
     actionButtonCommand: function(cmd){
       this.$refs.lookupInput.focus()
@@ -545,23 +447,6 @@ export default {
     },
 
 
-    // /**
-    // * emited from the modal to set the value
-    // * @return {object} profile
-    // */
-    // setComplexSubjectValue: function(contextValue){
-    //   delete contextValue.typeFull
-    //   this.profileStore.setComplexSubjectValue(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
-    //   this.searchValue=''
-    //   this.displaySubjectModal=false
-
-    //   this.$nextTick(() => {
-    //     window.setTimeout(()=>{
-    //       this.$refs.lookupInput.focus()
-    //     },10)
-    //   })
-    // },
-
 
 
     removeValue: function(){
@@ -581,20 +466,6 @@ export default {
       }
 
       if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
-        // this.displaySubjectModal=true
-        // this.$nextTick(() => {
-        //   this.$refs.subjectEditorModal.focusInput()
-        // })
-
-        // check if it is a string with a lcsh delimiters in it if so skip the modal and just process the heading now
-
-
-
-
-
-
-
-
 
           if (this.searchValue.match(/[$‡|]/)){
 
@@ -606,8 +477,14 @@ export default {
 
               this.marcDeliminatedLCSHMode = true
 
+              //Get the type of search
+              try{
+                let selection = document.getElementById(this.guid+"-select")
+                let selected = selection.options[selection.selectedIndex].value
+                this.searchType = selected
+              } catch {}
 
-              this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue)
+              this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue, this.searchType)
               this.marcDeliminatedLCSHModeSearching = false
               let sendResults = []
               if (this.marcDeliminatedLCSHModeResults.resultType != 'ERROR'){
@@ -640,8 +517,6 @@ export default {
                   }
                 }
 
-
-
                 // console.log(this.marcDeliminatedLCSHModeResults)
                 this.subjectAdded(sendResults)
                 // console.log(sendResults)
@@ -659,23 +534,26 @@ export default {
 
 
           }else{
-			// we're opening the subject builder, turn this off
-			this.marcDeliminatedLCSHMode = false
-			this.marcDeliminatedLCSHModeSearching = false
-			this.marcDeliminatedLCSHModeTimeout = null
-			this.marcDeliminatedLCSHModeResults = []
+            // we're opening the subject builder, turn this off
+            this.marcDeliminatedLCSHMode = false
+            this.marcDeliminatedLCSHModeSearching = false
+            this.marcDeliminatedLCSHModeTimeout = null
+            this.marcDeliminatedLCSHModeResults = []
 
-			this.authorityLookup = this.searchValue.trim()
-			this.searchValue = this.searchValue.trim()
-            let selection = document.getElementById(this.guid)
-            let selected = selection.options[selection.selectedIndex].value
-            this.searchType = selected
+            this.authorityLookup = this.searchValue.trim()
+            this.searchValue = this.searchValue.trim()
+
+            try{
+              let selection = document.getElementById(this.guid+"-select")
+              let selected = selection.options[selection.selectedIndex].value
+              this.searchType = selected
+            } catch {}
+
+            this.fromPaste = event.inputType == 'insertFromPaste' ? true : false
             this.displaySubjectModal=true
             this.$nextTick(() => {
               this.$refs.subjectEditorModal.focusInput()
             })
-
-
           }
 
 
@@ -707,33 +585,19 @@ export default {
     subjectAdded: function(components){
       this.profileStore.setValueSubject(this.guid,components,this.propertyPath)
       this.hideSubjectModal()
-      // this.profileStore.setComplexSubjectValue(this.guid,null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull)
 
-
-      // this.$store.dispatch("setValueSubject", { self: this, profileComponet: this.profileCompoent, subjectComponents: components, propertyPath: this.propertyPath }).then(() => {
-      //   this.componentKey++
-      //   this.displayModal = false
-      //   this.checkForUserData()
-      //   this.$emit('updated', null)
-
-      //   this.validated = false
-      //   this.validateHeading()
-
-      //   // put the focus back on the input
-      //   setTimeout(()=>{
-      //       document.getElementById(this.assignedId).focus()
-      //         this.$store.dispatch("enableMacroNav", { self: this})
-
-      //   },0)
-
-      //   this.$store.dispatch("setSubjectList")
-
-      // })
 
     },
 
     // Open the authority `panel` for an given authority
     openAuthority: function() {
+      //Get the type of search
+      try{
+        let selection = document.getElementById(this.guid+"-select")
+        let selected = selection.options[selection.selectedIndex].value
+        this.searchType = selected
+      } catch {}
+
       let label = this.$refs.el[0].innerHTML
       this.profileData = this.profileStore.returnStructureByGUID(this.guid)
 
@@ -757,9 +621,13 @@ export default {
         this.marcDeliminatedLCSHModeTimeout = null
         this.marcDeliminatedLCSHModeResults = []
 
-        let selection = document.getElementById(this.guid)
-        let selected = selection.options[selection.selectedIndex].value
-        this.searchType = selected
+        // try {
+        //   let selection = document.getElementById(this.guid)
+        //   let selected = selection.options[selection.selectedIndex].value
+        //   this.searchType = selected
+        // } catch{
+
+        // }
 
         this.displaySubjectModal = true
       }
@@ -832,11 +700,11 @@ export default {
 
   position: absolute;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-edit-show-field-labels-size')");
-
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
+  pointer-events: none;
   z-index: 1;
   top: -4px;
   left: 2px;
-  color: gray;
 
 
 }
@@ -851,6 +719,7 @@ export default {
 .lookup-fake-input{
   display: flex;
   background-color: transparent;
+
   padding: 0.1em;
 }
 
@@ -888,28 +757,29 @@ export default {
   border: solid 1px;
   border-radius: 0.5em;
   padding: 0.35em;
-  font-size: 0.75em;
-  background-color: whitesmoke;
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-lookup-font-size')");
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-lookup-background-color')");
+  border: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
+  color:  v-bind("preferenceStore.returnValue('--c-edit-main-lookup-text-color')");
+
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 2em;
 
-
-
+}
+.selected-value-container a{
+  color:  v-bind("preferenceStore.returnValue('--c-edit-main-lookup-text-color')") !important;
+  text-decoration: none;
 
 }
-.selected-value-container-nested{
-  margin: 0.25em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.75em;
-  background-color: whitesmoke;
-  white-space: nowrap;
-  display: inline;
+.selected-value-container a:hover{
+  text-decoration: underline;
+  cursor: pointer;
 }
+
+
 .selected-value-icon{
 /*  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;*/
   padding-right: 0.3em;
@@ -955,248 +825,10 @@ export default {
 .inline-auth-link:hover{
   background-color: whitesmoke;
 }
-/*
-li::before{
-  content: '';
-}
 
-li{
-  padding:0.1em;
-}
-
-li span{
-  padding:0.1em;
-}
-input{
-  outline: none;
-}
-
-.modal-entity-select{
-  width: 100%;
-  border:none;
-  overflow-x: none;
-  overflow-y: auto;
-  outline:none;
-
-}
-.modal-context{
-  height: 75%;
-  overflow-y: auto;
-  padding: 0.5em;
-}
-.modal-context-add-menu{
-  text-align: center;
-    width: 100%;
-    height: 3em;
-    background: white;
-
-}
-.modal-context-add-menu button{
-  border: none;
-  border-radius: 0.5em;
-  color: white;
-  background-color: #2c3e50;
-  font-size: 1.25em;
-   padding: 0.3em;
-}
-
-.modal-context-build-manual-buttons button{
-  font-size: .85em;
-  background-color: whitesmoke;
-  color: #2c3e50 !important;
-  border: solid 1px #2c3e50;
-}
-
-.modal-context-data-title{
-  font-size: 0.9em;
-  font-weight: bold;
-}
-
-.modal-context ul{
-  margin-top: 0;
-  margin-bottom: 0;
-}
-.modal-context-data-li{
-  font-size: 0.85em;
-}
-
-.modal-context  h3{
-  margin: 0;
-  padding: 0;
-}
-
-.modal-context-icon{
-  font-family: "fontello", Avenir, Helvetica, Arial, sans-serif;
-  font-size: 1.25em;
-  padding-right: 0.25em;
-
-}
-.modal-entity-select option{
-  font-family: "fontello", Avenir, Helvetica, Arial, sans-serif;
-  font-size: 1.25em;
-  white-space: pre-wrap;
-
-}
-.selected-value-icon{
-  font-family: "validation-icons", "fontello", Avenir, Helvetica, Arial, sans-serif;
-  padding-right: 0.3em;
-}
-.selected-value-container{
-  margin: 0.95em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.75em;
-  background-color: whitesmoke;
-  white-space: nowrap;
-
-}
-.selected-value-container-nested{
-  margin: 0.25em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.75em;
-  background-color: whitesmoke;
-  white-space: nowrap;
-  display: inline;
-  cursor: pointer;
-}
-
-.selected-value-details button, a{
-  float: right;
-  border: none;
-  border-radius: 0.5em;
-  color: white;
-  background-color: #2c3e50 ;
-  font-size: 1.25em;
-   padding: 0.3em;
-}
-.selected-value-details-close{
-  color: #2c3e50 !important;
-  border: none !important;
-  background: white !important;
-  border: solid 2px #2c3e50 !important;
-  margin-left: 0.75em;
-}
-
-.selected-value-details-edit{
-  color: #2c3e50 !important;
-  border: none !important;
-  background: white !important;
-  border: solid 2px #2c3e50 !important;
-  margin-left: 0.75em;
-
-}
-.selected-value-details{
-    position: relative;
-    z-index: 100;
-    width: 90%;
-    background: white;
-    border: solid 1px black;
-    margin-top: 0.5em;
-    border-radius: 0.5em;
-    height: 14em;
-    margin-left: 0.2em;
-    overflow-y: auto;
--webkit-box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
--moz-box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
-box-shadow: 10px 10px 15px -5px rgba(0,0,0,0.37);
-  padding: 0.5em;
-}
-.input-single{
-  width: 95%;
-  border:none;
-  font-size: 1.5em;
-  min-height: 2em;
-  max-height: 2em;
-  background:none;
-}
-.input-nested{
-  width: 95%;
-  border: none;
-  font-size: 1.5em;
-  padding: 0.1em;
-  background: none;
-
-}
-
-.complex-lookup-results{
-  padding: 0 1em 0 1em;
-  height: 73%;
-  margin-top: 1.25em;
-
-}
-
-.complex-lookup-result{
-  border-bottom: 1px lightgray solid;
-  cursor: pointer;
-}
-.complex-lookup-results-complex{
-  height: 75%;
-}
-
-.modal-entity-select option[value=""]{
-
-  font-weight: bold;
-  font-style: oblique;
+.component .lookup-fake-input{
+  border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
 }
 
 
-.fake-real-button{
-  height: 4em;
-  min-width: 4em;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  margin: 0.15em;
-}
-
-.modal-switch-values-container{
-  width: 70%;
-  margin:auto !important;
-}
-.component-container-fake-input:focus-within {
-  border: solid 1px #a6acb7;
-  background-color: #dfe5f1;
-
-}
-.selected-value-container{
-  margin: 0.65em;
-  border: solid 1px;
-  border-radius: 0.5em;
-  padding: 0.35em;
-  font-size: 0.85em;
-  background-color: whitesmoke;
-}
-.selected{
-  border:solid 4px lightblue;
-  border-radius: 5px;
-}
-.autocomplete-container{
-  padding: 0.45em;
-  position: absolute;
-  z-index: 100;
-  background-color: white;
-  border-radius: 15px;
-  -webkit-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-  -moz-box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-  box-shadow: 0px 5px 7px -1px rgba(150,150,150,1);
-}
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-form{
-  height: 100%;
-}*/
 </style>

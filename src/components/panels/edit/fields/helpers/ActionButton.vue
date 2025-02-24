@@ -12,30 +12,47 @@
  -->
 
  <VMenu ref="action-button-menu" :triggers="useOpenModes" @show="shortCutPressed" v-model:shown="isMenuShown"  @hide="menuClosed">
-    <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small }"><span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span></button>
+
+    <button tabindex="-1" :id="`action-button-${fieldGuid}`" :class="{'action-button':true,'small-mode': small, 'hidden-mode': (preferenceStore.returnValue('--b-edit-main-splitpane-camm-hide-action-button') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') ) }">
+      <span class="material-icons action-button-icon">{{preferenceStore.returnValue('--s-edit-general-action-button-icon')}}</span>
+    </button>
+
+
+    <InstanceSelectionModal ref="instanceSelectionModal" :currentRt="currentRt" :instances="instances" v-model="displayInstanceSelectionModal" @hideInstanceSelectionModal="hideInstanceSelectionModal()" @emitSetInstance="setInstance"/>
 
     <template #popper>
 
-      <div style="width: 250px;">
-
-        <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-1`" @click="duplicateComponent()">
+      <div class="action-button-menu-background" :style="'background-color: ' + preferenceStore.returnValue('--c-edit-general-action-button-menu-background-color')  + ';'">
+        <button  class="" :id="`action-button-command-${fieldGuid}-1`" @click="duplicateComponent()" :style="buttonStyle">
           <span class="button-shortcut-label">1</span>
           Add Another Component
         </button>
-        <button v-if="hasDefaultValues()" style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="insertDefaultValues()">
+        <button v-if="hasDefaultValues()"  class="" :id="`action-button-command-${fieldGuid}-2`" @click="insertDefaultValues()" :style="buttonStyle">
           <span class="button-shortcut-label">2</span>
           Insert Default Values
         </button>
 
-        <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-3`" @click="deleteComponent()">
+        <button v-if="isContribComponent()"  class="" :id="`action-button-command-${fieldGuid}-2`" @click="promoteContrib()" :style="buttonStyle">
+          <span class="button-shortcut-label">2</span>
+          {{ this.profileStore.returnStructureByComponentGuid(this.guid).propertyLabel == "Creator of Work" ? "Demote" : "Promote" }} Contributor
+        </button>
+
+        <button  class="" :id="`action-button-command-${fieldGuid}-3`" @click="deleteComponent()" :style="buttonStyle">
           <span class="button-shortcut-label">3</span>
           Delete Component
         </button>
 
         <template v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic'">
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-4`" @click="makeSubjectHeadingPrimary()">
+          <button  class="" :id="`action-button-command-${fieldGuid}-4`" @click="makeSubjectHeadingPrimary()" :style="buttonStyle">
             <span class="button-shortcut-label">4</span>
             Make Primary Heading
+          </button>
+        </template>
+
+        <template v-if="['lc:RT:bf2:WorkTitle', 'lc:RT:bf2:InstanceTitle', 'lc:RT:bf2:Title:VarTitle', 'lc:RT:bf2:ParallelTitle'].includes(structure.parentId)">
+          <button  class="" :id="`action-button-command-${fieldGuid}-4`" @click="sendToOtherProfile()" :style="buttonStyle">
+            <span class="button-shortcut-label">4</span>
+            Send to {{ this.profileStore.returnRtByGUID(this.guid).includes(":Work") ? "Instance" : (Object.keys(this.profileStore.activeProfile.rt).length > 2 ? "Work/Instance" : "Work") }}
           </button>
         </template>
 
@@ -43,20 +60,20 @@
 
         <template v-if="type=='literal'">
 
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-5`" @click="$emit('actionButtonCommand', 'addField')">
+          <button  class="" :id="`action-button-command-${fieldGuid}-5`" @click="$emit('actionButtonCommand', 'addField')" :style="buttonStyle">
               <span class="button-shortcut-label">5</span>
 
               Additional Literal
             </button><br>
 
-            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-6`" @click="$emit('actionButtonCommand', 'setLiteralLang')">
+            <button  class="" :id="`action-button-command-${fieldGuid}-6`" @click="$emit('actionButtonCommand', 'setLiteralLang')" :style="buttonStyle">
               <span class="button-shortcut-label">6</span>
               Set Language
             </button><br>
 
             <template v-for="(lang,index) in scriptShifterOptionsForMenu">
 
-                <button   style="width:100%"   class="" :id="`action-button-command-${fieldGuid}-${index + 7}`"  @click="$emit('actionButtonCommand', 'trans', {lang:lang.lang,dir:lang.dir, fieldGuid: fieldGuid} )">
+                <button      class="" :id="`action-button-command-${fieldGuid}-${index + 7}`"  @click="$emit('actionButtonCommand', 'trans', {lang:lang.lang,dir:lang.dir, fieldGuid: fieldGuid} )" :style="buttonStyle">
                   <span v-if="index<3" class="button-shortcut-label">{{index + 7}}</span>
                   <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{ lang.label||lang.name }}</span>
 
@@ -65,69 +82,91 @@
             </template>
             <hr>
         </template>
-        
+
         <template v-if="type=='lookupSimple'">
 
 
         </template>
 
-        
+
         <template v-if="type=='lookupComplex'">
             <!-- template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.parentId.includes(':Form') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[0]" -->
             <template v-if="showUpDownButtons()[0]">
-              <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-u`" @click="moveUp()">
+              <button  class="" :id="`action-button-command-${fieldGuid}-u`" @click="moveUp()" :style="buttonStyle">
                 <span class="button-shortcut-label">u</span>
                 Move Up
               </button>
             </template>
-            
+
             <!-- <template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.parentId.includes(':Form') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[1]"> -->
             <template v-if="showUpDownButtons()[1]">
-              <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-d`" @click="moveDown()">
+              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="moveDown()" :style="buttonStyle">
                 <span class="button-shortcut-label">d</span>
                 Move Down
               </button>
             </template>
         </template>
 
-        <template v-if="showBuildHubStub()">
-              <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildHubStub()">
-                Create Hub
+        <template v-if="showBuildNacoStub()">
+              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildNacoStub()" :style="buttonStyle">
+                Create NACO Stub
               </button>
         </template>
 
 
-        <button style="width:100%" :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()">
+        <template v-if="showBuildHubStub()">
+              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildHubStub()" :style="buttonStyle">
+                Create Hub
+              </button>
+        </template>
+
+        <template v-if="this.structure.parentId == 'lc:RT:bf2:LCC'">
+          <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="convertLcc2Dewey()" :style="buttonStyle">
+            <span class="">🤖</span>AutoDewey
+          </button>
+        </template>
+
+        <template v-if="showHideElementButton()">
+          <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="hideElement()" :style="buttonStyle">
+            <span class="">🙈</span>Hide Element
+          </button>
+        </template>
+
+        <button  :id="`action-button-command-${fieldGuid}-0`" class="" @click="showDebug()" :style="buttonStyle">
           <span class="button-shortcut-label">0</span>
           Debug
         </button>
+        <button  :id="`action-button-command-${fieldGuid}-cl`" class="" @click="addToLibrary()" :style="buttonStyle">
+          Add To Library
+        </button>
+
         <template v-if="this.returnRemark()">
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}--`" @click="openRemark()">
+          <button  class="" :id="`action-button-command-${fieldGuid}--`" @click="openRemark()" :style="buttonStyle">
             <span class="button-shortcut-label">-</span>
             View Documentation<span class="material-icons action-button-icon">open_in_new</span>
           </button>
         </template>
-        
+
 
         <template v-if="catInitals.toLowerCase().indexOf('matt') > -1">
-          <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-2`" @click="breakRecord()">
+          <button  class="" :id="`action-button-command-${fieldGuid}-2`" @click="breakRecord()" :style="buttonStyle">
           <span class="button-shortcut-label">2</span>
           💀 Break Record 💀
           </button>
         </template>
-        
+
         <template v-if="preferenceStore.copyMode && showCopyPasteButtons()">
-            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-c`" @click="copyComponent()">
+            <button  class="" :id="`action-button-command-${fieldGuid}-c`" @click="copyComponent()" :style="buttonStyle">
                 <span class="button-shortcut-label">c</span>
                 Copy<span class="material-icons action-button-icon">content_copy</span>
             </button>
-              
-            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-p`" @click="pasteComponent()">
+
+            <button  class="" :id="`action-button-command-${fieldGuid}-p`" @click="pasteComponent()" :style="buttonStyle">
                 <span class="button-shortcut-label">p</span>
                 Paste<span class="material-icons action-button-icon">content_paste</span>
             </button>
-            
-            <button style="width:100%" class="" :id="`action-button-command-${fieldGuid}-r`" @click="repeatComponent()">
+
+            <button  class="" :id="`action-button-command-${fieldGuid}-r`" @click="repeatComponent()" :style="buttonStyle">
                 <span class="button-shortcut-label">r</span>
                 Repeat Component<span class="material-icons action-button-icon">repeat</span>
             </button>
@@ -156,21 +195,31 @@
 
 <script>
 
+  import AutoDewey from "@/components/panels/edit/modals/AutoDeweyModal.vue";
+  import InstanceSelectionModal from "@/components/panels/edit/modals/InstanceSelectionModal.vue";
   import { usePreferenceStore } from '@/stores/preference'
   import { useProfileStore } from '@/stores/profile'
+  import short from 'short-uuid'
 
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
-
   export default {
+    components: {
+    AutoDewey,
+    InstanceSelectionModal,
+  },
     props: {
       type: String,
       guid: String,
       clickmode: Boolean,
       small: Boolean,
       fieldGuid: String,
-      structure: Object
+      structure: Object,
+      propertyPath: Array,
+
+    },
+    emit: {
 
     },
     data () {
@@ -180,8 +229,15 @@
 
         popperKeyboardShortcutEvent: null,
         popperKeyboardShortcutElement: null,
-
         isMenuShown:false,
+        displayDewey: false,
+
+        lcCall: null,
+
+        displayInstanceSelectionModal: false,
+        instances: {},
+        targetInstance: null,
+        currentRt: null,
 
       }
     },
@@ -193,6 +249,7 @@
 
 
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
+      ...mapWritableState(useProfileStore, ['showAutoDeweyModal', 'deweyData', 'emptyComponents']),
 
       scriptShifterOptionsForMenu(){
 
@@ -233,30 +290,91 @@
 
       },
 
+
+      buttonStyle(){
+
+        let bback = this.preferenceStore.returnValue('--c-edit-general-action-button-menu-button-background-color');
+        let bborder = this.preferenceStore.returnValue('--c-edit-general-action-button-menu-button-border-color');
+        let btext = this.preferenceStore.returnValue('--c-edit-general-action-button-menu-button-text-color');
+        let btsize = this.preferenceStore.returnValue('--n-edit-general-action-button-menu-button-text-size');
+
+
+        let style = `background-color: ${bback}; border: solid 1px ${bborder}; color: ${btext}; width:100%; font-size: ${btsize}`
+
+
+        return style
+
+
+      }
+
     },
 
     methods: {
+      hideInstanceSelectionModal: function(){
+        this.instances = {}
+        this.displayInstanceSelectionModal = false;
+      },
+      hideDeweyModal:function (){
+        this.displayDewey = false
+      },
 
 
       showBuildHubStub(){
-
+        if (!this.propertyPath) return false;
+        if (this.propertyPath && this.propertyPath.length==0) return false;
 
         let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/relation"){
           return true
         }
-        
-
+        if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/expressionOf"){
+          return true
+        }
         return false
       },
+
+      
 
 
       buildHubStub(){
         console.log(this.guid)
         let info = this.profileStore.returnLccInfo(this.guid)
         this.profileStore.activeHubStubData = info
+        this.profileStore.activeHubStubComponent = {
+          type: this.type,
+          guid: this.guid,
+          fieldGuid: this.fieldGuid,
+          structure: this.structure,
+          type: this.type,
+          propertyPath:this.propertyPath
+        }
         this.profileStore.showHubStubCreateModal = true
       },
+
+      buildNacoStub(){
+        console.log(this.guid)
+        
+        this.profileStore.showNacoStubCreateModal = true
+      },
+
+
+      
+
+      showBuildNacoStub(){
+        if (!this.propertyPath) return false;
+        if (this.propertyPath && this.propertyPath.length==0) return false;
+
+        let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/contribution"){
+          return true
+        }
+  
+        return false
+      },
+
+
+
+
 
       shortCutPressed: function(){
 
@@ -310,13 +428,51 @@
 
       },
 
+
+
+      addToLibrary: function(){
+
+        this.profileStore.addToComponentLibrary(this.guid);
+        this.sendFocusHome()
+
+      },
+
       duplicateComponent: function(){
         this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
         this.sendFocusHome()
       },
 
       insertDefaultValues: function(){
-        this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
+        if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
+          return false
+        }
+
+        //does this have defaults, or are the defaults higher up?
+        let defaults = this.structure.valueConstraint.defaults
+
+        if (defaults.length > 0){
+          this.profileStore.insertDefaultValuesComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
+        } else {
+          // // look up one level & use the appropriate structure
+          let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
+          if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
+            for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
+              if (vRt==this.structure.parentId && this.profileStore.rtLookup[vRt]){
+                for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
+                  if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
+                    let struct = this.profileStore.returnStructureByComponentGuid(this.guid)
+                    // if (struct.parentId == this.structure.parentId){ // will this have unintended sideffects?
+                    //   this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
+                    // }
+
+                    this.profileStore.insertDefaultValuesComponent(struct['@guid'], pt)
+                  }
+                }
+              }
+            }
+          }
+        }
+
         this.sendFocusHome()
       },
 
@@ -336,14 +492,14 @@
         this.profileStore.makeSubjectHeadingPrimary(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
 
       },
-      
+
       moveUp: function(){
-        this.profileStore.moveUpDown(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], "up") 
+        this.profileStore.moveUpDown(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], "up")
       },
       moveDown: function(){
-        this.profileStore.moveUpDown(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], "down") 
+        this.profileStore.moveUpDown(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'], "down")
       },
-      
+
       showUpDownButtons: function(){
         let show = this.profileStore.showUpDownButtons(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
 
@@ -371,7 +527,7 @@
           }
         }
 
-        // try the next level up 
+        // try the next level up
         let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
         if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
           for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
@@ -382,14 +538,14 @@
                   if (this.profileStore.rtLookup[vRt].propertyTemplates[0].remark && this.profileStore.rtLookup[vRt].propertyTemplates[0].remark  != ''){
                     return this.profileStore.rtLookup[vRt].propertyTemplates[0].remark
                   }
-                } 
+                }
               }else{
                 for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
                   if (pt.propertyURI == this.structure.propertyURI && pt.remark && pt.remark != ''){
                     return pt.remark
                   }
                 }
-              }              
+              }
             }
           }
         }
@@ -413,6 +569,9 @@
       },
 
       hasDefaultValues: function(){
+        if (this.structure.parentId.includes("lc:RT:bf2:SeriesHub")){
+          return false
+        }
         // if the selected item has defaults
         if (this.structure.valueConstraint.defaults.length > 0){
           return true
@@ -420,18 +579,41 @@
 
         // if it's part of a group with members that have defaults, and that group isn't the whole thing
         let parentId = this.structure.parentId
-        
+
         if (parentId.includes("_")){
             parentId = parentId.split("_")[0]
         }
 
-        if (!parentId.endsWith("Work") && !parentId.endsWith("Instance") && !parentId.endsWith("Hub") && !parentId.endsWith("Item")){
-          for (let sibling of this.profileStore.rtLookup[parentId].propertyTemplates){
-            if (sibling.valueConstraint.defaults.length > 0){
-              return true
+        // try the next level up
+        let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (parentStructure.valueConstraint && parentStructure.valueConstraint.valueTemplateRefs && parentStructure.valueConstraint.valueTemplateRefs.length>0){
+          for (let vRt of parentStructure.valueConstraint.valueTemplateRefs){
+            if (this.profileStore.rtLookup[vRt]){
+              if (this.structure.propertyURI == 'http://www.w3.org/2002/07/owl#sameAs'){
+                // if its a #sameAs we kind of lose the connection, so select the first one and check
+                if (this.profileStore.rtLookup[vRt].propertyTemplates && this.profileStore.rtLookup[vRt].propertyTemplates[0]){
+                  if (this.profileStore.rtLookup[vRt].propertyTemplates[0].valueConstraint && this.profileStore.rtLookup[vRt].propertyTemplates[0].valueConstraint.defaults.length > 0){
+                    return true
+                  }
+                }
+              }else{
+                for (let pt of this.profileStore.rtLookup[vRt].propertyTemplates){
+                  if (pt.valueConstraint.defaults && pt.valueConstraint.defaults.length > 0){
+                    return true
+                  }
+                }
+              }
             }
           }
         }
+
+        // if (!parentId.endsWith("Work") && !parentId.endsWith("Instance") && !parentId.endsWith("Hub") && !parentId.endsWith("Item")){
+        //   for (let sibling of this.profileStore.rtLookup[parentId].propertyTemplates){
+        //     if (sibling.valueConstraint.defaults.length > 0){
+        //       return true
+        //     }
+        //   }
+        // }
 
         return false
       },
@@ -442,57 +624,57 @@
       addComponent: function(){
 
       },
-      
+
       showCopyPasteButtons: function(){
           let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
           let label = structure.propertyLabel
-          
+
           if (label.includes("Admin")){
               return false
           }
           return true
       },
-      
+
       copyComponent: async function(){
           let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
           let propertyUri = structure.propertyURI
-          
+
           let value = JSON.stringify(structure)
-          
+
           const type = "text/plain"
           const blob = new Blob([value], {type})
           const data = [new ClipboardItem({[type]: blob})]
-          
+
           await navigator.clipboard.write(data)
       },
-      
-      
+
+
       pasteComponent: async function(){
           let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
-          
+
           const clipboardContents = await navigator.clipboard.read();
-          
+
           for (let item of clipboardContents){
               if (!item.types.includes("text/plain")) {
                 throw new Error("Clipboard does not contain text data.");
               }
-              
+
               let blob = await item.getType("text/plain")
               const incomingValue = await blob.text()
               const incomingData = JSON.parse(incomingValue)
-              
+
               structure.userValue = incomingData.userValue
               structure.userModified = true
-              
-              
+
+
               this.profileStore.dataChanged()
           }
       },
-      
+
       repeatComponent: async function(){
           await this.copyComponent()
           await this.profileStore.pasteSelected()
-          
+
           this.profileStore.dataChanged()
       },
 
@@ -524,6 +706,227 @@
       //     this.showActionButtonMenu=false
       // }
 
+      convertLcc2Dewey: function(){
+        const parent = this.profileStore.returnStructureByComponentGuid(this.guid)
+        let lccn = null
+        try{
+          const data = parent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
+          const classPortion = data["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"]
+          lccn = classPortion
+          try {
+            const itemPortion = data["http://id.loc.gov/ontologies/bibframe/itemPortion"][0]["http://id.loc.gov/ontologies/bibframe/itemPortion"]
+            lccn += itemPortion
+          } catch {}
+        } catch(e) {
+          // alert("Couldn't generate an LC class number for auto dewey. Make sure all the pieces are present.")
+          console.error("AutoDewey Error", e)
+        }
+        this.lcCall = lccn
+        this.deweyData = {
+          lcc: lccn,
+          guid: this.guid,
+          structure: this.structure
+        }
+
+        this.showAutoDeweyModal = true
+      },
+
+      // Pass the ids of the target instances to `sendToOtherProfile()`
+      setInstance: function(data){
+        this.targetInstance = data
+        this.displayInstanceSelectionModal = false
+        this.sendToOtherProfile(data)
+      },
+
+      //Send the information in a component between Work and Instances
+      // Can be used in either direction.
+      sendToOtherProfile: async function(target=null){
+        const Rts = Object.keys(this.profileStore.activeProfile.rt)
+        let thisRt = this.profileStore.returnRtByGUID(this.guid)
+        this.currentRt = thisRt
+
+        //get the structure that will be copied over
+        let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+
+        //Structure that will get the changes and be passed on
+        const activeStructure = JSON.parse(JSON.stringify(structure))
+
+        //This works when there is only 1 of each
+        let oldRt = thisRt
+        let newRt
+
+        if (Rts.length == 2){
+          newRt = Rts.filter((rt) => rt != thisRt)
+        }
+
+        // this doesn't need to be treated differently for multiple instances
+        if (thisRt.includes(":Work")){
+          activeStructure.preferenceId = activeStructure.preferenceId.replace(":Work", ":Instance")
+        } else {
+          activeStructure.preferenceId = activeStructure.preferenceId.replace(":Instance", ":Work")
+        }
+
+        if (Rts.length > 2 && target != null && target != "all"){
+          newRt = target
+        }
+        if (Rts.length > 2 && target == "all"){
+          newRt = Rts.filter((rt) => rt != thisRt)
+        }
+
+        // if there are multiple instance, but no target, get the target and restart
+        if (Rts.length > 2 && target == null){
+          for (let rt of Rts.filter((r) => r != thisRt)){
+            this.instances[rt] = this.activeProfile.rt[rt]
+          }
+          this.displayInstanceSelectionModal = true
+          return
+        }
+
+        if (!Array.isArray(newRt)){
+          activeStructure.parent = activeStructure.parent.replace(oldRt, newRt)
+          activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt)
+
+          this.profileStore.changeGuid(activeStructure)
+
+          //Moving Instance -> Work, cut out bf:subtitle
+          let userValue = activeStructure.userValue
+          if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){
+            let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
+            if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
+              delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
+            }
+          }
+
+          //do the change
+          this.profileStore.parseActiveInsert(activeStructure, thisRt)
+        } else {
+          for (let rt of newRt){
+            activeStructure.parent = activeStructure.parent.replace(oldRt, rt)
+            activeStructure.parentId = activeStructure.parentId.replace(oldRt, rt) // when there's more than 1 instance this is the most important change.
+
+            this.profileStore.changeGuid(activeStructure)
+
+            //Moving Instance -> Work, cut out bf:subtitle
+            let userValue = activeStructure.userValue
+            if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){
+              let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
+              if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
+                delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
+              }
+            }
+
+            //do the change
+            this.profileStore.parseActiveInsert(activeStructure, thisRt, rt)
+          }
+        }
+
+        //if it's a variant or parallel title, delete the original
+        const type = activeStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"]
+        if (["http://id.loc.gov/ontologies/bibframe/ParallelTitle", "http://id.loc.gov/ontologies/bibframe/VariantTitle"].includes(type)){
+          this.profileStore.deleteComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'])
+        }
+        //Force XML update
+        this.profileStore.dataChanged()
+      },
+
+
+      // show the button for de/promotion
+      isContribComponent: function(){
+        let parentStructure = this.profileStore.returnStructureByComponentGuid(this.guid)
+
+        return parentStructure.id.includes("_contribution_")
+      },
+
+      /**
+       * Update the contributor component to pro/demotion
+       * @param contribStructure - the structure of the component that will be updated
+       * @param contribType - the type of contributor
+       */
+      updateContrib: function(contribStructure, contribType){
+        const primaryId = "id_loc_gov_ontologies_bibframe_contribution__creator_of_work"
+        const primaryPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/PrimaryContribution"
+        const primaryType = "http://id.loc.gov/ontologies/bibframe/PrimaryContribution"
+        const primaryLabel = "Creator of Work"
+        const contributorId = "id_loc_gov_ontologies_bibframe_contribution__contributors"
+        const contributorPrefId = "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/Contribution"
+        const contributorType = "http://id.loc.gov/ontologies/bibframe/Contribution"
+        const contributorLabel = "Contributors"
+
+        let userValue = contribStructure.userValue
+        if (contribType == contributorId){
+          contribStructure.id = primaryId
+          contribStructure.preferenceId = primaryPrefId
+          contribStructure.propertyLabel = primaryLabel
+          userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["@type"] = primaryType
+        } else {
+          contribStructure.id = contributorId
+          contribStructure.preferenceId = contributorPrefId
+          contribStructure.propertyLabel = contributorLabel
+          userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["@type"] = contributorType
+        }
+
+        return contribStructure
+      },
+
+      promoteContrib: function(){
+        const primaryId = "id_loc_gov_ontologies_bibframe_contribution__creator_of_work"
+        const contributorId = "id_loc_gov_ontologies_bibframe_contribution__contributors"
+
+        //get the current active primaryContributor, need to make sure there isn't already one
+        let activePrimary
+        let contributors = []
+        for (let rt in this.activeProfile.rt){
+          for (let pt in this.activeProfile.rt[rt].pt){
+            if (pt.includes("creator_of_work")){
+              const target = this.activeProfile.rt[rt].pt[pt]
+              if (!target.deleted){
+                activePrimary = target
+              }
+            }
+          }
+        }
+
+        //Get a list of current contributors, need to update the contribtor id?
+        let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+        let activeStructure =  JSON.parse(JSON.stringify(structure))
+
+        const currentType = activeStructure.id == primaryId ? primaryId : contributorId
+
+        activeStructure["@guid"] = short.generate()
+        if (currentType == contributorId){
+          //check the active primary, if there is a value, create an alert for the user
+          // and swap the two
+          if (!this.profileStore.isEmptyComponent(activePrimary)){
+            const swap = confirm("There is already a primary contributor. Continuing will swap the two.")
+            if (swap){
+              let activePrimaryStruct = this.profileStore.returnStructureByComponentGuid(JSON.parse(JSON.stringify(activePrimary))["@guid"])
+              activePrimaryStruct = this.updateContrib(JSON.parse(JSON.stringify(activePrimaryStruct)), primaryId)
+              this.profileStore.parseActiveInsert(activePrimaryStruct)
+              this.profileStore.deleteComponent(activePrimary["@guid"])
+            } else {
+              return
+            }
+          }
+        }
+
+        //update, insert, and delete
+        activeStructure = this.updateContrib(activeStructure, currentType)
+        this.profileStore.parseActiveInsert(activeStructure)
+        this.profileStore.deleteComponent(this.guid)
+      },
+
+      showHideElementButton: function(){
+        let component = this.profileStore.returnStructureByComponentGuid(this.guid)
+        let empty = this.profileStore.isEmptyComponent(component)
+
+        return empty && this.preferenceStore.returnValue('--c-general-ad-hoc') && component.mandatory != 'true'
+      },
+      // Hide empty element in ad hoc mode
+      hideElement: function(){
+        let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+        this.profileStore.addToAdHocMode(structure.parentId, structure.id)
+      },
+
     },
     watch: {
 
@@ -531,10 +934,19 @@
   }
 </script>
 
+
 <style scoped>
+  .action-button-menu-background{
+    width: 250px;
+
+
+  }
+
   button{
     margin-bottom: 5px;
     position: relative;
+
+
 
   }
 
@@ -552,6 +964,7 @@
     left: 0;
     font-family: monospace;
     background-color:lightgoldenrodyellow;
+    color: black;
     border: solid 1px lightslategray;
     padding-left: 2px;
     padding-right: 2px;
@@ -570,7 +983,7 @@
       display: inline-flex;
       align-items: center;
   }
-
+/*
   .action-button-list-container{
     position: absolute;
     z-index: 1000;
@@ -595,7 +1008,7 @@
   }
   .action-button-list-container a:hover{
     background-color: v-bind("preferenceStore.returnValue('--n-edit-general-action-button-continer-background-highlight-color')");
-  }
+  } */
 
   .action-enter-active,
   .action-leave-active {
@@ -612,5 +1025,24 @@
     background-color: red;
     margin-left: 5px;
   }
+
+  .hidden-mode{
+    height: 0px;
+    width: 0px;
+    max-width: 0px;
+    border: none;
+    margin: 0;
+    padding: 0;
+
+  }
+  .hidden-mode button{
+    max-width: 1px;
+  
+  }
+  .hidden-mode span{
+    visibility: hidden;
+
+  }
+
 
 </style>

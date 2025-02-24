@@ -17,7 +17,7 @@ const utilsMisc = {
     for (let el of allSelectable){
 
       // we're loop though so if we found it on the last iteration then the n
-      if (foundSource){        
+      if (foundSource){
         el.focus()
         break
       }
@@ -30,7 +30,7 @@ const utilsMisc = {
 
 
   },
-  
+
   prettifyXmlJS(xml, tab = '\t', nl = '\n'){
     let formatted = '', indent = '';
     const nodes = xml.slice(1, -1).split(/>\s*</);
@@ -49,11 +49,14 @@ const utilsMisc = {
     var authorName = toCut
     authorName = authorName.toUpperCase();
     authorName = authorName.replace(/^[0-9]/,"a");
+    //replace diacritics with the letter
+    authorName = authorName.normalize('NFKD').replace(/[^\w]/g, '');
     authorName = authorName.replace(/[^A-Za-z]/g,"");
     //var authorNameLength = authorName.length;
-    authorName = authorName.replace(/^QU/i,"@");
+    authorName = authorName.replace(/^QU/i,"Q");
     authorName = authorName.replace(/(^.)CH/i,"$1#");
     var cutter = "";
+
     for (var i=0; i<authorName.length; i++) {
       if (i == 0) {
         cutter += authorName.slice(0,1); //alert (cutter);
@@ -83,7 +86,7 @@ const utilsMisc = {
           if (secondLetter.match(/^U|V$/)) {cutter += "8"}
           if (secondLetter.match(/^W|X|Y|Z$/)) {cutter += "9"}
         }
-        else if (initialLetter.match(/^@$/)) {
+        else if (initialLetter.match(/^Q$/)) {
           if (secondLetter.match(/^A|B|C|D$/)) {cutter += "3"}
           if (secondLetter.match(/^E|F|G|H$/)) {cutter += "4"}
           if (secondLetter.match(/^I|J|K|L|M|N$/)) {cutter += "5"}

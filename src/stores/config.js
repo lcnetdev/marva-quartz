@@ -6,8 +6,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 0,
-    versionMinor: 16,
-    versionPatch: 23,
+    versionMinor: 18,
+    versionPatch: 1,
 
     regionUrls: {
 
@@ -40,8 +40,8 @@ export const useConfigStore = defineStore('config', {
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         // bfdb : 'https://preprod-8210.id.loc.gov/',
         bfdb : 'https://preprod-8300.id.loc.gov/',
-        // profiles : '/bfe2/util/profiles/profile/stage',
-        profiles : '/bfe2/util/profiles/profile/prod',
+        profiles : '/bfe2/util/profiles/profile/stage',
+        // profiles : '/bfe2/util/profiles/profile/prod',
         // profiles: 'https://preprod-3001.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
         starting : '/bfe2/util/profiles/starting/stage',
         id: 'https://preprod-8288.id.loc.gov/',
@@ -239,25 +239,36 @@ export const useConfigStore = defineStore('config', {
   layouts: {
     all: {
       titles: {
+        profileId: "Monograph",
         label: "Titles",
-        properties: [
-          "http://id.loc.gov/ontologies/bibframe/title"
-        ]
+        properties: {
+            "lc:RT:bf2:Monograph:Work": [
+              "id_loc_gov_ontologies_bibframe_title__title_information"
+            ],
+            "lc:RT:bf2:Monograph:Instance": [
+              "id_loc_gov_ontologies_bibframe_title__title_information"
+            ]
+        }
       },
       contributors: {
+        profileId: "Monograph",
         label: "Contributors",
-        properties: [
-          "http://id.loc.gov/ontologies/bibframe/contribution"
-        ]
+        properties: {
+          "lc:RT:bf2:Monograph:Work": [
+            "id_loc_gov_ontologies_bibframe_contribution__creator_of_work",
+            "id_loc_gov_ontologies_bibframe_contribution__contributors"
+          ]
+        }
       },
       subjects: {
+        profileId: "Monograph",
         label: "Subjects & Class",
-        properties: [
-          "http://id.loc.gov/ontologies/bibframe/subject",
-          "http://id.loc.gov/ontologies/bibframe/classification",
-
-
-        ]
+        properties: {
+          "lc:RT:bf2:Monograph:Work": [
+            "id_loc_gov_ontologies_bibframe_subject__subjects",
+            "id_loc_gov_ontologies_bibframe_classification__classification_numbers",
+          ]
+        }
       }
 
     }
@@ -282,6 +293,10 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2023920086',label:"The Serby saga (IBC)", idUrl:'https://id.loc.gov/resources/instances/23354934.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
     {lccn:'2024398050',label:"Wehasŭ sonyŏn (Compilation)", idUrl:'https://id.loc.gov/resources/instances/23799873.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+    {lccn:'2018340701',label:"Qānūn al-ijrāʼāt al-jazāʼīyah", idUrl:'https://id.loc.gov/resources/instances/2018340701.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+
+
     {lccn:'2007052988',label:"A journey to the Western Islands of Scotland", idUrl:'https://id.loc.gov/resources/instances/15146892.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
     {lccn:'2023546355',label:"'P'osŭt'ŭ cheguk' ŭi Tong Asia", idUrl:'https://id.loc.gov/resources/instances/23591130.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
@@ -304,10 +319,9 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2011263182',label:"San Francisco chronicle", idUrl:'https://id.loc.gov/resources/instances/2011263182.html', profile:'Serial',profileId:'lc:RT:bf2:Serial:Instance'},
 
 
+    {lccn:'2022442584',label:"test", idUrl:'https://id.loc.gov/resources/instances/2022442584.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
-
-
-
+    {lccn:'2023537239',label:"test2", idUrl:'https://id.loc.gov/resources/instances/2023537239.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
   ],
 
@@ -320,6 +334,17 @@ export const useConfigStore = defineStore('config', {
                     'LCSHAC All':{"url":"https://id.loc.gov/authorities/childrensSubjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
                 }
             ]
+     },
+     "http://id.loc.gov/bflists/intendedAudiences" : {
+        "name":"intendedAudiences",
+        "type":"complex",
+        "processor" : 'lcAuthorities',
+        "modes":[
+            {
+                'LCDGT':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all": true},
+                'MARC':{"url":"https://id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=10&offset=<OFFSET>", "all": true}
+            }
+        ]
      },
     "http://id.loc.gov/authorities/demographicTerms" : {"name":"demographicTerms", "type":"complex", "modes":[
       {
@@ -419,6 +444,18 @@ export const useConfigStore = defineStore('config', {
 					'LCNAF Geographic':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&count=25&offset=<OFFSET>"},
 					'LCSH Geographic':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&count=25&offset=<OFFSET>"},
 					//'GACS':{"url":"https://id.loc.gov/vocabulary/geographicAreas/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>"},
+				}
+			]
+		},
+
+    "http://id.loc.gov/vocabulary/maudience" : {
+			"name":"audience",
+			"type":"complex",
+			"processor" : 'lcAuthorities',
+			"modes":[
+				{
+					'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience.html"},
+					'LCDGT':{"url": "https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 				}
 			]
 		},
@@ -635,7 +672,7 @@ export const useConfigStore = defineStore('config', {
     "http://id.loc.gov/vocabulary/marcauthen" : {"name":"marcauthen", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/marcgt" : {"name":"marcgt", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/maspect" : {"name":"maspect", "type":"simple", "modes":[]},
-    "http://id.loc.gov/vocabulary/maudience" : {"name":"maudience", "type":"simple", "modes":[]},
+    // "http://id.loc.gov/vocabulary/maudience" : {"name":"maudience", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mbroadstd" : {"name":"mbroadstd", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mcapturestorage" : {"name":"mcapturestorage", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mcolor" : {"name":"mcolor", "type":"simple", "modes":[]},
