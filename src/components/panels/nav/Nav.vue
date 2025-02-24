@@ -762,11 +762,11 @@
           }
         ]
         this.modalSettings = {
-          height: "300",
-          width: "500",
+          height: 300,
+          width: 500,
           buttonText: "Import",
-          initalLeft: "300",
-          initalTop: "250"
+          initalLeft: 300,
+          initalTop: 250
         }
         this.showSelectionModal = true
         console.info("show modal??!!")

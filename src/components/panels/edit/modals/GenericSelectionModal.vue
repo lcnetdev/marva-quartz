@@ -27,7 +27,7 @@
         :sticks="['br']"
         :stickSize="22"
         >
-            <div class="modal-container">
+            <div :class="{'modal-container': true }" ref="modalContent">
                 <div class="menu-buttons">
                     <button @click="$emit('closeModal')">x</button>
                 </div>
@@ -45,7 +45,6 @@
                         </li>
                     </ul>
                 </template>
-                {{ preferenceStore.returnValue('--c-edit-modals-background-color') }}
                 <button class="action-button" @click="$emit('emitSelection', gatherSelection())">{{ modalSettings.buttonText }}</button>
             </div>
         </VueDragResize>
@@ -71,13 +70,23 @@ export default {
         return {
             test: "test",
             selected: [],
+            bColor: "red",
         }
     },
     computed: {
         ...mapStores(usePreferenceStore),
-        ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
+        ...mapState(usePreferenceStore, ['styleDefault']),
     },
     methods: {
+        dragResize: function(newRect){
+            this.width = newRect.width
+            this.height = newRect.height
+            this.top = newRect.top
+            this.left = newRect.left
+            this.$refs.modalContent.style.height = newRect.height + 'px'
+
+            console.info(">>>>>", this.preferenceStore.returnValue('--c-edit-modals-background-color'))
+        },
         gatherSelection: function(){
             console.info("selected: ", this.selected)
             return this.selected
@@ -92,11 +101,12 @@ export default {
 </script>
 
 <style>
-    .content-container {
+    .modal-container {
         border-radius: 25px;
-        /* background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important;
-        color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important; */
-        background-color: white;
+        background-color: v-bind(bColor);
+        /* background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important; */
+        color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
+        /* background-color: white; */
     }
 </style>
 
