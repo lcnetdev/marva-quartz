@@ -2282,8 +2282,14 @@ export const useProfileStore = defineStore('profile', {
 
       if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
-        let context = await utilsNetwork.returnContext(URI)
-        type = context.typeFull
+        if (URI.indexOf('id.loc.gov/resources/hubs/') > -1){
+          type = 'http://id.loc.gov/ontologies/bibframe/Hub'
+        } else{
+          let context = await utilsNetwork.returnContext(URI)
+          type = context.typeFull
+        }
+
+
 
       }
       // literals don't have a type or a URI & intendedAudience has extra considerations
@@ -4889,7 +4895,7 @@ export const useProfileStore = defineStore('profile', {
         pubResuts.postLocation = hubUri
       }
 
-      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
+      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-xxxx-5c92f7d396eb'}
 
 
       return pubResuts
