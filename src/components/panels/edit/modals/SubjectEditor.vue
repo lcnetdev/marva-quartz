@@ -1379,12 +1379,14 @@ methods: {
     let currentPos = searchStringFullPieces.indexOf(searchString)
 
     let complexSub = null
+    console.info("currentPos: ", currentPos)
     if (currentPos > 0){
-      complexSub = searchString
+      complexSub = searchStringFullPieces.slice(currentPos).join("--")
     }
 
-    // that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
-    that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, that.searchMode)
+    that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
+    // that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, that.searchMode)
+
     // if they clicked around while it was doing this lookup bail out
     // if (that.activeSearchInterrupted){
 

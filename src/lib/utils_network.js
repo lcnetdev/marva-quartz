@@ -2208,8 +2208,12 @@ const utilsNetwork = {
     * @param {string} mode - the search mode LCSHNAF GEO WORKS HUBS
     * @return {} -
     */
-    // subjectSearch: async function(searchVal, complexVal, complexSub, mode){
-      subjectSearch: async function(searchVal, complexVal, mode){
+    subjectSearch: async function(searchVal, complexVal, complexSub, mode){
+      // subjectSearch: async function(searchVal, complexVal, mode){
+      console.info("subjectSearch")
+      console.info("searchVal: ", searchVal)
+      console.info("complexVal: ", complexVal)
+      console.info("complexSub: ", complexSub)
       //encode the URLs
       searchVal = encodeURIComponent(searchVal)
       complexVal = encodeURIComponent(complexVal)
