@@ -84,11 +84,8 @@ export default {
             this.top = newRect.top
             this.left = newRect.left
             this.$refs.modalContent.style.height = newRect.height + 'px'
-
-            console.info(">>>>>", this.preferenceStore.returnValue('--c-edit-modals-background-color'))
         },
         gatherSelection: function(){
-            console.info("selected: ", this.selected)
             return this.selected
         },
     },
@@ -103,10 +100,8 @@ export default {
 <style>
     .modal-container {
         border-radius: 25px;
-        background-color: v-bind(bColor);
         /* background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important; */
-        color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
-        /* background-color: white; */
+        /* color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important; */
     }
 </style>
 

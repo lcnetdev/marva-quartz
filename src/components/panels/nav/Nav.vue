@@ -712,7 +712,6 @@
       },
 
       getImportSelection: function(selection){
-        console.info("emited: ", selection)
         this.importSelection = selection
 
         if (this.importSelection.length > 0){
@@ -769,9 +768,6 @@
           initalTop: 250
         }
         this.showSelectionModal = true
-        console.info("show modal??!!")
-        console.info("selection: ", this.importSelection)
-
       },
 
       importPreferences: function(selection=null){
@@ -787,8 +783,6 @@
 
           reader.onload = function(e){
             var contents = JSON.parse(e.target.result)
-
-            console.info("contents: ", contents)
 
             if (selection && selection.includes('all')){
               that.preferenceStore.loadPreferences(contents["prefs"])
@@ -826,7 +820,7 @@
 
             if (selection && (selection.includes('style') || selection.includes('all'))){
               for (let item in contents.prefs['styleDefault']){
-                if (!['--l-custom-layouts', '--o-diacritics-text-macros'].includes(item)){
+                if (!['--l-custom-layouts', '--o-diacritics-text-macros', '--c-diacritics-enabled-macros'].includes(item)){
                   const incoming = contents.prefs['styleDefault'][item].value
                   that.preferenceStore.setValue(item, incoming)
                 }
