@@ -672,6 +672,40 @@
           this.showError(error.message || 'An unknown error occurred');
         }
       },
+      addItem: function() {
+    console.log("addItem called");
+    let lccn = "";
+    let instanceCount = 0;
+    let instance = null;
+    for (let p in this.activeProfile.rt) {
+        if (p.includes(":Instance")) {
+            this.instances.push(p);
+            instanceCount++;
+        }
+    }
+    console.log("Instance count:", instanceCount);
+    if (instanceCount == 0) {
+        alert("There are no instances in the record. You need to create one before you can add an item.");
+        return;
+    }
+    if (instanceCount > 1) {
+        console.log("Multiple instances found, showing selection modal");
+        this.showItemInstanceSelection = true;
+    } else {
+        console.log("Single instance found, creating item");
+        this.profileStore.createItem(this.targetInstance, lccn);
+    }
+},
+      addInstance(secondary = false) {
+        let lccn = ""; // Optionally prompt for LCCN
+        this.profileStore.createInstance(secondary, lccn);
+      },
+      setInstance(data) {
+        this.targetInstance = this.instances[data];
+        this.showItemInstanceSelection = false;
+        this.instances = [];
+        this.profileStore.createItem(this.targetInstance);
+      },
       
     },
 
