@@ -5212,12 +5212,16 @@ export const useProfileStore = defineStore('profile', {
      *
      */
     addFromComponentLibrary(id){
+      console.info("addFromComponentLibrary: ", id)
       for (let key in this.componentLibrary.profiles){
+        console.info("    key: ", key)
         for (let group of this.componentLibrary.profiles[key].groups){
+          console.info("        group: ", group)
           if (group.id == id){
 
             // we are adding a sigle one here so groups are individual (group of 1) in this case
             console.log("Adding thisone",group)
+            console.info("Adding thisone",group)
             let component = JSON.parse(JSON.stringify(group.structure))
 
 
