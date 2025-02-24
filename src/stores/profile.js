@@ -368,6 +368,8 @@ export const useProfileStore = defineStore('profile', {
         return results
       }
 
+      //TODO: get them opening independently, maybe pull defaults gether under 1 heading?
+
       console.info("groupsToMergeDefault: ", groupsToMergeDefault)
 
       let r = mergeComponents(results, groupsToMerge, 'Multi')
