@@ -13,6 +13,7 @@ import utilsExport from '@/lib/utils_export';
 // import utilsMisc from '@/lib/utils_misc';
 
 import shortCodesOverrides from "@/lib/shortCodesOverrides.json"
+import defaultComponents from "@/lib/defaults/default_components.json"
 
 
 import utilsProfile from '../lib/utils_profile'
@@ -220,7 +221,7 @@ export const useProfileStore = defineStore('profile', {
      * @return {array}
      */
     returnComponentLibrary: (state) => {
-
+      console.info("returnComponentLibrary: ", state)
       // limit to the current profiles being used
       // console.log(state.activeProfile)
       // console.log(state.componentLibrary)
@@ -228,12 +229,13 @@ export const useProfileStore = defineStore('profile', {
       //   return [state.componentLibrary]
 
       // }
+      let broadType = ""
       let results = []
       for (let key in state.activeProfile.rt){
-
+        console.info("key: ", key)
+        broadType = key.split(":")
         // ther are components saved for this profile
         if (state.componentLibrary.profiles[key]){
-
           let groups = {}
           let groupsOrder = []
           // loop through all the components sorted by position order
@@ -248,13 +250,31 @@ export const useProfileStore = defineStore('profile', {
                 if (groupsOrder.indexOf(group.groupId)==-1){
                   groupsOrder.push(group.groupId)
                 }
-
             }
           }
-
-          results.push({groups:groups,groupsOrder:groupsOrder, profileId: key,label: key.split(":").slice(-1)[0]})
+          results.push({groups:groups, groupsOrder:groupsOrder, profileId: key, label: key.split(":").slice(-1)[0]})
         }
 
+        if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
+          let groups = {}
+          let groupsOrder = []
+          console.info("defaultComponents: ", defaultComponents.DefaultComponentLibrary)
+          console.info("defaultComponents.profiles: ", defaultComponents.DefaultComponentLibrary.profiles)
+          console.info("defaultComponents.profiles[key]: ", defaultComponents.DefaultComponentLibrary.profiles[key])
+          for (let group of defaultComponents.DefaultComponentLibrary.profiles[key].groups.sort(({position:a}, {position:b}) => a-b)){
+            if (group.groupId === null){
+              groups[group.id] = [group]
+              groupsOrder.push(group.id)
+            }else{
+                if (!groups[group.groupId]){groups[group.groupId]=[]}
+                groups[group.groupId].push(group)
+                if (groupsOrder.indexOf(group.groupId)==-1){
+                  groupsOrder.push(group.groupId)
+                }
+            }
+          }
+          results.push({type: "default", groups:groups, groupsOrder:groupsOrder, profileId: key, label: key.split(":").slice(-1)[0]})
+        }
       }
 
       // now go through and see if there are the the same group being used in multiple profiles if so
@@ -262,84 +282,112 @@ export const useProfileStore = defineStore('profile', {
 
 
       let groupsCount = {}
+      let groupsCountDefault = {}
       for (let profileComponents of results){
+
+        let type = profileComponents.type
+        console.info("type: ", type)
+
         for (let groupKey in profileComponents.groups){
           if (profileComponents.groups[groupKey].groupId !== null){
             for (let groupItem of profileComponents.groups[groupKey]){
+              let group = groupsCount
+              if (type == 'default'){
+                group = groupsCountDefault
+              }
               if (groupItem.groupId !== null){
-                if (!groupsCount[groupItem.groupId]){
-                  groupsCount[groupItem.groupId]=[]
+                if (!group[groupItem.groupId]){
+                  group[groupItem.groupId]=[]
                 }
-                if (groupsCount[groupItem.groupId].indexOf(groupItem.structure.parentId)==-1){
-                  groupsCount[groupItem.groupId].push(groupItem.structure.parentId)
+                if (group[groupItem.groupId].indexOf(groupItem.structure.parentId)==-1){
+                  group[groupItem.groupId].push(groupItem.structure.parentId)
                 }
               }
             }
-
           }
         }
       }
 
       let groupsToMerge = []
+      let groupsToMergeDefault = []
       for (let groupKey in groupsCount){
         if (groupsCount[groupKey].length>1){
           groupsToMerge.push(groupKey)
         }
       }
-      if (groupsToMerge.length>0){
-        // we have to MERGE
-        let multiProfile = {
-          groups: {},
-          groupsOrder: [],
-          label: 'Multi',
-          profileId: 'Multi'
+      for (let groupKey in groupsCountDefault){
+        if (groupsCountDefault[groupKey].length>1){
+          groupsToMergeDefault.push(groupKey)
         }
-
-        for (let groupName of groupsToMerge){
-
-          let tmpGroupComponents = []
-
-
-          // remove them from the orginal group/profile and them to the multi profile
-          for (let profileComponents of results){
-            if (profileComponents.groups[groupName]){
-              tmpGroupComponents=tmpGroupComponents.concat( JSON.parse(JSON.stringify(profileComponents.groups[groupName])) )
-              delete profileComponents.groups[groupName]
-            }
-            profileComponents.groupsOrder = profileComponents.groupsOrder.filter((v) => {return (v !== groupName)})
-          }
-
-          // put them into the multi profile
-          multiProfile.groups[groupName] = tmpGroupComponents
-          multiProfile.groupsOrder.push(groupName)
-
-          // add a label to denote if the individual component is a work or instance whatever component.
-          for (let groupKey in multiProfile.groups){
-            for (let component of multiProfile.groups[groupKey]){
-              if (component.label.indexOf("(i)")>-1){ continue}
-              if (component.label.indexOf("(w)")>-1){ continue}
-              let initial = component.structure.parentId.split(':').slice(-1)[0].charAt(0).toLowerCase();
-              component.label = `(${initial}) ${component.label}`
-            }
-          }
-
-
-        }
-
-
-        results.push(multiProfile)
-
-
-
       }
+
+      let mergeComponents = function (results, groupsToMerge, title){
+        console.info("merging")
+        if (groupsToMerge.length>0){
+          // we have to MERGE
+          let multiProfile = {
+            groups: {},
+            groupsOrder: [],
+            label: title,
+            profileId: title,
+            type: title.includes("Default") ? 'default' : null
+          }
+
+          for (let groupName of groupsToMerge){
+            console.info("??????: ", groupName)
+            let tmpGroupComponents = []
+            // remove them from the orginal group/profile and them to the multi profile
+            for (let profileComponents of results){
+              if (profileComponents.groups[groupName]){
+                console.info("!!!!!")
+                tmpGroupComponents=tmpGroupComponents.concat( JSON.parse(JSON.stringify(profileComponents.groups[groupName])) )
+                delete profileComponents.groups[groupName]
+              }
+              profileComponents.groupsOrder = profileComponents.groupsOrder.filter((v) => {return (v !== groupName)})
+            }
+
+            // put them into the multi profile
+            multiProfile.groups[groupName] = tmpGroupComponents
+            multiProfile.groupsOrder.push(groupName)
+
+            // add a label to denote if the individual component is a work or instance whatever component.
+            for (let groupKey in multiProfile.groups){
+              for (let component of multiProfile.groups[groupKey]){
+                if (component.label.indexOf("(i)")>-1){ continue}
+                if (component.label.indexOf("(w)")>-1){ continue}
+                let initial = component.structure.parentId.split(':').slice(-1)[0].charAt(0).toLowerCase();
+
+                console.info("initial: ", initial)
+
+                component.label = `(${initial}) ${component.label}`
+              }
+            }
+          }
+          results.push(multiProfile)
+        }
+        return results
+      }
+
+      console.info("groupsToMergeDefault: ", groupsToMergeDefault)
+
+      let r = mergeComponents(results, groupsToMerge, 'Multi')
+      console.info("r1: ", r)
+      results.concat(r)
+      r = mergeComponents(results, groupsToMergeDefault, 'Multi Default')
+      console.info("r2: ", r)
+      results.concat(r)
+
       // remove any empty ones that may have shifted fully into the multi profile
       results = results.filter((g) => {return (g.groupsOrder.length>0)})
 
-
+      console.info("results: ", results)
+      results = results.sort((a,b) => {
+        console.info("sort: ", a.type)
+        if (!a.type || a.type == null) { return -1}
+        if (!b.type || b.type == null) { return 1}
+        return (a.type < b.type) ? 1 : (a.type > b.type) ? -1 : 0
+      })
       return results
-
-
-
     },
 
 
@@ -1415,7 +1463,7 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-          
+
           }else{
 
 
@@ -4929,13 +4977,13 @@ export const useProfileStore = defineStore('profile', {
 
 
     nacoStubReturnMainTitle(){
-      
+
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Work")>-1){
           for (let pt of this.activeProfile.rt[rt].ptOrder){
             pt = this.activeProfile.rt[rt].pt[pt]
             if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/title"){
-              if (pt.userValue 
+              if (pt.userValue
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title']
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
@@ -4953,10 +5001,10 @@ export const useProfileStore = defineStore('profile', {
     },
 
     nacoStubReturnWorkURI(){
-      
+
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Work")>-1){
-          
+
           if (this.activeProfile.rt[rt].URI){
             return this.activeProfile.rt[rt].URI
           }
@@ -4967,7 +5015,7 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
-    
+
 
 
 
@@ -4987,7 +5035,7 @@ export const useProfileStore = defineStore('profile', {
       let xml = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI)
 
       return xml
-      
+
       // console.log("hubCreatorObj",hubCreatorObj)
       // let xml = await utilsExport.createNacoStubXML(oneXX,lccn)
 
@@ -5186,11 +5234,11 @@ export const useProfileStore = defineStore('profile', {
                   }
                 }
 
-                // we are going to perform a quick replace here, saving the local identifier and local 040 note from the 
+                // we are going to perform a quick replace here, saving the local identifier and local 040 note from the
                 let localId=null
                 let local040=null
-                if (ptObjFound && 
-                    ptObjFound.userValue && 
+                if (ptObjFound &&
+                    ptObjFound.userValue &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/identifiedBy"]){
@@ -5202,8 +5250,8 @@ export const useProfileStore = defineStore('profile', {
                       }
                     }
 
-                if (ptObjFound && 
-                    ptObjFound.userValue && 
+                if (ptObjFound &&
+                    ptObjFound.userValue &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/note"]){
@@ -5214,13 +5262,13 @@ export const useProfileStore = defineStore('profile', {
                         }
                       }
                     }
-                
+
                     console.log("localId",localId)
                     console.log("local040",local040)
-                
+
                 // okay now do the same on the component we are about to use, but replace the two values with the ones we just extracted
-                if (component && 
-                  component.userValue && 
+                if (component &&
+                  component.userValue &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/identifiedBy"]){
@@ -5234,16 +5282,16 @@ export const useProfileStore = defineStore('profile', {
                         // this isn't one, dunno what it is? but add it to the new one
                         to_replace_with.push(lId)
                       }
-                    }   
-                    
+                    }
+
                     // replace it with what we have, if it did not find the thing then it will be [] and blank in the new data otherwise it will be replaced
                     component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/identifiedBy"] = to_replace_with
 
                 }
 
 
-                if (component && 
-                  component.userValue && 
+                if (component &&
+                  component.userValue &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/note"]){
@@ -5257,7 +5305,7 @@ export const useProfileStore = defineStore('profile', {
                         // this isn't one, dunno what it is? but add it to the new one
                         to_replace_with.push(n)
                       }
-                    }                       
+                    }
                     // replace it with what we have, if it did not find the thing then it will be [] and blank in the new data otherwise it will be replaced
                     component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/note"] = to_replace_with
 
@@ -5266,7 +5314,7 @@ export const useProfileStore = defineStore('profile', {
 
                 // we are going to zero out the userValue of the found AdminMetadata here so the process below replaces it with the new one and not add it as another
                 ptObjFound.userValue = {'@root': "http://id.loc.gov/ontologies/bibframe/adminMetadata"}
-                
+
 
               }else{
 
@@ -5476,8 +5524,8 @@ export const useProfileStore = defineStore('profile', {
     },
 
     /**
-     * Returns the marc label or auth label of the entitiy 
-     * 
+     * Returns the marc label or auth label of the entitiy
+     *
      * @param {object} guid - the guid of the component
      */
     async returnCammComplexLabel(guid,complexValue){
@@ -5519,8 +5567,8 @@ export const useProfileStore = defineStore('profile', {
             }
             return marcKey
           }
-          
-          
+
+
 
         }
 
@@ -5534,7 +5582,7 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-      
+
     }
 
 

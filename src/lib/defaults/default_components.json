@@ -1,0 +1,2995 @@
+{
+    "DefaultComponentLibrary": {
+        "profiles": {
+            "lc:RT:bf2:Monograph:Work": {
+                "groups": [
+                    {
+                        "id": "qujRRCigqesRdsog8yL6HY",
+                        "groupId": null,
+                        "position": 0,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/authorities/genreForms"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/GenreForm",
+                                    "dataTypeLabel": "",
+                                    "remark": ""
+                                },
+                                "defaults": [],
+                                "editable": "true",
+                                "repeatable": "true"
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                            "propertyLabel": "Genre/Form",
+                            "remark": "",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                                "http://id.loc.gov/ontologies/bibframe/genreForm": [
+                                    {
+                                        "@guid": "a27MUdmvmYfmEDKkfSewot",
+                                        "@type": "http://www.loc.gov/mads/rdf/v1#GenreForm",
+                                        "@id": "http://id.loc.gov/authorities/genreForms/gf2021026043",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "irinHaKTENoZyBAXL6YjDC",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Board books",
+                                                "@language": "en"
+                                            }
+                                        ],
+                                        "http://id.loc.gov/ontologies/bflc/marcKey": [
+                                            {
+                                                "@guid": "dD8Sdf9cmgXNkJeKRNRHQZ",
+                                                "http://id.loc.gov/ontologies/bflc/marcKey": "155  $aBoard books"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                            "hashCode": -1521279090,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Board Books (Genre/Form)"
+                    },
+                    {
+                        "id": "fNoqo5cVP3oNrE685CLHre",
+                        "groupId": "Color ill, Color Maps",
+                        "position": 1,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/millus"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Illustration"
+                                },
+                                "repeatable": "true",
+                                "editable": "false",
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                            "propertyLabel": "Illustrative content",
+                            "remark": "http://original.rdatoolkit.org/7.15.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                                "http://id.loc.gov/ontologies/bibframe/illustrativeContent": [
+                                    {
+                                        "@guid": "aeHsUyLZnszcdjzWLXThe7",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Illustration",
+                                        "@id": "http://id.loc.gov/vocabulary/millus/ill",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "fXvedNnjenASq8uhMygDwR",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations (ill)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "id": "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
+                            "hashCode": 1504301028,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Color ill, color maps (ill cntnt1)"
+                    },
+                    {
+                        "id": "9Dirnr9snKff9P7vYn3Lpj",
+                        "groupId": "Color ill, Color Maps",
+                        "position": 2,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/millus"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Illustration"
+                                },
+                                "repeatable": "true",
+                                "editable": "false",
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                            "propertyLabel": "Illustrative content",
+                            "remark": "http://original.rdatoolkit.org/7.15.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                                "http://id.loc.gov/ontologies/bibframe/illustrativeContent": [
+                                    {
+                                        "@guid": "nURNYc8Er9DDiXb5wHNTAz",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Illustration",
+                                        "@id": "http://id.loc.gov/vocabulary/millus/map",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "358fwogU4GxG8NaKt5FpGe",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "maps (map)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "id": "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
+                            "hashCode": 1504301028,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Color ill, color maps (ill cntnt2)"
+                    },
+                    {
+                        "id": "rBSX7qsyApGfiLWippgdmq",
+                        "groupId": "Color ill, Color Maps",
+                        "position": 3,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/mcolor"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/ColorContent"
+                                },
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/colorContent",
+                            "propertyLabel": "Color content",
+                            "remark": "http://original.rdatoolkit.org/7.17.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/colorContent",
+                                "http://id.loc.gov/ontologies/bibframe/colorContent": [
+                                    {
+                                        "@guid": "8b1rfbuW5YeYDvGgcGxAaB",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/ColorContent",
+                                        "@id": "http://id.loc.gov/vocabulary/mcolor/mul",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "xo6K8tiasMJNEjKpSvPuX1",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "color (mul)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/colorContent|http://id.loc.gov/ontologies/bibframe/ColorContent",
+                            "id": "id_loc_gov_ontologies_bibframe_colorContent__color_content",
+                            "hashCode": -1472373724,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/colorContent|http://id.loc.gov/ontologies/bibframe/ColorContent",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Color ill, color maps (clr cntnt)"
+                    },
+                    {
+                        "id": "jSwCsjZDquD7UCxLWfihNH",
+                        "groupId": "Color ill, Color Maps",
+                        "position": 4,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/authorities/genreForms"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/GenreForm",
+                                    "dataTypeLabel": "",
+                                    "remark": ""
+                                },
+                                "defaults": [],
+                                "editable": "true",
+                                "repeatable": "true"
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                            "propertyLabel": "Genre/Form",
+                            "remark": "",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                                "http://id.loc.gov/ontologies/bibframe/genreForm": [
+                                    {
+                                        "@guid": "tLQ4BsPTriYg62EuEu1pX5",
+                                        "@type": "http://www.loc.gov/mads/rdf/v1#GenreForm",
+                                        "@id": "http://id.loc.gov/authorities/genreForms/gf2011026387",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "6JcF5z1HNkKewqiSFGB3cW",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Maps",
+                                                "@language": "en"
+                                            }
+                                        ],
+                                        "http://id.loc.gov/ontologies/bflc/marcKey": [
+                                            {
+                                                "@guid": "8nAjKoPeugda6QsGzRUs8m",
+                                                "http://id.loc.gov/ontologies/bflc/marcKey": "155  $aMaps"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                            "hashCode": -1521279090,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Color ill, color maps (g/f)"
+                    },
+                    {
+                        "id": "qTZXJJC6fX7fs4KD9PEDDf",
+                        "groupId": "Color ill, Color Maps",
+                        "position": 5,
+                        "structure": {
+                            "mandatory": "true",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/contentTypes"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Content"
+                                },
+                                "editable": "false",
+                                "repeatable": "true",
+                                "defaults": [
+                                    {
+                                        "defaultURI": "http://id.loc.gov/vocabulary/contentTypes/txt",
+                                        "defaultLiteral": "text"
+                                    }
+                                ]
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/content",
+                            "propertyLabel": "Content type",
+                            "remark": "http://original.rdatoolkit.org/6.9.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/content",
+                                "http://id.loc.gov/ontologies/bibframe/content": [
+                                    {
+                                        "@guid": "kuESMVdS71VxoAJqKxF8wR",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Content",
+                                        "@id": "http://id.loc.gov/vocabulary/contentTypes/cri",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "hLqxQLdPf59U9Gn4hyL5fq",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "cartographic image (cri)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/content|http://id.loc.gov/ontologies/bibframe/Content",
+                            "id": "id_loc_gov_ontologies_bibframe_content__content_type",
+                            "hashCode": -211358670,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/content|http://id.loc.gov/ontologies/bibframe/Content",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Color ill, color maps (cntnt type)"
+                    },
+                    {
+                        "id": "vShrp7HNvp3GQFmywkgfUg",
+                        "groupId": "Conference w/ Place",
+                        "position": 6,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/authorities/genreForms"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/GenreForm",
+                                    "dataTypeLabel": "",
+                                    "remark": ""
+                                },
+                                "defaults": [],
+                                "editable": "true",
+                                "repeatable": "true"
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                            "propertyLabel": "Genre/Form",
+                            "remark": "",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                                "http://id.loc.gov/ontologies/bibframe/genreForm": [
+                                    {
+                                        "@guid": "riuKNMyqFWT8bir4eKahuS",
+                                        "@type": "http://www.loc.gov/mads/rdf/v1#GenreForm",
+                                        "@id": "http://id.loc.gov/authorities/genreForms/gf2014026068",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "d9vqmqDR8op5kxyuKURh5a",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Conference papers and proceedings",
+                                                "@language": "en"
+                                            }
+                                        ],
+                                        "http://id.loc.gov/ontologies/bflc/marcKey": [
+                                            {
+                                                "@guid": "sriGPU7mwQVV9Sjuvtz6GX",
+                                                "http://id.loc.gov/ontologies/bflc/marcKey": "155  $aConference papers and proceedings"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                            "hashCode": -1521279090,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Conference w/ place (g/f)"
+                    },
+                    {
+                        "id": "5tK2pM8iEJLrPWrGDKopfU",
+                        "groupId": "Conference Paper",
+                        "position": 7,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/authorities/genreForms"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/GenreForm",
+                                    "dataTypeLabel": "",
+                                    "remark": ""
+                                },
+                                "defaults": [],
+                                "editable": "true",
+                                "repeatable": "true"
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                            "propertyLabel": "Genre/Form",
+                            "remark": "",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                                "http://id.loc.gov/ontologies/bibframe/genreForm": [
+                                    {
+                                        "@guid": "riuKNMyqFWT8bir4eKahuS",
+                                        "@type": "http://www.loc.gov/mads/rdf/v1#GenreForm",
+                                        "@id": "http://id.loc.gov/authorities/genreForms/gf2014026068",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "d9vqmqDR8op5kxyuKURh5a",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Conference papers and proceedings",
+                                                "@language": "en"
+                                            }
+                                        ],
+                                        "http://id.loc.gov/ontologies/bflc/marcKey": [
+                                            {
+                                                "@guid": "sriGPU7mwQVV9Sjuvtz6GX",
+                                                "http://id.loc.gov/ontologies/bflc/marcKey": "155  $aConference papers and proceedings"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                            "hashCode": -1521279090,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Conference papers (g/f)"
+                    },
+                    {
+                        "id": "7yazpDhLc4ZsV94Pp1VyB8",
+                        "groupId": "Filmographies",
+                        "position": 8,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/authorities/genreForms"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/GenreForm",
+                                    "dataTypeLabel": "",
+                                    "remark": ""
+                                },
+                                "defaults": [],
+                                "editable": "true",
+                                "repeatable": "true"
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                            "propertyLabel": "Genre/Form",
+                            "remark": "",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                                "http://id.loc.gov/ontologies/bibframe/genreForm": [
+                                    {
+                                        "@guid": "iCL2fBzb6xRTcFda83nYH4",
+                                        "@type": "http://www.loc.gov/mads/rdf/v1#GenreForm",
+                                        "@id": "http://id.loc.gov/authorities/genreForms/gf2019026014",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "rr2VJjT4AfKTVFYednCTkH",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Filmographies",
+                                                "@language": "en"
+                                            }
+                                        ],
+                                        "http://id.loc.gov/ontologies/bflc/marcKey": [
+                                            {
+                                                "@guid": "9TYu55qFU88rq2MaTFXQEx",
+                                                "http://id.loc.gov/ontologies/bflc/marcKey": "155  $aFilmographies"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                            "hashCode": -1521279090,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Filmographies (g/f)"
+                    },
+                    {
+                        "id": "tnaJzZNtvj8PrT1x84togJ",
+                        "groupId": "Illustrations",
+                        "position": 9,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/millus"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Illustration"
+                                },
+                                "repeatable": "true",
+                                "editable": "false",
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                            "propertyLabel": "Illustrative content",
+                            "remark": "http://original.rdatoolkit.org/7.15.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                                "http://id.loc.gov/ontologies/bibframe/illustrativeContent": [
+                                    {
+                                        "@guid": "eDCQo8XGWVmk91wot6Z7VE",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Illustration",
+                                        "@id": "http://id.loc.gov/vocabulary/millus/ill",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "bvAxNseSFHR4qXhqH4zdZr",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations (ill)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "id": "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
+                            "hashCode": 1504301028,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Illustrations (ill cntnt)"
+                    },
+                    {
+                        "id": "aM1Nq8frmrdqhbLbnqqDzR",
+                        "groupId": "Illustrations, Maps",
+                        "position": 10,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/millus"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Illustration"
+                                },
+                                "repeatable": "true",
+                                "editable": "false",
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                            "propertyLabel": "Illustrative content",
+                            "remark": "http://original.rdatoolkit.org/7.15.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                                "http://id.loc.gov/ontologies/bibframe/illustrativeContent": [
+                                    {
+                                        "@guid": "eDCQo8XGWVmk91wot6Z7VE",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Illustration",
+                                        "@id": "http://id.loc.gov/vocabulary/millus/ill",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "bvAxNseSFHR4qXhqH4zdZr",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations (ill)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "id": "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
+                            "hashCode": 1504301028,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "illustrations, maps (ill cntnt1)"
+                    },
+                    {
+                        "id": "o6qKexmBexoosGKduseGFQ",
+                        "groupId": "Illustrations, Maps",
+                        "position": 11,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/millus"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Illustration"
+                                },
+                                "repeatable": "true",
+                                "editable": "false",
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                            "propertyLabel": "Illustrative content",
+                            "remark": "http://original.rdatoolkit.org/7.15.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                                "http://id.loc.gov/ontologies/bibframe/illustrativeContent": [
+                                    {
+                                        "@guid": "dSMzQ8FphdLHCmmq9zQS3L",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Illustration",
+                                        "@id": "http://id.loc.gov/vocabulary/millus/map",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "vBk7gGdRCiz1qjbYTiATBS",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "maps (map)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "id": "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
+                            "hashCode": 1504301028,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "illustrations, maps (ill cntnt2)"
+                    },
+                    {
+                        "id": "fjDFHjGjdi6d8uSDGWguJ3",
+                        "groupId": "Illustrations, Maps",
+                        "position": 12,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/authorities/genreForms"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/GenreForm",
+                                    "dataTypeLabel": "",
+                                    "remark": ""
+                                },
+                                "defaults": [],
+                                "editable": "true",
+                                "repeatable": "true"
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                            "propertyLabel": "Genre/Form",
+                            "remark": "",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                                "http://id.loc.gov/ontologies/bibframe/genreForm": [
+                                    {
+                                        "@guid": "nfqSRTVjRBpoyncmEhLax8",
+                                        "@type": "http://www.loc.gov/mads/rdf/v1#GenreForm",
+                                        "@id": "http://id.loc.gov/authorities/genreForms/gf2011026387",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "8b7M64cbp42sHW9CvJ6bBA",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Maps",
+                                                "@language": "en"
+                                            }
+                                        ],
+                                        "http://id.loc.gov/ontologies/bflc/marcKey": [
+                                            {
+                                                "@guid": "pdXFfKpE9MjUDtWP6avEcZ",
+                                                "http://id.loc.gov/ontologies/bflc/marcKey": "155  $aMaps"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                            "hashCode": -1521279090,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "illustrations, maps (g/f)"
+                    },
+                    {
+                        "id": "b9cY83wahc8fkcUcuv7VGL",
+                        "groupId": "Maps",
+                        "position": 13,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/authorities/genreForms"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/GenreForm",
+                                    "dataTypeLabel": "",
+                                    "remark": ""
+                                },
+                                "defaults": [],
+                                "editable": "true",
+                                "repeatable": "true"
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                            "propertyLabel": "Genre/Form",
+                            "remark": "",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                                "http://id.loc.gov/ontologies/bibframe/genreForm": [
+                                    {
+                                        "@guid": "nfqSRTVjRBpoyncmEhLax8",
+                                        "@type": "http://www.loc.gov/mads/rdf/v1#GenreForm",
+                                        "@id": "http://id.loc.gov/authorities/genreForms/gf2011026387",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "8b7M64cbp42sHW9CvJ6bBA",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Maps",
+                                                "@language": "en"
+                                            }
+                                        ],
+                                        "http://id.loc.gov/ontologies/bflc/marcKey": [
+                                            {
+                                                "@guid": "pdXFfKpE9MjUDtWP6avEcZ",
+                                                "http://id.loc.gov/ontologies/bflc/marcKey": "155  $aMaps"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                            "hashCode": -1521279090,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Maps (g/f)"
+                    },
+                    {
+                        "id": "aLUUU2dm9qTuaFhoDosjk2",
+                        "groupId": "Maps",
+                        "position": 14,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/millus"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Illustration"
+                                },
+                                "repeatable": "true",
+                                "editable": "false",
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                            "propertyLabel": "Illustrative content",
+                            "remark": "http://original.rdatoolkit.org/7.15.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                                "http://id.loc.gov/ontologies/bibframe/illustrativeContent": [
+                                    {
+                                        "@guid": "dSMzQ8FphdLHCmmq9zQS3L",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Illustration",
+                                        "@id": "http://id.loc.gov/vocabulary/millus/map",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "vBk7gGdRCiz1qjbYTiATBS",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "maps (map)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "id": "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
+                            "hashCode": 1504301028,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Maps (ill cntnt)"
+                    },
+                    {
+                        "id": "4zytgeKUuAqVNhSusXBwSD",
+                        "groupId": "Maps",
+                        "position": 15,
+                        "structure": {
+                            "mandatory": "true",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/contentTypes"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Content"
+                                },
+                                "editable": "false",
+                                "repeatable": "true",
+                                "defaults": [
+                                    {
+                                        "defaultURI": "http://id.loc.gov/vocabulary/contentTypes/txt",
+                                        "defaultLiteral": "text"
+                                    }
+                                ]
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/content",
+                            "propertyLabel": "Content type",
+                            "remark": "http://original.rdatoolkit.org/6.9.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/content",
+                                "http://id.loc.gov/ontologies/bibframe/content": [
+                                    {
+                                        "@guid": "4ncDt2zwJQU4sJWySGrqMi",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Content",
+                                        "@id": "http://id.loc.gov/vocabulary/contentTypes/cri",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "sjtEeE82dGVQwFsUPcavEf",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "cartographic image (cri)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/content|http://id.loc.gov/ontologies/bibframe/Content",
+                            "id": "id_loc_gov_ontologies_bibframe_content__content_type",
+                            "hashCode": -211358670,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/content|http://id.loc.gov/ontologies/bibframe/Content",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Maps (cntnt type)"
+                    },
+                    {
+                        "id": "rfhb6VKo9F2rrBqdVi1i8V",
+                        "groupId": null,
+                        "position": 16,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "propertyLabel": "Notes about the Work",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "a7HcoopzA4coReKbxAZKNu",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "hi67V8Q2uP52Hh9k1fa2Mh",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Translated from <#####>"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "rQkXNtRHHuYwo3GS7hDLm3",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/lang",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "hdiB3Nnsq4jngLueJ8D8cz",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "language (lang)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Work",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_work",
+                            "hashCode": 1203075139,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Note on translation"
+                    },
+                    {
+                        "id": "9Cq5toFGDrPbcx2k1ES5PM",
+                        "groupId": "Published In",
+                        "position": 17,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "propertyLabel": "Notes about the Work",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "gNAXCyNcvBxoWoYLb9LWwt",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "m1ingF2SkyDtYfww77c1VH",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Published in <#####>"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Work",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_work",
+                            "hashCode": 1203075139,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Published in (wrk note)"
+                    },
+                    {
+                        "id": "r2uLjeuCCjphBSLvawgt6W",
+                        "groupId": null,
+                        "position": 18,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "propertyLabel": "Notes about the Work",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "tHAoCS2zmxsPpyeK4cX2SG",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "wpu1viVFQAgioAvv8CdkET",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Published in conjunction with the <#####>"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Work",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_work",
+                            "hashCode": 1203075139,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Published in conjunction (Exhibit)"
+                    },
+                    {
+                        "id": "ws3Fdw19MKx3Zw3tFe4PWx",
+                        "groupId": null,
+                        "position": 19,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "propertyLabel": "Notes about the Work",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "eoo8Ma7LF4mj5qVGYDdQ7k",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "8fs536bZZn5ttNXqt3rPmc",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": " Published on the occasion of the <#####>"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Work",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_work",
+                            "hashCode": 1203075139,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": " Published on the occasion of"
+                    },
+                    {
+                        "id": "o6ymbCUzy3pPXyXjih8oq2",
+                        "groupId": "Catalog of an Exhibition",
+                        "position": 20,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "propertyLabel": "Notes about the Work",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "59v1XWzsqwhTJoQfs1Ysw8",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "aMMyBjTPPYi2PVoirtfeXU",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Catalog of an exhibition held at <#####>"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Work",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_work",
+                            "hashCode": 1203075139,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Catalog of an exhibition (wrk note)"
+                    },
+                    {
+                        "id": "3hLb6FQPjxhc6Z67qkuJqL",
+                        "groupId": "Catalog of an Exhibition",
+                        "position": 21,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/authorities/genreForms"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/GenreForm",
+                                    "dataTypeLabel": "",
+                                    "remark": ""
+                                },
+                                "defaults": [],
+                                "editable": "true",
+                                "repeatable": "true"
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                            "propertyLabel": "Genre/Form",
+                            "remark": "",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                                "http://id.loc.gov/ontologies/bibframe/genreForm": [
+                                    {
+                                        "@guid": "uuJL5EWVXT445ZdsDhosB2",
+                                        "@type": "http://www.loc.gov/mads/rdf/v1#GenreForm",
+                                        "@id": "http://id.loc.gov/authorities/genreForms/gf2014026098",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "gvUVir8x91QPvxQUJqaxh4",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Exhibition catalogs",
+                                                "@language": "en"
+                                            }
+                                        ],
+                                        "http://id.loc.gov/ontologies/bflc/marcKey": [
+                                            {
+                                                "@guid": "nhZ76boYm2MTDMi7dpsFMR",
+                                                "http://id.loc.gov/ontologies/bflc/marcKey": "155  $aExhibition catalogs"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                            "hashCode": -1521279090,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Catalog of an exhibition (g/f)"
+                    },
+                    {
+                        "id": "4yywMMQAUZ8np45Yz3Gr8k",
+                        "groupId": "Map (in Pocket) note",
+                        "position": 22,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/millus"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Illustration"
+                                },
+                                "repeatable": "true",
+                                "editable": "false",
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                            "propertyLabel": "Illustrative content",
+                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-MonographConsiderations(andMARC008)",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                                "http://id.loc.gov/ontologies/bibframe/illustrativeContent": [
+                                    {
+                                        "@guid": "kET4tMveAUtShu9ennkEQp",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Illustration",
+                                        "@id": "http://id.loc.gov/vocabulary/millus/map",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "1EinUGLjPtH1tPYd8Wdors",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "maps (map)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "id": "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
+                            "hashCode": -1055901801,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Map (in Pocket) note (ill cntnt)"
+                    },
+                    {
+                        "id": "45sF8AhKB6QXfw6GCzn98C",
+                        "groupId": "Map (in Pocket) note",
+                        "position": 23,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Form"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/GenreForm",
+                                    "dataTypeLabel": "",
+                                    "remark": ""
+                                },
+                                "defaults": [],
+                                "editable": "true",
+                                "repeatable": "true"
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                            "propertyLabel": "Genre/Form",
+                            "remark": "",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                                "http://id.loc.gov/ontologies/bibframe/genreForm": [
+                                    {
+                                        "@guid": "jWkhVDAqpj6EJutzLUrnrR",
+                                        "@type": "http://www.loc.gov/mads/rdf/v1#GenreForm",
+                                        "@id": "http://id.loc.gov/authorities/genreForms/gf2011026387",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "1Qk2SrfticPmcpvwgikyVA",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Maps",
+                                                "@language": "en"
+                                            }
+                                        ],
+                                        "http://id.loc.gov/ontologies/bflc/marcKey": [
+                                            {
+                                                "@guid": "jqc9fyjs77GL36aC46Akf2",
+                                                "http://id.loc.gov/ontologies/bflc/marcKey": "155  $aMaps"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                            "hashCode": 490027258,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Map (in Pocket) note (g/f)"
+                    },
+                    {
+                        "id": "kX2Fwq5tccgUwAakkPAfFF",
+                        "groupId": "Map (in Pocket) note",
+                        "position": 24,
+                        "structure": {
+                            "mandatory": "true",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/contentTypes"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Content"
+                                },
+                                "editable": "false",
+                                "repeatable": "true",
+                                "defaults": [
+                                    {
+                                        "defaultURI": "http://id.loc.gov/vocabulary/contentTypes/txt",
+                                        "defaultLiteral": "text"
+                                    }
+                                ]
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/content",
+                            "propertyLabel": "Content type",
+                            "remark": "https://original.rdatoolkit.org/6.9.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/content",
+                                "http://id.loc.gov/ontologies/bibframe/content": [
+                                    {
+                                        "@guid": "8E1iLaJxGxuVTmPA7LeV9y",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Content",
+                                        "@id": "http://id.loc.gov/vocabulary/contentTypes/cri",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "vkHR5UHcigC7MMuzkyfRx7",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "cartographic image (cri)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/content|http://id.loc.gov/ontologies/bibframe/Content",
+                            "id": "id_loc_gov_ontologies_bibframe_content__content_type",
+                            "hashCode": 411074621,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/content|http://id.loc.gov/ontologies/bibframe/Content",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Map (in Pocket) note (cntnt type)"
+                    },
+                    {
+                        "id": "aH56AhrvWU9HXdjX4ucsxA",
+                        "groupId": "Index",
+                        "position": 25,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "false",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/msupplcont"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent"
+                                },
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
+                            "propertyLabel": "Supplementary content",
+                            "remark": "https://original.rdatoolkit.org/7.16.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
+                                "http://id.loc.gov/ontologies/bibframe/supplementaryContent": [
+                                    {
+                                        "@guid": "txrmecvoN2s7ioKEooQnLC",
+                                        "@id": "http://id.loc.gov/vocabulary/msupplcont/index",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "tRtZnHXX47oUFmZwqLgCdS",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "index (index)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
+                            "id": "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content",
+                            "hashCode": -2006168873,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Index (supp cntnt)"
+                    },
+                    {
+                        "id": "4ZQtdTGpsJpDec9H2UR1EN",
+                        "groupId": "Bib/Index",
+                        "position": 26,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "false",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/msupplcont"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent"
+                                },
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
+                            "propertyLabel": "Supplementary content",
+                            "remark": "https://original.rdatoolkit.org/7.16.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
+                                "http://id.loc.gov/ontologies/bibframe/supplementaryContent": [
+                                    {
+                                        "@id": "http://id.loc.gov/vocabulary/msupplcont/bibliography",
+                                        "@guid": "2uWByuKZ9qrfxeWnReGWsg",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "fKYNMCmUp7N6nLck99QuUM",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "bibliography (bibliography)"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "@id": "http://id.loc.gov/vocabulary/msupplcont/index",
+                                        "@guid": "s4YZD1TPZ8mTs8zmApR2zh",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "5rzDeGmBtqbc9SthA95pqj",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "index (index)"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
+                            "id": "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content",
+                            "hashCode": -2006168873,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Bib/Index (supp cntnt)"
+                    },
+                    {
+                        "id": "nUj5Y62BoKQGc8XZR4kizx",
+                        "groupId": "Bib",
+                        "position": 27,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "false",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/msupplcont"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent"
+                                },
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
+                            "propertyLabel": "Supplementary content",
+                            "remark": "https://original.rdatoolkit.org/7.16.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
+                                "http://id.loc.gov/ontologies/bibframe/supplementaryContent": [
+                                    {
+                                        "@id": "http://id.loc.gov/vocabulary/msupplcont/bibliography",
+                                        "@guid": "2uWByuKZ9qrfxeWnReGWsg",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "fKYNMCmUp7N6nLck99QuUM",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "bibliography (bibliography)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
+                            "id": "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content",
+                            "hashCode": -2006168873,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Bib (supp cntnt)"
+                    }
+                ]
+            },
+            "lc:RT:bf2:Monograph:Instance": {
+                "groups": [
+                    {
+                        "id": "ci9onu1M8WZDTEZCqVQA2r",
+                        "groupId": null,
+                        "position": 0,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "fPrwd5xeWVS1U1QyzxoTZF",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "o9x8bT8tmFWDyp2ySnaoRb",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "At head of title: #######"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "At head"
+                    },
+                    {
+                        "id": "bWXwVC4UrVZznzPdFDYot7",
+                        "groupId": null,
+                        "position": 2,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "4YYxfq9CZGR9ytTkqW2Gyp",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "8NwPdsk3phgHBBc3ZdQs3T",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Title from caption."
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "pZKnxPJiMm1QkJEZWBw9wN",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/descsource",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "vQ8QZAq5tE865yRU4vBE9z",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "description source (descsource)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Caption Title"
+                    },
+                    {
+                        "id": "mpW2ARKSNnSQgU4haowiVg",
+                        "groupId": null,
+                        "position": 3,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "vFmMY9ji79CxFtZyqajvBp",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "aqpeLBXYcv1PsZHEzaCgYw",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "On board pages."
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Board Books"
+                    },
+                    {
+                        "id": "bxiumi2WzGErraKbAf8y2Z",
+                        "groupId": "Color ill, Color Maps",
+                        "position": 3,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "cuYsaTA36XUP3BkVEQHjWJ",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "iqPdxhuNapUNp6SUNLHpMS",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations (some color), maps (some color)"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "duD17oiwf6Yd3hR2aa9FWb",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/physical",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "n2dwAy96nwPPDJ6uPCLpwQ",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details (physical)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Color ill, color maps (inst note)"
+                    },
+                    {
+                        "id": "oHp1xjoBmvPWYup1SeJAGV",
+                        "groupId": "Conference w/ Place",
+                        "position": 4,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "5FAYLubqNb2YPBLCw9hTYx",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "cHW51G4jbPFizwaPsAaQ57",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Proceedings of <#####>"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Conference w/ place (inst note)"
+                    },
+                    {
+                        "id": "a34454Xvp2qwUqYA4P5WSE",
+                        "groupId": "Conference Paper",
+                        "position": 5,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "mJYKZJpFWLFQTFHZxCKhF5",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "mS6Dwmh1FUbUrrKSPKD8Zj",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Papers presented at the <#####>"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Conference papers (inst note)"
+                    },
+                    {
+                        "id": "un7VFJCzBENCDCDnTox7Li",
+                        "groupId": null,
+                        "position": 6,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "41gUDJPhW8p8z1ra3tGiyZ",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "fCesrrZbsRkP3mYuzaAjN6",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Title from cover."
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Cover Title"
+                    },
+                    {
+                        "id": "jbxGp2kvRTgb8Zsx5gagF3",
+                        "groupId": null,
+                        "position": 7,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "rshpJPMV39LhRx7z8f637f",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "5pDP1m1y3bTUy6tXHq6pj4",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Also issued in electronic format."
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "ggFa6HUsGvWrLtvJF7UW2p",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/addphys",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "nEkCVV5PvPJ9eTWTFQt8W4",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "additional physical form (addphys)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Electronic format"
+                    },
+                    {
+                        "id": "hoDnZgM8dpCi5v1tKn8mUj",
+                        "groupId": null,
+                        "position": 8,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "etAgr731fPUrLbWnZGuXG3",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "tpjsTP4dfJAJsHszbzktyr",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Errata slip inserted."
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Errata"
+                    },
+                    {
+                        "id": "rbDPaA6aoSemAoNy7WXF1w",
+                        "groupId": "Filmographies",
+                        "position": 9,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "43KXJsDK3YdFESgQsWpsfg",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "3PdL2Js6G7SV92RQLE1Ubt",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Filmography: pages <#####>"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "ba8yCiJm5xFk4G5Hy6z82w",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/biblio",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "r7jbmo2ek3zvkt4QZdNpHf",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "bibliography (biblio)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Filmographies (inst note)"
+                    },
+                    {
+                        "id": "6a2LEGznBDoWCgfC2pSHEU",
+                        "groupId": "Illustrations",
+                        "position": 10,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "fMr41wxHVmdbC9eBwgPYrG",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "8N1ypqgb3uewmxUTZC16eh",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "aPs4sDpRNbkoB7goupawA8",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/physical",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "kjpwjYNXoEYbHDajuU1yjg",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details (physical)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Illustrations (inst note)"
+                    },
+                    {
+                        "id": "5TKn4YXXJLqMGPWyTroz5X",
+                        "groupId": "Illustrations, Maps",
+                        "position": 11,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "ezFqjZVGQA3ZqQm6148sgb",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "4QKccRuymHT1XettzczEd2",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations, maps"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "34mGopKFGYAozdYf2aKbPH",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/physical",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "68HQGmijWkjBcCY81ZZc7g",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details (physical)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "illustrations, maps (inst note)"
+                    },
+                    {
+                        "id": "2Bn8c484HuufhwEBGTnvA7",
+                        "groupId": null,
+                        "position": 12,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "9Qs5RRRASnY4e9DzhsFxr2",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "fs8KTkyVUZ2EUDbyZm4KEW",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Map on lining papers."
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Map on lining"
+                    },
+                    {
+                        "id": "9JrmDww9V1wtkU9QuTuuZT",
+                        "groupId": null,
+                        "position": 13,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "tqmiuB4YNzm5oRdhxdz2ws",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "6yeoDwvubszE33L5J6Ujv7",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Originally published in <#####> under the title <#####>."
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Originally published in"
+                    },
+                    {
+                        "id": "1wQq36r5nfrcubTudufpwY",
+                        "groupId": "Published In",
+                        "position": 14,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "hnno1uTLLCVMag6XDam49m",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "chEuLvho4qzQaNFmj2g1JK",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Published in <#####>"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Published in (inst note)"
+                    },
+                    {
+                        "id": "s8VPQ8s61sVbsDJ5fpehn5",
+                        "groupId": null,
+                        "position": 15,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "i8JwqpCQtLKSgjZWZZShcG",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "cdPgazSxxBr9eF4ow3x24Z",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Reprint from the <#####>, <#####> edition"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Reprint from"
+                    },
+                    {
+                        "id": "nViLxKYkPzhhDvXhyD5BSu",
+                        "groupId": "Tête-beche ",
+                        "position": 16,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "1V3zFrnG3CRo2FYvjxDbQr",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "2RHgZ2Ty44peoAc9cjePTJ",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Titles from separate title pages"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "tête-beche (inst note1)"
+                    },
+                    {
+                        "id": "uFpoUjKRSD9tjgkhWD3rnK",
+                        "groupId": "Tête-beche ",
+                        "position": 17,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@guid": "wA5rLRvJwoBnDJK9GzD1ZA",
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "sLE9FNS7t6KAxzkANfNDSb",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "2a9sMzGrz4f3URrgKg3x9M",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Bound tête-beche."
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "tête-beche (inst note2)"
+                    },
+                    {
+                        "id": "u25VubPFYL9vneMnzFvLDV",
+                        "groupId": null,
+                        "position": 18,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Notesonnotes",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "oEyPf6D244wgDSvH12eVx6",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "32b5agfNwyPr8QFwWSgeSP",
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/accmat",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "8zbxNzMkXQjchQJn6gxnzy",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "accompanying material (accmat)"
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "rEZeqK6RWDvqNkFHamT7FB",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "errata"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": 1144029139,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Errata for 300"
+                    },
+                    {
+                        "id": "sMUFPC5f3WLCkZ4UYj5wmo",
+                        "groupId": "Map (in Pocket) note",
+                        "position": 19,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Notesonnotes",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "oEyPf6D244wgDSvH12eVx6",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "32b5agfNwyPr8QFwWSgeSP",
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/accmat",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "8zbxNzMkXQjchQJn6gxnzy",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "accompanying material (accmat)"
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "rEZeqK6RWDvqNkFHamT7FB",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "1 map (<#####>cm x <#####>cm folded to <#####>cm)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": 1144029139,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Map (in Pocket) note (inst note 1)"
+                    },
+                    {
+                        "id": "oKdUHq1rfjmF2KqvzftoR1",
+                        "groupId": "Map (in Pocket) note",
+                        "position": 20,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Notesonnotes",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "aPtELCDzXKoVyY9wppB21J",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "dzZUv218ZC5Ciw6H3HkNsk",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Includes folded map in pocket"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": 1144029139,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Map (in Pocket) note (inst note 2)"
+                    },
+                    {
+                        "id": "tUXrKNmoqyzsCbA3ds5BwH",
+                        "groupId": "Map (in Pocket) note",
+                        "position": 21,
+                        "structure": {
+                            "propertyLabel": "Carrier type",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/carrier",
+                            "repeatable": "true",
+                            "resourceTemplates": [],
+                            "type": "lookup",
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/carriers"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Carrier"
+                                },
+                                "repeatable": "true",
+                                "editable": "false",
+                                "defaults": [
+                                    {
+                                        "defaultURI": "http://id.loc.gov/vocabulary/carriers/nc",
+                                        "defaultLiteral": "volume"
+                                    }
+                                ]
+                            },
+                            "mandatory": "true",
+                            "remark": "https://original.rdatoolkit.org/3.3.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/carrier",
+                                "http://id.loc.gov/ontologies/bibframe/carrier": [
+                                    {
+                                        "@guid": "sALQXQjwbccSbrycUXrjeU",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Carrier",
+                                        "@id": "http://id.loc.gov/vocabulary/carriers/nb",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "sJeEEeY9aqauMKCMLSVZKV",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "sheet (nb)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/carrier|http://id.loc.gov/ontologies/bibframe/Carrier",
+                            "id": "id_loc_gov_ontologies_bibframe_carrier__carrier_type",
+                            "hashCode": 505732971,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/carrier|http://id.loc.gov/ontologies/bibframe/Carrier",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Map (in Pocket) note (carr type)"
+                    },
+                    {
+                        "id": "a73kDKzy8ZHrydBw4jHYgg",
+                        "groupId": "Bib",
+                        "position": 22,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "jebvh31R44hMRF3VJ63FqP",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "2KBmJKDYx1K83NvTaykSS2",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Includes bibliographical references (pages <#####>)"
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "ezpj9yMKdkDWPmN4T9Jh9E",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/biblio",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "icWr6SJCWKjuXPSJzy21uk",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "bibliography (biblio)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Bib (inst note)"
+                    },
+                    {
+                        "id": "wboCqChLqq3ePAAvMN4Jkd",
+                        "groupId": "Index",
+                        "position": 24,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "jebvh31R44hMRF3VJ63FqP",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "2KBmJKDYx1K83NvTaykSS2",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Includes index."
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/index",
+                                                "@guid": "wnKsweffoEGfPiBpyQFhPf",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "h1isHramUc1czfK1KZVhVn",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "index (index)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Index (instance note)"
+                    },
+                    {
+                        "id": "eam9xJ4An2v1xSMWZjkGey",
+                        "groupId": "Bib/Index",
+                        "position": 24,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "http://original.rdatoolkit.org/2.17.html",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "wyqrcnknWL3SG55xE42Y39",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "aHgdrLHeb3qhKQrmywcA5Y",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Includes bibliographical references (pages <#####>) and index."
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "gPrhhBM3sdTUdnKUagQTZd",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/biblio",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "j9m4gygavZ1VPLmzZ5Wxne",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "bibliography (biblio)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            },
+                                            {
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/index",
+                                                "@guid": "fjAQUfwF4F1Sogd2Y9QGfC",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "9DuGPe9yKWFZqFWU4S7BMR",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "index (index)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": -490787199,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Bib/Index (inst note)"
+                    }
+                ]
+            }
+        }
+    }
+}

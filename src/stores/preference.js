@@ -199,33 +199,41 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Sidebars - Property',
         range: [true,false]
+      },
+      '--b-edit-main-splitpane-properties-component-library-prompt-to-add' : {
+        desc: 'Ask before adding a component from the library.',
+        descShort: 'Prompt to add Library Component',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Property',
+        range: [true,false]
+      },
+      '--c-edit-main-splitpane-slider-color' : {
+          value:'#ffffff',
+          desc: 'Color of the dividing line / resize line.',
+          descShort: 'Resize Line Color',
+          type: 'color',
+          group: 'Sidebars - Property',
+          range: null
+      },
+      '--c-edit-main-splitpane-slider-border-color' : {
+        value:'#eee',
+        desc: 'Color of the dividing line / resize line Border.',
+        descShort: 'Resize Line Border Color',
+        type: 'color',
+        group: 'Sidebars - Property',
+        range: null
+      },
+      '--b-edit-main-splitpane-properties-show-defaults' : {
+        desc: 'Display the default Component Library in the Property Panel.',
+        descShort: 'Default Component Library',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Property',
+        range: [true,false]
     },
-    '--b-edit-main-splitpane-properties-component-library-prompt-to-add' : {
-      desc: 'Ask before adding a component from the library.',
-      descShort: 'Prompt to add Library Component',
-      value: true,
-      type: 'boolean',
-      unit: null,
-      group: 'Sidebars - Property',
-      range: [true,false]
-  },
-
-    '--c-edit-main-splitpane-slider-color' : {
-      value:'#ffffff',
-      desc: 'Color of the dividing line / resize line.',
-      descShort: 'Resize Line Color',
-      type: 'color',
-      group: 'Sidebars - Property',
-      range: null
-  },
-  '--c-edit-main-splitpane-slider-border-color' : {
-    value:'#eee',
-    desc: 'Color of the dividing line / resize line Border.',
-    descShort: 'Resize Line Border Color',
-    type: 'color',
-    group: 'Sidebars - Property',
-    range: null
-},
 
 
 

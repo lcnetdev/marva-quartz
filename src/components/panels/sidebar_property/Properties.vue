@@ -540,10 +540,9 @@ import { isReadonly } from 'vue';
     <AccordionList  :open-multiple-items="true">
 
       <template v-for="clProfile in returnComponentLibrary" :key="clProfile">
-
         <AccordionItem style="color: white;" :id="'accordion_'+clProfile.label" default-closed>
           <template #summary>
-            <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">Library: {{ clProfile.label }}</span></div>
+            <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">{{ clProfile.type == 'default' ? 'Default' : 'Library' }}: {{ clProfile.label }}</span></div>
           </template>
           <ul class="sidebar-property-ul" role="list">
             <template v-for="group in clProfile.groups" >
@@ -554,8 +553,6 @@ import { isReadonly } from 'vue';
 
                 <template v-for="component in group">
                   <li class="sidebar-property-li sidebar-property-li-cl ">
-
-
 
                   <button :class="{'material-icons' : true, 'component-library-settings-button': true, 'component-library-settings-button-invert': (activeComponentLibrary == component.id)  }" @click="configComponentLibrary(component.id)">settings_applications</button>
 
