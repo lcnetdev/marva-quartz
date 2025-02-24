@@ -671,6 +671,16 @@ export const usePreferenceStore = defineStore('preference', {
     group: 'Lookup Field',
     range: null
   },
+  '--n-edit-main-lookup-font-size' : {
+      desc: 'The font size for the text in a lookup element.',
+      descShort: 'Lookup font size',
+      value: 0.75,
+      step: 0.05,
+      type: 'number',
+      unit: 'em',
+      group: 'Lookup Field',
+      range: [0.75,2]
+  },
 
 
 
@@ -1602,9 +1612,7 @@ export const usePreferenceStore = defineStore('preference', {
         //  Don't touch diacritic, layouts, etc.
         console.log(this.styleDefaultOrginal)
         for (let key in this.styleDefaultOrginal){
-          if (!ignore.includes(key)){
-            this.setValue(key, this.styleDefaultOrginal[key].value)
-          }
+          this.setValue(key, this.styleDefaultOrginal[key].value)
         }
 
       }else if (themeName == 'dark'){
