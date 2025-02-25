@@ -221,7 +221,6 @@ export const useProfileStore = defineStore('profile', {
      * @return {array}
      */
     returnComponentLibrary: (state) => {
-      console.info("returnComponentLibrary: ", state)
       // limit to the current profiles being used
       // console.log(state.activeProfile)
       // console.log(state.componentLibrary)
@@ -231,7 +230,6 @@ export const useProfileStore = defineStore('profile', {
       // }
       let results = []
       for (let key in state.activeProfile.rt){
-        console.info("key: ", key)
         // ther are components saved for this profile
         if (state.componentLibrary.profiles[key]){
           let groups = {}
@@ -256,8 +254,6 @@ export const useProfileStore = defineStore('profile', {
         if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
           let groups = {}
           let groupsOrder = []
-          console.info("defaultComponents: ", defaultComponents.DefaultComponentLibrary)
-          console.info("defaultComponents.profiles: ", defaultComponents.DefaultComponentLibrary.profiles)
           for (let dKey in defaultComponents.DefaultComponentLibrary.profiles){
             if (dKey.includes(key)){
               for (let group of defaultComponents.DefaultComponentLibrary.profiles[dKey].groups.sort(({position:a}, {position:b}) => a-b)){
@@ -275,7 +271,6 @@ export const useProfileStore = defineStore('profile', {
               results.push({type: "default", groups:groups, groupsOrder:groupsOrder, profileId: dKey, label: key.split(":").slice(-1)[0]})
             }
           }
-          console.info("results: ", JSON.parse(JSON.stringify(results)))
         }
       }
 
@@ -288,7 +283,6 @@ export const useProfileStore = defineStore('profile', {
       for (let profileComponents of results){
 
         let type = profileComponents.type
-        console.info("type: ", type)
 
         for (let groupKey in profileComponents.groups){
           if (profileComponents.groups[groupKey].groupId !== null){
@@ -324,7 +318,6 @@ export const useProfileStore = defineStore('profile', {
       }
 
       let mergeComponents = function (results, groupsToMerge, title){
-        console.info("merging")
         if (groupsToMerge.length>0){
           // we have to MERGE
           let multiProfile = {
@@ -336,12 +329,10 @@ export const useProfileStore = defineStore('profile', {
           }
 
           for (let groupName of groupsToMerge){
-            console.info("??????: ", groupName)
             let tmpGroupComponents = []
             // remove them from the orginal group/profile and them to the multi profile
             for (let profileComponents of results){
               if (profileComponents.groups[groupName]){
-                console.info("!!!!!")
                 tmpGroupComponents=tmpGroupComponents.concat( JSON.parse(JSON.stringify(profileComponents.groups[groupName])) )
                 delete profileComponents.groups[groupName]
               }
@@ -359,8 +350,6 @@ export const useProfileStore = defineStore('profile', {
                 if (component.label.indexOf("(w)")>-1){ continue}
                 let initial = component.structure.parentId.split(':').slice(-1)[0].charAt(0).toLowerCase();
 
-                console.info("initial: ", initial)
-
                 component.label = `(${initial}) ${component.label}`
               }
             }
@@ -368,17 +357,12 @@ export const useProfileStore = defineStore('profile', {
           results.push(multiProfile)
         }
 
-        console.info("results: ", JSON.parse(JSON.stringify(results)))
         return results
       }
 
-      console.info("groupsToMergeDefault: ", groupsToMergeDefault)
-
       let r = mergeComponents(results, groupsToMerge, 'Multi')
-      console.info("r1: ", r)
       results.concat(r)
       r = mergeComponents(results, groupsToMergeDefault, 'Multi Default')
-      console.info("r2: ", r)
       results.concat(r)
 
       //merge the defaults into 1 list
@@ -395,7 +379,6 @@ export const useProfileStore = defineStore('profile', {
         }
         //merge into 1
         for (let item of defaults){
-          console.info("item: ", item)
           defaultObj.groups = Object.assign({}, defaultObj.groups, item.groups)
           defaultObj.groupsOrder = defaultObj.groupsOrder.concat(item.groupsOrder)
         }
@@ -421,14 +404,11 @@ export const useProfileStore = defineStore('profile', {
       // remove any empty ones that may have shifted fully into the multi profile
       results = results.filter((g) => {return (g.groupsOrder.length>0)})
 
-      console.info("results: ", results)
       results = results.sort((a,b) => {
-        console.info("sort: ", a.type)
         if (!a.type || a.type == null) { return -1}
         if (!b.type || b.type == null) { return 1}
         return (a.type < b.type) ? 1 : (a.type > b.type) ? -1 : 0
       })
-      console.info("results: ", results)
       return results
     },
 
@@ -5183,11 +5163,7 @@ export const useProfileStore = defineStore('profile', {
      * @param {string} guid - The GUID of the component
      */
     addToComponentLibrary: async function(guid){
-      console.info("addToComponentLibrary: ", guid)
-
       let structure = JSON.parse(JSON.stringify(this.returnStructureByComponentGuid(guid)))
-
-      console.info("structure: ", structure)
 
       // clean up component property values for storage
       structure['@guid'] = null
@@ -5255,30 +5231,19 @@ export const useProfileStore = defineStore('profile', {
      *
      */
     addFromComponentLibrary(id){
-      console.info("addFromComponentLibrary: ", id)
-      console.info("this.componentLibrary: ", this.componentLibrary)
-
       let defaultLibrary = null
       if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
         defaultLibrary = defaultComponents.DefaultComponentLibrary.profiles
-        console.info("defaultLibrary: ", defaultLibrary)
         this.componentLibrary.profiles = Object.assign({}, this.componentLibrary.profiles, defaultLibrary)
       }
 
       for (let key in this.componentLibrary.profiles){
-        console.info("    key: ", key)
         for (let group of this.componentLibrary.profiles[key].groups){
-          console.info("        group: ", group)
-          console.info("        group.id: ", group.id)
-          console.info("        id: ", id)
           if (group.id == id){
 
             // we are adding a sigle one here so groups are individual (group of 1) in this case
             console.log("Adding thisone",group)
-            console.info("Adding this one: ",group)
             let component = JSON.parse(JSON.stringify(group.structure))
-            console.info("component: ", component)
-
 
             // see if we can find its counter part in the acutal profile
             if (this.activeProfile.rt[component.parentId]){
@@ -5392,10 +5357,6 @@ export const useProfileStore = defineStore('profile', {
 
               if (ptObjFound != false){
                 console.log("Found orignal here:",ptObjFound)
-                console.info("Found orignal here:",ptObjFound)
-                console.info("    ptObjFound.hashCode: ", ptObjFound.hashCode)
-                console.info("    component.hashCode: ", component.hashCode)
-
                 // let structureCopy = JSON.parse(JSON.stringify(ptObjFound))
 
                 if (ptObjFound.hashCode == component.hashCode){
