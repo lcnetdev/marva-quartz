@@ -563,10 +563,9 @@ import { isReadonly } from 'vue';
                   <div class="component-library-item-container sidebar-property-li-empty" @click="addComponentLibrary($event,component.id)" >
                     <a href="#" @click="addComponentLibrary($event,component.id)">{{ component.label }}</a>
                   </div>
-                    <template v-if="activeComponentLibrary == component.id">
+                    <template v-if="activeComponentLibrary == component.id && clProfile.type != 'default'">
                       <div class="component-library-settings">
 
-                        <template v-if="clProfile.type != 'default'">
                           <button class="material-icons simptip-position-right" data-tooltip="DELETE" @click="delComponentLibrary($event,component.id)">delete_forever</button>
                           <button class="material-icons simptip-position-right" data-tooltip="RENAME" @click="renameComponentLibrary($event,component.id,component.label)">new_label</button>
                           <select @change="configComponentLibraryAssignGroup($event,component.id)">
@@ -598,7 +597,6 @@ import { isReadonly } from 'vue';
                             <option value="Y" :selected="(component.groupId==='Y')">Group Y</option>
                             <option value="Z" :selected="(component.groupId==='Z')">Group Z</option>
                           </select>
-                        </template>
 
 
                       </div>
