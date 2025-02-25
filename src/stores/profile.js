@@ -373,8 +373,6 @@ export const useProfileStore = defineStore('profile', {
         return results
       }
 
-      //TODO: maybe pull defaults gether under 1 heading?
-
       console.info("groupsToMergeDefault: ", groupsToMergeDefault)
 
       let r = mergeComponents(results, groupsToMerge, 'Multi')
@@ -383,6 +381,33 @@ export const useProfileStore = defineStore('profile', {
       r = mergeComponents(results, groupsToMergeDefault, 'Multi Default')
       console.info("r2: ", r)
       results.concat(r)
+
+      //merge the defaults into 1 list
+      if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
+        let defaultIdx = []
+        let defaults = []
+        let defaultObj = {type: "default", groups:{}, groupsOrder:[], profileId: 'defaults', label: 'Defaults'}
+        // Get the defaults
+        for (let item in results){
+          if (results[item].type == 'default'){
+            defaultIdx.push(Number(item))
+            defaults.push(results[item])
+          }
+        }
+        //merge into 1
+        for (let item of defaults){
+          console.info("item: ", item)
+          defaultObj.groups = Object.assign({}, defaultObj.groups, item.groups)
+          defaultObj.groupsOrder = defaultObj.groupsOrder.concat(item.groupsOrder)
+        }
+        //rebuild results
+        for (let i = results.length-1; i>=0; i--){
+          if (defaultIdx.includes(i)){
+            results.splice(i, 1)
+          }
+        }
+        results.push(defaultObj)
+      }
 
       // remove any empty ones that may have shifted fully into the multi profile
       results = results.filter((g) => {return (g.groupsOrder.length>0)})
