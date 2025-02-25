@@ -5,7 +5,7 @@
                 "groups": [
                     {
                         "id": "uPGPwtgYsvoh8E9NjJAKED",
-                        "groupId": "A",
+                        "groupId": "Bib",
                         "position": 0,
                         "structure": {
                             "mandatory": "false",
@@ -56,7 +56,7 @@
                     },
                     {
                         "id": "oQi93DZwLFw6wz4VNdwShV",
-                        "groupId": "B",
+                        "groupId": "Bib/Index",
                         "position": 1,
                         "structure": {
                             "mandatory": "false",
@@ -118,7 +118,7 @@
                     },
                     {
                         "id": "wxMKo6adfY9AYw9iSkDoEB",
-                        "groupId": "C",
+                        "groupId": "Board Books",
                         "position": 2,
                         "structure": {
                             "mandatory": "false",
@@ -181,7 +181,7 @@
                     },
                     {
                         "id": "uiwUFXh79yw5yq2kSVVsAo",
-                        "groupId": "D",
+                        "groupId": "Color Ill., Color Maps",
                         "position": 3,
                         "structure": {
                             "mandatory": "false",
@@ -235,7 +235,7 @@
                     },
                     {
                         "id": "knAoj72CTJBEMUGWX482cW",
-                        "groupId": "D",
+                        "groupId": "Color Ill., Color Maps",
                         "position": 4,
                         "structure": {
                             "mandatory": "false",
@@ -287,7 +287,7 @@
                     },
                     {
                         "id": "psg5S4vFBYoUkKLueaQsFs",
-                        "groupId": "D",
+                        "groupId": "Color Ill., Color Maps",
                         "position": 5,
                         "structure": {
                             "mandatory": "false",
@@ -350,7 +350,7 @@
                     },
                     {
                         "id": "12U79Pa2gsD43GNcx3BeRM",
-                        "groupId": "D",
+                        "groupId": "Color Ill., Color Maps",
                         "position": 6,
                         "structure": {
                             "mandatory": "true",
@@ -409,7 +409,7 @@
                     },
                     {
                         "id": "e23K4t6fH8tbAzuaB8uzM4",
-                        "groupId": "E",
+                        "groupId": "Conference w/ place",
                         "position": 7,
                         "structure": {
                             "mandatory": "false",
@@ -472,7 +472,7 @@
                     },
                     {
                         "id": "ejJEAw1h2bYhjcqDh3ZnN5",
-                        "groupId": "F",
+                        "groupId": "Conference Papers",
                         "position": 8,
                         "structure": {
                             "mandatory": "false",
@@ -535,7 +535,7 @@
                     },
                     {
                         "id": "n4HWqpLb89b4YXkkYMUwGo",
-                        "groupId": "G",
+                        "groupId": "Filmographies",
                         "position": 9,
                         "structure": {
                             "mandatory": "false",
@@ -598,7 +598,7 @@
                     },
                     {
                         "id": "szfB3VDbDQvxKWzBs4A6cY",
-                        "groupId": "H",
+                        "groupId": "Illustrations",
                         "position": 10,
                         "structure": {
                             "mandatory": "false",
@@ -652,7 +652,7 @@
                     },
                     {
                         "id": "45J7S6wFR9MxMyLTsgXQjM",
-                        "groupId": "I",
+                        "groupId": "Illustrations, Map",
                         "position": 11,
                         "structure": {
                             "mandatory": "false",
@@ -717,7 +717,7 @@
                     },
                     {
                         "id": "ahEhfXn41MtA9EaUMCweev",
-                        "groupId": "J",
+                        "groupId": "Index",
                         "position": 12,
                         "structure": {
                             "mandatory": "false",
@@ -768,7 +768,7 @@
                     },
                     {
                         "id": "3wkzw5RdkEm2DxCKsyTxFF",
-                        "groupId": "K",
+                        "groupId": "Maps",
                         "position": 13,
                         "structure": {
                             "mandatory": "false",
@@ -822,7 +822,7 @@
                     },
                     {
                         "id": "8uUfFdgFt1c7drrUSNJWet",
-                        "groupId": "K",
+                        "groupId": "Maps",
                         "position": 14,
                         "structure": {
                             "mandatory": "false",
@@ -885,7 +885,7 @@
                     },
                     {
                         "id": "qUqxWicHaSrbJULDi1QLoh",
-                        "groupId": "K",
+                        "groupId": "Maps",
                         "position": 15,
                         "structure": {
                             "mandatory": "true",
@@ -944,7 +944,7 @@
                     },
                     {
                         "id": "f9mmBUXVSjkfTupSAoskUS",
-                        "groupId": "L",
+                        "groupId": "Map (in Pocket)",
                         "position": 16,
                         "structure": {
                             "mandatory": "true",
@@ -1003,7 +1003,7 @@
                     },
                     {
                         "id": "boJBYBqeSzK9XrAwGyZDxC",
-                        "groupId": "L",
+                        "groupId": "Map (in Pocket)",
                         "position": 17,
                         "structure": {
                             "mandatory": "false",
@@ -1057,7 +1057,7 @@
                     },
                     {
                         "id": "3j6BUnq5xXB6u21VBPDAY7",
-                        "groupId": "L",
+                        "groupId": "Map (in Pocket)",
                         "position": 18,
                         "structure": {
                             "mandatory": "false",
@@ -1181,7 +1181,7 @@
                     },
                     {
                         "id": "1MtRxZnnBuKwo67ASuzGAY",
-                        "groupId": "M",
+                        "groupId": "Published in",
                         "position": 20,
                         "structure": {
                             "mandatory": "false",
@@ -1325,7 +1325,7 @@
                     },
                     {
                         "id": "cXTrRSB9GRLEZy89AWxjq3",
-                        "groupId": "N",
+                        "groupId": "Catalog of an Exhibition",
                         "position": 23,
                         "structure": {
                             "mandatory": "false",
@@ -1373,7 +1373,7 @@
                     },
                     {
                         "id": "mrAx2R3PDdjjoAEp2AmRYp",
-                        "groupId": "N",
+                        "groupId": "Catalog of an Exhibition",
                         "position": 24,
                         "structure": {
                             "mandatory": "false",
@@ -1484,7 +1484,7 @@
                     },
                     {
                         "id": "aQTMQyRAWtJHDGSeA8HWMk",
-                        "groupId": "P",
+                        "groupId": "Discography",
                         "position": 26,
                         "structure": {
                             "mandatory": "false",
@@ -1600,7 +1600,7 @@
                     },
                     {
                         "id": "8RXuQHsvWb9LgYBFaZqHuM",
-                        "groupId": "A",
+                        "groupId": "Bib",
                         "position": 1,
                         "structure": {
                             "mandatory": "false",
@@ -1662,7 +1662,7 @@
                     },
                     {
                         "id": "wbxmhnds2SNgeCkXgv3xZ2",
-                        "groupId": "B",
+                        "groupId": "Bib/Index",
                         "position": 2,
                         "structure": {
                             "mandatory": "false",
@@ -1724,7 +1724,7 @@
                     },
                     {
                         "id": "oz9cCaZRCmBUdxxNQvTvY3",
-                        "groupId": "C",
+                        "groupId": "Board Books",
                         "position": 3,
                         "structure": {
                             "mandatory": "false",
@@ -1822,7 +1822,7 @@
                     },
                     {
                         "id": "bEHyUxP7ceGphmXFoNX6pE",
-                        "groupId": "E",
+                        "groupId": "Conference w/ place",
                         "position": 5,
                         "structure": {
                             "mandatory": "false",
@@ -1871,7 +1871,7 @@
                     },
                     {
                         "id": "cukFCz5NZC8gRwhKhoyvH8",
-                        "groupId": "F",
+                        "groupId": "Conference Papers",
                         "position": 6,
                         "structure": {
                             "mandatory": "false",
@@ -2142,7 +2142,7 @@
                     },
                     {
                         "id": "mxLHLbmugmEaqLvu1VgJYV",
-                        "groupId": "G",
+                        "groupId": "Filmographies",
                         "position": 11,
                         "structure": {
                             "mandatory": "false",
@@ -2191,7 +2191,7 @@
                     },
                     {
                         "id": "awdinUMoF7FU5hhzZ948fJ",
-                        "groupId": "H",
+                        "groupId": "Illustrations",
                         "position": 12,
                         "structure": {
                             "mandatory": "false",
@@ -2240,7 +2240,7 @@
                     },
                     {
                         "id": "rA9Dofs4QZ38hUxrjxqRcY",
-                        "groupId": "I",
+                        "groupId": "Illustrations, Map",
                         "position": 13,
                         "structure": {
                             "mandatory": "false",
@@ -2302,7 +2302,7 @@
                     },
                     {
                         "id": "8gb8rhJrQ85HuQCM2BP1J3",
-                        "groupId": "J",
+                        "groupId": "Index",
                         "position": 14,
                         "structure": {
                             "mandatory": "false",
@@ -2364,7 +2364,7 @@
                     },
                     {
                         "id": "jcLrzSYYYzhQqnLCcLr88p",
-                        "groupId": "L",
+                        "groupId": "Map (in Pocket)",
                         "position": 15,
                         "structure": {
                             "mandatory": "false",
@@ -2413,7 +2413,7 @@
                     },
                     {
                         "id": "tpj8RUpNkZne2mQjMuERsq",
-                        "groupId": "L",
+                        "groupId": "Map (in Pocket)",
                         "position": 16,
                         "structure": {
                             "mandatory": "false",
@@ -2573,7 +2573,7 @@
                     },
                     {
                         "id": "9Eu87Dh9Wrh1njyH5zoBAB",
-                        "groupId": "M",
+                        "groupId": "Published in",
                         "position": 19,
                         "structure": {
                             "mandatory": "false",
@@ -2671,7 +2671,7 @@
                     },
                     {
                         "id": "wKUYcGAPPwFLZ5NxvjNhWC",
-                        "groupId": "O",
+                        "groupId": "Tete-beche",
                         "position": 21,
                         "structure": {
                             "mandatory": "false",
@@ -2720,7 +2720,7 @@
                     },
                     {
                         "id": "jLcj1twxTNA3TKKUELojcB",
-                        "groupId": "O",
+                        "groupId": "Tete-beche",
                         "position": 22,
                         "structure": {
                             "mandatory": "false",
@@ -2769,7 +2769,7 @@
                     },
                     {
                         "id": "fxGfrvxDfxD2k2dLpwrGBx",
-                        "groupId": "P",
+                        "groupId": "Discography",
                         "position": 23,
                         "structure": {
                             "mandatory": "false",
