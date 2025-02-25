@@ -2257,7 +2257,6 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
-    console.info("subjectStringChanged: ", event)
     this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
@@ -2333,8 +2332,6 @@ methods: {
         if (event.target.selectionStart >= c.posStart && event.target.selectionStart <= c.posEnd+1){
           this.activeComponent = c
           this.activeComponentIndex = c.id
-
-          console.info("active: ", this.activeComponent)
 
           // it is not empty
           // it dose not end with "-" so it the '--' typing doesn't trigger
