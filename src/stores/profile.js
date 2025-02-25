@@ -256,7 +256,6 @@ export const useProfileStore = defineStore('profile', {
         if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
           let groups = {}
           let groupsOrder = []
-          let defaults = {}
           console.info("defaultComponents: ", defaultComponents.DefaultComponentLibrary)
           console.info("defaultComponents.profiles: ", defaultComponents.DefaultComponentLibrary.profiles)
           for (let dKey in defaultComponents.DefaultComponentLibrary.profiles){
@@ -406,6 +405,16 @@ export const useProfileStore = defineStore('profile', {
             results.splice(i, 1)
           }
         }
+        let sortFn = function(a, b){
+          let targetA = !defaultObj.groups[a][0].label.startsWith("(") ? defaultObj.groups[a][0].label : a
+          let targetB = !defaultObj.groups[b][0].label.startsWith("(") ? defaultObj.groups[b][0].label : b
+
+          let val = targetA < targetB ? -1 : targetA > targetB ? 1 : 0
+
+          return val
+        }
+        defaultObj.groupsOrder.sort(sortFn)
+
         results.push(defaultObj)
       }
 

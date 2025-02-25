@@ -541,20 +541,19 @@ import { isReadonly } from 'vue';
 
     <AccordionList  :open-multiple-items="true">
 
-      <template v-for="clProfile in returnComponentLibrary" :key="clProfile">
+      <template v-for="(clProfile, idx) in returnComponentLibrary" :key="clProfile">
         <AccordionItem style="color: white;" :id="'accordion_'+clProfile.profileId" default-closed>
           <template #summary>
             <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">{{ clProfile.type == 'default' ? 'Default' : 'Library' }}: {{ clProfile.label }}</span></div>
           </template>
           <ul class="sidebar-property-ul" role="list">
-            <template v-for="group in clProfile.groups" >
-
-                <template v-if="group.length>1">
+            <template v-for="(group, idx) in clProfile.groupsOrder" >
+                <template v-if="clProfile.groups[group].length>1">
                   <li class="component-librart-group-line"></li>
                 </template>
 
-                <template v-for="component in group">
-                  <li class="sidebar-property-li sidebar-property-li-cl ">
+                <template v-for="component in clProfile.groups[group]">
+                   <li class="sidebar-property-li sidebar-property-li-cl ">
 
                   <button :class="{'material-icons' : true, 'component-library-settings-button': true, 'component-library-settings-button-invert': (activeComponentLibrary == component.id)  }" @click="configComponentLibrary(component.id)">settings_applications</button>
 
@@ -604,12 +603,9 @@ import { isReadonly } from 'vue';
                   </li>
                 </template>
 
-              <template v-if="group.length>1">
-
-                <button class="component-librart-group-button" @click="addComponentLibraryGroup(group[0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ group[0].groupId }} <span class="material-icons">arrow_upward</span></button>
+              <template v-if="clProfile.groups[group].length>1">
+                <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
               </template>
-
-
 
             </template>
 
