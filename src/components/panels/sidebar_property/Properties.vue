@@ -548,6 +548,7 @@ import { isReadonly } from 'vue';
           </template>
           <ul class="sidebar-property-ul" role="list">
             <template v-for="(group, idx) in clProfile.groupsOrder" >
+              <div class="component-group">
                 <template v-if="clProfile.groups[group].length>1">
                   <li class="component-librart-group-line"></li>
                 </template>
@@ -603,10 +604,10 @@ import { isReadonly } from 'vue';
                   </li>
                 </template>
 
-              <template v-if="clProfile.groups[group].length>1">
-                <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
-              </template>
-
+                <template v-if="clProfile.groups[group].length>1">
+                  <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
+                </template>
+              </div>
             </template>
 
           </ul>
@@ -870,6 +871,13 @@ li.not-populated-hide:before{
   font-family: 'Material Icons';
   content: 'visibility_off';
   color: white !important;
+}
+
+.sidebar-property-ul .component-group:nth-child(even){
+  background-color: grey;
+}
+.sidebar-property-ul li {
+  list-style: none;
 }
 
 
