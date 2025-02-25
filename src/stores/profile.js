@@ -260,20 +260,23 @@ export const useProfileStore = defineStore('profile', {
           let groupsOrder = []
           console.info("defaultComponents: ", defaultComponents.DefaultComponentLibrary)
           console.info("defaultComponents.profiles: ", defaultComponents.DefaultComponentLibrary.profiles)
-          console.info("defaultComponents.profiles[key]: ", defaultComponents.DefaultComponentLibrary.profiles[key])
-          for (let group of defaultComponents.DefaultComponentLibrary.profiles[key].groups.sort(({position:a}, {position:b}) => a-b)){
-            if (group.groupId === null){
-              groups[group.id] = [group]
-              groupsOrder.push(group.id)
-            }else{
-                if (!groups[group.groupId]){groups[group.groupId]=[]}
-                groups[group.groupId].push(group)
-                if (groupsOrder.indexOf(group.groupId)==-1){
-                  groupsOrder.push(group.groupId)
+          for (let dKey in defaultComponents.DefaultComponentLibrary.profiles){
+            if (dKey.includes(key)){
+              for (let group of defaultComponents.DefaultComponentLibrary.profiles[dKey].groups.sort(({position:a}, {position:b}) => a-b)){
+                if (group.groupId === null){
+                  groups[group.id] = [group]
+                  groupsOrder.push(group.id)
+                }else{
+                    if (!groups[group.groupId]){groups[group.groupId]=[]}
+                    groups[group.groupId].push(group)
+                    if (groupsOrder.indexOf(group.groupId)==-1){
+                      groupsOrder.push(group.groupId)
+                    }
                 }
+              }
+              results.push({type: "default", groups:groups, groupsOrder:groupsOrder, profileId: dKey, label: key.split(":").slice(-1)[0]})
             }
           }
-          results.push({type: "default", groups:groups, groupsOrder:groupsOrder, profileId: key, label: key.split(":").slice(-1)[0]})
         }
       }
 
@@ -389,6 +392,7 @@ export const useProfileStore = defineStore('profile', {
         if (!b.type || b.type == null) { return 1}
         return (a.type < b.type) ? 1 : (a.type > b.type) ? -1 : 0
       })
+      console.info("results: ", results)
       return results
     },
 
@@ -5143,8 +5147,11 @@ export const useProfileStore = defineStore('profile', {
      * @param {string} guid - The GUID of the component
      */
     addToComponentLibrary: async function(guid){
+      console.info("addToComponentLibrary: ", guid)
 
       let structure = JSON.parse(JSON.stringify(this.returnStructureByComponentGuid(guid)))
+
+      console.info("structure: ", structure)
 
       // clean up component property values for storage
       structure['@guid'] = null
@@ -5213,16 +5220,28 @@ export const useProfileStore = defineStore('profile', {
      */
     addFromComponentLibrary(id){
       console.info("addFromComponentLibrary: ", id)
+      console.info("this.componentLibrary: ", this.componentLibrary)
+
+      let defaultLibrary = null
+      if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
+        defaultLibrary = defaultComponents.DefaultComponentLibrary.profiles
+        console.info("defaultLibrary: ", defaultLibrary)
+        this.componentLibrary.profiles = Object.assign({}, this.componentLibrary.profiles, defaultLibrary)
+      }
+
       for (let key in this.componentLibrary.profiles){
         console.info("    key: ", key)
         for (let group of this.componentLibrary.profiles[key].groups){
           console.info("        group: ", group)
+          console.info("        group.id: ", group.id)
+          console.info("        id: ", id)
           if (group.id == id){
 
             // we are adding a sigle one here so groups are individual (group of 1) in this case
             console.log("Adding thisone",group)
-            console.info("Adding thisone",group)
+            console.info("Adding this one: ",group)
             let component = JSON.parse(JSON.stringify(group.structure))
+            console.info("component: ", component)
 
 
             // see if we can find its counter part in the acutal profile
@@ -5337,6 +5356,11 @@ export const useProfileStore = defineStore('profile', {
 
               if (ptObjFound != false){
                 console.log("Found orignal here:",ptObjFound)
+                console.info("Found orignal here:",ptObjFound)
+                console.info("    ptObjFound.hashCode: ", ptObjFound.hashCode)
+                console.info("    component.hashCode: ", component.hashCode)
+
+                // let structureCopy = JSON.parse(JSON.stringify(ptObjFound))
 
                 if (ptObjFound.hashCode == component.hashCode){
 
