@@ -542,7 +542,7 @@ import { isReadonly } from 'vue';
     <AccordionList  :open-multiple-items="true">
 
       <template v-for="clProfile in returnComponentLibrary" :key="clProfile">
-        <AccordionItem style="color: white;" :id="'accordion_'+clProfile.label" default-closed>
+        <AccordionItem style="color: white;" :id="'accordion_'+clProfile.profileId" default-closed>
           <template #summary>
             <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">{{ clProfile.type == 'default' ? 'Default' : 'Library' }}: {{ clProfile.label }}</span></div>
           </template>
@@ -606,7 +606,7 @@ import { isReadonly } from 'vue';
 
               <template v-if="group.length>1">
 
-                <button class="component-librart-group-button" @click="addComponentLibraryGroup(group[0].groupId)"><span class="material-icons">arrow_upward</span>Add Group {{ group[0].groupId }} <span class="material-icons">arrow_upward</span></button>
+                <button class="component-librart-group-button" @click="addComponentLibraryGroup(group[0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ group[0].groupId }} <span class="material-icons">arrow_upward</span></button>
               </template>
 
 

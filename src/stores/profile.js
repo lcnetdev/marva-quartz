@@ -229,11 +229,9 @@ export const useProfileStore = defineStore('profile', {
       //   return [state.componentLibrary]
 
       // }
-      let broadType = ""
       let results = []
       for (let key in state.activeProfile.rt){
         console.info("key: ", key)
-        broadType = key.split(":")
         // ther are components saved for this profile
         if (state.componentLibrary.profiles[key]){
           let groups = {}
@@ -258,6 +256,7 @@ export const useProfileStore = defineStore('profile', {
         if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
           let groups = {}
           let groupsOrder = []
+          let defaults = {}
           console.info("defaultComponents: ", defaultComponents.DefaultComponentLibrary)
           console.info("defaultComponents.profiles: ", defaultComponents.DefaultComponentLibrary.profiles)
           for (let dKey in defaultComponents.DefaultComponentLibrary.profiles){
@@ -277,6 +276,7 @@ export const useProfileStore = defineStore('profile', {
               results.push({type: "default", groups:groups, groupsOrder:groupsOrder, profileId: dKey, label: key.split(":").slice(-1)[0]})
             }
           }
+          console.info("results: ", JSON.parse(JSON.stringify(results)))
         }
       }
 
@@ -368,10 +368,12 @@ export const useProfileStore = defineStore('profile', {
           }
           results.push(multiProfile)
         }
+
+        console.info("results: ", JSON.parse(JSON.stringify(results)))
         return results
       }
 
-      //TODO: get them opening independently, maybe pull defaults gether under 1 heading?
+      //TODO: maybe pull defaults gether under 1 heading?
 
       console.info("groupsToMergeDefault: ", groupsToMergeDefault)
 
