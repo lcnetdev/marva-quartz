@@ -566,38 +566,39 @@ import { isReadonly } from 'vue';
                     <template v-if="activeComponentLibrary == component.id">
                       <div class="component-library-settings">
 
-
-                        <button class="material-icons simptip-position-right" data-tooltip="DELETE" @click="delComponentLibrary($event,component.id)">delete_forever</button>
-                        <button class="material-icons simptip-position-right" data-tooltip="RENAME" @click="renameComponentLibrary($event,component.id,component.label)">new_label</button>
-                        <select @change="configComponentLibraryAssignGroup($event,component.id)">
-                          <option value="" :selected="(component.groupId===null)">No Group</option>
-                          <option value="A" :selected="(component.groupId==='A')">Group A</option>
-                          <option value="B" :selected="(component.groupId==='B')">Group B</option>
-                          <option value="C" :selected="(component.groupId==='C')">Group C</option>
-                          <option value="D" :selected="(component.groupId==='D')">Group D</option>
-                          <option value="E" :selected="(component.groupId==='E')">Group E</option>
-                          <option value="F" :selected="(component.groupId==='F')">Group F</option>
-                          <option value="G" :selected="(component.groupId==='G')">Group G</option>
-                          <option value="H" :selected="(component.groupId==='H')">Group H</option>
-                          <option value="I" :selected="(component.groupId==='I')">Group I</option>
-                          <option value="J" :selected="(component.groupId==='J')">Group J</option>
-                          <option value="K" :selected="(component.groupId==='K')">Group K</option>
-                          <option value="L" :selected="(component.groupId==='L')">Group L</option>
-                          <option value="M" :selected="(component.groupId==='M')">Group M</option>
-                          <option value="N" :selected="(component.groupId==='N')">Group N</option>
-                          <option value="O" :selected="(component.groupId==='O')">Group O</option>
-                          <option value="P" :selected="(component.groupId==='P')">Group P</option>
-                          <option value="Q" :selected="(component.groupId==='Q')">Group Q</option>
-                          <option value="R" :selected="(component.groupId==='R')">Group R</option>
-                          <option value="S" :selected="(component.groupId==='S')">Group S</option>
-                          <option value="T" :selected="(component.groupId==='T')">Group T</option>
-                          <option value="U" :selected="(component.groupId==='U')">Group U</option>
-                          <option value="V" :selected="(component.groupId==='V')">Group V</option>
-                          <option value="W" :selected="(component.groupId==='W')">Group W</option>
-                          <option value="X" :selected="(component.groupId==='X')">Group X</option>
-                          <option value="Y" :selected="(component.groupId==='Y')">Group Y</option>
-                          <option value="Z" :selected="(component.groupId==='Z')">Group Z</option>
-                        </select>
+                        <template v-if="clProfile.type != 'default'">
+                          <button class="material-icons simptip-position-right" data-tooltip="DELETE" @click="delComponentLibrary($event,component.id)">delete_forever</button>
+                          <button class="material-icons simptip-position-right" data-tooltip="RENAME" @click="renameComponentLibrary($event,component.id,component.label)">new_label</button>
+                          <select @change="configComponentLibraryAssignGroup($event,component.id)">
+                            <option value="" :selected="(component.groupId===null)">No Group</option>
+                            <option value="A" :selected="(component.groupId==='A')">Group A</option>
+                            <option value="B" :selected="(component.groupId==='B')">Group B</option>
+                            <option value="C" :selected="(component.groupId==='C')">Group C</option>
+                            <option value="D" :selected="(component.groupId==='D')">Group D</option>
+                            <option value="E" :selected="(component.groupId==='E')">Group E</option>
+                            <option value="F" :selected="(component.groupId==='F')">Group F</option>
+                            <option value="G" :selected="(component.groupId==='G')">Group G</option>
+                            <option value="H" :selected="(component.groupId==='H')">Group H</option>
+                            <option value="I" :selected="(component.groupId==='I')">Group I</option>
+                            <option value="J" :selected="(component.groupId==='J')">Group J</option>
+                            <option value="K" :selected="(component.groupId==='K')">Group K</option>
+                            <option value="L" :selected="(component.groupId==='L')">Group L</option>
+                            <option value="M" :selected="(component.groupId==='M')">Group M</option>
+                            <option value="N" :selected="(component.groupId==='N')">Group N</option>
+                            <option value="O" :selected="(component.groupId==='O')">Group O</option>
+                            <option value="P" :selected="(component.groupId==='P')">Group P</option>
+                            <option value="Q" :selected="(component.groupId==='Q')">Group Q</option>
+                            <option value="R" :selected="(component.groupId==='R')">Group R</option>
+                            <option value="S" :selected="(component.groupId==='S')">Group S</option>
+                            <option value="T" :selected="(component.groupId==='T')">Group T</option>
+                            <option value="U" :selected="(component.groupId==='U')">Group U</option>
+                            <option value="V" :selected="(component.groupId==='V')">Group V</option>
+                            <option value="W" :selected="(component.groupId==='W')">Group W</option>
+                            <option value="X" :selected="(component.groupId==='X')">Group X</option>
+                            <option value="Y" :selected="(component.groupId==='Y')">Group Y</option>
+                            <option value="Z" :selected="(component.groupId==='Z')">Group Z</option>
+                          </select>
+                        </template>
 
 
                       </div>
