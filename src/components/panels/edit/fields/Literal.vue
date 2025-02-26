@@ -59,7 +59,7 @@
                 <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
                 <div class="bfcode-display-mode-holder-value">
                   <textarea
-                    :class="['literal-textarea', 'can-select',{'bfcode-textarea': preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode')}]"
+                    :class="['literal-textarea', 'can-select',{'bfcode-textarea': preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode'), 'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                     v-model="lValue.value"
                     v-on:keydown.enter.prevent="submitField"
                     autocomplete="off"
@@ -85,7 +85,7 @@
               </template>
               <template v-else>
                 <textarea
-                  :class="['literal-textarea', 'can-select',{}]"
+                  :class="['literal-textarea', 'can-select',{'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                   v-model="lValue.value"
                   v-on:keydown.enter.prevent="submitField"
                   autocomplete="off"
@@ -1181,7 +1181,6 @@ fieldset{
 
 
 .lang-display{
-
   border-radius: 1em;
   padding: 2px;
 
@@ -1189,11 +1188,6 @@ fieldset{
 
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-lang-label-background-color')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-lang-label-font-color')");
-
-
-
-
-
 }
 
 .inline-mode-editable-span-input{
@@ -1304,9 +1298,6 @@ textarea{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
 
-
-
-
   height: 1.25em;
   line-height: 1.25em;
   margin-top: 0.5em;
@@ -1315,9 +1306,6 @@ textarea{
 .lookup-fake-input{
   min-height: 2em;
   /* background-color: transparent; */
-
-
-
 }
 
 textarea:focus-within{
@@ -1371,8 +1359,6 @@ textarea:hover{
   background-color: transparent;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
-
-
 }
 .component .lookup-fake-input{
   border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
@@ -1384,6 +1370,9 @@ textarea:hover{
   cursor: no-drop;
 }
 
+.literal-bold{
+  font-weight: bold;
+}
 
 
 </style>

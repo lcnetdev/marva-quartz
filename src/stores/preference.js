@@ -587,8 +587,6 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Literal Field',
         range: null
       },
-
-
       '--c-edit-main-literal-lang-label-background-color' : {
         desc: 'The background color of the language indicator',
         descShort: 'Lang Label Background Color',
@@ -605,7 +603,6 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Literal Field',
         range: null
       },
-
       '--n-edit-main-literal-lang-label-font-size' : {
         desc: 'The fontsize of the language indicator',
         descShort: 'Lang Label Font Size',
@@ -615,6 +612,15 @@ export const usePreferenceStore = defineStore('preference', {
         unit: 'em',
         group: 'Literal Field',
         range: [1,2]
+    },
+    '--b-edit-main-literal-bold-font' : {
+        desc: 'Literal Text Bold.',
+        descShort: 'Make literals bold.',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Literal Field',
+        range: [true,false]
     },
 
 
