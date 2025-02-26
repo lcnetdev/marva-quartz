@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 18,
-    versionPatch: 0,
+    versionPatch: 3,
 
     regionUrls: {
 
@@ -326,6 +326,17 @@ export const useConfigStore = defineStore('config', {
                 }
             ]
      },
+     "http://id.loc.gov/bflists/intendedAudiences" : {
+        "name":"intendedAudiences",
+        "type":"complex",
+        "processor" : 'lcAuthorities',
+        "modes":[
+            {
+                'LCDGT':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all": true},
+                'MARC':{"url":"https://id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=10&offset=<OFFSET>", "all": true}
+            }
+        ]
+     },
     "http://id.loc.gov/authorities/demographicTerms" : {"name":"demographicTerms", "type":"complex", "modes":[
       {
       'LCDGT All':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
@@ -424,6 +435,18 @@ export const useConfigStore = defineStore('config', {
 					'LCNAF Geographic':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&count=25&offset=<OFFSET>"},
 					'LCSH Geographic':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Geographic&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&count=25&offset=<OFFSET>"},
 					//'GACS':{"url":"https://id.loc.gov/vocabulary/geographicAreas/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>"},
+				}
+			]
+		},
+
+    "http://id.loc.gov/vocabulary/maudience" : {
+			"name":"audience",
+			"type":"complex",
+			"processor" : 'lcAuthorities',
+			"modes":[
+				{
+					'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience.html"},
+					'LCDGT':{"url": "https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 				}
 			]
 		},
@@ -640,7 +663,7 @@ export const useConfigStore = defineStore('config', {
     "http://id.loc.gov/vocabulary/marcauthen" : {"name":"marcauthen", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/marcgt" : {"name":"marcgt", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/maspect" : {"name":"maspect", "type":"simple", "modes":[]},
-    "http://id.loc.gov/vocabulary/maudience" : {"name":"maudience", "type":"simple", "modes":[]},
+    // "http://id.loc.gov/vocabulary/maudience" : {"name":"maudience", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mbroadstd" : {"name":"mbroadstd", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mcapturestorage" : {"name":"mcapturestorage", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mcolor" : {"name":"mcolor", "type":"simple", "modes":[]},

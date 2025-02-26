@@ -197,36 +197,44 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Sidebars - Property',
         range: [true,false]
+      },
+      '--b-edit-main-splitpane-properties-component-library-prompt-to-add' : {
+        desc: 'Ask before adding a component from the library.',
+        descShort: 'Prompt to add Library Component',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Property',
+        range: [true,false]
+      },
+      '--c-edit-main-splitpane-slider-color' : {
+          value:'#ffffff',
+          desc: 'Color of the dividing line / resize line.',
+          descShort: 'Resize Line Color',
+          type: 'color',
+          group: 'Sidebars - Property',
+          range: null
+      },
+      '--c-edit-main-splitpane-slider-border-color' : {
+        value:'#eee',
+        desc: 'Color of the dividing line / resize line Border.',
+        descShort: 'Resize Line Border Color',
+        type: 'color',
+        group: 'Sidebars - Property',
+        range: null
+      },
+      '--b-edit-main-splitpane-properties-show-defaults' : {
+        desc: 'Display the default Component Library in the Property Panel.',
+        descShort: 'Default Component Library',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Property',
+        range: [true,false]
     },
-    '--b-edit-main-splitpane-properties-component-library-prompt-to-add' : {
-      desc: 'Ask before adding a component from the library.',
-      descShort: 'Prompt to add Library Component',
-      value: true,
-      type: 'boolean',
-      unit: null,
-      group: 'Sidebars - Property',
-      range: [true,false]
-  },
 
-    '--c-edit-main-splitpane-slider-color' : {
-      value:'#ffffff',
-      desc: 'Color of the dividing line / resize line.',
-      descShort: 'Resize Line Color',
-      type: 'color',
-      group: 'Sidebars - Property',
-      range: null
-  },
-  '--c-edit-main-splitpane-slider-border-color' : {
-    value:'#eee',
-    desc: 'Color of the dividing line / resize line Border.',
-    descShort: 'Resize Line Border Color',
-    type: 'color',
-    group: 'Sidebars - Property',
-    range: null
-},
 
-  
-  
+
 
 
       // not implemented
@@ -438,7 +446,7 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Edit Panel',
         range: null
       },
-      
+
 
 
 
@@ -669,6 +677,16 @@ export const usePreferenceStore = defineStore('preference', {
     group: 'Lookup Field',
     range: null
   },
+  '--n-edit-main-lookup-font-size' : {
+      desc: 'The font size for the text in a lookup element.',
+      descShort: 'Lookup font size',
+      value: 0.75,
+      step: 0.05,
+      type: 'number',
+      unit: 'em',
+      group: 'Lookup Field',
+      range: [0.75,2]
+  },
 
 
 
@@ -859,9 +877,9 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Action Button',
         range: [1,2]
     },
-    
 
-      // MODALS 
+
+      // MODALS
 
       '--c-edit-modals-background-color' : {
         value:'white',
@@ -870,7 +888,7 @@ export const usePreferenceStore = defineStore('preference', {
         type: 'color',
         group: 'Modals',
         range: null
-      },     
+      },
       '--c-edit-modals-background-color-accent' : {
         value:'whitesmoke',
         desc: 'Used for off background color accents',
@@ -878,8 +896,8 @@ export const usePreferenceStore = defineStore('preference', {
         type: 'color',
         group: 'Modals',
         range: null
-      },     
-      
+      },
+
       '--c-edit-modals-text-color' : {
         value:'black',
         desc: 'Text color of popup modals',
@@ -887,9 +905,9 @@ export const usePreferenceStore = defineStore('preference', {
         type: 'color',
         group: 'Modals',
         range: null
-      }, 
+      },
 
-      
+
 
 
       // COMPLEX LOOKUP
@@ -1346,11 +1364,11 @@ export const usePreferenceStore = defineStore('preference', {
             prefs.styleDefault[k].descShort = 'Use CAMM Mode'
             // prefs.styleDefault[k].value = false
 
-            
-            
+
+
           }
-          
-          
+
+
         }
 
         // if there is a new style in the defaults that is not in their saved prefs.
@@ -1380,7 +1398,7 @@ export const usePreferenceStore = defineStore('preference', {
 
 
 
-    
+
 
     /**
     * returns the value of the preference property requested
@@ -1489,13 +1507,9 @@ export const usePreferenceStore = defineStore('preference', {
     buildDiacriticSettings: function(){
 
       this.diacriticUse = this.returnValue('--c-diacritics-enabled-macros')
-
-
       this.diacriticUse = [...new Set(this.diacriticUse)];
 
       console.log(this.diacriticUse)
-
-
       for (let d in this.diacriticPacks.macroExpress){
 
         let macros = this.diacriticPacks.macroExpress[d]
@@ -1505,12 +1519,8 @@ export const usePreferenceStore = defineStore('preference', {
             this.diacriticUseValues.push(macro)
           }
         }
-
-
       }
       console.log(this.diacriticUseValues)
-
-
     },
 
     // turn copy mode on/off
@@ -1589,7 +1599,7 @@ export const usePreferenceStore = defineStore('preference', {
       // return the layout hash value so we can correctly refresh the current layout when editing
       return layoutHash
     },
-    
+
     setTheme(themeName){
 
       let doubleChk = confirm("You want to switch your theme? Your current color settings will be permanently changed. If you want to save your current color settings download your preferences with 'Export Prefs' Do you want to continue?")
@@ -1597,29 +1607,32 @@ export const usePreferenceStore = defineStore('preference', {
       // to make the default list below download your preferences and then and open your javascript console and this code will generate the data to put in here as a new theme
       // let prefs = xxx_paste_replace_it_herexxx
       // let themeColors = {}; for (let p in prefs.prefs.styleDefault){if (prefs.prefs.styleDefault[p].type == 'color'){themeColors[p] = prefs.prefs.styleDefault[p].value}}; console.log(JSON.stringify(themeColors))
-  
+
       let darkMode = {"--c-edit-main-splitpane-properties-background-color":"#000000ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#353535ff","--c-edit-main-splitpane-slider-border-color":"#4b4b4bff","--c-edit-main-splitpane-opac-background-color":"#000000ff","--c-edit-main-splitpane-opac-highlight-background-color":"#ffffffff","--c-edit-main-splitpane-opac-font-color":"#ffffffff","--c-edit-main-splitpane-edit-background-color-work":"#202f32ff","--c-edit-main-splitpane-edit-background-color-instance":"#380038ff","--c-edit-main-splitpane-edit-background-color-item":"#5965c0ff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#4654b9ff","--c-edit-main-splitpane-edit-component-label-color":"#dededeff","--c-edit-main-splitpane-edit-focused-field-color":"#353535ff","--c-edit-main-splitpane-edit-field-color":"#000000ff","--c-edit-main-splitpane-edit-field-border-color":"#333333ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#c9c9c9ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#212121ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-background-color":"#000000ff","--c-edit-main-splitpane-nav-font-color":"#ffffffff","--c-edit-main-literal-font-color":"#ffffffff","--c-edit-main-literal-lang-label-background-color":"#4b4b4bff","--c-edit-main-literal-lang-label-font-color":"#ffffffff","--c-edit-main-lookup-background-color":"#353535ff","--c-edit-main-lookup-border-color":"#4b4b4bff","--c-edit-main-lookup-text-color":"#ffffffff","--c-edit-main-lookup-icon-linked-color":"#1c7d76ff","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#000000ff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"#ffffffff","--c-edit-general-action-button-color":"#ffffffff","--c-edit-general-action-button-background-color":"#353535ff","--c-edit-general-action-button-border-color":"#a9a9a9ff","--n-edit-general-action-button-continer-background-color":"#212121ff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#4b4b4bff","--c-edit-general-action-button-menu-button-background-color":"#000000ff","--c-edit-general-action-button-menu-button-border-color":"#a9a9a9ff","--c-edit-general-action-button-menu-button-text-color":"#ffffffff","--c-edit-modals-background-color":"#212121ff","--c-edit-modals-background-color-accent":"#353535ff","--c-edit-modals-text-color":"#ffffffff","--c-general-icon-instance-color":"#8b588b","--c-general-icon-work-color":"#7badad","--c-general-icon-item-color":"#eaeaea"}
       let grayMode = {"--c-edit-main-splitpane-properties-background-color":"#353535ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#a9a9a9ff","--c-edit-main-splitpane-slider-border-color":"#808080ff","--c-edit-main-splitpane-opac-background-color":"#a9a9a9ff","--c-edit-main-splitpane-opac-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-opac-font-color":"#202124","--c-edit-main-splitpane-edit-background-color-work":"#a1a1a1ff","--c-edit-main-splitpane-edit-background-color-instance":"#b8a9b6ff","--c-edit-main-splitpane-edit-background-color-item":"#bda2baff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#ba95b7ff","--c-edit-main-splitpane-edit-component-label-color":"black","--c-edit-main-splitpane-edit-focused-field-color":"#dededeff","--c-edit-main-splitpane-edit-field-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-field-border-color":"#969696ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#000000ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#c7c7c7","--c-edit-main-splitpane-nav-background-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-font-color":"#202124","--c-edit-main-literal-font-color":"black","--c-edit-main-literal-lang-label-background-color":"#dededeff","--c-edit-main-literal-lang-label-font-color":"#090909","--c-edit-main-lookup-background-color":"#dededeff","--c-edit-main-lookup-border-color":"#353535ff","--c-edit-main-lookup-text-color":"black","--c-edit-main-lookup-icon-linked-color":"green","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#dededeff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"black","--c-edit-general-action-button-color":"#202124","--c-edit-general-action-button-background-color":"#dededeff","--c-edit-general-action-button-border-color":"#202124","--n-edit-general-action-button-continer-background-color":"#dededeff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#dededeff","--c-edit-general-action-button-menu-button-background-color":"rgb(239, 239, 239)","--c-edit-general-action-button-menu-button-border-color":"black","--c-edit-general-action-button-menu-button-text-color":"black","--c-edit-modals-background-color":"#a9a9a9ff","--c-edit-modals-background-color-accent":"#dededeff","--c-edit-modals-text-color":"black","--c-general-icon-instance-color":"#ba95b7ff","--c-general-icon-work-color":"#a9a9a9ff","--c-general-icon-item-color":"#eaeaea"}
 
+      const ignore = ["--l-custom-layouts", "--c-diacritics-enabled-macros", "--o-diacritics-text-macros"]
+
       if (themeName == 'default'){
         // just loop through the defaults and set all them to the default value
+        //  Don't touch diacritic, layouts, etc.
         console.log(this.styleDefaultOrginal)
         for (let key in this.styleDefaultOrginal){
-          this.setValue(key, this.styleDefaultOrginal[key].value) 
+          this.setValue(key, this.styleDefaultOrginal[key].value)
         }
-        
+
       }else if (themeName == 'dark'){
         for (let key in darkMode){
-          this.setValue(key, darkMode[key]) 
-        }               
+          this.setValue(key, darkMode[key])
+        }
       }else if (themeName == 'gray'){
         for (let key in grayMode){
-          this.setValue(key, grayMode[key]) 
-        }               
+          this.setValue(key, grayMode[key])
+        }
       }
-      
+
       this.savePreferences()
-  
+
     },
 
 

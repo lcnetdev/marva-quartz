@@ -8,7 +8,7 @@
       <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
       <input class="input-inline-mode can-select" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" />
 
-      
+
 
       <!-- <template v-if="complexLookupValues.length===0">
 
@@ -335,7 +335,7 @@ export default {
         return 'text'
       }
 
-      
+
 
 
       if (this.structure.propertyURI == "http://id.loc.gov/ontologies/bibframe/relation"){
@@ -447,7 +447,7 @@ export default {
     },
 
 
-  
+
 
     removeValue: function(){
       this.profileStore.removeValueComplex(this.guid, this.complexLookupValues[0]['@guid'])
@@ -585,7 +585,7 @@ export default {
     subjectAdded: function(components){
       this.profileStore.setValueSubject(this.guid,components,this.propertyPath)
       this.hideSubjectModal()
- 
+
 
     },
 
@@ -757,7 +757,7 @@ export default {
   border: solid 1px;
   border-radius: 0.5em;
   padding: 0.35em;
-  font-size: 0.75em;
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-lookup-font-size')");
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-lookup-background-color')");
   border: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-lookup-border-color')");
   color:  v-bind("preferenceStore.returnValue('--c-edit-main-lookup-text-color')");

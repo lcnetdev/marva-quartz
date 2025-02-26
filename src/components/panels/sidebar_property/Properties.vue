@@ -116,7 +116,6 @@ import { isReadonly } from 'vue';
         }
 
         let newId = this.profileStore.addFromComponentLibrary(clId)
-
         this.activeComponent = this.activeProfile.rt[newId[0]].pt[newId[1]]
 
         // for (let rt in this.activeProfile.rt){
@@ -539,23 +538,20 @@ import { isReadonly } from 'vue';
 
     <AccordionList  :open-multiple-items="true">
 
-      <template v-for="clProfile in returnComponentLibrary" :key="clProfile">
-
-        <AccordionItem style="color: white;" :id="'accordion_'+clProfile.label" default-closed>
+      <template v-for="(clProfile, idx) in returnComponentLibrary" :key="clProfile">
+        <AccordionItem style="color: white;" :id="'accordion_'+clProfile.profileId" default-closed>
           <template #summary>
-            <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">Library: {{ clProfile.label }}</span></div>
+            <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">{{ clProfile.type == 'default' ? 'Defaults' : 'Library' }}: {{ clProfile.type == 'default' ? '' : clProfile.label }}</span></div>
           </template>
           <ul class="sidebar-property-ul" role="list">
-            <template v-for="group in clProfile.groups" >
-
-                <template v-if="group.length>1">
+            <template v-for="(group, idx) in clProfile.groupsOrder" >
+              <div class="component-group">
+                <template v-if="clProfile.groups[group].length>1">
                   <li class="component-librart-group-line"></li>
                 </template>
 
-                <template v-for="component in group">
-                  <li class="sidebar-property-li sidebar-property-li-cl ">
-
-
+                <template v-for="component in clProfile.groups[group]">
+                   <li class="sidebar-property-li sidebar-property-li-cl ">
 
                   <button :class="{'material-icons' : true, 'component-library-settings-button': true, 'component-library-settings-button-invert': (activeComponentLibrary == component.id)  }" @click="configComponentLibrary(component.id)">settings_applications</button>
 
@@ -564,41 +560,40 @@ import { isReadonly } from 'vue';
                   <div class="component-library-item-container sidebar-property-li-empty" @click="addComponentLibrary($event,component.id)" >
                     <a href="#" @click="addComponentLibrary($event,component.id)">{{ component.label }}</a>
                   </div>
-                    <template v-if="activeComponentLibrary == component.id">
+                    <template v-if="activeComponentLibrary == component.id && clProfile.type != 'default'">
                       <div class="component-library-settings">
 
-
-                        <button class="material-icons simptip-position-right" data-tooltip="DELETE" @click="delComponentLibrary($event,component.id)">delete_forever</button>
-                        <button class="material-icons simptip-position-right" data-tooltip="RENAME" @click="renameComponentLibrary($event,component.id,component.label)">new_label</button>
-                        <select @change="configComponentLibraryAssignGroup($event,component.id)">
-                          <option value="" :selected="(component.groupId===null)">No Group</option>
-                          <option value="A" :selected="(component.groupId==='A')">Group A</option>
-                          <option value="B" :selected="(component.groupId==='B')">Group B</option>
-                          <option value="C" :selected="(component.groupId==='C')">Group C</option>
-                          <option value="D" :selected="(component.groupId==='D')">Group D</option>
-                          <option value="E" :selected="(component.groupId==='E')">Group E</option>
-                          <option value="F" :selected="(component.groupId==='F')">Group F</option>
-                          <option value="G" :selected="(component.groupId==='G')">Group G</option>
-                          <option value="H" :selected="(component.groupId==='H')">Group H</option>
-                          <option value="I" :selected="(component.groupId==='I')">Group I</option>
-                          <option value="J" :selected="(component.groupId==='J')">Group J</option>
-                          <option value="K" :selected="(component.groupId==='K')">Group K</option>
-                          <option value="L" :selected="(component.groupId==='L')">Group L</option>
-                          <option value="M" :selected="(component.groupId==='M')">Group M</option>
-                          <option value="N" :selected="(component.groupId==='N')">Group N</option>
-                          <option value="O" :selected="(component.groupId==='O')">Group O</option>
-                          <option value="P" :selected="(component.groupId==='P')">Group P</option>
-                          <option value="Q" :selected="(component.groupId==='Q')">Group Q</option>
-                          <option value="R" :selected="(component.groupId==='R')">Group R</option>
-                          <option value="S" :selected="(component.groupId==='S')">Group S</option>
-                          <option value="T" :selected="(component.groupId==='T')">Group T</option>
-                          <option value="U" :selected="(component.groupId==='U')">Group U</option>
-                          <option value="V" :selected="(component.groupId==='V')">Group V</option>
-                          <option value="W" :selected="(component.groupId==='W')">Group W</option>
-                          <option value="X" :selected="(component.groupId==='X')">Group X</option>
-                          <option value="Y" :selected="(component.groupId==='Y')">Group Y</option>
-                          <option value="Z" :selected="(component.groupId==='Z')">Group Z</option>
-                        </select>
+                          <button class="material-icons simptip-position-right" data-tooltip="DELETE" @click="delComponentLibrary($event,component.id)">delete_forever</button>
+                          <button class="material-icons simptip-position-right" data-tooltip="RENAME" @click="renameComponentLibrary($event,component.id,component.label)">new_label</button>
+                          <select @change="configComponentLibraryAssignGroup($event,component.id)">
+                            <option value="" :selected="(component.groupId===null)">No Group</option>
+                            <option value="A" :selected="(component.groupId==='A')">Group A</option>
+                            <option value="B" :selected="(component.groupId==='B')">Group B</option>
+                            <option value="C" :selected="(component.groupId==='C')">Group C</option>
+                            <option value="D" :selected="(component.groupId==='D')">Group D</option>
+                            <option value="E" :selected="(component.groupId==='E')">Group E</option>
+                            <option value="F" :selected="(component.groupId==='F')">Group F</option>
+                            <option value="G" :selected="(component.groupId==='G')">Group G</option>
+                            <option value="H" :selected="(component.groupId==='H')">Group H</option>
+                            <option value="I" :selected="(component.groupId==='I')">Group I</option>
+                            <option value="J" :selected="(component.groupId==='J')">Group J</option>
+                            <option value="K" :selected="(component.groupId==='K')">Group K</option>
+                            <option value="L" :selected="(component.groupId==='L')">Group L</option>
+                            <option value="M" :selected="(component.groupId==='M')">Group M</option>
+                            <option value="N" :selected="(component.groupId==='N')">Group N</option>
+                            <option value="O" :selected="(component.groupId==='O')">Group O</option>
+                            <option value="P" :selected="(component.groupId==='P')">Group P</option>
+                            <option value="Q" :selected="(component.groupId==='Q')">Group Q</option>
+                            <option value="R" :selected="(component.groupId==='R')">Group R</option>
+                            <option value="S" :selected="(component.groupId==='S')">Group S</option>
+                            <option value="T" :selected="(component.groupId==='T')">Group T</option>
+                            <option value="U" :selected="(component.groupId==='U')">Group U</option>
+                            <option value="V" :selected="(component.groupId==='V')">Group V</option>
+                            <option value="W" :selected="(component.groupId==='W')">Group W</option>
+                            <option value="X" :selected="(component.groupId==='X')">Group X</option>
+                            <option value="Y" :selected="(component.groupId==='Y')">Group Y</option>
+                            <option value="Z" :selected="(component.groupId==='Z')">Group Z</option>
+                          </select>
 
 
                       </div>
@@ -606,13 +601,10 @@ import { isReadonly } from 'vue';
                   </li>
                 </template>
 
-              <template v-if="group.length>1">
-
-                <button class="component-librart-group-button" @click="addComponentLibraryGroup(group[0].groupId)"><span class="material-icons">arrow_upward</span>Add Group {{ group[0].groupId }} <span class="material-icons">arrow_upward</span></button>
-              </template>
-
-
-
+                <template v-if="clProfile.groups[group].length>1">
+                  <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
+                </template>
+              </div>
             </template>
 
           </ul>
@@ -876,6 +868,13 @@ li.not-populated-hide:before{
   font-family: 'Material Icons';
   content: 'visibility_off';
   color: white !important;
+}
+
+.sidebar-property-ul .component-group:nth-child(even){
+  background-color: grey;
+}
+.sidebar-property-ul li {
+  list-style: none;
 }
 
 
