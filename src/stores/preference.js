@@ -322,7 +322,7 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Sidebars - Previews',
         range: [true, false]
-    },
+      },
 
 
 

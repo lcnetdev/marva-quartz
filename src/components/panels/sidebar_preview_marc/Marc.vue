@@ -41,11 +41,7 @@
 
       async refreshMarc() {
         this.previewData = await this.profileStore.marcPreview()
-      }
-
-
-
-
+      },
 
     },
 
@@ -79,11 +75,7 @@
       })
     },
 
-    mounted() {
-
-
-
-    }
+    updated() {}
   }
 
 
@@ -223,6 +215,10 @@ li{
 
 :deep() div.marc.field{
   text-indent: 4em hanging;
+}
+
+:deep() span.marc.subfield:hover{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-highlight-background-color')");
 }
 
 
