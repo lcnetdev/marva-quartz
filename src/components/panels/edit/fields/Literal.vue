@@ -134,7 +134,7 @@
         <!-- { "title": "knitter's handy book of patterns", "classNumber": "TT820", "cutterNumber": ".B877 2002", "titleNonSort": 4, "contributors": [ { "type": "PrimaryContribution", "label": "Budd, Ann, 1956-" } ], "firstSubject": "Knitting--Patterns" } -->
         <div style="display: flex;">
           <div style="flex:1">
-          <fieldset v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length>0) || lccFeatureData.title" >
+          <fieldset v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length>0) || lccFeatureData.title || lccFeatureData.firstSubject" >
             <legend>Cutter Calculator</legend>
             <template v-if="lccFeatureData.contributors">
 
@@ -823,11 +823,11 @@ export default {
                 validLang=true
                 break
               }
-            }    
-          }   
-        } 
-        
-        
+            }
+          }
+        }
+
+
         if (script){
           script=script.trim().toLowerCase()
           for (let l of isoLangLib.iso15924){
@@ -837,7 +837,7 @@ export default {
             }
           }
 
-          
+
         }else{
           // no script found, its fine then
           validScript=true
@@ -860,7 +860,7 @@ export default {
       }
 
 
-      
+
       let currentPos = 0
       if (event.target.tagName === 'SPAN'){
         currentPos = this.getCaretCharOffset(event.target)
