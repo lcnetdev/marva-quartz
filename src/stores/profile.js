@@ -2352,8 +2352,14 @@ export const useProfileStore = defineStore('profile', {
 
       if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
-        let context = await utilsNetwork.returnContext(URI)
-        type = context.typeFull
+        if (URI.indexOf('id.loc.gov/resources/hubs/') > -1){
+          type = 'http://id.loc.gov/ontologies/bibframe/Hub'
+        } else{
+          let context = await utilsNetwork.returnContext(URI)
+          type = context.typeFull
+        }
+
+
 
       }
       // literals don't have a type or a URI & intendedAudience has extra considerations
@@ -4939,6 +4945,7 @@ export const useProfileStore = defineStore('profile', {
       let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langObj,catCode)
 
       console.log(xml)
+      console.log("hubCreatorObj",hubCreatorObj)
       let eid = 'e' + decimalTranslator.new()
       eid = eid.substring(0,8)
 
@@ -4952,43 +4959,13 @@ export const useProfileStore = defineStore('profile', {
         alert("There was an error creating your Hub. Please report this issue.")
       }
 
-      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
-
-
-      return pubResuts
-
-
-
-    },
-
-  /**
-    * Builds and posts a Hub Stub
-    *
-    * @param {object} hubCreatorObj - obj with creator label, uri,marcKey
-    * @param {string} title - title string
-    * @param {string} langObj - {uri:"",label:""}
-    * @return {String}
-    */
-    async buildPostHubStub(hubCreatorObj,title,langObj,catCode){
-
-      // console.log("hubCreatorObj",hubCreatorObj)
-      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langObj,catCode)
-
-      console.log(xml)
-      let eid = 'e' + decimalTranslator.new()
-      eid = eid.substring(0,8)
-
-      // pass a fake activeprofile with id == Hub to trigger hub protocols
-      let pubResuts
-      try{
-        pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
-
-      }catch (error){
-        console.log(error)
-        alert("There was an error creating your Hub. Please report this issue.")
+      if (pubResuts){
+        // get the URI used for this one and overwrite whatever the server sent to us
+        let hubUri = await utilsExport.creatHubStubURI(hubCreatorObj,title)
+        pubResuts.postLocation = hubUri
       }
 
-      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
+      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-xxxx-5c92f7d396eb'}
 
 
       return pubResuts

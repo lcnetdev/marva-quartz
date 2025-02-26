@@ -196,6 +196,8 @@
             this.profileStore.setValueComplex(this.activeHubStubComponent.guid, null, this.activeHubStubComponent.propertyPath, results.postLocation, this.hubTitle, null, {}, null)
 
             this.newHubUrl=results.postLocation
+
+
             this.postStatus='posted'
 
           }else{
@@ -291,8 +293,7 @@
           :sticks="['br']"
           :stickSize="22"
         >
-          <div id="non-latin-bulk-content" ref="nonLatinBulkContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
-            
+          <div id="non-latin-bulk-content" ref="nonLatinBulkContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">            
             <div class="menu-buttons">
               <button class="close-button" @pointerup="close">X</button>
             </div>
@@ -343,7 +344,10 @@
             </div>
             <div style="display: flex; padding: 1.5em;" v-if="postStatus=='posted'">
               <div >The Hub was created! If you would like to edit it further please click the link, it will open in new tab:</div>
-              <div><a :href="`../load?url=${newHubUrl}.rdf&profile=lc:RT:bf2:HubBasic:Hub`" target="_blank">{{ newHubUrl }}</a></div>
+              <div>
+                <div v-if="configStore.returnUrls.env == 'staging'">NOT IN PRODUCTION, THE URI BELOW WILL NEED TO BE ADJUSTED TO WORK WITH STAGING PORT</div>
+                <a :href="`../load?url=${newHubUrl}.rdf&profile=lc:RT:bf2:HubBasic:Hub`" target="_blank">{{ newHubUrl }}</a>
+              </div>
             </div>
             <div v-if="postStatus=='posted'" style="text-align: center;">
               <button @click="close" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Close</button>

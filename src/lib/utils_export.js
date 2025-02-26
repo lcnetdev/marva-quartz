@@ -1786,6 +1786,20 @@ const utilsExport = {
     },
 
 
+
+	creatHubStubURI: async function(hubCreatorObj,title){
+
+		let aap = utilsProfile.returnAap(hubCreatorObj.label,title)
+		
+		let aapHash = await md5(aap)
+		aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
+		let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
+
+		return hubUri
+
+	},
+
+
 	/**
 	 * Builds the Hub Stub XML to be sent off to post
 	 *
@@ -1822,11 +1836,13 @@ const utilsExport = {
 
 		
 
-		let aap = utilsProfile.returnAap(hubCreatorObj.label,title)
+		// let aap = utilsProfile.returnAap(hubCreatorObj.label,title)
 		
-		let aapHash = await md5(aap)
-		aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
-		let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
+		// let aapHash = await md5(aap)
+		// aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
+		// let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
+		let hubUri = await this.creatHubStubURI(hubCreatorObj,title)
+
 
 
 		// da hub

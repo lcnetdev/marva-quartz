@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <Teleport to="body">
       <div id="nav-holder">
         <vue-file-toolbar-menu :content="my_menu" />
@@ -24,6 +23,10 @@
         <AdHocModal ref="adHocModal" v-model="showAdHocModal" />
       </template>
 
+      <template v-if="showSelectionModal==true">
+        <GenericSelectionModal @emitSelection="getImportSelection" @closeModal="closeImportSelection" :title="importTitle" :options="importOptions" :modalSettings="modalSettings" :multiple="true" v-model="showSelectionModal" />
+      </template>
+
     </Teleport>
 
   </div>
@@ -42,14 +45,21 @@
   import RecoveryModal from "@/components/panels/nav/RecoveryModal.vue";
   import ItemInstanceSelectionModal from "@/components/panels/nav/ItemInstanceSelectionModal.vue";
   import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
+  import GenericSelectionModal from '../edit/modals/GenericSelectionModal.vue'
+
 
   export default {
-    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal },
     data() {
       return {
         allSelected: false,
         instances: [],
         layoutHash: null,
+        importTitle: "",
+        importOptions: {},
+        modalSettings: [],
+        importSelection: [],
+        showSelectionModal: false,
       }
     },
     props:{
@@ -312,7 +322,7 @@
 
               { is: 'separator'},
               { text: 'Export Prefs', click: () => this.exportPreferences(), icon: 'download' },
-              { text: 'Import Prefs', click: () => this.importPreferences(), icon: 'upload' },
+              { text: 'Import Prefs', click: () => this.showImportSelectionModal(), icon: 'upload' },
               { is: 'separator'},
               { text: 'Reset Prefs', click: () => this.preferenceStore.resetPreferences(), icon: 'restart_alt' },
 
@@ -701,7 +711,66 @@
         document.body.removeChild(temp)
       },
 
-      importPreferences: function(){
+      getImportSelection: function(selection){
+        this.importSelection = selection
+
+        if (this.importSelection.length > 0){
+          this.showSelectionModal = false
+        } else {
+          alert("Nothing is selected.")
+        }
+
+        this.importPreferences(this.importSelection)
+      },
+
+      closeImportSelection: function(){
+        this.showSelectionModal = false
+      },
+
+      showImportSelectionModal: function(){
+        this.importTitle = "Which Preferences would you like to import?"
+        this.importOptions = [
+          {
+            label: "Everything",
+            value: "all"
+          },
+          {
+            label: "Marva Styling",
+            value: "style"
+          },
+          {
+            label: "Script Shifter Settings",
+            value: "scriptShifter"
+          },
+          {
+            label: "Text Macro Settings",
+            value: "textMacro"
+          },
+          {
+            label: "Diacritic Macro Settings",
+            value: "diacriticMacro"
+          },
+          {
+            label: "Custom Layouts",
+            value: "layouts"
+          }
+          ,
+          {
+            label: "Component Library",
+            value: "componentLibrary"
+          }
+        ]
+        this.modalSettings = {
+          height: 300,
+          width: 500,
+          buttonText: "Import",
+          initalLeft: 300,
+          initalTop: 250
+        }
+        this.showSelectionModal = true
+      },
+
+      importPreferences: function(selection=null){
         const that = this
 
         var temp = document.createElement("input")
@@ -715,23 +784,49 @@
           reader.onload = function(e){
             var contents = JSON.parse(e.target.result)
 
-            that.preferenceStore.loadPreferences(contents["prefs"])
-            window.localStorage.setItem('marva-preferences', JSON.stringify(contents["prefs"]))
-            if (contents["scriptShifterOptions"]){
+            if (selection && selection.includes('all')){
+              that.preferenceStore.loadPreferences(contents["prefs"])
+              window.localStorage.setItem('marva-preferences', JSON.stringify(contents["prefs"]))
+            }
+
+            if (contents["scriptShifterOptions"] && (selection && (selection.includes('scriptShifter') || selection.includes('all')))){
               that.preferenceStore.scriptShifterOptions = contents["scriptShifterOptions"]
               window.localStorage.setItem('marva-scriptShifterOptions', JSON.stringify(contents["scriptShifterOptions"]))
             }
 
-            if (contents["marvaComponentLibrary"]){
+            if (contents["marvaComponentLibrary"] && (selection && (selection.includes('componentLibrary') || selection.includes('all')))){
               that.preferenceStore.componentLibrary = contents["marvaComponentLibrary"]
               window.localStorage.setItem('marva-componentLibrary', JSON.stringify(contents["marvaComponentLibrary"]))
             }
 
-            if (contents["diacriticUse"]){
+            if (contents["diacriticUse"] && (selection && (selection.includes('diacriticMacro') || selection.includes('all')))){
               that.preferenceStore.diacriticUse = contents["diacriticUse"]
               window.localStorage.setItem('marva-diacriticUse', JSON.stringify(contents["diacriticUse"]))
+              that.preferenceStore.buildDiacriticSettings()
+
+              const incoming = contents.prefs['styleDefault']['--c-diacritics-enabled-macros'].value
+              that.preferenceStore.setValue('--c-diacritics-enabled-macros', incoming)
             }
-            that.preferenceStore.buildDiacriticSettings()
+
+            if (selection && (selection.includes('textMacro') || selection.includes('all'))){
+              const incoming = contents.prefs['styleDefault']['--o-diacritics-text-macros'].value
+              that.preferenceStore.setValue('--o-diacritics-text-macros', incoming)
+            }
+
+            if (selection && (selection.includes('layouts') || selection.includes('all'))){
+              const incoming = contents.prefs['styleDefault']['--l-custom-layouts'].value
+              that.preferenceStore.setValue('--l-custom-layouts', incoming)
+            }
+
+            if (selection && (selection.includes('style') || selection.includes('all'))){
+              for (let item in contents.prefs['styleDefault']){
+                if (!['--l-custom-layouts', '--o-diacritics-text-macros', '--c-diacritics-enabled-macros'].includes(item)){
+                  const incoming = contents.prefs['styleDefault'][item].value
+                  that.preferenceStore.setValue(item, incoming)
+                }
+              }
+            }
+
           }
 
           reader.readAsText(file)
