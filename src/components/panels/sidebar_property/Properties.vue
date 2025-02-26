@@ -541,7 +541,7 @@ import { isReadonly } from 'vue';
       <template v-for="(clProfile, idx) in returnComponentLibrary" :key="clProfile">
         <AccordionItem style="color: white;" :id="'accordion_'+clProfile.profileId" default-closed>
           <template #summary>
-            <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">{{ clProfile.type == 'default' ? 'Default' : 'Library' }}: {{ clProfile.label }}</span></div>
+            <div> <span class="material-icons" style="font-size: 18px;padding-left: 2px;">library_add</span> <span style="vertical-align: text-bottom;" class="sidebar-header-text">{{ clProfile.type == 'default' ? 'Defaults' : 'Library' }}: {{ clProfile.type == 'default' ? '' : clProfile.label }}</span></div>
           </template>
           <ul class="sidebar-property-ul" role="list">
             <template v-for="(group, idx) in clProfile.groupsOrder" >
