@@ -88,6 +88,8 @@ export const useProfileStore = defineStore('profile', {
     showValidateModal: false,
     showHubStubCreateModal: false,
     showNacoStubCreateModal: false,
+    lastComplexLookupString: "", // used in the naco stub process to paste what you were working on in the complex lookup
+
     showItemInstanceSelection: false,
     activeHubStubData:{
     },
@@ -125,6 +127,8 @@ export const useProfileStore = defineStore('profile', {
 
     mostCommonNonLatinScript: null,
     nonLatinScriptAgents: {},
+
+    
 
     // bf:title component/predicate for example, value will be the structure object for this component
 
@@ -4980,7 +4984,7 @@ export const useProfileStore = defineStore('profile', {
       * @return {String}
       */
     async buildPostNacoStub(oneXX,fourXX,mainTitle,workURI){
-
+      console.log(oneXX,fourXX,mainTitle,workURI)
 
       let lccn = await utilsNetwork.nacoLccn()
 
@@ -4988,25 +4992,7 @@ export const useProfileStore = defineStore('profile', {
 
       return xml
       
-      // console.log("hubCreatorObj",hubCreatorObj)
-      // let xml = await utilsExport.createNacoStubXML(oneXX,lccn)
-
-      // console.log(xml)
-
-      // // pass a fake activeprofile with id == Hub to trigger hub protocols
-      // let pubResuts
-      // try{
-      //   pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
-
-      // }catch (error){
-      //   console.log(error)
-      //   alert("There was an error creating your Hub. Please report this issue.")
-      // }
-
-      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
-
-
-      // return pubResuts
+      
 
 
 

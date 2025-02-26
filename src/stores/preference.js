@@ -51,8 +51,6 @@ export const usePreferenceStore = defineStore('preference', {
     customLayouts: {},
     createLayoutMode: false,
 
-
-
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},

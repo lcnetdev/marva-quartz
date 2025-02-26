@@ -59,6 +59,7 @@
         oneXXResultsTimeout: null,
 
 
+        // scriptshifterLanguages: {},
 
 
 
@@ -85,7 +86,7 @@
       ...mapStores(useConfigStore),      
       ...mapStores(useProfileStore),      
 
-      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeHubStubData','activeHubStubComponent']),
+      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeHubStubData','activeHubStubComponent','lastComplexLookupString']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
@@ -133,7 +134,7 @@
 
           this.postStatus='posting'
 
-          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXX, this.mainTitle, this.workURI)
+          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI)
 
 
 
@@ -646,9 +647,93 @@
 
         },
 
+        // async getLangs(){
 
 
-        transliterateChange(event){
+        //   // async function doAsync () {
+        //   await this.configStore.getScriptShifterLanguages()
+        //   for (let k in this.scriptshifterLanguages){
+        //     if (this.scriptShifterOptions[k]){
+        //       if (this.scriptShifterOptions[k].s2r){
+        //         this.scriptshifterLanguages[k].s2r = true
+        //       }
+        //       if (this.scriptShifterOptions[k].r2s){
+        //         this.scriptshifterLanguages[k].r2s = true
+        //       }              
+        //     }
+        //   }
+        //   console.log(this.scriptshifterLanguages)
+
+        // },
+
+
+
+
+
+        async transliterateChange(event){
+
+          if (event.target.value == 'home'){return true}
+
+          let lang = event.target.value.split("-")[0]
+          let dir = event.target.value.split("-")[1]
+
+
+          if (dir == 's2r'){
+            let fourXXATrans = JSON.parse(JSON.stringify(this.fourXXParts))
+            if (fourXXATrans.a){
+              fourXXATrans.a = await utilsNetwork.scriptShifterRequestTrans(lang,fourXXATrans.a,null,dir)
+              if (fourXXATrans.a && fourXXATrans.a.output){
+                fourXXATrans.a = fourXXATrans.a.output
+              }
+            }
+
+            let oneXXString = ""
+            if (fourXXATrans.fieldTag){
+              oneXXString = "1" + fourXXATrans.fieldTag.charAt(1)+ fourXXATrans.fieldTag.charAt(2)
+            }
+            if (fourXXATrans.indicators){
+              oneXXString = oneXXString + fourXXATrans.indicators
+            }
+
+            let subfields = Object.keys(fourXXATrans).filter((v)=>{ return (v.length==1)}).sort()
+            for (let field of subfields){
+              oneXXString = oneXXString + '$'+field+fourXXATrans[field]
+            }
+
+            this.oneXX = oneXXString
+          }else{
+
+            let oneXXATrans = JSON.parse(JSON.stringify(this.oneXXParts))
+            if (oneXXATrans.a){
+              oneXXATrans.a = await utilsNetwork.scriptShifterRequestTrans(lang,oneXXATrans.a,null,dir)
+              if (oneXXATrans.a && oneXXATrans.a.output){
+                oneXXATrans.a = oneXXATrans.a.output
+              }
+            }
+
+            let fourXXString = ""
+            if (oneXXATrans.fieldTag){
+              fourXXString = "4" + oneXXATrans.fieldTag.charAt(1)+ oneXXATrans.fieldTag.charAt(2)
+            }
+            if (oneXXATrans.indicators){
+              fourXXString = fourXXString + oneXXATrans.indicators
+            }
+
+            let subfields = Object.keys(oneXXATrans).filter((v)=>{ return (v.length==1)}).sort()
+            for (let field of subfields){
+              fourXXString = fourXXString + '$'+field+oneXXATrans[field]
+            }
+
+            this.fourXX = fourXXString
+
+
+
+          }
+
+          // 400  $a강민, 건$d1990 
+          // let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
+
+
 
           console.log(event.target.value)
 
@@ -661,6 +746,41 @@
 
         },
 
+
+        transliterateOptions(){
+
+          let options = []
+          for (let key in this.scriptShifterOptions){
+
+
+
+            if (this.scriptShifterOptions[key].s2r){
+              let label =  '4xx -> 1xx: '
+              let dir='s2r'
+              label = label + this.scriptShifterOptions[key].label
+              options.push({
+                label: label,
+                dir: dir,
+                key:key
+              })
+
+            }
+
+            if (this.scriptShifterOptions[key].r2s){
+              let label = '1xx -> 4xx: '
+              let dir='r2s'
+              label = label + this.scriptShifterOptions[key].label
+              options.push({
+                label: label,
+                dir: dir,
+                key:key
+              })
+            }
+          }
+          console.log(options)
+          return options
+
+        },
        
 
 
@@ -675,7 +795,10 @@
         // createNacoStubXML
       // })
 
+      // this.getLangs()
+
     },
+
 
     async mounted() {
 
@@ -687,6 +810,37 @@
         this.disableAddButton = true
         this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
       }
+
+
+      let current = window.localStorage.getItem('marva-scriptShifterOptions')
+
+      if (current){
+        current = JSON.parse(current)
+      }else{
+        current = {}
+      }
+
+      // for (let x in this.scriptshifterLanguages){
+      //   if (this.scriptshifterLanguages[x].s2r || this.scriptshifterLanguages[x].r2s ){
+      //     current[x] = this.scriptshifterLanguages[x]
+      //     current[x].name = this.scriptshifterLanguages[x].label
+      //     current[x].label = this.scriptshifterLanguages[x].label
+      //   }else{
+      //     if (current[x]){
+      //       delete current[x]
+      //     }
+      //   }
+      // }
+
+      // window.localStorage.setItem('marva-scriptShifterOptions',JSON.stringify(current))
+      this.scriptShifterOptions = JSON.parse(JSON.stringify(current))
+
+      console.log(this.scriptShifterOptions)
+
+
+
+
+
 
     }
 
@@ -726,20 +880,28 @@
 
             <h3 style="margin-bottom: 1em;">Create NACO Stub</h3>
             <div style="display: flex; margin-bottom: 1em;">
-              <div style="flex-grow: 1;">
+              <div style="flex-grow: 1; position: relative;">
+                <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX  $a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
                 <input type="text" ref="hub-title" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-">
               </div>
             </div>
             <div style="display: flex; margin-bottom: 1em;">
               <div style="flex-grow: 1;">
+                <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX  $a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
+
                 <input type="text" ref="hub-title" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d....">
               </div>
             </div>
             <div style="float: right;">
+
               <select  @change="transliterateChange">
                 <option value="home">Transliterate</option>
-                <option value="test1">Test1</option>
-                <option value="test2">Test2</option>
+                <template v-for="ss in transliterateOptions()">
+                  
+                  <option :value="ss.key+'-'+ss.dir">{{ ss.label }}</option>
+                </template>
+                
+                
 
               </select>
             </div>
@@ -835,6 +997,20 @@
 </style>
 
 <style scoped>
+
+.paste-from-search{
+  position: absolute;
+  right: 2px;
+  top:2px;
+  z-index: 1000;
+  padding: 0;
+
+}
+
+.paste-from-search .material-icons{
+  font-size: 19px;
+
+}
 
   #error-info{
     clear: both;
