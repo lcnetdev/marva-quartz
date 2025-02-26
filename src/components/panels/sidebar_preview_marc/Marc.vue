@@ -168,7 +168,7 @@ li{
 .marc-preview-content{
   padding: 0.25em;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
-  
+
 
 }
 .version-number{
@@ -219,6 +219,10 @@ li{
   overflow: hidden;
   color: rgba(0, 0, 0, 0.5);
   vertical-align: bottom;
+}
+
+:deep() div.marc.field{
+  text-indent: 4em hanging;
 }
 
 
