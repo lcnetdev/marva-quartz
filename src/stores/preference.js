@@ -448,6 +448,16 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Edit Panel',
         range: null
       },
+      '--b-edit-main-splitpane-edit-show-field-labels-bold' : {
+          desc: 'Make the field labels bold.',
+          descShort: 'Bold Field Labels.',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
+
 
 
 
