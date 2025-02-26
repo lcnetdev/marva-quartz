@@ -218,7 +218,7 @@ li{
 }
 
 :deep() span.marc.subfield:hover{
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-highlight-background-color')");
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
 }
 
 

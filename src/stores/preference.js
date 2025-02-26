@@ -323,6 +323,14 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Sidebars - Previews',
         range: [true, false]
       },
+      '--c-edit-main-splitpane-opac-marc-html-highlight-color' : {
+          value:'#fff59cff',
+          desc: 'The background color of the subfield in the marc preview when hovering over it.',
+          descShort: 'Subfield Highlight Color',
+          type: 'color',
+          group: 'Sidebars - Previews',
+          range: null
+       },
 
 
 
