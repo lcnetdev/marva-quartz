@@ -777,86 +777,89 @@ export default {
 
       let useLang = event.target.dataset.lang
 
-      // this is used in CAMM mode you can add @en-latn language and script via text
-      if (/@[A-z-]{2,}$/.test(v)){
-        let foundLang = v.match(/@[A-z-]{2,}$/)
-        if (foundLang){
-          // pull it out of the regex match
-          foundLang = foundLang[0]
-          // remove it from the value
-          v = v.replace(foundLang,'')
-          useLang = foundLang.toLowerCase().replace("@",'')
+      if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true){
+
+        // this is used in CAMM mode you can add @en-latn language and script via text
+        if (/@[A-z-]{2,}$/.test(v)){
+          let foundLang = v.match(/@[A-z-]{2,}$/)
+          if (foundLang){
+            // pull it out of the regex match
+            foundLang = foundLang[0]
+            // remove it from the value
+            v = v.replace(foundLang,'')
+            useLang = foundLang.toLowerCase().replace("@",'')
 
 
-        }
-      }else{
-        // there is no language now, but was there before? and they are removing it or there never was
-        for (let l of this.literalValues){
-          if (l['@guid'] == event.target.dataset.guid && l['@language'] !== null){
-            // they currently have a language on this string and are removing it
-            // set the value to the remove command so setValueLiteral knows to remove it
-            useLang = 'REMOVE_COMMAND'
           }
-        }
-      }
-
-      // double check that the language and script about to be added is acutally a valid lang tag
-      // this can be manually changed in camm mode, so if it itsn't set the error but don't stop them
-      if (useLang && useLang != 'REMOVE_COMMAND'){
-
-        let lang = useLang.split("-")[0]
-        let script = useLang.split("-")[1]
-
-        let validLang = false
-        let validScript = false
-        if (lang){
-          lang=lang.trim()
-          for (let l of isoLangLib.iso639_1){
-            if (lang == l.code){
-              validLang=true
-              break
+        }else{
+          // there is no language now, but was there before? and they are removing it or there never was
+          for (let l of this.literalValues){
+            if (l['@guid'] == event.target.dataset.guid && l['@language'] !== null){
+              // they currently have a language on this string and are removing it
+              // set the value to the remove command so setValueLiteral knows to remove it
+              useLang = 'REMOVE_COMMAND'
             }
           }
-          if (!validLang){
-              for (let l of isoLangLib.iso639_2){
-              if (lang == l.alpha_3){
+        }
+
+        // double check that the language and script about to be added is acutally a valid lang tag
+        // this can be manually changed in camm mode, so if it itsn't set the error but don't stop them
+        if (useLang && useLang != 'REMOVE_COMMAND'){
+
+          let lang = useLang.split("-")[0]
+          let script = useLang.split("-")[1]
+
+          let validLang = false
+          let validScript = false
+          if (lang){
+            lang=lang.trim()
+            for (let l of isoLangLib.iso639_1){
+              if (lang == l.code){
                 validLang=true
                 break
               }
             }
-          }
-        }
-
-
-        if (script){
-          script=script.trim().toLowerCase()
-          for (let l of isoLangLib.iso15924){
-            if (script == l.alpha_4.toLowerCase()){
-              validScript=true
-              break
+            if (!validLang){
+                for (let l of isoLangLib.iso639_2){
+                if (lang == l.alpha_3){
+                  validLang=true
+                  break
+                }
+              }
             }
           }
 
 
-        }else{
-          // no script found, its fine then
-          validScript=true
+          if (script){
+            script=script.trim().toLowerCase()
+            for (let l of isoLangLib.iso15924){
+              if (script == l.alpha_4.toLowerCase()){
+                validScript=true
+                break
+              }
+            }
+
+
+          }else{
+            // no script found, its fine then
+            validScript=true
+          }
+
+          if (!validScript || !validLang){
+            // if they are typing it in we don't want to flash the warning with each keystroke, so wait
+            // until after they are done typing and trigger the validation warning if needed
+            window.clearTimeout(this.cammModeLangScriptValidationTimeout)
+            this.cammModeLangScriptValidationTimeout = window.setTimeout(()=>{
+              this.profileStore.addCammModeError(this.guid,'Invalid Language or Script code, needs to use ISO639 & ISO15924: ' + useLang )
+
+            },1000)
+
+          }else{
+            window.clearTimeout(this.cammModeLangScriptValidationTimeout)
+            this.profileStore.clearCammModeError(this.guid)
+          }
+
         }
-
-        if (!validScript || !validLang){
-          // if they are typing it in we don't want to flash the warning with each keystroke, so wait
-          // until after they are done typing and trigger the validation warning if needed
-          window.clearTimeout(this.cammModeLangScriptValidationTimeout)
-          this.cammModeLangScriptValidationTimeout = window.setTimeout(()=>{
-            this.profileStore.addCammModeError(this.guid,'Invalid Language or Script code, needs to use ISO639 & ISO15924: ' + useLang )
-
-          },1000)
-
-        }else{
-          window.clearTimeout(this.cammModeLangScriptValidationTimeout)
-          this.profileStore.clearCammModeError(this.guid)
-        }
-
       }
 
 
@@ -867,6 +870,9 @@ export default {
       }
       // console.log("3 v:",v)
       await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,useLang)
+
+
+
 
       if (setFocus){
 

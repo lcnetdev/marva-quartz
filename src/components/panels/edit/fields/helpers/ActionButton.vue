@@ -199,6 +199,8 @@
   import InstanceSelectionModal from "@/components/panels/edit/modals/InstanceSelectionModal.vue";
   import { usePreferenceStore } from '@/stores/preference'
   import { useProfileStore } from '@/stores/profile'
+  import { useConfigStore } from '@/stores/config'
+
   import short from 'short-uuid'
 
 
@@ -361,6 +363,9 @@
       
 
       showBuildNacoStub(){
+        
+        if (this.isStaging() == false){ return false} // REMOVE BEFORE PROD USAGE
+
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
 
@@ -926,6 +931,15 @@
         let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
         this.profileStore.addToAdHocMode(structure.parentId, structure.id)
       },
+
+      isStaging(){        
+        if (useConfigStore().returnUrls.env == "staging"){
+          return true
+        }else{
+          return false
+        }
+      },
+
 
     },
     watch: {

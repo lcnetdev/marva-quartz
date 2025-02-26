@@ -1,7 +1,9 @@
 <script>
   import { usePreferenceStore } from '@/stores/preference'
+  import { useProfileStore } from '@/stores/profile'
+
   import { useConfigStore } from '@/stores/config'
-  import { mapStores, mapState } from 'pinia'
+  import { mapStores, mapState, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
 
   import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
@@ -68,8 +70,9 @@
 
       ...mapState(useConfigStore, ['lookupConfig']),
 
-      ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
+      ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
+      ...mapWritableState(useProfileStore, ['lastComplexLookupString','showNacoStubCreateModal']),
 
 
 
@@ -277,6 +280,13 @@
             }
           }
         }
+
+        // only store for agents
+        if (this.structure && this.structure.parentId && this.structure.parentId.toLowerCase().indexOf("agent") >-1){
+          this.lastComplexLookupString = event.target.value
+        }
+
+
       },
 
 
@@ -298,7 +308,7 @@
         // do a bunch of diacritic checks to see if they are trying to trigger a diacrtiic macro
 
 
-
+        
 
         // This mode is they press Crtl+e to enter diacritic macro mode, so they did that on the last kedown and now we need to act on the next keystroke and interpret it as a macro code
         if (this.nextInputIsVoyagerModeDiacritics){
@@ -661,6 +671,29 @@
         this.activeContext = results
       },
 
+      isStaging(){        
+        if (useConfigStore().returnUrls.env == "staging"){
+          return true
+        }else{
+          return false
+        }
+      },
+
+      loadNacoStubModal(){
+
+        this.$emit('hideComplexModal')
+        
+        this.$nextTick(() => {
+
+          this.showNacoStubCreateModal = true
+
+        })
+
+        
+        // this.displayCo/
+
+      },
+
       rewriteURI: function(uri){
 
         if (!uri){
@@ -793,7 +826,7 @@
     },
 
     mounted() {
-      //console.log("mounted yeah")
+      // console.log("mounted yeah", this.structure)
 
       if (this.modeSelect === null){
 
@@ -876,6 +909,10 @@
               </template>
               <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" @keyup="inputKeyup($event)" type="text" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`" />
               <button @click="forceSearch()">Search</button>
+
+              <!-- REMOVE v-if BEFORE PROD USAGE -->
+              <button @click="loadNacoStubModal" style="float: right;" v-if="isStaging() == true">Create NACO Stub</button>
+
               <hr style="margin-top: 5px;">
               <div>
                   <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`">
