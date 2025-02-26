@@ -50,7 +50,7 @@
         <div :class="['literal-field', {'read-only': structure.propertyLabel=='Local identifier'}]">
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
-            <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
+            <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">{{structure.propertyLabel}}</div>
           </template>
           <form autocomplete="off" >
             <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == true">
@@ -59,7 +59,7 @@
                 <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
                 <div class="bfcode-display-mode-holder-value">
                   <textarea
-                    :class="['literal-textarea', 'can-select',{'bfcode-textarea': preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode')}]"
+                    :class="['literal-textarea', 'can-select',{'bfcode-textarea': preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode'), 'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                     v-model="lValue.value"
                     v-on:keydown.enter.prevent="submitField"
                     autocomplete="off"
@@ -85,7 +85,7 @@
               </template>
               <template v-else>
                 <textarea
-                  :class="['literal-textarea', 'can-select',{}]"
+                  :class="['literal-textarea', 'can-select',{'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                   v-model="lValue.value"
                   v-on:keydown.enter.prevent="submitField"
                   autocomplete="off"
@@ -134,7 +134,7 @@
         <!-- { "title": "knitter's handy book of patterns", "classNumber": "TT820", "cutterNumber": ".B877 2002", "titleNonSort": 4, "contributors": [ { "type": "PrimaryContribution", "label": "Budd, Ann, 1956-" } ], "firstSubject": "Knitting--Patterns" } -->
         <div style="display: flex;">
           <div style="flex:1">
-          <fieldset v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length>0) || lccFeatureData.title" >
+          <fieldset v-if="(lccFeatureData.contributors && lccFeatureData.contributors.length>0) || lccFeatureData.title || lccFeatureData.firstSubject" >
             <legend>Cutter Calculator</legend>
             <template v-if="lccFeatureData.contributors">
 
@@ -778,7 +778,7 @@ export default {
       let useLang = event.target.dataset.lang
 
       if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true){
-          
+
         // this is used in CAMM mode you can add @en-latn language and script via text
         if (/@[A-z-]{2,}$/.test(v)){
           let foundLang = v.match(/@[A-z-]{2,}$/)
@@ -825,11 +825,11 @@ export default {
                   validLang=true
                   break
                 }
-              }    
-            }   
-          } 
-          
-          
+              }
+            }
+          }
+
+
           if (script){
             script=script.trim().toLowerCase()
             for (let l of isoLangLib.iso15924){
@@ -839,7 +839,7 @@ export default {
               }
             }
 
-            
+
           }else{
             // no script found, its fine then
             validScript=true
@@ -863,7 +863,7 @@ export default {
       }
 
 
-      
+
       let currentPos = 0
       if (event.target.tagName === 'SPAN'){
         currentPos = this.getCaretCharOffset(event.target)
@@ -872,8 +872,8 @@ export default {
       await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,useLang)
 
 
-      
-      
+
+
       if (setFocus){
 
         let r = 'input_' + this.literalValues[0]['@guid']
@@ -1187,7 +1187,6 @@ fieldset{
 
 
 .lang-display{
-
   border-radius: 1em;
   padding: 2px;
 
@@ -1195,11 +1194,6 @@ fieldset{
 
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-lang-label-background-color')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-lang-label-font-color')");
-
-
-
-
-
 }
 
 .inline-mode-editable-span-input{
@@ -1280,7 +1274,9 @@ fieldset{
 }
 
 
-
+.label-bold {
+  font-weight: bold;
+}
 .lookup-fake-input-label{
   position: absolute;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-edit-show-field-labels-size')");
@@ -1291,8 +1287,6 @@ fieldset{
   z-index: 1;
   top: -4px;
   left: 2px;
-
-
 }
 
 
@@ -1310,9 +1304,6 @@ textarea{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
 
-
-
-
   height: 1.25em;
   line-height: 1.25em;
   margin-top: 0.5em;
@@ -1321,9 +1312,6 @@ textarea{
 .lookup-fake-input{
   min-height: 2em;
   /* background-color: transparent; */
-
-
-
 }
 
 textarea:focus-within{
@@ -1377,8 +1365,6 @@ textarea:hover{
   background-color: transparent;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
   color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')");
-
-
 }
 .component .lookup-fake-input{
   border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
@@ -1390,6 +1376,9 @@ textarea:hover{
   cursor: no-drop;
 }
 
+.literal-bold{
+  font-weight: bold;
+}
 
 
 </style>

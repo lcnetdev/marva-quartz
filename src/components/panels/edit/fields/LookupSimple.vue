@@ -63,7 +63,7 @@
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <!-- <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && simpleLookupValues.length==0"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div> -->
-            <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label">{{structure.propertyLabel}}</div>
+            <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">{{structure.propertyLabel}}</div>
           </template>
 
 
@@ -1388,6 +1388,9 @@ export default {
   margin-top: 5px;
 }
 
+.label-bold {
+  font-weight: bold;
+}
 .lookup-fake-input-label{
   position: absolute;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-edit-show-field-labels-size')");

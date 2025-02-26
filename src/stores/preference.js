@@ -320,7 +320,15 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Sidebars - Previews',
         range: [true, false]
-    },
+      },
+      '--c-edit-main-splitpane-opac-marc-html-highlight-color' : {
+          value:'transparent',
+          desc: 'The background color of the subfield in the marc preview when hovering over it.',
+          descShort: 'Subfield Highlight Color',
+          type: 'color',
+          group: 'Sidebars - Previews',
+          range: null
+       },
 
 
 
@@ -446,6 +454,16 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Edit Panel',
         range: null
       },
+      '--b-edit-main-splitpane-edit-show-field-labels-bold' : {
+          desc: 'Make the field labels bold.',
+          descShort: 'Bold Field Labels.',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
+
 
 
 
@@ -585,8 +603,6 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Literal Field',
         range: null
       },
-
-
       '--c-edit-main-literal-lang-label-background-color' : {
         desc: 'The background color of the language indicator',
         descShort: 'Lang Label Background Color',
@@ -603,7 +619,6 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Literal Field',
         range: null
       },
-
       '--n-edit-main-literal-lang-label-font-size' : {
         desc: 'The fontsize of the language indicator',
         descShort: 'Lang Label Font Size',
@@ -613,6 +628,15 @@ export const usePreferenceStore = defineStore('preference', {
         unit: 'em',
         group: 'Literal Field',
         range: [1,2]
+    },
+    '--b-edit-main-literal-bold-font' : {
+        desc: 'Literal Text Bold.',
+        descShort: 'Make literals bold.',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Literal Field',
+        range: [true,false]
     },
 
 

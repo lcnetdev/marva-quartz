@@ -7,15 +7,15 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 18,
-    versionPatch: 3,
+    versionPatch: 4,
 
     regionUrls: {
 
       dev:{
 
         ldpjs : 'http://localhost:9401/api-staging/',
-        util  : 'http://localhost:9401/util/',
-        // util  : 'http://localhost:5200/',
+        // util  : 'http://localhost:9401/util/',
+        util  : 'http://localhost:5200/',
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',

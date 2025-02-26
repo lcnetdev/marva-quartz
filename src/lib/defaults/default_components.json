@@ -2222,7 +2222,20 @@
                                                 "http://www.w3.org/2000/01/rdf-schema#label": "illustrations"
                                             }
                                         ],
-                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "6VrsQH5PnLsxKUxsXbP3se",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/physical",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "7TgqRM744nvSCsVANQhwKz",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details (physical)"
+                                                    }
+                                                ],
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                            }
+                                        ]
                                     }
                                 ]
                             },
