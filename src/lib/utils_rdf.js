@@ -43,8 +43,7 @@ const utilsRDF = {
     'owl': 'http://www.w3.org/2002/07/owl#',
 		'void':'http://rdfs.org/ns/void#',
     'lcc': 'http://id.loc.gov/ontologies/lcc#',
-
-
+    'vartitletype': 'http://id.loc.gov/vocabulary/vartitletype/',
   },
 
 
@@ -261,7 +260,7 @@ const utilsRDF = {
     let objProp = prop.getElementsByTagName("owl:ObjectProperty")
     let dataProp = prop.getElementsByTagName("owl:DatatypeProperty")
 
-    
+
 
 
 
@@ -354,7 +353,7 @@ const utilsRDF = {
 
     }
 
-    
+
 
 
 
