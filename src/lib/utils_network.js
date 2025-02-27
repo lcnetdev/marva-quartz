@@ -919,9 +919,6 @@ const utilsNetwork = {
     */
     extractContextData: function(data){
       data.uri = data.uri.replace("https://preprod-8080.", "http://id.loc.gov/")
-      //@id: http://id.loc.gov/authorities/names/no2024037154
-      //     http://id.loc.gov/id.loc.gov/authorities/names/no2024037154
-
 
           var results = {
             contextValue: true,
