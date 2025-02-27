@@ -308,7 +308,7 @@
         // do a bunch of diacritic checks to see if they are trying to trigger a diacrtiic macro
 
 
-        
+
 
         // This mode is they press Crtl+e to enter diacritic macro mode, so they did that on the last kedown and now we need to act on the next keystroke and interpret it as a macro code
         if (this.nextInputIsVoyagerModeDiacritics){
@@ -541,7 +541,6 @@
 
 
       returnContextTitle(title){
-
         if (!Array.isArray(title)){
           title=[title]
         }
@@ -550,7 +549,6 @@
         //let noLang = title.filter((v)=>{ if (v['@language']){return false}else{return true} })
         //GenreForm seem to have the lang tag even when there is only English values
         let noLang = title.filter((v)=> typeof v['@language'] == "undefined" || (v['@language'] && v['@language'] == "en") )
-
         if (noLang && noLang[0] && noLang[0]['@value']){ return noLang[0]['@value']}
 
         return 'ERROR - Cannot find label'
@@ -641,7 +639,7 @@
             "genreForm": null,
             "nodeMap": {},
             "precoordinated" : false,
-            "literal": true,
+            "literal": (toLoad && toLoad.literal) ? true : false,
             "loading":true,
           }
 
@@ -653,7 +651,7 @@
         try {
             results = await utilsNetwork.returnContext(toLoad.uri)
             results.loading = false
-        } catch {
+        } catch(err) {
             results = this.activeContext
         }
 
@@ -671,7 +669,7 @@
         this.activeContext = results
       },
 
-      isStaging(){        
+      isStaging(){
         if (useConfigStore().returnUrls.env == "staging"){
           return true
         }else{
@@ -682,14 +680,14 @@
       loadNacoStubModal(){
 
         this.$emit('hideComplexModal')
-        
+
         this.$nextTick(() => {
 
           this.showNacoStubCreateModal = true
 
         })
 
-        
+
         // this.displayCo/
 
       },
@@ -943,7 +941,6 @@
             <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display" :style="`${this.preferenceStore.styleModalTextColor()};`">
 
               <template v-if="activeContext !== null">
-
                   <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.type"><AuthTypeIcon v-if="activeContext.type" :type="activeContext.type"></AuthTypeIcon></span>{{returnContextTitle(activeContext.title)}}</h3>
 
 

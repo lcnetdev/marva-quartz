@@ -570,9 +570,6 @@ const utilsNetwork = {
       try {
         d = await this.fetchContextData(uri)
         d.uri = uri
-        if (returnUrls.env == 'production'){
-          d.uri = uri.replace('http://id.', 'https://preprod-8080.id.')
-        }
       } catch {
         return false
       }
@@ -921,6 +918,8 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     extractContextData: function(data){
+      data.uri = data.uri.replace("https://preprod-8080.", "http://id.loc.gov/")
+
           var results = {
             contextValue: true,
             source: [],
