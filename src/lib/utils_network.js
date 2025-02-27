@@ -432,6 +432,8 @@ const utilsNetwork = {
               url = url.replace('https://test-8080.id.lctl.gov','https://id.loc.gov')
               url = url.replace('https://preprod-8080.id.loc.gov','https://id.loc.gov')
               url = url.replace('https://preprod-8288.id.loc.gov','https://id.loc.gov')
+            } else { // if it's not dev or public make sure we're using 8080
+              url = url.replace('https://id.loc.gov', 'https://preprod-8080.id.loc.gov')
             }
 
 
@@ -566,7 +568,7 @@ const utilsNetwork = {
       let d
       try {
         d = await this.fetchContextData(uri)
-        d.uri = uri
+        d.uri = uri.replace('http://id.', 'https://preprod-8080.id.')
       } catch {
         return false
       }
@@ -2351,6 +2353,8 @@ const utilsNetwork = {
       let searchValHierarchicalGeographic = searchVal.replaceAll('‑','-') //.split(' ').join('--')
 
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")
+
+      console.info("nameURL: ", namesUrl)
 
       const exactUri = 'https://id.loc.gov/authorities/<SCHEME>/label/' + searchVal
       let exactName = exactUri.replace('<SCHEME>', 'names')
