@@ -564,6 +564,7 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     returnContext: async function(uri){
+      console.info("returnContext: ", uri)
       let returnUrls = useConfigStore().returnUrls
       let results
       let d
@@ -577,6 +578,7 @@ const utilsNetwork = {
         return false
       }
 
+      console.info("d: ", d)
       if (d && uri.includes('resources/works/') || uri.includes('resources/hubs/')){
         results = await this.extractContextDataWorksHubs(d)
       }else if (d){
@@ -592,7 +594,9 @@ const utilsNetwork = {
     * @return {object} - the data response
     */
     fetchContextData: async function(uri){
+        console.info("fetchContextData: ", uri)
           let returnUrls = useConfigStore().returnUrls
+          console.info("returnUrls: ", returnUrls)
 
           if ((uri.startsWith('http://id.loc.gov') || uri.startsWith('https://id.loc.gov')) && uri.match(/(authorities|vocabularies)/)) {
             var jsonuri = uri + '.madsrdf_raw.jsonld';
@@ -653,7 +657,7 @@ const utilsNetwork = {
           }
 
 
-          // jsonuri = jsonuri.replace('http://id.loc.gov','https://preprod-8080.id.loc.gov')
+          jsonuri = jsonuri.replace('http://','https://')
 
           // let data2 = [  { "@id": "_:b600iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Hatěntir patmwatskʻner, 1963:" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "title page (Markʻ Tʻuēyn)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b399iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b626iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://id.loc.gov/ontologies/RecordInfo#RecordInfo" ], "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [ { "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
           //   "@value": "1979-04-18T00:00:00" } ], "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [ { "@type": "http://www.w3.org/2001/XMLSchema#string",
@@ -732,12 +736,16 @@ const utilsNetwork = {
           // data2.uri = "http://id.loc.gov/authorities/names/n79021164"
 
           // return data2
+          console.info("jsonuri: ", jsonuri)
           try{
             let response = await fetch(jsonuri);
+
             let data =  await response.json()
+            console.info("data: ", data)
             return  data;
 
           }catch(err){
+            console.info("ERR: ", err)
             console.error(err);
 
             // Handle errors here
