@@ -564,7 +564,6 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     returnContext: async function(uri){
-      console.info("returnContext: ", uri)
       let returnUrls = useConfigStore().returnUrls
       let results
       let d
@@ -578,7 +577,6 @@ const utilsNetwork = {
         return false
       }
 
-      console.info("d: ", d)
       if (d && uri.includes('resources/works/') || uri.includes('resources/hubs/')){
         results = await this.extractContextDataWorksHubs(d)
       }else if (d){
@@ -594,9 +592,7 @@ const utilsNetwork = {
     * @return {object} - the data response
     */
     fetchContextData: async function(uri){
-        console.info("fetchContextData: ", uri)
           let returnUrls = useConfigStore().returnUrls
-          console.info("returnUrls: ", returnUrls)
 
           if ((uri.startsWith('http://id.loc.gov') || uri.startsWith('https://id.loc.gov')) && uri.match(/(authorities|vocabularies)/)) {
             var jsonuri = uri + '.madsrdf_raw.jsonld';
@@ -736,16 +732,12 @@ const utilsNetwork = {
           // data2.uri = "http://id.loc.gov/authorities/names/n79021164"
 
           // return data2
-          console.info("jsonuri: ", jsonuri)
           try{
             let response = await fetch(jsonuri);
-
             let data =  await response.json()
-            console.info("data: ", data)
             return  data;
 
           }catch(err){
-            console.info("ERR: ", err)
             console.error(err);
 
             // Handle errors here
@@ -2365,8 +2357,6 @@ const utilsNetwork = {
       let searchValHierarchicalGeographic = searchVal.replaceAll('‑','-') //.split(' ').join('--')
 
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")
-
-      console.info("nameURL: ", namesUrl)
 
       const exactUri = 'https://id.loc.gov/authorities/<SCHEME>/label/' + searchVal
       let exactName = exactUri.replace('<SCHEME>', 'names')
