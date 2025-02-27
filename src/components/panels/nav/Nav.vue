@@ -495,7 +495,7 @@
           menu.push(
             {
               text: "Post",
-              icon: (this.activeProfilePosted) ? "=mark_email_read" : "sailing",
+              icon: (this.activeProfilePosted) ? "mark_email_read" : "sailing",
               click: () => {
                 this.showPostModal = true;
                 this.$nextTick(()=>{
