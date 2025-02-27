@@ -564,11 +564,15 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     returnContext: async function(uri){
+      let returnUrls = useConfigStore().returnUrls
       let results
       let d
       try {
         d = await this.fetchContextData(uri)
-        d.uri = uri.replace('http://id.', 'https://preprod-8080.id.')
+        d.uri = uri
+        if (returnUrls.env == 'production'){
+          d.uri = uri.replace('http://id.', 'https://preprod-8080.id.')
+        }
       } catch {
         return false
       }
