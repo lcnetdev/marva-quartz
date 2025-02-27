@@ -653,7 +653,7 @@ const utilsNetwork = {
           }
 
 
-          jsonuri = jsonuri.replace('http://id.loc.gov','https://id.loc.gov')
+          // jsonuri = jsonuri.replace('http://id.loc.gov','https://preprod-8080.id.loc.gov')
 
           // let data2 = [  { "@id": "_:b600iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#Source" ], "http://www.loc.gov/mads/rdf/v1#citationSource": [ { "@value": "Hatěntir patmwatskʻner, 1963:" } ], "http://www.loc.gov/mads/rdf/v1#citationNote": [ { "@value": "title page (Markʻ Tʻuēyn)" } ], "http://www.loc.gov/mads/rdf/v1#citationStatus": [ { "@value": "found" } ] },  { "@id": "_:b399iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://www.loc.gov/mads/rdf/v1#DateNameElement" ], "http://www.loc.gov/mads/rdf/v1#elementValue": [ { "@value": "1835-1910" } ] },  { "@id": "_:b626iddOtlocdOtgovauthoritiesnamesn79021164", "@type": [ "http://id.loc.gov/ontologies/RecordInfo#RecordInfo" ], "http://id.loc.gov/ontologies/RecordInfo#recordChangeDate": [ { "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
           //   "@value": "1979-04-18T00:00:00" } ], "http://id.loc.gov/ontologies/RecordInfo#recordStatus": [ { "@type": "http://www.w3.org/2001/XMLSchema#string",
