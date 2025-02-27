@@ -1640,7 +1640,6 @@ methods: {
   },
 
   getContext: async function(){
-    console.info("getContext")
     if (this.pickLookup[this.pickPostion].literal){
       this.contextData = this.pickLookup[this.pickPostion]
       return false
