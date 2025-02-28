@@ -308,6 +308,8 @@ const utilsParse = {
       // old Logic
        if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+      } else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
        } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
        }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
@@ -324,7 +326,9 @@ const utilsParse = {
           // leave blank?
         }
 
-
+        // console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
+        // console.log("-->", child)
+        // console.log(child.innerHTML)
 
       }
     }
@@ -614,6 +618,9 @@ const utilsParse = {
               if (ptk.valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
                 // it matches, so use this one for sure
                 // make sure to remove the hint attribute
+                // console.log("Putting into ptk:",ptk)
+                // console.log("This:", e)
+
                 e.removeAttribute('local:pthint')
                 el.push(e)
               }else{
@@ -628,10 +635,13 @@ const utilsParse = {
                   }
                 }
                 if (foundPtToUse){
+
                   // jump to the next el this one will get grabbed by the one it is suppose to use
                   continue
                 }else{
                   // we did not find a place to put this el, so we need to add it here
+                  // console.log("Putting into ptk:",ptk)
+                  // console.log("This:", e)
                   e.removeAttribute('local:pthint')
                   el.push(e)
                 }
