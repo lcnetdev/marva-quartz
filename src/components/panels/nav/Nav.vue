@@ -495,7 +495,7 @@
           menu.push(
             {
               text: "Post",
-              icon: "sailing",
+              icon: (this.activeProfilePosted) ? "mark_email_read" : "sailing",
               click: () => {
                 this.showPostModal = true;
                 this.$nextTick(()=>{
@@ -1063,7 +1063,7 @@
       position: absolute !important;
       right: 0;
     }
-    .record-posted{
+    .record-posted .icon{
       color: green !important;
     }
     .save-not-saved span{
