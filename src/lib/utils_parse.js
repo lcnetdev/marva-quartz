@@ -329,9 +329,9 @@ const utilsParse = {
           // leave blank?
         }
 
-        console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
-        console.log("-->", child)
-        console.log(child.innerHTML)
+        // console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
+        // console.log("-->", child)
+        // console.log(child.innerHTML)
 
       }
     }
