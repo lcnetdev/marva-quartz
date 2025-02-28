@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 18,
-    versionPatch: 8,
+    versionPatch: 9,
 
     regionUrls: {
 
@@ -313,6 +313,14 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2022442584',label:"test", idUrl:'https://id.loc.gov/resources/instances/2022442584.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
     {lccn:'2023537239',label:"test2", idUrl:'https://id.loc.gov/resources/instances/2023537239.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    {lccn:'2023537239',label:"test2", idUrl:'https://id.loc.gov/resources/instances/2023537239.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+    {lccn:'2023478592',label:"test3", idUrl:'https://id.loc.gov/resources/instances/2023478592.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    {lccn:'2025363067',label:"test4", idUrl:'https://id.loc.gov/resources/instances/2025363067.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    
+
 
   ],
 
