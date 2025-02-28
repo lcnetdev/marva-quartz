@@ -611,7 +611,8 @@ const utilsNetwork = {
 
 
           //if we are in production use preprod
-          if (returnUrls.env == 'production' && jsonuri.includes("authorities/names")){
+          // if (returnUrls.env == 'production' && jsonuri.includes("authorities/names")){
+            if (returnUrls.env == 'production'){
             jsonuri = jsonuri.replace('http://id.', 'https://preprod-8080.id.')
             jsonuri = jsonuri.replace('https://id.', 'https://preprod-8080.id.')
           }

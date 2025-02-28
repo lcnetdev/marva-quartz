@@ -2,8 +2,8 @@
   import { useProfileStore } from '@/stores/profile'
   import { useConfigStore } from '@/stores/config'
 
-  
-  import {  mapStores, mapWritableState } from 'pinia'
+
+  import {  mapStores, mapState, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
   import VueDragResize from 'vue3-drag-resize'
 
@@ -24,7 +24,7 @@
         postResults: {},
         posting: false,
 
-        
+
         initalHeight: 400,
         initalLeft: (window.innerWidth /2 ) - 450,
 
@@ -36,20 +36,21 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,useConfigStore),
+      ...mapState(useProfileStore, ['activeProfilePosted']),
 
-      
-      
+
+
       // ...mapState(usePreferenceStore, ['debugModalData']),
-      ...mapWritableState(useProfileStore, ['showPostModal']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'activeProfilePosted']),
 
-      
 
-      
-      
+
+
+
 
     },
 
-    
+
     methods: {
 
 
@@ -58,7 +59,7 @@
           this.showPostModal = false
 
         },
-        
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -72,27 +73,28 @@
 
 
         post: async function(){
-
           const config = useConfigStore()
-          
-          if (!config.returnUrls.displayLCOnlyFeatures){
-            this.showPostModal=false
-            alert("Sorry you cannot post in this Marva environment")
-            return false
-          }
+
+          // if (!config.returnUrls.displayLCOnlyFeatures){
+          //   this.showPostModal=false
+          //   alert("Sorry you cannot post in this Marva environment")
+          //   return false
+          // }
 
 
 
 
 
-          this.$refs.errorHolder.style.height = this.initalHeight + 'px'
-          this.posting = true
-          this.postResults = {}
-          this.postResults = await this.profileStore.publishRecord()
+          // this.$refs.errorHolder.style.height = this.initalHeight + 'px'
+          // this.posting = true
+          // this.postResults = {}
+          // this.postResults = await this.profileStore.publishRecord()
           this.posting = false
           console.log(this.postResults)
-
-        },  
+          if (this.postResults.status){
+            this.activeProfilePosted = true
+          }
+        },
 
         onSelectElement (event) {
           const tagName = event.target.tagName
@@ -114,7 +116,7 @@
 
         },
 
-        /** 
+        /**
         * Helper to make the XML preview display nicer
         * @return {string} - the cleaned up string
         */
@@ -129,7 +131,7 @@
 
     mounted() {
 
-      
+
 
     }
   }
@@ -147,7 +149,7 @@
       :overlay-transition="'vfm-fade'"
       :click-to-close="false"
       :esc-to-close="false"
-      
+
     >
         <VueDragResize
           :is-active="true"
@@ -162,12 +164,12 @@
           :stickSize="22"
         >
           <div id="error-holder" ref="errorHolder" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
-            
+
 
             <h1 v-if="posting">Posting please wait...</h1>
-            
+
             <div v-if="posting == false && Object.keys(postResults).length != 0 && postResults.status === false">
-            
+
               <h2>There was an error posting. Please report error. </h2><button @click="copyErrorToClipboard">Copy error to clipboard</button>              <button @click="done">Close</button>
 
               <div>
@@ -175,7 +177,7 @@
                   {{ cleanUpErrorResponse(postResults.msg) }}
                 </code>
               </div>
-            
+
             </div>
             <div v-if="posting == false && Object.keys(postResults).length != 0">
 
@@ -184,7 +186,7 @@
                 <div v-for="rl in postResults.resourceLinks" v-bind:key="rl.url">
                   <a :href="rl.url+'?blastdacache=' + Date.now()" target="_blank">View {{rl.type}} on {{rl.env}}</a>
                 </div>
-                
+
               </div>
             </div>
 
@@ -192,7 +194,7 @@
             <button @click="done">Close</button>
 
 
-            
+
 
 
           </div>
@@ -249,7 +251,7 @@
   }
   .login-modal{
     background-color: white;
-    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27); 
+    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27);
     box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27);
     border-radius: 1em;
     padding:1em;
