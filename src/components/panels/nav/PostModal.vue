@@ -75,20 +75,20 @@
         post: async function(){
           const config = useConfigStore()
 
-          // if (!config.returnUrls.displayLCOnlyFeatures){
-          //   this.showPostModal=false
-          //   alert("Sorry you cannot post in this Marva environment")
-          //   return false
-          // }
+          if (!config.returnUrls.displayLCOnlyFeatures){
+            this.showPostModal=false
+            alert("Sorry you cannot post in this Marva environment")
+            return false
+          }
 
 
 
 
 
-          // this.$refs.errorHolder.style.height = this.initalHeight + 'px'
-          // this.posting = true
-          // this.postResults = {}
-          // this.postResults = await this.profileStore.publishRecord()
+          this.$refs.errorHolder.style.height = this.initalHeight + 'px'
+          this.posting = true
+          this.postResults = {}
+          this.postResults = await this.profileStore.publishRecord()
           this.posting = false
           console.log(this.postResults)
           if (this.postResults.status){
