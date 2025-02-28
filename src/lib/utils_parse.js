@@ -310,6 +310,9 @@ const utilsParse = {
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
       } else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bf/Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
+          child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+
        } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
        }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
@@ -326,9 +329,9 @@ const utilsParse = {
           // leave blank?
         }
 
-        // console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
-        // console.log("-->", child)
-        // console.log(child.innerHTML)
+        console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
+        console.log("-->", child)
+        console.log(child.innerHTML)
 
       }
     }
