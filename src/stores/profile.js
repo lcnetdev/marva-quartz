@@ -5004,7 +5004,10 @@ export const useProfileStore = defineStore('profile', {
       console.log(pubResuts)
 
 
-      return xml
+      return {
+        xml: xml,
+        pubResuts: pubResuts
+      }
       
       
 
