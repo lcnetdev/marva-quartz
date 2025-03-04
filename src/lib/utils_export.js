@@ -2057,7 +2057,7 @@ const utilsExport = {
 
 
 		let field040 = document.createElementNS(marcNamespace,"marcxml:datafield");
-		field040.setAttribute( 'tag', '010')
+		field040.setAttribute( 'tag', '040')
 		field040.setAttribute( 'ind1', ' ')
 		field040.setAttribute( 'ind2', ' ')
 		let field040a = document.createElementNS(marcNamespace,"marcxml:subfield");
