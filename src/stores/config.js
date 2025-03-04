@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 18,
-    versionPatch: 11,
+    versionPatch: 12,
 
     regionUrls: {
 
@@ -322,7 +322,7 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2025363067',label:"test4", idUrl:'https://id.loc.gov/resources/instances/2025363067.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
-    
+
 
 
   ],
@@ -1027,7 +1027,7 @@ export const useConfigStore = defineStore('config', {
     returnUrls: (state) => {
       // testing for window here because of running unit tests in node
       if (typeof window !== 'undefined'){
-        if (window && (window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1'))){          
+        if (window && (window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1'))){
           return state.regionUrls.dev
         }else if (window && window.location.href.startsWith('https://preprod-3001')){
           return state.regionUrls.staging
