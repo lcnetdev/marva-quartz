@@ -75,6 +75,7 @@
 
         tmpXML:false,
 
+        tmpErrorMessage:false,
 
       }
     },
@@ -137,16 +138,24 @@
           let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI)
 
 
+          
 
-          results = results.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
+          results.xml = results.xml.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
 
-          results = results.replace(/\<\/marcxml:controlfield>/g,"</marcxml:controlfield>\n")
-          results = results.replace(/\<\/marcxml:leader>/g,"</marcxml:leader>\n")
-          results = results.replace(/\<\/marcxml:datafield>/g,"</marcxml:datafield>\n")
-          results = results.replace(/\<\/marcxml:subfield>/g,"</marcxml:subfield>\n")
+          results.xml = results.xml.replace(/\<\/marcxml:controlfield>/g,"</marcxml:controlfield>\n")
+          results.xml = results.xml.replace(/\<\/marcxml:leader>/g,"</marcxml:leader>\n")
+          results.xml = results.xml.replace(/\<\/marcxml:datafield>/g,"</marcxml:datafield>\n")
+          results.xml = results.xml.replace(/\<\/marcxml:subfield>/g,"</marcxml:subfield>\n")
 
 
-          this.tmpXML=results
+          this.tmpXML=results.xml
+          
+
+          if (results && results.pubResuts && results.pubResuts.msgObj && results.pubResuts.msgObj.errorMessage){
+
+            this.tmpErrorMessage = results.pubResuts.msgObj.errorMessage
+
+          }
 
           console.log(results)
 
@@ -803,6 +812,7 @@
     async mounted() {
 
       this.tmpXML=false
+      this.tmpErrorMessage=false
       this.mainTitle = this.profileStore.nacoStubReturnMainTitle()
       this.workURI =  this.profileStore.nacoStubReturnWorkURI()
       console.log("this.workURIthis.workURIthis.workURI",this.workURI)
@@ -961,12 +971,18 @@
               <div style="flex:1; text-align: center"><button @click="close" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Cancel</button></div>
             </div>
             <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpXML">{{ tmpXML }}</textarea>
+
+
             <div style="display: flex; padding: 1.5em; font-size: 1.5em;" v-if="postStatus=='posting'">
               <div >Posting... Please wait...</div>
               
 
 
             </div>
+            
+            <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpErrorMessage">{{ tmpErrorMessage }}</textarea>
+
+
             <div style="display: flex; padding: 1.5em;" v-if="postStatus=='posted'">
               <div >The Hub was created! If you would like to edit it further please click the link, it will open in new tab:</div>
               <div><a :href="`../load?url=${newHubUrl}.rdf&profile=lc:RT:bf2:HubBasic:Hub`" target="_blank">{{ newHubUrl }}</a></div>
