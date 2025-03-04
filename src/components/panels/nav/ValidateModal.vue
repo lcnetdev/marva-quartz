@@ -3,7 +3,7 @@
   import { useConfigStore } from '@/stores/config'
 
 
-  import {  mapStores, mapWritableState } from 'pinia'
+  import {  mapStores, mapWritableState, mapState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
   import VueDragResize from 'vue3-drag-resize'
 
@@ -33,9 +33,9 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,useConfigStore),
-
+      ...mapState(useProfileStore, ['activeProfile', 'activeComponent']),
       // ...mapState(usePreferenceStore, ['debugModalData']),
-      ...mapWritableState(useProfileStore, ['showValidateModal']),
+      ...mapWritableState(useProfileStore, ['showValidateModal', 'activeComponent']),
     },
 
 
@@ -52,7 +52,6 @@
           this.$refs.errorHolder.style.height = newRect.height + 'px'
 
         },
-
 
         post: async function(){
           //console.log("** validating **")
@@ -78,6 +77,28 @@
             this.results = Object.values(this.validationResults.validation)
           }
         },
+
+        processMessage: function(msg){
+          if (msg.includes("**")){
+            let match = msg.match(/(\*\*(.*)\*\*)/)
+            if (match.length > 0){
+              msg = msg //.replace(match[0], "<a>" + match.at(-1) + "</a>")
+              return [msg, match.at(-1)]
+            }
+          } else {
+            return [msg, null]
+          }
+        },
+
+        jumpToComponent:function(target){
+          const jumpTarget = this.profileStore.returnComponentByPropertyLabel(target)
+          if (jumpTarget){
+            this.done()
+            this.activeComponent = jumpTarget
+          } else {
+            console.warning("Couldn't jump to component: ", target)
+          }
+        },
     },
 
     mounted() {}
@@ -92,8 +113,8 @@
       display-directive="show"
       :hide-overlay="false"
       :overlay-transition="'vfm-fade'"
-      :click-to-close="false"
-      :esc-to-close="false"
+      :click-to-close="true"
+      :esc-to-close="true"
 
     >
         <VueDragResize
@@ -115,7 +136,7 @@
               <span v-if="!Object.keys(validationResults).includes('error')" >
                 <span v-if="status === 'validated'">Validation found the following:</span>
                   <ul v-for="({level, message}) in results">
-                    <li :class="'level-' + level">{{ level }}: {{ message }}</li>
+                    <li :class="['level-' + level, {'action-jump': processMessage(message)[1]}]" @click="jumpToComponent(processMessage(message)[1])">{{ level }}: {{ processMessage(message)[0] }}</li>
                   </ul>
               </span>
               <span v-else>
@@ -224,5 +245,14 @@
     color: #0c5460;
     background-color: #d1ecf1;
     border-color: #bee5eb;
+  }
+
+  .action-jump:hover{
+    color: #004085;
+    background-color: #cce5ff;
+    border-color: #b8daff;
+  }
+  .action-jump {
+    cursor: pointer;
   }
 </style>
