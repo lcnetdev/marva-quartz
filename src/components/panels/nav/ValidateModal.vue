@@ -255,4 +255,8 @@
   .action-jump {
     cursor: pointer;
   }
+  .action-jump::after {
+    content: ":: Jump to component";
+    font-weight: bold;
+  }
 </style>
