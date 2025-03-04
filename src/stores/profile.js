@@ -129,7 +129,7 @@ export const useProfileStore = defineStore('profile', {
     mostCommonNonLatinScript: null,
     nonLatinScriptAgents: {},
 
-    
+
 
     // bf:title component/predicate for example, value will be the structure object for this component
 
@@ -5038,8 +5038,8 @@ export const useProfileStore = defineStore('profile', {
       let xml = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI)
 
       return xml
-      
-      
+
+
 
 
 
