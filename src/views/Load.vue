@@ -183,13 +183,16 @@
                 <div style="padding:5px;">
                   Use these blank templates to test, but any record that you want to post to Voyager must originate in Voyager. Marva cannot currently assign Voyager bib numbers, so you need to create a stub record in Voyager and then load it into Marva.
                 </div>
-                <div>
-                  <div class="load-buttons">
-                    <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>
+                <details>
+                  <summary><span style="text-decoration: underline;">Click Here</span> to access blank record templates. Currently these are only for testing input, and cannot be used for posting or in production.</summary>
+                  <div>
+                    <div class="load-buttons">
+                      <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>
 
 
+                    </div>
                   </div>
-                </div>
+                </details>
 
 
 
