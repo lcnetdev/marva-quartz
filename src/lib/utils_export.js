@@ -2038,10 +2038,13 @@ const utilsExport = {
 		field005.innerHTML = dateValue
 		rootEl.appendChild(field005)
 
-		console.log(dateValue)
+
 		let field008 = document.createElementNS(marcNamespace,"marcxml:controlfield");
 		field008.setAttribute( 'tag', '008')
-		field008.innerHTML = dateValue.slice(0,5) + 'n| azannaabn' + " ".repeat(10) + '|n aaa' + " ".repeat(6)
+		let year2Digits = dateValue.slice(2,4)
+		let month2Digits = dateValue.slice(4,6)
+		let day2Digits = dateValue.slice(6,8)
+		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  + 'n| azannaabn' + " ".repeat(10) + '|n aaa' + " ".repeat(6)
 		rootEl.appendChild(field008)
 
 		let field010 = document.createElementNS(marcNamespace,"marcxml:datafield");
