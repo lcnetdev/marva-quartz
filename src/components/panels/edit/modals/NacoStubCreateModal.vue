@@ -157,7 +157,7 @@
 
           }
 
-          console.log(results)
+          // console.log(results)
 
           // if (results && results.postLocation){
           //   results.postLocation = results.postLocation.replace("http://",'https://')
@@ -174,7 +174,7 @@
           
 
           
-          console.log(results)
+          // console.log(results)
 
 
           // this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
@@ -203,7 +203,7 @@
           for (let key of Object.keys(results)){
             if (key != 'metadata'){
               let toAdd = {name:results[key][0], uri:key}
-              console.log(results.metadata)
+              // console.log(results.metadata)
               // if they have a contribution count add that as well as more info just for future use
               if (results && results.metadata.values && results.metadata.values[key]&& results.metadata.values[key].contributions){
                 toAdd.contributions = results.metadata.values[key].contributions
@@ -232,6 +232,10 @@
           this.disableAddButton = true
           if (this.oneXX.length<3){ return true}
 
+          if (!/1[0-9]{2}/.test(this.oneXX.slice(0,3))){
+            this.oneXXErrors.push(this.oneXX.slice(0,3) + " invalid tag")
+            return false
+          }
           
 
           let oneXXParts = this.oneXX.split("$")
@@ -259,7 +263,7 @@
               let value = dp.slice(1)
               dollarKey[subfield] = value
 
-              console.log(dollarKey)
+              // console.log(dollarKey)
             }
             dollarKey.fieldTag = fieldTag
             dollarKey.indicators = indicators
@@ -323,7 +327,10 @@
           this.disableAddButton = true
           if (this.fourXX.length<3){ return true}
 
-          
+          if (!/4[0-9]{2}/.test(this.fourXX.slice(0,3))){
+            this.fourXXErrors.push(this.fourXX.slice(0,3) + " invalid tag")
+            return false
+          }
 
           let fourXXParts = this.fourXX.split("$")
           if (fourXXParts.length>0){
@@ -744,7 +751,7 @@
 
 
 
-          console.log(event.target.value)
+          // console.log(event.target.value)
 
           window.setTimeout(()=>{
 
@@ -786,7 +793,7 @@
               })
             }
           }
-          console.log(options)
+          // console.log(options)
           return options
 
         },
@@ -815,7 +822,7 @@
       this.tmpErrorMessage=false
       this.mainTitle = this.profileStore.nacoStubReturnMainTitle()
       this.workURI =  this.profileStore.nacoStubReturnWorkURI()
-      console.log("this.workURIthis.workURIthis.workURI",this.workURI)
+      // console.log("this.workURIthis.workURIthis.workURI",this.workURI)
       if (!this.mainTitle){
         this.disableAddButton = true
         this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
@@ -845,7 +852,7 @@
       // window.localStorage.setItem('marva-scriptShifterOptions',JSON.stringify(current))
       this.scriptShifterOptions = JSON.parse(JSON.stringify(current))
 
-      console.log(this.scriptShifterOptions)
+      // console.log(this.scriptShifterOptions)
 
 
 
