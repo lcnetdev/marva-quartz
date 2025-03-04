@@ -219,6 +219,18 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
+    returnComponentByPropertyLabel: (state) => {
+      return (label) => {
+        for (let rt in state.activeProfile.rt){
+          for (let pt in state.activeProfile.rt[rt].pt){
+            if (state.activeProfile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() === label.toLowerCase()){
+              return state.activeProfile.rt[rt].pt[pt]
+            }
+          }
+        }
+      }
+    },
+
 
     /** Groups the library components into a array ready to render
      *
