@@ -128,7 +128,7 @@ export const useProfileStore = defineStore('profile', {
     mostCommonNonLatinScript: null,
     nonLatinScriptAgents: {},
 
-    
+
 
     // bf:title component/predicate for example, value will be the structure object for this component
 
@@ -212,6 +212,18 @@ export const useProfileStore = defineStore('profile', {
           for (let pt in state.activeProfile.rt[rt].pt){
             if (state.activeProfile.rt[rt].pt[pt]['@guid'] === guid){
               return state.activeProfile.rt[rt].pt[pt].userModified
+            }
+          }
+        }
+      }
+    },
+
+    returnComponentByPropertyLabel: (state) => {
+      return (label) => {
+        for (let rt in state.activeProfile.rt){
+          for (let pt in state.activeProfile.rt[rt].pt){
+            if (state.activeProfile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() === label.toLowerCase()){
+              return state.activeProfile.rt[rt].pt[pt]
             }
           }
         }
@@ -1419,7 +1431,7 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-          
+
           }else{
 
 
@@ -4933,13 +4945,13 @@ export const useProfileStore = defineStore('profile', {
 
 
     nacoStubReturnMainTitle(){
-      
+
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Work")>-1){
           for (let pt of this.activeProfile.rt[rt].ptOrder){
             pt = this.activeProfile.rt[rt].pt[pt]
             if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/title"){
-              if (pt.userValue 
+              if (pt.userValue
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title']
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
@@ -4957,10 +4969,10 @@ export const useProfileStore = defineStore('profile', {
     },
 
     nacoStubReturnWorkURI(){
-      
+
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Work")>-1){
-          
+
           if (this.activeProfile.rt[rt].URI){
             return this.activeProfile.rt[rt].URI
           }
@@ -4971,7 +4983,7 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
-    
+
 
 
 
@@ -5008,8 +5020,8 @@ export const useProfileStore = defineStore('profile', {
         xml: xml,
         pubResuts: pubResuts
       }
-      
-      
+
+
 
 
 
@@ -5189,11 +5201,11 @@ export const useProfileStore = defineStore('profile', {
                   }
                 }
 
-                // we are going to perform a quick replace here, saving the local identifier and local 040 note from the 
+                // we are going to perform a quick replace here, saving the local identifier and local 040 note from the
                 let localId=null
                 let local040=null
-                if (ptObjFound && 
-                    ptObjFound.userValue && 
+                if (ptObjFound &&
+                    ptObjFound.userValue &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/identifiedBy"]){
@@ -5205,8 +5217,8 @@ export const useProfileStore = defineStore('profile', {
                       }
                     }
 
-                if (ptObjFound && 
-                    ptObjFound.userValue && 
+                if (ptObjFound &&
+                    ptObjFound.userValue &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
                     ptObjFound.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/note"]){
@@ -5217,13 +5229,13 @@ export const useProfileStore = defineStore('profile', {
                         }
                       }
                     }
-                
+
                     console.log("localId",localId)
                     console.log("local040",local040)
-                
+
                 // okay now do the same on the component we are about to use, but replace the two values with the ones we just extracted
-                if (component && 
-                  component.userValue && 
+                if (component &&
+                  component.userValue &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/identifiedBy"]){
@@ -5237,16 +5249,16 @@ export const useProfileStore = defineStore('profile', {
                         // this isn't one, dunno what it is? but add it to the new one
                         to_replace_with.push(lId)
                       }
-                    }   
-                    
+                    }
+
                     // replace it with what we have, if it did not find the thing then it will be [] and blank in the new data otherwise it will be replaced
                     component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/identifiedBy"] = to_replace_with
 
                 }
 
 
-                if (component && 
-                  component.userValue && 
+                if (component &&
+                  component.userValue &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"] &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0] &&
                   component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/note"]){
@@ -5260,7 +5272,7 @@ export const useProfileStore = defineStore('profile', {
                         // this isn't one, dunno what it is? but add it to the new one
                         to_replace_with.push(n)
                       }
-                    }                       
+                    }
                     // replace it with what we have, if it did not find the thing then it will be [] and blank in the new data otherwise it will be replaced
                     component.userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]["http://id.loc.gov/ontologies/bibframe/note"] = to_replace_with
 
@@ -5269,7 +5281,7 @@ export const useProfileStore = defineStore('profile', {
 
                 // we are going to zero out the userValue of the found AdminMetadata here so the process below replaces it with the new one and not add it as another
                 ptObjFound.userValue = {'@root': "http://id.loc.gov/ontologies/bibframe/adminMetadata"}
-                
+
 
               }else{
 
@@ -5479,8 +5491,8 @@ export const useProfileStore = defineStore('profile', {
     },
 
     /**
-     * Returns the marc label or auth label of the entitiy 
-     * 
+     * Returns the marc label or auth label of the entitiy
+     *
      * @param {object} guid - the guid of the component
      */
     async returnCammComplexLabel(guid,complexValue){
@@ -5522,8 +5534,8 @@ export const useProfileStore = defineStore('profile', {
             }
             return marcKey
           }
-          
-          
+
+
 
         }
 
@@ -5537,7 +5549,7 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-      
+
     }
 
 
