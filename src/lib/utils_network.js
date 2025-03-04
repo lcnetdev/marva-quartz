@@ -2814,7 +2814,9 @@ const utilsNetwork = {
     }else{
 
       // alert("Did not post, please report this error--" + JSON.stringify(content.publish,null,2))
-      return {status:false, postLocation: (content.postLocation) ? content.postLocation : null, msg: JSON.stringify(content.publish,null,2)}
+
+      
+      return {status:false, postLocation: (content.postLocation) ? content.postLocation : null, msg: JSON.stringify(content.publish,null,2), msgObj: content.publish}
     }
   },
 
