@@ -14,12 +14,13 @@ export const useConfigStore = defineStore('config', {
       dev:{
 
         ldpjs : 'http://localhost:9401/api-staging/',
-        // util  : 'http://localhost:9401/util/',
-        util  : 'http://localhost:5200/',
+        util  : 'http://localhost:9401/util/',
+        // util  : 'http://localhost:5200/',
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
         validate: 'http://localhost:5200/validate',
+        publishNar: 'http://localhost:9401/util/nacostub/staging',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
@@ -31,7 +32,7 @@ export const useConfigStore = defineStore('config', {
 
         id: 'https://id.loc.gov/',
         env : 'production',
-        dev: false,
+        dev: true,
         displayLCOnlyFeatures: true,
       },
 
@@ -42,6 +43,7 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter: 'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
+        publishNar: 'https://preprod-3001.id.loc.gov/bfe2/util/nacostub/staging',
         validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         // bfdb : 'https://preprod-8210.id.loc.gov/',
@@ -63,6 +65,7 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter  :  'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://editor.id.loc.gov/bfe2/util/publish/production',
+        publishNar: 'https://editor.id.loc.gov/bfe2/util/nacostub/production',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         validate: 'https://editor.id.loc.gov/bfe2/util/validate',
         bfdb : 'https://preprod-8230.id.loc.gov/',
@@ -1024,7 +1027,7 @@ export const useConfigStore = defineStore('config', {
     returnUrls: (state) => {
       // testing for window here because of running unit tests in node
       if (typeof window !== 'undefined'){
-        if (window && (window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1'))){
+        if (window && (window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1'))){          
           return state.regionUrls.dev
         }else if (window && window.location.href.startsWith('https://preprod-3001')){
           return state.regionUrls.staging

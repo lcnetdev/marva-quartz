@@ -2778,6 +2778,48 @@ const utilsNetwork = {
 
   },
 
+
+  
+
+  /**
+  * Publish the NAR 
+  * @async
+  * @param {string} xml - The xml string
+  * @return {obj} - {status:false, msg: ""}
+  */
+
+  publishNar: async function(xml){
+
+
+    let url = useConfigStore().returnUrls.publishNar
+
+    let uuid = translator.toUUID(translator.new())
+
+    const rawResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({marcxml:xml})
+    });
+    const content = await rawResponse.json();
+
+    // console.log(content);
+
+    if (content && content.publish && content.publish.status && content.publish.status == 'published'){
+
+      return {status:true, postLocation: (content.postLocation) ? content.postLocation : null }
+
+    }else{
+
+      // alert("Did not post, please report this error--" + JSON.stringify(content.publish,null,2))
+      return {status:false, postLocation: (content.postLocation) ? content.postLocation : null, msg: JSON.stringify(content.publish,null,2)}
+    }
+  },
+
+
+
   /**
   * Send the record
   * @async

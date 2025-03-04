@@ -932,7 +932,13 @@
         this.profileStore.addToAdHocMode(structure.parentId, structure.id)
       },
 
-      isStaging(){        
+      isStaging(){       
+        console.log(useConfigStore().returnUrls.dev)
+        console.log(useConfigStore().returnUrls)
+        if (useConfigStore().returnUrls.dev){
+          return true
+        }
+
         if (useConfigStore().returnUrls.env == "staging"){
           return true
         }else{
