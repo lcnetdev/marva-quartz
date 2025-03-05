@@ -169,50 +169,135 @@
                   </div>
                 </div>
 
-
+                <!-- Results Panel -->
                 <div :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()};`"  :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
                   <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                   <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
                     <h3 v-if="contextData.title">
-                        <span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + contextData.type">
-                            <AuthTypeIcon v-if="contextData.type" :type="contextData.type"></AuthTypeIcon>
+                        <span class="modal-context-icon simptip-position-top" v-if="contextData.rdftypes" :data-tooltip="'Type: ' + contextData.rdftypes[0]">
+                            <AuthTypeIcon :type="contextData.rdftypes[0]"></AuthTypeIcon>
                         </span>
                         {{Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
+                        <AuthTypeIcon v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                     </h3>
-                    <div class="modal-context-data-title">{{contextData.type}}</div>
+
+                    <div class="modal-context-data-title" v-if="contextData.rdftypes">{{contextData.rdftypes[0]}}</div>
                     <a style="color:#2c3e50" :href="contextData.uri" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
 
-                    <div v-if="contextData.nonLatinTitle && contextData.nonLatinTitle.length>0">
-                      <div class="modal-context-data-title">Non-Latin Auth Label:</div>
+                    <br><br>
+
+                    <div v-if="contextData.locale && contextData.locale.length>0">
+                      <div class="modal-context-data-title">Associated Locales:</div>
                       <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.nonLatinTitle" v-bind:key="'var' + idx">{{v['@value']}}{{ v['@language'] }}</li>
+                        <li class="modal-context-data-li" v-if="Array.isArray(contextData.locale)" v-for="(v,idx) in contextData.locale" v-bind:key="'var' + idx">{{v}}</li>
+                        <li class="modal-context-data-li" v-else  v-bind:key="'var' + idx + 'single'">{{contextData.locale}}</li>
                       </ul>
                     </div>
 
-                    <div v-if="contextData.variant && contextData.variant.length>0">
+                    <div v-if="contextData.notes && contextData.notes.length>0">
+                      <div class="modal-context-data-title">Notes:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.notes" v-bind:key="'var' + idx">{{v}}</li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.nonlatinLabels && contextData.nonlatinLabels.length>0">
+                      <div class="modal-context-data-title">Non-Latin Auth Label(s):</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.nonlatinLabels" v-bind:key="'var' + idx">{{ v }}</li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.variantLabels && contextData.variantLabels.length>0">
                       <div class="modal-context-data-title">Variants:</div>
                       <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.variant" v-bind:key="'var' + idx">{{v}}</li>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.variantLabels" v-bind:key="'var' + idx">{{v}}</li>
                       </ul>
                     </div>
 
-                    <!-- Literals won't have `nodeMap` -->
-                    <div v-if="contextData.literal != true">
-                      <div v-for="key in Object.keys(contextData.nodeMap)" :key="key">
-                        <div class="modal-context-data-title">{{key}}:</div>
-                          <ul>
-                            <li class="modal-context-data-li" v-for="v in contextData.nodeMap[key]" v-bind:key="v">{{v}}</li>
-                          </ul>
-                      </div>
-                    </div>
-                    <div v-else>
-                      <div class="modal-context-data-title">{{ contextData.label }} [Literal]</div>
+                    <div v-if="contextData.birthdates && contextData.birthdates.length>0">
+                      <div class="modal-context-data-title">Birth Date:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.birthdates" v-bind:key="'var' + idx">{{v}}</li>
+                      </ul>
                     </div>
 
-                    <div v-if="contextData.source && contextData.source.length>0">
+                    <div v-if="contextData.birthplaces && contextData.birthplaces.length>0">
+                      <div class="modal-context-data-title">Birth Place:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.birthplaces" v-bind:key="'var' + idx">{{v}}</li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.activityfields && contextData.activityfields.length>0">
+                      <div class="modal-context-data-title">Fields of Activity:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.activityfields" v-bind:key="'var' + idx">{{v}}</li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.occupations && contextData.occupations.length>0">
+                      <div class="modal-context-data-title">Occupations:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.occupations" v-bind:key="'var' + idx">{{v}}</li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.languages && contextData.languages.length>0">
+                      <div class="modal-context-data-title">Associated Languages:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.languages" v-bind:key="'var' + idx">{{v}}</li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.lcclasss && contextData.lcclasss.length>0">
+                      <div class="modal-context-data-title">LC Classification:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-if="Array.isArray(contextData.lcclasss)" v-for="v in contextData.lcclasss" v-bind:key="v">
+                          <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                        </li>
+                        <li class="modal-context-data-li" v-else >
+                          <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+contextData.lcclasss" target="_blank">{{contextData.lcclasss}}</a>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.broaders && contextData.broaders.length>0">
+                      <div class="modal-context-data-title">Has Broader Authority:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="v in contextData.broaders" v-bind:key="v">
+                          <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.locales && contextData.locales.length>0">
+                      <div class="modal-context-data-title">Associated Locales:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.locales" v-bind:key="'var' + idx">{{v}}</li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.gacs && contextData.gacs.length>0">
+                      <div class="modal-context-data-title">GAC(s):</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.gacs" v-bind:key="'var' + idx">{{v}}</li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.collections && contextData.collections.length>0">
+                      <div class="modal-context-data-title">MADS Collections:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="v in contextData.collections" v-bind:key="v">
+                          <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.sources && contextData.sources.length>0">
                       <div class="modal-context-data-title">Sources:</div>
                       <ul>
-                        <li class="modal-context-data-li" v-for="v in contextData.source" v-bind:key="v">{{v}}</li>
+                        <li class="modal-context-data-li" v-for="v in contextData.sources" v-bind:key="v">{{v}}</li>
                       </ul>
                     </div>
 
@@ -845,7 +930,8 @@ data: function() {
       'madsrdf:GenreForm': {label:'Genre ($v)', value:'madsrdf:GenreForm',selected:false},
       'madsrdf:Geographic': {label:'Geographic ($z)', value:'madsrdf:Geographic',selected:false},
       'madsrdf:Temporal': {label:'Chronological ($y)', value:'madsrdf:Temporal',selected:false},
-    }
+    },
+    excludeDisplayList: ['literal', 'uri', 'title', 'marcKey', 'sources']
 
 
   }
@@ -1417,6 +1503,9 @@ methods: {
     searchStringFull=searchStringFull.replaceAll('‑','-')
 
     that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
+
+    console.info("that.searchResults: ", that.searchResults)
+
     // if they clicked around while it was doing this lookup bail out
     // if (that.activeSearchInterrupted){
 
@@ -1509,6 +1598,8 @@ methods: {
     for (let x in that.searchResults.exact){
       that.pickLookup[(that.searchResults.names.length - x)*-1-2] = that.searchResults.exact[x]
     }
+
+    console.info("that.pickLookup: ", that.pickLookup)
 
     for (let k in that.pickLookup){
       that.pickLookup[k].picked = false
@@ -1646,6 +1737,29 @@ methods: {
       return false
     }
 
+    console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
+
+    this.contextData = this.pickLookup[this.pickPostion].extra
+    if (this.pickLookup[this.pickPostion].uri){
+      this.contextData.literal = false
+      this.contextData.title = this.pickLookup[this.pickPostion].label
+      this.contextData.uri = this.pickLookup[this.pickPostion].uri
+      if (Object.keys(this.contextData).includes("marcKey")){
+        this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
+      }
+    } else {
+      this.contextData.literal = true
+    }
+    console.info("this.contextData: ", this.contextData)
+
+  },
+
+  _getContext: async function(){
+    if (this.pickLookup[this.pickPostion].literal){
+      this.contextData = this.pickLookup[this.pickPostion]
+      return false
+    }
+
     this.contextRequestInProgress = true
     this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
 
@@ -1692,20 +1806,20 @@ methods: {
   buildAddtionalInfo: function(collections){
     if (collections){
       let out = []
-      if (collections.includes("LCSHAuthorizedHeadings") || collections.includes("NamesAuthorizedHeadings")){
+      if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings") || collections.includes("http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings")){
         out.push("(Auth Hd)")
-      } else if (collections.includes("GenreFormSubdivisions")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")){
         out.push("(GnFrm)")
-      } else if (collections.includes("GeographicSubdivisions")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions")){
         out.push("(GeoSubDiv)")
-      } else if (collections.includes("LCSH_Childrens")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSH_Childrens")){
           out.push("(ChldSubj)")
-      } else if (collections.includes("Subdivisions")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")){
         out.push("(SubDiv)")
       }
 
       // favor SubDiv over GnFrm
-      if (out.includes("(GnFrm)") && collections.includes("Subdivisions")){
+      if (out.includes("(GnFrm)") && collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")){
         out = ["(SubDiv)"]
       }
 

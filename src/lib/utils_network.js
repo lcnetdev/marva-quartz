@@ -459,26 +459,18 @@ const utilsNetwork = {
                 // console.log("URL",url)
                 // console.log("r",r)
                 for (let hit of r.hits){
-                  let context = null
-                  // we only need the context for the subject search to have collection information in the output
-                  if(searchPayload.subjectSearch == true){
-                    context = await this.returnContext(hit.uri)
-                  }
-
                   let hitAdd = {
-                    collections: context ? context.nodeMap["MADS Collection"] : [],
+                    collections: hit.more.collections ? hit.more.collections : [],
                     label: hit.aLabel,
                     vlabel: hit.vLabel,
                     suggestLabel: hit.suggestLabel,
                     uri: hit.uri,
                     literal:false,
                     depreciated: false,
-                    extra: '',
+                    extra: hit.more,
                     total: r.count,
                     undifferentiated: false
                   }
-
-
 
                   if (hitAdd.label=='' && hitAdd.suggestLabel.includes('DEPRECATED')){
                     hitAdd.label  = hitAdd.suggestLabel.split('(DEPRECATED')[0] + ' DEPRECATED'
@@ -2367,6 +2359,8 @@ const utilsNetwork = {
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
       }
 
+      console.info("subjectUrlComplex: ", subjectUrlComplex)
+
       searchVal = decodeURIComponent(searchVal)
       complexVal = decodeURIComponent(complexVal)
 
@@ -2779,10 +2773,10 @@ const utilsNetwork = {
   },
 
 
-  
+
 
   /**
-  * Publish the NAR 
+  * Publish the NAR
   * @async
   * @param {string} xml - The xml string
   * @return {obj} - {status:false, msg: ""}
@@ -2815,7 +2809,7 @@ const utilsNetwork = {
 
       // alert("Did not post, please report this error--" + JSON.stringify(content.publish,null,2))
 
-      
+
       return {status:false, postLocation: (content.postLocation) ? content.postLocation : null, msg: JSON.stringify(content.publish,null,2), msgObj: content.publish}
     }
   },

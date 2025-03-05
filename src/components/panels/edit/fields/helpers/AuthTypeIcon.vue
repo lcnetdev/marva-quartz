@@ -1,7 +1,7 @@
 <template>
   <span :data-tooltip="useLabel" class="simptip-position-right" v-for="icon in useIcon" >
-    <span  :class="['material-icons-outlined',icon]">{{icon}}</span>  
-  </span>  
+    <span  :class="['material-icons-outlined',icon]">{{icon}}</span>
+  </span>
 </template>
 
 <script>
@@ -34,7 +34,7 @@ export default {
     useLabel(){
       let type = this.type
 
-      type = type.replace('http://www.loc.gov/mads/rdf/v1#','')     
+      type = type.replace('http://www.loc.gov/mads/rdf/v1#','')
 
       if (type == 'PersonalName') return "Personal Name"
       if (type == 'CorporateName') return "Corporate Name"
@@ -42,6 +42,7 @@ export default {
       if (type == 'Title') return "Title"
       if (type == 'ConferenceName') return "Conference Name"
       if (type == 'Geographic') return "Geographic"
+      if (type == 'HierarchicalGeographic') return "Geographic"
       if (type == 'GenreForm') return "Genre Form"
       if (type == 'ComplexSubject') return "Complex Subject"
       if (type == 'Topic') return "Topic Subject"
@@ -56,8 +57,10 @@ export default {
 
       if (type == 'http://id.loc.gov/ontologies/bibframe/Agent') return "Personal Name"
 
+      if (type == 'may subd geog') return "May Subd Geog"
+
     },
-    
+
 
     useIcon(){
 
@@ -71,11 +74,12 @@ export default {
       const iconGenre = ['bookmark']
       const iconSubjectComplex = ['topic']
       const iconSubjectTopic = ['topic','title']
+      const iconMaySubdGeog = ['public']
 
 
 
-      
- 
+
+
       if (this.type && typeof this.type === 'string'){
         let type = this.type
 
@@ -87,6 +91,7 @@ export default {
         if (type == 'Title') return iconTitle
         if (type == 'ConferenceName') return iconConference
         if (type == 'Geographic') return iconGeographic
+        if (type == 'HierarchicalGeographic') return iconGeographic
         if (type == 'GenreForm') return iconGenre
         if (type == 'ComplexSubject') return iconSubjectComplex
         if (type == 'Topic') return iconSubjectTopic
@@ -104,6 +109,8 @@ export default {
 
         if (type == 'http://id.loc.gov/ontologies/bibframe/Agent') return iconPersonal
 
+        if (type == 'may subd geog') return iconMaySubdGeog
+
 
         // if (result.label == 'xxxxxx') return iconPersonal
         // if (result.label == 'xxxxxx') return iconPersonal
@@ -114,7 +121,7 @@ export default {
       // console.log("no icon slected", this.type )
       return []
 
-    }, 
+    },
 
 
   },
@@ -136,9 +143,9 @@ export default {
 
 /*A custom class passed to style the icon to the context it is being used*/
 .complex-lookup-inline{
-  
 
-  
+
+
 }
 
 
