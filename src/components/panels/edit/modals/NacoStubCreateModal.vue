@@ -87,7 +87,7 @@
       ...mapStores(useConfigStore),      
       ...mapStores(useProfileStore),      
 
-      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeHubStubData','activeHubStubComponent','lastComplexLookupString']),
+      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeNARStubComponent','lastComplexLookupString']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
@@ -157,7 +157,7 @@
 
           }
 
-          // console.log(results)
+          console.log(results)
 
           // if (results && results.postLocation){
           //   results.postLocation = results.postLocation.replace("http://",'https://')
@@ -184,10 +184,9 @@
         },
 
         close(){
-          this.activeHubStubComponent = {}
-          this.activeHubStubData = {}
+          this.activeNARStubComponent = {}
           this.showNacoStubCreateModal=false
-          this.postStatus=='unposed'
+          this.postStatus=='unposted'
 
         },
 
@@ -662,29 +661,6 @@
 
 
         },
-
-        // async getLangs(){
-
-
-        //   // async function doAsync () {
-        //   await this.configStore.getScriptShifterLanguages()
-        //   for (let k in this.scriptshifterLanguages){
-        //     if (this.scriptShifterOptions[k]){
-        //       if (this.scriptShifterOptions[k].s2r){
-        //         this.scriptshifterLanguages[k].s2r = true
-        //       }
-        //       if (this.scriptShifterOptions[k].r2s){
-        //         this.scriptshifterLanguages[k].r2s = true
-        //       }              
-        //     }
-        //   }
-        //   console.log(this.scriptshifterLanguages)
-
-        // },
-
-
-
-
 
         async transliterateChange(event){
 

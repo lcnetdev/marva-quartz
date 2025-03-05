@@ -94,9 +94,10 @@ export const useProfileStore = defineStore('profile', {
     showItemInstanceSelection: false,
     activeHubStubData:{
     },
-    activeHubStubComponent:{
+    activeHubStubComponent:{},
+    
+    activeNARStubComponent:{},
 
-    },
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
@@ -5092,7 +5093,8 @@ export const useProfileStore = defineStore('profile', {
 
       return {
         xml: xml,
-        pubResuts: pubResuts
+        pubResuts: pubResuts,
+        lccn: lccn
       }
 
 

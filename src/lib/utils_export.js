@@ -2083,8 +2083,29 @@ const utilsExport = {
 		field040c.innerHTML = 'DLC'
 		field040.appendChild(field040c)	
 
-
+		
 		rootEl.appendChild(field040)
+
+
+		// ---- 985
+		let field985 = document.createElementNS(marcNamespace,"marcxml:datafield");
+		field985.setAttribute( 'tag', '985')
+		field985.setAttribute( 'ind1', ' ')
+		field985.setAttribute( 'ind2', ' ')		
+		
+		let field985e = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field985e.setAttribute( 'code', 'e')
+		field985e.innerHTML = 'MARVA-NAR'
+		field985.appendChild(field985e)
+
+		let field985d = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field985d.setAttribute( 'code', 'd')
+		field985d.innerHTML = `${date.getFullYear().toString()}-${pad2(date.getMonth() + 1)}-${pad2( date.getDate())}`
+	
+		field985.appendChild(field985d)
+		
+		rootEl.appendChild(field985)
+
 
 
 		let fieldName = document.createElementNS(marcNamespace,"marcxml:datafield");
