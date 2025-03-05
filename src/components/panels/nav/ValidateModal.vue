@@ -38,9 +38,6 @@
       // ...mapState(usePreferenceStore, ['debugModalData']),
       ...mapWritableState(useProfileStore, ['showValidateModal', 'activeComponent']),
 
-      processMessageCache(msg){
-        return this.processMessage(msg)
-      }
     },
 
 
