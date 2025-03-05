@@ -13,7 +13,7 @@ import utilsExport from '@/lib/utils_export';
 // import utilsMisc from '@/lib/utils_misc';
 
 import shortCodesOverrides from "@/lib/shortCodesOverrides.json"
-
+import defaultComponents from "@/lib/defaults/default_components.json"
 
 import utilsProfile from '../lib/utils_profile'
 
@@ -231,12 +231,11 @@ export const useProfileStore = defineStore('profile', {
     },
 
 
-    /** Groups the library components into a array ready to render
+     /** Groups the library components into a array ready to render
      *
      * @return {array}
      */
-    returnComponentLibrary: (state) => {
-
+     returnComponentLibrary: (state) => {
       // limit to the current profiles being used
       // console.log(state.activeProfile)
       // console.log(state.componentLibrary)
@@ -246,10 +245,8 @@ export const useProfileStore = defineStore('profile', {
       // }
       let results = []
       for (let key in state.activeProfile.rt){
-
         // ther are components saved for this profile
         if (state.componentLibrary.profiles[key]){
-
           let groups = {}
           let groupsOrder = []
           // loop through all the components sorted by position order
@@ -264,13 +261,32 @@ export const useProfileStore = defineStore('profile', {
                 if (groupsOrder.indexOf(group.groupId)==-1){
                   groupsOrder.push(group.groupId)
                 }
-
             }
           }
-
-          results.push({groups:groups,groupsOrder:groupsOrder, profileId: key,label: key.split(":").slice(-1)[0]})
+          results.push({groups:groups, groupsOrder:groupsOrder, profileId: key, label: key.split(":").slice(-1)[0]})
         }
 
+        if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
+          let groups = {}
+          let groupsOrder = []
+          for (let dKey in defaultComponents.DefaultComponentLibrary.profiles){
+            if (dKey.includes(key)){
+              for (let group of defaultComponents.DefaultComponentLibrary.profiles[dKey].groups.sort(({position:a}, {position:b}) => a-b)){
+                if (group.groupId === null){
+                  groups[group.id] = [group]
+                  groupsOrder.push(group.id)
+                }else{
+                    if (!groups[group.groupId]){groups[group.groupId]=[]}
+                    groups[group.groupId].push(group)
+                    if (groupsOrder.indexOf(group.groupId)==-1){
+                      groupsOrder.push(group.groupId)
+                    }
+                }
+              }
+              results.push({type: "default", groups:groups, groupsOrder:groupsOrder, profileId: dKey, label: key.split(":").slice(-1)[0]})
+            }
+          }
+        }
       }
 
       // now go through and see if there are the the same group being used in multiple profiles if so
@@ -278,84 +294,137 @@ export const useProfileStore = defineStore('profile', {
 
 
       let groupsCount = {}
+      let groupsCountDefault = {}
       for (let profileComponents of results){
+
+        let type = profileComponents.type
+
         for (let groupKey in profileComponents.groups){
           if (profileComponents.groups[groupKey].groupId !== null){
             for (let groupItem of profileComponents.groups[groupKey]){
+              let group = groupsCount
+              if (type == 'default'){
+                group = groupsCountDefault
+              }
               if (groupItem.groupId !== null){
-                if (!groupsCount[groupItem.groupId]){
-                  groupsCount[groupItem.groupId]=[]
+                if (!group[groupItem.groupId]){
+                  group[groupItem.groupId]=[]
                 }
-                if (groupsCount[groupItem.groupId].indexOf(groupItem.structure.parentId)==-1){
-                  groupsCount[groupItem.groupId].push(groupItem.structure.parentId)
+                if (group[groupItem.groupId].indexOf(groupItem.structure.parentId)==-1){
+                  group[groupItem.groupId].push(groupItem.structure.parentId)
                 }
               }
             }
-
           }
         }
       }
 
       let groupsToMerge = []
+      let groupsToMergeDefault = []
       for (let groupKey in groupsCount){
         if (groupsCount[groupKey].length>1){
           groupsToMerge.push(groupKey)
         }
       }
-      if (groupsToMerge.length>0){
-        // we have to MERGE
-        let multiProfile = {
-          groups: {},
-          groupsOrder: [],
-          label: 'Multi',
-          profileId: 'Multi'
+      for (let groupKey in groupsCountDefault){
+        if (groupsCountDefault[groupKey].length>1){
+          groupsToMergeDefault.push(groupKey)
         }
-
-        for (let groupName of groupsToMerge){
-
-          let tmpGroupComponents = []
-
-
-          // remove them from the orginal group/profile and them to the multi profile
-          for (let profileComponents of results){
-            if (profileComponents.groups[groupName]){
-              tmpGroupComponents=tmpGroupComponents.concat( JSON.parse(JSON.stringify(profileComponents.groups[groupName])) )
-              delete profileComponents.groups[groupName]
-            }
-            profileComponents.groupsOrder = profileComponents.groupsOrder.filter((v) => {return (v !== groupName)})
-          }
-
-          // put them into the multi profile
-          multiProfile.groups[groupName] = tmpGroupComponents
-          multiProfile.groupsOrder.push(groupName)
-
-          // add a label to denote if the individual component is a work or instance whatever component.
-          for (let groupKey in multiProfile.groups){
-            for (let component of multiProfile.groups[groupKey]){
-              if (component.label.indexOf("(i)")>-1){ continue}
-              if (component.label.indexOf("(w)")>-1){ continue}
-              let initial = component.structure.parentId.split(':').slice(-1)[0].charAt(0).toLowerCase();
-              component.label = `(${initial}) ${component.label}`
-            }
-          }
-
-
-        }
-
-
-        results.push(multiProfile)
-
-
-
       }
+
+      let mergeComponents = function (results, groupsToMerge, title){
+        if (groupsToMerge.length>0){
+          // we have to MERGE
+          let multiProfile = {
+            groups: {},
+            groupsOrder: [],
+            label: title,
+            profileId: title,
+            type: title.includes("Default") ? 'default' : null
+          }
+
+          for (let groupName of groupsToMerge){
+            let tmpGroupComponents = []
+            // remove them from the orginal group/profile and them to the multi profile
+            for (let profileComponents of results){
+              if (profileComponents.groups[groupName]){
+                tmpGroupComponents=tmpGroupComponents.concat( JSON.parse(JSON.stringify(profileComponents.groups[groupName])) )
+                delete profileComponents.groups[groupName]
+              }
+              profileComponents.groupsOrder = profileComponents.groupsOrder.filter((v) => {return (v !== groupName)})
+            }
+
+            // put them into the multi profile
+            multiProfile.groups[groupName] = tmpGroupComponents
+            multiProfile.groupsOrder.push(groupName)
+
+            // add a label to denote if the individual component is a work or instance whatever component.
+            for (let groupKey in multiProfile.groups){
+              for (let component of multiProfile.groups[groupKey]){
+                if (component.label.indexOf("(i)")>-1){ continue}
+                if (component.label.indexOf("(w)")>-1){ continue}
+                let initial = component.structure.parentId.split(':').slice(-1)[0].charAt(0).toLowerCase();
+
+                component.label = `(${initial}) ${component.label}`
+              }
+            }
+          }
+          results.push(multiProfile)
+        }
+
+        return results
+      }
+
+      let r = mergeComponents(results, groupsToMerge, 'Multi')
+      results.concat(r)
+      r = mergeComponents(results, groupsToMergeDefault, 'Multi Default')
+      results.concat(r)
+
+      //merge the defaults into 1 list
+      if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
+        let defaultIdx = []
+        let defaults = []
+        let defaultObj = {type: "default", groups:{}, groupsOrder:[], profileId: 'defaults', label: 'Defaults'}
+        // Get the defaults
+        for (let item in results){
+          if (results[item].type == 'default'){
+            defaultIdx.push(Number(item))
+            defaults.push(results[item])
+          }
+        }
+        //merge into 1
+        for (let item of defaults){
+          defaultObj.groups = Object.assign({}, defaultObj.groups, item.groups)
+          defaultObj.groupsOrder = defaultObj.groupsOrder.concat(item.groupsOrder)
+        }
+        //rebuild results
+        for (let i = results.length-1; i>=0; i--){
+          if (defaultIdx.includes(i)){
+            results.splice(i, 1)
+          }
+        }
+        let sortFn = function(a, b){
+          let targetA = !defaultObj.groups[a][0].label.startsWith("(") ? defaultObj.groups[a][0].label : a
+          let targetB = !defaultObj.groups[b][0].label.startsWith("(") ? defaultObj.groups[b][0].label : b
+
+          let val = targetA < targetB ? -1 : targetA > targetB ? 1 : 0
+
+          return val
+        }
+        defaultObj.groupsOrder.sort(sortFn)
+
+        results.push(defaultObj)
+      }
+
       // remove any empty ones that may have shifted fully into the multi profile
       results = results.filter((g) => {return (g.groupsOrder.length>0)})
 
-
+      results = results.sort((a,b) => {
+        if (!a.type || a.type == null) { return -1}
+        if (!b.type || b.type == null) { return 1}
+        return (a.type < b.type) ? 1 : (a.type > b.type) ? -1 : 0
+      })
       return results
-
-
-
     },
 
 
@@ -5177,6 +5246,11 @@ export const useProfileStore = defineStore('profile', {
      *
      */
     addFromComponentLibrary(id){
+      let defaultLibrary = null
+      if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
+        defaultLibrary = defaultComponents.DefaultComponentLibrary.profiles
+        this.componentLibrary.profiles = Object.assign({}, this.componentLibrary.profiles, defaultLibrary)
+      }
       for (let key in this.componentLibrary.profiles){
         for (let group of this.componentLibrary.profiles[key].groups){
           if (group.id == id){
