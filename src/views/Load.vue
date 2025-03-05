@@ -281,10 +281,10 @@
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
       ...mapState(useConfigStore, ['testData']),
       ...mapState(useProfileStore, ['startingPoints','profiles']),
-      ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents']),
+      ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents','activeProfilePosted','activeProfilePostedTimestamp']),
 
 
-
+      
 
 
       // // gives read access to this.count and this.double
@@ -458,6 +458,9 @@
             useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
           }
         }
+
+        this.activeProfilePosted = false
+        this.activeProfilePostedTimestamp = false
 
         // check if the input field is empty
         if (this.urlToLoad == "" && useProfile===null){
