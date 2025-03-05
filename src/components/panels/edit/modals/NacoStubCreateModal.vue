@@ -197,12 +197,12 @@
             this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
             // componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null
 
-            this.newNarUri=results.postLocation
+            this.newNarUri=results.pubResuts.postLocation
             this.postStatus='posted'
 
           }
 
-          console.log(results)
+          // console.log(results)
 
           // if (results && results.postLocation){
           //   results.postLocation = results.postLocation.replace("http://",'https://')
@@ -998,8 +998,10 @@
               <div style="flex:1; text-align: center;"><button style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;" @click="buildNacoStub" :disabled="disableAddButton">Generate Stub</button></div>
               <div style="flex:1; text-align: center"><button @click="close" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Cancel</button></div>
             </div>
-            <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpXML">{{ tmpXML }}</textarea>
 
+<!--             
+            <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpXML">{{ tmpXML }}</textarea>
+ -->
 
             <div style="display: flex; padding: 1.5em; font-size: 1.5em;" v-if="postStatus=='posting'">
               <div >Posting... Please wait...</div>
