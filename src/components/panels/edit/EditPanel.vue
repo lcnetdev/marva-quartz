@@ -384,7 +384,7 @@
                   for (let el of document.getElementById(`edit_${newVal.parentId}_${newVal.id}`).querySelectorAll('input,textarea')){
                     el.style.background='transparent'
                   }
-                },500);
+                },1000);
 
 
               },10);
