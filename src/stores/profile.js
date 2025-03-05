@@ -220,11 +220,15 @@ export const useProfileStore = defineStore('profile', {
     },
 
     returnComponentByPropertyLabel: (state) => {
-      return (label) => {
+      return (label, profile) => {
         for (let rt in state.activeProfile.rt){
           for (let pt in state.activeProfile.rt[rt].pt){
             if (state.activeProfile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() === label.toLowerCase()){
-              return state.activeProfile.rt[rt].pt[pt]
+              if (profile && rt.includes(profile)){
+                return state.activeProfile.rt[rt].pt[pt]
+              } else if (!profile){
+                return state.activeProfile.rt[rt].pt[pt]
+              }
             }
           }
         }
