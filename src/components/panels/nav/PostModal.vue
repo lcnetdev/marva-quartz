@@ -8,6 +8,7 @@
   import VueDragResize from 'vue3-drag-resize'
 
 
+
   export default {
     components: {
       VueFinalModal,
@@ -36,12 +37,12 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,useConfigStore),
-      ...mapState(useProfileStore, ['activeProfilePosted']),
+      // ...mapState(useProfileStore, ['activeProfilePosted']),
 
 
 
       // ...mapState(usePreferenceStore, ['debugModalData']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'activeProfilePosted']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'activeProfilePosted', 'activeProfilePostedTimestamp']),
 
 
 
@@ -73,6 +74,8 @@
 
 
         post: async function(){
+
+          
           const config = useConfigStore()
 
           if (!config.returnUrls.displayLCOnlyFeatures){
@@ -82,18 +85,25 @@
           }
 
 
-
+          
 
 
           this.$refs.errorHolder.style.height = this.initalHeight + 'px'
           this.posting = true
           this.postResults = {}
           this.postResults = await this.profileStore.publishRecord()
-          this.posting = false
-          console.log(this.postResults)
-          if (this.postResults.status){
+          this.posting = false          
+          if (this.postResults.status !== false){
             this.activeProfilePosted = true
+            this.activeProfilePostedTimestamp = Date.now()
+          }else{
+            this.activeProfilePosted = false
+            this.activeProfilePostedTimestamp = false
           }
+
+          
+          
+          
         },
 
         onSelectElement (event) {

@@ -82,6 +82,7 @@ export const useProfileStore = defineStore('profile', {
 
     activeProfileSaved: true,
     activeProfilePosted: false,
+    activeProfilePostedTimestamp: false,
 
     showPostModal: false,
     showRecoveryModal: false,
