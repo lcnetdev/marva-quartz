@@ -24,6 +24,7 @@
         validating: false,
         initalHeight: 400,
         initalLeft: (window.innerWidth /2 ) - 450,
+        validationMessage: []
 
 
       }
@@ -36,6 +37,10 @@
       ...mapState(useProfileStore, ['activeProfile', 'activeComponent']),
       // ...mapState(usePreferenceStore, ['debugModalData']),
       ...mapWritableState(useProfileStore, ['showValidateModal', 'activeComponent']),
+
+      processMessageCache(msg){
+        return this.processMessage(msg)
+      }
     },
 
 
@@ -76,27 +81,39 @@
             this.status = Object.values(this.validationResults.status)[0]
             this.results = Object.values(this.validationResults.validation)
           }
+
+          for (let r of this.results){
+            this.validationMessage.push({
+              level: r.level,
+              message: this.processMessage(r.message)
+            })
+          }
         },
 
         processMessage: function(msg){
           if (msg.includes("**")){
-            let match = msg.match(/(\*\*(.*)\*\*)/)
-            if (match.length > 0){
-              msg = msg //.replace(match[0], "<a>" + match.at(-1) + "</a>")
-              return [msg, match.at(-1)]
+            let matchComponent = msg.match(/(\*\*(.*)\*\*)/)
+            let matchRt = msg.match(/@(.*)@/)
+            if (matchComponent.length > 0){
+              msg = msg.replace(matchComponent[0], matchComponent.at(-1))
+              if (matchRt){
+                msg = msg.replace(matchRt[0], matchRt.at(-1))
+                return [msg, matchComponent.at(-1), matchRt.at(-1)]
+              }
+              return [msg, matchComponent.at(-1), null]
             }
           } else {
-            return [msg, null]
+            return [msg, null, null]
           }
         },
 
-        jumpToComponent:function(target){
-          const jumpTarget = this.profileStore.returnComponentByPropertyLabel(target)
+        jumpToComponent:function(processedMessage){
+          const jumpTarget = this.profileStore.returnComponentByPropertyLabel(processedMessage[1], processedMessage[2])
           if (jumpTarget){
             this.done()
             this.activeComponent = jumpTarget
           } else {
-            console.warning("Couldn't jump to component: ", target)
+            console.warn("Couldn't jump to component: ", processedMessage[1])
           }
         },
     },
@@ -135,8 +152,11 @@
             <div v-if="validating == false">
               <span v-if="!Object.keys(validationResults).includes('error')" >
                 <span v-if="status === 'validated'">Validation found the following:</span>
-                  <ul v-for="({level, message}) in results">
-                    <li :class="['level-' + level, {'action-jump': processMessage(message)[1]}]" @click="jumpToComponent(processMessage(message)[1])">{{ level }}: {{ processMessage(message)[0] }}</li>
+                  <ul v-for="({level, message}) in validationMessage">
+                    <li :class="['level-' + level, {'action-jump': message[1]}]" @click="jumpToComponent(message)">
+                      <span v-if="message[1]" :class="['material-icons']">move_down</span>
+                      {{ level }}: {{ message[0] }}
+                    </li>
                   </ul>
               </span>
               <span v-else>
@@ -254,9 +274,5 @@
   }
   .action-jump {
     cursor: pointer;
-  }
-  .action-jump::after {
-    content: ":: Jump to component";
-    font-weight: bold;
   }
 </style>
