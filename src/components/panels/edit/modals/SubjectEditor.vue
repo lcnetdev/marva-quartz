@@ -174,14 +174,14 @@
                   <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                   <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
                     <h3 v-if="contextData.title">
-                        <span class="modal-context-icon simptip-position-top" v-if="contextData.rdftypes" :data-tooltip="'Type: ' + contextData.rdftypes[0]">
-                            <AuthTypeIcon :type="contextData.rdftypes[0]"></AuthTypeIcon>
+                        <span class="modal-context-icon simptip-position-top" v-if="contextData.rdftypes" :data-tooltip="'Type: ' + contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]">
+                            <AuthTypeIcon :type="contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]"></AuthTypeIcon>
                         </span>
                         {{Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
                         <AuthTypeIcon v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                     </h3>
 
-                    <div class="modal-context-data-title" v-if="contextData.rdftypes">{{contextData.rdftypes[0]}}</div>
+                    <div class="modal-context-data-title" v-if="contextData.rdftypes">{{contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]}}</div>
                     <a style="color:#2c3e50" :href="contextData.uri" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
 
                     <br><br>
@@ -229,6 +229,13 @@
                       </ul>
                     </div>
 
+                    <div v-if="contextData.locales && contextData.locales.length>0">
+                      <div class="modal-context-data-title">Associated Locales:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.locales" v-bind:key="'var' + idx">{{v}}</li>
+                      </ul>
+                    </div>
+
                     <div v-if="contextData.activityfields && contextData.activityfields.length>0">
                       <div class="modal-context-data-title">Fields of Activity:</div>
                       <ul>
@@ -256,9 +263,6 @@
                         <li class="modal-context-data-li" v-if="Array.isArray(contextData.lcclasss)" v-for="v in contextData.lcclasss" v-bind:key="v">
                           <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
                         </li>
-                        <li class="modal-context-data-li" v-else >
-                          <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+contextData.lcclasss" target="_blank">{{contextData.lcclasss}}</a>
-                        </li>
                       </ul>
                     </div>
 
@@ -268,13 +272,6 @@
                         <li class="modal-context-data-li" v-for="v in contextData.broaders" v-bind:key="v">
                           <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
                         </li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.locales && contextData.locales.length>0">
-                      <div class="modal-context-data-title">Associated Locales:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.locales" v-bind:key="'var' + idx">{{v}}</li>
                       </ul>
                     </div>
 
@@ -298,6 +295,13 @@
                       <div class="modal-context-data-title">Sources:</div>
                       <ul>
                         <li class="modal-context-data-li" v-for="v in contextData.sources" v-bind:key="v">{{v}}</li>
+                      </ul>
+                    </div>
+
+                    <div v-if="contextData.subjects && contextData.subjects.length>0">
+                      <div class="modal-context-data-title">Subjects:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.subjects" v-bind:key="'var' + idx">{{v}}</li>
                       </ul>
                     </div>
 
@@ -1628,7 +1632,8 @@ methods: {
     // that.contextData.dispatch("clearContext", { self: that})
     if (that.pickLookup[that.pickPostion] && !that.pickLookup[that.pickPostion].literal){
       that.contextRequestInProgress = true
-      that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
+      // that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
+      that.contextData = that.getContext()
 
       // keep a local copy of it for looking up subject type
       if (that.contextData){
@@ -1751,6 +1756,8 @@ methods: {
       this.contextData.literal = true
     }
     console.info("this.contextData: ", this.contextData)
+
+    this.contextRequestInProgress = false
 
   },
 
