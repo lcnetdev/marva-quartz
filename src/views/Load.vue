@@ -83,6 +83,7 @@
                   <template v-else>
 
                     <li v-for="(r,idx) in searchByLccnResults" :key="r.idURL">
+                      !!{{ r }}
                         <div style="display:flex">
 
                             <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.label}}</span></div>
@@ -282,9 +283,6 @@
       ...mapState(useConfigStore, ['testData']),
       ...mapState(useProfileStore, ['startingPoints','profiles']),
       ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents','activeProfilePosted','activeProfilePostedTimestamp']),
-
-
-      
 
 
       // // gives read access to this.count and this.double
@@ -674,7 +672,7 @@
   }
 </style>
 
-<style scoped>  
+<style scoped>
 
 
 #test-data-table{
@@ -696,7 +694,7 @@
 
   background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important;
   color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
-  
+
   background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')")  !important;
 
 }

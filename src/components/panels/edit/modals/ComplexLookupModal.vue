@@ -626,7 +626,6 @@
         }
 
         console.log("toLoad: ", toLoad)
-        console.info("toLoad: ", toLoad)
 
         this.activeContext = {
             "contextValue": true,
@@ -650,15 +649,13 @@
         }
 
         let results = null
-        try {
-            // results = await utilsNetwork.returnContext(toLoad.uri)
-            // console.info("results: ", results)
-
-
-            results = this.activeContext
-        } catch(err) {
-            results = this.activeContext
-        }
+        results = this.activeContext
+        // try {
+        //     // results = await utilsNetwork.returnContext(toLoad.uri)
+        //     results = this.activeContext
+        // } catch(err) {
+        //     results = this.activeContext
+        // }
         results.loading = false
 
         // if this happens it means they selected something else very quickly
@@ -671,10 +668,7 @@
 
         }
 
-
         this.activeContext = results
-
-        console.info("activeContext: ", this.activeContext)
       },
 
       isStaging(){
@@ -949,7 +943,7 @@
             <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display" :style="`${this.preferenceStore.styleModalTextColor()};`">
 
               <template v-if="activeContext !== null">
-                  <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.extra.rdftypes[0]"><AuthTypeIcon v-if="activeContext.extra.rdftypes" :type="activeContext.extra.rdftypes[0]"></AuthTypeIcon></span>{{returnContextTitle(activeContext.title)}}</h3>
+                  <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.extra.rdftypes[0]"><AuthTypeIcon v-if="activeContext.extra.rdftypes" :type="activeContext.extra.rdftypes[0]"></AuthTypeIcon></span>{{ activeContext.title }}</h3>
                   <div class="complex-lookup-modal-display-type-buttons">
                     <div>
                         <div class="modal-context-data-title">{{activeContext.extra.rdftypes[0]}}</div>
@@ -1045,7 +1039,7 @@
                   </div>
 
                   <div v-if="activeContext.extra.broaders && activeContext.extra.broaders.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Broader Headings:</div>
+                    <div class="modal-context-data-title modal-context-data-title-add-gap">Has Broader Authority:</div>
                     <ul>
                       <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.broaders" v-bind:key="'var' + idx">{{v}}</li>
                     </ul>

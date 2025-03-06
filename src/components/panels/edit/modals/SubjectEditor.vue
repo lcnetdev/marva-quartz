@@ -1508,8 +1508,6 @@ methods: {
 
     that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
 
-    console.info("that.searchResults: ", that.searchResults)
-
     // if they clicked around while it was doing this lookup bail out
     // if (that.activeSearchInterrupted){
 
@@ -1602,8 +1600,6 @@ methods: {
     for (let x in that.searchResults.exact){
       that.pickLookup[(that.searchResults.names.length - x)*-1-2] = that.searchResults.exact[x]
     }
-
-    console.info("that.pickLookup: ", that.pickLookup)
 
     for (let k in that.pickLookup){
       that.pickLookup[k].picked = false
@@ -1742,8 +1738,6 @@ methods: {
       return false
     }
 
-    console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
-
     this.contextData = this.pickLookup[this.pickPostion].extra
     if (this.pickLookup[this.pickPostion].uri){
       this.contextData.literal = false
@@ -1755,7 +1749,6 @@ methods: {
     } else {
       this.contextData.literal = true
     }
-    console.info("this.contextData: ", this.contextData)
 
     this.contextRequestInProgress = false
 
@@ -2699,31 +2692,31 @@ methods: {
     for (let el in this.searchResults["subjectsComplex"]){
       let target = this.searchResults["subjectsComplex"][el]
       if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
+        // we need to check the types of each element to make sure they really are the same terms
+        // let targetContext = await utilsNetwork.returnContext(target.uri)
+        let targetContext = target.extra
 
-		  // we need to check the types of each element to make sure they really are the same terms
-		  let targetContext = await utilsNetwork.returnContext(target.uri)
+        let marcKey = ""
+        if (Array.isArray(targetContext.marcKey) && typeof targetContext.marcKey[0] == 'string'){
+          marcKey = targetContext.marcKey[0]
+        } else if (targetContext.marcKey){
+          marcKey = targetContext.marcKey //[0]["@value"]
+        }
 
-		  let marcKey = ""
-      if (Array.isArray(targetContext.marcKey) && typeof targetContext.marcKey[0] == 'string'){
-        marcKey = targetContext.marcKey[0]
-      } else if (targetContext.marcKey){
-        marcKey = targetContext.marcKey[0]["@value"]
-      }
-
-		  if (marcKey.slice(5) == componentTypes){
-        //the entire built subject can be replaced by 1 term
-        match = true
-        this.components.push({
-          "complex": target.complex,
-          "id": 0,
-          "label": target.label,
-          "literal": false,
-          "posEnd": target.label.length,
-          "posStart": 0,
-          "type": "madsrdf:Topic",
-          "uri": target.uri,
-          "marcKey": marcKey
-        })
+        if (marcKey.slice(5) == componentTypes){
+          //the entire built subject can be replaced by 1 term
+          match = true
+          this.components.push({
+            "complex": target.complex,
+            "id": 0,
+            "label": target.label,
+            "literal": false,
+            "posEnd": target.label.length,
+            "posStart": 0,
+            "type": "madsrdf:Topic",
+            "uri": target.uri,
+            "marcKey": marcKey
+          })
         }
       }
     }

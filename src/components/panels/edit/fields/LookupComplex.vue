@@ -434,8 +434,10 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
+      console.info("setComplexValue: ", contextValue)
+      console.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", contextValue.extra.rdftypes[0])
       delete contextValue.typeFull
-      this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
+      this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.extra.rdftypes[0], contextValue.extra, contextValue.extra.marcKey)
       this.searchValue=''
       this.displayModal=false
 
