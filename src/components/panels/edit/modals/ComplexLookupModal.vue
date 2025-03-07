@@ -49,13 +49,30 @@
         offsetStep: 25,
         currentPage: 1,
         maxPage: 0,
-
         activeContext: null,
-
-
         nextInputIsVoyagerModeDiacritics: false,
-
 		    searchType: "left",
+
+
+        labelMap: {
+          "notes": "Notes",
+          "nonlatinLabels": "Non-Latin Authoritative Labels",
+          "variantLabels": "Variants",
+          "birthdates": "Date of Birth",
+          "birthplaces": "Place of Birth",
+          "locales": "Associated Locales",
+          "activityfields": "Fields of Activity",
+          "occupations": "Occupations",
+          "languages": "Associated Languages",
+          "lcclasss": "LC Classification",
+          "broaders": "Has Broader Authority",
+          "gacs": "GAC(s)",
+          "collections": "MADS Collections",
+          "sources": "Sources",
+          "marcKey": "MARC Key",
+        },
+        panelDetailOrder: ["notes","nonlatinLabels","variantLabels","birthdates","birthplaces","locales","activityfields","occupations","languages","lcclasss","broaders","gacs","collections","sources", "marcKey"],
+        excludeFields: ["rdftypes"]
       }
     },
     computed: {
@@ -144,6 +161,7 @@
 
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
+        console.info("doSearch")
         //if there is an ongoing search, abort it
         if (this.activeComplexSearchInProgress){
           this.controller.abort()
@@ -231,6 +249,7 @@
             this.activeComplexSearchInProgress = true
             this.activeComplexSearch = []
             this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
+            console.info("this.activeComplexSearch: ", this.activeComplexSearch)
             this.activeComplexSearchInProgress = false
             this.initalSearchState =false
           }, 400)
@@ -599,6 +618,7 @@
       },
 
       selectChange: async function(){
+        console.info("selectChange")
         let toLoad = null
         if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
           toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
@@ -626,6 +646,7 @@
         }
 
         console.log("toLoad: ", toLoad)
+        console.info("toLoad: ", toLoad)
 
         this.activeContext = {
             "contextValue": true,
@@ -669,6 +690,7 @@
         }
 
         this.activeContext = results
+        console.info("this.activeContext: ", this.activeContext)
       },
 
       isStaging(){
@@ -943,10 +965,10 @@
             <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display" :style="`${this.preferenceStore.styleModalTextColor()};`">
 
               <template v-if="activeContext !== null">
-                  <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.extra.rdftypes[0]"><AuthTypeIcon v-if="activeContext.extra.rdftypes" :type="activeContext.extra.rdftypes[0]"></AuthTypeIcon></span>{{ activeContext.title }}</h3>
+                  <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]"><AuthTypeIcon v-if="activeContext.extra.rdftypes" :type="activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]"></AuthTypeIcon></span>{{ activeContext.title }}</h3>
                   <div class="complex-lookup-modal-display-type-buttons">
                     <div>
-                        <div class="modal-context-data-title">{{activeContext.extra.rdftypes[0]}}</div>
+                        <div class="modal-context-data-title">{{activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]}}</div>
                         <div v-if="activeContext.depreciated" style="background: pink;">
                           DEPRECIATED AUTHORITY
                         </div>
@@ -966,109 +988,25 @@
 
                   </div>
 
-                  <div v-if="activeContext.extra.notes && activeContext.extra.notes.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Notes:</div>
+                  <template v-for="key in panelDetailOrder">
+                    <div v-if="!excludeFields.includes(key) && activeContext.extra[key] && activeContext.extra[key].length>0">
+                    <div class="modal-context-data-title modal-context-data-title-add-gap">{{ this.labelMap[key] }}:</div>
                     <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.notes" v-bind:key="'var' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.nonlatinLabels.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Non-Latin Authoritative Labels:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.nonlatinLabels" v-bind:key="'auth' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.variantLabels && activeContext.extra.variantLabels.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Variants:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.variantLabels" v-bind:key="'var' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.birthdates && activeContext.extra.birthdates.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Birth Date:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.birthdates" v-bind:key="'var' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.birthplaces && activeContext.extra.birthplaces.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Birth Place:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.birthplaces" v-bind:key="'var' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.locales && activeContext.extra.locales.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Associated Locales:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.locales" v-bind:key="'var' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.activityfields && activeContext.extra.activityfields.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Fields of Activity:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.activityfields" v-bind:key="'var' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.occupations && activeContext.extra.occupations.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Occupations:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.occupations" v-bind:key="'var' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.languages && activeContext.extra.languages.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Associated Languages:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.languages" v-bind:key="'var' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.lcclasss && activeContext.extra.lcclasss.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">LC Classification:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.lcclasss" v-bind:key="v + idx">
-                        <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                      <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
+                        <template v-if="v.startsWith('http')">
+                          <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                        </template>
+                        <template v-else-if="key == 'lcclasss'">
+                          <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                        </template>
+                        <template v-else>
+                          {{v}}
+                        </template>
                       </li>
+                      <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
                     </ul>
                   </div>
-
-                  <div v-if="activeContext.extra.broaders && activeContext.extra.broaders.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Has Broader Authority:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.broaders" v-bind:key="'var' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.gacs && activeContext.extra.gacs.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">GAC(s):</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.gacs" v-bind:key="'var' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.collections && activeContext.extra.collections.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">MADS Collections:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.collections" v-bind:key="v + idx">
-                        <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.extra.sources && activeContext.extra.sources.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Sources:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.extra.sources" v-bind:key="'sources-'+idx">{{v}}</li>
-                    </ul>
-
-
-                  </div>
+                  </template>
 
               </template>
 
