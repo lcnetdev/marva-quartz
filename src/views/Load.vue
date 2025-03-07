@@ -83,7 +83,6 @@
                   <template v-else>
 
                     <li v-for="(r,idx) in searchByLccnResults" :key="r.idURL">
-                      !!{{ r }}
                         <div style="display:flex">
 
                             <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.label}}</span></div>
