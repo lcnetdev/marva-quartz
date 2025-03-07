@@ -72,7 +72,6 @@
           "marcKey": "MARC Key",
         },
         panelDetailOrder: ["notes","nonlatinLabels","variantLabels","birthdates","birthplaces","locales","activityfields","occupations","languages","lcclasss","broaders","gacs","collections","sources", "marcKey"],
-        excludeFields: ["rdftypes"]
       }
     },
     computed: {
@@ -989,23 +988,26 @@
                   </div>
 
                   <template v-for="key in panelDetailOrder">
-                    <div v-if="!excludeFields.includes(key) && activeContext.extra[key] && activeContext.extra[key].length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">{{ this.labelMap[key] }}:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
-                        <template v-if="v.startsWith('http')">
-                          <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
-                        </template>
-                        <template v-else-if="key == 'lcclasss'">
-                          <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
-                        </template>
-                        <template v-else>
-                          {{v}}
-                        </template>
-                      </li>
-                      <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
-                    </ul>
-                  </div>
+                    <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
+                      <div class="modal-context-data-title modal-context-data-title-add-gap">{{ this.labelMap[key] }}:</div>
+                      <ul>
+                        <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
+                          <template v-if="v.startsWith('http')">
+                            <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                          </template>
+                          <template v-else-if="key == 'lcclasss'">
+                            <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                          </template>
+                          <template v-else-if="key == 'broaders'">
+                            <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                          </template>
+                          <template v-else>
+                            {{v}}
+                          </template>
+                        </li>
+                        <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
+                      </ul>
+                    </div>
                   </template>
 
               </template>

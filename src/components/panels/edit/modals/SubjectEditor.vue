@@ -178,7 +178,8 @@
                             <AuthTypeIcon :type="contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]"></AuthTypeIcon>
                         </span>
                         {{Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
-                        <AuthTypeIcon v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        <!-- <AuthTypeIcon v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon> -->
+                         <sup style="font-size: .5em;" v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')">(may subd geog)</sup>
                     </h3>
 
                     <div class="modal-context-data-title" v-if="contextData.rdftypes">{{contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]}}</div>
@@ -186,131 +187,29 @@
 
                     <br><br>
 
-                    <div v-if="contextData.locale && contextData.locale.length>0">
-                      <div class="modal-context-data-title">Associated Locales:</div>
+                    <template v-for="key in panelDetailOrder">
+                    <div v-if="contextData[key] && contextData[key].length>0">
+                      <div class="modal-context-data-title modal-context-data-title-add-gap">{{ this.labelMap[key] }}:</div>
                       <ul>
-                        <li class="modal-context-data-li" v-if="Array.isArray(contextData.locale)" v-for="(v,idx) in contextData.locale" v-bind:key="'var' + idx">{{v}}</li>
-                        <li class="modal-context-data-li" v-else  v-bind:key="'var' + idx + 'single'">{{contextData.locale}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.notes && contextData.notes.length>0">
-                      <div class="modal-context-data-title">Notes:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.notes" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.nonlatinLabels && contextData.nonlatinLabels.length>0">
-                      <div class="modal-context-data-title">Non-Latin Auth Label(s):</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.nonlatinLabels" v-bind:key="'var' + idx">{{ v }}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.variantLabels && contextData.variantLabels.length>0">
-                      <div class="modal-context-data-title">Variants:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.variantLabels" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.birthdates && contextData.birthdates.length>0">
-                      <div class="modal-context-data-title">Birth Date:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.birthdates" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.birthplaces && contextData.birthplaces.length>0">
-                      <div class="modal-context-data-title">Birth Place:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.birthplaces" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.locales && contextData.locales.length>0">
-                      <div class="modal-context-data-title">Associated Locales:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.locales" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.activityfields && contextData.activityfields.length>0">
-                      <div class="modal-context-data-title">Fields of Activity:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.activityfields" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.occupations && contextData.occupations.length>0">
-                      <div class="modal-context-data-title">Occupations:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.occupations" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.languages && contextData.languages.length>0">
-                      <div class="modal-context-data-title">Associated Languages:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.languages" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.lcclasss && contextData.lcclasss.length>0">
-                      <div class="modal-context-data-title">LC Classification:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-if="Array.isArray(contextData.lcclasss)" v-for="v in contextData.lcclasss" v-bind:key="v">
-                          <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                        <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
+                          <template v-if="v.startsWith('http')">
+                            <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                          </template>
+                          <template v-else-if="key == 'lcclasss'">
+                            <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                          </template>
+                          <template v-else-if="key == 'broaders'">
+                            <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                          </template>
+                          <template v-else>
+                            {{v}}
+                          </template>
                         </li>
+                        <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ contextData[key] }}</li>
                       </ul>
                     </div>
+                  </template>
 
-                    <div v-if="contextData.broaders && contextData.broaders.length>0">
-                      <div class="modal-context-data-title">Has Broader Authority:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="v in contextData.broaders" v-bind:key="v">
-                          <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.gacs && contextData.gacs.length>0">
-                      <div class="modal-context-data-title">GAC(s):</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.gacs" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.collections && contextData.collections.length>0">
-                      <div class="modal-context-data-title">MADS Collections:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="v in contextData.collections" v-bind:key="v">
-                          <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.sources && contextData.sources.length>0">
-                      <div class="modal-context-data-title">Sources:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="v in contextData.sources" v-bind:key="v">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.subjects && contextData.subjects.length>0">
-                      <div class="modal-context-data-title">Subjects:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.subjects" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.marcKey && contextData.marcKey.length>0">
-                      <div class="modal-context-data-title">MARC Key:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-bind:key="contextData.marcKey">{{ Array.isArray(contextData.marcKey) ? contextData.marcKey[0]["@value"] : contextData.marcKey }}</li>
-                      </ul>
-                    </div>
 
                     <div v-if="this.pickCurrent != null">
                       <div class="clear-selected">
@@ -935,7 +834,32 @@ data: function() {
       'madsrdf:Geographic': {label:'Geographic ($z)', value:'madsrdf:Geographic',selected:false},
       'madsrdf:Temporal': {label:'Chronological ($y)', value:'madsrdf:Temporal',selected:false},
     },
-    excludeDisplayList: ['literal', 'uri', 'title', 'marcKey', 'sources']
+
+    labelMap: {
+      "notes": "Notes",
+      "nonlatinLabels": "Non-Latin Authoritative Labels",
+      "variantLabels": "Variants",
+      "birthdates": "Date of Birth",
+      "birthplaces": "Place of Birth",
+      "locales": "Associated Locales",
+      "activityfields": "Fields of Activity",
+      "occupations": "Occupations",
+      "languages": "Associated Languages",
+      "lcclasss": "LC Classification",
+      "broaders": "Has Broader Authority",
+      "gacs": "GAC(s)",
+      "collections": "MADS Collections",
+      "sources": "Sources",
+      "subjects": "Subjects",
+      "marcKey": "MARC Key",
+    },
+    panelDetailOrder: [
+      "notes","nonlatinLabels","variantLabels","birthdates",
+      "birthplaces","locales","activityfields","occupations",
+      "languages","lcclasss","broaders","gacs","collections",
+      "sources", "subjects", "marcKey"
+    ],
+
 
 
   }
