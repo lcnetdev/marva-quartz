@@ -2360,6 +2360,7 @@ export const useProfileStore = defineStore('profile', {
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
       console.info("setValueComplex")
+      console.info("nodeMap: ", nodeMap)
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2454,14 +2455,15 @@ export const useProfileStore = defineStore('profile', {
           }
 
           //Add gacs code to user data
-          if (nodeMap["GAC(s)"]){
+          console.info("nodeMap: ", nodeMap)
+          if (nodeMap["gacs"]){
             blankNode["http://www.loc.gov/mads/rdf/v1#code"] = []
-            for (let code in nodeMap["GAC(s)"]){
+            for (let code in nodeMap["gacs"]){
                 blankNode["http://www.loc.gov/mads/rdf/v1#code"].push(
                   {
                     '@guid': short.generate(),
                     "@gacs": "http://id.loc.gov/datatypes/codes/gac",
-                    'http://www.loc.gov/mads/rdf/v1#code': nodeMap["GAC(s)"][code]
+                    'http://www.loc.gov/mads/rdf/v1#code': nodeMap["gacs"][code]
                   }
                 )
             }

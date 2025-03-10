@@ -663,7 +663,7 @@
             "literal": (toLoad && toLoad.literal) ? true : false,
             "loading":true,
             "extra": toLoad.extra,
-            "gacs": toLoad.extra.gacs.length == 1 ? toLoad.extra.gacs[0] : null,
+            "gacs": toLoad.extra.gacs,
           }
 
         if (toLoad && toLoad.literal){
