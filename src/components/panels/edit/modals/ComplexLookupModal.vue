@@ -662,8 +662,8 @@
             "precoordinated" : false,
             "literal": (toLoad && toLoad.literal) ? true : false,
             "loading":true,
-            "extra": toLoad.extra,
-            "gacs": toLoad.extra.gacs,
+            "extra": toLoad.extra ? toLoad.extra : {},
+            "gacs": toLoad.extra ? toLoad.extra.gacs : [],
           }
 
         if (toLoad && toLoad.literal){
@@ -976,8 +976,14 @@
 
             <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display" :style="`${this.preferenceStore.styleModalTextColor()};`">
 
-              <template v-if="activeContext !== null">
-                  <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]"><AuthTypeIcon v-if="activeContext.extra.rdftypes" :type="activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]"></AuthTypeIcon></span>{{ activeContext.title }}</h3>
+              <template v-if="activeContext !== null && Object.keys(activeContext.extra).length > 0">
+                  <h3>
+                    <span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0] ">
+                      <AuthTypeIcon v-if="activeContext.extra.rdftypes" :type="activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]">
+                      </AuthTypeIcon>
+                    </span>
+                    {{ activeContext.title }}
+                  </h3>
                   <div class="complex-lookup-modal-display-type-buttons">
                     <div>
                         <div class="modal-context-data-title">{{activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]}}</div>
@@ -1022,6 +1028,36 @@
                       </ul>
                     </div>
                   </template>
+              </template>
+
+              <template v-else-if="activeContext !== null">
+                <h3>
+                  {{ activeContext.title[0] }}
+                </h3>
+
+                <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on id.loc.gov</a>
+
+                <br>
+
+                <div v-if="activeContext.uri">
+                  <div class="modal-context-data-title modal-context-data-title-add-gap">MADS Collections:</div>
+                  <ul>
+                    <li class="modal-context-data-li">
+                     <a :href="activeContext.uri" target="_blank">
+                      {{ activeContext.uri.split("/").at(-2) }}
+                     </a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="complex-lookup-modal-display-type-buttons">
+                  <div class="complex-lookup-modal-display-type-buttons">
+                    <div class="complex-lookup-modal-display-buttons">
+                      <button @click="$emit('emitComplexValue', activeContext)">Add [Shift+Enter]</button>
+                      <button @click=" reset(); $emit('hideComplexModal')">Cancel [ESC]</button>
+                    </div>
+                  </div>
+                </div>
 
               </template>
 

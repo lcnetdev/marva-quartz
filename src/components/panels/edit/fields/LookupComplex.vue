@@ -434,18 +434,22 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
-      console.info("setComplexValue: ", contextValue)
-      console.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", contextValue.extra.rdftypes[0])
-      delete contextValue.typeFull
-      this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.extra.rdftypes[0], contextValue.extra, contextValue.extra.marcKey)
-      this.searchValue=''
-      this.displayModal=false
 
-      this.$nextTick(() => {
-        window.setTimeout(()=>{
-          this.$refs.lookupInput.focus()
-        },10)
-      })
+      if (Object.keys(contextValue.extra).length == 0){
+        // Intended audience mixes simple and complex lookups, so do check
+        this.profileStore.setValueSimple(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title[0])
+      } else {
+        delete contextValue.typeFull
+        this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.extra.rdftypes[0], contextValue.extra, contextValue.extra.marcKey)
+      }
+      this.searchValue=''
+        this.displayModal=false
+
+        this.$nextTick(() => {
+          window.setTimeout(()=>{
+            this.$refs.lookupInput.focus()
+          },10)
+        })
     },
 
 

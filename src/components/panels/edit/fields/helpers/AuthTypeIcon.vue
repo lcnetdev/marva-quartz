@@ -47,7 +47,7 @@ export default {
       if (type == 'ComplexSubject') return "Complex Subject"
       if (type == 'Topic') return "Topic Subject"
 
-      if (type == 'Authority') return iconSubjectComplex
+      if (type == 'Authority') return "Topic" //iconSubjectComplex
 
       if (type == 'http://id.loc.gov/ontologies/bibframe/Person') return "Personal Name"
       if (type == 'http://id.loc.gov/ontologies/bibframe/Place') return "Geographic"
