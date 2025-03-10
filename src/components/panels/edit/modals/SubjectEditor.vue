@@ -1678,6 +1678,7 @@ methods: {
       let types = this.pickLookup[this.pickPostion].extra['rdftypes']
       this.contextData.type = types.includes("Hub") ? "madsrdf:Topic" : "madsrdf:" +  types[0]
       this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
+      this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
 
     } else {
       this.contextData.literal = true

@@ -662,7 +662,8 @@
             "precoordinated" : false,
             "literal": (toLoad && toLoad.literal) ? true : false,
             "loading":true,
-            "extra": toLoad.extra
+            "extra": toLoad.extra,
+            "gacs": toLoad.extra.gacs.length == 1 ? toLoad.extra.gacs[0] : null,
           }
 
         if (toLoad && toLoad.literal){
@@ -678,7 +679,7 @@
         if (toLoad.uri.includes('/works/')){
           results.type = 'Work'
           results.typeFull='http://id.loc.gov/ontologies/bibframe/Work'
-        }else{
+        } else if (toLoad.uri.includes('/hubs/')){
           results.type = 'Hub'
           results.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
         }
