@@ -178,11 +178,11 @@
                         <span class="modal-context-icon simptip-position-top" v-if="contextData.rdftypes" :data-tooltip="'Type: ' + contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]">
                             <AuthTypeIcon :type="contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]"></AuthTypeIcon>
                         </span>
-                        {{Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
+                        {{ Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
                         <!-- <AuthTypeIcon v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon> -->
                         <sup style="font-size: .5em;" v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')">(may subd geog)</sup>
                     </h3>
-                    <h3 v-if="contextData.label">
+                    <h3 v-if="contextData.literal">
                       {{ contextData.label }} [Literal]
                     </h3>
 
@@ -1561,6 +1561,7 @@ methods: {
 
       // keep a local copy of it for looking up subject type
       if (that.contextData){
+        console.info("Making local copy.")
         that.localContextCache[that.contextData.uri] = JSON.parse(JSON.stringify(that.contextData))
       }
     }
@@ -1674,6 +1675,10 @@ methods: {
       if (Object.keys(this.contextData).includes("marcKey")){
         this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
       }
+      let types = this.pickLookup[this.pickPostion].extra['rdftypes']
+      this.contextData.type = types.includes("Hub") ? "madsrdf:Topic" : "madsrdf:" +  types[0]
+      this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
+
     } else {
       this.contextData.literal = true
     }
@@ -1920,6 +1925,7 @@ methods: {
     this.getContext()
 
     if (this.contextData){
+      console.info("Making local copy 2.")
       this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
     }
 
@@ -2428,6 +2434,8 @@ methods: {
         for (let x of this.components){
           if (this.localContextCache[x.uri]){
 
+            console.info("setting type.")
+
             if (this.activeComponent.type){
               // don't do anything
             } else {
@@ -2597,6 +2605,9 @@ methods: {
     // remove our werid hyphens before we send it back
     for (let c of this.components){
       c.label = c.label.replaceAll('‑','-')
+
+      console.info("c.uri: ", c.uri)
+      console.info("this.localContextCache: ", this.localContextCache)
 
       // we have the full mads type from the build process, check if the component is a id name authortiy
       // if so over write the user defined type with the full type from the authority file so that
