@@ -2359,7 +2359,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
-
+      console.info("setValueComplex")
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2470,6 +2470,8 @@ export const useProfileStore = defineStore('profile', {
           if (!Array.isArray(marcKey)){
             marcKey = [marcKey]
           }
+
+          console.info("marcKey: ", marcKey)
 
           for (let aMarcKeyNode of marcKey){
             if (!blankNode['http://id.loc.gov/ontologies/bflc/marcKey']){

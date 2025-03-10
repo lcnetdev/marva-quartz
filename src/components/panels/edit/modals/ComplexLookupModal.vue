@@ -610,6 +610,7 @@
           }
         }
         if (event.key==='Enter' && event.shiftKey){
+          console.info("emit: ", this.activeContext)
           console.log("emitComplexValue",this.activeContext)
           this.$emit('emitComplexValue', this.activeContext)
         }
@@ -670,6 +671,17 @@
 
         let results = null
         results = this.activeContext
+        console.info("activeContext: ", JSON.parse(JSON.stringify(results)))
+        // results = await utilsNetwork.returnContext(toLoad.uri)
+        // console.info(toLoad.uri, ": ", JSON.parse(JSON.stringify(results)))
+
+        if (toLoad.uri.includes('/works/')){
+          results.type = 'Work'
+          results.typeFull='http://id.loc.gov/ontologies/bibframe/Work'
+        }else{
+          results.type = 'Hub'
+          results.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
+        }
         // try {
         //     // results = await utilsNetwork.returnContext(toLoad.uri)
         //     results = this.activeContext

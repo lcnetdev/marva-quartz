@@ -170,6 +170,7 @@
                 </div>
 
                 <!-- Results Panel -->
+                <!-- !!{{ contextData }} -->
                 <div :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()};`"  :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
                   <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                   <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
@@ -179,7 +180,10 @@
                         </span>
                         {{Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
                         <!-- <AuthTypeIcon v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon> -->
-                         <sup style="font-size: .5em;" v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')">(may subd geog)</sup>
+                        <sup style="font-size: .5em;" v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')">(may subd geog)</sup>
+                    </h3>
+                    <h3 v-if="contextData.label">
+                      {{ contextData.label }} [Literal]
                     </h3>
 
                     <div class="modal-context-data-title" v-if="contextData.rdftypes">{{contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]}}</div>
@@ -1678,7 +1682,7 @@ methods: {
 
   },
 
-  _getContext: async function(){
+  _getContextDeprecated: async function(){
     if (this.pickLookup[this.pickPostion].literal){
       this.contextData = this.pickLookup[this.pickPostion]
       return false
@@ -1931,6 +1935,7 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
+    console.info("selectContext")
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
@@ -1987,6 +1992,8 @@ methods: {
       }
 
       this.pickLookup[this.pickPostion].picked=true
+
+      console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
 
       try {
         let marcKey = this.pickLookup[this.pickPostion].marcKey
@@ -2296,6 +2303,7 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    console.info("subjectStringChanged: ", event)
     this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
