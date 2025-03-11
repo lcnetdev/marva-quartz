@@ -205,7 +205,7 @@ import { isReadonly } from 'vue';
           }
         }
 
-        let returnString = prefix + 'No Heading'
+        let returnString = prefix + 'No Value'
         if (component && component.userValue && component.userValue[propertyURI]
         && component.userValue[propertyURI].length>0
         && component.userValue[propertyURI][0]
