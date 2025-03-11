@@ -348,11 +348,11 @@ export const useConfigStore = defineStore('config', {
             }
         ]
      },
-    "http://id.loc.gov/authorities/demographicTerms" : {"name":"demographicTerms", "type":"complex", "modes":[
-      {
-      'LCDGT All':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
-      }
-    ]},
+    // "http://id.loc.gov/authorities/demographicTerms" : {"name":"demographicTerms", "type":"complex", "modes":[
+    //   {
+    //   'LCDGT All':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
+    //   }
+    // ]},
     "http://id.loc.gov/authorities/genreForms" : {
       "name":"genreForms",
       "type":"complex",
@@ -487,16 +487,16 @@ export const useConfigStore = defineStore('config', {
       ]
     },
 
-    "http://id.loc.gov/authorities/demographicTerms": {
-      "name":"demographicTerms",
-      "type":"complex",
-      "processor" : 'lcAuthorities',
-      "modes":[
-        {
-          'LCDGT All':{"url":"https://preprod-8288.id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>", "all":true},
-        }
-      ]
-    },
+    // "http://id.loc.gov/authorities/demographicTerms": {
+    //   "name":"demographicTerms",
+    //   "type":"complex",
+    //   "processor" : 'lcAuthorities',
+    //   "modes":[
+    //     {
+    //       'LCDGT All':{"url":"https://preprod-8288.id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>", "all":true},
+    //     }
+    //   ]
+    // },
 
 
     "http://id.loc.gov/entities/providers" : {"name":"providers", "type":"complex", "modes":[]},
