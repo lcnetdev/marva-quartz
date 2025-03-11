@@ -241,7 +241,7 @@
 
           this.oneXXResults = []
 
-          let results = await utilsNetwork.loadSimpleLookupKeyword('https://id.loc.gov/authorities/names',authLabel,true )
+          let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true )
 
           let formatted = []
           for (let key of Object.keys(results)){
