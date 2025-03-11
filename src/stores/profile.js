@@ -2361,6 +2361,7 @@ export const useProfileStore = defineStore('profile', {
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
       console.info("setValueComplex")
       console.info("nodeMap: ", nodeMap)
+      console.info("type: ", type)
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2374,13 +2375,19 @@ export const useProfileStore = defineStore('profile', {
       if (!type && URI && !lastProperty.includes("intendedAudience")){
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
+        console.info("context: ", context)
         type = context.typeFull
         console.info("type: ", type)
       }
 
-      if (type && !type.startsWith("http")){
-        type = "http://www.loc.gov/mads/rdf/v1#" + type
+      if (['Work', 'Hub'].includes(type)){
+        type = "http://id.loc.gov/ontologies/bibframe/" + type
       }
+      if (type && !type.startsWith("http")){
+        type = "http://www.loc.gov/mads/rdf/v1#" + type // Works and Hubs should be `BF:` not madsrdf.
+      }
+
+      console.info("type: ", type)
 
       // literals don't have a type or a URI & intendedAudience has extra considerations
       // namely that the rdf:Type in BF is bf:Authority
@@ -2556,6 +2563,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
+      console.info("\n\n\nsetValueSubject")
         // we're just going to overwrite the whole userValue with the constructed headings
 
 
@@ -2606,6 +2614,7 @@ export const useProfileStore = defineStore('profile', {
                 }
 
                 let thisLevelType = utilsRDF.suggestTypeProfile(p.propertyURI,pt)
+                console.info("thisLevelType: ", thisLevelType)
                 if (thisLevelType === false){
                   // did not find it in the profile, look to the network
                   thisLevelType = await utilsRDF.suggestTypeNetwork(p.propertyURI)
@@ -2662,6 +2671,7 @@ export const useProfileStore = defineStore('profile', {
                   delete currentUserValuePos["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
                 }
 
+                console.info("subjectComponents[0]: ", subjectComponents[0])
                 if (subjectComponents[0].type){
                   currentUserValuePos['@type'] = subjectComponents[0].type.replace('madsrdf:','http://www.loc.gov/mads/rdf/v1#')
                 }else{
@@ -2846,7 +2856,8 @@ export const useProfileStore = defineStore('profile', {
 
             }
 
-
+            console.info("pt: ", JSON.parse(JSON.stringify(pt)))
+            console.info("userValue: ", JSON.parse(JSON.stringify(userValue)))
             // double check the @type of the resource we want to be as specific as possible
             if (currentUserValuePos['@type'] == 'http://www.w3.org/2000/01/rdf-schema#Resource'){
               // this is very generic, try not to use that

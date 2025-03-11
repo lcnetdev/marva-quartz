@@ -434,13 +434,30 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
-
+      console.info("setComplexValue: ", contextValue)
       if (Object.keys(contextValue.extra).length == 0){
         // Intended audience mixes simple and complex lookups, so do check
         this.profileStore.setValueSimple(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title[0])
       } else {
+        if (contextValue.uri.includes('/works/')){
+          contextValue.type = 'Work'
+          contextValue.typeFull='http://id.loc.gov/ontologies/bibframe/Work'
+        } else if (contextValue.uri.includes('/hubs/')){
+          contextValue.type = 'Hub'
+          contextValue.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
+        }
+
         delete contextValue.typeFull
-        this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.extra.rdftypes[0], contextValue.extra, contextValue.extra.marcKey)
+        this.profileStore.setValueComplex(
+          this.guid,
+          null,
+          this.propertyPath,
+          contextValue.uri,
+          contextValue.title,
+          null, //contextValue.type.includes("Hub") ? "Hub" : contextValue.extra.rdftypes[0],
+          contextValue.extra,
+          contextValue.extra.marcKey
+        )
       }
       this.searchValue=''
         this.displayModal=false

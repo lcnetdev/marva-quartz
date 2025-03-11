@@ -684,10 +684,11 @@
           results.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
         }
         // try {
-        //     // results = await utilsNetwork.returnContext(toLoad.uri)
-        //     results = this.activeContext
+        //   let r = await utilsNetwork.returnContext(toLoad.uri)
+        //   // r = this.activeContext
+        //   console.info("r: ", r)
         // } catch(err) {
-        //     results = this.activeContext
+        //     // r = this.activeContext
         // }
         results.loading = false
 

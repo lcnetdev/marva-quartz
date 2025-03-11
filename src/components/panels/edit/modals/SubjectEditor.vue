@@ -1138,6 +1138,8 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
+
+    console.info("Finished this.components: ", this.components)
   },
 
   /**
@@ -1666,7 +1668,8 @@ methods: {
       this.contextData = this.pickLookup[this.pickPostion]
       return false
     }
-
+    // let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
+    // console.info("temp: ", temp)
     this.contextData = this.pickLookup[this.pickPostion].extra
     if (this.pickLookup[this.pickPostion].uri){
       this.contextData.literal = false
@@ -1686,9 +1689,11 @@ methods: {
 
     this.contextRequestInProgress = false
 
+    console.info("got context: ", JSON.parse(JSON.stringify(this.contextData)))
+
   },
 
-  _getContextDeprecated: async function(){
+  _getContext: async function(){
     if (this.pickLookup[this.pickPostion].literal){
       this.contextData = this.pickLookup[this.pickPostion]
       return false
@@ -2615,6 +2620,7 @@ methods: {
       // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
       if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]){
         let tempType = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
+        console.info("tempType: ", tempType)
         if (!Object.keys(this.activeTypes).includes(tempType)){
           c.type = tempType
         }
@@ -2779,6 +2785,8 @@ methods: {
       this.components = newComponents
     }
 
+    console.info("add: ", this.components)
+    console.info("this.components: ", this.components)
     this.$emit('subjectAdded', this.components)
   },
 
