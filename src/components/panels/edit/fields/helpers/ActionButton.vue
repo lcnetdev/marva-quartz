@@ -109,7 +109,7 @@
 
         <template v-if="showBuildNacoStub()">
               <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildNacoStub()" :style="buttonStyle">
-                Create NACO Stub
+                Create NAR Stub
               </button>
         </template>
 
