@@ -115,6 +115,9 @@
                         </template>
                         <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
                         <span v-if="subject.collections"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
@@ -125,6 +128,9 @@
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
                           <span v-if="name.collections"> {{ this.buildAddtionalInfo(name.collections) }}</span>
+                          <div class="may-sub-container" style="display: inline;">
+                            <AuthTypeIcon v-if="name.collections && name.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                          </div>
                         </div>
                     </div>
 
@@ -134,14 +140,24 @@
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
                     <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
                       <span class="subject-results-heading">Simple</span>
-                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
-                        {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
+                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >
+                      {{subject.suggestLabel}}
+                        <span  v-if="subject.literal">
+                          {{subject.label}}
+                        </span>
+                        <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
@@ -152,6 +168,9 @@
                       <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
@@ -160,6 +179,9 @@
                       <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
@@ -200,7 +222,8 @@
                             <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
                           </template>
                           <template v-else-if="key == 'lcclasss'">
-                            <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                            <!-- <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a> -->
+                            <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a>
                           </template>
                           <template v-else-if="key == 'broaders'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
@@ -733,6 +756,14 @@ li::before {
   color: #999999;
 }*/
 
+</style>
+
+<style>
+  div.may-sub-container span span.material-icons-outlined {
+    font-size: .8em !important;
+    position: relative !important;
+    top: -5px !important;
+  }
 </style>
 
 <script>

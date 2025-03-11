@@ -1016,7 +1016,8 @@
                             <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
                           </template>
                           <template v-else-if="key == 'lcclasss'">
-                            <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                            <!-- <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a> -->
+                            <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a>
                           </template>
                           <template v-else-if="key == 'broaders'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
