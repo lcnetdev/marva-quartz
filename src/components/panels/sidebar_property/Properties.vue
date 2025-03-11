@@ -190,7 +190,14 @@ import { isReadonly } from 'vue';
             case 'http://id.loc.gov/ontologies/bibframe/identifiedBy':
               if (component.userValue && component.userValue[propertyURI]){
                 let type = component.userValue[propertyURI][0]["@type"]
-                prefix = '[' + type.split("/").at(-1).toUpperCase() + ']: '
+                try{
+                  prefix = '[' + type.split("/").at(-1).toUpperCase() + ']: '
+                } catch(err){
+                  prefix = '[Identifier]: '
+                }
+                break
+              } else {
+                prefix = '[Identifier]: '
                 break
               }
             default:
