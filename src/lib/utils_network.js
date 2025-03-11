@@ -2621,7 +2621,7 @@ const utilsNetwork = {
       let searchPieces = complexVal.split("--")
       let pos = searchPieces.indexOf(searchVal)
 
-      if (resultsExactName &resultsExactName.length > 0){
+      if (resultsExactName && resultsExactName.length > 0){
         resultsExactName = resultsExactName.filter((term) =>  Object.keys(term).includes("suggestLabel") )
       }
       if (resultsExactSubject && resultsExactSubject.length > 0){
