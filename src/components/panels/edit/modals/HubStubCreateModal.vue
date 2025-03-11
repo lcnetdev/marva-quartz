@@ -3,6 +3,7 @@
   import { useConfigStore } from '@/stores/config'
   import { useProfileStore } from '@/stores/profile'  
   import ComplexLookupModal from "@/components/panels/edit/modals/ComplexLookupModal.vue";
+  import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
@@ -17,6 +18,7 @@
       VueFinalModal,
       VueDragResize,     
       ComplexLookupModal,
+      LiteralLang
     },
 
     data() {
@@ -31,6 +33,7 @@
 
 
         hubTitle:"",
+        hubTitleVariant:"",
         hubCreator:{
           label: null,
           marcKey: null,
@@ -47,8 +50,9 @@
 
         newHubUrl: null,
 
-
-
+        showLitLangModal: false,
+        useLang: null,
+        hubTitleVariantLang:null,
 
       }
     },
@@ -60,11 +64,8 @@
       ...mapStores(useConfigStore),      
       ...mapStores(useProfileStore),      
 
-      ...mapWritableState(useProfileStore, ['activeProfile','showHubStubCreateModal','activeHubStubData','activeHubStubComponent']),
+      ...mapWritableState(useProfileStore, ['activeProfile','showHubStubCreateModal','activeHubStubData','activeHubStubComponent','literalLangInfo']),
 
-      
-
-      
       
 
     },
@@ -91,6 +92,33 @@
 
         },
 
+        setVariantLang(){
+
+
+          this.literalLangInfo={
+            propertyPath: false,
+            componentGuid: false,
+            values: [
+              {
+                '@language':null,
+                value: this.hubTitleVariant,
+                '@guid':'fake',
+              }
+            ]
+          }
+
+          this.showLitLangModal=true
+
+          
+
+        },
+
+        setVariantLangReturn(value){
+          this.hubTitleVariantLang = value
+          console.log(value,value,value,value,value)
+          this.showLitLangModal=false
+
+        },
 
         useWorkCreator(){
           
@@ -242,6 +270,9 @@
 
     async mounted() {
 
+      this.useLang = null
+      this.hubTitleVariantLang = null
+
       // ask for the url to use from the active profile for the bf:language property then request it and load the results
       let useLookupUrl = this.profileStore.returnProfileLookupUrl("bf:language") 
       let langs = await utilsNetwork.loadSimpleLookup(useLookupUrl)
@@ -254,6 +285,8 @@
           })
         }
       } 
+
+      this.langsLookup.sort((a,b) => (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0))
 
       
       this.$nextTick(()=>{
@@ -315,6 +348,14 @@
             <div style="display: flex; margin-bottom: 1em;">
               <div style="flex-grow: 1;">
                 <input type="text" ref="hub-title-variant" v-model="hubTitleVariant" class="title" placeholder="Hub Variant Title">
+              </div>
+              <div style="flex-shrink: 1;">
+                <button style="height: 29px;" @click="setVariantLang">{{ (hubTitleVariantLang) ? '@' + hubTitleVariantLang : 'Set Lang'}}</button>
+
+                <template v-if="showLitLangModal">
+                  <LiteralLang v-model="showLitLangModal" @langStrSet="setVariantLangReturn"/>
+                  
+                </template>
               </div>
             </div>
 
