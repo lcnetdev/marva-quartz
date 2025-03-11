@@ -760,9 +760,9 @@ li::before {
 
 <style>
   div.may-sub-container span span.material-icons-outlined {
-    font-size: .8em !important;
-    position: relative !important;
-    top: -5px !important;
+    font-size: .8em;
+    position: relative;
+    top: -3px;
   }
 </style>
 
