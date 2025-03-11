@@ -23,10 +23,10 @@
       return {
         width: 0,
         height: 0,
-        top: 200,
+        top: 100,
         left: 0,
 
-        initalHeight: 400,
+        initalHeight: 600,
         initalLeft: 400,
 
 
@@ -36,7 +36,7 @@
           marcKey: null,
           uri: null
         },
-        hubLang: null,
+        hubLang: "",
 
         langsLookup:[],
         selectedLang: 'na',
@@ -179,7 +179,7 @@
 
 
           let langObj
-          if (this.hubLang){
+          if (this.hubLang && this.hubLang != ""){
             langObj = {
               uri: this.hubLang,
               label:    this.langsLookup.filter((v)=> { return (v.uri == this.hubLang)  } )[0].label
@@ -310,6 +310,19 @@
               </template>
             </div>
 
+
+
+            <div style="display: flex; margin-bottom: 1em;">
+              <div style="flex-grow: 1;">
+                <input type="text" ref="hub-title-variant" v-model="hubTitleVariant" class="title" placeholder="Hub Variant Title">
+              </div>
+            </div>
+
+
+
+
+
+
             
             <div style="margin-bottom: 1em;">
               <span class="creator-label" v-if="!hubCreator.label">[No Hub Creator]</span>
@@ -325,7 +338,8 @@
               
 
             </div>
-            <select v-model="hubLang">
+            <select v-model="hubLang" >
+              <option value="" disabled selected>Select Language</option>
               <option value="na">No Hub Language Selected</option>
               <option v-for="l in langsLookup" :value="l.uri">{{ l.label }}</option>
             </select>
