@@ -113,6 +113,12 @@
               </button>
         </template>
 
+        <template v-if="showBuildNacoStub()">
+              <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="addToSubjects()" :style="buttonStyle">
+                Add to Subjects
+              </button>
+        </template>
+
 
         <template v-if="showBuildHubStub()">
               <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildHubStub()" :style="buttonStyle">
@@ -335,7 +341,7 @@
         return false
       },
 
-      
+
 
 
       buildHubStub(){
@@ -353,9 +359,72 @@
         this.profileStore.showHubStubCreateModal = true
       },
 
+      async addToSubjects(){
+        let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+
+        const data = structure.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
+        const name = data['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+        const marcKey = data['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+        const type = data["@type"]
+        const uri = data["@id"]
+        const propertyPath = [
+            { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/subject" },
+            { level: 1, propertyURI: "http://www.loc.gov/mads/rdf/v1#componentList" },
+            { level: 2, propertyURI: "http://www.loc.gov/mads/rdf/v1#Topic" },
+        ]
+
+        let component = {
+          complex: false,
+          id: 0,
+          label: name,
+          literal: false,
+          marcKey: marcKey,
+          nonLatinLabel: [],
+          nonLatinMarcKey: [],
+          posEnd: name.length,
+          posStart: 0,
+          type: type.replace("http://www.loc.gov/mads/rdf/v1#", "madsrdf:"),
+          uri: uri,
+        }
+
+        let guid
+        let foundEmtpy = false
+        let lastSubject = null
+        let targetRt = null
+        //find empty subject, or create a new one and get the guid
+        for (let rt in this.activeProfile.rt){
+          for (let pt in this.activeProfile.rt[rt].pt){
+            let element = this.activeProfile.rt[rt].pt[pt]
+            if (element.propertyLabel == 'Subjects' && this.profileStore.isEmptyComponent(element)){
+              guid = element['@guid']
+              foundEmtpy = true
+            } else if (element.propertyLabel == 'Subjects'){
+              lastSubject = element
+              targetRt = rt
+            }
+          }
+        }
+
+        if (!foundEmtpy){
+          guid = await this.profileStore.duplicateComponentGetId(
+                    lastSubject['@guid'],
+                    this.profileStore.returnStructureByComponentGuid(lastSubject['@guid']),
+                    targetRt,
+                    "last"
+                  )
+          guid = guid[1]
+        }
+
+        this.profileStore.setValueSubject(guid, [component], propertyPath)
+
+        //
+        // this.profileStore.setValueSubject(this.guid, SubjectEditor.data().components, propertyPath)
+        // ?
+      },
+
       buildNacoStub(){
         console.log(this.guid)
-        
+
         this.profileStore.activeNARStubComponent = {
           type: this.type,
           guid: this.guid,
@@ -363,15 +432,15 @@
           structure: this.structure,
           type: this.type,
           propertyPath:this.propertyPath
-        }        
+        }
         this.profileStore.showNacoStubCreateModal = true
       },
 
 
-      
+
 
       showBuildNacoStub(){
-        
+
         if (this.isStaging() == false){ return false} // REMOVE BEFORE PROD USAGE
 
         if (!this.propertyPath) return false;
@@ -381,7 +450,7 @@
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/contribution"){
           return true
         }
-  
+
         return false
       },
 
@@ -940,7 +1009,7 @@
         this.profileStore.addToAdHocMode(structure.parentId, structure.id)
       },
 
-      isStaging(){       
+      isStaging(){
         console.log(useConfigStore().returnUrls.dev)
         console.log(useConfigStore().returnUrls)
         if (useConfigStore().returnUrls.dev){
@@ -1065,7 +1134,7 @@
   }
   .hidden-mode button{
     max-width: 1px;
-  
+
   }
   .hidden-mode span{
     visibility: hidden;

@@ -912,6 +912,7 @@ methods: {
    * @param {obj} incomingSubjects - the existing subject data
    */
   buildLookupComponents: function(incomingSubjects){
+    console.info("!!!!buildLookupComponents: ", incomingSubjects)
     this.typeLookup = {}
 
     if (!incomingSubjects || typeof incomingSubjects == "undefined"){
@@ -1007,6 +1008,8 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
+    console.info("buildComponents")
+    console.info("this.componetLookup: ", this.componetLookup)
     // searchString = searchString.replace("—", "--") // when copying a heading from class web
 
     let subjectStringSplit = searchString.split('--')
@@ -1899,6 +1902,9 @@ methods: {
       this.getContext()
       //Science—Experiments
     }
+
+    console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
+
     if (this.pickLookup[this.pickPostion].complex){
       // if it is a complex authorized heading then just replace the whole things with it
       this.subjectString = this.pickLookup[this.pickPostion].label
@@ -1906,6 +1912,7 @@ methods: {
 
       this.componetLookup = {}
       this.componetLookup[this.activeComponentIndex] = {}
+
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
       for (let k in this.pickLookup){
         this.pickLookup[k].picked=false
