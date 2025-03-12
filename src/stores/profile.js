@@ -2362,6 +2362,7 @@ export const useProfileStore = defineStore('profile', {
       console.info("setValueComplex")
       console.info("nodeMap: ", nodeMap)
       console.info("type: ", type)
+      console.info("marcKey: ", marcKey)
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2378,6 +2379,9 @@ export const useProfileStore = defineStore('profile', {
         console.info("context: ", context)
         type = context.typeFull
         console.info("type: ", type)
+        if (!marcKey){
+          marcKey = context.marcKey
+        }
       }
 
       if (['Work', 'Hub'].includes(type)){
@@ -4821,6 +4825,7 @@ export const useProfileStore = defineStore('profile', {
                     if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
                         let currentPos = order.indexOf(current.id)
                         let newPos = order.indexOf(newComponent.id)
+
                         // if (Object.keys(current.userValue).length == 1){
                         if (this.isEmptyComponent(current)){
                             current.userValue = newComponent.userValue
@@ -4830,7 +4835,7 @@ export const useProfileStore = defineStore('profile', {
                             let structure = this.returnStructureByComponentGuid(guid)
 
                             let newPt
-                            if (sourceRt && sourceRt != targetRt){
+                            if ((sourceRt && sourceRt != targetRt) || (!sourceRt && !incomingTargetRt)){
                               newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
                             } else {
                               if (newPos < 0){
@@ -4851,25 +4856,24 @@ export const useProfileStore = defineStore('profile', {
     },
 
     pasteSelected: async function(){
-        let data
-        const clipboardContents = await navigator.clipboard.read();
+      let data
+      const clipboardContents = await navigator.clipboard.read();
 
-        for (let item of clipboardContents){
-
-              if (!item.types.includes("text/plain")) {
-                throw new Error("Clipboard does not contain text data.");
-              }
-
-              let blob = await item.getType("text/plain")
-              const incomingValue = await blob.text()
-
-              data = incomingValue.split(";;;")
-            }
-
-        for (let item of data){
-          const dataJson = JSON.parse(item)
-          this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
+      for (let item of clipboardContents){
+        if (!item.types.includes("text/plain")) {
+          throw new Error("Clipboard does not contain text data.");
         }
+
+        let blob = await item.getType("text/plain")
+        const incomingValue = await blob.text()
+
+        data = incomingValue.split(";;;")
+      }
+      console.info("\n-------------------------\n")
+      for (let item of data){
+        const dataJson = JSON.parse(item)
+        this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
+      }
     },
 
 
