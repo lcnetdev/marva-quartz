@@ -109,7 +109,7 @@
 
         <template v-if="showBuildNacoStub()">
               <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildNacoStub()" :style="buttonStyle">
-                Create NACO Stub
+                Create NAR Stub
               </button>
         </template>
 
@@ -356,6 +356,14 @@
       buildNacoStub(){
         console.log(this.guid)
         
+        this.profileStore.activeNARStubComponent = {
+          type: this.type,
+          guid: this.guid,
+          fieldGuid: this.fieldGuid,
+          structure: this.structure,
+          type: this.type,
+          propertyPath:this.propertyPath
+        }        
         this.profileStore.showNacoStubCreateModal = true
       },
 

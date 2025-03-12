@@ -372,8 +372,11 @@ const utilsNetwork = {
      */
     searchExact: async function(searchPayload){
       let urlTemplate = searchPayload.url
-      let r = await this.fetchExactLookup(urlTemplate[0], searchPayload.signal)
-      return r
+      if (searchPayload.searchValue.length >= 3){
+        let r = await this.fetchExactLookup(urlTemplate[0], searchPayload.signal)
+        return r
+      }
+      return []
     },
 
 
@@ -1570,7 +1573,7 @@ const utilsNetwork = {
 
         searchVal = decodeURIComponent(searchVal)
 
-        const exactUri = 'https://id.loc.gov/authorities/<SCHEME>/label/' + searchVal
+        const exactUri = 'https://preprod-8080.id.loc.gov/authorities/<SCHEME>/label/' + searchVal
         let exactName = exactUri.replace('<SCHEME>', 'names')
         let exactSubject = exactUri.replace('<SCHEME>', 'subjects')
 
@@ -2350,7 +2353,7 @@ const utilsNetwork = {
 
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")
 
-      const exactUri = 'https://id.loc.gov/authorities/<SCHEME>/label/' + searchVal
+      const exactUri = 'https://preprod-8080.id.loc.gov/authorities/<SCHEME>/label/' + searchVal
       let exactName = exactUri.replace('<SCHEME>', 'names')
       let exactSubject = exactUri.replace('<SCHEME>', 'subjects')
       //children's subjects is supported by known-label lookup?
@@ -2610,10 +2613,10 @@ const utilsNetwork = {
       let searchPieces = complexVal.split("--")
       let pos = searchPieces.indexOf(searchVal)
 
-      if (resultsExactName){
+      if (resultsExactName && resultsExactName.length > 0){
         resultsExactName = resultsExactName.filter((term) =>  Object.keys(term).includes("suggestLabel") )
       }
-      if (resultsExactSubject){
+      if (resultsExactSubject && resultsExactSubject.length > 0){
         resultsExactSubject = resultsExactSubject.filter((term) =>  Object.keys(term).includes("suggestLabel") )
       }
 

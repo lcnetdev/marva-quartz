@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 18,
-    versionPatch: 14,
+    versionPatch: 17,
 
     regionUrls: {
 
@@ -41,7 +41,7 @@ export const useConfigStore = defineStore('config', {
         ldpjs : 'https://preprod-3001.id.loc.gov/bfe2/api-staging/',
         util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
-        scriptshifter: 'https://editor.id.loc.gov/bfe2/scriptshifter/',
+        scriptshifter: 'https://preprod-3001.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
         publishNar: 'https://preprod-3001.id.loc.gov/bfe2/util/nacostub/staging',
         validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',

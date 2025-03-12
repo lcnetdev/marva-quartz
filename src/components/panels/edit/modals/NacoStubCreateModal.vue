@@ -45,7 +45,7 @@
         
         postStatus: 'unposted',
 
-        newHubUrl: null,
+        newNarUri: null,
         
         nextInputIsVoyagerModeDiacritics: false,
 
@@ -87,7 +87,7 @@
       ...mapStores(useConfigStore),      
       ...mapStores(useProfileStore),      
 
-      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeHubStubData','activeHubStubComponent','lastComplexLookupString']),
+      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeNARStubComponent','lastComplexLookupString']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
@@ -135,6 +135,12 @@
 
           this.postStatus='posting'
 
+          if (this.workURI.indexOf('id.loc.gov') > -1){
+            // lc thing, if we have preprod-XXXX server prfix in staging env.
+            this.workURI = 'http://id.loc.gov' + this.workURI.split('id.loc.gov')[1]
+          }
+
+
           let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI)
 
 
@@ -157,14 +163,53 @@
 
           }
 
+          
+
+          if (results && results.pubResuts && results.pubResuts.status){
+
+            let type = "http://www.loc.gov/mads/rdf/v1#Name"
+
+            if (this.oneXXParts.fieldTag == "100"){
+              type = "http://www.loc.gov/mads/rdf/v1#PersonalName"
+            }else if (this.oneXXParts.fieldTag == "110"){
+              type = "http://www.loc.gov/mads/rdf/v1#CorporateName"
+            }else if (this.oneXXParts.fieldTag == "111"){
+              type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
+            }else if (this.oneXXParts.fieldTag == "130"){
+              typer = "http://www.loc.gov/mads/rdf/v1#NameTitle"
+            }else if (this.oneXXParts.fieldTag == "147"){
+              type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
+            }
+              
+            let useName = ''
+            for (let key in this.oneXXParts){
+              if (key.length==1){
+                useName = useName + this.oneXXParts[key] + ' '
+              }
+            }
+            useName=useName.trim()
+            // console.log(this.oneXXParts)
+            // console.log(useName)
+
+
+            let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
+
+            this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
+            // componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null
+
+            this.newNarUri=results.pubResuts.postLocation
+            this.postStatus='posted'
+
+          }
+
           // console.log(results)
 
           // if (results && results.postLocation){
           //   results.postLocation = results.postLocation.replace("http://",'https://')
-          //   this.profileStore.setValueComplex(this.activeHubStubComponent.guid, null, this.activeHubStubComponent.propertyPath, results.postLocation, this.hubTitle, null, {}, null)
+          //   
 
-          //   this.newHubUrl=results.postLocation
-          //   this.postStatus='posted'
+
+
 
           // }else{
           //   alert("Error posting!")
@@ -184,10 +229,9 @@
         },
 
         close(){
-          this.activeHubStubComponent = {}
-          this.activeHubStubData = {}
+          this.activeNARStubComponent = {}
           this.showNacoStubCreateModal=false
-          this.postStatus=='unposed'
+          this.postStatus=='unposted'
 
         },
 
@@ -197,7 +241,7 @@
 
           this.oneXXResults = []
 
-          let results = await utilsNetwork.loadSimpleLookupKeyword('https://id.loc.gov/authorities/names',authLabel,true )
+          let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true )
 
           let formatted = []
           for (let key of Object.keys(results)){
@@ -663,29 +707,6 @@
 
         },
 
-        // async getLangs(){
-
-
-        //   // async function doAsync () {
-        //   await this.configStore.getScriptShifterLanguages()
-        //   for (let k in this.scriptshifterLanguages){
-        //     if (this.scriptShifterOptions[k]){
-        //       if (this.scriptShifterOptions[k].s2r){
-        //         this.scriptshifterLanguages[k].s2r = true
-        //       }
-        //       if (this.scriptShifterOptions[k].r2s){
-        //         this.scriptshifterLanguages[k].r2s = true
-        //       }              
-        //     }
-        //   }
-        //   console.log(this.scriptshifterLanguages)
-
-        // },
-
-
-
-
-
         async transliterateChange(event){
 
           if (event.target.value == 'home'){return true}
@@ -977,8 +998,10 @@
               <div style="flex:1; text-align: center;"><button style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;" @click="buildNacoStub" :disabled="disableAddButton">Generate Stub</button></div>
               <div style="flex:1; text-align: center"><button @click="close" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Cancel</button></div>
             </div>
-            <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpXML">{{ tmpXML }}</textarea>
 
+<!--             
+            <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpXML">{{ tmpXML }}</textarea>
+ -->
 
             <div style="display: flex; padding: 1.5em; font-size: 1.5em;" v-if="postStatus=='posting'">
               <div >Posting... Please wait...</div>
@@ -991,8 +1014,8 @@
 
 
             <div style="display: flex; padding: 1.5em;" v-if="postStatus=='posted'">
-              <div >The Hub was created! If you would like to edit it further please click the link, it will open in new tab:</div>
-              <div><a :href="`../load?url=${newHubUrl}.rdf&profile=lc:RT:bf2:HubBasic:Hub`" target="_blank">{{ newHubUrl }}</a></div>
+              <div >The NAR was created! If you would like to see it please click the link, it will open in new tab:</div>
+              <div><a :href="newNarUri" target="_blank">{{ newNarUri }}</a></div>
             </div>
             <div v-if="postStatus=='posted'" style="text-align: center;">
               <button @click="close" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Close</button>
