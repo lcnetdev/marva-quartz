@@ -1026,7 +1026,8 @@
 
               <template v-else-if="activeContext !== null">
                 <h3>
-                  {{ activeContext.title[0] }}
+                  {{ Array.isArray(activeContext.title) ? activeContext.title[0] : activeContext.title }}
+                  <span v-if="activeContext.literal">[Literal]</span>
                 </h3>
 
                 <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on id.loc.gov</a>
