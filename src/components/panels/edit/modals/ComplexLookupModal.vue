@@ -146,6 +146,13 @@
     },
 
     methods: {
+      truncate: function(string){
+        let stg = string
+        if (string.length > 80){
+          stg = stg.slice(0, 80) + "..."
+        }
+        return string
+      },
       // Reset stored values
       // This is for when the modal is closed, we want to reset things so nothing is preloaded
       // and the user starts from zero
@@ -950,7 +957,10 @@
                       Searching...
                     </option>
                     <template v-if="!isSimpleLookup()">
-                      <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + (!r.literal ? r.suggestLabel : r.label) + ((r.literal) ? ' [Literal]' : '')">
+                      <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
+                        <div class="option-text">
+                          {{ (!r.literal ? r.suggestLabel : r.label) + ((r.literal) ? ' [Literal]' : '') }}
+                        </div>
                       </option>
                     </template>
                     <template v-else-if="activeSimpleLookup && Object.keys(activeSimpleLookup).length > 0">
@@ -1353,7 +1363,10 @@
   top: 5px;
   position: absolute;
   z-index: 100000;
+}
 
+.option-text {
+  text-wrap: wrap;
 }
 
 </style>
