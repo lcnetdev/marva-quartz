@@ -4816,14 +4816,16 @@ export const useProfileStore = defineStore('profile', {
 
                             let newPt
                             if (sourceRt && sourceRt != targetRt){
-                              newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")[0]
+                              newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
                             } else {
                               if (newPos < 0){
-                                newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)[0]
+                                newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)
                               } else {
-                                newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)[0]
+                                newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
                               }
                             }
+
+                            newPt = newPt[0]
 
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
                             profile["rt"][rt]["pt"][newPt].userModified = true
