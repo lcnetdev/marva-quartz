@@ -1169,8 +1169,6 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
-
-    console.info("Finished this.components: ", this.components)
   },
 
   /**
@@ -1594,7 +1592,6 @@ methods: {
 
       // keep a local copy of it for looking up subject type
       if (that.contextData){
-        console.info("Making local copy.")
         that.localContextCache[that.contextData.uri] = JSON.parse(JSON.stringify(that.contextData))
       }
     }
@@ -1700,7 +1697,6 @@ methods: {
       return false
     }
     // let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
-    // console.info("temp: ", temp)
     this.contextData = this.pickLookup[this.pickPostion].extra
     if (this.pickLookup[this.pickPostion].uri){
       this.contextData.literal = false
@@ -1719,9 +1715,6 @@ methods: {
     }
 
     this.contextRequestInProgress = false
-
-    console.info("got context: ", JSON.parse(JSON.stringify(this.contextData)))
-
   },
 
   _getContext: async function(){
@@ -1962,7 +1955,6 @@ methods: {
     this.getContext()
 
     if (this.contextData){
-      console.info("Making local copy 2.")
       this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
     }
 
@@ -1978,7 +1970,6 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
-    console.info("selectContext")
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
@@ -2035,8 +2026,6 @@ methods: {
       }
 
       this.pickLookup[this.pickPostion].picked=true
-
-      console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
 
       try {
         let marcKey = this.pickLookup[this.pickPostion].marcKey
@@ -2346,7 +2335,6 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
-    console.info("subjectStringChanged: ", event)
     this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
@@ -2470,16 +2458,12 @@ methods: {
       window.setTimeout(()=>{
         for (let x of this.components){
           if (this.localContextCache[x.uri]){
-
-            console.info("setting type.")
-
             if (this.activeComponent.type){
               // don't do anything
             } else {
               if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
                 x.type = 'madsrdf:Geographic'
               }
-
 
               if (this.localContextCache[x.uri].type === 'GenreForm'){
                 x.type = 'madsrdf:GenreForm'
@@ -2643,15 +2627,11 @@ methods: {
     for (let c of this.components){
       c.label = c.label.replaceAll('‑','-')
 
-      console.info("c.uri: ", c.uri)
-      console.info("this.localContextCache: ", this.localContextCache)
-
       // we have the full mads type from the build process, check if the component is a id name authortiy
       // if so over write the user defined type with the full type from the authority file so that
       // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
       if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]){
         let tempType = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
-        console.info("tempType: ", tempType)
         if (!Object.keys(this.activeTypes).includes(tempType)){
           c.type = tempType
         }
@@ -2816,8 +2796,6 @@ methods: {
       this.components = newComponents
     }
 
-    console.info("add: ", this.components)
-    console.info("this.components: ", this.components)
     this.$emit('subjectAdded', this.components)
   },
 

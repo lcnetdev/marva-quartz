@@ -434,7 +434,6 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
-      console.info("setComplexValue: ", contextValue)
       if (Object.keys(contextValue.extra).length == 0){
         // Intended audience mixes simple and complex lookups, so do check
         this.profileStore.setValueSimple(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title[0])

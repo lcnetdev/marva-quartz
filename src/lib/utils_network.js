@@ -556,9 +556,6 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     returnContext: async function(uri){
-      console.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-      console.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-      console.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
       let returnUrls = useConfigStore().returnUrls
       let results
       let d
@@ -2362,11 +2359,6 @@ const utilsNetwork = {
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
       }
 
-      console.info("subjectUrlComplex: ", subjectUrlComplex)
-
-      console.info("hubsUrlKeyword: ", hubsUrlKeyword)
-      console.info("hubsUrlAnchored: ", hubsUrlAnchored)
-
       searchVal = decodeURIComponent(searchVal)
       complexVal = decodeURIComponent(complexVal)
 
@@ -2653,8 +2645,6 @@ const utilsNetwork = {
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
         'exact': exact
       }
-
-      console.info("results: ", results)
 
       this.subjectSearchActive = false
       return results

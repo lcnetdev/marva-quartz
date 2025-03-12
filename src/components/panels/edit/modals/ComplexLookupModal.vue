@@ -160,7 +160,6 @@
 
       // watching the search input, when it changes kick off a search
       doSearch: async function(){
-        console.info("doSearch")
         //if there is an ongoing search, abort it
         if (this.activeComplexSearchInProgress){
           this.controller.abort()
@@ -248,7 +247,6 @@
             this.activeComplexSearchInProgress = true
             this.activeComplexSearch = []
             this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
-            console.info("this.activeComplexSearch: ", this.activeComplexSearch)
             this.activeComplexSearchInProgress = false
             this.initalSearchState =false
           }, 400)
@@ -610,7 +608,6 @@
           }
         }
         if (event.key==='Enter' && event.shiftKey){
-          console.info("emit: ", this.activeContext)
           console.log("emitComplexValue",this.activeContext)
           this.$emit('emitComplexValue', this.activeContext)
         }
@@ -618,7 +615,6 @@
       },
 
       selectChange: async function(){
-        console.info("selectChange")
         let toLoad = null
         if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
           toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
@@ -646,7 +642,6 @@
         }
 
         console.log("toLoad: ", toLoad)
-        console.info("toLoad: ", toLoad)
 
         this.activeContext = {
             "contextValue": true,
@@ -672,9 +667,7 @@
 
         let results = null
         results = this.activeContext
-        console.info("activeContext: ", JSON.parse(JSON.stringify(results)))
         // results = await utilsNetwork.returnContext(toLoad.uri)
-        // console.info(toLoad.uri, ": ", JSON.parse(JSON.stringify(results)))
 
         if (toLoad.uri.includes('/works/')){
           results.type = 'Work'
@@ -703,7 +696,6 @@
         }
 
         this.activeContext = results
-        console.info("this.activeContext: ", this.activeContext)
       },
 
       isStaging(){
