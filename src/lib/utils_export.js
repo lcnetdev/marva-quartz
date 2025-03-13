@@ -1661,6 +1661,7 @@ const utilsExport = {
 
         // let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
         // strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
+		console.info("xml: ", strXmlBasic)
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,
@@ -2082,7 +2083,7 @@ const utilsExport = {
 		field040c.innerHTML = 'DLC'
 		field040.appendChild(field040c)
 
-		
+
 		rootEl.appendChild(field040)
 
 
@@ -2090,8 +2091,8 @@ const utilsExport = {
 		let field985 = document.createElementNS(marcNamespace,"marcxml:datafield");
 		field985.setAttribute( 'tag', '985')
 		field985.setAttribute( 'ind1', ' ')
-		field985.setAttribute( 'ind2', ' ')		
-		
+		field985.setAttribute( 'ind2', ' ')
+
 		let field985e = document.createElementNS(marcNamespace,"marcxml:subfield");
 		field985e.setAttribute( 'code', 'e')
 		field985e.innerHTML = 'MARVA-NAR'
@@ -2100,9 +2101,9 @@ const utilsExport = {
 		let field985d = document.createElementNS(marcNamespace,"marcxml:subfield");
 		field985d.setAttribute( 'code', 'd')
 		field985d.innerHTML = `${date.getFullYear().toString()}-${pad2(date.getMonth() + 1)}-${pad2( date.getDate())}`
-	
+
 		field985.appendChild(field985d)
-		
+
 		rootEl.appendChild(field985)
 
 

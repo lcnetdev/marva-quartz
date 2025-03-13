@@ -455,7 +455,7 @@ export default {
           contextValue.extra.marcKey
         )
       }
-      this.searchValue=''
+        this.searchValue=''
         this.displayModal=false
 
         this.$nextTick(() => {
@@ -580,6 +580,7 @@ export default {
 
       }else{
         this.displayModal=true
+        this.searchValue = ''
       }
 
 
@@ -633,6 +634,7 @@ export default {
 
       if (!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)) {
         this.displayModal = true
+        this.searchValue = ''
       } else {
         // we're opening the subject builder, turn this off
         this.marcDeliminatedLCSHMode = false
@@ -649,6 +651,7 @@ export default {
         // }
 
         this.displaySubjectModal = true
+        this.searchValue = ''
       }
     },
   }
