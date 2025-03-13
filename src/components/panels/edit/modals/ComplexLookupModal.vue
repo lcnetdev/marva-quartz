@@ -894,7 +894,7 @@
       :lock-scroll="true"
       class="complex-lookup-modal"
       content-class="complex-lookup-modal-content"
-      @before-close="reset();"
+      @before-close="$emit('hideComplexModal'); reset();"
       >
 
       <div ref="complexLookupModalContainer" class="complex-lookup-modal-container" :style="`${this.preferenceStore.styleModalBackgroundColor()}`">
