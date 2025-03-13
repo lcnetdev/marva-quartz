@@ -115,6 +115,9 @@
                         </template>
                         <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
                         <span v-if="subject.collections"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
@@ -125,6 +128,9 @@
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
                           <span v-if="name.collections"> {{ this.buildAddtionalInfo(name.collections) }}</span>
+                          <div class="may-sub-container" style="display: inline;">
+                            <AuthTypeIcon v-if="name.collections && name.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                          </div>
                         </div>
                     </div>
 
@@ -134,14 +140,24 @@
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
                     <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
                       <span class="subject-results-heading">Simple</span>
-                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
-                        {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
+                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >
+                      {{subject.suggestLabel}}
+                        <span  v-if="subject.literal">
+                          {{subject.label}}
+                        </span>
+                        <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
@@ -152,6 +168,9 @@
                       <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
@@ -160,6 +179,9 @@
                       <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
@@ -169,59 +191,52 @@
                   </div>
                 </div>
 
-
+                <!-- Results Panel -->
+                <!-- !!{{ contextData }} -->
                 <div :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()};`"  :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
                   <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                   <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
                     <h3 v-if="contextData.title">
-                        <span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + contextData.type">
-                            <AuthTypeIcon v-if="contextData.type" :type="contextData.type"></AuthTypeIcon>
+                        <span class="modal-context-icon simptip-position-top" v-if="contextData.rdftypes" :data-tooltip="'Type: ' + contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]">
+                            <AuthTypeIcon :type="contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]"></AuthTypeIcon>
                         </span>
-                        {{Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
+                        {{ Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
+                        <!-- <AuthTypeIcon v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon> -->
+                        <sup style="font-size: .5em;" v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')">(may subd geog)</sup>
                     </h3>
-                    <div class="modal-context-data-title">{{contextData.type}}</div>
+                    <h3 v-if="contextData.literal">
+                      {{ contextData.label }} [Literal]
+                    </h3>
+
+                    <div class="modal-context-data-title" v-if="contextData.rdftypes">{{contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]}}</div>
                     <a style="color:#2c3e50" :href="contextData.uri" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
 
-                    <div v-if="contextData.nonLatinTitle && contextData.nonLatinTitle.length>0">
-                      <div class="modal-context-data-title">Non-Latin Auth Label:</div>
+                    <br><br>
+
+                    <template v-for="key in panelDetailOrder">
+                    <div v-if="contextData[key] && contextData[key].length>0">
+                      <div class="modal-context-data-title modal-context-data-title-add-gap">{{ this.labelMap[key] }}:</div>
                       <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.nonLatinTitle" v-bind:key="'var' + idx">{{v['@value']}}{{ v['@language'] }}</li>
+                        <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
+                          <template v-if="v.startsWith('http')">
+                            <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                          </template>
+                          <template v-else-if="key == 'lcclasss'">
+                            <!-- <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a> -->
+                            <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a>
+                          </template>
+                          <template v-else-if="key == 'broaders'">
+                            <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                          </template>
+                          <template v-else>
+                            {{v}}
+                          </template>
+                        </li>
+                        <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ contextData[key] }}</li>
                       </ul>
                     </div>
+                  </template>
 
-                    <div v-if="contextData.variant && contextData.variant.length>0">
-                      <div class="modal-context-data-title">Variants:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.variant" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <!-- Literals won't have `nodeMap` -->
-                    <div v-if="contextData.literal != true">
-                      <div v-for="key in Object.keys(contextData.nodeMap)" :key="key">
-                        <div class="modal-context-data-title">{{key}}:</div>
-                          <ul>
-                            <li class="modal-context-data-li" v-for="v in contextData.nodeMap[key]" v-bind:key="v">{{v}}</li>
-                          </ul>
-                      </div>
-                    </div>
-                    <div v-else>
-                      <div class="modal-context-data-title">{{ contextData.label }} [Literal]</div>
-                    </div>
-
-                    <div v-if="contextData.source && contextData.source.length>0">
-                      <div class="modal-context-data-title">Sources:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="v in contextData.source" v-bind:key="v">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.marcKey && contextData.marcKey.length>0">
-                      <div class="modal-context-data-title">MARC Key:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-bind:key="contextData.marcKey">{{ Array.isArray(contextData.marcKey) ? contextData.marcKey[0]["@value"] : contextData.marcKey }}</li>
-                      </ul>
-                    </div>
 
                     <div v-if="this.pickCurrent != null">
                       <div class="clear-selected">
@@ -743,6 +758,14 @@ li::before {
 
 </style>
 
+<style>
+  div.may-sub-container span span.material-icons-outlined {
+    font-size: .8em;
+    position: relative;
+    top: -3px;
+  }
+</style>
+
 <script>
 
 import { usePreferenceStore } from '@/stores/preference'
@@ -845,7 +868,33 @@ data: function() {
       'madsrdf:GenreForm': {label:'Genre ($v)', value:'madsrdf:GenreForm',selected:false},
       'madsrdf:Geographic': {label:'Geographic ($z)', value:'madsrdf:Geographic',selected:false},
       'madsrdf:Temporal': {label:'Chronological ($y)', value:'madsrdf:Temporal',selected:false},
-    }
+    },
+
+    labelMap: {
+      "notes": "Notes",
+      "nonlatinLabels": "Non-Latin Authoritative Labels",
+      "variantLabels": "Variants",
+      "birthdates": "Date of Birth",
+      "birthplaces": "Place of Birth",
+      "locales": "Associated Locales",
+      "activityfields": "Fields of Activity",
+      "occupations": "Occupations",
+      "languages": "Associated Languages",
+      "lcclasss": "LC Classification",
+      "broaders": "Has Broader Authority",
+      "gacs": "GAC(s)",
+      "collections": "MADS Collections",
+      "sources": "Sources",
+      "subjects": "Subjects",
+      "marcKey": "MARC Key",
+    },
+    panelDetailOrder: [
+      "notes","nonlatinLabels","variantLabels","birthdates",
+      "birthplaces","locales","activityfields","occupations",
+      "languages","lcclasss","broaders","gacs","collections",
+      "sources", "subjects", "marcKey"
+    ],
+
 
 
   }
@@ -1417,6 +1466,7 @@ methods: {
     searchStringFull=searchStringFull.replaceAll('‑','-')
 
     that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
+
     // if they clicked around while it was doing this lookup bail out
     // if (that.activeSearchInterrupted){
 
@@ -1537,7 +1587,8 @@ methods: {
     // that.contextData.dispatch("clearContext", { self: that})
     if (that.pickLookup[that.pickPostion] && !that.pickLookup[that.pickPostion].literal){
       that.contextRequestInProgress = true
-      that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
+      // that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
+      that.contextData = that.getContext()
 
       // keep a local copy of it for looking up subject type
       if (that.contextData){
@@ -1645,6 +1696,32 @@ methods: {
       this.contextData = this.pickLookup[this.pickPostion]
       return false
     }
+    // let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
+    this.contextData = this.pickLookup[this.pickPostion].extra
+    if (this.pickLookup[this.pickPostion].uri){
+      this.contextData.literal = false
+      this.contextData.title = this.pickLookup[this.pickPostion].label
+      this.contextData.uri = this.pickLookup[this.pickPostion].uri
+      if (Object.keys(this.contextData).includes("marcKey")){
+        this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
+      }
+      let types = this.pickLookup[this.pickPostion].extra['rdftypes']
+      this.contextData.type = types.includes("Hub") ? "madsrdf:Topic" : "madsrdf:" +  types[0]
+      this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
+      this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
+
+    } else {
+      this.contextData.literal = true
+    }
+
+    this.contextRequestInProgress = false
+  },
+
+  _getContext: async function(){
+    if (this.pickLookup[this.pickPostion].literal){
+      this.contextData = this.pickLookup[this.pickPostion]
+      return false
+    }
 
     this.contextRequestInProgress = true
     this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
@@ -1692,20 +1769,20 @@ methods: {
   buildAddtionalInfo: function(collections){
     if (collections){
       let out = []
-      if (collections.includes("LCSHAuthorizedHeadings") || collections.includes("NamesAuthorizedHeadings")){
+      if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings") || collections.includes("http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings")){
         out.push("(Auth Hd)")
-      } else if (collections.includes("GenreFormSubdivisions")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")){
         out.push("(GnFrm)")
-      } else if (collections.includes("GeographicSubdivisions")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions")){
         out.push("(GeoSubDiv)")
-      } else if (collections.includes("LCSH_Childrens")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSH_Childrens")){
           out.push("(ChldSubj)")
-      } else if (collections.includes("Subdivisions")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")){
         out.push("(SubDiv)")
       }
 
       // favor SubDiv over GnFrm
-      if (out.includes("(GnFrm)") && collections.includes("Subdivisions")){
+      if (out.includes("(GnFrm)") && collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")){
         out = ["(SubDiv)"]
       }
 
@@ -2381,14 +2458,12 @@ methods: {
       window.setTimeout(()=>{
         for (let x of this.components){
           if (this.localContextCache[x.uri]){
-
             if (this.activeComponent.type){
               // don't do anything
             } else {
               if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
                 x.type = 'madsrdf:Geographic'
               }
-
 
               if (this.localContextCache[x.uri].type === 'GenreForm'){
                 x.type = 'madsrdf:GenreForm'
@@ -2580,31 +2655,31 @@ methods: {
     for (let el in this.searchResults["subjectsComplex"]){
       let target = this.searchResults["subjectsComplex"][el]
       if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
+        // we need to check the types of each element to make sure they really are the same terms
+        // let targetContext = await utilsNetwork.returnContext(target.uri)
+        let targetContext = target.extra
 
-		  // we need to check the types of each element to make sure they really are the same terms
-		  let targetContext = await utilsNetwork.returnContext(target.uri)
+        let marcKey = ""
+        if (Array.isArray(targetContext.marcKey) && typeof targetContext.marcKey[0] == 'string'){
+          marcKey = targetContext.marcKey[0]
+        } else if (targetContext.marcKey){
+          marcKey = targetContext.marcKey //[0]["@value"]
+        }
 
-		  let marcKey = ""
-      if (Array.isArray(targetContext.marcKey) && typeof targetContext.marcKey[0] == 'string'){
-        marcKey = targetContext.marcKey[0]
-      } else if (targetContext.marcKey){
-        marcKey = targetContext.marcKey[0]["@value"]
-      }
-
-		  if (marcKey.slice(5) == componentTypes){
-        //the entire built subject can be replaced by 1 term
-        match = true
-        this.components.push({
-          "complex": target.complex,
-          "id": 0,
-          "label": target.label,
-          "literal": false,
-          "posEnd": target.label.length,
-          "posStart": 0,
-          "type": "madsrdf:Topic",
-          "uri": target.uri,
-          "marcKey": marcKey
-        })
+        if (marcKey.slice(5) == componentTypes){
+          //the entire built subject can be replaced by 1 term
+          match = true
+          this.components.push({
+            "complex": target.complex,
+            "id": 0,
+            "label": target.label,
+            "literal": false,
+            "posEnd": target.label.length,
+            "posStart": 0,
+            "type": "madsrdf:Topic",
+            "uri": target.uri,
+            "marcKey": marcKey
+          })
         }
       }
     }

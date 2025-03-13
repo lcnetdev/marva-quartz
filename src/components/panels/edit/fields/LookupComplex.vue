@@ -92,7 +92,7 @@
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
 
 
-              <div v-for="(avl,idx) in complexLookupValues" class="selected-value-container">
+              <div v-for="(avl,idx) in complexLookupValues" :class="['selected-value-container']">
 
                 <div class="selected-value-container-auth">
                   <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')"  :type="avl.type"/>
@@ -100,10 +100,7 @@
                 <div class="selected-value-container-title">
                   <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
                   <span v-if="!avl.needsDereference && !avl.uneditable " style="padding-right: 0.3em; font-weight: bold">
-                    <!-- <a v-if="!this.configStore.useSubjectEditor.includes(this.structure.propertyURI)" href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
-                    <span v-else>{{avl.label}}</span> -->
-                    <span v-if="avl.source && avl.source=='FAST'" style="font-weight: bold;">(FAST) </span>
-                    <a href="#" @click="openAuthority()" ref="el">{{avl.label}}</a>
+                    <a href="#" :class="['entity-link']" @click="openAuthority(avl.label)" :ref="avl.label">{{avl.label}}</a>
                     <ValidationIcon :value="avl" />
                     <!-- <span class="uncontrolled" v-if="avl.isLiteral">
                       (uncontrolled)
@@ -434,16 +431,38 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
-      delete contextValue.typeFull
-      this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
-      this.searchValue=''
-      this.displayModal=false
+      if (Object.keys(contextValue.extra).length == 0){
+        // Intended audience mixes simple and complex lookups, so do check
+        this.profileStore.setValueSimple(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title[0])
+      } else {
+        if (contextValue.uri.includes('/works/')){
+          contextValue.type = 'Work'
+          contextValue.typeFull='http://id.loc.gov/ontologies/bibframe/Work'
+        } else if (contextValue.uri.includes('/hubs/')){
+          contextValue.type = 'Hub'
+          contextValue.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
+        }
 
-      this.$nextTick(() => {
-        window.setTimeout(()=>{
-          this.$refs.lookupInput.focus()
-        },10)
-      })
+        delete contextValue.typeFull
+        this.profileStore.setValueComplex(
+          this.guid,
+          null,
+          this.propertyPath,
+          contextValue.uri,
+          contextValue.title,
+          null, //contextValue.type.includes("Hub") ? "Hub" : contextValue.extra.rdftypes[0],
+          contextValue.extra,
+          contextValue.extra.marcKey
+        )
+      }
+        this.searchValue=''
+        this.displayModal=false
+
+        this.$nextTick(() => {
+          window.setTimeout(()=>{
+            this.$refs.lookupInput.focus()
+          },10)
+        })
     },
 
 
@@ -590,7 +609,7 @@ export default {
     },
 
     // Open the authority `panel` for an given authority
-    openAuthority: function() {
+    openAuthority: function(label) {
       //Get the type of search
       try{
         let selection = document.getElementById(this.guid+"-select")
@@ -598,10 +617,10 @@ export default {
         this.searchType = selected
       } catch {}
 
-      let label = this.$refs.el[0].innerHTML
+      // let label = this.$refs.el[0].innerHTML
       this.profileData = this.profileStore.returnStructureByGUID(this.guid)
 
-      let sibling = this.$refs.el[0].parentNode.childNodes[2]
+      let sibling = this.$refs[label][0].parentNode.childNodes[2]  //this.$refs.el[0].parentNode.childNodes[2]
       if (sibling.className == "uncontrolled") {
         this.isLiteral = true
       } else {
@@ -831,6 +850,15 @@ export default {
 
 .component .lookup-fake-input{
   border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
+}
+
+.entity-link {
+  text-wrap: wrap;
+}
+
+.selected-value-container:has(> .selected-value-container-title > span > .entity-link){
+  height: fit-content;
+  padding: unset;
 }
 
 

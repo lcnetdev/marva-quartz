@@ -2360,7 +2360,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
-
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2375,8 +2374,18 @@ export const useProfileStore = defineStore('profile', {
         // I regretfully inform you we will need to look this up
         let context = await utilsNetwork.returnContext(URI)
         type = context.typeFull
-
+        if (!marcKey){
+          marcKey = context.marcKey
+        }
       }
+
+      if (['Work', 'Hub'].includes(type)){
+        type = "http://id.loc.gov/ontologies/bibframe/" + type
+      }
+      if (type && !type.startsWith("http")){
+        type = "http://www.loc.gov/mads/rdf/v1#" + type // Works and Hubs should be `BF:` not madsrdf.
+      }
+
       // literals don't have a type or a URI & intendedAudience has extra considerations
       // namely that the rdf:Type in BF is bf:Authority
       if ((!type && !URI) || lastProperty.includes("intendedAudience")){
@@ -2450,14 +2459,14 @@ export const useProfileStore = defineStore('profile', {
           }
 
           //Add gacs code to user data
-          if (nodeMap["GAC(s)"]){
+          if (nodeMap["gacs"]){
             blankNode["http://www.loc.gov/mads/rdf/v1#code"] = []
-            for (let code in nodeMap["GAC(s)"]){
+            for (let code in nodeMap["gacs"]){
                 blankNode["http://www.loc.gov/mads/rdf/v1#code"].push(
                   {
                     '@guid': short.generate(),
                     "@gacs": "http://id.loc.gov/datatypes/codes/gac",
-                    'http://www.loc.gov/mads/rdf/v1#code': nodeMap["GAC(s)"][code]
+                    'http://www.loc.gov/mads/rdf/v1#code': nodeMap["gacs"][code]
                   }
                 )
             }
@@ -2549,8 +2558,6 @@ export const useProfileStore = defineStore('profile', {
     */
     setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
         // we're just going to overwrite the whole userValue with the constructed headings
-
-
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
         // console.log('-----')
@@ -2837,7 +2844,6 @@ export const useProfileStore = defineStore('profile', {
               }
 
             }
-
 
             // double check the @type of the resource we want to be as specific as possible
             if (currentUserValuePos['@type'] == 'http://www.w3.org/2000/01/rdf-schema#Resource'){
@@ -4802,6 +4808,7 @@ export const useProfileStore = defineStore('profile', {
                     if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
                         let currentPos = order.indexOf(current.id)
                         let newPos = order.indexOf(newComponent.id)
+
                         // if (Object.keys(current.userValue).length == 1){
                         if (this.isEmptyComponent(current)){
                             current.userValue = newComponent.userValue
@@ -4811,7 +4818,7 @@ export const useProfileStore = defineStore('profile', {
                             let structure = this.returnStructureByComponentGuid(guid)
 
                             let newPt
-                            if (sourceRt && sourceRt != targetRt){
+                            if ((sourceRt && sourceRt != targetRt) || (!sourceRt && !incomingTargetRt)){
                               newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
                             } else {
                               if (newPos < 0){
@@ -4832,25 +4839,23 @@ export const useProfileStore = defineStore('profile', {
     },
 
     pasteSelected: async function(){
-        let data
-        const clipboardContents = await navigator.clipboard.read();
+      let data
+      const clipboardContents = await navigator.clipboard.read();
 
-        for (let item of clipboardContents){
-
-              if (!item.types.includes("text/plain")) {
-                throw new Error("Clipboard does not contain text data.");
-              }
-
-              let blob = await item.getType("text/plain")
-              const incomingValue = await blob.text()
-
-              data = incomingValue.split(";;;")
-            }
-
-        for (let item of data){
-          const dataJson = JSON.parse(item)
-          this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
+      for (let item of clipboardContents){
+        if (!item.types.includes("text/plain")) {
+          throw new Error("Clipboard does not contain text data.");
         }
+
+        let blob = await item.getType("text/plain")
+        const incomingValue = await blob.text()
+
+        data = incomingValue.split(";;;")
+      }
+      for (let item of data){
+        const dataJson = JSON.parse(item)
+        this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
+      }
     },
 
 

@@ -583,10 +583,10 @@ const utilsExport = {
 
 					if (ptObj.userValue[ptObj.propertyURI].length>1){
 						// some top level simpleLookup values like bf:content could have multiple values in it but we are really only setup to handle one
-						// so keep track of them for later						
-						userValueSiblings = JSON.parse(JSON.stringify(ptObj.userValue[ptObj.propertyURI])).slice(1) 
+						// so keep track of them for later
+						userValueSiblings = JSON.parse(JSON.stringify(ptObj.userValue[ptObj.propertyURI])).slice(1)
 						// console.log("Got the siblings:", userValueSiblings)
-						
+
 
 					}
 
@@ -988,11 +988,11 @@ const utilsExport = {
 							}
 						}
 						pLvl1.appendChild(bnodeLvl1)
-						rootEl.appendChild(pLvl1)				
+						rootEl.appendChild(pLvl1)
 						componentXmlLookup[`${rt}-${pt}`] = formatXML(pLvl1.outerHTML)
 
 						// this is kind of a hack here, since the system wasn't designed orgianlly to have multiple top level lookup to live in the same bnode
-						// for example bf:content there should be a single bf:content->bf:Content node for each value but in the interface it is nice to allow multiple 
+						// for example bf:content there should be a single bf:content->bf:Content node for each value but in the interface it is nice to allow multiple
 						// inputs in the same component. So allow them to do that but we will build those shallow sibling bnodes right here after we created the first one
 						if (userValueSiblings.length>0){
 							for (let uv of userValueSiblings){
@@ -1009,10 +1009,10 @@ const utilsExport = {
 								}else{
 									console.warn("There was no label for this sibling top level bnode, so there is porbably another way the label is being passed or something else is wrong.",bnodeLvl1Sibling)
 								}
-								
+
 								// add to the structure
 								pLvl1Sibling.appendChild(bnodeLvl1Sibling)
-								rootEl.appendChild(pLvl1Sibling)	
+								rootEl.appendChild(pLvl1Sibling)
 							}
 						}
 
@@ -1661,7 +1661,7 @@ const utilsExport = {
 
         // let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
         // strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
-
+		console.info("xml: ", strXmlBasic)
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,
@@ -1790,7 +1790,7 @@ const utilsExport = {
 	creatHubStubURI: async function(hubCreatorObj,title){
 
 		let aap = utilsProfile.returnAap(hubCreatorObj.label,title)
-		
+
 		let aapHash = await md5(aap)
 		aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
 		let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
@@ -1811,7 +1811,7 @@ const utilsExport = {
 	createHubStubXML: async function(hubCreatorObj,title,langObj,catalogerId){
 
 
-		
+
 
 
 		// we are creating the xml in two formats, create the root node for both
@@ -1832,12 +1832,12 @@ const utilsExport = {
 		if (!title) return false
 
 		if (!hubCreatorObj){ hubCreatorObj = {'label':''}}
-		if (!hubCreatorObj.label){ hubCreatorObj.label = ''} 
+		if (!hubCreatorObj.label){ hubCreatorObj.label = ''}
 
-		
+
 
 		// let aap = utilsProfile.returnAap(hubCreatorObj.label,title)
-		
+
 		// let aapHash = await md5(aap)
 		// aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
 		// let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
@@ -2015,7 +2015,7 @@ const utilsExport = {
 		leader.innerHTML = "     nz  a22     ni 4500"
 		rootEl.appendChild(leader)
 
-		
+
 
 		let field001 = document.createElementNS(marcNamespace,"marcxml:controlfield");
 		field001.setAttribute( 'tag', '001')
@@ -2029,9 +2029,9 @@ const utilsExport = {
 
 		function pad2(n) { return n < 10 ? '0' + n : n }
 		let date = new Date();
-		let dateValue = date.getFullYear().toString() + pad2(date.getMonth() + 1) + pad2( date.getDate()) + pad2( date.getHours() ) + pad2( date.getMinutes() ) + pad2( date.getSeconds() )	
+		let dateValue = date.getFullYear().toString() + pad2(date.getMonth() + 1) + pad2( date.getDate()) + pad2( date.getHours() ) + pad2( date.getMinutes() ) + pad2( date.getSeconds() )
 		dateValue = dateValue + ".0"
-		
+
 
 		let field005 = document.createElementNS(marcNamespace,"marcxml:controlfield");
 		field005.setAttribute( 'tag', '005')
@@ -2076,14 +2076,14 @@ const utilsExport = {
 		let field040e = document.createElementNS(marcNamespace,"marcxml:subfield");
 		field040e.setAttribute( 'code', 'e')
 		field040e.innerHTML = 'rda'
-		field040.appendChild(field040e)		
+		field040.appendChild(field040e)
 
 		let field040c = document.createElementNS(marcNamespace,"marcxml:subfield");
 		field040c.setAttribute( 'code', 'c')
 		field040c.innerHTML = 'DLC'
-		field040.appendChild(field040c)	
+		field040.appendChild(field040c)
 
-		
+
 		rootEl.appendChild(field040)
 
 
@@ -2091,8 +2091,8 @@ const utilsExport = {
 		let field985 = document.createElementNS(marcNamespace,"marcxml:datafield");
 		field985.setAttribute( 'tag', '985')
 		field985.setAttribute( 'ind1', ' ')
-		field985.setAttribute( 'ind2', ' ')		
-		
+		field985.setAttribute( 'ind2', ' ')
+
 		let field985e = document.createElementNS(marcNamespace,"marcxml:subfield");
 		field985e.setAttribute( 'code', 'e')
 		field985e.innerHTML = 'MARVA-NAR'
@@ -2101,9 +2101,9 @@ const utilsExport = {
 		let field985d = document.createElementNS(marcNamespace,"marcxml:subfield");
 		field985d.setAttribute( 'code', 'd')
 		field985d.innerHTML = `${date.getFullYear().toString()}-${pad2(date.getMonth() + 1)}-${pad2( date.getDate())}`
-	
+
 		field985.appendChild(field985d)
-		
+
 		rootEl.appendChild(field985)
 
 
@@ -2117,7 +2117,7 @@ const utilsExport = {
 				let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 				subfield.setAttribute( 'code', key)
 				subfield.innerHTML = oneXXParts[key]
-				fieldName.appendChild(subfield)	
+				fieldName.appendChild(subfield)
 			}
 		}
 		// 110//$aMiller, Sam$d1933
@@ -2135,7 +2135,7 @@ const utilsExport = {
 					let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 					subfield.setAttribute( 'code', key)
 					subfield.innerHTML = fourXXParts[key]
-					fieldName4xx.appendChild(subfield)	
+					fieldName4xx.appendChild(subfield)
 				}
 			}
 
@@ -2144,7 +2144,7 @@ const utilsExport = {
 
 
 
-		
+
 
 
 
@@ -2166,7 +2166,7 @@ const utilsExport = {
 		rootEl.appendChild(field670)
 
 
-		
+
 
 
 
