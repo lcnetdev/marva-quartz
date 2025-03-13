@@ -100,7 +100,7 @@
                 <div class="selected-value-container-title">
                   <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
                   <span v-if="!avl.needsDereference && !avl.uneditable " style="padding-right: 0.3em; font-weight: bold">
-                    <a href="#" :class="['entity-link']" @click="openAuthority(avl.label)" :ref="avl.label">{{avl.label}}</a>
+                    <a href="#" :class="['entity-link']" @click="openAuthority()" ref="el">{{avl.label}}</a>
                     <ValidationIcon :value="avl" />
                     <!-- <span class="uncontrolled" v-if="avl.isLiteral">
                       (uncontrolled)
@@ -609,7 +609,7 @@ export default {
     },
 
     // Open the authority `panel` for an given authority
-    openAuthority: function(label) {
+    openAuthority: function() {
       //Get the type of search
       try{
         let selection = document.getElementById(this.guid+"-select")
@@ -617,15 +617,8 @@ export default {
         this.searchType = selected
       } catch {}
 
-      // let label = this.$refs.el[0].innerHTML
+      let label = this.$refs.el[0].innerHTML
       this.profileData = this.profileStore.returnStructureByGUID(this.guid)
-
-      let sibling = this.$refs[label][0].parentNode.childNodes[2]  //this.$refs.el[0].parentNode.childNodes[2]
-      if (sibling.className == "uncontrolled") {
-        this.isLiteral = true
-      } else {
-        this.isLiteral = false
-      }
 
       // store the label to pass as a prop
       this.authorityLookup = label
