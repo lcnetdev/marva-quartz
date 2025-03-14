@@ -1661,6 +1661,7 @@ const utilsExport = {
 
         // let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
         // strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
+		// console.info("xml: ", strXmlBasic)
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,

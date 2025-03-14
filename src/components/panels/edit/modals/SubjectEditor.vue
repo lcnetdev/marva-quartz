@@ -961,6 +961,7 @@ methods: {
    * @param {obj} incomingSubjects - the existing subject data
    */
   buildLookupComponents: function(incomingSubjects){
+    console.info("buildLookupComponents: ", incomingSubjects)
     this.typeLookup = {}
 
     if (!incomingSubjects || typeof incomingSubjects == "undefined"){
@@ -987,6 +988,10 @@ methods: {
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
             this.typeLookup[subjIdx] = 'madsrdf:Temporal'
           }
+          if (type.includes("Hub") || type.includes("Work")){
+            this.typeLookup[subjIdx] = 'type'
+          }
+
 
           if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
             lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
@@ -1147,11 +1152,20 @@ methods: {
         type = this.typeLookup[id+offset]
       }
 
+      console.info("this.componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
+      console.info("types: ", this.typeLookup)
+      console.info("type: ", type)
+
+      // if (type != this.componetLookup[id+offset][ss].extra.type){
+      //   console.info("type: ", type)
+      //   console.info("this.componetLookup[id+offset][ss]: ", this.componetLookup[id+offset][ss])
+      // }
+
       this.components.push({
         label: ss,
         uri: uri,
         id: id,
-        type:type,
+        type: this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
         complex: ss.includes('‑‑'),
         literal:literal,
         posStart: activePosStart,
@@ -1352,7 +1366,9 @@ methods: {
         }
 
         // get the boxes lined up correctly
-        this.renderHintBoxes()
+        try{
+          this.renderHintBoxes()
+        } catch(err) {}
 
         // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
         for (let i in this.components){
@@ -1706,7 +1722,7 @@ methods: {
         this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
       }
       let types = this.pickLookup[this.pickPostion].extra['rdftypes']
-      this.contextData.type = types.includes("Hub") ? "madsrdf:Topic" : "madsrdf:" +  types[0]
+      this.contextData.type = types.includes("Hub") ? "bf:Hub" :  types.includes("Work") ? "bf:Work" : "madsrdf:" +  types[0]
       this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
       this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
 
@@ -1970,6 +1986,7 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
+    console.info("selectContext")
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
@@ -2027,10 +2044,14 @@ methods: {
 
       this.pickLookup[this.pickPostion].picked=true
 
+      console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
+
       try {
         let marcKey = this.pickLookup[this.pickPostion].marcKey
         let type = marcKey.match(/\$[axyzv]{1}/g)
         type = this.getTypeFromSubfield(type[0])
+        console.info("marcKey: ", marcKey)
+        console.info("type: ", type)
         this.setTypeClick(null, type)
       } catch(err) {
         console.error("Error getting the type. ", err)
@@ -3104,6 +3125,7 @@ updated: function() {
   }
 
   let searchValue = this.searchValue
+  if (!searchValue){ return }
   searchValue = searchValue.replace("—", "--")
 
   //When there is existing data, we need to make sure that the number of components matches

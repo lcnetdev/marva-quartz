@@ -650,6 +650,8 @@
 
         console.log("toLoad: ", toLoad)
 
+        if (!toLoad){ return false }
+
         this.activeContext = {
             "contextValue": true,
             "source": [],
