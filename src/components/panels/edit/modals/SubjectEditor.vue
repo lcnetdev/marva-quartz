@@ -1030,6 +1030,9 @@ methods: {
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
             this.typeLookup[0] = 'madsrdf:Temporal'
         }
+        if (type.includes("Hub") || type.includes("Work")){
+          this.typeLookup[0] = type
+        }
 
         if (Object.keys(incomingSubjects).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
             lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
