@@ -988,7 +988,7 @@ methods: {
             this.typeLookup[subjIdx] = 'madsrdf:Temporal'
           }
           if (type.includes("Hub") || type.includes("Work")){
-            this.typeLookup[subjIdx] = 'type'
+            this.typeLookup[subjIdx] = type
           }
 
 
