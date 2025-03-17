@@ -650,6 +650,8 @@
 
         console.log("toLoad: ", toLoad)
 
+        if (!toLoad){ return false }
+
         this.activeContext = {
             "contextValue": true,
             "source": [],
@@ -686,7 +688,6 @@
         // try {
         //   let r = await utilsNetwork.returnContext(toLoad.uri)
         //   // r = this.activeContext
-        //   console.info("r: ", r)
         // } catch(err) {
         //     // r = this.activeContext
         // }
