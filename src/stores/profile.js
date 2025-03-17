@@ -95,7 +95,7 @@ export const useProfileStore = defineStore('profile', {
     activeHubStubData:{
     },
     activeHubStubComponent:{},
-    
+
     activeNARStubComponent:{},
 
     showShelfListingModal: false,
@@ -4097,7 +4097,7 @@ export const useProfileStore = defineStore('profile', {
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
     * @param {object} structure - structure of the component(?)s
     * @param {object} incomingUserValue - the incoming userValue to set
-    * @return {string} the id ofthe newPropertyId
+    * @return {array} the id and guid of the newPropertyId
     */
     duplicateComponentGetId: async function(componentGuid, structure, profileName, predecessor){
       let createEmpty = true
@@ -4204,7 +4204,7 @@ export const useProfileStore = defineStore('profile', {
         // they changed something
         this.dataChanged()
 
-        return newPropertyId
+        return [newPropertyId, newPt['@guid']]
 
       }else{
         console.error('duplicateComponent: Cannot locate the component by guid', componentGuid, this.activeProfile)
@@ -4828,6 +4828,8 @@ export const useProfileStore = defineStore('profile', {
                               }
                             }
 
+                            newPt = newPt[0]
+
                             profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
                             profile["rt"][rt]["pt"][newPt].userModified = true
                             break
@@ -5143,7 +5145,7 @@ export const useProfileStore = defineStore('profile', {
 
       // if no empty ddc, create one
       if (!hasEmptyDDC){
-        newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
+        newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)[0]
         ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
       }
 

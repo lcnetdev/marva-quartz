@@ -221,8 +221,8 @@
                             <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
                           </template>
                           <template v-else-if="key == 'lcclasss'">
-                            <!-- <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a> -->
-                            <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a>
+                            <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                            <!-- <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a> -->
                           </template>
                           <template v-else-if="key == 'broaders'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
@@ -1984,6 +1984,7 @@ methods: {
       this.getContext()
       //Science—Experiments
     }
+
     if (this.pickLookup[this.pickPostion].complex){
       // if it is a complex authorized heading then just replace the whole things with it
       this.subjectString = this.pickLookup[this.pickPostion].label
@@ -1991,6 +1992,7 @@ methods: {
 
       this.componetLookup = {}
       this.componetLookup[this.activeComponentIndex] = {}
+
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
       for (let k in this.pickLookup){
         this.pickLookup[k].picked=false
