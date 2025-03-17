@@ -284,9 +284,6 @@
       ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents','activeProfilePosted','activeProfilePostedTimestamp']),
 
 
-      
-
-
       // // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
 
@@ -674,7 +671,7 @@
   }
 </style>
 
-<style scoped>  
+<style scoped>
 
 
 #test-data-table{
@@ -696,7 +693,7 @@
 
   background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important;
   color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
-  
+
   background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')")  !important;
 
 }
