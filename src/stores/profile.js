@@ -4954,10 +4954,10 @@ export const useProfileStore = defineStore('profile', {
     * @param {string} langObj - {uri:"",label:""}
     * @return {String}
     */
-    async buildPostHubStub(hubCreatorObj,title,langObj,catCode){
+    async buildPostHubStub(hubCreatorObj,title,variant,variantLanguage,langObj,catCode){
 
       // console.log("hubCreatorObj",hubCreatorObj)
-      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langObj,catCode)
+      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,variant,variantLanguage,langObj,catCode)
 
       console.log(xml)
       let eid = 'e' + decimalTranslator.new()
