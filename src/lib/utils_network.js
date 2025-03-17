@@ -1391,7 +1391,10 @@ const utilsNetwork = {
         result.msg = 'REGEX Error: That value doesn\'t look like a valid MARC encoded LCSH string (not string)'
       }
 
-      lcsh=lcsh.replace(/\$c/g,'').replace(/\$d/g,'').replace(/\|c/g,'').replace(/\|d/g,'').replace(/‡c/g,'').replace(/‡d/g,'').replace(/\s{2,}/g, ' ')
+      lcsh=lcsh.replace(/\$b/g,' ').replace(/\|b/g,' ').replace(/‡b/g,' ')
+               .replace(/\$c/g,'').replace(/\|c/g,'').replace(/‡c/g,'')
+               .replace(/\$d/g,'').replace(/\|d/g,'').replace(/‡d/g,'')
+               .replace(/\s{2,}/g, ' ')
 
       // if it doesn't have a $a or ‡a in the start of the string add it
       // often times copying from a system they dont include the $a
