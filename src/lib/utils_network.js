@@ -50,12 +50,14 @@ const utilsNetwork = {
     * @return {object} - returns the results processing
     */
     loadSimpleLookup: async function(uris){
+      console.info("loadSimpleLookup")
         // TODO make this better for multuple lookup list (might not be needed)
         if (!Array.isArray(uris)){
           uris=[uris]
         }
         for (let uri of uris){
           let url = uri
+          console.info("url: ", url)
           // TODO more checks here
           if (!uri.includes('.json') && !uri.includes("suggest2")){
               url = url + '.json'
@@ -282,6 +284,7 @@ const utilsNetwork = {
     * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
     */
     fetchSimpleLookup: async function(url, json, signal=null) {
+      console.info("fetchSimpleLookup: ", url)
       url = url || config.profileUrl
       if (url.includes("id.loc.gov")){
         url = url.replace('http://','https://')
@@ -289,6 +292,12 @@ const utilsNetwork = {
 
       // if we use the memberOf there might be a id URL in the params, make sure its not https
       url = url.replace('memberOf=https://id.loc.gov/','memberOf=http://id.loc.gov/')
+
+      let returnUrls = useConfigStore().returnUrls
+      if (returnUrls.env == 'production'){
+        url = url.replace("https://id.loc.gov", "https://preprod-8080.id.loc.gov")
+        console.info("url: ", url)
+      }
 
       let options = {signal: signal}
       if (json){
@@ -569,6 +578,7 @@ const utilsNetwork = {
         return false
       }
 
+      console.info("uri: ", uri)
       if (d && uri.includes('resources/works/') || uri.includes('resources/hubs/')){
         results = await this.extractContextDataWorksHubs(d)
       }else if (d){
@@ -584,6 +594,11 @@ const utilsNetwork = {
     * @return {object} - the data response
     */
     fetchContextData: async function(uri){
+      console.info("!!!!!!!!!!!!!!!!!!!!!!!")
+      console.info("!!!!!!!!!!!!!!!!!!!!!!!")
+      console.info("FETCHING")
+      console.info("!!!!!!!!!!!!!!!!!!!!!!!")
+      console.info("!!!!!!!!!!!!!!!!!!!!!!!")
           let returnUrls = useConfigStore().returnUrls
 
           if ((uri.startsWith('http://id.loc.gov') || uri.startsWith('https://id.loc.gov')) && uri.match(/(authorities|vocabularies)/)) {
@@ -607,7 +622,7 @@ const utilsNetwork = {
 
           //if we are in production use preprod
           // if (returnUrls.env == 'production' && jsonuri.includes("authorities/names")){
-            if (returnUrls.env == 'production'){
+          if (returnUrls.env == 'production'){
             jsonuri = jsonuri.replace('http://id.', 'https://preprod-8080.id.')
             jsonuri = jsonuri.replace('https://id.', 'https://preprod-8080.id.')
           }
@@ -914,6 +929,7 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     extractContextData: function(data){
+      console.info("extractContextData")
       data.uri = data.uri.replace("https://preprod-8080.", "http://id.loc.gov/")
 
           var results = {
@@ -994,6 +1010,8 @@ const utilsNetwork = {
                   }else if (g['http://id.loc.gov/ontologies/bflc/aap'] && g['http://id.loc.gov/ontologies/bflc/aap'][0]){
                     results.title = g['http://id.loc.gov/ontologies/bflc/aap'][0]['@value']
                   }
+
+                  console.info("types: ", g['@type'])
 
                   if (g['@type'] && g['@type'][0]){
                     results.type = this.rdfType(g['@type'][0])
@@ -1202,6 +1220,7 @@ const utilsNetwork = {
 
 
               if (n['@id'] && n['@id'] == data.uri && n['@type']){
+                console.info("types: ", n['@type'])
                   n['@type'].forEach((t)=>{
                       if (results.type===null){
                           results.type = this.rdfType(t)
@@ -1264,6 +1283,7 @@ const utilsNetwork = {
             }
           })
 
+          console.info("results: ", results)
           return results;
         },
 
@@ -2138,35 +2158,26 @@ const utilsNetwork = {
         }
       }
 
-
-      let marcKeyPromises = []
       // we want to double check the rdfType heading to make sure if we need to ask id to get more clarity about the rdfType
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
         for (let r of result.hit){
           if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/') > 0){
-            let responseUri = await this.returnRDFType(r.uri + '.madsrdf_raw.jsonld')
-            if (responseUri){
-              r.heading.rdfType = responseUri
-            }
-            // also we need the MARCKeys
-            marcKeyPromises.push(this.returnMARCKey(r.uri + '.madsrdf_raw.jsonld'))
+            r.heading.rdfType = "http://www.loc.gov/mads/rdf/v1#" + r.extra.rdftypes[0] //responseUri
           }
         }
 
-        let marcKeyPromisesResults = await Promise.all(marcKeyPromises);
-        for (let marcKeyResult of marcKeyPromisesResults){
-          for (let r of result.hit){
-            if (r.uri == marcKeyResult.uri){
-              r.marcKey = marcKeyResult.marcKey
-            }
-          }
+        for (let r of result.hit){
+            r.marcKey = r.extra.marcKey
         }
+
       }else if (result.hit && result.resultType == 'COMPLEX') {
         // if they are adding a complex value still need to lookup the marc key
-        let marcKeyResult = await this.returnMARCKey(result.hit.uri + '.madsrdf_raw.jsonld')
+        // let marcKeyResult = await this.returnMARCKey(result.hit.uri + '.madsrdf_raw.jsonld')
+        console.info("result.hit: ", result.hit)
+        console.info("marcKeyResult: ", marcKeyResult)
 
-        result.hit.marcKey = marcKeyResult.marcKey
+        result.hit.marcKey = result.hit.extra.marcKey
       }
       // console.log("result",result)
 
@@ -2182,7 +2193,7 @@ const utilsNetwork = {
     * @return {string} - The URI of the likely MADSRDF rdf type
     */
     returnRDFType: async function(uri){
-
+      console.info("returnRDFType")
       uri=uri.trim()
       let uriToLookFor = uri
 
@@ -2253,6 +2264,7 @@ const utilsNetwork = {
     * @return {string} - The URI of the likely MADSRDF rdf type
     */
     returnMARCKey: async function(uri){
+      console.info("returnMARCKey")
       uri=uri.trim()
 
       // marc keys don't exist on the RWO so if they are asking for a RWO switch it to a auth

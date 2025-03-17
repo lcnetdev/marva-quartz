@@ -2205,6 +2205,7 @@ export const useProfileStore = defineStore('profile', {
 
         }
 
+        console.info("values: ", values)
         return values
 
       }
@@ -2370,21 +2371,21 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
 
-      if (!type && URI && !lastProperty.includes("intendedAudience")){
-        // I regretfully inform you we will need to look this up
-        let context = await utilsNetwork.returnContext(URI)
-        type = context.typeFull
-        if (!marcKey){
-          marcKey = context.marcKey
-        }
-      }
+      // if (!type && URI && !lastProperty.includes("intendedAudience")){
+      //   // I regretfully inform you we will need to look this up
+      //   let context = await utilsNetwork.returnContext(URI)
+      //   type = context.typeFull
+      //   if (!marcKey){
+      //     marcKey = context.marcKey
+      //   }
+      // }
 
-      if (['Work', 'Hub'].includes(type)){
-        type = "http://id.loc.gov/ontologies/bibframe/" + type
-      }
-      if (type && !type.startsWith("http")){
-        type = "http://www.loc.gov/mads/rdf/v1#" + type // Works and Hubs should be `BF:` not madsrdf.
-      }
+      // if (['Work', 'Hub'].includes(type)){
+      //   type = "http://id.loc.gov/ontologies/bibframe/" + type
+      // }
+      // if (type && !type.startsWith("http")){
+      //   type = "http://www.loc.gov/mads/rdf/v1#" + type // Works and Hubs should be `BF:` not madsrdf.
+      // }
 
       // literals don't have a type or a URI & intendedAudience has extra considerations
       // namely that the rdf:Type in BF is bf:Authority

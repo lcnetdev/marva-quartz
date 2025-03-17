@@ -288,12 +288,14 @@ export default {
     ...mapWritableState(useProfileStore, ['activeField','activeProfile']),
 
     simpleLookupValues(){
+      console.info("simpleLookupValues")
       // profileStore.setActiveField()
       let values = this.profileStore.returnSimpleLookupValueFromProfile(this.guid, this.propertyPath)
       if (this.readOnly && values.length==0){
         this.showField=false
       }
 
+      console.info("values: ", values)
       return values
 
     },
@@ -868,9 +870,6 @@ export default {
               break
             }
 
-
-
-
             // this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':metadata[key].label[idx],URI:metadata[key].uri})
             this.activeFilter = ''
             this.activeValue = ''
@@ -882,7 +881,6 @@ export default {
             break
           }
         }
-
 
         // if there is a value still that means the value did not match a item in the list
         // so add the value as a uncontrolled value

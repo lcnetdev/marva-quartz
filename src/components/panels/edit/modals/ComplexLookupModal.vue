@@ -70,8 +70,13 @@
           "collections": "MADS Collections",
           "sources": "Sources",
           "marcKey": "MARC Key",
+          "relateds": "Releated Names"
         },
-        panelDetailOrder: ["notes","nonlatinLabels","variantLabels","birthdates","birthplaces","locales","activityfields","occupations","languages","lcclasss","broaders","gacs","collections","sources", "marcKey"],
+        panelDetailOrder: [
+          "notes","nonlatinLabels","variantLabels", "relateds","birthdates","birthplaces","locales",
+          "activityfields","occupations","languages","lcclasss","broaders","gacs","collections",
+          "sources", "marcKey"
+        ],
       }
     },
     computed: {
