@@ -263,6 +263,7 @@ const utilsParse = {
   * @return {Node}
   */
   sniffWorkRelationType(xml){
+    console.info("sniffWorkRelationType")
     for (let child of xml.children){
       if (child.tagName == 'bf:relation'){
 
@@ -316,14 +317,18 @@ const utilsParse = {
        } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
        }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
-          child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+        console.info("  >>", 1)
+        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
        } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1){
-          child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+        console.info("  >>", 2)
+        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
        } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
        } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
+        console.info("  >>", 3, "--", child.innerHTML)
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
        } else if (child.innerHTML.indexOf("bf:Work")>-1){
+        console.info("  >>", 4)
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
        }else{
           // leave blank?
@@ -399,6 +404,7 @@ const utilsParse = {
   },
 
   transformRts: async function(profile){
+    console.info("transformRts: ", JSON.parse(JSON.stringify(profile)))
     let toDeleteNoData = []
 
     // before we start processing make sure we have enough instance rts for the number needed
@@ -425,6 +431,7 @@ const utilsParse = {
     let rtsToRemove = []
 
     for (const pkey in profile.rt) {
+      console.info("    pkey: ", pkey)
 
       let tle = ""
       let isHub = false
@@ -608,6 +615,7 @@ const utilsParse = {
         // let elHashOrder = []
         for (let e of xml.children){
 
+          console.info("        e: ", e)
 
           if (this.UriNamespace(e.tagName) == propertyURI){
 
@@ -1019,7 +1027,7 @@ const utilsParse = {
 
                     let gChildProperty = this.UriNamespace(gChild.tagName)
 
-                    
+
                     // if it a one liner Class w/ no children add it in as its own obj otherwise it is a
                     // literal or something
                     if (this.isClass(gChild.tagName)){
