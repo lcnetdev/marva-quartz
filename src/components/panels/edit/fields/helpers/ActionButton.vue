@@ -113,7 +113,7 @@
               </button>
         </template>
 
-        <template v-if="showBuildNacoStub()">
+        <template v-if="isContribField()">
               <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="addToSubjects()" :style="buttonStyle">
                 Add to Subjects
               </button>
@@ -362,6 +362,8 @@
       async addToSubjects(){
         let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
 
+        if (!structure.userValue['http://id.loc.gov/ontologies/bibframe/contribution']){ return false }
+
         const data = structure.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
         const name = data['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
         const marcKey = data['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
@@ -376,7 +378,7 @@
         let component = {
           complex: false,
           id: 0,
-          label: name,
+          label: name.replace("-", "‑"),
           literal: false,
           marcKey: marcKey,
           nonLatinLabel: [],
@@ -437,7 +439,14 @@
       },
 
 
+      isContribField(){
+        let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/contribution"){
+          return true
+        }
 
+        return false
+      },
 
       showBuildNacoStub(){
 
@@ -446,12 +455,7 @@
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
 
-        let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
-        if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/contribution"){
-          return true
-        }
-
-        return false
+        return this.isContribField()
       },
 
 

@@ -2557,10 +2557,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
-      console.info("setValueSubject")
-      console.info("componentGuid: ", componentGuid)
-      console.info("subjectComponents: ", subjectComponents)
-      console.info("propertyPath: ", propertyPath)
         // we're just going to overwrite the whole userValue with the constructed headings
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
