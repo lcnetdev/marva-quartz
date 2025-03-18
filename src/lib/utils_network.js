@@ -1570,8 +1570,8 @@ const utilsNetwork = {
         let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
         let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
 
-        let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
-        let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
+        // let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
+        let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/hubs'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
 
         let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")
         let subjectUrlHierarchicalGeographicLCSH = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+ '&rdftype=HierarchicalGeographic'
@@ -1671,12 +1671,12 @@ const utilsNetwork = {
           signal: this.controllers.controllerGeographicLCNAF.signal
         }
 
-        let searchPayloadWorksAnchored = {
-          processor: 'lcAuthorities',
-          url: [worksUrlAnchored],
-          searchValue: searchVal,
-          signal: this.controllers.controllerWorksAnchored.signal
-        }
+        // let searchPayloadWorksAnchored = {
+        //   processor: 'lcAuthorities',
+        //   url: [worksUrlAnchored],
+        //   searchValue: searchVal,
+        //   signal: this.controllers.controllerWorksAnchored.signal
+        // }
         let searchPayloadHubsAnchored = {
           processor: 'lcAuthorities',
           url: [hubsUrlAnchored],
@@ -1706,7 +1706,7 @@ const utilsNetwork = {
         let resultsSubjectsComplex=[]
         let resultsHierarchicalGeographic=[]
         let resultsHierarchicalGeographicLCSH=[]
-        let resultsWorksAnchored=[]
+        // let resultsWorksAnchored=[]
         let resultsHubsAnchored=[]
         let resultsPayloadSubjectsSimpleSubdivision=[]
         let resultsPayloadSubjectsTemporal=[]
@@ -1725,7 +1725,7 @@ const utilsNetwork = {
         // if it is a primary heading then we need to search LCNAF, HUBS, WORKS, and simple subjects, and do the whole thing with complex subjects
         if (heading.primary){
           // resultsNames = await this.searchComplex(searchPayloadNames)
-          [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic,resultsHierarchicalGeographicLCSH, resultsWorksAnchored, resultsHubsAnchored, resultsChildren, resultsChildrenSubDiv, resultsExactName, resultsExactSubject] = await Promise.all([
+          [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic,resultsHierarchicalGeographicLCSH, resultsHubsAnchored, resultsChildren, resultsChildrenSubDiv, resultsExactName, resultsExactSubject] = await Promise.all([
               this.searchComplex(searchPayloadNames),
               this.searchComplex(searchPayloadNamesSubdivision),
               this.searchComplex(searchPayloadSubjectsSimple),
@@ -1733,7 +1733,7 @@ const utilsNetwork = {
               this.searchComplex(searchPayloadSubjectsComplex),
               this.searchComplex(searchPayloadHierarchicalGeographic),
               this.searchComplex(searchPayloadHierarchicalGeographicLCSH),
-              this.searchComplex(searchPayloadWorksAnchored),
+              // this.searchComplex(searchPayloadWorksAnchored),
               this.searchComplex(searchPayloadHubsAnchored),
               this.searchComplex(searchPayloadChildren),
               this.searchComplex(searchPayloadChildrenSub),
@@ -1751,7 +1751,7 @@ const utilsNetwork = {
           resultsSubjectsComplex = resultsSubjectsComplex.filter((r)=>{ return (!r.literal) })
           resultsHierarchicalGeographic = resultsHierarchicalGeographic.filter((r)=>{ return (!r.literal) })
           resultsHierarchicalGeographicLCSH = resultsHierarchicalGeographicLCSH.filter((r)=>{ return (!r.literal) })
-          resultsWorksAnchored = resultsWorksAnchored.filter((r)=>{ return (!r.literal) })
+          // resultsWorksAnchored = resultsWorksAnchored.filter((r)=>{ return (!r.literal) })
           resultsHubsAnchored = resultsHubsAnchored.filter((r)=>{ return (!r.literal) })
           resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
           resultsChildren = resultsChildren.filter((r)=>{ return (!r.literal) })
@@ -1875,20 +1875,20 @@ const utilsNetwork = {
           }
 
           // see if we matched a Work name as primary compontant
-          if (resultsWorksAnchored.length>0){
-            for (let r of resultsWorksAnchored){
-              // lower case, remove end space, make double whitespace into one and remove any punctuation
-              if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
-                result.resultType = 'PRECOORD-WORK'
-                if (!result.hit){ result.hit = [] }
-                r.heading = heading
-                result.hit.push(r)
-                foundHeading = true
-                break
-              }
-            }
-            if (foundHeading){ continue }
-          }
+          // if (resultsWorksAnchored.length>0){
+          //   for (let r of resultsWorksAnchored){
+          //     // lower case, remove end space, make double whitespace into one and remove any punctuation
+          //     if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
+          //       result.resultType = 'PRECOORD-WORK'
+          //       if (!result.hit){ result.hit = [] }
+          //       r.heading = heading
+          //       result.hit.push(r)
+          //       foundHeading = true
+          //       break
+          //     }
+          //   }
+          //   if (foundHeading){ continue }
+          // }
 
           // see if we matched a Hub name as primary compontant
           if (resultsHubsAnchored.length>0){
@@ -2342,11 +2342,11 @@ const utilsNetwork = {
       let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
       let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
 
-      let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
-      let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
+      // let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
+      // let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
 
-      let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
-      let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
+      let hubsUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/hubs'].modes[0]['Hubs - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
+      let hubsUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/hubs'].modes[0]['Hubs - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
 
       let childrenSubject = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&-memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
       let childrenSubjectComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&rdftype=ComplexType'
@@ -2463,21 +2463,20 @@ const utilsNetwork = {
         signal: this.controllers.controllerHierarchicalGeographic.signal,
       }
 
-      let searchPayloadWorksAnchored = {
-        processor: 'lcAuthorities',
-        url: [worksUrlAnchored],
-        searchValue: searchVal,
-        subjectSearch: true,
-        signal: this.controllers.controllerWorksAnchored.signal,
-      }
-
-      let searchPayloadWorksKeyword = {
-        processor: 'lcAuthorities',
-        url: [worksUrlKeyword],
-        searchValue: searchVal,
-        subjectSearch: true,
-        signal: this.controllers.controllerWorksKeyword.signal,
-      }
+      // let searchPayloadWorksAnchored = {
+      //   processor: 'lcAuthorities',
+      //   url: [worksUrlAnchored],
+      //   searchValue: searchVal,
+      //   subjectSearch: true,
+      //   signal: this.controllers.controllerWorksAnchored.signal,
+      // }
+      // let searchPayloadWorksKeyword = {
+      //   processor: 'lcAuthorities',
+      //   url: [worksUrlKeyword],
+      //   searchValue: searchVal,
+      //   subjectSearch: true,
+      //   signal: this.controllers.controllerWorksKeyword.signal,
+      // }
 
       let searchPayloadHubsAnchored = {
         processor: 'lcAuthorities',
@@ -2543,12 +2542,12 @@ const utilsNetwork = {
             this.searchComplex(searchPayloadHierarchicalGeographic)
         ]);
 
-      }else if (mode == "WORKS"){
+      // }else if (mode == "WORKS"){
 
-        [resultsWorksAnchored,resultsWorksKeyword ] = await Promise.all([
-            this.searchComplex(searchPayloadWorksAnchored),
-            this.searchComplex(searchPayloadWorksKeyword)
-        ]);
+      //   [resultsWorksAnchored,resultsWorksKeyword ] = await Promise.all([
+      //       this.searchComplex(searchPayloadWorksAnchored),
+      //       this.searchComplex(searchPayloadWorksKeyword)
+      //   ]);
 
       }else if (mode == "HUBS"){
 
@@ -2601,11 +2600,11 @@ const utilsNetwork = {
       // }]
 
 
-      if (mode == "WORKS"){
-        // over write the subjects if we are doing a work search
-        resultsSubjectsSimple = resultsWorksAnchored
-        resultsSubjectsComplex = resultsWorksKeyword
-      }
+      // if (mode == "WORKS"){
+      //   // over write the subjects if we are doing a work search
+      //   resultsSubjectsSimple = resultsWorksAnchored
+      //   resultsSubjectsComplex = resultsWorksKeyword
+      // }
       if (mode == "HUBS"){
         // over write the subjects if we are doing a work search
         resultsSubjectsSimple = resultsHubsAnchored
