@@ -3,7 +3,7 @@
 </template>
 
 <script>
-
+import { useConfigStore } from '@/stores/config'
 
 export default {
   name: "EditLabelDereference",
@@ -77,6 +77,10 @@ export default {
                 this.displayLabel = cache
 
               }else{
+                let returnUrls = useConfigStore().returnUrls
+                if (returnUrls.env == "production"){
+                  URL = URL.replace("//id.", "//preprod-8080.id.")
+                }
 
                 let self = this
                 fetch(URL, {method: 'HEAD' }).then(
