@@ -1731,7 +1731,7 @@ methods: {
     this.contextRequestInProgress = false
   },
 
-  _getContext: async function(){
+  _getContextDeprecated: async function(){
     if (this.pickLookup[this.pickPostion].literal){
       this.contextData = this.pickLookup[this.pickPostion]
       return false

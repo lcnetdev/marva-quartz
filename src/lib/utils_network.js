@@ -751,6 +751,7 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     extractContextDataWorksHubs: async function(data){
+      console.info("extractContextDataWorksHubs")
       let returnUrls = useConfigStore().returnUrls
 
 
@@ -835,6 +836,7 @@ const utilsNetwork = {
 
 
                   let response = await fetch(url.replace('http://','https://')+'.nt');
+                  console.info("response: ", response)
                   let text  = await response.text()
 
                   let instanceText = ""
