@@ -886,9 +886,10 @@ data: function() {
       "sources": "Sources",
       "subjects": "Subjects",
       "marcKey": "MARC Key",
+      "relateds": "Related Names"
     },
     panelDetailOrder: [
-      "notes","nonlatinLabels","variantLabels","birthdates",
+      "notes","nonlatinLabels","variantLabels", "relateds","birthdates",
       "birthplaces","locales","activityfields","occupations",
       "languages","lcclasss","broaders","gacs","collections",
       "sources", "subjects", "marcKey"

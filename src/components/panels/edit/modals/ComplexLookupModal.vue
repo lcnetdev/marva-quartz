@@ -70,7 +70,7 @@
           "collections": "MADS Collections",
           "sources": "Sources",
           "marcKey": "MARC Key",
-          "relateds": "Releated Names"
+          "relateds": "See Also"
         },
         panelDetailOrder: [
           "notes","nonlatinLabels","variantLabels", "relateds","birthdates","birthplaces","locales",
@@ -1027,7 +1027,7 @@
                             <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
                             <!-- <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a> -->
                           </template>
-                          <template v-else-if="key == 'broaders'">
+                          <template v-else-if="key == 'broaders' || key == 'relateds'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
                           </template>
                           <template v-else>
