@@ -46,7 +46,7 @@
   import ItemInstanceSelectionModal from "@/components/panels/nav/ItemInstanceSelectionModal.vue";
   import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
   import GenericSelectionModal from '../edit/modals/GenericSelectionModal.vue'
-  
+
   import TimeAgo from 'javascript-time-ago'
   import en from 'javascript-time-ago/locale/en'
   if (TimeAgo.getDefaultLocale() != 'en'){TimeAgo.addDefaultLocale(en)}
@@ -84,7 +84,7 @@
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode']),
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted','activeProfilePostedTimestamp']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted','activeProfilePostedTimestamp', 'copyCatMode']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -154,8 +154,21 @@
             }catch{
               // expected error :(
             }
-            }, icon:"💾" }
+            }, icon:"💾"
+          },
         ]
+
+        if (this.$route.path.includes('load')){
+          menuButtonSubMenu.push(
+            {
+              text: "Copy Cat.",
+              click: () => {
+                this.profileStore.copyCatMode = !this.profileStore.copyCatMode
+              },
+              emoji: this.profileStore.copyCatMode ? "heavy_check_mark" : "smile_cat"
+            }
+          )
+        }
 
 
         if (this.$route.path.startsWith('/edit/')){
@@ -519,7 +532,7 @@
                   }
                   this.$refs.postmodal.post();
                   this.profileStore.saveRecord()
-                  
+
                 })
               },
               class: (this.activeProfilePosted) ? "record-posted simptip-position-bottom" : "record-unposted simptip-position-bottom",
@@ -583,7 +596,7 @@
             {
               text: "Profile: " + this.activeProfile.id,
               class: "current-profile",
-              
+
             }
           )
           }

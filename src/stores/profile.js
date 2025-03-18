@@ -76,6 +76,7 @@ export const useProfileStore = defineStore('profile', {
 
     // the starting points that display on the create new page
     startingPoints: {},
+    copyCatMode: false,
 
     // the current active profile
     activeProfile: {},
@@ -2993,6 +2994,8 @@ export const useProfileStore = defineStore('profile', {
 
     return response
   },
+
+
 
     /**
     * Publish record to backend

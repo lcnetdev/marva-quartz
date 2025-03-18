@@ -7,204 +7,199 @@
     </pane>
 
     <pane>
+      <div v-if="!copyCatMode">
+        <splitpanes>
+          <pane class="load" v-if="displayAllRecords">
+            <button @click="displayAllRecords=false;displayDashboard=true">Close</button>
+            <div id="all-records-table">
+              <DataTable  :loading="isLoadingAllRecords" :rows="allRecords" striped hoverable>
+                <!-- { "Id": "e1078432", "RTs": [ "lc:RT:bf2:Monograph:Work" ], "Type": "Monograph", "Status": "unposted", "Urls": [ "http://id.loc.gov/resources/works/e1078432", "http://id.loc.gov/resources/instances/e1078432" ], "Time": "2024-07-10:17:11:53", "User": "asdf (asdf)" } -->
+                <template #tbody="{row}">
+                  <td>
+                    <a href="#" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
+                  </td>
+                  <td v-text="(row.RTs) ? row.RTs.join(', ') : row.RTs"/>
+                  <td v-text="row.Type"/>
+                  <td v-text="row.Title"/>
+                  <td v-text="row.Status"/>
+                  <td>
+                    <div v-for="u in row.Urls">
+                      <a v-if="u.indexOf('/works/') >-1" :href="u" target="_blank">Work</a>
+                      <a v-else-if="u.indexOf('/instances/') >-1" :href="u" target="_blank">Instance</a>
+                      <a v-else :href="u" target="_blank">{{ u }}</a>
+                    </div>
+                  </td>
+                  <td v-text="row.Time"/>
+                  <td v-text="row.User"/>
+                </template>
+              </DataTable>
+            </div>
+          </pane>
 
-      <div>
+          <pane class="load" v-if="displayDashboard" >
+            <div class="load-columns">
+              <div class="load-test-data-column">
+                <h1>
+                  <span style="font-size: 1.15em; vertical-align: bottom; margin-right: 5px;" class="material-icons">cloud_download</span>
+                  <span>Load</span></h1>
+                <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
+                  <input placeholder="URL to resource or identifier to search" class="url-to-load" type="text" @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
+                  <p>Need to search title or author? Use <a href="https://preprod-8230.id.loc.gov/lds/index.xqy" target="_blank">BFDB</a>.</p>
+                </form>
+                <ol>
+                    <li v-if="searchByLccnResults && searchByLccnResults.length === 0">No results...</li>
+                    <template v-if="searchByLccnResults && typeof searchByLccnResults === 'string'">
+                      <li>Searching...</li>
+                    </template>
+                    <template v-else>
+                      <li v-for="(r,idx) in searchByLccnResults" :key="r.idURL">
+                          <div style="display:flex">
+                              <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.label}}</span></div>
+                              <div style="flex:1">
+                                <a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">View on BFDB</a>
+                                <span v-if="searchByLccnResults.length == 1" style="display:none;">
+                                  <label :for="'lccnsearch'+idx">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" checked="true" />
+                                </span>
+                                <span v-else>
+                                  <label :for="'lccnsearch'+idx" style="font-weight:bold;">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" />
+                                </span>
+                              </div>
+                            <!-- <div style="flex:1"><a href="#" target="_blank" @click.prevent="instanceEditorLink = r.bfdbPackageURL; testInstance()">Retrieve</a></div> -->
+                          </div>
+                        </li>
 
-      <splitpanes>
+                    </template>
 
-
-
-        <pane class="load" v-if="displayAllRecords">
-          <button @click="displayAllRecords=false;displayDashboard=true">Close</button>
-          <div id="all-records-table">
-            <DataTable  :loading="isLoadingAllRecords" :rows="allRecords" striped hoverable>
-
-              <!-- { "Id": "e1078432", "RTs": [ "lc:RT:bf2:Monograph:Work" ], "Type": "Monograph", "Status": "unposted", "Urls": [ "http://id.loc.gov/resources/works/e1078432", "http://id.loc.gov/resources/instances/e1078432" ], "Time": "2024-07-10:17:11:53", "User": "asdf (asdf)" } -->
-
-              <template #tbody="{row}">
-
-                <td>
-                  <a href="#" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
-
-                </td>
-
-                <td v-text="(row.RTs) ? row.RTs.join(', ') : row.RTs"/>
-                <td v-text="row.Type"/>
-                <td v-text="row.Title"/>
-                <td v-text="row.Status"/>
-                <td>
-                  <div v-for="u in row.Urls">
-                    <a v-if="u.indexOf('/works/') >-1" :href="u" target="_blank">Work</a>
-                    <a v-else-if="u.indexOf('/instances/') >-1" :href="u" target="_blank">Instance</a>
-                    <a v-else :href="u" target="_blank">{{ u }}</a>
-
-                  </div>
-
-                </td>
-                <td v-text="row.Time"/>
-                <td v-text="row.User"/>
-
-              </template>
-
-            </DataTable>
-
-          </div>
-
-
-
-        </pane>
-
-        <pane class="load" v-if="displayDashboard" >
-
-
-
-          <div class="load-columns">
-
-            <div class="load-test-data-column">
-              <h1>
-                <span style="font-size: 1.15em; vertical-align: bottom; margin-right: 5px;" class="material-icons">cloud_download</span>
-                <span>Load</span></h1>
-
-              <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
-                <input placeholder="URL to resource or identifier to search" class="url-to-load" type="text" @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
-                <p>Need to search title or author? Use <a href="https://preprod-8230.id.loc.gov/lds/index.xqy" target="_blank">BFDB</a>.</p>
-              </form>
-
-
-              <ol>
-
-                  <li v-if="searchByLccnResults && searchByLccnResults.length === 0">No results...</li>
-
-                  <template v-if="searchByLccnResults && typeof searchByLccnResults === 'string'">
-
-                    <li>Searching...</li>
-
-                  </template>
-                  <template v-else>
-
-                    <li v-for="(r,idx) in searchByLccnResults" :key="r.idURL">
-                        <div style="display:flex">
-
-                            <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.label}}</span></div>
-                            <div style="flex:1">
-                              <a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">View on BFDB</a>
-                              <span v-if="searchByLccnResults.length == 1" style="display:none;">
-                                <label :for="'lccnsearch'+idx">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" checked="true" />
-                              </span>
-                              <span v-else>
-                                <label :for="'lccnsearch'+idx" style="font-weight:bold;">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" />
-                              </span>
-                            </div>
-
-                          <!-- <div style="flex:1"><a href="#" target="_blank" @click.prevent="instanceEditorLink = r.bfdbPackageURL; testInstance()">Retrieve</a></div> -->
-
-                        </div>
-                      </li>
-
-
-
-
-
-                  </template>
-
-
-                  </ol>
+                </ol>
                 <div v-if="(!urlToLoadIsHttp && !lccnLoadSelected)" style="font-weight: bold; margin-bottom: 1em;">
                   First Enter the URL or identifier for a resource above, then select a profile.
                 </div>
 
-              <h3>Load with profile:</h3>
+                <h3>Load with profile:</h3>
+                <div class="load-buttons">
+                  <button class="load-button" @click="loadUrl(s.instance)" :disabled="(urlToLoadIsHttp || lccnLoadSelected ) ? false : true"  v-for="s in startingPointsFiltered">{{s.name}}</button>
+                </div>
+                <hr>
 
-
-              <div class="load-buttons">
-                <button class="load-button" @click="loadUrl(s.instance)" :disabled="(urlToLoadIsHttp || lccnLoadSelected ) ? false : true"  v-for="s in startingPointsFiltered">{{s.name}}</button>
-
-
+                <h2>Test Data:</h2>
+                <table id="test-data-table">
+                    <tr class="test-data" v-for="t in testData">
+                      <td><a :href="t.idUrl">{{t.label}}</a></td>
+                      <td><button @click="loadTestData(t)">Load with {{ t.profile }} </button></td>
+                    </tr>
+                  </table>
+                <!-- <details>
+                  <summary>Test Data</summary>
+                </details> -->
               </div>
-              <hr>
 
-
-
-              <h2>Test Data:</h2>
-              <table id="test-data-table">
-                  <tr class="test-data" v-for="t in testData">
-                    <td><a :href="t.idUrl">{{t.label}}</a></td>
-                    <td><button @click="loadTestData(t)">Load with {{ t.profile }} </button></td>
-                  </tr>
-                </table>
-              <!-- <details>
-                <summary>Test Data</summary>
-
-              </details> -->
-
-
-            </div>
-
-            <div>
-
-              <h1>
-                <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_note</span>
-                <span>Your Records</span></h1>
-                <a href="#" @click="loadAllRecords" style="color: inherit;">Show All Records</a>
-                <div>
-
-                  <div class="saved-records-empty" v-if="continueRecords.length==0">
-                    No saved records found.
-                  </div>
-                  <ul class="continue-record-list">
-                    <li class="continue-record" v-for="record in continueRecords" >
-                      <router-link :to="{ name: 'Edit', params: { recordId: record.eid}}">
-                        <div><span class="continue-record-title">{{record.title}}</span><span v-if="record.contributor"> by {{record.contributor}}</span><span> ({{record.lccn}})</span></div>
-                        <div class="continue-record-lastedit"><span v-if="record.status=='posted'">Posted</span><span v-if="record.status=='unposted'">last edited</span> <span>{{ returnTimeAgo(record.timestamp) }}</span></div>
-                      </router-link>
-                      <div class="material-icons" v-if="record.status=='posted'" title="Posted record">check_box</div>
-
-
-
-                    </li>
-
-
-
-                  </ul>
-
-
-
-                </div>
-
-
-            </div>
-
-
-            <div>
-
-              <h1 style="margin-bottom: 10px;">
-                <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_document</span>
-                <span>Create Blank Record</span></h1>
-                <div style="padding:5px;">
-                  Use these blank templates to test, but any record that you want to post to Voyager must originate in Voyager. Marva cannot currently assign Voyager bib numbers, so you need to create a stub record in Voyager and then load it into Marva.
-                </div>
-                <details>
-                  <summary><span style="text-decoration: underline;">Click Here</span> to access blank record templates. Currently these are only for testing input, and cannot be used for posting or in production.</summary>
+              <div>
+                <h1>
+                  <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_note</span>
+                  <span>Your Records</span></h1>
+                  <a href="#" @click="loadAllRecords" style="color: inherit;">Show All Records</a>
                   <div>
-                    <div class="load-buttons">
-                      <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>
-
-
+                    <div class="saved-records-empty" v-if="continueRecords.length==0">
+                      No saved records found.
                     </div>
+                    <ul class="continue-record-list">
+                      <li class="continue-record" v-for="record in continueRecords" >
+                        <router-link :to="{ name: 'Edit', params: { recordId: record.eid}}">
+                          <div><span class="continue-record-title">{{record.title}}</span><span v-if="record.contributor"> by {{record.contributor}}</span><span> ({{record.lccn}})</span></div>
+                          <div class="continue-record-lastedit"><span v-if="record.status=='posted'">Posted</span><span v-if="record.status=='unposted'">last edited</span> <span>{{ returnTimeAgo(record.timestamp) }}</span></div>
+                        </router-link>
+                        <div class="material-icons" v-if="record.status=='posted'" title="Posted record">check_box</div>
+                      </li>
+                    </ul>
                   </div>
-                </details>
+              </div>
 
-
-
+              <div>
+                <h1 style="margin-bottom: 10px;">
+                  <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_document</span>
+                  <span>Create Blank Record</span></h1>
+                  <div style="padding:5px;">
+                    Use these blank templates to test, but any record that you want to post to Voyager must originate in Voyager. Marva cannot currently assign Voyager bib numbers, so you need to create a stub record in Voyager and then load it into Marva.
+                  </div>
+                  <details>
+                    <summary><span style="text-decoration: underline;">Click Here</span> to access blank record templates. Currently these are only for testing input, and cannot be used for posting or in production.</summary>
+                    <div>
+                      <div class="load-buttons">
+                        <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>
+                      </div>
+                    </div>
+                  </details>
+              </div>
             </div>
+          </pane>
+        </splitpanes>
+      </div>
 
-          </div>
+      <div v-else>
+        <splitpanes>
+          <!-- Search Panel -->
+          <pane class="load" >
+            <div class="load-columns">
+              <div class="load-test-data-column">
+                <h1>
+                  <span style="font-size: 1.15em; vertical-align: bottom; margin-right: 5px;" class="material-icons">cloud_download</span>
+                  <span>External Search</span></h1>
+                <form ref="urlToLoadForm" v-on:submit.prevent="">
+                  <input placeholder="Enter Value to Search" class="url-to-load" type="text" v-model="wcQuery" ref="urlToLoad">
+                  <button @click="worldCatSearch()">Search</button>
+                  <br>
+                  <div class="toggle-btn-grp cssonly">
+                    <h3>Field to Search on</h3>
+                    <div v-for="opt in indexSelectOptions">
+                      <input type="radio" :value="opt.value" class="search-mode-radio" v-model="wcIndex" name="searchIndex"/>
+                        <label onclick="" class="toggle-btn">{{opt.label}}</label>
+                      </div>
+                  </div>
 
+                  <br>
+                  <label for="target-type">What are you looking for </label>
+                  <select name="target-type" v-model="wcType">
+                    <option value="book">Book</option>
+                    <option value="audiobook">Audio Book</option>
+                    <option value="music">Music</option>
+                  </select>
 
+                </form>
+                <ol>
+                    <li v-if="searchByLccnResults && searchByLccnResults.length === 0">No results...</li>
+                    <template v-if="searchByLccnResults && typeof searchByLccnResults === 'string'">
+                      <li>Searching...</li>
+                    </template>
+                    <template v-else>
+                      <li v-for="(r,idx) in searchByLccnResults" :key="r.idURL">
+                          <div style="display:flex">
+                              <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.label}}</span></div>
+                              <div style="flex:1">
+                                <a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">View on BFDB</a>
+                                <span v-if="searchByLccnResults.length == 1" style="display:none;">
+                                  <label :for="'lccnsearch'+idx">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" checked="true" />
+                                </span>
+                                <span v-else>
+                                  <label :for="'lccnsearch'+idx" style="font-weight:bold;">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" />
+                                </span>
+                              </div>
+                          </div>
+                        </li>
 
-        </pane>
+                    </template>
 
-
+                </ol>
+              </div>
+              <!-- Results -->
+              <div>
+                <h1>Results</h1>
+              </div>
+              <!-- Details -->
+              <div>
+                <h1>Details</h1>
+              </div>
+            </div>
+          </pane>
 
       </splitpanes>
       </div>
@@ -267,8 +262,20 @@
         displayAllRecords: false,
         isLoadingAllRecords:false,
 
-        allRecords: []
+        allRecords: [],
 
+        wcIndex: "ti",
+        wcType: "book",
+        wcQuery: "",
+        wcOffest: "0",
+        wcLimit: "10",
+        queryingWc: false,
+        wcResults: [],
+        indexSelectOptions: [
+          { label: 'Title', value: 'ti' },
+          { label: 'ISBN', value: 'bn' },
+          { label: 'Keyword', value: 'kw' },
+        ]
 
       }
     },
@@ -280,8 +287,8 @@
       ...mapStores(useProfileStore),
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
       ...mapState(useConfigStore, ['testData']),
-      ...mapState(useProfileStore, ['startingPoints','profiles']),
-      ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents','activeProfilePosted','activeProfilePostedTimestamp']),
+      ...mapState(useProfileStore, ['startingPoints','profiles', 'copyCatMode']),
+      ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents','activeProfilePosted','activeProfilePostedTimestamp', 'copyCatMode']),
 
 
       // // gives read access to this.count and this.double
@@ -308,7 +315,24 @@
     },
 
     methods: {
+      worldCatSearch: function(){
+        console.info("searching world cat")
+        console.info("query: ", this.wcQuery)
+        console.info("index: ", this.wcIndex)
+        console.info("type: ", this.wcType)
 
+        this.queryingWc = true
+        //console.log("Validating: ", this.validating)
+        this.wcResults = []
+        try{
+          this.wcResults = await utilsNetwork.worldCatSearch(xml.xlmStringBasic)
+        } catch(err) {
+          this.wcResults = {"error": err}
+        }
+
+        this.queryingWc = false
+
+      },
 
       loadFromAllRecord: function(eId){
 

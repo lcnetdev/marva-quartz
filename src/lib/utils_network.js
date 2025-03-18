@@ -2759,6 +2759,31 @@ const utilsNetwork = {
     const content = await rawResponse.json();
 
     return content
+  },
+
+  worldCatSearch: async function(query, index, type, offset, limit, marc=false){
+    let baseUrl = useConfigStore().returnUrls.worldCat
+    let url = null
+    if (marc){
+      url = baseUrl + "/worldcat/marc/" + query //OCLC number
+    } else {
+      url = baseUrl + "/worldcat/search/"
+    }
+
+    const rawResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        query: query,
+        index: index,
+        type: type,
+        offset: offset,
+        limit: limit
+      })
+    })
 
   },
 
