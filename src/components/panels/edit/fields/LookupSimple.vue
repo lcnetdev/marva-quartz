@@ -288,16 +288,13 @@ export default {
     ...mapWritableState(useProfileStore, ['activeField','activeProfile']),
 
     simpleLookupValues(){
-      console.info("simpleLookupValues")
       // profileStore.setActiveField()
       let values = this.profileStore.returnSimpleLookupValueFromProfile(this.guid, this.propertyPath)
       if (this.readOnly && values.length==0){
         this.showField=false
       }
 
-      console.info("values: ", values)
       return values
-
     },
 
     // if there is already a value we just need one of them so we can find its parent to put new ones into

@@ -2205,9 +2205,7 @@ export const useProfileStore = defineStore('profile', {
 
         }
 
-        console.info("values: ", values)
         return values
-
       }
 
       // if valueLocation is false then it did not find anytihng meaning its empty, return empty array
@@ -2361,6 +2359,15 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
+      console.info("setValueComplex")
+      console.info("    componentGuid: ", componentGuid)
+      console.info("    fieldGuid: ", fieldGuid)
+      console.info("    propertyPath: ", propertyPath)
+      console.info("    URI: ", URI)
+      console.info("    label: ", label)
+      console.info("    type: ", type)
+      console.info("    nodeMap: ", nodeMap)
+      console.info("    marcKey: ", marcKey)
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2380,12 +2387,12 @@ export const useProfileStore = defineStore('profile', {
       //   }
       // }
 
-      // if (['Work', 'Hub'].includes(type)){
-      //   type = "http://id.loc.gov/ontologies/bibframe/" + type
-      // }
-      // if (type && !type.startsWith("http")){
-      //   type = "http://www.loc.gov/mads/rdf/v1#" + type // Works and Hubs should be `BF:` not madsrdf.
-      // }
+      if (['Work', 'Hub'].includes(type)){
+        type = "http://id.loc.gov/ontologies/bibframe/" + type
+      }
+      if (type && !type.startsWith("http")){
+        type = "http://www.loc.gov/mads/rdf/v1#" + type
+      }
 
       // literals don't have a type or a URI & intendedAudience has extra considerations
       // namely that the rdf:Type in BF is bf:Authority

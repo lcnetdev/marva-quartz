@@ -50,14 +50,12 @@ const utilsNetwork = {
     * @return {object} - returns the results processing
     */
     loadSimpleLookup: async function(uris){
-      console.info("loadSimpleLookup")
         // TODO make this better for multuple lookup list (might not be needed)
         if (!Array.isArray(uris)){
           uris=[uris]
         }
         for (let uri of uris){
           let url = uri
-          console.info("url: ", url)
           // TODO more checks here
           if (!uri.includes('.json') && !uri.includes("suggest2")){
               url = url + '.json'
@@ -284,7 +282,6 @@ const utilsNetwork = {
     * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
     */
     fetchSimpleLookup: async function(url, json, signal=null) {
-      console.info("fetchSimpleLookup: ", url)
       url = url || config.profileUrl
       if (url.includes("id.loc.gov")){
         url = url.replace('http://','https://')
@@ -292,12 +289,6 @@ const utilsNetwork = {
 
       // if we use the memberOf there might be a id URL in the params, make sure its not https
       url = url.replace('memberOf=https://id.loc.gov/','memberOf=http://id.loc.gov/')
-
-      let returnUrls = useConfigStore().returnUrls
-      if (returnUrls.env == 'production'){
-        url = url.replace("https://id.loc.gov", "https://preprod-8080.id.loc.gov")
-        console.info("url: ", url)
-      }
 
       let options = {signal: signal}
       if (json){
@@ -578,7 +569,6 @@ const utilsNetwork = {
         return false
       }
 
-      console.info("uri: ", uri)
       if (d && uri.includes('resources/works/') || uri.includes('resources/hubs/')){
         results = await this.extractContextDataWorksHubs(d)
       }else if (d){
@@ -1011,8 +1001,6 @@ const utilsNetwork = {
                     results.title = g['http://id.loc.gov/ontologies/bflc/aap'][0]['@value']
                   }
 
-                  console.info("types: ", g['@type'])
-
                   if (g['@type'] && g['@type'][0]){
                     results.type = this.rdfType(g['@type'][0])
                     results.typeFull = g['@type'][0]
@@ -1220,7 +1208,6 @@ const utilsNetwork = {
 
 
               if (n['@id'] && n['@id'] == data.uri && n['@type']){
-                console.info("types: ", n['@type'])
                   n['@type'].forEach((t)=>{
                       if (results.type===null){
                           results.type = this.rdfType(t)
@@ -1283,7 +1270,6 @@ const utilsNetwork = {
             }
           })
 
-          console.info("results: ", results)
           return results;
         },
 
