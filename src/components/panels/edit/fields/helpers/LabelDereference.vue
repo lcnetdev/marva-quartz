@@ -19,16 +19,11 @@ export default {
 
   data:function() {
     return {
-
       displayLabel: ''
-
     }
   },
 
-  created: function(){
-
-
-  },
+  created: function(){},
 
   computed: {
 
@@ -45,7 +40,6 @@ export default {
   methods:{
 
     fetchLabel: function(){
-      console.info("fetchLabel")
       if (this.URI){
         if (this.URI.startsWith('http://') || this.URI.startsWith('https://') ){
 
@@ -67,7 +61,6 @@ export default {
               }
 
               let URL = this.URI + '.madsrdf_raw.json' //'.nt'
-              console.info("    url: ", URL)
               URL = URL.replace('http://','https://')
 
               let cache = sessionStorage.getItem(URL);

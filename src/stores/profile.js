@@ -2359,15 +2359,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
-      console.info("setValueComplex")
-      console.info("    componentGuid: ", componentGuid)
-      console.info("    fieldGuid: ", fieldGuid)
-      console.info("    propertyPath: ", propertyPath)
-      console.info("    URI: ", URI)
-      console.info("    label: ", label)
-      console.info("    type: ", type)
-      console.info("    nodeMap: ", nodeMap)
-      console.info("    marcKey: ", marcKey)
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })

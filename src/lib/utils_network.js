@@ -584,11 +584,6 @@ const utilsNetwork = {
     * @return {object} - the data response
     */
     fetchContextData: async function(uri){
-      console.info("!!!!!!!!!!!!!!!!!!!!!!!")
-      console.info("!!!!!!!!!!!!!!!!!!!!!!!")
-      console.info("FETCHING")
-      console.info("!!!!!!!!!!!!!!!!!!!!!!!")
-      console.info("!!!!!!!!!!!!!!!!!!!!!!!")
           let returnUrls = useConfigStore().returnUrls
 
           if ((uri.startsWith('http://id.loc.gov') || uri.startsWith('https://id.loc.gov')) && uri.match(/(authorities|vocabularies)/)) {
@@ -751,7 +746,6 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     extractContextDataWorksHubs: async function(data){
-      console.info("extractContextDataWorksHubs")
       let returnUrls = useConfigStore().returnUrls
 
 
@@ -832,11 +826,7 @@ const utilsNetwork = {
                     url = url.replace('https://preprod-8288.id.loc.gov','https://id.loc.gov')
                   }
 
-
-
-
                   let response = await fetch(url.replace('http://','https://')+'.nt');
-                  console.info("response: ", response)
                   let text  = await response.text()
 
                   let instanceText = ""
@@ -921,7 +911,6 @@ const utilsNetwork = {
     * @return {array} - An array of {@link contextResult} results
     */
     extractContextData: function(data){
-      console.info("extractContextData")
       data.uri = data.uri.replace("https://preprod-8080.", "http://id.loc.gov/")
 
           var results = {
@@ -2162,8 +2151,6 @@ const utilsNetwork = {
       }else if (result.hit && result.resultType == 'COMPLEX') {
         // if they are adding a complex value still need to lookup the marc key
         // let marcKeyResult = await this.returnMARCKey(result.hit.uri + '.madsrdf_raw.jsonld')
-        console.info("result.hit: ", result.hit)
-        console.info("marcKeyResult: ", marcKeyResult)
 
         result.hit.marcKey = result.hit.extra.marcKey
       }
@@ -2181,7 +2168,6 @@ const utilsNetwork = {
     * @return {string} - The URI of the likely MADSRDF rdf type
     */
     returnRDFType: async function(uri){
-      console.info("returnRDFType")
       uri=uri.trim()
       let uriToLookFor = uri
 
@@ -2252,7 +2238,6 @@ const utilsNetwork = {
     * @return {string} - The URI of the likely MADSRDF rdf type
     */
     returnMARCKey: async function(uri){
-      console.info("returnMARCKey")
       uri=uri.trim()
 
       // marc keys don't exist on the RWO so if they are asking for a RWO switch it to a auth
