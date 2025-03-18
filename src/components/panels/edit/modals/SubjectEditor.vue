@@ -926,6 +926,12 @@ methods: {
 
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
+    console.info("parseComplexSubject: ", uri)
+    let returnUrls = useConfigStore().returnUrls
+    if (returnUrls.env == 'production'){
+      uri = uri.replace('http://id.', 'https://preprod-8080.id.')
+      uri = uri.replace('https://id.', 'https://preprod-8080.id.')
+    }
     let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
     let components = false
     let subfields = false
