@@ -886,7 +886,7 @@ data: function() {
       "sources": "Sources",
       "subjects": "Subjects",
       "marcKey": "MARC Key",
-      "relateds": "Related Names"
+      "relateds": "Related"
     },
     panelDetailOrder: [
       "notes","nonlatinLabels","variantLabels", "relateds","birthdates",

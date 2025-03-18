@@ -70,7 +70,7 @@
           "collections": "MADS Collections",
           "sources": "Sources",
           "marcKey": "MARC Key",
-          "relateds": "See Also"
+          "relateds": "Related"
         },
         panelDetailOrder: [
           "notes","nonlatinLabels","variantLabels", "relateds","birthdates","birthplaces","locales",
