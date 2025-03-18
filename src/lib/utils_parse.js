@@ -263,7 +263,6 @@ const utilsParse = {
   * @return {Node}
   */
   sniffWorkRelationType(xml){
-    console.info("sniffWorkRelationType")
     for (let child of xml.children){
       if (child.tagName == 'bf:relation'){
 
@@ -307,32 +306,29 @@ const utilsParse = {
 
 
       // old Logic
-       if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
+      if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
       } else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bf/Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
-          child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-
-       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-       }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
-        console.info("  >>", 1)
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+      }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1){
-        console.info("  >>", 2)
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
+      } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
-       } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
-        console.info("  >>", 3, "--", child.innerHTML)
+      } else if ( (child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       } else if (child.innerHTML.indexOf("bf:Work")>-1){
-        console.info("  >>", 4)
+      } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 ) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
+      } else if (child.innerHTML.indexOf("bf:Work")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       }else{
-          // leave blank?
-        }
+      }else{
+      // leave blank?
+      }
 
         // console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
         // console.log("-->", child)
@@ -404,7 +400,6 @@ const utilsParse = {
   },
 
   transformRts: async function(profile){
-    console.info("transformRts: ", JSON.parse(JSON.stringify(profile)))
     let toDeleteNoData = []
 
     // before we start processing make sure we have enough instance rts for the number needed
@@ -431,8 +426,6 @@ const utilsParse = {
     let rtsToRemove = []
 
     for (const pkey in profile.rt) {
-      console.info("    pkey: ", pkey)
-
       let tle = ""
       let isHub = false
       if (pkey.includes(':Work')){
@@ -614,9 +607,6 @@ const utilsParse = {
         let el = []
         // let elHashOrder = []
         for (let e of xml.children){
-
-          console.info("        e: ", e)
-
           if (this.UriNamespace(e.tagName) == propertyURI){
 
 
