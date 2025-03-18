@@ -306,28 +306,29 @@ const utilsParse = {
 
 
       // old Logic
-       if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
+      if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
       } else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bf/Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
-          child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-
-       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-       }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
-          child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1){
-          child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+      }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+      } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
-       } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
+      } else if ( (child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       } else if (child.innerHTML.indexOf("bf:Work")>-1){
+      } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 ) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
+      } else if (child.innerHTML.indexOf("bf:Work")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       }else{
-          // leave blank?
-        }
+      }else{
+      // leave blank?
+      }
 
         // console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
         // console.log("-->", child)
@@ -425,7 +426,6 @@ const utilsParse = {
     let rtsToRemove = []
 
     for (const pkey in profile.rt) {
-
       let tle = ""
       let isHub = false
       if (pkey.includes(':Work')){
@@ -607,8 +607,6 @@ const utilsParse = {
         let el = []
         // let elHashOrder = []
         for (let e of xml.children){
-
-
           if (this.UriNamespace(e.tagName) == propertyURI){
 
 
@@ -1019,7 +1017,7 @@ const utilsParse = {
 
                     let gChildProperty = this.UriNamespace(gChild.tagName)
 
-                    
+
                     // if it a one liner Class w/ no children add it in as its own obj otherwise it is a
                     // literal or something
                     if (this.isClass(gChild.tagName)){
