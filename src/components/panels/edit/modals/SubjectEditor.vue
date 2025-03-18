@@ -89,7 +89,7 @@
                   <button @click="searchModeSwitch('LCSHNAF')" :data-tooltip="'Shortcut: CTRL+ALT+1'" :class="['simptip-position-bottom',{'active':(searchMode==='LCSHNAF')}]">LCSH/NAF</button>
                   <button @click="searchModeSwitch('CHILD')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='CHILD')}]">Children's Subjects</button>
                   <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button>
-                  <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button>
+                  <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
                   <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+5'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
 
                 </div>
@@ -886,9 +886,10 @@ data: function() {
       "sources": "Sources",
       "subjects": "Subjects",
       "marcKey": "MARC Key",
+      "relateds": "Related"
     },
     panelDetailOrder: [
-      "notes","nonlatinLabels","variantLabels","birthdates",
+      "notes","nonlatinLabels","variantLabels", "relateds","birthdates",
       "birthplaces","locales","activityfields","occupations",
       "languages","lcclasss","broaders","gacs","collections",
       "sources", "subjects", "marcKey"
@@ -926,6 +927,11 @@ methods: {
 
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
+    let returnUrls = useConfigStore().returnUrls
+    if (returnUrls.env == 'production'){
+      uri = uri.replace('http://id.', 'https://preprod-8080.id.')
+      uri = uri.replace('https://id.', 'https://preprod-8080.id.')
+    }
     let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
     let components = false
     let subfields = false
@@ -1725,7 +1731,7 @@ methods: {
     this.contextRequestInProgress = false
   },
 
-  _getContext: async function(){
+  _getContextDeprecated: async function(){
     if (this.pickLookup[this.pickPostion].literal){
       this.contextData = this.pickLookup[this.pickPostion]
       return false

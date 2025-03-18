@@ -450,7 +450,7 @@ export default {
           this.propertyPath,
           contextValue.uri,
           contextValue.title,
-          null, //contextValue.type.includes("Hub") ? "Hub" : contextValue.extra.rdftypes[0],
+          (contextValue.type && (contextValue.type.includes("Hub") || contextValue.type.includes("Work")) ) ? contextValue.type : contextValue.extra.rdftypes[0],
           contextValue.extra,
           contextValue.extra.marcKey
         )

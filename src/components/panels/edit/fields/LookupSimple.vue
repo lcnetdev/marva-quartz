@@ -77,9 +77,7 @@
                 <div class="lookup-fake-input-entities" style="display:inline-block;">
                   <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
                       <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
-
                       <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span></span>
-
                       <span @click="removeValue(idx)" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
                   </div>
                 </div>
@@ -295,7 +293,6 @@ export default {
       }
 
       return values
-
     },
 
     // if there is already a value we just need one of them so we can find its parent to put new ones into
@@ -868,9 +865,6 @@ export default {
               break
             }
 
-
-
-
             // this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':metadata[key].label[idx],URI:metadata[key].uri})
             this.activeFilter = ''
             this.activeValue = ''
@@ -882,7 +876,6 @@ export default {
             break
           }
         }
-
 
         // if there is a value still that means the value did not match a item in the list
         // so add the value as a uncontrolled value
