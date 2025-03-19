@@ -352,7 +352,7 @@
 
 
       buildHubStub(){
-        console.log(this.guid)
+        // console.log(this.guid)
         let info = this.profileStore.returnLccInfo(this.guid)
         this.profileStore.activeHubStubData = info
         this.profileStore.activeHubStubComponent = {
@@ -432,7 +432,7 @@
       },
 
       buildNacoStub(){
-        console.log(this.guid)
+        
 
         this.profileStore.activeNARStubComponent = {
           type: this.type,
@@ -1021,8 +1021,8 @@
       },
 
       isStaging(){
-        console.log(useConfigStore().returnUrls.dev)
-        console.log(useConfigStore().returnUrls)
+        // console.log(useConfigStore().returnUrls.dev)
+        // console.log(useConfigStore().returnUrls)
         if (useConfigStore().returnUrls.dev){
           return true
         }
