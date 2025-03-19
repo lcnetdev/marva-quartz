@@ -2264,7 +2264,9 @@ const utilsNetwork = {
         // most uris in the id.loc.gov dataset do not have https in the data uris
         uriToLookFor = uriToLookFor.replace('https://','http://')
 
-
+        // remove any prefixes being used for the acutall URI
+        uriToLookFor = uriToLookFor.replace(/https:\/\/preprod[-0-9]*\.id/i,'http://id')
+        uriToLookFor = uriToLookFor.replace(/http:\/\/preprod[-0-9]*\.id/i,'http://id')
 
         uriToLookFor = uriToLookFor.replace('.madsrdf_raw.jsonld','')
 

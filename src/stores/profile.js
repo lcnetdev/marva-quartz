@@ -4979,44 +4979,18 @@ export const useProfileStore = defineStore('profile', {
         alert("There was an error creating your Hub. Please report this issue.")
       }
 
-      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
+      // to simulate a post
+      // alert("Fake Hub Requesting")
+      // pubResuts = {
+      //     "name": "bc331009-aa60-48b3-ba17-865fc7389f23",
+      //     "publish": {
+      //         "status": "published"
+      //     },
+      //     "postLocation": "http://preprod-8299.id.loc.gov/resources/hubs/bf110051-532b-c50c-5d5c-baa4ea6d2044"
+      // }
 
 
-      return pubResuts
-
-
-
-    },
-
-  /**
-    * Builds and posts a Hub Stub
-    *
-    * @param {object} hubCreatorObj - obj with creator label, uri,marcKey
-    * @param {string} title - title string
-    * @param {string} langObj - {uri:"",label:""}
-    * @return {String}
-    */
-    async buildPostHubStub(hubCreatorObj,title,langObj,catCode){
-
-      // console.log("hubCreatorObj",hubCreatorObj)
-      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langObj,catCode)
-
-      console.log(xml)
-      let eid = 'e' + decimalTranslator.new()
-      eid = eid.substring(0,8)
-
-      // pass a fake activeprofile with id == Hub to trigger hub protocols
-      let pubResuts
-      try{
-        pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
-
-      }catch (error){
-        console.log(error)
-        alert("There was an error creating your Hub. Please report this issue.")
-      }
-
-      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
-
+      
 
       return pubResuts
 
