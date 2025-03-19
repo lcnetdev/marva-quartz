@@ -2495,7 +2495,17 @@ export const useProfileStore = defineStore('profile', {
                 aNode['@language']=aMarcKeyNode['@language']
               }
               blankNode['http://id.loc.gov/ontologies/bflc/marcKey'].push(aNode)
+            }else if (aMarcKeyNode && aMarcKeyNode.marcKey){
 
+              let aNode = {
+                '@guid': short.generate(),
+                'http://id.loc.gov/ontologies/bflc/marcKey' : aMarcKeyNode.marcKey
+              }
+              if (aMarcKeyNode['@language']){
+                aNode['@language']=aMarcKeyNode['@language']
+              }            
+
+            
             }else{
               console.error("Cannot understand response from context extaction for marcKey:",marcKey)
             }
