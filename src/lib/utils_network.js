@@ -251,6 +251,13 @@ const utilsNetwork = {
      * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
      */
     fetchExactLookup: async function(url, signal=null){
+
+      // can't use firewall servers on bibframe.org
+      if (useConfigStore().returnUrls.publicEndpoints == true || usePreferenceStore().catInitals == 'mattdev'){
+        url = url.replace(/https:\/\/preprod[-0-9]*\.id/i,'https://id')
+      }
+
+
       let options = {signal: signal}
       let response = await fetch(url,options);
 
@@ -286,9 +293,16 @@ const utilsNetwork = {
       if (url.includes("id.loc.gov")){
         url = url.replace('http://','https://')
       }
-
+      
       // if we use the memberOf there might be a id URL in the params, make sure its not https
       url = url.replace('memberOf=https://id.loc.gov/','memberOf=http://id.loc.gov/')
+
+     
+      // can't use firewall servers on bibframe.org
+      if (useConfigStore().returnUrls.publicEndpoints == true || usePreferenceStore().catInitals == 'mattdev'){
+        url = url.replace(/https:\/\/preprod[-0-9]*\.id/i,'https://id')
+      }
+
 
       let options = {signal: signal}
       if (json){
@@ -385,7 +399,7 @@ const utilsNetwork = {
       let returnUrls = useConfigStore().returnUrls
 
       let r = await fetch(returnUrls.util + 'lccnnaco')
-      console.log(r)
+      
       let data = await r.json()
       return data.id
 
@@ -2266,7 +2280,7 @@ const utilsNetwork = {
           uri=uri+'.json'
         }
       }
-      console.log("uriuriuriuriuriuriuriuriuriuri",uri)
+      
       let data = await this.fetchSimpleLookup(uri,true)
 
       if (data && uri.indexOf('id.loc.gov')>-1){
