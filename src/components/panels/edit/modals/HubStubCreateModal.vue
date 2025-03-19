@@ -326,8 +326,33 @@
           let results = await this.profileStore.buildPostHubStub(this.hubCreator,this.hubTitle,this.hubTitleVariant,this.hubTitleVariantLang,langObj,this.preferenceStore.catCode)
 
           if (results && results.postLocation){
+
+
+            let extra = {
+              collections: [],
+              genres: [],
+              rdftypes: ['Work', 'Hub'],
+              subjects: [],
+            }
+
             results.postLocation = results.postLocation.replace("http://",'https://')
-            this.profileStore.setValueComplex(this.activeHubStubComponent.guid, null, this.activeHubStubComponent.propertyPath, results.postLocation, this.hubTitle, null, {}, null)
+
+            let hubUri = results.postLocation.replace(/https:\/\/preprod[-0-9]*\.id/i,'http://id')
+            hubUri = hubUri.replace(/http:\/\/preprod[-0-9]*\.id/i,'http://id')
+
+            // we need to ask for the MARCKey from ID since we don't know it locally
+            
+            let MARCKey = await utilsNetwork.returnMARCKey(results.postLocation)
+
+            this.profileStore.setValueComplex(this.activeHubStubComponent.guid, null, this.activeHubStubComponent.propertyPath, hubUri, this.hubTitle, 'Hub', extra, MARCKey)
+
+
+
+
+
+            
+
+
 
             this.newHubUrl=results.postLocation
 
