@@ -1808,8 +1808,7 @@ const utilsExport = {
 	* @param {string} langObj - {uri:"",label:""}
 	 * @return {string}
 	 */
-	createHubStubXML: async function(hubCreatorObj,title,langObj,catalogerId){
-
+	createHubStubXML: async function(hubCreatorObj,title,variant,variantLanguage,langObj,catalogerId){
 
 
 
@@ -1859,6 +1858,31 @@ const utilsExport = {
 		elTitleClass.appendChild(elMainTitle)
 		elTitleProperty.appendChild(elTitleClass)
 		elHub.appendChild(elTitleProperty)
+
+
+
+
+		// variant
+		if (variant){
+				
+			let elTitleVariantProperty = document.createElementNS(this.namespace.bf ,'bf:title')
+			let elTitleVariantClass = document.createElementNS(this.namespace.bf ,'bf:VariantTitle')
+			let elMainTitleVariant = document.createElementNS(this.namespace.bf ,'bf:mainTitle')
+
+			if (variantLanguage){
+				elMainTitleVariant.setAttribute('xml:lang', variantLanguage)
+			}
+
+			elMainTitleVariant.innerHTML = variant
+			
+			
+
+
+			// attach
+			elTitleVariantClass.appendChild(elMainTitleVariant)
+			elTitleVariantProperty.appendChild(elTitleVariantClass)
+			elHub.appendChild(elTitleVariantProperty)
+		}
 
 
 
