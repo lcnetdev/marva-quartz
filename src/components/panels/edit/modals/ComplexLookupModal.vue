@@ -58,6 +58,7 @@
           "notes": "Notes",
           "nonlatinLabels": "Non-Latin Authoritative Labels",
           "variantLabels": "Variants",
+          "varianttitles": "Varants Titles",
           "birthdates": "Date of Birth",
           "birthplaces": "Place of Birth",
           "locales": "Associated Locales",
@@ -70,11 +71,14 @@
           "collections": "MADS Collections",
           "sources": "Sources",
           "marcKeys": "MARC Key",
-          "relateds": "Related"
+          "relateds": "Related",
+          "contributors": "Contributors",
+          "identifiers": "Identifiers"
+
         },
         panelDetailOrder: [
-          "notes","nonlatinLabels","variantLabels", "relateds","birthdates","birthplaces","locales",
-          "activityfields","occupations","languages","lcclasss","broaders","gacs","collections",
+          "notes","nonlatinLabels","variantLabels", "varianttitles", "contributors", "relateds","birthdates","birthplaces","locales",
+          "activityfields","occupations","languages","lcclasss", "identifiers", "broaders","gacs","collections",
           "sources", "marcKeys"
         ],
       }
