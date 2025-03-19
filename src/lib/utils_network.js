@@ -416,7 +416,6 @@ const utilsNetwork = {
 
         if (searchPayload.processor == 'lcAuthorities'){
           for (let idx in urlTemplate){
-
             if (urlTemplate[idx].includes('q=?')){
               urlTemplate[idx] = urlTemplate[idx].replace('q=?','q=')+'&searchtype=keyword'
             }
@@ -427,7 +426,6 @@ const utilsNetwork = {
 
         let results = []
         for (let url of urlTemplate) {
-
             // kind of hack, change to the public endpoint if we are in dev or public mode
             if (returnUrls.dev || returnUrls.publicEndpoints){
               url = url.replace('http://preprod.id.','https://id.')
