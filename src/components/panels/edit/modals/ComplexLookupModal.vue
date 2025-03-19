@@ -69,13 +69,13 @@
           "gacs": "GAC(s)",
           "collections": "MADS Collections",
           "sources": "Sources",
-          "marcKey": "MARC Key",
+          "marcKeys": "MARC Key",
           "relateds": "Related"
         },
         panelDetailOrder: [
           "notes","nonlatinLabels","variantLabels", "relateds","birthdates","birthplaces","locales",
           "activityfields","occupations","languages","lcclasss","broaders","gacs","collections",
-          "sources", "marcKey"
+          "sources", "marcKeys"
         ],
       }
     },
@@ -673,6 +673,7 @@
             "loading":true,
             "extra": toLoad.extra ? toLoad.extra : {},
             "gacs": toLoad.extra ? toLoad.extra.gacs : [],
+            "marcKey": (toLoad.extra && toLoad.extra.marcKeys) ? toLoad.extra.marcKeys[0] : ''
           }
 
         if (toLoad && toLoad.literal){

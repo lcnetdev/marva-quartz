@@ -885,14 +885,14 @@ data: function() {
       "collections": "MADS Collections",
       "sources": "Sources",
       "subjects": "Subjects",
-      "marcKey": "MARC Key",
+      "marcKeys": "MARC Key",
       "relateds": "Related"
     },
     panelDetailOrder: [
       "notes","nonlatinLabels","variantLabels", "relateds","birthdates",
       "birthplaces","locales","activityfields","occupations",
       "languages","lcclasss","broaders","gacs","collections",
-      "sources", "subjects", "marcKey"
+      "sources", "subjects", "marcKeys"
     ],
 
 

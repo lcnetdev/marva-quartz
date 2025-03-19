@@ -443,6 +443,7 @@ export default {
           contextValue.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
         }
 
+
         delete contextValue.typeFull
         this.profileStore.setValueComplex(
           this.guid,
@@ -452,7 +453,7 @@ export default {
           contextValue.title,
           (contextValue.type && (contextValue.type.includes("Hub") || contextValue.type.includes("Work")) ) ? contextValue.type : contextValue.extra.rdftypes[0],
           contextValue.extra,
-          contextValue.extra.marcKey
+          (contextValue.extra && contextValue.extra.marcKeys) ? contextValue.extra.marcKeys[0] : null,
         )
       }
         this.searchValue=''
