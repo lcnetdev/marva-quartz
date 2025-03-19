@@ -2762,13 +2762,18 @@ const utilsNetwork = {
   },
 
   worldCatSearch: async function(query, index, type, offset, limit, marc=false){
+    console.info("worldCatSearch")
+    // consonsole.info("useConfigStore().returnUrls >>", useConfigStore().returnUrls)
     let baseUrl = useConfigStore().returnUrls.worldCat
+
     let url = null
     if (marc){
-      url = baseUrl + "/worldcat/marc/" + query //OCLC number
+      url = baseUrl + "marc/" + query //OCLC number
     } else {
-      url = baseUrl + "/worldcat/search/"
+      url = baseUrl + "search/"
     }
+
+    console.info("worldCatSearch: ", url)
 
     const rawResponse = await fetch(url, {
       method: 'POST',

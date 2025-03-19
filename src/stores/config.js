@@ -25,7 +25,8 @@ export const useConfigStore = defineStore('config', {
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
         starting: 'http://localhost:9401/util/profiles/starting/prod',
-        worldCat: 'http://localhost:9401/worldcat/',
+        // worldCat: 'http://localhost:9401/worldcat/',
+        worldCat: 'http://localhost:5200/worldcat/',
 
         profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
         // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',

@@ -267,7 +267,7 @@
         wcIndex: "ti",
         wcType: "book",
         wcQuery: "",
-        wcOffest: "0",
+        wcOffset: "0",
         wcLimit: "10",
         queryingWc: false,
         wcResults: [],
@@ -315,7 +315,7 @@
     },
 
     methods: {
-      worldCatSearch: function(){
+      worldCatSearch: async function(marc=false){
         console.info("searching world cat")
         console.info("query: ", this.wcQuery)
         console.info("index: ", this.wcIndex)
@@ -325,12 +325,13 @@
         //console.log("Validating: ", this.validating)
         this.wcResults = []
         try{
-          this.wcResults = await utilsNetwork.worldCatSearch(xml.xlmStringBasic)
+          this.wcResults = await utilsNetwork.worldCatSearch(this.wcQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
         } catch(err) {
           this.wcResults = {"error": err}
         }
 
         this.queryingWc = false
+        console.info("this.wcResults: ", this.wcResults)
 
       },
 
