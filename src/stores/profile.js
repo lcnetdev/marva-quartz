@@ -2368,7 +2368,6 @@ export const useProfileStore = defineStore('profile', {
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-
       // if (!type && URI && !lastProperty.includes("intendedAudience")){
       //   // I regretfully inform you we will need to look this up
       //   let context = await utilsNetwork.returnContext(URI)
@@ -2401,9 +2400,11 @@ export const useProfileStore = defineStore('profile', {
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
+
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
+
           pt = buildBlankNodeResult[0]
 
           // now we can make a link to the parent of where the literal value should live
@@ -2424,7 +2425,10 @@ export const useProfileStore = defineStore('profile', {
 
           // overwrite whatever the helper methods set the type to for this one, we know the final
           // type and what it needs to be
-          blankNode['@type'] = type
+          // don't do this for subjects, Subjects as complexValues will add extra nesting that doesn't match a subject's XML
+          if (!propertyPath.some((pp) => pp.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject')){
+            blankNode['@type'] = type
+          }
 
 
           if (!Array.isArray(label)){
