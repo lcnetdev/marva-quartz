@@ -2754,6 +2754,7 @@ export const useProfileStore = defineStore('profile', {
                 currentUserValuePos["http://www.loc.gov/mads/rdf/v1#componentList"] = []
 
                 for (let c of subjectComponents){
+                  console.info("c: ", c)
                     let compo = {
                             "@guid": short.generate(),
                             "@type": c.type.replace('madsrdf:','http://www.loc.gov/mads/rdf/v1#'),
