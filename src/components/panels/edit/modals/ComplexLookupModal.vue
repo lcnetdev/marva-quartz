@@ -73,13 +73,14 @@
           "marcKeys": "MARC Key",
           "relateds": "Related",
           "contributors": "Contributors",
-          "identifiers": "Identifiers"
+          "identifiers": "Identifiers",
+          "subjects": "Subjects",
 
         },
         panelDetailOrder: [
           "notes","nonlatinLabels","variantLabels", "varianttitles", "contributors", "relateds","birthdates","birthplaces","locales",
           "activityfields","occupations","languages","lcclasss", "identifiers", "broaders","gacs","collections",
-          "sources", "marcKeys"
+          "sources", "subjects", "marcKeys"
         ],
       }
     },
