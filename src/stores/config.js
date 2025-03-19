@@ -31,7 +31,7 @@ export const useConfigStore = defineStore('config', {
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
         id: 'https://id.loc.gov/',
-        env : 'production',
+        env : 'dev', //'production'
         dev: false,
         displayLCOnlyFeatures: true,
       },
