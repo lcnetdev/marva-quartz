@@ -301,10 +301,6 @@ const utilsParse = {
         // console.log('hasSeries',hasSeries)
         // console.log('hasAssociatedResource',hasAssociatedResource)
 
-
-
-
-
       // old Logic
       if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
