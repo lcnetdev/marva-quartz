@@ -2359,7 +2359,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
-      console.info("setValueComplex")
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2557,10 +2556,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
-      console.info("setValueSubject")
-      console.info("    componentGuid: ", componentGuid)
-      console.info("    subjectComponents: ", subjectComponents)
-      console.info("    propertyPath: ", propertyPath)
         // we're just going to overwrite the whole userValue with the constructed headings
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
@@ -2754,7 +2749,6 @@ export const useProfileStore = defineStore('profile', {
                 currentUserValuePos["http://www.loc.gov/mads/rdf/v1#componentList"] = []
 
                 for (let c of subjectComponents){
-                  console.info("c: ", c)
                     let compo = {
                             "@guid": short.generate(),
                             "@type": c.type.replace('madsrdf:','http://www.loc.gov/mads/rdf/v1#'),
