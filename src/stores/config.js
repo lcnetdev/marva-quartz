@@ -388,7 +388,7 @@ export const useConfigStore = defineStore('config', {
       "processor" : 'lcAuthorities',
       "modes":[
         {
-          'NAF All':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype=<TYPE>", "all":true},
+          'NAF All':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype=<TYPE>&rdftype=Name", "all":true},
           'NAF Personal Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=PersonalName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
           'NAF Corporate Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=CorporateName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
           'NAF Name/Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=NameTitle&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
