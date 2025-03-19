@@ -933,9 +933,7 @@ methods: {
       url = url.replace('http://id.', 'https://preprod-8080.id.')
       url = url.replace('https://id.', 'https://preprod-8080.id.')
     }
-    console.info("url: ", url)
     let data = await utilsNetwork.fetchSimpleLookup(url + ".json", true)
-    console.info("    data: ", data)
     let components = false
     let subfields = false
     let marcKey = false
@@ -1713,12 +1711,8 @@ methods: {
       this.contextData = this.pickLookup[this.pickPostion]
       return false
     }
-    let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
-    console.info("temp: ", temp)
+    //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
     this.contextData = this.pickLookup[this.pickPostion].extra
-
-    console.info("this.contextData : ", JSON.parse(JSON.stringify(this.contextData )))
-    console.info(" this.pickLookup[this.pickPostion] : ", JSON.parse(JSON.stringify(this.pickLookup[this.pickPostion] )))
 
     if (this.pickLookup[this.pickPostion].uri){
       this.contextData.literal = false
@@ -2722,17 +2716,14 @@ methods: {
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
           const target = frozenComponents[component]
-          console.info("target: ", target)
           if (frozenComponents.length > 1 && !(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || (target.uri && target.uri.includes("childrensSubjects/sj"))) && target.complex){
             let uri = target.uri
             let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
             if (uri){
-              console.info("split?")
               data = await this.parseComplexSubject(uri)
             } else {
               data = target
             }
-            console.info("data: ", data)
             let subs
             subs = target.marcKey.slice(5)
               // subfields = subfields.match(/\$./g)
