@@ -338,6 +338,11 @@
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/expressionOf"){
           return true
         }
+        if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+          return true
+        }
+
+        
         return false
       },
 
