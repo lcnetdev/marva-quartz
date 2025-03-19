@@ -1710,14 +1710,19 @@ methods: {
       this.contextData = this.pickLookup[this.pickPostion]
       return false
     }
-    // let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
+    let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
+    console.info("temp: ", temp)
     this.contextData = this.pickLookup[this.pickPostion].extra
+
+    console.info("this.contextData : ", JSON.parse(JSON.stringify(this.contextData )))
+    console.info(" this.pickLookup[this.pickPostion] : ", JSON.parse(JSON.stringify(this.pickLookup[this.pickPostion] )))
+
     if (this.pickLookup[this.pickPostion].uri){
       this.contextData.literal = false
       this.contextData.title = this.pickLookup[this.pickPostion].label
       this.contextData.uri = this.pickLookup[this.pickPostion].uri
-      if (Object.keys(this.contextData).includes("marcKey")){
-        this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
+      if (Object.keys(this.contextData).includes("marcKeys")){
+        this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKeys[0]
       }
       let types = this.pickLookup[this.pickPostion].extra['rdftypes']
       this.contextData.type = types.includes("Hub") ? "bf:Hub" :  types.includes("Work") ? "bf:Work" : "madsrdf:" +  types[0]
