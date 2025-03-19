@@ -1164,7 +1164,7 @@ methods: {
         label: ss,
         uri: uri,
         id: id,
-        type: this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
+        type: this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
         complex: ss.includes('‑‑'),
         literal:literal,
         posStart: activePosStart,
@@ -1720,6 +1720,8 @@ methods: {
       this.contextData.uri = this.pickLookup[this.pickPostion].uri
       if (Object.keys(this.contextData).includes("marcKeys")){
         this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKeys[0]
+      } else if (Object.keys(this.contextData).includes("marcKey")){
+        this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
       }
       let types = this.pickLookup[this.pickPostion].extra['rdftypes']
       this.contextData.type = types.includes("Hub") ? "bf:Hub" :  types.includes("Work") ? "bf:Work" : "madsrdf:" +  types[0]
