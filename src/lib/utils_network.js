@@ -22,6 +22,7 @@ const utilsNetwork = {
     //Controllers to manage searches
     controllers: {
       "controllerNames": new AbortController(),
+      "controllerNamesGeo": new AbortController(),
       "controllerNamesSubdivision": new AbortController(),
       "controllerSubjectsSimple": new AbortController(),
       "controllerPayloadSubjectsSimpleSubdivision": new AbortController(),
@@ -293,11 +294,11 @@ const utilsNetwork = {
       if (url.includes("id.loc.gov")){
         url = url.replace('http://','https://')
       }
-      
+
       // if we use the memberOf there might be a id URL in the params, make sure its not https
       url = url.replace('memberOf=https://id.loc.gov/','memberOf=http://id.loc.gov/')
 
-     
+
       // can't use firewall servers on bibframe.org
       if (useConfigStore().returnUrls.publicEndpoints == true || usePreferenceStore().catInitals == 'mattdev'){
         url = url.replace(/https:\/\/preprod[-0-9]*\.id/i,'https://id')
@@ -399,7 +400,7 @@ const utilsNetwork = {
       let returnUrls = useConfigStore().returnUrls
 
       let r = await fetch(returnUrls.util + 'lccnnaco')
-      
+
       let data = await r.json()
       return data.id
 
@@ -2282,7 +2283,7 @@ const utilsNetwork = {
           uri=uri+'.json'
         }
       }
-      
+
       let data = await this.fetchSimpleLookup(uri,true)
 
       if (data && uri.indexOf('id.loc.gov')>-1){
@@ -2334,7 +2335,8 @@ const utilsNetwork = {
 
 
       this.subjectSearchActive = true
-      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsNames).replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings'
+      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsNames).replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Name'
+      let namesGeoUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsNames).replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Geographic'
       let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
@@ -2391,6 +2393,13 @@ const utilsNetwork = {
         searchValue: searchVal,
         subjectSearch: true,
         signal: this.controllers.controllerNames.signal,
+      }
+      let searchPayloadNamesGeo = {
+        processor: 'lcAuthorities',
+        url: [namesGeoUrl],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerNamesGeo.signal,
       }
       let searchPayloadNamesSubdivision = {
         processor: 'lcAuthorities',
@@ -2498,6 +2507,7 @@ const utilsNetwork = {
 
 
       let resultsNames =[]
+      let resultsNamesGeo =[]
       let resultsNamesSubdivision =[]
 
       let resultsSubjectsSimple=[]
@@ -2517,8 +2527,9 @@ const utilsNetwork = {
       let resultsExactSubject = []
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsExactName, resultsExactSubject] = await Promise.all([
+        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsExactName, resultsExactSubject] = await Promise.all([
             this.searchComplex(searchPayloadNames),
+            this.searchComplex( searchPayloadNamesGeo),
             this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadSubjectsSimple),
             this.searchComplex(searchPayloadSubjectsSimpleSubdivision),
@@ -2529,7 +2540,7 @@ const utilsNetwork = {
         ]);
 
       } else if (mode == "CHILD"){
-        [resultsNames, resultsNamesSubdivision, resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
+        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
             this.searchComplex(searchPayloadNames),
             this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadChildrenSubjects),
@@ -2563,6 +2574,9 @@ const utilsNetwork = {
       // drop the litearl value from names and complex
       if (resultsNames.length>0){
         resultsNames.pop()
+      }
+      if (resultsNamesGeo.length > 0){
+        resultsNamesGeo.pop()
       }
       resultsNamesSubdivision = resultsNamesSubdivision.filter((r) => {return (!r.literal)})
       if (resultsSubjectsComplex.length>0){
@@ -2645,7 +2659,7 @@ const utilsNetwork = {
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': resultsSubjectsComplex,
-        'names': pos == 0 ? resultsNames : resultsNamesSubdivision,
+        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo) : resultsNamesSubdivision,
         'hierarchicalGeographic':  pos == 0 ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
