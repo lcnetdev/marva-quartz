@@ -364,6 +364,10 @@
               alert("Could not retrieve MARC Key for Hub: " + hubUri )
             }
             
+            if (MARCKey && MARCKey.marcKey){
+              MARCKey = MARCKey.marcKey
+            }
+
             // if we are adding a hub to a subject field build the component and send it off to the setValueSubject instead
             // you are able to add hubs as complex values in other fields, subject is just a special case we don't want to add it this way
             if (this.activeHubStubComponent.propertyPath[0].propertyURI === "http://id.loc.gov/ontologies/bibframe/subject"){
