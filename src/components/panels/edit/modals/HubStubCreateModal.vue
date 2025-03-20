@@ -155,8 +155,6 @@
               this.hubTitleVariant = response.output
             }
           }
-          console.log(this.hubTitle)
-          console.log(this.hubTitleVariant)
 
           let toLang = null
           let fromLang = null
@@ -252,7 +250,7 @@
           this.hubCreator.uri = null
           this.hubCreator.typeFull = null
           
-          console.log("value",value)
+          
 
           if (value.title){
             if (Array.isArray(value.title)){
@@ -276,6 +274,7 @@
               this.hubCreator.marcKey = value.marcKey
             }
           }
+
           if (value.typeFull){
             if (Array.isArray(value.typeFull)){
               this.hubCreator.typeFull = value.typeFull.filter((v)=> {return (!v['@language'])})[0]
@@ -286,7 +285,17 @@
             }else{
               this.hubCreator.typeFull = value.typeFull
             }
-          }            
+          }else{
+
+            
+            if (value.extra && value.extra.rdftypes && value.extra.rdftypes[0] ){
+              if (value.extra.rdftypes[0].indexOf("http")==-1){
+                this.hubCreator.typeFull = "http://www.loc.gov/mads/rdf/v1#" + value.extra.rdftypes[0]
+              }else{
+                this.hubCreator.typeFull = value.extra.rdftypes[0]
+              }             
+            }
+          }
           
           this.hubCreator.uri = value.uri
 
@@ -349,11 +358,54 @@
             // we need to ask for the MARCKey from ID since we don't know it locally
             
             let MARCKey = await utilsNetwork.returnMARCKey(results.postLocation)
+            
 
-            this.profileStore.setValueComplex(this.activeHubStubComponent.guid, null, this.activeHubStubComponent.propertyPath, hubUri, this.hubTitle, 'Hub', extra, MARCKey)
+            if (!MARCKey){
+              alert("Could not retrieve MARC Key for Hub: " + hubUri )
+            }
+            
+            // if we are adding a hub to a subject field build the component and send it off to the setValueSubject instead
+            // you are able to add hubs as complex values in other fields, subject is just a special case we don't want to add it this way
+            if (this.activeHubStubComponent.propertyPath[0].propertyURI === "http://id.loc.gov/ontologies/bibframe/subject"){
+              this.profileStore.setValueSubject(
+                this.activeHubStubComponent.guid,
+                  // make a component
+                  [
+                    {
+                        "label": this.hubTitle,
+                        "uri": hubUri,
+                        "id": 0,
+                        "type": "http://id.loc.gov/ontologies/bibframe/Hub",
+                        "complex": false,
+                        "literal": false,
+                        "marcKey": MARCKey
+                    }
+                  ],
+                  // fake the path to make the subject as we need it to be
+                  [
+                      {
+                          "level": 0,
+                          "propertyURI": "http://id.loc.gov/ontologies/bibframe/subject"
+                      },
+                      {
+                          "level": 1,
+                          "propertyURI": "http://www.loc.gov/mads/rdf/v1#componentList"
+                      },
+                      {
+                          "level": 2,
+                          "propertyURI": "http://www.loc.gov/mads/rdf/v1#Topic"
+                      }
+                  ] 
+              )
+
+            }else{
+
+              // add it as normal
+              this.profileStore.setValueComplex(this.activeHubStubComponent.guid, null, this.activeHubStubComponent.propertyPath, hubUri, this.hubTitle, 'Hub', extra, MARCKey)
 
 
 
+            }
 
 
             
@@ -373,7 +425,7 @@
           
 
           
-          console.log(results)
+          // console.log(results)
 
 
           // this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
