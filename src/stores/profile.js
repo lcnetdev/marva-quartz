@@ -2516,7 +2516,7 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
-
+          
           // if (nodeMap["marcKey"]){
           //   blankNode["http://id.loc.gov/ontologies/bflc/marcKey"] = [
           //     {
@@ -2664,14 +2664,15 @@ export const useProfileStore = defineStore('profile', {
 
             // if it is a solo subject heading
             if (subjectComponents.length==1){
-
-              console.log("subjectComponents",subjectComponents)
-
-              // it might be a literal.
+                // it might be a literal.
                 if (subjectComponents[0].uri){
                   currentUserValuePos['@id'] = subjectComponents[0].uri
                 }else{
-
+                  delete currentUserValuePos["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
+                }
+                
+                // it might be a Hub if so its not a isMemberOfMADSScheme subject
+                if (subjectComponents[0].type && subjectComponents[0].type.toLowerCase().indexOf("hub")>-1){
                   delete currentUserValuePos["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
                 }
 
@@ -4994,7 +4995,7 @@ export const useProfileStore = defineStore('profile', {
         alert("There was an error creating your Hub. Please report this issue.")
       }
 
-      // to simulate a post
+      // // to simulate a post
       // alert("Fake Hub Requesting")
       // pubResuts = {
       //     "name": "bc331009-aa60-48b3-ba17-865fc7389f23",
