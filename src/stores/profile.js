@@ -2233,18 +2233,39 @@ export const useProfileStore = defineStore('profile', {
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.loc.gov/mads/rdf/v1#Geographic')  })
 
 
-      // console.log("propertyPath=",propertyPath)
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
+      // console.log(pt.propertyURI)
+      // console.log("propertyPath=",propertyPath)
+
+      // working with Hubs as subjects breaks a few things.
+      // rewrite the property Path if we are working with them
+      if (pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+
+        if (pt.userValue && 
+            pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'] && 
+            pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && 
+            pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@type'] &&
+            (pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/Hub" || pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/Work")
+        )
+          
+        
+        //  it is a subject remove label properties
+        propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=="http://www.loc.gov/mads/rdf/v1#authoritativeLabel")  })
+        valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
+
+        // console.log("NEW propertyPath=",propertyPath)
+
+      }     
 
       if (valueLocation){
 
         let values = []
 
         for (let v of valueLocation){
-
+              console.log("v",v)
               let URI = null
               let label = null
 

@@ -91,7 +91,8 @@
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
 
-
+              
+              
               <div v-for="(avl,idx) in complexLookupValues" :class="['selected-value-container']">
 
                 <div class="selected-value-container-auth">
