@@ -318,6 +318,12 @@
               uri: this.hubLang,
               label:    this.langsLookup.filter((v)=> { return (v.uri == this.hubLang)  } )[0].label
             }
+
+            // if there is (eng) code in the label
+            if (langObj.label){
+              langObj.label = langObj.label .split('(')[0].trim()
+            }
+
           }else{
             langObj = null
           }  
