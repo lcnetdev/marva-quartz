@@ -136,154 +136,102 @@
       </div>
 
       <div v-else>
-        <splitpanes>
-          <!-- Search Panel -->
-          <pane class="load" >
-            <div class="load-columns">
-              <div class="load-test-data-column">
-                <h1>
-                  <span style="font-size: 1.15em; vertical-align: bottom; margin-right: 5px;" class="material-icons">cloud_download</span>
-                  <span>External Search</span></h1>
-                <form ref="urlToLoadForm" v-on:submit.prevent="">
-                  <input placeholder="Enter Value to Search" class="url-to-load" type="text" v-model="wcQuery" ref="urlToLoad">
-                  <button @click="worldCatSearch()">Search</button>
-                  <br>
-                  <div class="toggle-btn-grp cssonly">
-                    <h3>Field to Search on</h3>
-                    <div v-for="opt in indexSelectOptions">
-                      <input type="radio" :value="opt.value" class="search-mode-radio" v-model="wcIndex" name="searchIndex"/>
-                        <label onclick="" class="toggle-btn">{{opt.label}}</label>
-                      </div>
+        <!-- source: https://gridbyexample.com/patterns/header-twocol-footer/ -->
+        <div class="copy-cat-wrapper">
+          <header class="copy-cat-header">Copy Cat Search</header>
+          <aside class="copy-cat-sidebar">
+            <h1>Search</h1>
+            <form ref="urlToLoadForm" v-on:submit.prevent="">
+              <input placeholder="Enter Value to Search" class="url-to-load" type="text" v-model="wcQuery" ref="urlToLoad">
+              <button @click="worldCatSearch()">Search</button>
+              <br>
+              <div class="toggle-btn-grp cssonly">
+                <h3>Field to Search on</h3>
+                <div v-for="opt in indexSelectOptions">
+                  <input type="radio" :value="opt.value" class="search-mode-radio" v-model="wcIndex" name="searchIndex"/>
+                    <label onclick="" class="toggle-btn">{{opt.label}}</label>
                   </div>
-
-                  <br>
-                  <label for="target-type">What are you looking for </label>
-                  <select name="target-type" v-model="wcType">
-                    <option value="book">Book</option>
-                    <option value="audiobook">Audio Book</option>
-                    <option value="music">Music</option>
-                  </select>
-
-                </form>
               </div>
-              <!-- Results -->
-              <div>
-                <h1>Results</h1>
-                <h3 v-if="wcResults?.results?.bibRecords && wcResults?.results?.bibRecords?.length > 0 && !queryingWc">
-                  Showing {{ wcLimit }} of {{ wcResults.results.numberOfRecords }} results
-                </h3>
 
-                <div>
-                  <!-- Pagination here -->
-                </div>
+              <br>
+              <label for="target-type">What are you looking for </label>
+              <select name="target-type" v-model="wcType">
+                <option value="book">Book</option>
+                <option value="audiobook">Audio Book</option>
+                <option value="music">Music</option>
+              </select>
 
-                <ol>
-                  <li v-if="wcResults?.results?.bibRecords && wcResults?.results?.bibRecords?.length === 0">
-                    No results...
-                  </li>
-                  <template v-if="queryingWc">
-                    <li>Searching...</li>
-                  </template>
-                  <template v-else>
-                    <!-- {{ wcResults.results }} -->
-                    <li v-for="(r,idx) in wcResults?.results?.bibRecords" :key="r.idURL">
-                      <div style="display:flex">
-                        <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.title.mainTitles[0].text}}</span></div>
-                        <div style="flex:1">
-                          <label :for="'wcsearch'+idx" style="font-weight:bold;">Select</label>
-                          <input type="radio" v-model="wcLoadSelected" :value="r" name="wcToLoad" :id="'wcsearch'+idx" :name="'wcsearch'+idx" />
-                        </div>
-                      </div>
-                    </li>
-                  </template>
-                </ol>
-              </div>
-              <!-- Details -->
-               <!-- TODO: make this less brittle -->
-              <div style="overflow-y: scroll; height: 800px" v-if="wcLoadSelected">
-                <h1>Details</h1>
-                <h2>{{ wcLoadSelected?.title.mainTitles[0].text }}</h2>
-                <div v-if="wcLoadSelected?.contributor?.statementOfResponsibility">
-                  {{ wcLoadSelected?.contributor?.statementOfResponsibility.text }}
-                </div>
-                <div v-else>
-                  {{ wcLoadSelected?.contributor }}
-                </div>
-                <div>
-                  Subjects:
-                  <ul>
-                    <li v-for="(item, idx) in wcLoadSelected?.subjects">
-                      {{ item.subjectName.text }} [{{ item.subjectType }}] ({{ item.vocabulary }})
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  Classification:
-                  <ul>
-                    <li v-for="(item, idx) in wcLoadSelected?.classification">
-                      {{ idx }}: {{ item }}
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  Publishers:
-                  <ul>
-                    <li v-for="(item, idx) in wcLoadSelected?.publishers ">
-                      {{ item.publisherName.text }} [{{ item.publicationPlace }}]
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  Dates:
-                  <dl>
-                    <template v-for="(item, idx) in wcLoadSelected?.date  ">
-                      <dt>{{ idx }}</dt>
-                      <dd>{{ item }}</dd>
-                    </template>
-                  </dl>
-                </div>
-                <div>
-                  Languages:
-                  <dl>
-                    <template v-for="(item, idx) in wcLoadSelected?.language   ">
-                      <dt>{{ idx }}</dt>
-                      <dd>{{ item }}</dd>
-                    </template>
-                  </dl>
-                </div>
-                <div>
-                  Notes:
-                  <ul>
-                    <li v-if="wcLoadSelected?.note" v-for="(item, idx) in wcLoadSelected?.note.generalNotes">
-                      {{ item.text }} [{{ item.local }}]
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  Format:
-                  <dl>
-                    <template v-for="(item, idx) in wcLoadSelected?.format    ">
-                      <dt>{{ idx }}</dt>
-                      <dd>{{ item }}</dd>
-                    </template>
-                  </dl>
-                </div>
-                <div>
-                  Description:
-                  <dl>
-                    <template v-for="(item, idx) in wcLoadSelected?.description     ">
-                      <dt>{{ idx }}</dt>
-                      <dd v-if="Array.isArray(item)" v-for="i in item">{{ i }}</dd>
-                      <dd v-else>{{ item }}</dd>
-                    </template>
-                  </dl>
-                </div>
+            </form>
+            <hr>
+            <h3>Load with profile:</h3>
+            <div class="load-buttons">
+              <button class="load-button" @click="console.info('load')" :disabled="(urlToLoadIsHttp || lccnLoadSelected ) ? false : true"  v-for="s in startingPointsFiltered">
+                {{s.name}}
+              </button>
+            </div>
 
+          </aside>
+          <article class="copy-cat-content">
+            <h1>Results</h1>
+
+            <div>
+              <h2 v-if="wcResults?.results && Number(wcResults?.results?.numberOfRecords) === 0">
+                  No results...
+              </h2>
+              <h2 v-else-if="wcResults?.results?.briefRecords && wcResults?.results?.numberOfRecords > 0">
+                Showing {{ wcLimit }} of {{ wcResults.results.numberOfRecords }} results
+              </h2>
+              <!-- Pagination -->
+              <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit)" class="wc-search-paging">
+                <span :style="`${this.preferenceStore.styleModalTextColor()}`">
+                  <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
+                    <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
+                  </a>
+                  <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
+                    <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
+                  </a>
+                  <span class="pagination-label" > Page {{ currentPage }} of {{ !isNaN(Math.ceil(wcResults.results.numberOfRecords / wcLimit)) ? Math.ceil(wcResults.results.numberOfRecords / wcLimit) : "Last Page"}} </span>
+
+                  <a href="#" title="next page" class="next" :class="{off: Math.ceil(wcResults.results.numberOfRecords / wcLimit) == this.currentPage}" @click="nextPage()">
+                    <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
+                  </a>
+                  <a href="#" title="last page" class="last" :class="{off: Math.ceil(wcResults.results.numberOfRecords / wcLimit) == this.currentPage}" @click="lastPage()">
+                    <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
+                  </a>
+                </span>
               </div>
             </div>
-          </pane>
-
-      </splitpanes>
+            <template v-if="queryingWc">
+                <li>Searching...</li>
+            </template>
+            <template v-else-if="!queryingWc && wcResults.results && wcResults.results.numberOfRecords > 0">
+              <table class="wc-table">
+                <thead>
+                  <tr>
+                    <th v-for="(label) in wcLabels" scope="col">{{ wcLabelMap[label] }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(row) in wcResults.results.briefRecords" :class="['wc-row', {'selected': selectedWcRecord == row['oclcNumber']}]" @click="selectedWcRecord = row['oclcNumber']">
+                    <template v-for="(label) in wcLabels">
+                      <td v-if="!Array.isArray(row[label])">
+                        <span v-if="label == 'generalFormat'">{{ row[label] }} ({{ row['specificFormat'] }})</span>
+                        <span v-else>{{ row[label] }}</span>
+                      </td>
+                      <td v-else>
+                        <li v-for="(item) in row[label]">{{ item }}</li>
+                      </td>
+                    </template>
+                  </tr>
+                </tbody>
+              </table>
+            </template>
+          </article>
+          <footer class="copy-cat-marc">
+            Marc Preview?<br>
+            Selected OCLC Number: {{ selectedWcRecord }}
+          </footer>
+        </div>
       </div>
     </pane>
   </splitpanes>
@@ -358,7 +306,27 @@
           { label: 'ISBN', value: 'bn' },
           { label: 'Keyword', value: 'kw' },
         ],
-        wcLoadSelected: false
+        wcLoadSelected: false,
+        wcLabels: [
+          'title', 'creator', 'date', 'language', 'generalFormat',
+          'publisher', 'publicationPlace', 'isbns', 'issns'
+        ],
+        wcLabelMap: {
+          "title": "Title",
+          "creator": "Creator",
+          "date": "Date",
+          "language": "Language",
+          "generalFormat": "Format",
+          "publisher": "Publisher",
+          "publicationPlace": "Place of Publication",
+          "isbns": "ISBNs",
+          "issns": "ISSns",
+        },
+        oclcEncodingLevelsHight: [' ', '1', 'I'],
+        oclcEncodingLevelsLow: ['M', '3', '4', '5', '7', '8'],
+        selectedWcRecord: null,
+        currentPage: 1
+
 
       }
     },
@@ -376,6 +344,7 @@
 
       // // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
+
 
       startingPointsFiltered(){
         let points = []
@@ -398,14 +367,53 @@
     },
 
     methods: {
+      firstPage: function(){
+        // if not the first page allow
+        if (this.currentPage !== 1){
+          this.currentPage = 1
+          this.worldCatSearch()
+        }
+      },
+      prevPage: function(){
+        // if not the first page allow
+        if (this.currentPage !== 1){
+          this.currentPage--
+          this.worldCatSearch()
+        }
+      },
+
+      nextPage: function(){
+        let max = Math.ceil(this.wcResults.results.numberOfRecords / this.wcLimit)
+
+        if (max > this.currentPage){
+          this.currentPage++
+          this.worldCatSearch()
+        }
+      },
+      lastPage: function(){
+        let max = Math.ceil(this.wcResults.results.numberOfRecords / this.wcLimit)
+
+        if (max > this.currentPage){
+          this.currentPage = max
+          this.worldCatSearch()
+        }
+      },
+
       worldCatSearch: async function(marc=false){
         console.info("searching world cat")
         console.info("query: ", this.wcQuery)
         console.info("index: ", this.wcIndex)
         console.info("type: ", this.wcType)
+        console.info("offset: ", this.wcOffset)
+        console.info("limit: ", this.wcLimit)
 
         this.queryingWc = true
         //console.log("Validating: ", this.validating)
+        if (this.currentPage != 1){
+          this.wcOffset = this.wcLimit * (this.currentPage - 1)
+        }
+
+        console.info("offset: ", this.wcOffset)
         try{
           this.wcResults = await utilsNetwork.worldCatSearch(this.wcQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
         } catch(err) {
@@ -936,7 +944,79 @@ label{
 
   }
 
+/* Copy Cat */
+*, *:before, *:after {
+  box-sizing: border-box;
+}
 
+body {
+  margin: 40px;
+  font-family: 'Open Sans', 'sans-serif';
+  background-color: #fff;
+  color: #444;
+}
+
+h1, p {
+  margin: 0 0 1em 0;
+}
+
+/* no grid support? */
+.copy-cat-sidebar {
+  float: left;
+  width: 19.1489%;
+}
+.copy-cat-sidebar{
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+.copy-cat-content {
+  float: right;
+  width: 98%;
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+/* make a grid */
+.copy-cat-wrapper {
+  max-width: 98%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-gap: 10px;
+}
+
+.copy-cat-wrapper > * {
+  background-color: #444;
+  color: #fff;
+  border-radius: 5px;
+  padding: 20px;
+  font-size: 150%;
+  /* needed for the floated layout*/
+  margin-bottom: 10px;
+}
+
+.copy-cat-header, .copy-cat-marc {
+  grid-column: 1 / -1;
+  /* needed for the floated layout */
+  clear: both;
+}
+
+.wc-row:hover{
+  cursor:pointer;
+  background-color: whitesmoke;
+  color: black
+}
+
+
+/* We need to set the widths used on floated items back to auto, and remove the bottom margin as when we have grid we have gaps. */
+@supports (display: grid) {
+  .copy-cat-wrapper > * {
+    width: auto;
+    margin: 0;
+  }
+}
 
 
 </style>
+
