@@ -165,38 +165,116 @@
                   </select>
 
                 </form>
-                <ol>
-                    <li v-if="searchByLccnResults && searchByLccnResults.length === 0">No results...</li>
-                    <template v-if="searchByLccnResults && typeof searchByLccnResults === 'string'">
-                      <li>Searching...</li>
-                    </template>
-                    <template v-else>
-                      <li v-for="(r,idx) in searchByLccnResults" :key="r.idURL">
-                          <div style="display:flex">
-                              <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.label}}</span></div>
-                              <div style="flex:1">
-                                <a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">View on BFDB</a>
-                                <span v-if="searchByLccnResults.length == 1" style="display:none;">
-                                  <label :for="'lccnsearch'+idx">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" checked="true" />
-                                </span>
-                                <span v-else>
-                                  <label :for="'lccnsearch'+idx" style="font-weight:bold;">Select</label><input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch'+idx" :name="'lccnsearch'+idx" />
-                                </span>
-                              </div>
-                          </div>
-                        </li>
-
-                    </template>
-
-                </ol>
               </div>
               <!-- Results -->
               <div>
                 <h1>Results</h1>
+                <h3 v-if="wcResults?.results?.bibRecords && wcResults?.results?.bibRecords?.length > 0 && !queryingWc">
+                  Showing {{ wcLimit }} of {{ wcResults.results.numberOfRecords }} results
+                </h3>
+
+                <div>
+                  <!-- Pagination here -->
+                </div>
+
+                <ol>
+                  <li v-if="wcResults?.results?.bibRecords && wcResults?.results?.bibRecords?.length === 0">
+                    No results...
+                  </li>
+                  <template v-if="queryingWc">
+                    <li>Searching...</li>
+                  </template>
+                  <template v-else>
+                    <!-- {{ wcResults.results }} -->
+                    <li v-for="(r,idx) in wcResults?.results?.bibRecords" :key="r.idURL">
+                      <div style="display:flex">
+                        <div style="flex:2;">{{++idx}}. <span style="font-weight:bold">{{r.title.mainTitles[0].text}}</span></div>
+                        <div style="flex:1">
+                          <label :for="'wcsearch'+idx" style="font-weight:bold;">Select</label>
+                          <input type="radio" v-model="wcLoadSelected" :value="r" name="wcToLoad" :id="'wcsearch'+idx" :name="'wcsearch'+idx" />
+                        </div>
+                      </div>
+                    </li>
+                  </template>
+                </ol>
               </div>
               <!-- Details -->
-              <div>
+              <div style="overflow-y: scroll; height: 800px">
                 <h1>Details</h1>
+                <h2>{{ wcLoadSelected.title.mainTitles[0].text }}</h2>
+                <div>
+                  {{ wcLoadSelected.contributor.statementOfResponsibility.text }}
+                </div>
+                <div>
+                  Subjects:
+                  <ul>
+                    <li v-for="(item, idx) in wcLoadSelected.subjects">
+                      {{ item.subjectName.text }} [{{ item.subjectType }}] ({{ item.vocabulary }})
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  Classification:
+                  <ul>
+                    <li v-for="(item, idx) in wcLoadSelected.classification">
+                      {{ idx }}: {{ item }}
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  Publishers:
+                  <ul>
+                    <li v-for="(item, idx) in wcLoadSelected.publishers ">
+                      {{ item.publisherName.text }} [{{ item.publicationPlace }}]
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  Dates:
+                  <dl>
+                    <template v-for="(item, idx) in wcLoadSelected.date  ">
+                      <dt>{{ idx }}</dt>
+                      <dd>{{ item }}</dd>
+                    </template>
+                  </dl>
+                </div>
+                <div>
+                  Languages:
+                  <dl>
+                    <template v-for="(item, idx) in wcLoadSelected.language   ">
+                      <dt>{{ idx }}</dt>
+                      <dd>{{ item }}</dd>
+                    </template>
+                  </dl>
+                </div>
+                <div>
+                  Notes:
+                  <ul>
+                    <li v-for="(item, idx) in wcLoadSelected.note.generalNotes">
+                      {{ item.text }} [{{ item.local }}]
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  Format:
+                  <dl>
+                    <template v-for="(item, idx) in wcLoadSelected.format    ">
+                      <dt>{{ idx }}</dt>
+                      <dd>{{ item }}</dd>
+                    </template>
+                  </dl>
+                </div>
+                <div>
+                  Description:
+                  <dl>
+                    <template v-for="(item, idx) in wcLoadSelected.description     ">
+                      <dt>{{ idx }}</dt>
+                      <dd v-if="Array.isArray(item)" v-for="i in item">{{ i }}</dd>
+                      <dd v-else>{{ item }}</dd>
+                    </template>
+                  </dl>
+                </div>
+
               </div>
             </div>
           </pane>
@@ -267,15 +345,16 @@
         wcIndex: "ti",
         wcType: "book",
         wcQuery: "",
-        wcOffset: "0",
-        wcLimit: "10",
+        wcOffset: 1,
+        wcLimit: 10,
         queryingWc: false,
         wcResults: [],
         indexSelectOptions: [
           { label: 'Title', value: 'ti' },
           { label: 'ISBN', value: 'bn' },
           { label: 'Keyword', value: 'kw' },
-        ]
+        ],
+        wcLoadSelected: false
 
       }
     },
@@ -323,7 +402,6 @@
 
         this.queryingWc = true
         //console.log("Validating: ", this.validating)
-        this.wcResults = []
         try{
           this.wcResults = await utilsNetwork.worldCatSearch(this.wcQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
         } catch(err) {

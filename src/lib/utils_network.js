@@ -2790,6 +2790,8 @@ const utilsNetwork = {
       })
     })
 
+    return rawResponse.json()
+
   },
 
 
