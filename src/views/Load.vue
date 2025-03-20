@@ -199,16 +199,20 @@
                 </ol>
               </div>
               <!-- Details -->
-              <div style="overflow-y: scroll; height: 800px">
+               <!-- TODO: make this less brittle -->
+              <div style="overflow-y: scroll; height: 800px" v-if="wcLoadSelected">
                 <h1>Details</h1>
-                <h2>{{ wcLoadSelected.title.mainTitles[0].text }}</h2>
-                <div>
-                  {{ wcLoadSelected.contributor.statementOfResponsibility.text }}
+                <h2>{{ wcLoadSelected?.title.mainTitles[0].text }}</h2>
+                <div v-if="wcLoadSelected?.contributor?.statementOfResponsibility">
+                  {{ wcLoadSelected?.contributor?.statementOfResponsibility.text }}
+                </div>
+                <div v-else>
+                  {{ wcLoadSelected?.contributor }}
                 </div>
                 <div>
                   Subjects:
                   <ul>
-                    <li v-for="(item, idx) in wcLoadSelected.subjects">
+                    <li v-for="(item, idx) in wcLoadSelected?.subjects">
                       {{ item.subjectName.text }} [{{ item.subjectType }}] ({{ item.vocabulary }})
                     </li>
                   </ul>
@@ -216,7 +220,7 @@
                 <div>
                   Classification:
                   <ul>
-                    <li v-for="(item, idx) in wcLoadSelected.classification">
+                    <li v-for="(item, idx) in wcLoadSelected?.classification">
                       {{ idx }}: {{ item }}
                     </li>
                   </ul>
@@ -224,7 +228,7 @@
                 <div>
                   Publishers:
                   <ul>
-                    <li v-for="(item, idx) in wcLoadSelected.publishers ">
+                    <li v-for="(item, idx) in wcLoadSelected?.publishers ">
                       {{ item.publisherName.text }} [{{ item.publicationPlace }}]
                     </li>
                   </ul>
@@ -232,7 +236,7 @@
                 <div>
                   Dates:
                   <dl>
-                    <template v-for="(item, idx) in wcLoadSelected.date  ">
+                    <template v-for="(item, idx) in wcLoadSelected?.date  ">
                       <dt>{{ idx }}</dt>
                       <dd>{{ item }}</dd>
                     </template>
@@ -241,7 +245,7 @@
                 <div>
                   Languages:
                   <dl>
-                    <template v-for="(item, idx) in wcLoadSelected.language   ">
+                    <template v-for="(item, idx) in wcLoadSelected?.language   ">
                       <dt>{{ idx }}</dt>
                       <dd>{{ item }}</dd>
                     </template>
@@ -250,7 +254,7 @@
                 <div>
                   Notes:
                   <ul>
-                    <li v-for="(item, idx) in wcLoadSelected.note.generalNotes">
+                    <li v-if="wcLoadSelected?.note" v-for="(item, idx) in wcLoadSelected?.note.generalNotes">
                       {{ item.text }} [{{ item.local }}]
                     </li>
                   </ul>
@@ -258,7 +262,7 @@
                 <div>
                   Format:
                   <dl>
-                    <template v-for="(item, idx) in wcLoadSelected.format    ">
+                    <template v-for="(item, idx) in wcLoadSelected?.format    ">
                       <dt>{{ idx }}</dt>
                       <dd>{{ item }}</dd>
                     </template>
@@ -267,7 +271,7 @@
                 <div>
                   Description:
                   <dl>
-                    <template v-for="(item, idx) in wcLoadSelected.description     ">
+                    <template v-for="(item, idx) in wcLoadSelected?.description     ">
                       <dt>{{ idx }}</dt>
                       <dd v-if="Array.isArray(item)" v-for="i in item">{{ i }}</dd>
                       <dd v-else>{{ item }}</dd>
