@@ -2542,6 +2542,7 @@ const utilsNetwork = {
       } else if (mode == "CHILD"){
         [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
             this.searchComplex(searchPayloadNames),
+            this.searchComplex( searchPayloadNamesGeo),
             this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadChildrenSubjects),
             this.searchComplex(searchPayloadChildrenSubjectsComplex),
