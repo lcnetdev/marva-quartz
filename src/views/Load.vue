@@ -178,8 +178,11 @@
               <h2 v-if="wcResults?.results && Number(wcResults?.results?.numberOfRecords) === 0">
                   No results...
               </h2>
+              <h2 v-else-if="wcResults.error">
+                There was an error getting the results: "{{ wcResults.error.message }}"
+              </h2>
               <h2 v-else-if="wcResults?.results?.briefRecords && wcResults?.results?.numberOfRecords > 0">
-                Showing {{ wcLimit }} of {{ wcResults.results.numberOfRecords }} results
+                Showing {{ wcLimit <  wcResults.results.numberOfRecords ? wcLimit :  wcResults.results.numberOfRecords }} of {{ wcResults.results.numberOfRecords }} results
               </h2>
               <!-- Pagination -->
               <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit)" class="wc-search-paging">
@@ -212,7 +215,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(row) in wcResults.results.briefRecords" :class="['wc-row', {'selected': selectedWcRecord == row['oclcNumber']}]" @click="selectedWcRecord = row['oclcNumber']">
+                  <tr v-for="(row) in wcResults.results.briefRecords" :class="['wc-row', {'selected': selectedWcRecord['oclcNumber'] == row['oclcNumber']}]" @click="selectedWcRecord = row">
                     <template v-for="(label) in wcLabels">
                       <td v-if="!Array.isArray(row[label])">
                         <span v-if="label == 'generalFormat'">{{ row[label] }} ({{ row['specificFormat'] }})</span>
@@ -227,9 +230,10 @@
               </table>
             </template>
           </article>
-          <footer class="copy-cat-marc">
-            Marc Preview?<br>
-            Selected OCLC Number: {{ selectedWcRecord }}
+          <footer class="copy-cat-marc" v-if="selectedWcRecord">
+            Marc Preview<br>
+            Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }}
+            <div v-html="selectedWcRecord['marcHTML']"></div>
           </footer>
         </div>
       </div>
@@ -309,7 +313,7 @@
         wcLoadSelected: false,
         wcLabels: [
           'title', 'creator', 'date', 'language', 'generalFormat',
-          'publisher', 'publicationPlace', 'isbns', 'issns'
+          'publisher', 'publicationPlace', 'isbns', 'issns', 'catalogingInfo'
         ],
         wcLabelMap: {
           "title": "Title",
@@ -1006,6 +1010,35 @@ h1, p {
   cursor:pointer;
   background-color: whitesmoke;
   color: black
+}
+
+/** MARC preview formatting */
+:deep() .marc.record{
+  font-family: monospace;
+}
+
+:deep() .marc.indicators {
+  white-space: pre;
+}
+
+
+:deep() .marc.subfield.subfield-0 .subfield-value,
+:deep() .marc.subfield.subfield-1 .subfield-value{
+  width: 4.5em;
+  display: inline-block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.5);
+  vertical-align: bottom;
+}
+
+:deep() div.marc.field{
+  text-indent: 4em hanging;
+}
+
+:deep() span.marc.subfield:hover{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
 }
 
 

@@ -2766,12 +2766,7 @@ const utilsNetwork = {
     // consonsole.info("useConfigStore().returnUrls >>", useConfigStore().returnUrls)
     let baseUrl = useConfigStore().returnUrls.worldCat
 
-    let url = null
-    if (marc){
-      url = baseUrl + "marc/" + query //OCLC number
-    } else {
-      url = baseUrl + "search/"
-    }
+    let url = baseUrl + "search/"
 
     console.info("worldCatSearch: ", url)
 
@@ -2786,7 +2781,8 @@ const utilsNetwork = {
         index: index,
         type: type,
         offset: offset,
-        limit: limit
+        limit: limit,
+        marc: marc
       })
     })
 
