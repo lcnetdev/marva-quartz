@@ -230,9 +230,9 @@
               </table>
             </template>
           </article>
-          <footer class="copy-cat-marc" v-if="selectedWcRecord">
+          <footer class="copy-cat-marc" v-if="Object.keys(selectedWcRecord).length > 0">
+            Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }} <br>
             Marc Preview<br>
-            Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }}
             <div v-html="selectedWcRecord['marcHTML']"></div>
           </footer>
         </div>
@@ -328,7 +328,7 @@
         },
         oclcEncodingLevelsHight: [' ', '1', 'I'],
         oclcEncodingLevelsLow: ['M', '3', '4', '5', '7', '8'],
-        selectedWcRecord: null,
+        selectedWcRecord: {},
         currentPage: 1
 
 
@@ -371,6 +371,14 @@
     },
 
     methods: {
+      determineLevel: function(){
+        /**
+         * PCCAdapt -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as full-level RDA.
+         * Copycat -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as RDA, with 042 = lccopycat. Exceptionally: process according to “encoding level 7 lccopycat” procedures (DCM B13, Appendix 7).
+         * OrigRes -- indicates that the record is a lower-level record, and/or that the language of cataloging is other than English.
+         * OrigCop -- indicates that an existing LC RDA record for another edition can be used to create a new full-level RDA record.
+         */
+      },
       firstPage: function(){
         // if not the first page allow
         if (this.currentPage !== 1){
@@ -1015,6 +1023,8 @@ h1, p {
 /** MARC preview formatting */
 :deep() .marc.record{
   font-family: monospace;
+  overflow-y: scroll;
+  max-height: 500px
 }
 
 :deep() .marc.indicators {
