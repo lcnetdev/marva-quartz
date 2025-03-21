@@ -75,10 +75,11 @@
           "contributors": "Contributors",
           "identifiers": "Identifiers",
           "subjects": "Subjects",
+          "sees": "See Also"
 
         },
         panelDetailOrder: [
-          "notes","nonlatinLabels","variantLabels", "varianttitles", "contributors", "relateds","birthdates","birthplaces","locales",
+          "notes","nonlatinLabels","variantLabels", "varianttitles", "sees", "contributors", "relateds","birthdates","birthplaces","locales",
           "activityfields","occupations","languages","lcclasss", "identifiers", "broaders","gacs","collections",
           "sources", "subjects", "marcKeys"
         ],
@@ -1023,7 +1024,7 @@
 
                   <template v-for="key in panelDetailOrder">
                     <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                      <div class="modal-context-data-title modal-context-data-title-add-gap">{{ this.labelMap[key] }}:</div>
+                      <div class="modal-context-data-title modal-context-data-title-add-gap">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                       <ul>
                         <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
                           <template v-if="v.startsWith('http')">
@@ -1033,7 +1034,7 @@
                             <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
                             <!-- <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a> -->
                           </template>
-                          <template v-else-if="key == 'broaders' || key == 'relateds'">
+                          <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
                           </template>
                           <template v-else>
