@@ -871,7 +871,7 @@
       // console.log("this.workURIthis.workURIthis.workURI",this.workURI)
       if (!this.mainTitle){
         this.disableAddButton = true
-        this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
+        // this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
       }
 
 
@@ -1093,7 +1093,12 @@
                       </div>
                 </template>
 
-                <div style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}$w(DLC){{ mainTitleLccn }}</div>
+                <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
+                  <div style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}$w(DLC){{ mainTitleLccn }}</div>
+                </template>
+                <template v-else>
+                  <div style="font-family: monospace; background-color: whitesmoke;">Missing 670 Date Field! Can't build 670</div>
+                </template>
 
               </div>
 
