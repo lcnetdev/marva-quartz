@@ -2031,7 +2031,7 @@ typeFull
 
 	},
 
-	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,workURI){
+	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn){
 		let marcNamespace = "http://www.loc.gov/MARC21/slim"
 
 		let rootEl = document.createElementNS(marcNamespace,"marcxml:record");
@@ -2069,7 +2069,15 @@ typeFull
 		let year2Digits = dateValue.slice(2,4)
 		let month2Digits = dateValue.slice(4,6)
 		let day2Digits = dateValue.slice(6,8)
-		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  + 'n| azannaabn' + " ".repeat(10) + '|n aaa' + " ".repeat(6)
+
+		let pos29 = "n"
+		// did they make a 4xx
+		if (fourXXParts && fourXXParts.a){
+			pos29 = 'b'
+		}
+
+
+		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  + 'n| azannaabn' + " ".repeat(10) + '|' + pos29+ ' aac' + " ".repeat(6)
 		console.log("field008.innerHTML", field008.innerHTML)
 		rootEl.appendChild(field008)
 
@@ -2170,7 +2178,21 @@ typeFull
 
 
 
+		if (pos29 === 'b'){
 
+			let field667 = document.createElementNS(marcNamespace,"marcxml:datafield");
+			field667.setAttribute( 'tag', '667')
+			field667.setAttribute( 'ind1', ' ')
+			field667.setAttribute( 'ind2', ' ')
+			let field667a = document.createElementNS(marcNamespace,"marcxml:subfield");
+			field667a.setAttribute( 'code', 'a')
+			field667a.innerHTML = "Non-Latin script references not evaluated."
+			field667.appendChild(field667a)
+
+			rootEl.appendChild(field667)
+
+
+		}
 
 
 
@@ -2181,7 +2203,12 @@ typeFull
 		field670.setAttribute( 'ind2', ' ')
 		let field670a = document.createElementNS(marcNamespace,"marcxml:subfield");
 		field670a.setAttribute( 'code', 'a')
-		field670a.innerHTML = mainTitle
+
+		let title = mainTitle
+		if (mainTitleDate){
+			title = title + ', ' + mainTitleDate 
+		}
+		field670a.innerHTML = title 
 		field670.appendChild(field670a)
 
 		let field670b = document.createElementNS(marcNamespace,"marcxml:subfield");
@@ -2189,14 +2216,17 @@ typeFull
 		field670b.innerHTML = workURI
 		field670.appendChild(field670b)
 
+
+		if (mainTitleLccn){
+			let field670w = document.createElementNS(marcNamespace,"marcxml:subfield");
+			field670w.setAttribute( 'code', 'w')
+			field670w.innerHTML = '(DLC)' + mainTitleLccn
+			field670.appendChild(field670w)
+		}
+
+
+
 		rootEl.appendChild(field670)
-
-
-
-
-
-
-
 
 
 
