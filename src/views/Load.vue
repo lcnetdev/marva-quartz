@@ -208,76 +208,35 @@
                 <li>Searching...</li>
             </template>
             <template v-else-if="!queryingWc && wcResults.results && wcResults.results.numberOfRecords > 0">
-              <ul>
-                <li v-for="(row) in wcResults.results.briefRecords" :class="['wc-row', {'selected': selectedWcRecord['oclcNumber'] == row['oclcNumber']}]" @click="selectedWcRecord = row">
-                  <template v-for="(label) in wcLabels">
-                    <div class="card">
-                      <div class="card-body">
-                        <div class="card-icon"></div>
-                        <div class="card-title">{{ row['title'] }} ({{ row['language'] }})</div>
-                        <div class="card-subtitle">{{ row['creator'] }}</div>
-                        <div class="card-text border-bottom">
-                          Format: {{ row['specificFormat'] }}<br>
-                          Publisher: {{ row['publisher'] }} ({{row['publicationPlace']}})<br>
-                          008 Date: {{ row['date'] }}<br>
-                        </div>
-                        <div class="card-text border-bottom">
-                          ISBNS:
-                          <ul>
-                            <li v-for="(item) in row['isbns']">{{ item }}</li>
-                          </ul>
-                        </div>
-                        <div class="card-text">
-                          <span class="badge ">{{ row.catalogingInfo.catalogingAgency }}</span>
-                          <span class="badge ">{{ row.catalogingInfo.catalogingLanguage }}</span>
-                          <span class="badge ">{{ row.catalogingInfo.levelOfCataloging }}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <!-- <div v-if="!Array.isArray(row[label])">
-                      <span v-if="label == 'generalFormat'">{{ row['specificFormat'] }}</span>
-                      <span v-else-if="label == 'CatLevel'">{{ determineLevel(row) }}</span>
-                      <span v-else>{{ row[label] }}</span>
-                    </div>
-                    <div v-else>
-                      <li v-for="(item) in row[label]">{{ item }}</li>
-                    </div> -->
-                  </template>
-                </li>
-              </ul>
-              <!-- <table class="wc-table">
-                <thead>
-                  <tr>
-                    <th v-for="(label) in wcLabels" scope="col">
-                        <template v-if="label == 'CatLevel'">
-                          <span data-tooltip="???" class="simptip-position-right" >
-                            {{ wcLabelMap[label] }}
-                            <span  :class="['material-icons-outlined',icon]">question_mark</span>
-                          </span>
-                        </template>
-                        <template v-else>
-                          {{ wcLabelMap[label] }}
-                        </template>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(row) in wcResults.results.briefRecords" :class="['wc-row', {'selected': selectedWcRecord['oclcNumber'] == row['oclcNumber']}]" @click="selectedWcRecord = row">
-                    <template v-for="(label) in wcLabels">
-                      <td v-if="!Array.isArray(row[label])">
-                        <span v-if="label == 'generalFormat'">{{ row[label] }} ({{ row['specificFormat'] }})</span>
-                        <span v-else-if="label == 'CatLevel'">{{ determineLevel(row) }}</span>
-                        <span v-else>{{ row[label] }}</span>
-                      </td>
-                      <td v-else>
-                        <li v-for="(item) in row[label]">{{ item }}</li>
-                      </td>
-
-                    </template>
-                  </tr>
-                </tbody>
-              </table> -->
-
+              <div class="card" v-for="(row) in wcResults.results.briefRecords" :class="['wc-row', {'selected': selectedWcRecord['oclcNumber'] == row['oclcNumber']}]" @click="selectedWcRecord = row">
+                <div class="card-body">
+                  <div class="card-icon"></div>
+                  <div class="card-title">
+                    <span :class="['badge', 'simptip-position-top', {'badge-success': determineLevel(row) == 'PccAdapt', 'badge-warning': determineLevel(row) == 'OrigRes', 'badge-info': determineLevel(row) == 'CopyCat', 'badge-danger': determineLevel(row) == 'OrigCop'}]"
+                      :data-tooltip="catLevelToolTip(determineLevel(row))">
+                      {{ determineLevel(row) }}
+                    </span>
+                    {{ row['title'] }} ({{ row['language'] }})
+                  </div>
+                  <div class="card-subtitle">{{ row['creator'] }}</div>
+                  <div class="card-text border-bottom">
+                    Format: {{ row['specificFormat'] }}<br>
+                    Publisher: {{ row['publisher'] }} ({{row['publicationPlace']}})<br>
+                    008 Date: {{ row['date'] }}<br>
+                  </div>
+                  <div class="card-text border-bottom">
+                    ISBNS:
+                    <ul>
+                      <li v-for="(item) in row['isbns']">{{ item }}</li>
+                    </ul>
+                  </div>
+                  <div class="card-text">
+                    <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Agency" v-if="row.catalogingInfo.catalogingAgency">{{ row.catalogingInfo.catalogingAgency }}</span>
+                    <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Language" v-if="row.catalogingInfo.catalogingLanguage">{{ row.catalogingInfo.catalogingLanguage }}</span>
+                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'High', 'badge-warning': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'Low'}]" :data-tooltip="'Encoding Level: \'' + row.catalogingInfo.levelOfCataloging + '\''" v-if="row.catalogingInfo.levelOfCataloging">{{ encodingLevel(row.catalogingInfo.levelOfCataloging) }}</span>
+                  </div>
+                </div>
+              </div>
             </template>
           </div>
           <div class="copy-cat-marc">
@@ -406,7 +365,6 @@
       // // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
 
-
       startingPointsFiltered(){
         let points = []
         for (let k in this.startingPoints){
@@ -428,6 +386,29 @@
     },
 
     methods: {
+      encodingLevel: function (value){
+        console.info("encodingLevel: '", value, "'")
+        if (this.oclcEncodingLevelsHigh.includes(value)){
+          return 'High'
+        }
+        return 'Low'
+      },
+
+      catLevelToolTip: function(value){
+        switch (value){
+          case "PccAdapt":
+            return "042 contains 'pcc' & Language = English"
+          case "CopyCat":
+            return "Encoding Level is 'high', Not PCC record, Language = English"
+          case "OrigRes":
+            return "Low level record, or not English"
+          case "OrigCop":
+            return "Cataloging Agency and Transcribing Agency are 'DLC'"
+          default:
+            return "You shouldn't be seeing this. Let someone know the value is '" + value  +"'"
+        }
+      },
+
       determineLevel: function(record){
         /**
          * PCCAdapt -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as full-level RDA.
@@ -449,12 +430,12 @@
         console.info(isEng, "--", catLang)
 
         let catLevel = false
-        if (pccRecord && isEng) {
-          catLevel = 'PccAdapt'
-        } else if (catEncodeLevel == '4' && !pccRecord && isEng){
-          catLevel = 'CopyCat'
-        } else if (catAgency == 'DLC' && catTransAgency == 'DLC'){
+        if (catAgency == 'DLC' && catTransAgency == 'DLC'){
           catLevel = 'OrigCop'
+        } else if (pccRecord && isEng) {
+          catLevel = 'PccAdapt'
+        } else if (this.oclcEncodingLevelsHigh.includes(catEncodeLevel) && !pccRecord && isEng){
+          catLevel = 'CopyCat'
         } else {
           catLevel = 'OrigRes'
         }
@@ -1040,7 +1021,7 @@ label{
 
   }
 
-/* Copy Cat */
+/****** Copy Cat ******/
 *, *:before, *:after {
   box-sizing: border-box;
 }
@@ -1062,20 +1043,21 @@ h1, p {
   width: 20%;
 }
 .copy-cat-search{
-  max-height: 500px;
+  max-height: 1000px;
   overflow-y: scroll;
 }
 
 .copy-cat-results {
   float: left;
   width: 20%;
-  max-height: 500px;
+  max-height: 1000px;
   overflow-y: scroll;
 }
 
 .copy-cat-marc {
   float: right;
   width: 45%;
+  height: 100%;
 }
 
 /* make a grid */
@@ -1092,7 +1074,7 @@ h1, p {
   color: #fff;
   border-radius: 5px;
   padding: 20px;
-  font-size: 150%;
+  font-size: 100%;
   /* needed for the floated layout*/
   margin-bottom: 10px;
 }
@@ -1114,7 +1096,7 @@ h1, p {
 :deep() .marc.record{
   font-family: monospace;
   overflow-y: scroll;
-  max-height: 500px
+  max-height: 900px;
 }
 
 :deep() .marc.indicators {
@@ -1142,7 +1124,7 @@ h1, p {
 }
 
 .selected {
-  background-color: aliceblue;
+  background-color: antiquewhite !important;
   color: black;
 }
 
@@ -1163,6 +1145,12 @@ h1, p {
   background-clip: border-box;
   border: 1px solid rgba(0,0,0,.125);
   border-radius: .25rem;
+
+  margin-bottom: 5px;
+}
+
+.card:hover {
+  background-color: antiquewhite;
 }
 
 .card-body {
@@ -1187,7 +1175,53 @@ h1, p {
   border-bottom: solid gray;
 }
 
+.badge {
+  display: inline-block;
+  padding: .25em .4em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25rem;
+}
 
+.badge-primary {
+  color: #fff;
+  background-color: #007bff;
+}
+
+.badge-secondary {
+  color: white;
+  background-color: #6c757d;;
+}
+
+.badge:hover {
+  cursor: help;
+  background-color: black;
+  color: white;
+}
+
+.badge-success {
+  color: #fff;
+  background-color: #28a745;
+}
+
+.badge-warning {
+  color: #212529;
+  background-color: #ffc107;
+}
+
+.badge-danger {
+  color: #fff;
+  background-color: #dc3545;
+}
+
+.badge-info {
+  color: #fff;
+  background-color: #17a2b8;
+}
 
 /* We need to set the widths used on floated items back to auto, and remove the bottom margin as when we have grid we have gaps. */
 @supports (display: grid) {
