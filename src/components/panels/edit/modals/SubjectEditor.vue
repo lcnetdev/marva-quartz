@@ -1088,6 +1088,7 @@ methods: {
         for (let i in this.componetLookup){
           for (let j in this.componetLookup[i]) {
             targetType = this.componetLookup[i][j].type
+            console.info("targetType: ", targetType)
 
             if (this.componetLookup[i][j].label.includes("--")){
               target = this.componetLookup[i][j].label.replaceAll("--", "‑‑")
@@ -1163,12 +1164,13 @@ methods: {
       if (this.typeLookup[id+offset]){
         type = this.typeLookup[id+offset]
       }
+      console.info("building -- type: ", type)
 
       this.components.push({
         label: ss,
         uri: uri,
         id: id,
-        type: this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
+        type: type, //this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
         complex: ss.includes('‑‑'),
         literal:literal,
         posStart: activePosStart,
@@ -1186,6 +1188,8 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
+
+    console.info("final components: ", JSON.parse(JSON.stringify(this.components)))
   },
 
   /**
@@ -2272,6 +2276,7 @@ methods: {
   },
 
   updateAvctiveTypeSelected: function(){
+    console.info("updateAvctiveTypeSelected: ", JSON.parse(JSON.stringify(this.activeComponent)))
     //set them all false
     for (let k in this.activeTypes){
       this.activeTypes[k].selected=false
@@ -2307,14 +2312,22 @@ methods: {
 
   },
 
-
-
   setTypeClick: function(event,type){
-    this.typeLookup[this.activeComponentIndex] = type
+    console.info("setTypeClick: ", type)
     this.activeComponent.type = type
+    this.typeLookup[this.activeComponentIndex] = type
+
+    // console.info("this.componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
+    // console.info("this.componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup[this.activeComponentIndex])))
+
+    // this.componetLookup[this.activeComponentIndex].extra.type = type
+
+    console.info("this.typeLookup: ", JSON.parse(JSON.stringify(this.typeLookup)))
+    console.info("this.activeComponent: ", JSON.parse(JSON.stringify(this.activeComponent)))
+
     this.subjectStringChanged()
     this.$refs.subjectInput.focus()
-
+    console.info("this.activeComponent: ", JSON.parse(JSON.stringify(this.activeComponent)))
   },
 
   renderHintBoxes: function(){
@@ -2364,6 +2377,7 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    console.info("subjectStringChanged: ", JSON.parse(JSON.stringify(this.activeComponent)))
     this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
@@ -2383,6 +2397,7 @@ methods: {
 
     // if the event coming in is the keystroke after a '$' then check to change the type
     if (event && this.nextInputIsTypeSelection){
+      console.info("getting here?")
       if (event.data.toLowerCase()==='a' || event.data.toLowerCase()==='x'){
         this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
         this.subjectString=this.subjectString.replace('$'+event.data,'')
@@ -2426,6 +2441,7 @@ methods: {
       this.searchApis("", "", this)
     }
     if (!this.subjectString.endsWith("-")){
+      console.info("buildComponents")
       this.buildComponents(this.subjectString)
     }
 
@@ -2468,7 +2484,9 @@ methods: {
 
     }
 
+    console.info("updateAvctiveTypeSelected>>>>>>>>>>>>")
     this.updateAvctiveTypeSelected()
+    console.info("updateAvctiveTypeSelected<<<<<<<<<<<<")
 
     if (this.components.length==1 && this.components[0].complex){
       this.showTypes=false
@@ -2489,7 +2507,9 @@ methods: {
           if (this.localContextCache[x.uri]){
             if (this.activeComponent.type){
               // don't do anything
+              console.info("Type is already set")
             } else {
+              console.info("Type is not set")
               if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
                 x.type = 'madsrdf:Geographic'
               }
