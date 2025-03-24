@@ -91,8 +91,8 @@
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
 
-              
-              
+
+
               <div v-for="(avl,idx) in complexLookupValues" :class="['selected-value-container']">
 
                 <div class="selected-value-container-auth">
@@ -321,7 +321,7 @@ export default {
 
     cammBehaviorDisplayEntities(){
 
-      
+
 
       if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
         return 'text'
@@ -350,7 +350,7 @@ export default {
   mounted: async function(){
     if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
       if (this.cammBehaviorDisplayEntities == 'text'){
-        if (this.complexLookupValues.length>0){          
+        if (this.complexLookupValues.length>0){
           this.searchValue = await this.profileStore.returnCammComplexLabel(this.guid, this.complexLookupValues[0])
         }
       }
@@ -431,14 +431,25 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
-      if (Object.keys(contextValue.extra).length == 0){
+      if (contextValue.literal){
+        this.profileStore.setValueComplex(
+            this.guid,
+            null,
+            this.propertyPath,
+            null,
+            contextValue.title,
+            null, //contextValue.type,
+            {},
+            null,
+          )
+      } else if (Object.keys(contextValue.extra).length == 0){
         // Intended audience mixes simple and complex lookups, so do check
         this.profileStore.setValueSimple(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title[0])
       } else {
-        if (contextValue.uri.includes('/works/')){
+        if (contextValue.uri && contextValue.uri.includes('/works/')){
           contextValue.type = 'Work'
           contextValue.typeFull='http://id.loc.gov/ontologies/bibframe/Work'
-        } else if (contextValue.uri.includes('/hubs/')){
+        } else if (contextValue.uri && contextValue.uri.includes('/hubs/')){
           contextValue.type = 'Hub'
           contextValue.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
         }
@@ -474,7 +485,7 @@ export default {
                       "level": 2,
                       "propertyURI": "http://www.loc.gov/mads/rdf/v1#Topic"
                   }
-              ] 
+              ]
           )
         }else{
           delete contextValue.typeFull

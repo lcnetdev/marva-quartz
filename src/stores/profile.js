@@ -2244,21 +2244,21 @@ export const useProfileStore = defineStore('profile', {
       // rewrite the property Path if we are working with them
       if (pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
 
-        if (pt.userValue && 
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'] && 
-            pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && 
+        if (pt.userValue &&
+            pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'] &&
+            pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] &&
             pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@type'] &&
             (pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/Hub" || pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/Work")
         )
-          
-        
+
+
         //  it is a subject remove label properties
         propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=="http://www.loc.gov/mads/rdf/v1#authoritativeLabel")  })
         valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
 
         // console.log("NEW propertyPath=",propertyPath)
 
-      }     
+      }
 
       if (valueLocation){
 
@@ -2528,7 +2528,7 @@ export const useProfileStore = defineStore('profile', {
               }
               if (aMarcKeyNode['@language']){
                 aNode['@language']=aMarcKeyNode['@language']
-              }            
+              }
 
               blankNode['http://id.loc.gov/ontologies/bflc/marcKey'].push(aNode)
 
@@ -2537,7 +2537,7 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
-          
+
           // if (nodeMap["marcKey"]){
           //   blankNode["http://id.loc.gov/ontologies/bflc/marcKey"] = [
           //     {
@@ -2691,7 +2691,7 @@ export const useProfileStore = defineStore('profile', {
                 }else{
                   delete currentUserValuePos["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
                 }
-                
+
                 // it might be a Hub if so its not a isMemberOfMADSScheme subject
                 if (subjectComponents[0].type && subjectComponents[0].type.toLowerCase().indexOf("hub")>-1){
                   delete currentUserValuePos["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
@@ -5027,7 +5027,7 @@ export const useProfileStore = defineStore('profile', {
       // }
 
 
-      
+
 
       return pubResuts
 
