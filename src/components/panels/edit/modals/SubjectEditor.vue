@@ -2280,6 +2280,10 @@ methods: {
     if (this.activeComponent && this.activeComponent.type){
       if (this.activeTypes[this.activeComponent.type]){
         this.activeTypes[this.activeComponent.type].selected=true
+      } else if (this.activeComponent.type == 'madsrdf:HierarchicalGeographic') {
+        this.activeTypes["madsrdf:Geographic"].selected=true
+      } else {
+        this.activeTypes["madsrdf:Topic"].selected=true
       }
     } else if (this.activeComponent.type == null && this.activeComponent.marcKey != null){ //fall back on the marcKey, this can be null if the selection is too fast?
         let subfield = this.activeComponent.marcKey.slice(5, 7)
