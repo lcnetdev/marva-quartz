@@ -145,7 +145,7 @@
           }
 
 
-          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI)
+          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI, this.mainTitleDate, this.mainTitleLccn)
 
 
           
@@ -243,8 +243,15 @@
 
 
           this.searching = true
-          this.oneXXResults = []
-          this.fourXXResults = []
+
+          // clear results
+          if (field=='4xx'){
+            this.fourXXResults = []
+          }else{
+            this.oneXXResults = []
+          }
+
+
           if (!authLabel){
             this.searching = false
             return false            
@@ -276,7 +283,7 @@
 
             }
           }
-          console.log("formattedformattedformattedformatted",formatted)
+
           if (field=='4xx'){
             this.fourXXResults = formatted
           }else{
@@ -361,6 +368,7 @@
               },500)
               this.disableAddButton=false
             }
+            
 
 
           }else{
@@ -377,6 +385,9 @@
           if (!this.mainTitle){
             this.disableAddButton = true
 
+          }
+          if (this.oneXXErrors.length>0){
+            this.disableAddButton = true
           }
           
 
@@ -784,7 +795,8 @@
             this.fourXX = fourXXString
 
 
-
+            this.checkOneXX()
+            this.checkFourXX()
           }
 
           // 400  $a강민, 건$d1990 
@@ -1013,9 +1025,8 @@
                       </div>
                     </template>
 
-
                     <template v-if="oneXXResults.length>0 && oneXXResults.length<=5">
-                      <div v-for="r in oneXXResults" style="margin-bottom: 1em; padding-left: 2em;">
+                      <div v-for="r in oneXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
                         <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
                       </div>
                     </template>
@@ -1027,6 +1038,38 @@
                       </div>
                     </details>
                     </template>
+
+
+                    <template v-if="fourXXResults.length>0">                      
+                      <div>
+                        <span class="material-icons not-unique-icon">cancel</span>
+                        <span class="not-unique-text">4XX Heading FOUND in LCNAF file:</span>
+                      </div>
+                    </template>
+
+                    
+                    <template v-if="fourXXResults.length==0 && fourXXParts && fourXXParts.a && searching==false">                      
+                      <div>
+                        <span class="material-icons unique-icon">check</span>
+                        <span class="not-unique-text">4XX: Heading NOT found in LCNAF file:</span>
+                      </div>
+                    </template>
+
+                    <template v-if="fourXXResults.length>0 && fourXXResults.length<=5">
+                      <div v-for="r in fourXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
+                        <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                      </div>
+                    </template>
+                    <template v-else-if="fourXXResults.length>0 && fourXXResults.length>5">
+                    <details style="margin-bottom: 1em; padding-left: 2em;">
+                      <summary>There are {{ fourXXResults.length }} hits on that name.</summary>
+                      <div v-for="r in fourXXResults">
+                        <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                      </div>
+                    </details>
+                    </template>
+
+
 
 
 
@@ -1061,7 +1104,7 @@
                 <template v-else>
                   <div>
                         <span class="material-icons not-unique-icon">cancel</span>
-                        <span class="not-unique-text">670$a: NOT Found</span><span data-tooltip="Add main title to Work" class="simptip-position-left"></span><span class="material-icons help-icon">help</span>
+                        <span class="not-unique-text">670$a: NOT Found</span><span data-tooltip="Add main title to Work" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
                       </div>
                 </template>
                 
