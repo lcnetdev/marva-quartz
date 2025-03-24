@@ -139,7 +139,7 @@
         <!-- source: https://gridbyexample.com/patterns/header-twocol-footer/ -->
         <div class="copy-cat-wrapper">
           <header class="copy-cat-header">Copy Cat Search</header>
-          <aside class="copy-cat-sidebar">
+          <div class="copy-cat-search">
             <h1>Search</h1>
             <form ref="urlToLoadForm" v-on:submit.prevent="">
               <input placeholder="Enter Value to Search" class="url-to-load" type="text" v-model="wcQuery" ref="urlToLoad">
@@ -170,8 +170,8 @@
               </button>
             </div>
 
-          </aside>
-          <article class="copy-cat-content">
+          </div>
+          <div class="copy-cat-results">
             <h1>Results</h1>
 
             <div>
@@ -208,10 +208,57 @@
                 <li>Searching...</li>
             </template>
             <template v-else-if="!queryingWc && wcResults.results && wcResults.results.numberOfRecords > 0">
-              <table class="wc-table">
+              <ul>
+                <li v-for="(row) in wcResults.results.briefRecords" :class="['wc-row', {'selected': selectedWcRecord['oclcNumber'] == row['oclcNumber']}]" @click="selectedWcRecord = row">
+                  <template v-for="(label) in wcLabels">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="card-icon"></div>
+                        <div class="card-title">{{ row['title'] }} ({{ row['language'] }})</div>
+                        <div class="card-subtitle">{{ row['creator'] }}</div>
+                        <div class="card-text border-bottom">
+                          Format: {{ row['specificFormat'] }}<br>
+                          Publisher: {{ row['publisher'] }} ({{row['publicationPlace']}})<br>
+                          008 Date: {{ row['date'] }}<br>
+                        </div>
+                        <div class="card-text border-bottom">
+                          ISBNS:
+                          <ul>
+                            <li v-for="(item) in row['isbns']">{{ item }}</li>
+                          </ul>
+                        </div>
+                        <div class="card-text">
+                          <span class="badge ">{{ row.catalogingInfo.catalogingAgency }}</span>
+                          <span class="badge ">{{ row.catalogingInfo.catalogingLanguage }}</span>
+                          <span class="badge ">{{ row.catalogingInfo.levelOfCataloging }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- <div v-if="!Array.isArray(row[label])">
+                      <span v-if="label == 'generalFormat'">{{ row['specificFormat'] }}</span>
+                      <span v-else-if="label == 'CatLevel'">{{ determineLevel(row) }}</span>
+                      <span v-else>{{ row[label] }}</span>
+                    </div>
+                    <div v-else>
+                      <li v-for="(item) in row[label]">{{ item }}</li>
+                    </div> -->
+                  </template>
+                </li>
+              </ul>
+              <!-- <table class="wc-table">
                 <thead>
                   <tr>
-                    <th v-for="(label) in wcLabels" scope="col">{{ wcLabelMap[label] }}</th>
+                    <th v-for="(label) in wcLabels" scope="col">
+                        <template v-if="label == 'CatLevel'">
+                          <span data-tooltip="???" class="simptip-position-right" >
+                            {{ wcLabelMap[label] }}
+                            <span  :class="['material-icons-outlined',icon]">question_mark</span>
+                          </span>
+                        </template>
+                        <template v-else>
+                          {{ wcLabelMap[label] }}
+                        </template>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -219,27 +266,36 @@
                     <template v-for="(label) in wcLabels">
                       <td v-if="!Array.isArray(row[label])">
                         <span v-if="label == 'generalFormat'">{{ row[label] }} ({{ row['specificFormat'] }})</span>
+                        <span v-else-if="label == 'CatLevel'">{{ determineLevel(row) }}</span>
                         <span v-else>{{ row[label] }}</span>
                       </td>
                       <td v-else>
                         <li v-for="(item) in row[label]">{{ item }}</li>
                       </td>
+
                     </template>
                   </tr>
                 </tbody>
-              </table>
+              </table> -->
+
             </template>
-          </article>
-          <footer class="copy-cat-marc" v-if="Object.keys(selectedWcRecord).length > 0">
+          </div>
+          <div class="copy-cat-marc">
+            <div v-if="Object.keys(selectedWcRecord).length > 0">
+              Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }} <br>
+              Marc Preview<br>
+              <div v-html="selectedWcRecord['marcHTML']"></div>
+            </div>
+          </div>
+          <!-- <footer class="copy-cat-marc" v-if="Object.keys(selectedWcRecord).length > 0">
             Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }} <br>
             Marc Preview<br>
             <div v-html="selectedWcRecord['marcHTML']"></div>
-          </footer>
+          </footer> -->
         </div>
       </div>
     </pane>
   </splitpanes>
-
 
 </template>
 
@@ -312,8 +368,8 @@
         ],
         wcLoadSelected: false,
         wcLabels: [
-          'title', 'creator', 'date', 'language', 'generalFormat',
-          'publisher', 'publicationPlace', 'isbns', 'issns', 'catalogingInfo'
+          'CatLevel', 'title', 'creator', 'date', 'language', 'generalFormat',
+          'publisher', 'publicationPlace', 'isbns', 'issns'
         ],
         wcLabelMap: {
           "title": "Title",
@@ -325,9 +381,10 @@
           "publicationPlace": "Place of Publication",
           "isbns": "ISBNs",
           "issns": "ISSns",
+          "CatLevel": "CatLevel"
         },
-        oclcEncodingLevelsHight: [' ', '1', 'I'],
-        oclcEncodingLevelsLow: ['M', '3', '4', '5', '7', '8'],
+        oclcEncodingLevelsHigh: [' ', '1', 'I'],
+        oclcEncodingLevelsLow: ['K', 'M', '3', '4', '5', '7', '8'],
         selectedWcRecord: {},
         currentPage: 1
 
@@ -371,14 +428,41 @@
     },
 
     methods: {
-      determineLevel: function(){
+      determineLevel: function(record){
         /**
          * PCCAdapt -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as full-level RDA.
-         * Copycat -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as RDA, with 042 = lccopycat. Exceptionally: process according to “encoding level 7 lccopycat” procedures (DCM B13, Appendix 7).
-         * OrigRes -- indicates that the record is a lower-level record, and/or that the language of cataloging is other than English.
-         * OrigCop -- indicates that an existing LC RDA record for another edition can be used to create a new full-level RDA record.
+         * Copycat  -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as RDA, with 042 = lccopycat. Exceptionally: process according to “encoding level 7 lccopycat” procedures (DCM B13, Appendix 7).
+         * OrigRes  -- indicates that the record is a lower-level record, and/or that the language of cataloging is other than English.
+         * OrigCop  -- indicates that an existing LC RDA record for another edition can be used to create a new full-level RDA record.
          */
+
+        const catLang   = record.catalogingInfo.catalogingLanguage
+        const isEng = catLang == "eng"
+        const catEncodeLevel  = record.catalogingInfo.levelOfCataloging
+        const catAgency = record.catalogingInfo.catalogingAgency
+        const catTransAgency = record.catalogingInfo.transcribingAgency
+        const marc042   = record.marcRaw.fields.filter((f) => f[0] == '042').join()
+        const pccRecord = marc042.includes('pcc')
+
+        console.info("\n\n")
+        console.info(pccRecord, "--", marc042)
+        console.info(isEng, "--", catLang)
+
+        let catLevel = false
+        if (pccRecord && isEng) {
+          catLevel = 'PccAdapt'
+        } else if (catEncodeLevel == '4' && !pccRecord && isEng){
+          catLevel = 'CopyCat'
+        } else if (catAgency == 'DLC' && catTransAgency == 'DLC'){
+          catLevel = 'OrigCop'
+        } else {
+          catLevel = 'OrigRes'
+        }
+
+        return catLevel //catLang + " " + catEncodeLevel + " " + catAgency + " " + pccRecord
+
       },
+
       firstPage: function(){
         // if not the first page allow
         if (this.currentPage !== 1){
@@ -973,20 +1057,25 @@ h1, p {
 }
 
 /* no grid support? */
-.copy-cat-sidebar {
+.copy-cat-search {
   float: left;
-  width: 19.1489%;
+  width: 20%;
 }
-.copy-cat-sidebar{
+.copy-cat-search{
   max-height: 500px;
   overflow-y: scroll;
 }
 
-.copy-cat-content {
-  float: right;
-  width: 98%;
+.copy-cat-results {
+  float: left;
+  width: 20%;
   max-height: 500px;
   overflow-y: scroll;
+}
+
+.copy-cat-marc {
+  float: right;
+  width: 45%;
 }
 
 /* make a grid */
@@ -994,7 +1083,7 @@ h1, p {
   max-width: 98%;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 1fr 1fr 2fr;
   grid-gap: 10px;
 }
 
@@ -1008,7 +1097,8 @@ h1, p {
   margin-bottom: 10px;
 }
 
-.copy-cat-header, .copy-cat-marc {
+/* , .copy-cat-marc  */
+.copy-cat-header{
   grid-column: 1 / -1;
   /* needed for the floated layout */
   clear: both;
@@ -1051,6 +1141,53 @@ h1, p {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
 }
 
+.selected {
+  background-color: aliceblue;
+  color: black;
+}
+
+/* Bootstrap card */
+.card {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  color: black;
+  background-clip: border-box;
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: .25rem;
+}
+
+.card-body {
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  padding: 1.25rem;
+}
+
+.card-title {
+  margin-bottom: .75rem;
+  font-size: 1.25rem;
+}
+
+.card-subtitle {
+  color: #6c757d !important;
+  margin-bottom: .5rem !important;
+  margin-top: -.375rem;
+}
+
+.card-text.border-bottom {
+  border-bottom: solid gray;
+}
+
+
 
 /* We need to set the widths used on floated items back to auto, and remove the bottom margin as when we have grid we have gaps. */
 @supports (display: grid) {
@@ -1062,4 +1199,5 @@ h1, p {
 
 
 </style>
+
 
