@@ -2310,7 +2310,8 @@ methods: {
 
 
   setTypeClick: function(event,type){
-    this.typeLookup[this.activeComponentIndex] =type
+    this.typeLookup[this.activeComponentIndex] = type
+    this.activeComponent.type = type
     this.subjectStringChanged()
     this.$refs.subjectInput.focus()
 
