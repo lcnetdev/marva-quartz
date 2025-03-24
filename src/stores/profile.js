@@ -5035,7 +5035,14 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
-
+    /**
+     * Retrieves the main title from the NACO stub work profile by traversing the resource template structure.
+     * Looks for a property with URI "http://id.loc.gov/ontologies/bibframe/title" and extracts its main title value.
+     * 
+     * @returns {(string|false)} The main title string if found, false otherwise
+     * @access public
+     * @requires activeProfile - Profile must be loaded with valid RT structure
+     */
     nacoStubReturnMainTitle(){
 
       for (let rt of this.activeProfile.rtOrder){
@@ -5056,23 +5063,138 @@ export const useProfileStore = defineStore('profile', {
         }
       }
       return false
-
-
     },
 
-    nacoStubReturnWorkURI(){
+    /**
+     * Retrieves the Library of Congress Control Number (LCCN) from the NACO stub profile.
+     * Searches through Instance resource templates for bibframe:identifiedBy property
+     * with type bibframe:Lccn.
+     * 
+     * @returns {(string|false)} The LCCN string if found, false otherwise
+     * @access public
+     * @requires activeProfile - Profile must be loaded with valid RT structure
+     */
+    nacoStubReturnLCCN(){
 
       for (let rt of this.activeProfile.rtOrder){
-        if (rt.indexOf(":Work")>-1){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/identifiedBy"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['@type']
+                  &&  pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/Lccn"
+                )
+                return pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
+            }
+          }
+        }
+      }
+      return false
+    },
+    /**
+     * Retrieves the date from the profile by searching multiple date fields.
+     * Searches in order:
+     * 1. Instance provision activity simple date
+     * 2. Instance provision activity EDTF date
+     * 3. Work origin date
+     * 
+     * @returns {(string|false)} The date string if found in any of the searched fields, false otherwise
+     * @access public
+     * @requires activeProfile - Profile must be loaded with valid RT structure
+     */
+    nacoStubReturnDate(){
 
+      let provisionActivityEDTFDate = null
+      let provisionActivitySimpleDate = null
+      let originDate = null
+
+      for (let rt of this.activeProfile.rtOrder){
+        // look in the instance first for provision activity
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/provisionActivity"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bflc/simpleDate']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bflc/simpleDate'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bflc/simpleDate'][0]['http://id.loc.gov/ontologies/bflc/simpleDate']
+                ){
+                  provisionActivitySimpleDate = pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bflc/simpleDate'][0]['http://id.loc.gov/ontologies/bflc/simpleDate']
+                }
+            }
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/provisionActivity"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bibframe/date']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bibframe/date'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bibframe/date'][0]['http://id.loc.gov/ontologies/bibframe/date']
+                ){
+                  provisionActivityEDTFDate = pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bibframe/date'][0]['http://id.loc.gov/ontologies/bibframe/date']
+                }
+            }
+
+          }
+        }
+        if (rt.indexOf(":Work")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/originDate"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate'][0]['http://id.loc.gov/ontologies/bibframe/originDate']                                    
+                ){
+                  originDate = pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate'][0]['http://id.loc.gov/ontologies/bibframe/originDate']
+                }
+            }  
+          }          
+
+        }
+      }
+
+      if (provisionActivitySimpleDate){
+        return provisionActivitySimpleDate
+      }else if(provisionActivityEDTFDate){
+        return provisionActivityEDTFDate
+      }else if (originDate){
+        return originDate
+      }else{
+        return false
+      }
+
+      
+    },
+
+
+
+
+
+    /**
+     * Retrieves the Work URI from the NACO stub profile by searching through resource templates.
+     * Returns the first URI found in a resource template containing ":Work" in its name.
+     * 
+     * @returns {(string|false)} The Work URI if found, false otherwise
+     * @access public
+     * @requires activeProfile - Profile must be loaded with valid RT structure
+     */
+    nacoStubReturnWorkURI(){
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Work")>-1){
           if (this.activeProfile.rt[rt].URI){
             return this.activeProfile.rt[rt].URI
           }
         }
       }
       return false
-
-
     },
 
 
@@ -5484,8 +5606,6 @@ export const useProfileStore = defineStore('profile', {
 
 
     componentLibraryUpdateUserValueGuid(component){
-
-
       function traverse(target) {
         for (const key in target) {
           if (typeof target[key] === 'object') {
@@ -5497,7 +5617,6 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-
       traverse(component.userValue);
 
       return component

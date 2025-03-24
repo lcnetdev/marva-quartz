@@ -1903,7 +1903,7 @@ const utilsExport = {
 			elAgentClass.setAttributeNS(this.namespace.rdf, 'rdf:about', hubCreatorObj.uri)
 
 
-
+typeFull
 			elAgentProperty.appendChild(elAgentClass)
 
 			// let elAgentType = document.createElementNS(this.namespace.bf ,'bf:agent')
@@ -2070,6 +2070,7 @@ const utilsExport = {
 		let month2Digits = dateValue.slice(4,6)
 		let day2Digits = dateValue.slice(6,8)
 		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  + 'n| azannaabn' + " ".repeat(10) + '|n aaa' + " ".repeat(6)
+		console.log("field008.innerHTML", field008.innerHTML)
 		rootEl.appendChild(field008)
 
 		let field010 = document.createElementNS(marcNamespace,"marcxml:datafield");
