@@ -32,7 +32,7 @@ export const useConfigStore = defineStore('config', {
 
         id: 'https://id.loc.gov/',
         env : 'production',
-        dev: false,
+        dev: true,
         displayLCOnlyFeatures: true,
       },
 
