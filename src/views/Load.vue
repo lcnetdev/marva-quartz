@@ -165,7 +165,7 @@
             <hr>
             <h3>Load with profile:</h3>
             <div class="load-buttons">
-              <button class="load-button" @click="console.info('load')" :disabled="(urlToLoadIsHttp || lccnLoadSelected ) ? false : true"  v-for="s in startingPointsFiltered">
+              <button class="load-button" @click="loadCopyCat" :disabled="(selectedWcRecord) ? false : true"  v-for="s in startingPointsFiltered">
                 {{s.name}}
               </button>
             </div>
@@ -344,8 +344,9 @@
         },
         oclcEncodingLevelsHigh: [' ', '1', 'I'],
         oclcEncodingLevelsLow: ['K', 'M', '3', '4', '5', '7', '8'],
-        selectedWcRecord: {},
-        currentPage: 1
+        selectedWcRecord: false,
+        currentPage: 1,
+        posting: false,
 
 
       }
@@ -401,7 +402,7 @@
           case "CopyCat":
             return "Encoding Level is 'high', Not PCC record, Language = English"
           case "OrigRes":
-            return "Low level record, or not English"
+            return "Low level record, Not PCC, or not English"
           case "OrigCop":
             return "Cataloging Agency and Transcribing Agency are 'DLC'"
           default:
@@ -484,6 +485,8 @@
         console.info("offset: ", this.wcOffset)
         console.info("limit: ", this.wcLimit)
 
+        this.selectedWcRecord = false
+
         this.queryingWc = true
         //console.log("Validating: ", this.validating)
         if (this.currentPage != 1){
@@ -500,6 +503,18 @@
         this.queryingWc = false
         console.info("this.wcResults: ", this.wcResults)
 
+      },
+
+      loadCopyCat: function(){
+        console.info("Loading " + this.selectedWcRecord['oclcNumber'] + " to ID")
+        console.info("type: ", typeof this.selectedWcRecord.marcXML)
+        console.info("xml: ", this.selectedWcRecord.marcXML)
+        console.info("xml2: ", utilsParse.parseXml(xml))
+
+        this.posting = true
+        this.postResults = {}
+        // this.postResults = await this.utilsNetwork.addCopyCat(this.selectedWcRecord.marcXML)
+        this.posting = false
       },
 
       loadFromAllRecord: function(eId){
@@ -1067,6 +1082,10 @@ h1, p {
   display: grid;
   grid-template-columns: 1fr 1fr 2fr;
   grid-gap: 10px;
+
+  overflow-y: scroll;
+  position: fixed;
+  height: 100%;
 }
 
 .copy-cat-wrapper > * {

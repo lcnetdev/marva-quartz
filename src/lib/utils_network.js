@@ -2832,7 +2832,32 @@ const utilsNetwork = {
     }
   },
 
+  /**
+   * Send copy cat record to ID
+   *
+   * @param {obj} xml - the MARC/XML for the record to be added
+   *
+   * @return {obj} - {status: "", data: ""}
+   */
+  addCopyCat: async function(xml){
+    let url = useConfigStore().returnUrls.copyCatUpload
 
+    const rawResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({marcxml:xml})
+    });
+
+    console.info("rawResponse: ", rawResponse)
+
+    const content = await rawResponse.json();
+
+    console.info("content: ", content)
+
+  },
 
   /**
   * Send the record

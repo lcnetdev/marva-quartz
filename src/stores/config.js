@@ -27,6 +27,7 @@ export const useConfigStore = defineStore('config', {
         starting: 'http://localhost:9401/util/profiles/starting/prod',
         // worldCat: 'http://localhost:9401/worldcat/',
         worldCat: 'http://localhost:5200/worldcat/',
+        copyCatUpload: 'http://localhost:5200/copycat/upload', // change ports for production
 
         profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
         // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',

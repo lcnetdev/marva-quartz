@@ -2996,7 +2996,6 @@ export const useProfileStore = defineStore('profile', {
   },
 
 
-
     /**
     * Publish record to backend
     *
@@ -3016,6 +3015,7 @@ export const useProfileStore = defineStore('profile', {
 
       let xml = await utilsExport.buildXML(this.activeProfile)
 
+      console.info("xml: ", xml.xlmStringBasic)
 
       let pubResuts
 
