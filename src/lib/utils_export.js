@@ -821,6 +821,14 @@ const utilsExport = {
 									// yes
 									let bnodeLvl2 = this.createBnode(value1,key1)
 
+									//carve out an expection for associated resource is a series
+									if (bnodeLvl1.tagName == 'bf:Relation' && bnodeLvl2.tagName == 'bf:Series' && pLvl2.tagName == 'bf:associatedResource'){
+										let rdftype = this.createElByBestNS('rdf:type')
+										rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', 'http://id.loc.gov/ontologies/bflc/Uncontrolled')
+										bnodeLvl2.appendChild(rdftype)
+									}
+
+
 									pLvl2.appendChild(bnodeLvl2)
 									bnodeLvl1.appendChild(pLvl2)
 									xmlLog.push(`Creating bnode lvl 2 for it ${bnodeLvl2.tagName}`)
@@ -1865,7 +1873,7 @@ const utilsExport = {
 
 		// variant
 		if (variant){
-				
+
 			let elTitleVariantProperty = document.createElementNS(this.namespace.bf ,'bf:title')
 			let elTitleVariantClass = document.createElementNS(this.namespace.bf ,'bf:VariantTitle')
 			let elMainTitleVariant = document.createElementNS(this.namespace.bf ,'bf:mainTitle')
@@ -1875,8 +1883,8 @@ const utilsExport = {
 			}
 
 			elMainTitleVariant.innerHTML = variant
-			
-			
+
+
 
 
 			// attach
@@ -2206,9 +2214,9 @@ typeFull
 
 		let title = mainTitle
 		if (mainTitleDate){
-			title = title + ', ' + mainTitleDate 
+			title = title + ', ' + mainTitleDate
 		}
-		field670a.innerHTML = title 
+		field670a.innerHTML = title
 		field670.appendChild(field670a)
 
 		let field670b = document.createElementNS(marcNamespace,"marcxml:subfield");

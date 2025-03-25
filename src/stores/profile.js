@@ -2222,7 +2222,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {array} - an array of objs representing the simple lookup values
     */
     returnComplexLookupValueFromProfile: function(componentGuid, propertyPath){
-
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -5038,7 +5037,7 @@ export const useProfileStore = defineStore('profile', {
     /**
      * Retrieves the main title from the NACO stub work profile by traversing the resource template structure.
      * Looks for a property with URI "http://id.loc.gov/ontologies/bibframe/title" and extracts its main title value.
-     * 
+     *
      * @returns {(string|false)} The main title string if found, false otherwise
      * @access public
      * @requires activeProfile - Profile must be loaded with valid RT structure
@@ -5069,7 +5068,7 @@ export const useProfileStore = defineStore('profile', {
      * Retrieves the Library of Congress Control Number (LCCN) from the NACO stub profile.
      * Searches through Instance resource templates for bibframe:identifiedBy property
      * with type bibframe:Lccn.
-     * 
+     *
      * @returns {(string|false)} The LCCN string if found, false otherwise
      * @access public
      * @requires activeProfile - Profile must be loaded with valid RT structure
@@ -5103,7 +5102,7 @@ export const useProfileStore = defineStore('profile', {
      * 1. Instance provision activity simple date
      * 2. Instance provision activity EDTF date
      * 3. Work origin date
-     * 
+     *
      * @returns {(string|false)} The date string if found in any of the searched fields, false otherwise
      * @access public
      * @requires activeProfile - Profile must be loaded with valid RT structure
@@ -5151,12 +5150,12 @@ export const useProfileStore = defineStore('profile', {
               if (pt.userValue
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate']
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate'][0]
-                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate'][0]['http://id.loc.gov/ontologies/bibframe/originDate']                                    
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate'][0]['http://id.loc.gov/ontologies/bibframe/originDate']
                 ){
                   originDate = pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate'][0]['http://id.loc.gov/ontologies/bibframe/originDate']
                 }
-            }  
-          }          
+            }
+          }
 
         }
       }
@@ -5171,7 +5170,7 @@ export const useProfileStore = defineStore('profile', {
         return false
       }
 
-      
+
     },
 
 
@@ -5181,7 +5180,7 @@ export const useProfileStore = defineStore('profile', {
     /**
      * Retrieves the Work URI from the NACO stub profile by searching through resource templates.
      * Returns the first URI found in a resource template containing ":Work" in its name.
-     * 
+     *
      * @returns {(string|false)} The Work URI if found, false otherwise
      * @access public
      * @requires activeProfile - Profile must be loaded with valid RT structure
