@@ -388,7 +388,7 @@
           }
 
 
-          if (!this.mainTitle){
+          if (!this.mainTitle || !this.mainTitleDate || !this.mainTitleLccn){
             this.disableAddButton = true
 
           }
