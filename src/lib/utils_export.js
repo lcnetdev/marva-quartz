@@ -821,6 +821,14 @@ const utilsExport = {
 									// yes
 									let bnodeLvl2 = this.createBnode(value1,key1)
 
+									//carve out an expection for associated resource is a series
+									if (bnodeLvl1.tagName == 'bf:Relation' && bnodeLvl2.tagName == 'bf:Series' && pLvl2.tagName == 'bf:associatedResource'){
+										let rdftype = this.createElByBestNS('rdf:type')
+										rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', 'http://id.loc.gov/ontologies/bflc/Uncontrolled')
+										bnodeLvl2.appendChild(rdftype)
+									}
+
+
 									pLvl2.appendChild(bnodeLvl2)
 									bnodeLvl1.appendChild(pLvl2)
 									xmlLog.push(`Creating bnode lvl 2 for it ${bnodeLvl2.tagName}`)
@@ -830,12 +838,21 @@ const utilsExport = {
 										let pLvl3 = this.createElByBestNS(key2)
 
 										xmlLog.push(`Creating lvl 3 property: ${pLvl3.tagName} for ${key2}`)
-
+										let lastBnodeLvl3TagName = null
                                         for (let value2 of value1[key2]){
                                             if (this.isBnode(value2)){
                                                 // more nested bnode
                                                 // one more level
                                                 let bnodeLvl3 = this.createBnode(value2,key2)
+
+												if (lastBnodeLvl3TagName == bnodeLvl3.tagName){
+													// console.log("Creating multiple bnodes of the same type in a row", bnodeLvl3.tagName)
+													// if we are doing this we need to create a new parent property to put the new one into
+													pLvl3 = this.createElByBestNS(key2)
+												}
+												lastBnodeLvl3TagName = bnodeLvl3.tagName
+
+
                                                 pLvl3.appendChild(bnodeLvl3)
                                                 bnodeLvl2.appendChild(pLvl3)
                                                 xmlLog.push(`Creating lvl 3 bnode: ${bnodeLvl3.tagName} for ${key2}`)
@@ -850,7 +867,6 @@ const utilsExport = {
                                                             pLvl4.appendChild(bnodeLvl4)
                                                             bnodeLvl3.appendChild(pLvl4)
                                                             xmlLog.push(`Creating lvl 4 bnode: ${bnodeLvl4.tagName} for ${key3}`)
-
 
                                                             for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
                                                                 for (let value4 of value3[key4]){
@@ -1865,7 +1881,7 @@ const utilsExport = {
 
 		// variant
 		if (variant){
-				
+
 			let elTitleVariantProperty = document.createElementNS(this.namespace.bf ,'bf:title')
 			let elTitleVariantClass = document.createElementNS(this.namespace.bf ,'bf:VariantTitle')
 			let elMainTitleVariant = document.createElementNS(this.namespace.bf ,'bf:mainTitle')
@@ -1875,8 +1891,8 @@ const utilsExport = {
 			}
 
 			elMainTitleVariant.innerHTML = variant
-			
-			
+
+
 
 
 			// attach
@@ -1903,7 +1919,7 @@ const utilsExport = {
 			elAgentClass.setAttributeNS(this.namespace.rdf, 'rdf:about', hubCreatorObj.uri)
 
 
-typeFull
+
 			elAgentProperty.appendChild(elAgentClass)
 
 			// let elAgentType = document.createElementNS(this.namespace.bf ,'bf:agent')
@@ -2206,9 +2222,9 @@ typeFull
 
 		let title = mainTitle
 		if (mainTitleDate){
-			title = title + ', ' + mainTitleDate 
+			title = title + ', ' + mainTitleDate
 		}
-		field670a.innerHTML = title 
+		field670a.innerHTML = title
 		field670.appendChild(field670a)
 
 		if (mainTitleNote){

@@ -323,7 +323,10 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2025363067',label:"test4", idUrl:'https://id.loc.gov/resources/instances/2025363067.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
 
+    {lccn:'2020467568',label:"Muliple Series Status Test", idUrl:'https://id.loc.gov/resources/instances/2020467568.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+
+    
 
   ],
 
