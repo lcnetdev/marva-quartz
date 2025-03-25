@@ -73,6 +73,7 @@
         mainTitle: null,
         mainTitleLccn: null,
         mainTitleDate: null,
+        mainTitleNote: '',
         workURI: false,
 
         tmpXML:false,
@@ -144,8 +145,13 @@
             this.workURI = 'http://id.loc.gov' + this.workURI.split('id.loc.gov')[1]
           }
 
+          let note = null
+          if (this.mainTitleNote.trim().length > 0){
+            note = this.mainTitleNote
+          }
 
-          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI, this.mainTitleDate, this.mainTitleLccn)
+
+          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI, this.mainTitleDate, this.mainTitleLccn, note)
 
 
           
@@ -878,12 +884,16 @@
       this.mainTitleDate = this.profileStore.nacoStubReturnDate()
 
 
-      console.log("this.mainTitleLccnthis.mainTitleLccnthis.mainTitleLccnthis.mainTitleLccn",this.mainTitleLccn)
       this.workURI =  this.profileStore.nacoStubReturnWorkURI()
       // console.log("this.workURIthis.workURIthis.workURI",this.workURI)
       if (!this.mainTitle){
         this.disableAddButton = true
         // this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
+      }
+      if (this.lastComplexLookupString.trim() != ''){
+        this.oneXX = '1XX  $a'+this.lastComplexLookupString
+        this.checkOneXX
+
       }
 
 
@@ -953,7 +963,7 @@
               <button class="close-button" @pointerup="close">X</button>
             </div>
 
-            <h3 style="margin-bottom: 1em;">Create NACO Stub</h3>
+            <h3 style="margin-bottom: 1em;">Create Provisional NAR</h3>
             <div style="display: flex; margin-bottom: 1em;">
               <div style="flex-grow: 1; position: relative;">
                 <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX  $a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
@@ -1098,13 +1108,13 @@
                 <template v-if="mainTitle">                      
                       <div>
                         <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">670$a: Found</span>
+                        <span class="not-unique-text">670 $a: Found</span>
                       </div>
                 </template>
                 <template v-else>
                   <div>
                         <span class="material-icons not-unique-icon">cancel</span>
-                        <span class="not-unique-text">670$a: NOT Found</span><span data-tooltip="Add main title to Work" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        <span class="not-unique-text">670 $a: NOT Found</span><span data-tooltip="Add main title to Work" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
                       </div>
                 </template>
                 
@@ -1112,13 +1122,13 @@
                 <template v-if="mainTitleDate">                      
                       <div>
                         <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">670$a Date: Found</span>
+                        <span class="not-unique-text">670 $a Date: Found</span>
                       </div>
                 </template>
                 <template v-else>
                   <div>
                     <span class="material-icons not-unique-icon">cancel</span>
-                    <span class="not-unique-text">670$a Date: NOT Found</span><span data-tooltip="Add date to Instance Provision Activity" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                    <span class="not-unique-text">670 $a Date: NOT Found</span><span data-tooltip="Add date to Instance Provision Activity" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
                   </div>
                 </template>
 
@@ -1126,15 +1136,17 @@
                 <template v-if="mainTitleLccn">                      
                       <div>
                         <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">670$w: Found</span>
+                        <span class="not-unique-text">670 $w: Found</span>
                       </div>
                 </template>
                 <template v-else>
                   <div>
                         <span class="material-icons not-unique-icon">cancel</span>
-                        <span class="not-unique-text">670$w: NOT Found</span> <span data-tooltip="Add LCCN to Instance" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        <span class="not-unique-text">670 $w: NOT Found</span> <span data-tooltip="Add LCCN to Instance" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
                       </div>
                 </template>
+
+                <input placeholder="670 $b (optional)" v-model="mainTitleNote" style="width:100%; margin-bottom:0.25em"/>
 
                 <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
                   <div style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}$w(DLC){{ mainTitleLccn }}</div>
@@ -1214,7 +1226,7 @@
 
 
             <div style="display: flex; padding: 1.5em;" v-if="postStatus=='posted'">
-              <div >The NAR was created! If you would like to see it please click the link, it will open in new tab:</div>
+              <div >The Provisional NAR was created! If you would like to see it please click the link, it will open in new tab:</div>
               <div><a :href="newNarUri" target="_blank">{{ newNarUri }}</a></div>
             </div>
             <div v-if="postStatus=='posted'" style="text-align: center;">

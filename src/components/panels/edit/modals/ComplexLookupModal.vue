@@ -719,7 +719,7 @@
       },
 
       isStaging(){
-        if (useConfigStore().returnUrls.env == "staging"){
+        if (useConfigStore().returnUrls.env == "staging" || useConfigStore().returnUrls.dev == true){
           return true
         }else{
           return false
@@ -958,7 +958,7 @@
               <button @click="forceSearch()">Search</button>
 
               <!-- REMOVE v-if BEFORE PROD USAGE -->
-              <button @click="loadNacoStubModal" style="float: right;" v-if="isStaging() == true">Create NAR Stub</button>
+              <button @click="loadNacoStubModal" style="float: right;" v-if="isStaging() == true">Create Provisional NAR</button>
 
               <hr style="margin-top: 5px;">
               <div>
