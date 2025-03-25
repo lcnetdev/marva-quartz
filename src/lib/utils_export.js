@@ -2031,7 +2031,7 @@ typeFull
 
 	},
 
-	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn){
+	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote){
 		let marcNamespace = "http://www.loc.gov/MARC21/slim"
 
 		let rootEl = document.createElementNS(marcNamespace,"marcxml:record");
@@ -2211,10 +2211,18 @@ typeFull
 		field670a.innerHTML = title 
 		field670.appendChild(field670a)
 
-		let field670b = document.createElementNS(marcNamespace,"marcxml:subfield");
-		field670b.setAttribute( 'code', 'u')
-		field670b.innerHTML = workURI
-		field670.appendChild(field670b)
+		if (mainTitleNote){
+			let field670b = document.createElementNS(marcNamespace,"marcxml:subfield");
+			field670b.setAttribute( 'code', 'b')
+			field670b.innerHTML = mainTitleNote
+			field670.appendChild(field670b)
+		}
+		
+
+		let field670u = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field670u.setAttribute( 'code', 'u')
+		field670u.innerHTML = workURI
+		field670.appendChild(field670u)
 
 
 		if (mainTitleLccn){
