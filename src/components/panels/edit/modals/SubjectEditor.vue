@@ -1168,7 +1168,7 @@ methods: {
         label: ss,
         uri: uri,
         id: id,
-        type: this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
+        type: type, //this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
         complex: ss.includes('‑‑'),
         literal:literal,
         posStart: activePosStart,
@@ -1186,6 +1186,7 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
+
   },
 
   /**
@@ -2280,6 +2281,10 @@ methods: {
     if (this.activeComponent && this.activeComponent.type){
       if (this.activeTypes[this.activeComponent.type]){
         this.activeTypes[this.activeComponent.type].selected=true
+      } else if (this.activeComponent.type == 'madsrdf:HierarchicalGeographic') {
+        this.activeTypes["madsrdf:Geographic"].selected=true
+      } else {
+        this.activeTypes["madsrdf:Topic"].selected=true
       }
     } else if (this.activeComponent.type == null && this.activeComponent.marcKey != null){ //fall back on the marcKey, this can be null if the selection is too fast?
         let subfield = this.activeComponent.marcKey.slice(5, 7)
@@ -2303,13 +2308,11 @@ methods: {
 
   },
 
-
-
   setTypeClick: function(event,type){
-    this.typeLookup[this.activeComponentIndex] =type
+    this.activeComponent.type = type
+    this.typeLookup[this.activeComponentIndex] = type
     this.subjectStringChanged()
     this.$refs.subjectInput.focus()
-
   },
 
   renderHintBoxes: function(){
