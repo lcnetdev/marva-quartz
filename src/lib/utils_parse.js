@@ -1205,11 +1205,21 @@ const utilsParse = {
 
                             // new obj
                             let gggData = {'@guid': short.generate()}
-
+                            let lastClass = null
 
                             for (let ggggChild of gggChild.children){
 
                               if (this.isClass(ggggChild.tagName)){
+
+                                if (lastClass == ggggChild.tagName){
+                                  // in cases like so: <bf:status><bf:Status/><bf:Status/></bf:status>
+                                  // but this is bad non-conformant XML :(
+                                  // add the data and make a new one
+                                  gChildData[gggChildProperty].push(gggData)
+                                  gggData = {'@guid': short.generate()}
+
+                                }
+                                lastClass = ggggChild.tagName
 
                                 // we will flag this as having a deep hiearcy to review later if we should let them be able to edit it
                                 ptk.deepHierarchy = true
