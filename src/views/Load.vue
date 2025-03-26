@@ -176,7 +176,7 @@
 
             <div>
               <h2 v-if="wcResults?.results && Number(wcResults?.results?.numberOfRecords) === 0">
-                  No results...
+                  No results :(
               </h2>
               <h2 v-else-if="wcResults.error">
                 There was an error getting the results: "{{ wcResults.error.message }}"
@@ -410,6 +410,13 @@
         }
       },
 
+      isRdaRecord: function(record){
+        const marc040   = record.marcRaw.fields.filter((f) => f[0] == '040').join()
+        const rdaRecord = marc040.includes('e,rda')
+
+        return rdaRecord
+      },
+
       determineLevel: function(record){
         /**
          * PCCAdapt -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as full-level RDA.
@@ -494,8 +501,9 @@
         }
 
         console.info("offset: ", this.wcOffset)
+        const cleanQuery = this.wcQuery.trim()
         try{
-          this.wcResults = await utilsNetwork.worldCatSearch(this.wcQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
+          this.wcResults = await utilsNetwork.worldCatSearch(cleanQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
         } catch(err) {
           this.wcResults = {"error": err}
         }
@@ -505,16 +513,45 @@
 
       },
 
-      loadCopyCat: function(){
+      loadCopyCat: async function(){
         console.info("Loading " + this.selectedWcRecord['oclcNumber'] + " to ID")
+        console.info("Loading: ", this.selectedWcRecord)
         console.info("type: ", typeof this.selectedWcRecord.marcXML)
         console.info("xml: ", this.selectedWcRecord.marcXML)
-        console.info("xml2: ", utilsParse.parseXml(xml))
+        console.info("xml no spaces: ", this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><'))
+        let xml =  this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
+
+        //marcxml       = "http://www.loc.gov/MARC21/slim";
+
+        xml = xml.replaceAll("record>", "marcxml:record>")
+        xml = xml.replace("<marcxml:record>", "<marcxml:record xmlns:marcxml='http://www.loc.gov/MARC21/slim'>")
+        xml = xml.replaceAll("leader>", "marcxml:leader>")
+        xml = xml.replaceAll("controlfield >", "marcxml:controlfield >")
+        xml = xml.replaceAll("datafield >", "marcxml:datafield >")
+        xml = xml.replaceAll("subfield >", "marcxml:subfield >")
+
+        console.info("updated xml: ", xml)
+
+        let parser = new DOMParser()
+        xml = parser.parseFromString(xml, "text/xml")
+
+        console.info("xmlDoc: ", typeof xml, "--", xml.documentElement)
+
+        console.info("")
+
+        let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
+        console.info("strXmlBasic: ", strXmlBasic)
+
+        // strXmlBasic = strXmlBasic.replace("<record>", "<marcxml:record>")
+        // console.info("strXmlBasic2: ", strXmlBasic)
+
 
         this.posting = true
         this.postResults = {}
-        // this.postResults = await this.utilsNetwork.addCopyCat(this.selectedWcRecord.marcXML)
+        // this.postResults = await utilsNetwork.addCopyCat(xml)
         this.posting = false
+
+        console.info("postResults: ", this.postResults)
       },
 
       loadFromAllRecord: function(eId){

@@ -1650,6 +1650,9 @@ const utilsExport = {
 		for (let el of rdfBasic.getElementsByTagName("bf:Work")){ bf2MarcXmlElRdf.appendChild(el) }
 		for (let el of rdfBasic.getElementsByTagName("bf:Instance")){ bf2MarcXmlElRdf.appendChild(el) }
 		for (let el of rdfBasic.getElementsByTagName("bf:Item")){ bf2MarcXmlElRdf.appendChild(el) }
+
+		console.info("bf2MarcXmlElRdf: ", typeof bf2MarcXmlElRdf, "--", bf2MarcXmlElRdf)
+
 		let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
 		// console.log(strBf2MarcXmlElBib, strXmlFormatted, strXmlBasic, strXml)
@@ -1661,7 +1664,8 @@ const utilsExport = {
 
         // let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
         // strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
-		console.info("xml: ", strXmlBasic)
+		console.info("strXmlBasic: ", strXmlBasic)
+		console.info("strBf2MarcXmlElBib: ", strBf2MarcXmlElBib)
 		return {
 			xmlDom: rdf,
 			xmlStringFormatted: strXmlFormatted,

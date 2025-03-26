@@ -2842,6 +2842,8 @@ const utilsNetwork = {
   addCopyCat: async function(xml){
     let url = useConfigStore().returnUrls.copyCatUpload
 
+    console.info("url: ", url)
+
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
@@ -2857,6 +2859,8 @@ const utilsNetwork = {
 
     console.info("content: ", content)
 
+    return content
+
   },
 
   /**
@@ -2869,6 +2873,8 @@ const utilsNetwork = {
   */
 
   publish: async function(xml,eid,activeProfile){
+    console.info("publish: ", typeof xml)
+    console.info("publish: ", xml)
 
     // console.log("activeProfile",activeProfile)
     let postingHub = false
