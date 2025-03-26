@@ -5277,6 +5277,7 @@ export const useProfileStore = defineStore('profile', {
       // if no empty ddc, create one
       if (!hasEmptyDDC){
         newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
+        console.info("newDDC: ", newDDC)
         ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC[0]]
       }
 
