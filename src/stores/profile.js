@@ -5268,7 +5268,7 @@ export const useProfileStore = defineStore('profile', {
             if (!Object.keys(classification).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")){
               hasEmptyDDC = true
               ddcComponent = classification
-              newDDC = target.id
+              newDDC = [target.id]
             }
           }
         }
@@ -5276,8 +5276,9 @@ export const useProfileStore = defineStore('profile', {
 
       // if no empty ddc, create one
       if (!hasEmptyDDC){
-        newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)[0]
-        ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
+        newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
+        console.info("newDDC: ", newDDC)
+        ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC[0]]
       }
 
       //add information to component
@@ -5300,7 +5301,7 @@ export const useProfileStore = defineStore('profile', {
       userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(dewey) }]
 
       //Add the defaults:
-      const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
+      const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC[0]]
 
       // look up one level & use the appropriate structure
       let parentStructure = this.returnStructureByComponentGuid(newComponent['@guid'])
