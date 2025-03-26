@@ -2891,6 +2891,8 @@ const utilsNetwork = {
 
     let uuid = translator.toUUID(translator.new())
 
+    console.info("url: ", url)
+
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {

@@ -143,7 +143,7 @@
             <h1>Search</h1>
             <form ref="urlToLoadForm" v-on:submit.prevent="">
               <input placeholder="Enter Value to Search" class="url-to-load" type="text" v-model="wcQuery" ref="urlToLoad">
-              <button @click="worldCatSearch()">Search</button>
+              <button @click="worldCatSearch(false, true)">Search</button>
               <br>
               <div class="toggle-btn-grp cssonly">
                 <h3>Field to Search on</h3>
@@ -278,10 +278,8 @@
   import TimeAgo from 'javascript-time-ago'
   import en from 'javascript-time-ago/locale/en'
 
-
   import { DataTable } from "@jobinsjp/vue3-datatable"
   import "@jobinsjp/vue3-datatable/dist/style.css"
-
 
   if (TimeAgo.getDefaultLocale() != 'en'){TimeAgo.addDefaultLocale(en)}
   const timeAgo = new TimeAgo('en-US')
@@ -388,7 +386,6 @@
 
     methods: {
       encodingLevel: function (value){
-        console.info("encodingLevel: '", value, "'")
         if (this.oclcEncodingLevelsHigh.includes(value)){
           return 'High'
         }
@@ -432,10 +429,6 @@
         const catTransAgency = record.catalogingInfo.transcribingAgency
         const marc042   = record.marcRaw.fields.filter((f) => f[0] == '042').join()
         const pccRecord = marc042.includes('pcc')
-
-        console.info("\n\n")
-        console.info(pccRecord, "--", marc042)
-        console.info(isEng, "--", catLang)
 
         let catLevel = false
         if (catAgency == 'DLC' && catTransAgency == 'DLC'){
@@ -484,7 +477,7 @@
         }
       },
 
-      worldCatSearch: async function(marc=false){
+      worldCatSearch: async function(marc=false, pageReset=false){
         console.info("searching world cat")
         console.info("query: ", this.wcQuery)
         console.info("index: ", this.wcIndex)
@@ -492,12 +485,18 @@
         console.info("offset: ", this.wcOffset)
         console.info("limit: ", this.wcLimit)
 
+        if (pageReset){
+          this.currentPage = 1
+        }
+
         this.selectedWcRecord = false
 
         this.queryingWc = true
         //console.log("Validating: ", this.validating)
         if (this.currentPage != 1){
           this.wcOffset = this.wcLimit * (this.currentPage - 1)
+        } else {
+          this.wcOffset = 1
         }
 
         console.info("offset: ", this.wcOffset)
@@ -520,15 +519,14 @@
         console.info("xml: ", this.selectedWcRecord.marcXML)
         console.info("xml no spaces: ", this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><'))
         let xml =  this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
+        // .replace(/[']/g, function(c){
+        //   switch (c){
+        //     case "'": return "&apos;"
+        //   }
+        // })
 
-        //marcxml       = "http://www.loc.gov/MARC21/slim";
 
-        xml = xml.replaceAll("record>", "marcxml:record>")
-        xml = xml.replace("<marcxml:record>", "<marcxml:record xmlns:marcxml='http://www.loc.gov/MARC21/slim'>")
-        xml = xml.replaceAll("leader>", "marcxml:leader>")
-        xml = xml.replaceAll("controlfield >", "marcxml:controlfield >")
-        xml = xml.replaceAll("datafield >", "marcxml:datafield >")
-        xml = xml.replaceAll("subfield >", "marcxml:subfield >")
+        xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
 
         console.info("updated xml: ", xml)
 
@@ -548,7 +546,7 @@
 
         this.posting = true
         this.postResults = {}
-        // this.postResults = await utilsNetwork.addCopyCat(xml)
+        // this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
         this.posting = false
 
         console.info("postResults: ", this.postResults)
@@ -1102,14 +1100,15 @@ h1, p {
 .copy-cat-results {
   float: left;
   width: 20%;
-  max-height: 1000px;
+  max-height: 90%;
   overflow-y: scroll;
 }
 
 .copy-cat-marc {
   float: right;
   width: 45%;
-  height: 100%;
+  height: 90%;
+  overflow-y: scroll;
 }
 
 /* make a grid */
@@ -1120,9 +1119,9 @@ h1, p {
   grid-template-columns: 1fr 1fr 2fr;
   grid-gap: 10px;
 
-  overflow-y: scroll;
+  overflow-y: hidden;
   position: fixed;
-  height: 100%;
+  height: 90%;
 }
 
 .copy-cat-wrapper > * {
@@ -1151,8 +1150,6 @@ h1, p {
 /** MARC preview formatting */
 :deep() .marc.record{
   font-family: monospace;
-  overflow-y: scroll;
-  max-height: 900px;
 }
 
 :deep() .marc.indicators {
@@ -1169,6 +1166,18 @@ h1, p {
   overflow: hidden;
   color: rgba(0, 0, 0, 0.5);
   vertical-align: bottom;
+}
+
+:deep() .marc.tag.tag-092,
+:deep() .marc.tag.tag-082,
+:deep() .marc.tag.tag-020,
+:deep() .marc.tag.tag-035,
+:deep() .marc.tag.tag-952,
+:deep() .marc.tag.tag-090,
+:deep() .marc.tag.tag-050,
+:deep() .marc.tag.tag-040 {
+  font-weight: bold;
+  color: gold;
 }
 
 :deep() div.marc.field{

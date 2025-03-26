@@ -2990,6 +2990,9 @@ export const useProfileStore = defineStore('profile', {
   validateRecord: async function(eid, profile){
     //console.log("Profile store: Validating?")
     let xml = await utilsExport.buildXML(this.activeProfile)
+
+    console.info("xml: ", xml.xlmStringBasic)
+    return false
     let response = await utilsNetwork.validate(xml.xlmStringBasic)
 
     return response
@@ -4102,6 +4105,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {array} the id and guid of the newPropertyId
     */
     duplicateComponentGetId: async function(componentGuid, structure, profileName, predecessor){
+      console.info("duplicateComponentGetId")
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
@@ -4206,6 +4210,8 @@ export const useProfileStore = defineStore('profile', {
         // they changed something
         this.dataChanged()
 
+        console.info("newPropertyId: ", newPropertyId)
+        console.info("newPt['@guid']: ", newPt['@guid'])
         return [newPropertyId, newPt['@guid']]
 
       }else{
@@ -5133,10 +5139,13 @@ export const useProfileStore = defineStore('profile', {
           const userValue = target.userValue
           const classification = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
           const type = classification["@type"]
+          console.info("classification: ", classification)
+          console.info("classification: ", Object.keys(classification).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion"))
           if (!pt.deleted){
             lastClassifiction = pt
             //type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc" &&
             if (!Object.keys(classification).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")){
+            // if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"){
               hasEmptyDDC = true
               ddcComponent = classification
               newDDC = target.id
@@ -5145,10 +5154,14 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      console.info("lastClassifiction: ", lastClassifiction)
+      console.info("hasEmptyDDC: ", hasEmptyDDC)
+
       // if no empty ddc, create one
       if (!hasEmptyDDC){
-        newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)[0]
-        ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
+        newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
+        console.info("newDDC: ", newDDC[0])
+        ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC[0]]
       }
 
       //add information to component
@@ -5166,12 +5179,15 @@ export const useProfileStore = defineStore('profile', {
         dewey = deweyInfo.dewey
       }
 
+      console.info("ddcComponent: ", ddcComponent)
+      console.info("userValue: ", userValue)
+
       const newGuid = short.generate()
       userValue["@type"] = "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"
       userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(dewey) }]
 
       //Add the defaults:
-      const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC]
+      const newComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC[0]]
 
       // look up one level & use the appropriate structure
       let parentStructure = this.returnStructureByComponentGuid(newComponent['@guid'])
