@@ -211,7 +211,7 @@ const utilsNetwork = {
           uri = uri.replace('https://id.loc.gov/', returnUrls.id)
         }
 
-        let url = `${uri}/suggest2/?q=${keyword}&count=25`
+        let url = `${uri}/suggest2/?q=${keyword}&count=50`
         if (inclueUsage){
           url = url + "&usage=true"
         }
@@ -219,7 +219,7 @@ const utilsNetwork = {
         let r = await this.fetchSimpleLookup(url)
 
         if (r.hits && r.hits.length==0){
-          url = `${uri}/suggest2/?q=${keyword}&count=25&searchtype=keyword`
+          url = `${uri}/suggest2/?q=${keyword}&count=50&searchtype=keyword`
           if (inclueUsage){
             url = url + "&usage=true"
           }
