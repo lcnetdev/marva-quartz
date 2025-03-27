@@ -1202,6 +1202,7 @@
     width: 100%;
     margin: 3px;
     font-size: 1.5em;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
   }
 
   .toggle-btn-grp div:focus{
