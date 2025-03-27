@@ -1149,7 +1149,7 @@
                 <input placeholder="670 $b (optional)" v-model="mainTitleNote" style="width:100%; margin-bottom:0.25em"/>
 
                 <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
-                  <div style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}$w(DLC){{ mainTitleLccn }}</div>
+                  <div style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}{{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
                 </template>
                 <template v-else>
                   <div style="font-family: monospace; background-color: whitesmoke;">Missing 670 Date Field! Can't build 670</div>
