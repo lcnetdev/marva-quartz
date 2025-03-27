@@ -156,7 +156,8 @@
               <br>
               <label for="target-type">What are you looking for </label>
               <select name="target-type" v-model="wcType">
-                <option value="book">Book</option>
+                <option value="book">Book (Print)</option>
+                <option value="ebook">Book (Digital)</option>
                 <option value="audiobook">Audio Book</option>
                 <option value="music">Music</option>
               </select>
@@ -220,7 +221,7 @@
                   </div>
                   <div class="card-subtitle">{{ row['creator'] }}</div>
                   <div class="card-text border-bottom">
-                    Format: {{ row['specificFormat'] }}<br>
+                    Format: <span :data-tooltip="row['specificFormat'] == 'Digital' ? 'This is a digital resource. Make sure that\'s what you want.' : '' " :class="['badge badge-secondary', 'simptip-position-top', {'badge-info': row['specificFormat'] == 'Digital'}]">{{ row['specificFormat'] }}</span><br>
                     Publisher: {{ row['publisher'] }} ({{row['publicationPlace']}})<br>
                     008 Date: {{ row['date'] }}<br>
                   </div>
@@ -234,6 +235,7 @@
                     <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Agency" v-if="row.catalogingInfo.catalogingAgency">{{ row.catalogingInfo.catalogingAgency }}</span>
                     <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Language" v-if="row.catalogingInfo.catalogingLanguage">{{ row.catalogingInfo.catalogingLanguage }}</span>
                     <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'High', 'badge-warning': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'Low'}]" :data-tooltip="'Encoding Level: \'' + row.catalogingInfo.levelOfCataloging + '\''" v-if="row.catalogingInfo.levelOfCataloging">{{ encodingLevel(row.catalogingInfo.levelOfCataloging) }}</span>
+                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': isRdaRecord(row), 'badge-warning': !isRdaRecord(row)}]" data-tooltip="RDA: 040 $e = RDA or leader/18!='a'">{{ isRdaRecord(row) ? "RDA" : "Not RDA" }}</span>
                   </div>
                 </div>
               </div>
@@ -319,8 +321,8 @@
         queryingWc: false,
         wcResults: [],
         indexSelectOptions: [
-          { label: 'Title', value: 'ti' },
           { label: 'ISBN', value: 'bn' },
+          { label: 'Title', value: 'ti' },
           { label: 'Keyword', value: 'kw' },
         ],
         wcLoadSelected: false,
@@ -410,8 +412,15 @@
       isRdaRecord: function(record){
         const marc040   = record.marcRaw.fields.filter((f) => f[0] == '040').join()
         const rdaRecord = marc040.includes('e,rda')
+        const leader = record.marcRaw.leader
+        const aacr2 = leader.at(18) == 'a'
 
-        return rdaRecord
+        if (rdaRecord){
+          return true
+        } else if (!aacr2){
+          return true
+        }
+        return false
       },
 
       determineLevel: function(record){
@@ -422,6 +431,8 @@
          * OrigCop  -- indicates that an existing LC RDA record for another edition can be used to create a new full-level RDA record.
          */
 
+        this.isRdaRecord(record)
+
         const catLang   = record.catalogingInfo.catalogingLanguage
         const isEng = catLang == "eng"
         const catEncodeLevel  = record.catalogingInfo.levelOfCataloging
@@ -431,10 +442,10 @@
         const pccRecord = marc042.includes('pcc')
 
         let catLevel = false
-        if (catAgency == 'DLC' && catTransAgency == 'DLC'){
-          catLevel = 'OrigCop'
-        } else if (pccRecord && isEng) {
+        if (pccRecord && isEng) {
           catLevel = 'PccAdapt'
+        } else if (catAgency == 'DLC' && catTransAgency == 'DLC'){
+          catLevel = 'OrigCop'
         } else if (this.oclcEncodingLevelsHigh.includes(catEncodeLevel) && !pccRecord && isEng){
           catLevel = 'CopyCat'
         } else {
@@ -524,6 +535,10 @@
         //     case "'": return "&apos;"
         //   }
         // })
+
+        let priority = window.prompt("You got a priority for this record?: ")
+        let lccn = window.prompt("Provide an LCCN for this resource: ")
+        let Gen925 = window.confirm("Is there an IBC with this LCCN?")
 
 
         xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
@@ -1174,6 +1189,7 @@ h1, p {
 :deep() .marc.tag.tag-035,
 :deep() .marc.tag.tag-952,
 :deep() .marc.tag.tag-090,
+:deep() .marc.tag.tag-097,
 :deep() .marc.tag.tag-050,
 :deep() .marc.tag.tag-040 {
   font-weight: bold;
