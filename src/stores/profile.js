@@ -4306,17 +4306,25 @@ export const useProfileStore = defineStore('profile', {
     dataChanged:  function(){
       this.activeProfileSaved = false
 
-
+      // this is a debounce so it doesn't run on every key stroke
       window.clearTimeout(dataChangedTimeout)
       dataChangedTimeout = window.setTimeout(()=>{
         this.setMostCommonNonLatinScript()
         // also store it in the active profile
         this.activeProfile.mostCommonNonLatinScript = this.mostCommonNonLatinScript
         this.activeProfile.nonLatinScriptAgents = this.nonLatinScriptAgents
-        console.log("this.activeProfilethis.activeProfilethis.activeProfile",this.activeProfile)
+        // console.log("this.activeProfilethis.activeProfilethis.activeProfile",this.activeProfile)
         // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
-        // console.log("CHANGED 1!!!")
+
+        // if they have auto save on then save it also 
+        if (usePreferenceStore().returnValue('--b-general-auto-save')){
+
+          this.saveRecord()
+
+
+        }
+        
       },500)
     },
 
