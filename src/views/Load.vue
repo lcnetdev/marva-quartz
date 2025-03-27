@@ -221,14 +221,28 @@
                   </div>
                   <div class="card-subtitle">{{ row['creator'] }}</div>
                   <div class="card-text border-bottom">
-                    Format: <span :data-tooltip="row['specificFormat'] == 'Digital' ? 'This is a digital resource. Make sure that\'s what you want.' : '' " :class="['badge badge-secondary', 'simptip-position-top', {'badge-info': row['specificFormat'] == 'Digital'}]">{{ row['specificFormat'] }}</span><br>
+                    Format:
+                      <span v-if="row['specificFormat'] == 'Digital'" data-tooltip="This is a digital resource. Make sure that\'s what you want." :class="['badge badge-secondary', 'simptip-position-top', {'badge-info': true}]">
+                        {{ row['specificFormat'] }}
+                      </span>
+                      <span v-else>{{ row['specificFormat'] }}</span>
+                      <br>
                     Publisher: {{ row['publisher'] }} ({{row['publicationPlace']}})<br>
                     008 Date: {{ row['date'] }}<br>
+                    <span v-if="getMarcFieldAsString(row, '300')">
+                      Marc 300: {{ getMarcFieldAsString(row, '300') }}
+                    </span>
                   </div>
-                  <div class="card-text border-bottom">
-                    ISBNS:
+                  <div class="card-text border-bottom" v-if="row['isbns'] && row['isbns'].length > 0">
+                    ISBNs:
                     <ul>
                       <li v-for="(item) in row['isbns']">{{ item }}</li>
+                    </ul>
+                  </div>
+                  <div class="card-text border-bottom" v-if="row['issns'] && row['issns'].length > 0">
+                    ISSNs:
+                    <ul>
+                      <li v-for="(item) in row['issns']">{{ item }}</li>
                     </ul>
                   </div>
                   <div class="card-text">
@@ -323,6 +337,7 @@
         indexSelectOptions: [
           { label: 'ISBN', value: 'bn' },
           { label: 'Title', value: 'ti' },
+          { label: 'Name', value: 'au' },
           { label: 'Keyword', value: 'kw' },
         ],
         wcLoadSelected: false,
@@ -339,7 +354,7 @@
           "publisher": "Publisher",
           "publicationPlace": "Place of Publication",
           "isbns": "ISBNs",
-          "issns": "ISSns",
+          "issns": "ISSNs",
           "CatLevel": "CatLevel"
         },
         oclcEncodingLevelsHigh: [' ', '1', 'I'],
@@ -406,6 +421,36 @@
             return "Cataloging Agency and Transcribing Agency are 'DLC'"
           default:
             return "You shouldn't be seeing this. Let someone know the value is '" + value  +"'"
+        }
+      },
+
+      getMarcFieldAsString: function(record, target){
+        try{
+          let fields = record.marcRaw.fields.filter((f) => f[0] == target)
+
+          console.info("fields: ", fields)
+
+          for (let field of fields){
+            console.info("\n\nfield: ", field)
+            let tag = field[0]
+            let indicators = field[1]
+            let subfields = field.slice(2).map((item, idx) => {
+              if (idx%2 == 0 ){
+                return "$" + item
+              } else {
+                return " " + item
+              }
+            }).join("")
+
+            console.info("\n\ntag: ", tag)
+            console.info("indicators: ", indicators)
+            console.info("subfields: ", subfields)
+
+            return tag + indicators + subfields
+          }
+        } catch(err) {
+          console.error("err: ", err)
+          return false
         }
       },
 
