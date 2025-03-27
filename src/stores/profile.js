@@ -2456,6 +2456,7 @@ export const useProfileStore = defineStore('profile', {
           }
 
           for (let aLabelNode of label){
+            console.log("aLabelNode",aLabelNode)
             if (!blankNode['http://www.w3.org/2000/01/rdf-schema#label']){
               blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = []
             }
@@ -2480,7 +2481,7 @@ export const useProfileStore = defineStore('profile', {
               console.error("Cannot understand response from context extaction for label:",label)
             }
           }
-
+          console.log("nodeMap",nodeMap)
           //Add gacs code to user data
           if (nodeMap["gacs"]){
             blankNode["http://www.loc.gov/mads/rdf/v1#code"] = []
@@ -2500,6 +2501,9 @@ export const useProfileStore = defineStore('profile', {
           }
 
           for (let aMarcKeyNode of marcKey){
+
+            console.log("aMarcKeyNode",aMarcKeyNode)
+
             if (!blankNode['http://id.loc.gov/ontologies/bflc/marcKey']){
               blankNode['http://id.loc.gov/ontologies/bflc/marcKey'] = []
             }
