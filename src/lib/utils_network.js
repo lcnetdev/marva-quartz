@@ -114,7 +114,6 @@ const utilsNetwork = {
                         if (d[labelURI] && !dataProcessed[d['@id']]){
 
                             label = this.returnValue(d[labelURI])
-                            console.info("label: ", label)
 
                             let labelWithCode = []
                             // build the metadata for each item that will go along it with structured fields

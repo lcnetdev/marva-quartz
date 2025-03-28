@@ -1402,9 +1402,12 @@ export const useProfileStore = defineStore('profile', {
 
       // if there's a code in the label, take it out
       const code = URI.split("/").at(-1)  // is this reliable?
-      if (label.match(/\(.*\)/g)){
-        label = label.replace(/\(.*\)/g, "")
+      if (label.match("(" + code + ")")){
+        label = label.replace("(" + code + ")", "")
       }
+      // if (label.match(/\(.*\)/g)){
+      //   label = label.replace(/\(.*\)/g, "")
+      // }
 
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
