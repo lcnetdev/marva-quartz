@@ -1644,7 +1644,7 @@ const utilsExport = {
       almaXmlElRecord.appendChild(almaXmlElRdf)
       almaXmlElBib.appendChild(almaXmlElRecord)
 
-      for (let el of almaWorksEl){ almaXmlElRdf.appendChild(el) }
+	  for (let el of almaWorksEl){ almaXmlElRdf.appendChild(el) }
       for (let el of almaInstancesEl){ almaXmlElRdf.appendChild(el) }
       for (let el of almaItemsEl){ almaXmlElRdf.appendChild(el) }
 
@@ -1658,37 +1658,35 @@ const utilsExport = {
     }
 
 
-        // build the BF2MARC package
 
-		let bf2MarcXmlElRdf = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF')
-		// bf2MarcXmlElRdf.setAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
-		for (let el of rdfBasic.getElementsByTagName("bf:Work")){ bf2MarcXmlElRdf.appendChild(el) }
-		for (let el of rdfBasic.getElementsByTagName("bf:Instance")){ bf2MarcXmlElRdf.appendChild(el) }
-		for (let el of rdfBasic.getElementsByTagName("bf:Item")){ bf2MarcXmlElRdf.appendChild(el) }
-		let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
-		// console.log(strBf2MarcXmlElBib, strXmlFormatted, strXmlBasic, strXml)
+	// build the BF2MARC package
+	let bf2MarcXmlElRdf = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF')
+	let bf2MarcWorks = rdfBasic.getElementsByTagName("bf:Work")
+	for (let x = 0; x < bf2MarcWorks.length; x++){
+		bf2MarcXmlElRdf.appendChild(bf2MarcWorks[x].cloneNode(true))
+	}
+	let bf2MarcInstances = rdfBasic.getElementsByTagName("bf:Instance")
+	for (let x = 0; x < bf2MarcInstances.length; x++){
+		bf2MarcXmlElRdf.appendChild(bf2MarcInstances[x].cloneNode(true))		
+	}
+	let bf2MarcItems = rdfBasic.getElementsByTagName("bf:Item")
+	for (let x = 0; x < bf2MarcItems.length; x++){
+		bf2MarcXmlElRdf.appendChild(bf2MarcItems[x].cloneNode(true))
+	}
+	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
-		// console.log("-------componentXmlLookup",componentXmlLookup)
-    // console.log(strXmlFormatted)
-    // console.log("------")
-    // console.log(strXmlBasic)
-
-        // let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
-        // strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
-		// console.info("xml: ", strXmlBasic)
-		// console.info("bf2m: ", strBf2MarcXmlElBib)
-		return {
-			xmlDom: rdf,
-			xmlStringFormatted: strXmlFormatted,
-			xlmString: strXml,
-			bf2Marc: strBf2MarcXmlElBib,
-			xlmStringBasic: strXmlBasic,
-			voidTitle: xmlVoidDataTitle,
-			voidContributor:xmlVoidDataContributor,
-			componentXmlLookup:componentXmlLookup
-		}
+	return {
+		xmlDom: rdf,
+		xmlStringFormatted: strXmlFormatted,
+		xlmString: strXml,
+		bf2Marc: strBf2MarcXmlElBib,
+		xlmStringBasic: strXmlBasic,
+		voidTitle: xmlVoidDataTitle,
+		voidContributor:xmlVoidDataContributor,
+		componentXmlLookup:componentXmlLookup
+	}
   },
 
     //This was handled in the `add()` of `SubjectEditor.vue`, but there are some situtations where that don't work as intended

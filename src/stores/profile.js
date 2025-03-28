@@ -2271,8 +2271,7 @@ export const useProfileStore = defineStore('profile', {
 
         let values = []
 
-        for (let v of valueLocation){
-              console.log("v",v)
+        for (let v of valueLocation){              
               let URI = null
               let label = null
 
