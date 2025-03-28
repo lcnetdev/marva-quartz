@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 0,
     versionMinor: 18,
-    versionPatch: 30,
+    versionPatch: 31,
 
     regionUrls: {
 
@@ -34,6 +34,7 @@ export const useConfigStore = defineStore('config', {
         env : 'production',
         dev: true,
         displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
       },
 
       staging:{
@@ -55,7 +56,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8288.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
-
+        simpleLookupLang: 'en',
       },
 
       production:{
@@ -78,6 +79,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',
         displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
       },
 
       bibframeDotOrg:{
@@ -94,7 +96,8 @@ export const useConfigStore = defineStore('config', {
         id: 'https://id.loc.gov/',
         env : 'production',
         publicEndpoints:true,
-        displayLCOnlyFeatures: false
+        displayLCOnlyFeatures: false,
+        simpleLookupLang: 'en',
       }
 
     },

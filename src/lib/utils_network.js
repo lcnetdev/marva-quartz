@@ -341,24 +341,31 @@ const utilsNetwork = {
 
     // returns the literal value based on the jsonld structure
     returnValue: function(input){
-        let value = []
-        if (Array.isArray(input)){
-            input.forEach((v)=>{
-                if (typeof v === 'object'){
-                    if (v['@value']){
-                        value.push(v['@value'])
-                    }else{
-                        console.warn('lookupUtility: lookup parse error, Was expecting a @value in this object:',v)
-                    }
-                }else if (typeof v === 'string' || typeof v === 'number'){
-                    value.push(v)
-                }else{
-                    console.warn('lookupUtility: lookup parse error, Was expecting some sort of value here:',v)
-                }
-            })
-        }
-        return value
-    },
+      let targetLang = useConfigStore().returnUrls.simpleLookupLang
+      let value = []
+      let match = false
+      if (Array.isArray(input)){
+          input.forEach((v)=>{
+            if (typeof v === 'object'){
+              if (v['@value']){
+                  if (v['@language'] && v['@language'] == targetLang){
+                    value.push(v['@value'])
+                    match = true
+                  } else if (!match){
+                    value.push(v['@value'])
+                  }
+              }else{
+                  console.warn('lookupUtility: lookup parse error, Was expecting a @value in this object:',v)
+              }
+            }else if (typeof v === 'string' || typeof v === 'number'){
+                value.push(v)
+            }else{
+                console.warn('lookupUtility: lookup parse error, Was expecting some sort of value here:',v)
+            }
+          })
+      }
+      return value
+  },
 
 
 

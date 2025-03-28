@@ -1400,6 +1400,14 @@ export const useProfileStore = defineStore('profile', {
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
+      // if there's a code in the label, take it out
+      const code = URI.split("/").at(-1)  // is this reliable?
+      if (label.match("(" + code + ")")){
+        label = label.replace("(" + code + ")", "")
+      }
+      // if (label.match(/\(.*\)/g)){
+      //   label = label.replace(/\(.*\)/g, "")
+      // }
 
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
@@ -4317,14 +4325,14 @@ export const useProfileStore = defineStore('profile', {
         // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
 
-        // if they have auto save on then save it also 
+        // if they have auto save on then save it also
         if (usePreferenceStore().returnValue('--b-general-auto-save')){
 
           this.saveRecord()
 
 
         }
-        
+
       },500)
     },
 
