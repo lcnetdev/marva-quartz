@@ -211,7 +211,7 @@ const utilsNetwork = {
           uri = uri.replace('https://id.loc.gov/', returnUrls.id)
         }
 
-        let url = `${uri}/suggest2/?q=${keyword}&count=25`
+        let url = `${uri}/suggest2/?q=${keyword}&count=50`
         if (inclueUsage){
           url = url + "&usage=true"
         }
@@ -219,7 +219,7 @@ const utilsNetwork = {
         let r = await this.fetchSimpleLookup(url)
 
         if (r.hits && r.hits.length==0){
-          url = `${uri}/suggest2/?q=${keyword}&count=25&searchtype=keyword`
+          url = `${uri}/suggest2/?q=${keyword}&count=50&searchtype=keyword`
           if (inclueUsage){
             url = url + "&usage=true"
           }
@@ -341,24 +341,31 @@ const utilsNetwork = {
 
     // returns the literal value based on the jsonld structure
     returnValue: function(input){
-        let value = []
-        if (Array.isArray(input)){
-            input.forEach((v)=>{
-                if (typeof v === 'object'){
-                    if (v['@value']){
-                        value.push(v['@value'])
-                    }else{
-                        console.warn('lookupUtility: lookup parse error, Was expecting a @value in this object:',v)
-                    }
-                }else if (typeof v === 'string' || typeof v === 'number'){
-                    value.push(v)
-                }else{
-                    console.warn('lookupUtility: lookup parse error, Was expecting some sort of value here:',v)
-                }
-            })
-        }
-        return value
-    },
+      let targetLang = useConfigStore().returnUrls.simpleLookupLang
+      let value = []
+      let match = false
+      if (Array.isArray(input)){
+          input.forEach((v)=>{
+            if (typeof v === 'object'){
+              if (v['@value']){
+                  if (v['@language'] && v['@language'] == targetLang){
+                    value.push(v['@value'])
+                    match = true
+                  } else if (!match){
+                    value.push(v['@value'])
+                  }
+              }else{
+                  console.warn('lookupUtility: lookup parse error, Was expecting a @value in this object:',v)
+              }
+            }else if (typeof v === 'string' || typeof v === 'number'){
+                value.push(v)
+            }else{
+                console.warn('lookupUtility: lookup parse error, Was expecting some sort of value here:',v)
+            }
+          })
+      }
+      return value
+  },
 
 
 

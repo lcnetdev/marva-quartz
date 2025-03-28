@@ -9,6 +9,7 @@ export const useConfigStore = defineStore('config', {
     versionMinor: 18,
     versionPatch: 33,
 
+
     regionUrls: {
 
       dev:{
@@ -34,6 +35,7 @@ export const useConfigStore = defineStore('config', {
         env : 'production',
         dev: true,
         displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
       },
 
       staging:{
@@ -55,7 +57,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8288.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
-
+        simpleLookupLang: 'en',
       },
 
       production:{
@@ -78,6 +80,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',
         displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
       },
 
       bibframeDotOrg:{
@@ -94,7 +97,8 @@ export const useConfigStore = defineStore('config', {
         id: 'https://id.loc.gov/',
         env : 'production',
         publicEndpoints:true,
-        displayLCOnlyFeatures: false
+        displayLCOnlyFeatures: false,
+        simpleLookupLang: 'en',
       }
 
     },
@@ -324,6 +328,8 @@ export const useConfigStore = defineStore('config', {
 
 
     {lccn:'2020467568',label:"Muliple Series Status Test", idUrl:'https://id.loc.gov/resources/instances/2020467568.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    {lccn:'2026888777',label:"Secondary Instance Test", idUrl:'https://id.loc.gov/resources/instances/2026888777.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
 
     

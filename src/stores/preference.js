@@ -1055,7 +1055,15 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'General',
           range: [true,false]
       },
-
+      '--b-general-auto-save' : {
+        desc: 'When On the record will be saved to the backend on every change.',
+        descShort: 'Auto Save Mode',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'General',
+        range: [true,false]
+    },
 
 
       // diacritics
