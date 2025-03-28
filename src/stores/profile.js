@@ -2456,7 +2456,7 @@ export const useProfileStore = defineStore('profile', {
           }
 
           for (let aLabelNode of label){
-            console.log("aLabelNode",aLabelNode)
+
             if (!blankNode['http://www.w3.org/2000/01/rdf-schema#label']){
               blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = []
             }
@@ -2481,7 +2481,41 @@ export const useProfileStore = defineStore('profile', {
               console.error("Cannot understand response from context extaction for label:",label)
             }
           }
-          console.log("nodeMap",nodeMap)
+
+          // add in the venacular labels
+          if (nodeMap && nodeMap.vernacularLabels){
+            for (let l of nodeMap.vernacularLabels){
+              // make sure there really is a non-latin label
+              if (l.indexOf("@") == -1){
+                continue
+              }
+              // the api returns it as "label@language"
+              let lLabel = l.split("@")[0]
+              let lLanguage = l.split("@")[1]
+              // make sure there is a label field for it
+              if (!blankNode['http://www.w3.org/2000/01/rdf-schema#label']){
+                blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = []
+              }
+
+              blankNode['http://www.w3.org/2000/01/rdf-schema#label'].push(
+                {
+                  '@guid': short.generate(),
+                  'http://www.w3.org/2000/01/rdf-schema#label' : lLabel,
+                  '@language': lLanguage
+                }
+              )
+            }
+          }
+
+
+
+
+          // if (URI.indexOf('n2010057779') > -1){
+          //   nodeMap.vernacularMarcKeys = ["4001 $a玄 武岩,$d1969-@zxx-Hani","4001 $a현 무암,$d1969-@zxx-Hang"]
+          // }
+
+          // console.log("nodeMap",nodeMap)
+
           //Add gacs code to user data
           if (nodeMap["gacs"]){
             blankNode["http://www.loc.gov/mads/rdf/v1#code"] = []
@@ -2502,7 +2536,7 @@ export const useProfileStore = defineStore('profile', {
 
           for (let aMarcKeyNode of marcKey){
 
-            console.log("aMarcKeyNode",aMarcKeyNode)
+            // console.log("aMarcKeyNode",aMarcKeyNode)
 
             if (!blankNode['http://id.loc.gov/ontologies/bflc/marcKey']){
               blankNode['http://id.loc.gov/ontologies/bflc/marcKey'] = []
@@ -2539,6 +2573,35 @@ export const useProfileStore = defineStore('profile', {
               console.error("Cannot understand response from context extaction for marcKey:",marcKey)
             }
           }
+
+
+          // add in the venacular marckeys
+          if (nodeMap && nodeMap.vernacularMarcKeys){
+            for (let l of nodeMap.vernacularMarcKeys){
+              // make sure there really is a non-latin label
+              if (l.indexOf("@") == -1){
+                continue
+              }
+              // the api returns it as "label@language"
+              let lLabel = l.split("@")[0]
+              let lLanguage = l.split("@")[1]
+              // make sure there is a label field for it
+              if (!blankNode['http://id.loc.gov/ontologies/bflc/marcKey']){
+                blankNode['http://id.loc.gov/ontologies/bflc/marcKey'] = []
+              }
+
+              blankNode['http://id.loc.gov/ontologies/bflc/marcKey'].push(
+                {
+                  '@guid': short.generate(),
+                  'http://id.loc.gov/ontologies/bflc/marcKey' : lLabel,
+                  '@language': lLanguage
+                }
+              )
+            }
+          }
+
+
+
 
 
           // if (nodeMap["marcKey"]){
