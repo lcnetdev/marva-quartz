@@ -259,15 +259,26 @@
             }
           })
 
-        // wrapping this in setTimeout might not be needed anymore
+          // wrapping this in setTimeout might not be needed anymore
         if (searchPayload.type == 'complex'){
           this.searchTimeout = window.setTimeout(async ()=>{
             this.activeComplexSearchInProgress = true
             this.activeComplexSearch = []
             this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
+
+            // 2025-03 // there is currently an issue with ID suggest2/ that if you search with SOME diacritics it will fail
+            // so there is now a flag that enables it searching it. So if they get NO results at all then try again with the flag
+            // There will always be 1 result which is the literal
+            
+            if (this.activeComplexSearch.length == 1 && this.activeComplexSearch[0].literal){
+              // modify the payload to include the flag in the url
+              searchPayload.url[0] = searchPayload.url[0] + '&keepdiacritics=true'
+              this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
+            }
+
             this.activeComplexSearchInProgress = false
             this.initalSearchState =false
-          }, 400)
+          }, 100)
         } else {
           let filter = function(obj, target){
             let result = []
