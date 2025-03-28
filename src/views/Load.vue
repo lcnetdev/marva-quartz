@@ -222,7 +222,7 @@
                   <div class="card-subtitle">{{ row['creator'] }}</div>
                   <div class="card-text border-bottom">
                     Format:
-                      <span v-if="row['specificFormat'] == 'Digital'" data-tooltip="This is a digital resource. Make sure that\'s what you want." :class="['badge badge-secondary', 'simptip-position-top', {'badge-info': true}]">
+                      <span v-if="row['specificFormat'] == 'Digital'" data-tooltip="This is a digital resource. Make sure that's what you want." :class="['badge badge-secondary', 'simptip-position-top', {'badge-info': true}]">
                         {{ row['specificFormat'] }}
                       </span>
                       <span v-else>{{ row['specificFormat'] }}</span>
@@ -249,7 +249,7 @@
                     <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Agency" v-if="row.catalogingInfo.catalogingAgency">{{ row.catalogingInfo.catalogingAgency }}</span>
                     <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Language" v-if="row.catalogingInfo.catalogingLanguage">{{ row.catalogingInfo.catalogingLanguage }}</span>
                     <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'High', 'badge-warning': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'Low'}]" :data-tooltip="'Encoding Level: \'' + row.catalogingInfo.levelOfCataloging + '\''" v-if="row.catalogingInfo.levelOfCataloging">{{ encodingLevel(row.catalogingInfo.levelOfCataloging) }}</span>
-                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': isRdaRecord(row), 'badge-warning': !isRdaRecord(row)}]" data-tooltip="RDA: 040 $e = RDA or leader/18!='a'">{{ isRdaRecord(row) ? "RDA" : "Not RDA" }}</span>
+                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': isRdaRecord(row), 'badge-warning': !isRdaRecord(row)}]" data-tooltip="RDA: 040 $e = RDA and leader/18='a' and 260 is not present">{{ isRdaRecord(row) ? "RDA" : "Not RDA" }}</span>
                   </div>
                 </div>
               </div>
@@ -428,10 +428,7 @@
         try{
           let fields = record.marcRaw.fields.filter((f) => f[0] == target)
 
-          console.info("fields: ", fields)
-
           for (let field of fields){
-            console.info("\n\nfield: ", field)
             let tag = field[0]
             let indicators = field[1]
             let subfields = field.slice(2).map((item, idx) => {
@@ -441,10 +438,6 @@
                 return " " + item
               }
             }).join("")
-
-            console.info("\n\ntag: ", tag)
-            console.info("indicators: ", indicators)
-            console.info("subfields: ", subfields)
 
             return tag + indicators + subfields
           }
@@ -459,11 +452,16 @@
         const rdaRecord = marc040.includes('e,rda')
         const leader = record.marcRaw.leader
         const aacr2 = leader.at(18) == 'a'
+        const marc260 = record.marcRaw.fields.filter((f) => f[0] == '260').join()
+
+        console.info("marc260: ", marc260, "--", marc260 == "")
 
         if (rdaRecord){
           return true
-        } else if (!aacr2){
+        } else if (marc260 == ""){
           return true
+        } else if (!aacr2 && marc260 == ""){
+          return true //712204204 is not aacr2, but does have a 260
         }
         return false
       },

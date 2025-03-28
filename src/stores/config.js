@@ -38,6 +38,7 @@ export const useConfigStore = defineStore('config', {
         env : 'production',
         dev: false,
         displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
       },
 
       staging:{

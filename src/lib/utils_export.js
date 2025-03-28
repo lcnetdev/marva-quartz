@@ -1314,10 +1314,6 @@ const utilsExport = {
 
 		let adminMetadataText = (new XMLSerializer()).serializeToString(bf_adminMetadata)
 
-
-
-
-
 		for (let URI in tleLookup['Work']){
 			tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
 		}
@@ -1370,6 +1366,7 @@ const utilsExport = {
 			}
 			rdfBasic.appendChild(instance)
 		}
+
 		for (let URI in tleLookup['Item']){
 			// rdfBasic.appendChild(tleLookup['Item'][URI].cloneNode( true ))
 			let item = (new XMLSerializer()).serializeToString(tleLookup['Item'][URI])
@@ -1475,8 +1472,6 @@ const utilsExport = {
 				console.warn('no PrimaryContribution or Contribution found for db')
 			}
 		}
-
-
 
 		if (rdfBasic.getElementsByTagName("bf:Instance").length>0){
 			let i = rdfBasic.getElementsByTagName("bf:Instance")[0]
@@ -1650,8 +1645,6 @@ const utilsExport = {
 		for (let el of rdfBasic.getElementsByTagName("bf:Work")){ bf2MarcXmlElRdf.appendChild(el) }
 		for (let el of rdfBasic.getElementsByTagName("bf:Instance")){ bf2MarcXmlElRdf.appendChild(el) }
 		for (let el of rdfBasic.getElementsByTagName("bf:Item")){ bf2MarcXmlElRdf.appendChild(el) }
-
-		console.info("bf2MarcXmlElRdf: ", typeof bf2MarcXmlElRdf, "--", bf2MarcXmlElRdf)
 
 		let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 

@@ -84,10 +84,7 @@ const utilsNetwork = {
     */
 
     simpleLookupProcess: function(data,parentURI){
-
         let dataProcessed = {
-
-
             // all the URIs will live here but also the metadata obj about the uris
             metadata : {
                 uri: parentURI,
@@ -329,17 +326,17 @@ const utilsNetwork = {
         let value = []
         if (Array.isArray(input)){
             input.forEach((v)=>{
-                if (typeof v === 'object'){
-                    if (v['@value']){
-                        value.push(v['@value'])
-                    }else{
-                        console.warn('lookupUtility: lookup parse error, Was expecting a @value in this object:',v)
-                    }
-                }else if (typeof v === 'string' || typeof v === 'number'){
-                    value.push(v)
+              if (typeof v === 'object'){
+                if (v['@value']){
+                    value.push(v['@value'])
                 }else{
-                    console.warn('lookupUtility: lookup parse error, Was expecting some sort of value here:',v)
+                    console.warn('lookupUtility: lookup parse error, Was expecting a @value in this object:',v)
                 }
+              }else if (typeof v === 'string' || typeof v === 'number'){
+                  value.push(v)
+              }else{
+                  console.warn('lookupUtility: lookup parse error, Was expecting some sort of value here:',v)
+              }
             })
         }
         return value
