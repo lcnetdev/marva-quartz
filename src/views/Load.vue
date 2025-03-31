@@ -148,8 +148,8 @@
               <div class="toggle-btn-grp cssonly">
                 <h3>Field to Search on</h3>
                 <div v-for="opt in indexSelectOptions">
-                  <input type="radio" :value="opt.value" class="search-mode-radio" v-model="wcIndex" name="searchIndex"/>
-                    <label onclick="" class="toggle-btn">{{opt.label}}</label>
+                  <input :id="opt.label" type="radio" :value="opt.value" class="search-mode-radio" v-model="wcIndex" name="searchIndex"/>
+                    <label :for="opt.label" onclick="" class="toggle-btn">{{opt.label}}</label>
                   </div>
               </div>
 
