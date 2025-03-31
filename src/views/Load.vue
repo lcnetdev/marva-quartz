@@ -164,6 +164,11 @@
 
             </form>
             <hr>
+            <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="copyCatLccn" /><br>
+            <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority" /><br>
+            <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
+            <label for="jackphy">Does this record contain non-Latin script?: </label><input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
+            <br>
             <h3>Load with profile:</h3>
             <div class="load-buttons">
               <button class="load-button" @click="loadCopyCat" :disabled="(selectedWcRecord) ? false : true"  v-for="s in startingPointsFiltered">
@@ -362,6 +367,10 @@
         selectedWcRecord: false,
         currentPage: 1,
         posting: false,
+        copyCatLccn: null,
+        recordPriority: 3,
+        jackphyCheck: false,
+        ibcCheck: false
 
 
       }
@@ -579,14 +588,12 @@
         //   }
         // })
 
-        let priority = window.prompt("You got a priority for this record?: ")
-        let lccn = window.prompt("Provide an LCCN for this resource: ")
-        let Gen925 = window.confirm("Is there an IBC with this LCCN?")
-
-
         xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
 
-        console.info("updated xml: ", xml)
+        if (!this.copyCatLccn){
+          alert("This needs an LCCN to continue.")
+          return
+        }
 
         let parser = new DOMParser()
         xml = parser.parseFromString(xml, "text/xml")
