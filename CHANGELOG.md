@@ -5,14 +5,15 @@ All notable changes to this project will be documented in this file.
 
 
 ## [1.1.0] - 2025-03-31
-
-### Changed
-- Adds more detail display for Entities when searching (Hubs, names, etc.)
+### Added
 - Ability to copy a contributor into a subject field [BFP-350]
-- Added Variant title option to Hub creation modal with Scriptshifter support [BFP-347]
 - Ability to add create a Hub as subject.
 - Beta testing ability to create NAR records added as staging feature
 - Added Auto Save preference in Preferences -> General
+
+### Changed
+- Adds more detail display for Entities when searching (Hubs, names, etc.)
+- Added Variant title option to Hub creation modal with Scriptshifter support [BFP-347]
 - Simple lookups have the code "Author (aut)" removed from the label when selected 
 - Simple lookups have been limited to Eng lang
 
