@@ -189,6 +189,11 @@ export const useConfigStore = defineStore('config', {
     'http://id.loc.gov/ontologies/bflc/projectedProvisionDate',
   ],
 
+  // these are predicates that will merged into one PT
+  groupTopLeveLiterals: [
+    'http://id.loc.gov/ontologies/bibframe/editionStatement',
+    'http://id.loc.gov/ontologies/bibframe/responsibilityStatement',
+  ],
 
   // these are properties that aren't allowed to be both when merging data with template
   templatesDataFlowCantBeBoth: [

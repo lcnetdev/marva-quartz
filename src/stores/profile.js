@@ -5849,7 +5849,30 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-    }
+    },
+
+    /**
+     * Sorts an array of objects based on whether a specified key's value matches the latinRegex pattern.
+     * It sorts the array with the latin objects first, followed by the non-Latin objects.
+     * 
+     * @param {Object[]} arr - Array of objects to sort
+     * @param {string} key - Object key whose value should be tested against latinRegex
+     * @return {Object[]} - Sorted array with non-Latin objects first
+     */
+    sortObjectsByLatinMatch(arr, key) {
+      return arr.sort((a, b) => {
+        // Handle cases where key doesn't exist
+        const aValue = a[key] || '';
+        const bValue = b[key] || '';
+        
+        const aIsLatin = latinRegex.test(aValue);
+        const bIsLatin = latinRegex.test(bValue);
+        
+        if (!bIsLatin && aIsLatin) return -1; 
+        if (bIsLatin && !aIsLatin) return 1;
+        return 0;
+      });
+    }        
 
 
 
