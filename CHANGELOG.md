@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Hub subjects not being `bf:Hub`
 - Hub subjects not appearing in Marva
+- CYAC headings not splitting up
 
 
 ## [1.1.0] - 2025-03-31

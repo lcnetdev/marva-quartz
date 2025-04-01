@@ -4813,7 +4813,6 @@ export const useProfileStore = defineStore('profile', {
             firstHasURI=true
           }
 
-
           if (allHasURI){return ['done_all','Linked']}
           if (firstHasURI){return ['warning','Partially Linked']}
 
