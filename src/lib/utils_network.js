@@ -26,6 +26,7 @@ const utilsNetwork = {
       "controllerNamesSubdivision": new AbortController(),
       "controllerSubjectsSimple": new AbortController(),
       "controllerPayloadSubjectsSimpleSubdivision": new AbortController(),
+      "controllerSubjectsComplexPart": new AbortController(),
       "controllerSubjectsComplex": new AbortController(),
       "controllerHierarchicalGeographic": new AbortController(),
       "controllerWorksAnchored": new AbortController(),
@@ -2520,6 +2521,7 @@ const utilsNetwork = {
       let resultsSubjectsSimple=[]
       let resultsPayloadSubjectsSimpleSubdivision=[]
       let resultsSubjectsComplex=[]
+      let resultsSubjectsComplexPart=[]
       let resultsHierarchicalGeographic=[]
       let resultsWorksAnchored=[]
       let resultsWorksKeyword=[]
