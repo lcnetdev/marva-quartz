@@ -301,10 +301,6 @@ const utilsParse = {
         // console.log('hasSeries',hasSeries)
         // console.log('hasAssociatedResource',hasAssociatedResource)
 
-
-
-
-
       // old Logic
       if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
@@ -675,8 +671,6 @@ const utilsParse = {
           continue
         }
 
-
-
         // sometimes the profile has a rdf:type selectable in the profile itself, we probably
         // took that piece of data out eariler and set it at the RT level, so fake that userValue for this piece of
         // data in the properties because el will be empty
@@ -872,8 +866,6 @@ const utilsParse = {
 
               }else{
 
-
-
                 if (!userValue[eProperty]){
                   userValue[eProperty] = []
                 }
@@ -958,8 +950,6 @@ const utilsParse = {
 
                 // now loop through all the children
                 for (let gChild of child.children){
-
-
                   if (this.UriNamespace(gChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
                     if (this.testSeperateRdfTypeProperty(populateData)){
@@ -1118,7 +1108,6 @@ const utilsParse = {
                         // </bf:genreForm>
 
 
-
                         gChildData['@type'] = this.UriNamespace(ggChild.tagName)
 
                         // check for URI
@@ -1138,17 +1127,24 @@ const utilsParse = {
                           // not a bnode, just a one liner property of the bnode
                           if (this.UriNamespace(gggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
-
                             if (gggChild.attributes && gggChild.attributes['rdf:about']){
                               gChildData['@type'] = gggChild.attributes['rdf:about'].value
                             }else if (gggChild.attributes && gggChild.attributes['rdf:resource']){
-                              gChildData['@type'] = gggChild.attributes['rdf:resource'].value
+                              let value = gggChild.attributes['rdf:resource'].value
+                              // gChildData['@type'] = value //gggChild.attributes['rdf:resource'].value
+                              if (propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation' && value == 'http://id.loc.gov/ontologies/bflc/Uncontrolled'){
+                                gChildData['@type'] = this.UriNamespace(ggChild.tagName)
+                              } else {
+                                gChildData['@type'] = value
+                              }
+
                             }else{
                               console.warn('---------------------------------------------')
                               console.warn('There was a gggChild RDF Type node but could not extract the type')
                               console.warn(gggChild)
                               console.warn('---------------------------------------------')
                             }
+
 
 
                           }else if (gggChild.children.length ==0){
@@ -1209,11 +1205,21 @@ const utilsParse = {
 
                             // new obj
                             let gggData = {'@guid': short.generate()}
-
+                            let lastClass = null
 
                             for (let ggggChild of gggChild.children){
 
                               if (this.isClass(ggggChild.tagName)){
+
+                                if (lastClass == ggggChild.tagName){
+                                  // in cases like so: <bf:status><bf:Status/><bf:Status/></bf:status>
+                                  // but this is bad non-conformant XML :(
+                                  // add the data and make a new one
+                                  gChildData[gggChildProperty].push(gggData)
+                                  gggData = {'@guid': short.generate()}
+
+                                }
+                                lastClass = ggggChild.tagName
 
                                 // we will flag this as having a deep hiearcy to review later if we should let them be able to edit it
                                 ptk.deepHierarchy = true
@@ -2014,8 +2020,6 @@ const utilsParse = {
       if (index !== -1) {
         profile.rtOrder.splice(index, 1);
       }
-
-
     }
 
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))

@@ -5,9 +5,10 @@ import utilsNetwork from '@/lib/utils_network';
 export const useConfigStore = defineStore('config', {
   state: () => ({
 
-    versionMajor: 0,
-    versionMinor: 18,
-    versionPatch: 21,
+    versionMajor: 1,
+    versionMinor: 1,
+    versionPatch: 1,
+
 
     regionUrls: {
 
@@ -36,7 +37,7 @@ export const useConfigStore = defineStore('config', {
 
         id: 'https://id.loc.gov/',
         env : 'production',
-        dev: false,
+        dev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
       },
@@ -60,7 +61,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8288.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
-
+        simpleLookupLang: 'en',
       },
 
       production:{
@@ -83,6 +84,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',
         displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
       },
 
       bibframeDotOrg:{
@@ -99,7 +101,8 @@ export const useConfigStore = defineStore('config', {
         id: 'https://id.loc.gov/',
         env : 'production',
         publicEndpoints:true,
-        displayLCOnlyFeatures: false
+        displayLCOnlyFeatures: false,
+        simpleLookupLang: 'en',
       }
 
     },
@@ -328,6 +331,11 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2025363067',label:"test4", idUrl:'https://id.loc.gov/resources/instances/2025363067.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
 
+    {lccn:'2020467568',label:"Muliple Series Status Test", idUrl:'https://id.loc.gov/resources/instances/2020467568.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    {lccn:'2026888777',label:"Secondary Instance Test", idUrl:'https://id.loc.gov/resources/instances/2026888777.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+
 
 
   ],
@@ -475,7 +483,7 @@ export const useConfigStore = defineStore('config', {
 
       "modes":[
         {
-          'All':{"url":"https://preprod-8288.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+          'All':{"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
         }
       ]
     },
@@ -487,7 +495,7 @@ export const useConfigStore = defineStore('config', {
       "processor" : 'lcAuthorities',
       "modes":[
         {
-          'All':{"url":"https://preprod-8288.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+          'All':{"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
         }
       ]
     },

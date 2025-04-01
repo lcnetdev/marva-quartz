@@ -821,6 +821,14 @@ const utilsExport = {
 									// yes
 									let bnodeLvl2 = this.createBnode(value1,key1)
 
+									//carve out an expection for associated resource is a series
+									if (bnodeLvl1.tagName == 'bf:Relation' && bnodeLvl2.tagName == 'bf:Series' && pLvl2.tagName == 'bf:associatedResource'){
+										let rdftype = this.createElByBestNS('rdf:type')
+										rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', 'http://id.loc.gov/ontologies/bflc/Uncontrolled')
+										bnodeLvl2.appendChild(rdftype)
+									}
+
+
 									pLvl2.appendChild(bnodeLvl2)
 									bnodeLvl1.appendChild(pLvl2)
 									xmlLog.push(`Creating bnode lvl 2 for it ${bnodeLvl2.tagName}`)
@@ -830,12 +838,21 @@ const utilsExport = {
 										let pLvl3 = this.createElByBestNS(key2)
 
 										xmlLog.push(`Creating lvl 3 property: ${pLvl3.tagName} for ${key2}`)
-
+										let lastBnodeLvl3TagName = null
                                         for (let value2 of value1[key2]){
                                             if (this.isBnode(value2)){
                                                 // more nested bnode
                                                 // one more level
                                                 let bnodeLvl3 = this.createBnode(value2,key2)
+
+												if (lastBnodeLvl3TagName == bnodeLvl3.tagName){
+													// console.log("Creating multiple bnodes of the same type in a row", bnodeLvl3.tagName)
+													// if we are doing this we need to create a new parent property to put the new one into
+													pLvl3 = this.createElByBestNS(key2)
+												}
+												lastBnodeLvl3TagName = bnodeLvl3.tagName
+
+
                                                 pLvl3.appendChild(bnodeLvl3)
                                                 bnodeLvl2.appendChild(pLvl3)
                                                 xmlLog.push(`Creating lvl 3 bnode: ${bnodeLvl3.tagName} for ${key2}`)
@@ -850,7 +867,6 @@ const utilsExport = {
                                                             pLvl4.appendChild(bnodeLvl4)
                                                             bnodeLvl3.appendChild(pLvl4)
                                                             xmlLog.push(`Creating lvl 4 bnode: ${bnodeLvl4.tagName} for ${key3}`)
-
 
                                                             for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
                                                                 for (let value4 of value3[key4]){
@@ -1347,7 +1363,7 @@ const utilsExport = {
 			for (let item of items){
 				let uri = null
 				if (item.attributes['rdf:resource']){
-					uri = item.attributes['rdf:resource'].value
+					uri = item.attributes['rdf:resource'].valfue
 				}else if(item.attributes['rdf:about']){
 					uri = item.attributes['rdf:about'].value
 				}
@@ -1623,7 +1639,7 @@ const utilsExport = {
       almaXmlElRecord.appendChild(almaXmlElRdf)
       almaXmlElBib.appendChild(almaXmlElRecord)
 
-      for (let el of almaWorksEl){ almaXmlElRdf.appendChild(el) }
+	  for (let el of almaWorksEl){ almaXmlElRdf.appendChild(el) }
       for (let el of almaInstancesEl){ almaXmlElRdf.appendChild(el) }
       for (let el of almaItemsEl){ almaXmlElRdf.appendChild(el) }
 
@@ -1637,38 +1653,41 @@ const utilsExport = {
     }
 
 
-        // build the BF2MARC package
 
-		let bf2MarcXmlElRdf = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF')
-		// bf2MarcXmlElRdf.setAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
-		for (let el of rdfBasic.getElementsByTagName("bf:Work")){ bf2MarcXmlElRdf.appendChild(el) }
-		for (let el of rdfBasic.getElementsByTagName("bf:Instance")){ bf2MarcXmlElRdf.appendChild(el) }
-		for (let el of rdfBasic.getElementsByTagName("bf:Item")){ bf2MarcXmlElRdf.appendChild(el) }
 
-		let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
-
-		// console.log(strBf2MarcXmlElBib, strXmlFormatted, strXmlBasic, strXml)
-
-		// console.log("-------componentXmlLookup",componentXmlLookup)
-    // console.log(strXmlFormatted)
-    // console.log("------")
-    // console.log(strXmlBasic)
-
-        // let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
-        // strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
-		console.info("strXmlBasic: ", strXmlBasic)
-		console.info("strBf2MarcXmlElBib: ", strBf2MarcXmlElBib)
-		return {
-			xmlDom: rdf,
-			xmlStringFormatted: strXmlFormatted,
-			xlmString: strXml,
-			bf2Marc: strBf2MarcXmlElBib,
-			xlmStringBasic: strXmlBasic,
-			voidTitle: xmlVoidDataTitle,
-			voidContributor:xmlVoidDataContributor,
-			componentXmlLookup:componentXmlLookup
+	// build the BF2MARC package
+	let bf2MarcXmlElRdf = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF')
+	let bf2MarcWorks = rdfBasic.getElementsByTagName("bf:Work")
+	for (let x = 0; x < bf2MarcWorks.length; x++){
+		if (bf2MarcWorks[x].parentNode && bf2MarcWorks[x].parentNode.tagName && bf2MarcWorks[x].parentNode.tagName.toLowerCase() == 'rdf'){
+			bf2MarcXmlElRdf.appendChild(bf2MarcWorks[x].cloneNode(true))
 		}
+	}
+	let bf2MarcInstances = rdfBasic.getElementsByTagName("bf:Instance")
+	for (let x = 0; x < bf2MarcInstances.length; x++){
+		if (bf2MarcInstances[x].parentNode && bf2MarcInstances[x].parentNode.tagName && bf2MarcInstances[x].parentNode.tagName.toLowerCase() == 'rdf'){
+			bf2MarcXmlElRdf.appendChild(bf2MarcInstances[x].cloneNode(true))
+		}
+	}
+	let bf2MarcItems = rdfBasic.getElementsByTagName("bf:Item")
+	for (let x = 0; x < bf2MarcItems.length; x++){
+		if (bf2MarcItems[x].parentNode && bf2MarcItems[x].parentNode.tagName && bf2MarcItems[x].parentNode.tagName.toLowerCase() == 'rdf'){
+			bf2MarcXmlElRdf.appendChild(bf2MarcItems[x].cloneNode(true))
+		}
+	}
+	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
+
+	return {
+		xmlDom: rdf,
+		xmlStringFormatted: strXmlFormatted,
+		xlmString: strXml,
+		bf2Marc: strBf2MarcXmlElBib,
+		xlmStringBasic: strXmlBasic,
+		voidTitle: xmlVoidDataTitle,
+		voidContributor:xmlVoidDataContributor,
+		componentXmlLookup:componentXmlLookup
+	}
   },
 
     //This was handled in the `add()` of `SubjectEditor.vue`, but there are some situtations where that don't work as intended
@@ -1805,8 +1824,7 @@ const utilsExport = {
 	* @param {string} langObj - {uri:"",label:""}
 	 * @return {string}
 	 */
-	createHubStubXML: async function(hubCreatorObj,title,langObj,catalogerId){
-
+	createHubStubXML: async function(hubCreatorObj,title,variant,variantLanguage,langObj,catalogerId){
 
 
 
@@ -1856,6 +1874,31 @@ const utilsExport = {
 		elTitleClass.appendChild(elMainTitle)
 		elTitleProperty.appendChild(elTitleClass)
 		elHub.appendChild(elTitleProperty)
+
+
+
+
+		// variant
+		if (variant){
+
+			let elTitleVariantProperty = document.createElementNS(this.namespace.bf ,'bf:title')
+			let elTitleVariantClass = document.createElementNS(this.namespace.bf ,'bf:VariantTitle')
+			let elMainTitleVariant = document.createElementNS(this.namespace.bf ,'bf:mainTitle')
+
+			if (variantLanguage){
+				elMainTitleVariant.setAttribute('xml:lang', variantLanguage)
+			}
+
+			elMainTitleVariant.innerHTML = variant
+
+
+
+
+			// attach
+			elTitleVariantClass.appendChild(elMainTitleVariant)
+			elTitleVariantProperty.appendChild(elTitleVariantClass)
+			elHub.appendChild(elTitleVariantProperty)
+		}
 
 
 
@@ -2003,7 +2046,7 @@ const utilsExport = {
 
 	},
 
-	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,workURI){
+	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote){
 		let marcNamespace = "http://www.loc.gov/MARC21/slim"
 
 		let rootEl = document.createElementNS(marcNamespace,"marcxml:record");
@@ -2041,7 +2084,16 @@ const utilsExport = {
 		let year2Digits = dateValue.slice(2,4)
 		let month2Digits = dateValue.slice(4,6)
 		let day2Digits = dateValue.slice(6,8)
-		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  + 'n| azannaabn' + " ".repeat(10) + '|n aaa' + " ".repeat(6)
+
+		let pos29 = "n"
+		// did they make a 4xx
+		if (fourXXParts && fourXXParts.a){
+			pos29 = 'b'
+		}
+
+
+		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  + 'n| azannaabn' + " ".repeat(10) + '|' + pos29+ ' aac' + " ".repeat(6)
+		console.log("field008.innerHTML", field008.innerHTML)
 		rootEl.appendChild(field008)
 
 		let field010 = document.createElementNS(marcNamespace,"marcxml:datafield");
@@ -2141,7 +2193,21 @@ const utilsExport = {
 
 
 
+		if (pos29 === 'b'){
 
+			let field667 = document.createElementNS(marcNamespace,"marcxml:datafield");
+			field667.setAttribute( 'tag', '667')
+			field667.setAttribute( 'ind1', ' ')
+			field667.setAttribute( 'ind2', ' ')
+			let field667a = document.createElementNS(marcNamespace,"marcxml:subfield");
+			field667a.setAttribute( 'code', 'a')
+			field667a.innerHTML = "Non-Latin script references not evaluated."
+			field667.appendChild(field667a)
+
+			rootEl.appendChild(field667)
+
+
+		}
 
 
 
@@ -2152,22 +2218,38 @@ const utilsExport = {
 		field670.setAttribute( 'ind2', ' ')
 		let field670a = document.createElementNS(marcNamespace,"marcxml:subfield");
 		field670a.setAttribute( 'code', 'a')
-		field670a.innerHTML = mainTitle
+
+		let title = mainTitle
+		if (mainTitleDate){
+			title = title + ', ' + mainTitleDate
+		}
+		field670a.innerHTML = title
 		field670.appendChild(field670a)
 
-		let field670b = document.createElementNS(marcNamespace,"marcxml:subfield");
-		field670b.setAttribute( 'code', 'u')
-		field670b.innerHTML = workURI
-		field670.appendChild(field670b)
+		if (mainTitleNote){
+			let field670b = document.createElementNS(marcNamespace,"marcxml:subfield");
+			field670b.setAttribute( 'code', 'b')
+			field670b.innerHTML = mainTitleNote
+			field670.appendChild(field670b)
+		}
+
+
+		let field670u = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field670u.setAttribute( 'code', 'u')
+		field670u.innerHTML = workURI
+		field670.appendChild(field670u)
+
+
+		if (mainTitleLccn){
+			let field670w = document.createElementNS(marcNamespace,"marcxml:subfield");
+			field670w.setAttribute( 'code', 'w')
+			field670w.innerHTML = '(DLC)' + mainTitleLccn
+			field670.appendChild(field670w)
+		}
+
+
 
 		rootEl.appendChild(field670)
-
-
-
-
-
-
-
 
 
 

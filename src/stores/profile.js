@@ -1401,6 +1401,14 @@ export const useProfileStore = defineStore('profile', {
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
+      // if there's a code in the label, take it out
+      const code = URI.split("/").at(-1)  // is this reliable?
+      if (label.match("(" + code + ")")){
+        label = label.replace("(" + code + ")", "")
+      }
+      // if (label.match(/\(.*\)/g)){
+      //   label = label.replace(/\(.*\)/g, "")
+      // }
 
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
@@ -2223,7 +2231,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {array} - an array of objs representing the simple lookup values
     */
     returnComplexLookupValueFromProfile: function(componentGuid, propertyPath){
-
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2234,18 +2241,38 @@ export const useProfileStore = defineStore('profile', {
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.loc.gov/mads/rdf/v1#Geographic')  })
 
 
-      // console.log("propertyPath=",propertyPath)
 
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
+      // console.log(pt.propertyURI)
+      // console.log("propertyPath=",propertyPath)
+
+      // working with Hubs as subjects breaks a few things.
+      // rewrite the property Path if we are working with them
+      if (pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+
+        if (pt.userValue &&
+            pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'] &&
+            pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0] &&
+            pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@type'] &&
+            (pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/Hub" || pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/Work")
+        )
+
+
+        //  it is a subject remove label properties
+        propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=="http://www.loc.gov/mads/rdf/v1#authoritativeLabel")  })
+        valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
+
+        // console.log("NEW propertyPath=",propertyPath)
+
+      }
 
       if (valueLocation){
 
         let values = []
 
         for (let v of valueLocation){
-
               let URI = null
               let label = null
 
@@ -2369,7 +2396,6 @@ export const useProfileStore = defineStore('profile', {
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
-
       // if (!type && URI && !lastProperty.includes("intendedAudience")){
       //   // I regretfully inform you we will need to look this up
       //   let context = await utilsNetwork.returnContext(URI)
@@ -2402,9 +2428,11 @@ export const useProfileStore = defineStore('profile', {
 
         // find the correct blank node to edit if possible, if we don't find it then we need to create it
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
+
         if (blankNode === false){
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
+
           pt = buildBlankNodeResult[0]
 
           // now we can make a link to the parent of where the literal value should live
@@ -2425,7 +2453,10 @@ export const useProfileStore = defineStore('profile', {
 
           // overwrite whatever the helper methods set the type to for this one, we know the final
           // type and what it needs to be
-          blankNode['@type'] = type
+          // don't do this for subjects, Subjects as complexValues will add extra nesting that doesn't match a subject's XML
+          if (!propertyPath.some((pp) => pp.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject')){
+            blankNode['@type'] = type
+          }
 
 
           if (!Array.isArray(label)){
@@ -2433,6 +2464,7 @@ export const useProfileStore = defineStore('profile', {
           }
 
           for (let aLabelNode of label){
+
             if (!blankNode['http://www.w3.org/2000/01/rdf-schema#label']){
               blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = []
             }
@@ -2458,6 +2490,40 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
+          // add in the venacular labels
+          if (nodeMap && nodeMap.vernacularLabels){
+            for (let l of nodeMap.vernacularLabels){
+              // make sure there really is a non-latin label
+              if (l.indexOf("@") == -1){
+                continue
+              }
+              // the api returns it as "label@language"
+              let lLabel = l.split("@")[0]
+              let lLanguage = l.split("@")[1]
+              // make sure there is a label field for it
+              if (!blankNode['http://www.w3.org/2000/01/rdf-schema#label']){
+                blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = []
+              }
+
+              blankNode['http://www.w3.org/2000/01/rdf-schema#label'].push(
+                {
+                  '@guid': short.generate(),
+                  'http://www.w3.org/2000/01/rdf-schema#label' : lLabel,
+                  '@language': lLanguage
+                }
+              )
+            }
+          }
+
+
+
+
+          // if (URI.indexOf('n2010057779') > -1){
+          //   nodeMap.vernacularMarcKeys = ["4001 $a玄 武岩,$d1969-@zxx-Hani","4001 $a현 무암,$d1969-@zxx-Hang"]
+          // }
+
+          // console.log("nodeMap",nodeMap)
+
           //Add gacs code to user data
           if (nodeMap["gacs"]){
             blankNode["http://www.loc.gov/mads/rdf/v1#code"] = []
@@ -2477,6 +2543,9 @@ export const useProfileStore = defineStore('profile', {
           }
 
           for (let aMarcKeyNode of marcKey){
+
+            // console.log("aMarcKeyNode",aMarcKeyNode)
+
             if (!blankNode['http://id.loc.gov/ontologies/bflc/marcKey']){
               blankNode['http://id.loc.gov/ontologies/bflc/marcKey'] = []
             }
@@ -2496,11 +2565,51 @@ export const useProfileStore = defineStore('profile', {
                 aNode['@language']=aMarcKeyNode['@language']
               }
               blankNode['http://id.loc.gov/ontologies/bflc/marcKey'].push(aNode)
+            }else if (aMarcKeyNode && aMarcKeyNode.marcKey){
+
+              let aNode = {
+                '@guid': short.generate(),
+                'http://id.loc.gov/ontologies/bflc/marcKey' : aMarcKeyNode.marcKey
+              }
+              if (aMarcKeyNode['@language']){
+                aNode['@language']=aMarcKeyNode['@language']
+              }
+
+              blankNode['http://id.loc.gov/ontologies/bflc/marcKey'].push(aNode)
 
             }else{
               console.error("Cannot understand response from context extaction for marcKey:",marcKey)
             }
           }
+
+
+          // add in the venacular marckeys
+          if (nodeMap && nodeMap.vernacularMarcKeys){
+            for (let l of nodeMap.vernacularMarcKeys){
+              // make sure there really is a non-latin label
+              if (l.indexOf("@") == -1){
+                continue
+              }
+              // the api returns it as "label@language"
+              let lLabel = l.split("@")[0]
+              let lLanguage = l.split("@")[1]
+              // make sure there is a label field for it
+              if (!blankNode['http://id.loc.gov/ontologies/bflc/marcKey']){
+                blankNode['http://id.loc.gov/ontologies/bflc/marcKey'] = []
+              }
+
+              blankNode['http://id.loc.gov/ontologies/bflc/marcKey'].push(
+                {
+                  '@guid': short.generate(),
+                  'http://id.loc.gov/ontologies/bflc/marcKey' : lLabel,
+                  '@language': lLanguage
+                }
+              )
+            }
+          }
+
+
+
 
 
           // if (nodeMap["marcKey"]){
@@ -2650,14 +2759,15 @@ export const useProfileStore = defineStore('profile', {
 
             // if it is a solo subject heading
             if (subjectComponents.length==1){
-
-              console.log("subjectComponents",subjectComponents)
-
-              // it might be a literal.
+                // it might be a literal.
                 if (subjectComponents[0].uri){
                   currentUserValuePos['@id'] = subjectComponents[0].uri
                 }else{
+                  delete currentUserValuePos["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
+                }
 
+                // it might be a Hub if so its not a isMemberOfMADSScheme subject
+                if (subjectComponents[0].type && subjectComponents[0].type.toLowerCase().indexOf("hub")>-1){
                   delete currentUserValuePos["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme"]
                 }
 
@@ -4279,17 +4389,25 @@ export const useProfileStore = defineStore('profile', {
     dataChanged:  function(){
       this.activeProfileSaved = false
 
-
+      // this is a debounce so it doesn't run on every key stroke
       window.clearTimeout(dataChangedTimeout)
       dataChangedTimeout = window.setTimeout(()=>{
         this.setMostCommonNonLatinScript()
         // also store it in the active profile
         this.activeProfile.mostCommonNonLatinScript = this.mostCommonNonLatinScript
         this.activeProfile.nonLatinScriptAgents = this.nonLatinScriptAgents
-        console.log("this.activeProfilethis.activeProfilethis.activeProfile",this.activeProfile)
+        // console.log("this.activeProfilethis.activeProfilethis.activeProfile",this.activeProfile)
         // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
-        // console.log("CHANGED 1!!!")
+
+        // if they have auto save on then save it also
+        if (usePreferenceStore().returnValue('--b-general-auto-save')){
+
+          this.saveRecord()
+
+
+        }
+
       },500)
     },
 
@@ -4704,7 +4822,6 @@ export const useProfileStore = defineStore('profile', {
             firstHasURI=true
           }
 
-
           if (allHasURI){return ['done_all','Linked']}
           if (firstHasURI){return ['warning','Partially Linked']}
 
@@ -4969,10 +5086,10 @@ export const useProfileStore = defineStore('profile', {
     * @param {string} langObj - {uri:"",label:""}
     * @return {String}
     */
-    async buildPostHubStub(hubCreatorObj,title,langObj,catCode){
+    async buildPostHubStub(hubCreatorObj,title,variant,variantLanguage,langObj,catCode){
 
       // console.log("hubCreatorObj",hubCreatorObj)
-      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langObj,catCode)
+      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,variant,variantLanguage,langObj,catCode)
 
       console.log(xml)
       let eid = 'e' + decimalTranslator.new()
@@ -4988,43 +5105,17 @@ export const useProfileStore = defineStore('profile', {
         alert("There was an error creating your Hub. Please report this issue.")
       }
 
-      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
+      // // to simulate a post
+      // alert("Fake Hub Requesting")
+      // pubResuts = {
+      //     "name": "bc331009-aa60-48b3-ba17-865fc7389f23",
+      //     "publish": {
+      //         "status": "published"
+      //     },
+      //     "postLocation": "http://preprod-8299.id.loc.gov/resources/hubs/bf110051-532b-c50c-5d5c-baa4ea6d2044"
+      // }
 
 
-      return pubResuts
-
-
-
-    },
-
-  /**
-    * Builds and posts a Hub Stub
-    *
-    * @param {object} hubCreatorObj - obj with creator label, uri,marcKey
-    * @param {string} title - title string
-    * @param {string} langObj - {uri:"",label:""}
-    * @return {String}
-    */
-    async buildPostHubStub(hubCreatorObj,title,langObj,catCode){
-
-      // console.log("hubCreatorObj",hubCreatorObj)
-      let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,langObj,catCode)
-
-      console.log(xml)
-      let eid = 'e' + decimalTranslator.new()
-      eid = eid.substring(0,8)
-
-      // pass a fake activeprofile with id == Hub to trigger hub protocols
-      let pubResuts
-      try{
-        pubResuts = await utilsNetwork.publish(xml, eid, {id: 'Hub'})
-
-      }catch (error){
-        console.log(error)
-        alert("There was an error creating your Hub. Please report this issue.")
-      }
-
-      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
 
 
       return pubResuts
@@ -5033,7 +5124,14 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
-
+    /**
+     * Retrieves the main title from the NACO stub work profile by traversing the resource template structure.
+     * Looks for a property with URI "http://id.loc.gov/ontologies/bibframe/title" and extracts its main title value.
+     *
+     * @returns {(string|false)} The main title string if found, false otherwise
+     * @access public
+     * @requires activeProfile - Profile must be loaded with valid RT structure
+     */
     nacoStubReturnMainTitle(){
 
       for (let rt of this.activeProfile.rtOrder){
@@ -5054,23 +5152,138 @@ export const useProfileStore = defineStore('profile', {
         }
       }
       return false
+    },
+
+    /**
+     * Retrieves the Library of Congress Control Number (LCCN) from the NACO stub profile.
+     * Searches through Instance resource templates for bibframe:identifiedBy property
+     * with type bibframe:Lccn.
+     *
+     * @returns {(string|false)} The LCCN string if found, false otherwise
+     * @access public
+     * @requires activeProfile - Profile must be loaded with valid RT structure
+     */
+    nacoStubReturnLCCN(){
+
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/identifiedBy"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['@type']
+                  &&  pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/Lccn"
+                )
+                return pt.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'].trim()
+            }
+          }
+        }
+      }
+      return false
+    },
+    /**
+     * Retrieves the date from the profile by searching multiple date fields.
+     * Searches in order:
+     * 1. Instance provision activity simple date
+     * 2. Instance provision activity EDTF date
+     * 3. Work origin date
+     *
+     * @returns {(string|false)} The date string if found in any of the searched fields, false otherwise
+     * @access public
+     * @requires activeProfile - Profile must be loaded with valid RT structure
+     */
+    nacoStubReturnDate(){
+
+      let provisionActivityEDTFDate = null
+      let provisionActivitySimpleDate = null
+      let originDate = null
+
+      for (let rt of this.activeProfile.rtOrder){
+        // look in the instance first for provision activity
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/provisionActivity"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bflc/simpleDate']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bflc/simpleDate'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bflc/simpleDate'][0]['http://id.loc.gov/ontologies/bflc/simpleDate']
+                ){
+                  provisionActivitySimpleDate = pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bflc/simpleDate'][0]['http://id.loc.gov/ontologies/bflc/simpleDate']
+                }
+            }
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/provisionActivity"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bibframe/date']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bibframe/date'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bibframe/date'][0]['http://id.loc.gov/ontologies/bibframe/date']
+                ){
+                  provisionActivityEDTFDate = pt.userValue['http://id.loc.gov/ontologies/bibframe/provisionActivity'][0]['http://id.loc.gov/ontologies/bibframe/date'][0]['http://id.loc.gov/ontologies/bibframe/date']
+                }
+            }
+
+          }
+        }
+        if (rt.indexOf(":Work")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/originDate"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate'][0]['http://id.loc.gov/ontologies/bibframe/originDate']
+                ){
+                  originDate = pt.userValue['http://id.loc.gov/ontologies/bibframe/originDate'][0]['http://id.loc.gov/ontologies/bibframe/originDate']
+                }
+            }
+          }
+
+        }
+      }
+
+      if (provisionActivitySimpleDate){
+        return provisionActivitySimpleDate
+      }else if(provisionActivityEDTFDate){
+        return provisionActivityEDTFDate
+      }else if (originDate){
+        return originDate
+      }else{
+        return false
+      }
 
 
     },
 
-    nacoStubReturnWorkURI(){
 
+
+
+
+    /**
+     * Retrieves the Work URI from the NACO stub profile by searching through resource templates.
+     * Returns the first URI found in a resource template containing ":Work" in its name.
+     *
+     * @returns {(string|false)} The Work URI if found, false otherwise
+     * @access public
+     * @requires activeProfile - Profile must be loaded with valid RT structure
+     */
+    nacoStubReturnWorkURI(){
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Work")>-1){
-
           if (this.activeProfile.rt[rt].URI){
             return this.activeProfile.rt[rt].URI
           }
         }
       }
       return false
-
-
     },
 
 
@@ -5085,12 +5298,12 @@ export const useProfileStore = defineStore('profile', {
       * @param {string} langObj - {uri:"",label:""}
       * @return {String}
       */
-    async buildPostNacoStub(oneXX,fourXX,mainTitle,workURI){
+    async buildPostNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote){
       console.log(oneXX,fourXX,mainTitle,workURI)
 
       let lccn = await utilsNetwork.nacoLccn()
 
-      let xml = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI)
+      let xml = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote)
 
       let pubResuts
       try{
@@ -5148,7 +5361,7 @@ export const useProfileStore = defineStore('profile', {
             // if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"){
               hasEmptyDDC = true
               ddcComponent = classification
-              newDDC = target.id
+              newDDC = [target.id]
             }
           }
         }
@@ -5160,7 +5373,6 @@ export const useProfileStore = defineStore('profile', {
       // if no empty ddc, create one
       if (!hasEmptyDDC){
         newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
-        console.info("newDDC: ", newDDC[0])
         ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC[0]]
       }
 
@@ -5492,8 +5704,6 @@ export const useProfileStore = defineStore('profile', {
 
 
     componentLibraryUpdateUserValueGuid(component){
-
-
       function traverse(target) {
         for (const key in target) {
           if (typeof target[key] === 'object') {
@@ -5505,7 +5715,6 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-
       traverse(component.userValue);
 
       return component

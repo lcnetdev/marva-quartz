@@ -109,7 +109,7 @@
 
         <template v-if="showBuildNacoStub()">
               <button  class="" :id="`action-button-command-${fieldGuid}-d`" @click="buildNacoStub()" :style="buttonStyle">
-                Create NAR Stub
+                Create Provisional NAR
               </button>
         </template>
 
@@ -338,6 +338,13 @@
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/expressionOf"){
           return true
         }
+
+        if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+          if ( (pt && pt.activeType && pt.activeType == "http://id.loc.gov/ontologies/bibframe/Work" ) || (pt && pt.activeType && pt.activeType == "http://id.loc.gov/ontologies/bibframe/Hub") ){    
+            return true
+          }
+        }
+       
         return false
       },
 
@@ -345,7 +352,7 @@
 
 
       buildHubStub(){
-        console.log(this.guid)
+        // console.log(this.guid)
         let info = this.profileStore.returnLccInfo(this.guid)
         this.profileStore.activeHubStubData = info
         this.profileStore.activeHubStubComponent = {
@@ -425,7 +432,7 @@
       },
 
       buildNacoStub(){
-        console.log(this.guid)
+        
 
         this.profileStore.activeNARStubComponent = {
           type: this.type,
@@ -449,6 +456,7 @@
       },
 
       showBuildNacoStub(){
+        console.log("this.isStaging()",this.isStaging())
 
         if (this.isStaging() == false){ return false} // REMOVE BEFORE PROD USAGE
 
@@ -1014,8 +1022,8 @@
       },
 
       isStaging(){
-        console.log(useConfigStore().returnUrls.dev)
-        console.log(useConfigStore().returnUrls)
+        // console.log(useConfigStore().returnUrls.dev)
+        // console.log(useConfigStore().returnUrls)
         if (useConfigStore().returnUrls.dev){
           return true
         }

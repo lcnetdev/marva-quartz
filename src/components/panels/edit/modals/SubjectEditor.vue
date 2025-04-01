@@ -224,7 +224,7 @@
                             <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
                             <!-- <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a> -->
                           </template>
-                          <template v-else-if="key == 'broaders'">
+                          <template v-else-if="key == 'broaders' || key == 'sees'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
                           </template>
                           <template v-else>
@@ -873,6 +873,7 @@ data: function() {
       "notes": "Notes",
       "nonlatinLabels": "Non-Latin Authoritative Labels",
       "variantLabels": "Variants",
+      "varianttitles": "Varants Titles",
       "birthdates": "Date of Birth",
       "birthplaces": "Place of Birth",
       "locales": "Associated Locales",
@@ -885,14 +886,17 @@ data: function() {
       "collections": "MADS Collections",
       "sources": "Sources",
       "subjects": "Subjects",
-      "marcKey": "MARC Key",
-      "relateds": "Related"
+      "marcKeys": "MARC Key",
+      "relateds": "Related",
+      "contributors": "Contributors",
+      "identifiers": "Identifiers",
+      "sees": "See Also"
     },
     panelDetailOrder: [
-      "notes","nonlatinLabels","variantLabels", "relateds","birthdates",
-      "birthplaces","locales","activityfields","occupations",
-      "languages","lcclasss","broaders","gacs","collections",
-      "sources", "subjects", "marcKey"
+      "notes","nonlatinLabels","variantLabels", "varianttitles", "sees", "contributors",
+      "relateds","birthdates","birthplaces","locales","activityfields","occupations",
+      "languages","lcclasss","identifiers","broaders","gacs","collections",
+      "sources", "subjects", "marcKeys"
     ],
 
 
@@ -928,11 +932,12 @@ methods: {
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
     let returnUrls = useConfigStore().returnUrls
+    let url = uri
     if (returnUrls.env == 'production'){
-      uri = uri.replace('http://id.', 'https://preprod-8080.id.')
-      uri = uri.replace('https://id.', 'https://preprod-8080.id.')
+      url = url.replace('http://id.', 'https://preprod-8080.id.')
+      url = url.replace('https://id.', 'https://preprod-8080.id.')
     }
-    let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
+    let data = await utilsNetwork.fetchSimpleLookup(url + ".json", true)
     let components = false
     let subfields = false
     let marcKey = false
@@ -1159,11 +1164,15 @@ methods: {
         type = this.typeLookup[id+offset]
       }
 
+      if (uri && uri.includes("/hubs/")){
+        type = "bf:Hub"
+      }
+
       this.components.push({
         label: ss,
         uri: uri,
         id: id,
-        type: this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
+        type: type, //this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
         complex: ss.includes('‑‑'),
         literal:literal,
         posStart: activePosStart,
@@ -1181,6 +1190,7 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
+
   },
 
   /**
@@ -1710,13 +1720,16 @@ methods: {
       this.contextData = this.pickLookup[this.pickPostion]
       return false
     }
-    // let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
+    //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
     this.contextData = this.pickLookup[this.pickPostion].extra
+
     if (this.pickLookup[this.pickPostion].uri){
       this.contextData.literal = false
       this.contextData.title = this.pickLookup[this.pickPostion].label
       this.contextData.uri = this.pickLookup[this.pickPostion].uri
-      if (Object.keys(this.contextData).includes("marcKey")){
+      if (Object.keys(this.contextData).includes("marcKeys")){
+        this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKeys[0]
+      } else if (Object.keys(this.contextData).includes("marcKey")){
         this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
       }
       let types = this.pickLookup[this.pickPostion].extra['rdftypes']
@@ -2272,6 +2285,10 @@ methods: {
     if (this.activeComponent && this.activeComponent.type){
       if (this.activeTypes[this.activeComponent.type]){
         this.activeTypes[this.activeComponent.type].selected=true
+      } else if (this.activeComponent.type == 'madsrdf:HierarchicalGeographic') {
+        this.activeTypes["madsrdf:Geographic"].selected=true
+      } else {
+        this.activeTypes["madsrdf:Topic"].selected=true
       }
     } else if (this.activeComponent.type == null && this.activeComponent.marcKey != null){ //fall back on the marcKey, this can be null if the selection is too fast?
         let subfield = this.activeComponent.marcKey.slice(5, 7)
@@ -2295,13 +2312,11 @@ methods: {
 
   },
 
-
-
   setTypeClick: function(event,type){
-    this.typeLookup[this.activeComponentIndex] =type
+    this.activeComponent.type = type
+    this.typeLookup[this.activeComponentIndex] = type
     this.subjectStringChanged()
     this.$refs.subjectInput.focus()
-
   },
 
   renderHintBoxes: function(){
@@ -2667,9 +2682,10 @@ methods: {
       componentTypes = false
     }
 
+    let complexSubjects = this.searchResults["subjectsComplex"].concat(this.searchResults["subjectsChildrenComplex"])
 
-    for (let el in this.searchResults["subjectsComplex"]){
-      let target = this.searchResults["subjectsComplex"][el]
+    for (let el in complexSubjects){
+      let target = complexSubjects[el]
       if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
         // we need to check the types of each element to make sure they really are the same terms
         // let targetContext = await utilsNetwork.returnContext(target.uri)
@@ -2713,99 +2729,105 @@ methods: {
         let prevItems = 0
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
-			const target = frozenComponents[component]
-      if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || (target.uri && target.uri.includes("childrensSubjects/sj"))) && target.complex){
-        let uri = target.uri
-        let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
-        if (uri){
-          data = await this.parseComplexSubject(uri)
-        } else {
-          data = target
-        }
-				let subs
-				subs = target.marcKey.slice(5)
-			    // subfields = subfields.match(/\$./g)
-			    subs = subs.match(/\$[axyzv]{1}/g)
-				const complexLabel = target.label
-				// build the new components
-				let id = prevItems
-				let labels = complexLabel.split("--")
-				for (let idx in labels){
-				  let subfield
-				  if (data){
-				    subfield = data["subfields"][idx]
-				  } else if (target.marcKey){
-					  let marcKey = target.marcKey.slice(5)
-					  subfield = marcKey.match(/\$[axyzv]{1}/g)
-					  subfield = subfield[idx]
-				  }
+          const target = frozenComponents[component]
+          if (frozenComponents.length > 1 && !(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) ) && target.complex){
+            let uri = target.uri
+            let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
+            if (uri){
+              data = await this.parseComplexSubject(uri)
+            } else {
+              data = target
+            }
+            let subs
+            subs = target.marcKey.slice(5)
+              // subfields = subfields.match(/\$./g)
+              subs = subs.match(/\$[axyzv]{1}/g)
+            const complexLabel = target.label
+            // build the new components
+            let id = prevItems
+            let labels = complexLabel.split("--")
+            for (let idx in labels){
+              let subfield
+              if (data){
+                subfield = data["subfields"][idx]
+              } else if (target.marcKey){
+                let marcKey = target.marcKey.slice(5)
+                subfield = marcKey.match(/\$[axyzv]{1}/g)
+                subfield = subfield[idx]
+              }
 
-				subfield = this.getTypeFromSubfield(subfield)
+            subfield = this.getTypeFromSubfield(subfield)
 
-				  // Override the subfield of the first element based on the marc tag
-				  let tag = target.marcKey.slice(0,3)
-				  if (idx == 0){
-					  switch(tag){
-						  case "151":
-							subfield = "madsrdf:Geographic"
-							break
-						  case "100":
-							subfield = "madsrdf:PersonalName"
-							break
-						  default:
-							subfield = "madsrdf:Topic"
-					  }
-				  }
+              // Override the subfield of the first element based on the marc tag
+              let tag = target.marcKey.slice(0,3)
+              if (idx == 0){
+                switch(tag){
+                  case "151":
+                  subfield = "madsrdf:Geographic"
+                  break
+                  case "100":
+                  subfield = "madsrdf:PersonalName"
+                  break
+                  default:
+                  subfield = "madsrdf:Topic"
+                }
+              }
 
-				  // make a marcKey for the component
-				  // We've got the label, subfield and the tag for the first element
-				  let sub
-				  if (data) {
-					sub = data["subfields"][idx]
-				  } else {
-					  sub = subs[idx]
-				  }
-				  if (idx == 0){
-					  tag = tag
-				  } else {
-					  // build the tag from the subfield
-					  switch(sub){
-						case("$v"):
-						  tag = "185"
-						  break
-						case("$y"):
-						  tag = "182"
-						  break
-						case("$z"):
-						  tag = "181"
-						  break
-						default:
-						  tag = "180"
-					  }
-				  }
-				  let marcKey = tag + "  " + sub + labels[idx]
+              // make a marcKey for the component
+              // We've got the label, subfield and the tag for the first element
+              let sub
+              if (data) {
+              sub = data["subfields"][idx]
+              } else {
+                sub = subs[idx]
+              }
+              if (idx == 0){
+                tag = tag
+              } else {
+                // build the tag from the subfield
+                switch(sub){
+                case("$v"):
+                  tag = "185"
+                  break
+                case("$y"):
+                  tag = "182"
+                  break
+                case("$z"):
+                  tag = "181"
+                  break
+                default:
+                  tag = "180"
+                }
+              }
+              let marcKey = tag + "  " + sub + labels[idx]
 
-				  newComponents.splice(id, 0, ({
-					"complex": false,
-					"id": id,
-					"label": labels[idx],
-					"literal": false,
-					"posEnd": labels[idx].length,
-					"posStart": 0,
-					"type": subfield,
-					"uri": data && data["components"] && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
-					"marcKey": marcKey,
-          "fromComplex": true,
-          "complexMarcKey": target.marcKey
-				  }))
-				  id++
-				  prevItems++
-				}
+              let uriId = id
 
-			} else {
-				newComponents.push(target)
-				prevItems++
-			}
+              if (target.uri.includes("childrensSubjects/sj") && target.id > 0){
+                uriId = uriId - frozenComponents.filter((c) => !c.complex).length
+              }
+
+              newComponents.splice(id, 0, ({
+              "complex": false,
+              "id": id,
+              "label": labels[idx],
+              "literal": false,
+              "posEnd": labels[idx].length,
+              "posStart": 0,
+              "type": subfield,
+              "uri": data && data["components"] && data["components"][0]["@list"][uriId]["@id"].startsWith("http") ? data["components"][0]["@list"][uriId]["@id"] : "",
+              "marcKey": marcKey,
+              "fromComplex": true,
+              "complexMarcKey": target.marcKey
+              }))
+              id++
+              prevItems++
+            }
+
+          } else {
+            newComponents.push(target)
+            prevItems++
+          }
 		}
 	}
 
@@ -2813,7 +2835,6 @@ methods: {
     if (newComponents.length > 0){
       this.components = newComponents
     }
-
     this.$emit('subjectAdded', this.components)
   },
 

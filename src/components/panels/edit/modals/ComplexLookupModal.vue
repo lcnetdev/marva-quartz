@@ -58,6 +58,7 @@
           "notes": "Notes",
           "nonlatinLabels": "Non-Latin Authoritative Labels",
           "variantLabels": "Variants",
+          "varianttitles": "Varants Titles",
           "birthdates": "Date of Birth",
           "birthplaces": "Place of Birth",
           "locales": "Associated Locales",
@@ -69,13 +70,18 @@
           "gacs": "GAC(s)",
           "collections": "MADS Collections",
           "sources": "Sources",
-          "marcKey": "MARC Key",
-          "relateds": "Related"
+          "marcKeys": "MARC Key",
+          "relateds": "Related",
+          "contributors": "Contributors",
+          "identifiers": "Identifiers",
+          "subjects": "Subjects",
+          "sees": "See Also"
+
         },
         panelDetailOrder: [
-          "notes","nonlatinLabels","variantLabels", "relateds","birthdates","birthplaces","locales",
-          "activityfields","occupations","languages","lcclasss","broaders","gacs","collections",
-          "sources", "marcKey"
+          "notes","nonlatinLabels","variantLabels", "varianttitles", "sees", "contributors", "relateds","birthdates","birthplaces","locales",
+          "activityfields","occupations","languages","lcclasss", "identifiers", "broaders","gacs","collections",
+          "sources", "subjects", "marcKeys"
         ],
       }
     },
@@ -253,15 +259,26 @@
             }
           })
 
-        // wrapping this in setTimeout might not be needed anymore
+          // wrapping this in setTimeout might not be needed anymore
         if (searchPayload.type == 'complex'){
           this.searchTimeout = window.setTimeout(async ()=>{
             this.activeComplexSearchInProgress = true
             this.activeComplexSearch = []
             this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
+
+            // 2025-03 // there is currently an issue with ID suggest2/ that if you search with SOME diacritics it will fail
+            // so there is now a flag that enables it searching it. So if they get NO results at all then try again with the flag
+            // There will always be 1 result which is the literal
+            
+            if (this.activeComplexSearch.length == 1 && this.activeComplexSearch[0].literal){
+              // modify the payload to include the flag in the url
+              searchPayload.url[0] = searchPayload.url[0] + '&keepdiacritics=true'
+              this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
+            }
+
             this.activeComplexSearchInProgress = false
             this.initalSearchState =false
-          }, 400)
+          }, 100)
         } else {
           let filter = function(obj, target){
             let result = []
@@ -673,6 +690,7 @@
             "loading":true,
             "extra": toLoad.extra ? toLoad.extra : {},
             "gacs": toLoad.extra ? toLoad.extra.gacs : [],
+            "marcKey": (toLoad.extra && toLoad.extra.marcKeys) ? toLoad.extra.marcKeys[0] : ''
           }
 
         if (toLoad && toLoad.literal){
@@ -712,7 +730,7 @@
       },
 
       isStaging(){
-        if (useConfigStore().returnUrls.env == "staging"){
+        if (useConfigStore().returnUrls.env == "staging" || useConfigStore().returnUrls.dev == true){
           return true
         }else{
           return false
@@ -951,7 +969,7 @@
               <button @click="forceSearch()">Search</button>
 
               <!-- REMOVE v-if BEFORE PROD USAGE -->
-              <button @click="loadNacoStubModal" style="float: right;" v-if="isStaging() == true">Create NAR Stub</button>
+              <button @click="loadNacoStubModal" style="float: right;" v-if="isStaging() == true">Create Provisional NAR</button>
 
               <hr style="margin-top: 5px;">
               <div>
@@ -1017,7 +1035,7 @@
 
                   <template v-for="key in panelDetailOrder">
                     <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                      <div class="modal-context-data-title modal-context-data-title-add-gap">{{ this.labelMap[key] }}:</div>
+                      <div class="modal-context-data-title modal-context-data-title-add-gap">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                       <ul>
                         <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
                           <template v-if="v.startsWith('http')">
@@ -1027,7 +1045,7 @@
                             <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
                             <!-- <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a> -->
                           </template>
-                          <template v-else-if="key == 'broaders' || key == 'relateds'">
+                          <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
                           </template>
                           <template v-else>
@@ -1195,6 +1213,7 @@
     width: 100%;
     margin: 3px;
     font-size: 1.5em;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
   }
 
   .toggle-btn-grp div:focus{

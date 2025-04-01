@@ -92,6 +92,7 @@
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
 
 
+
               <div v-for="(avl,idx) in complexLookupValues" :class="['selected-value-container']">
 
                 <div class="selected-value-container-auth">
@@ -283,7 +284,6 @@ export default {
 
 
     complexLookupValues(){
-
       try{
           let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
           return values
@@ -320,7 +320,7 @@ export default {
 
     cammBehaviorDisplayEntities(){
 
-      console.log('structure',this.structure)
+
 
       if (this.configStore.useSubjectEditor.includes(this.structure.propertyURI)){
         return 'text'
@@ -350,7 +350,6 @@ export default {
     if (this.preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')){
       if (this.cammBehaviorDisplayEntities == 'text'){
         if (this.complexLookupValues.length>0){
-          console.log("complexLookupValuescomplexLookupValuescomplexLookupValues",this.complexLookupValues)
           this.searchValue = await this.profileStore.returnCammComplexLabel(this.guid, this.complexLookupValues[0])
         }
       }
@@ -431,33 +430,78 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
-      if (Object.keys(contextValue.extra).length == 0){
+      if (contextValue.literal){
+        this.profileStore.setValueComplex(
+            this.guid,
+            null,
+            this.propertyPath,
+            null,
+            contextValue.title,
+            null, //contextValue.type,
+            {},
+            null,
+          )
+      } else if (Object.keys(contextValue.extra).length == 0){
         // Intended audience mixes simple and complex lookups, so do check
         this.profileStore.setValueSimple(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title[0])
       } else {
-        if (contextValue.uri.includes('/works/')){
+        if (contextValue.uri && contextValue.uri.includes('/works/')){
           contextValue.type = 'Work'
           contextValue.typeFull='http://id.loc.gov/ontologies/bibframe/Work'
-        } else if (contextValue.uri.includes('/hubs/')){
+        } else if (contextValue.uri && contextValue.uri.includes('/hubs/')){
           contextValue.type = 'Hub'
           contextValue.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
         }
 
-        delete contextValue.typeFull
-        this.profileStore.setValueComplex(
-          this.guid,
-          null,
-          this.propertyPath,
-          contextValue.uri,
-          contextValue.title,
-          (contextValue.type && (contextValue.type.includes("Hub") || contextValue.type.includes("Work")) ) ? contextValue.type : contextValue.extra.rdftypes[0],
-          contextValue.extra,
-          contextValue.extra.marcKey
-        )
+        // if we are adding a hub to a subject field build the component and send it off to the setValueSubject instead
+        // you are able to add hubs as complex values in other fields, subject is just a special case we don't want to add it this way
+        if (this.propertyPath[0].propertyURI === "http://id.loc.gov/ontologies/bibframe/subject"){
+          this.profileStore.setValueSubject(
+              this.guid,
+              // make a component
+              [
+                {
+                    "label": contextValue.title,
+                    "uri": contextValue.uri,
+                    "id": 0,
+                    "type": contextValue.typeFull,
+                    "complex": false,
+                    "literal": false,
+                    "marcKey": contextValue.extra.marcKeys[0]
+                }
+              ],
+              // fake the path to make the subject as we need it to be
+              [
+                  {
+                      "level": 0,
+                      "propertyURI": "http://id.loc.gov/ontologies/bibframe/subject"
+                  },
+                  {
+                      "level": 1,
+                      "propertyURI": "http://www.loc.gov/mads/rdf/v1#componentList"
+                  },
+                  {
+                      "level": 2,
+                      "propertyURI": "http://www.loc.gov/mads/rdf/v1#Topic"
+                  }
+              ]
+          )
+        }else{
+          delete contextValue.typeFull
+          this.profileStore.setValueComplex(
+            this.guid,
+            null,
+            this.propertyPath,
+            contextValue.uri,
+            contextValue.title,
+            (contextValue.type && (contextValue.type.includes("Hub") || contextValue.type.includes("Work")) ) ? contextValue.type : contextValue.extra.rdftypes[0],
+            contextValue.extra,
+            (contextValue.extra && contextValue.extra.marcKeys) ? contextValue.extra.marcKeys[0] : null,
+          )
+        }
       }
         this.searchValue=''
         this.displayModal=false
-
         this.$nextTick(() => {
           window.setTimeout(()=>{
             this.$refs.lookupInput.focus()

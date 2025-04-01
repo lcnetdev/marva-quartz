@@ -22,9 +22,11 @@ const utilsNetwork = {
     //Controllers to manage searches
     controllers: {
       "controllerNames": new AbortController(),
+      "controllerNamesGeo": new AbortController(),
       "controllerNamesSubdivision": new AbortController(),
       "controllerSubjectsSimple": new AbortController(),
       "controllerPayloadSubjectsSimpleSubdivision": new AbortController(),
+      "controllerSubjectsComplexPart": new AbortController(),
       "controllerSubjectsComplex": new AbortController(),
       "controllerHierarchicalGeographic": new AbortController(),
       "controllerWorksAnchored": new AbortController(),
@@ -207,7 +209,7 @@ const utilsNetwork = {
           uri = uri.replace('https://id.loc.gov/', returnUrls.id)
         }
 
-        let url = `${uri}/suggest2/?q=${keyword}&count=25`
+        let url = `${uri}/suggest2/?q=${keyword}&count=50`
         if (inclueUsage){
           url = url + "&usage=true"
         }
@@ -215,7 +217,7 @@ const utilsNetwork = {
         let r = await this.fetchSimpleLookup(url)
 
         if (r.hits && r.hits.length==0){
-          url = `${uri}/suggest2/?q=${keyword}&count=25&searchtype=keyword`
+          url = `${uri}/suggest2/?q=${keyword}&count=50&searchtype=keyword`
           if (inclueUsage){
             url = url + "&usage=true"
           }
@@ -248,6 +250,13 @@ const utilsNetwork = {
      * @return {object|string} - returns the JSON object parsed into JS Object or the text body of the response depending if it is json or not
      */
     fetchExactLookup: async function(url, signal=null){
+
+      // can't use firewall servers on bibframe.org
+      if (useConfigStore().returnUrls.publicEndpoints == true || usePreferenceStore().catInitals == 'mattdev'){
+        url = url.replace(/https:\/\/preprod[-0-9]*\.id/i,'https://id')
+      }
+
+
       let options = {signal: signal}
       let response = await fetch(url,options);
 
@@ -287,6 +296,13 @@ const utilsNetwork = {
       // if we use the memberOf there might be a id URL in the params, make sure its not https
       url = url.replace('memberOf=https://id.loc.gov/','memberOf=http://id.loc.gov/')
 
+
+      // can't use firewall servers on bibframe.org
+      if (useConfigStore().returnUrls.publicEndpoints == true || usePreferenceStore().catInitals == 'mattdev'){
+        url = url.replace(/https:\/\/preprod[-0-9]*\.id/i,'https://id')
+      }
+
+
       let options = {signal: signal}
       if (json){
         options = {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, mode: "cors", signal: signal}
@@ -323,24 +339,31 @@ const utilsNetwork = {
 
     // returns the literal value based on the jsonld structure
     returnValue: function(input){
-        let value = []
-        if (Array.isArray(input)){
-            input.forEach((v)=>{
-              if (typeof v === 'object'){
-                if (v['@value']){
+      let targetLang = useConfigStore().returnUrls.simpleLookupLang
+      let value = []
+      let match = false
+      if (Array.isArray(input)){
+          input.forEach((v)=>{
+            if (typeof v === 'object'){
+              if (v['@value']){
+                  if (v['@language'] && v['@language'] == targetLang){
                     value.push(v['@value'])
-                }else{
-                    console.warn('lookupUtility: lookup parse error, Was expecting a @value in this object:',v)
-                }
-              }else if (typeof v === 'string' || typeof v === 'number'){
-                  value.push(v)
+                    match = true
+                  } else if (!match){
+                    value.push(v['@value'])
+                  }
               }else{
-                  console.warn('lookupUtility: lookup parse error, Was expecting some sort of value here:',v)
+                  console.warn('lookupUtility: lookup parse error, Was expecting a @value in this object:',v)
               }
-            })
-        }
-        return value
-    },
+            }else if (typeof v === 'string' || typeof v === 'number'){
+                value.push(v)
+            }else{
+                console.warn('lookupUtility: lookup parse error, Was expecting some sort of value here:',v)
+            }
+          })
+      }
+      return value
+  },
 
 
 
@@ -382,7 +405,7 @@ const utilsNetwork = {
       let returnUrls = useConfigStore().returnUrls
 
       let r = await fetch(returnUrls.util + 'lccnnaco')
-      console.log(r)
+
       let data = await r.json()
       return data.id
 
@@ -413,7 +436,6 @@ const utilsNetwork = {
 
         if (searchPayload.processor == 'lcAuthorities'){
           for (let idx in urlTemplate){
-
             if (urlTemplate[idx].includes('q=?')){
               urlTemplate[idx] = urlTemplate[idx].replace('q=?','q=')+'&searchtype=keyword'
             }
@@ -424,7 +446,6 @@ const utilsNetwork = {
 
         let results = []
         for (let url of urlTemplate) {
-
             // kind of hack, change to the public endpoint if we are in dev or public mode
             if (returnUrls.dev || returnUrls.publicEndpoints){
               url = url.replace('http://preprod.id.','https://id.')
@@ -2249,7 +2270,9 @@ const utilsNetwork = {
         // most uris in the id.loc.gov dataset do not have https in the data uris
         uriToLookFor = uriToLookFor.replace('https://','http://')
 
-
+        // remove any prefixes being used for the acutall URI
+        uriToLookFor = uriToLookFor.replace(/https:\/\/preprod[-0-9]*\.id/i,'http://id')
+        uriToLookFor = uriToLookFor.replace(/http:\/\/preprod[-0-9]*\.id/i,'http://id')
 
         uriToLookFor = uriToLookFor.replace('.madsrdf_raw.jsonld','')
 
@@ -2265,7 +2288,7 @@ const utilsNetwork = {
           uri=uri+'.json'
         }
       }
-      console.log("uriuriuriuriuriuriuriuriuriuri",uri)
+
       let data = await this.fetchSimpleLookup(uri,true)
 
       if (data && uri.indexOf('id.loc.gov')>-1){
@@ -2317,7 +2340,8 @@ const utilsNetwork = {
 
 
       this.subjectSearchActive = true
-      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsNames).replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings'
+      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsNames).replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Name'
+      let namesGeoUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsNames).replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Geographic'
       let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
@@ -2374,6 +2398,13 @@ const utilsNetwork = {
         searchValue: searchVal,
         subjectSearch: true,
         signal: this.controllers.controllerNames.signal,
+      }
+      let searchPayloadNamesGeo = {
+        processor: 'lcAuthorities',
+        url: [namesGeoUrl],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerNamesGeo.signal,
       }
       let searchPayloadNamesSubdivision = {
         processor: 'lcAuthorities',
@@ -2481,11 +2512,13 @@ const utilsNetwork = {
 
 
       let resultsNames =[]
+      let resultsNamesGeo =[]
       let resultsNamesSubdivision =[]
 
       let resultsSubjectsSimple=[]
       let resultsPayloadSubjectsSimpleSubdivision=[]
       let resultsSubjectsComplex=[]
+      let resultsSubjectsComplexPart=[]
       let resultsHierarchicalGeographic=[]
       let resultsWorksAnchored=[]
       let resultsWorksKeyword=[]
@@ -2500,8 +2533,9 @@ const utilsNetwork = {
       let resultsExactSubject = []
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsExactName, resultsExactSubject] = await Promise.all([
+        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsExactName, resultsExactSubject] = await Promise.all([
             this.searchComplex(searchPayloadNames),
+            this.searchComplex( searchPayloadNamesGeo),
             this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadSubjectsSimple),
             this.searchComplex(searchPayloadSubjectsSimpleSubdivision),
@@ -2512,8 +2546,9 @@ const utilsNetwork = {
         ]);
 
       } else if (mode == "CHILD"){
-        [resultsNames, resultsNamesSubdivision, resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
+        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
             this.searchComplex(searchPayloadNames),
+            this.searchComplex( searchPayloadNamesGeo),
             this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadChildrenSubjects),
             this.searchComplex(searchPayloadChildrenSubjectsComplex),
@@ -2546,6 +2581,9 @@ const utilsNetwork = {
       // drop the litearl value from names and complex
       if (resultsNames.length>0){
         resultsNames.pop()
+      }
+      if (resultsNamesGeo.length > 0){
+        resultsNamesGeo.pop()
       }
       resultsNamesSubdivision = resultsNamesSubdivision.filter((r) => {return (!r.literal)})
       if (resultsSubjectsComplex.length>0){
@@ -2628,7 +2666,7 @@ const utilsNetwork = {
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': resultsSubjectsComplex,
-        'names': pos == 0 ? resultsNames : resultsNamesSubdivision,
+        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo) : resultsNamesSubdivision,
         'hierarchicalGeographic':  pos == 0 ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,

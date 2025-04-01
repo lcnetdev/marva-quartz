@@ -3,6 +3,7 @@
   import { useConfigStore } from '@/stores/config'
   import { useProfileStore } from '@/stores/profile'  
   import ComplexLookupModal from "@/components/panels/edit/modals/ComplexLookupModal.vue";
+  import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
@@ -17,26 +18,28 @@
       VueFinalModal,
       VueDragResize,     
       ComplexLookupModal,
+      LiteralLang
     },
 
     data() {
       return {
         width: 0,
         height: 0,
-        top: 200,
+        top: 100,
         left: 0,
 
-        initalHeight: 400,
+        initalHeight: 600,
         initalLeft: 400,
 
 
         hubTitle:"",
+        hubTitleVariant:"",
         hubCreator:{
           label: null,
           marcKey: null,
           uri: null
         },
-        hubLang: null,
+        hubLang: "",
 
         langsLookup:[],
         selectedLang: 'na',
@@ -47,8 +50,11 @@
 
         newHubUrl: null,
 
+        showLitLangModal: false,
+        useLang: null,
+        hubTitleVariantLang:null,
 
-
+        scriptShifterOptions: {}
 
       }
     },
@@ -59,12 +65,14 @@
       ...mapStores(usePreferenceStore),
       ...mapStores(useConfigStore),      
       ...mapStores(useProfileStore),      
+      ...mapState(useConfigStore, ['scriptShifterLangCodes', 'lccFeatureProperties']),
 
-      ...mapWritableState(useProfileStore, ['activeProfile','showHubStubCreateModal','activeHubStubData','activeHubStubComponent']),
+      ...mapWritableState(useProfileStore, ['activeProfile','showHubStubCreateModal','activeHubStubData','activeHubStubComponent','literalLangInfo']),
+
+      ...mapWritableState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
       
 
-      
       
 
     },
@@ -92,6 +100,130 @@
         },
 
 
+        transliterateOptions(){
+
+        let options = []
+        for (let key in this.scriptShifterOptions){
+
+
+
+          if (this.scriptShifterOptions[key].s2r){
+            let label =  'Variant -> Main: '
+            let dir='s2r'
+            label = label + this.scriptShifterOptions[key].label
+            options.push({
+              label: label,
+              dir: dir,
+              key:key
+            })
+
+          }
+
+          if (this.scriptShifterOptions[key].r2s){
+            let label = 'Main -> Variant: '
+            let dir='r2s'
+            label = label + this.scriptShifterOptions[key].label
+            options.push({
+              label: label,
+              dir: dir,
+              key:key
+            })
+          }
+        }
+        // console.log(options)
+        return options
+
+        },
+
+        async transliterateChange(event){
+
+          if (event.target.value == 'home'){return true}
+
+          let lang = event.target.value.split("-")[0]
+          let dir = event.target.value.split("-")[1]
+
+
+          if (dir == 's2r'){
+
+            let response = await utilsNetwork.scriptShifterRequestTrans(lang,this.hubTitleVariant,null,dir)
+            if (response && response.output){
+              this.hubTitle = response.output
+            }
+          }else{
+            let response =  await utilsNetwork.scriptShifterRequestTrans(lang,this.hubTitle,null,dir)
+            if (response && response.output){
+              this.hubTitleVariant = response.output
+            }
+          }
+
+          let toLang = null
+          let fromLang = null
+          if (this.scriptShifterLangCodes[lang]){
+            fromLang = this.scriptShifterLangCodes[lang].code
+            toLang = this.scriptShifterLangCodes[lang].code.split("-")[0] + "-Latn"
+            if (dir == 'r2s'){
+              toLang = this.scriptShifterLangCodes[lang].code
+              fromLang = this.scriptShifterLangCodes[lang].code.split("-")[0] + "-Latn"
+            }
+
+          }
+
+          if (dir == 's2r'){
+            // variant title to main title, set the varaint title to fromlang
+            this.hubTitleVariantLang = fromLang
+          }else{
+            this.hubTitleVariantLang = toLang
+          }
+
+          // console.log("toLang",toLang)
+          // console.log("fromLang",fromLang)
+
+
+          // 400  $a강민, 건$d1990 
+          // let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
+
+          // console.log(event.target.value)
+
+          window.setTimeout(()=>{
+            event.target.value = 'home'
+          },1000)
+
+
+          },
+
+
+
+
+
+
+        setVariantLang(){
+
+
+          this.literalLangInfo={
+            propertyPath: false,
+            componentGuid: false,
+            values: [
+              {
+                '@language':null,
+                value: this.hubTitleVariant,
+                '@guid':'fake',
+              }
+            ]
+          }
+
+          this.showLitLangModal=true
+
+          
+
+        },
+
+        setVariantLangReturn(value){
+          this.hubTitleVariantLang = value
+          console.log(value,value,value,value,value)
+          this.showLitLangModal=false
+
+        },
+
         useWorkCreator(){
           
           if (this.activeHubStubData && this.activeHubStubData.contributors && this.activeHubStubData.contributors[0]){
@@ -118,7 +250,7 @@
           this.hubCreator.uri = null
           this.hubCreator.typeFull = null
           
-          console.log("value",value)
+          
 
           if (value.title){
             if (Array.isArray(value.title)){
@@ -142,6 +274,7 @@
               this.hubCreator.marcKey = value.marcKey
             }
           }
+
           if (value.typeFull){
             if (Array.isArray(value.typeFull)){
               this.hubCreator.typeFull = value.typeFull.filter((v)=> {return (!v['@language'])})[0]
@@ -152,7 +285,17 @@
             }else{
               this.hubCreator.typeFull = value.typeFull
             }
-          }            
+          }else{
+
+            
+            if (value.extra && value.extra.rdftypes && value.extra.rdftypes[0] ){
+              if (value.extra.rdftypes[0].indexOf("http")==-1){
+                this.hubCreator.typeFull = "http://www.loc.gov/mads/rdf/v1#" + value.extra.rdftypes[0]
+              }else{
+                this.hubCreator.typeFull = value.extra.rdftypes[0]
+              }             
+            }
+          }
           
           this.hubCreator.uri = value.uri
 
@@ -179,21 +322,99 @@
 
 
           let langObj
-          if (this.hubLang){
+          if (this.hubLang && this.hubLang != ""){
             langObj = {
               uri: this.hubLang,
               label:    this.langsLookup.filter((v)=> { return (v.uri == this.hubLang)  } )[0].label
             }
+
+            // if there is (eng) code in the label
+            if (langObj.label){
+              langObj.label = langObj.label .split('(')[0].trim()
+            }
+
           }else{
             langObj = null
           }  
 
           this.postStatus='posting'
-          let results = await this.profileStore.buildPostHubStub(this.hubCreator,this.hubTitle,langObj,this.preferenceStore.catCode)
+          let results = await this.profileStore.buildPostHubStub(this.hubCreator,this.hubTitle,this.hubTitleVariant,this.hubTitleVariantLang,langObj,this.preferenceStore.catCode)
 
           if (results && results.postLocation){
+
+
+            let extra = {
+              collections: [],
+              genres: [],
+              rdftypes: ['Work', 'Hub'],
+              subjects: [],
+            }
+
             results.postLocation = results.postLocation.replace("http://",'https://')
-            this.profileStore.setValueComplex(this.activeHubStubComponent.guid, null, this.activeHubStubComponent.propertyPath, results.postLocation, this.hubTitle, null, {}, null)
+
+            let hubUri = results.postLocation.replace(/https:\/\/preprod[-0-9]*\.id/i,'http://id')
+            hubUri = hubUri.replace(/http:\/\/preprod[-0-9]*\.id/i,'http://id')
+
+            // we need to ask for the MARCKey from ID since we don't know it locally
+            
+            let MARCKey = await utilsNetwork.returnMARCKey(results.postLocation)
+            
+
+            if (!MARCKey){
+              alert("Could not retrieve MARC Key for Hub: " + hubUri )
+            }
+            
+            if (MARCKey && MARCKey.marcKey){
+              MARCKey = MARCKey.marcKey
+            }
+
+            // if we are adding a hub to a subject field build the component and send it off to the setValueSubject instead
+            // you are able to add hubs as complex values in other fields, subject is just a special case we don't want to add it this way
+            if (this.activeHubStubComponent.propertyPath[0].propertyURI === "http://id.loc.gov/ontologies/bibframe/subject"){
+              this.profileStore.setValueSubject(
+                this.activeHubStubComponent.guid,
+                  // make a component
+                  [
+                    {
+                        "label": this.hubTitle,
+                        "uri": hubUri,
+                        "id": 0,
+                        "type": "http://id.loc.gov/ontologies/bibframe/Hub",
+                        "complex": false,
+                        "literal": false,
+                        "marcKey": MARCKey
+                    }
+                  ],
+                  // fake the path to make the subject as we need it to be
+                  [
+                      {
+                          "level": 0,
+                          "propertyURI": "http://id.loc.gov/ontologies/bibframe/subject"
+                      },
+                      {
+                          "level": 1,
+                          "propertyURI": "http://www.loc.gov/mads/rdf/v1#componentList"
+                      },
+                      {
+                          "level": 2,
+                          "propertyURI": "http://www.loc.gov/mads/rdf/v1#Topic"
+                      }
+                  ] 
+              )
+
+            }else{
+
+              // add it as normal
+              this.profileStore.setValueComplex(this.activeHubStubComponent.guid, null, this.activeHubStubComponent.propertyPath, hubUri, this.hubTitle, 'Hub', extra, MARCKey)
+
+
+
+            }
+
+
+            
+
+
 
             this.newHubUrl=results.postLocation
 
@@ -208,7 +429,7 @@
           
 
           
-          console.log(results)
+          // console.log(results)
 
 
           // this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
@@ -223,8 +444,249 @@
           this.showHubStubCreateModal=false
           this.postStatus=='unposed'
 
+        },
+
+
+
+        // diacritic intergration
+
+        runMacroExpressMacro(event){
+
+          for (let macro of this.diacriticUseValues){
+              if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
+                // console.log("run this macro", macro)
+                let insertAt = event.target.value.length
+
+                if (event.target && event.target.selectionStart){
+                  insertAt=event.target.selectionStart
+                }
+                let inputV
+                if (event.target){
+                  inputV = event.target
+                }else{
+                  console.warn("ERROR: Field not found")
+                  return false
+                }
+                if (!macro.combining){
+                  // there is behavior where if it is a digit shortcut the numerial is still sent
+                  // so if thats the case remove the last digit from the value
+                  if (event.code.includes('Digit')){
+                    // if it is in fact a digit char then remove it
+                    if (inputV.value.charAt(insertAt) == event.code.replace('Digit','')){
+                      // remove the last char
+                      // inputV.value = inputV.value.slice(0, -1);
+                      inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+
+                    }
+                  }
+                  // same for euqal key
+                  if (event.code == 'Equal'){
+                    if (inputV.value.charAt(inputV.value.length-1) == '='){
+                      // remove the last char
+                      // inputV.value = inputV.value.slice(0, -1);
+                      inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+                    }
+                  }
+                  // same for Backquote key
+
+                  if (event.code == 'Backquote'){
+                    if (inputV.value.charAt(inputV.value.length-1) == '`'){
+                      // remove the last char
+                      // inputV.value = inputV.value.slice(0, -1);
+                      inputV.value = inputV.value.slice(0,insertAt) + inputV.value.slice(insertAt)
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+                    }
+                  }
+                  // it is not a combining unicode char so just insert it into the value
+                  if (inputV.value){
+                    // inputV.value=inputV.value+macro.codeEscape
+                    inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
+                    this.searchValueLocal = inputV.value
+                    if (insertAt){
+                      this.$nextTick(()=>{
+                        inputV.setSelectionRange(insertAt+1,insertAt+1)
+                        this.$nextTick(()=>{
+                          inputV.focus()
+                          // this.doSearch()
+                        })
+                      })
+                    }else{
+                        this.$nextTick(()=>{
+                          inputV.focus()
+                        })
+                    }
+                  }else{
+                    inputV.value = macro.codeEscape
+                    this.searchValueLocal = inputV.value
+                  }
+
+
+                }else{
+
+
+                  // same for Backquote key
+
+                  if (event.code == 'Backquote'){
+
+                    if (inputV.value.charAt(inputV.value.length-1) == '`'){
+                      // remove the last char
+                      inputV.value = inputV.value.slice(0, -1);
+                      this.searchValueLocal = inputV.value
+                      // this.doSearch()
+                    }
+
+                    }
+
+
+                    // little cheap hack here, on macos the Alt+9 makes ª digits 1-0 do this with Alt+## but we only
+                    // have one short cut that uses Alt+9 so just remove that char for now
+                    inputV.value=inputV.value.replace('ª','')
+
+                    inputV.value = inputV.value.substring(0, insertAt) + macro.codeEscape + inputV.value.substring(insertAt);
+                    // inputV.value=inputV.value+macro.codeEscape
+
+                    inputV.setSelectionRange(insertAt+1,insertAt+1)
+                    inputV.focus()
+
+
+                    if (insertAt){
+                    this.$nextTick(()=>{
+                      inputV.setSelectionRange(insertAt+1,insertAt+1)
+                      this.searchValueLocal = inputV.value
+                      this.$nextTick(()=>{
+                        inputV.focus()
+                      })
+
+                    })
+                    }else{
+
+                      this.$nextTick(()=>{
+                        inputV.focus()
+                      })
+
+                    }
+                }
+
+                event.preventDefault()
+                event.stopPropagation()
+                return false
+              }
+            }
+
+
+
+        },
+
+        keyup(event){
+
+          // text macros
+          let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
+          if (useTextMacros && useTextMacros.length>0){
+            for (let m of useTextMacros){
+              if (event.target.value.indexOf(m.lookFor) > -1){
+                event.target.value = event.target.value.replace(m.lookFor,m.replaceWith)
+                this.searchValueLocal = event.target.value
+              }
+            }
+          }
+
+
+        },
+
+        keydown(event){
+
+          // This mode is they press Crtl+e to enter diacritic macro mode, so they did that on the last kedown and now we need to act on the next keystroke and interpret it as a macro code
+          if (this.nextInputIsVoyagerModeDiacritics){
+            // they are pressing shift in about to press antoher macro shrotcut
+            if (event.key == 'Shift'){
+              return false
+            }
+
+            if (this.diacriticPacks.voyager[event.code]){
+              let useMacro
+              for (let macro of this.diacriticPacks.voyager[event.code]){
+                if (macro.shiftKey == event.shiftKey){
+                  useMacro = macro
+                  break
+                }
+              }
+
+              let inputV = event.target
+              let insertAt = event.target.value.length
+              if (event.target && event.target.selectionStart){
+                insertAt=event.target.selectionStart
+              }
+
+              if (!useMacro.combining){
+              // it is not a combining unicode char so just insert it into the value
+                if (inputV.value){
+                  // inputV.value=inputV.value+useMacro.codeEscape
+                  inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+                }else{
+                  inputV.value = useMacro.codeEscape
+                }
+                this.searchValueLocal = inputV.value
+              }else{
+                    // inputV.value=inputV.value+useMacro.codeEscape
+                    inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+                    this.searchValueLocal = inputV.value
+              }
+
+              if (insertAt){
+              this.$nextTick(()=>{
+                inputV.setSelectionRange(insertAt+1,insertAt+1)
+                this.searchValueLocal = inputV.value
+                this.$nextTick(()=>{
+                  inputV.focus()
+                })
+
+              })
+              }else{
+                this.$nextTick(()=>{
+                  inputV.focus()
+                })
+              }
+            }
+            // turn off mode
+            this.nextInputIsVoyagerModeDiacritics  =false
+            event.target.style.removeProperty('background-color')
+            event.preventDefault()
+            return false
+          }
+          // all macros use the ctrl key
+          if (event.ctrlKey == true){
+            if (this.diacriticUse.length>0){
+              for (let macro of this.diacriticUseValues){
+                if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey){
+                  // console.log("run this macro", macro)
+                  event.preventDefault()
+                  this.runMacroExpressMacro(event)
+                  return false
+
+                }
+              }
+            }
+
+          // they are entering into voyager diacritic mode
+            if (event.code == 'KeyE'){
+              if (!this.preferenceStore.returnValue('--b-diacritics-disable-voyager-mode')){
+                event.target.style.backgroundColor="chartreuse"
+                this.nextInputIsVoyagerModeDiacritics = true
+                event.preventDefault()
+                return false
+              }
+
+            }
+            //
+
         }
-       
+
+      },       
 
 
     
@@ -242,6 +704,9 @@
 
     async mounted() {
 
+      this.useLang = null
+      this.hubTitleVariantLang = null
+
       // ask for the url to use from the active profile for the bf:language property then request it and load the results
       let useLookupUrl = this.profileStore.returnProfileLookupUrl("bf:language") 
       let langs = await utilsNetwork.loadSimpleLookup(useLookupUrl)
@@ -255,6 +720,8 @@
         }
       } 
 
+      this.langsLookup.sort((a,b) => (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0))
+
       
       this.$nextTick(()=>{
 
@@ -262,6 +729,17 @@
         this.$refs['hub-title'].focus()
       })
       
+
+
+      let current = window.localStorage.getItem('marva-scriptShifterOptions')
+      if (current){
+        current = JSON.parse(current)
+      }else{
+        current = {}
+      }
+      this.scriptShifterOptions = JSON.parse(JSON.stringify(current))
+
+
 
 
     }
@@ -310,6 +788,42 @@
               </template>
             </div>
 
+            <div style="clear: both;">
+              <div style="float: right;">
+
+                <select  @change="transliterateChange" style="font-size: 0.9em;">
+                  <option value="home">Transliterate</option>
+                  <template v-for="ss in transliterateOptions()">
+                    
+                    <option :value="ss.key+'-'+ss.dir">{{ ss.label }}</option>
+                  </template>
+                  
+                  
+
+                </select>
+              </div>
+            </div>
+
+
+            <div style="display: flex; margin-bottom: 1em; clear: both; padding-top: 1em;">
+              <div style="flex-grow: 1;">
+                <input type="text" ref="hub-title-variant" v-model="hubTitleVariant" class="title" placeholder="Hub Variant Title" @keydown="keydown" @keyup="keyup">
+              </div>
+              <div style="flex-shrink: 1;">
+                <button style="height: 29px;" @click="setVariantLang">{{ (hubTitleVariantLang) ? '@' + hubTitleVariantLang : 'Set Lang'}}</button>
+
+                <template v-if="showLitLangModal">
+                  <LiteralLang v-model="showLitLangModal" @langStrSet="setVariantLangReturn"/>
+                  
+                </template>
+              </div>
+            </div>
+
+
+
+
+
+
             
             <div style="margin-bottom: 1em;">
               <span class="creator-label" v-if="!hubCreator.label">[No Hub Creator]</span>
@@ -325,7 +839,8 @@
               
 
             </div>
-            <select v-model="hubLang">
+            <select v-model="hubLang" >
+              <option value="" disabled selected>Select Language</option>
               <option value="na">No Hub Language Selected</option>
               <option v-for="l in langsLookup" :value="l.uri">{{ l.label }}</option>
             </select>
