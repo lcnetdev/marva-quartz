@@ -5,9 +5,9 @@ import utilsNetwork from '@/lib/utils_network';
 export const useConfigStore = defineStore('config', {
   state: () => ({
 
-    versionMajor: 0,
-    versionMinor: 18,
-    versionPatch: 33,
+    versionMajor: 1,
+    versionMinor: 1,
+    versionPatch: 0,
 
 
     regionUrls: {
