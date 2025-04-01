@@ -1776,6 +1776,35 @@ const utilsParse = {
         }
       }
 
+      // we are going to go looking for literals inside bnodes that have two literals with one at least of them with a @language tag
+      for (let key in profile.rt[pkey].pt){
+        let pt = profile.rt[pkey].pt[key]
+        if (pt.userValue){
+          console.log(pt.userValue)
+          let propsFirstLevel = Object.keys(pt.userValue).filter(v => { return !v.startsWith('@') })
+          console.log(propsFirstLevel)          
+          for (let p1 of propsFirstLevel){
+            for (let bnode of pt.userValue[p1]){
+              let propsSecondLevel = Object.keys(bnode).filter(v => { return !v.startsWith('@') })
+              console.log(propsSecondLevel)
+              for (let p2 of propsSecondLevel){
+                if (Array.isArray(bnode[p2])){
+                  if (bnode[p2].filter((v)=>{ return (v['@language'])}).length>0){
+                    
+                    console.log(p2,"Has lang tag")
+                    break
+                  }
+                }
+              }              
+            }
+
+          }
+        }
+        
+      }
+
+
+
       let adminMedtataPrimary = null
       let adminMedtataSecondary = []
       for (let key in profile.rt[pkey].pt){
