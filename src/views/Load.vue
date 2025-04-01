@@ -226,35 +226,35 @@
                   </div>
                   <div class="card-subtitle">{{ row['creator'] }}</div>
                   <div class="card-text border-bottom">
-                    Format:
+                    <labe class="card-label">Format: </labe>
                       <span v-if="row['specificFormat'] == 'Digital'" data-tooltip="This is a digital resource. Make sure that's what you want." :class="['badge badge-secondary', 'simptip-position-top', {'badge-info': true}]">
                         {{ row['specificFormat'] }}
                       </span>
                       <span v-else>{{ row['specificFormat'] }}</span>
                       <br>
-                    Publisher: {{ row['publisher'] }} ({{row['publicationPlace']}})<br>
-                    008 Date: {{ row['date'] }}<br>
+                    <label class="card-label">Publisher:</label> {{ row['publisher'] }} ({{row['publicationPlace']}})<br>
+                    <label class="card-label">008 Date:</label> {{ row['date'] }}<br>
                     <span v-if="getMarcFieldAsString(row, '300')">
-                      Marc 300: {{ getMarcFieldAsString(row, '300') }}
+                      <label class="card-label">Marc 300: </label>{{ getMarcFieldAsString(row, '300') }}
                     </span>
                   </div>
                   <div class="card-text border-bottom" v-if="row['isbns'] && row['isbns'].length > 0">
-                    ISBNs:
+                    <label class="card-label">ISBNs:</label>
                     <ul>
                       <li v-for="(item) in row['isbns']">{{ item }}</li>
                     </ul>
                   </div>
                   <div class="card-text border-bottom" v-if="row['issns'] && row['issns'].length > 0">
-                    ISSNs:
+                    <label class="card-label">ISSNs:</label>
                     <ul>
                       <li v-for="(item) in row['issns']">{{ item }}</li>
                     </ul>
                   </div>
                   <div class="card-text">
+                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': isRdaRecord(row), 'badge-warning': !isRdaRecord(row)}]" data-tooltip="RDA: 040 $e = RDA and leader/18='a' and 260 is not present">{{ isRdaRecord(row) ? "RDA" : "Not RDA" }}</span>
+                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'High', 'badge-warning': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'Low'}]" :data-tooltip="'Encoding Level: \'' + row.catalogingInfo.levelOfCataloging + '\''" v-if="row.catalogingInfo.levelOfCataloging">{{ encodingLevel(row.catalogingInfo.levelOfCataloging) }}</span>
                     <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Agency" v-if="row.catalogingInfo.catalogingAgency">{{ row.catalogingInfo.catalogingAgency }}</span>
                     <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Language" v-if="row.catalogingInfo.catalogingLanguage">{{ row.catalogingInfo.catalogingLanguage }}</span>
-                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'High', 'badge-warning': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'Low'}]" :data-tooltip="'Encoding Level: \'' + row.catalogingInfo.levelOfCataloging + '\''" v-if="row.catalogingInfo.levelOfCataloging">{{ encodingLevel(row.catalogingInfo.levelOfCataloging) }}</span>
-                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': isRdaRecord(row), 'badge-warning': !isRdaRecord(row)}]" data-tooltip="RDA: 040 $e = RDA and leader/18='a' and 260 is not present">{{ isRdaRecord(row) ? "RDA" : "Not RDA" }}</span>
                   </div>
                 </div>
               </div>
@@ -264,6 +264,7 @@
             <div v-if="Object.keys(selectedWcRecord).length > 0">
               Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }} <br>
               Marc Preview<br>
+              <hr class="marc-divider">
               <div v-html="selectedWcRecord['marcHTML']"></div>
             </div>
           </div>
@@ -1190,14 +1191,15 @@ h1, p {
 .copy-cat-results {
   float: left;
   width: 20%;
-  max-height: 90%;
+  max-height: 100%;
   overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .copy-cat-marc {
   float: right;
   width: 45%;
-  height: 90%;
+  height: 100%;
   overflow-y: scroll;
 }
 
@@ -1218,11 +1220,11 @@ h1, p {
 }
 
 .copy-cat-wrapper > * {
-  background-color: #444;
-  color: #fff;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-components')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
   border-radius: 5px;
   padding: 20px;
-  font-size: 100%;
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-copy-cat-font-size')");
   /* needed for the floated layout*/
   margin-bottom: 10px;
 }
@@ -1235,6 +1237,10 @@ h1, p {
   clear: both;
 }
 
+.marc-divider{
+  margin: 5px;
+}
+
 .wc-row:hover{
   cursor:pointer;
   background-color: whitesmoke;
@@ -1244,6 +1250,7 @@ h1, p {
 /** MARC preview formatting */
 :deep() .marc.record{
   font-family: monospace;
+  height: 90%;
 }
 
 :deep() .marc.indicators {
@@ -1262,25 +1269,12 @@ h1, p {
   vertical-align: bottom;
 }
 
-:deep() .marc.tag.tag-092,
-:deep() .marc.tag.tag-082,
-:deep() .marc.tag.tag-020,
-:deep() .marc.tag.tag-035,
-:deep() .marc.tag.tag-952,
-:deep() .marc.tag.tag-090,
-:deep() .marc.tag.tag-097,
-:deep() .marc.tag.tag-050,
-:deep() .marc.tag.tag-040 {
-  font-weight: bold;
-  color: gold;
-}
-
 :deep() div.marc.field{
   text-indent: 4em hanging;
 }
 
 :deep() span.marc.subfield:hover{
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-marc-hover')");
 }
 
 .selected {
@@ -1300,7 +1294,7 @@ h1, p {
   flex-direction: column;
   min-width: 0;
   word-wrap: break-word;
-  background-color: #fff;
+  background-color:  v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color')");
   color: black;
   background-clip: border-box;
   border: 1px solid rgba(0,0,0,.125);
@@ -1310,7 +1304,7 @@ h1, p {
 }
 
 .card:hover {
-  background-color: antiquewhite;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
 }
 
 .card-body {
@@ -1335,6 +1329,10 @@ h1, p {
   border-bottom: solid gray;
 }
 
+.card-label {
+  font-weight: bold;
+}
+
 .badge {
   display: inline-block;
   padding: .25em .4em;
@@ -1345,6 +1343,7 @@ h1, p {
   white-space: nowrap;
   vertical-align: baseline;
   border-radius: .25rem;
+  margin-right: 5px;
 }
 
 .badge-primary {
