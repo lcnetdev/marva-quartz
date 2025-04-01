@@ -971,7 +971,6 @@ methods: {
    * @param {obj} incomingSubjects - the existing subject data
    */
   buildLookupComponents: function(incomingSubjects){
-    console.info("buildLookupComponents: ", incomingSubjects)
     this.typeLookup = {}
 
     if (!incomingSubjects || typeof incomingSubjects == "undefined"){
@@ -1074,7 +1073,6 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
-    console.info("buildComponents: ", searchString, "--", this.componetLookup)
     // searchString = searchString.replace("—", "--") // when copying a heading from class web
 
     let subjectStringSplit = searchString.split('--')
@@ -1165,9 +1163,6 @@ methods: {
       if (this.typeLookup[id+offset]){
         type = this.typeLookup[id+offset]
       }
-
-      console.info("this.typeLookup: ", this.typeLookup)
-      console.info("type: ", type)
 
       if (uri && uri.includes("/hubs/")){
         type = "bf:Hub"
@@ -2009,8 +2004,6 @@ methods: {
       //Science—Experiments
     }
 
-    console.info("selectContext: ", this.pickLookup[this.pickPostion])
-
     if (this.pickLookup[this.pickPostion].complex){
       // if it is a complex authorized heading then just replace the whole things with it
       this.subjectString = this.pickLookup[this.pickPostion].label
@@ -2657,7 +2650,6 @@ methods: {
   },
 
   add: async function(){
-    console.info("Components: ", JSON.parse(JSON.stringify(this.components)))
     //remove any existing thesaurus label, so it has the most current
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2836,9 +2828,6 @@ methods: {
     if (newComponents.length > 0){
       this.components = newComponents
     }
-    //TODO: hubs, should be type <bf:Hub>, hubs are not populating the subject component correctly
-    // record:  2025422115, https://editor.id.loc.gov/bfe2/quartz/edit/e1519219
-    console.info("Final Components: ", JSON.parse(JSON.stringify(this.components)))
     this.$emit('subjectAdded', this.components)
   },
 

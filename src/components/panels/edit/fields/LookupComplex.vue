@@ -284,7 +284,6 @@ export default {
 
 
     complexLookupValues(){
-
       try{
           let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
           return values
@@ -431,7 +430,6 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
-      console.info("setComplexValue")
       if (contextValue.literal){
         this.profileStore.setValueComplex(
             this.guid,
@@ -648,7 +646,6 @@ export default {
 
 
     subjectAdded: function(components){
-      console.info("subjectAdded: ", components)
       this.profileStore.setValueSubject(this.guid,components,this.propertyPath)
       this.hideSubjectModal()
 

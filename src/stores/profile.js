@@ -2665,10 +2665,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
-      console.info("setValueSubject")
-      console.info("componentGuid: ", componentGuid)
-      console.info("subjectComponents: ", subjectComponents)
-      console.info("propertyPath: ", propertyPath)
         // we're just going to overwrite the whole userValue with the constructed headings
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
@@ -5363,7 +5359,6 @@ export const useProfileStore = defineStore('profile', {
       // if no empty ddc, create one
       if (!hasEmptyDDC){
         newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
-        console.info("newDDC: ", newDDC)
         ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC[0]]
       }
 

@@ -129,6 +129,9 @@ export default {
                 if (val['@type'] && this.rtLookup[tmpid].resourceURI === val['@type']){
                   useId = tmpid
                   foundBetter = true
+                  if (tmpid == 'lc:RT:bf2:Topic:SubjectWork' && key == 'http://www.loc.gov/mads/rdf/v1#componentList'){ // a hub with subdivisions should be `lc:RT:bf2:Components`
+                    useId = 'lc:RT:bf2:Components'
+                  }
                 }
               }
             }
