@@ -1164,6 +1164,10 @@ methods: {
         type = this.typeLookup[id+offset]
       }
 
+      if (uri && uri.includes("/hubs/")){
+        type = "bf:Hub"
+      }
+
       this.components.push({
         label: ss,
         uri: uri,
@@ -2824,7 +2828,6 @@ methods: {
     if (newComponents.length > 0){
       this.components = newComponents
     }
-
     this.$emit('subjectAdded', this.components)
   },
 

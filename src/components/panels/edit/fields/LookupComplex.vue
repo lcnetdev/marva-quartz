@@ -284,7 +284,6 @@ export default {
 
 
     complexLookupValues(){
-
       try{
           let values = this.profileStore.returnComplexLookupValueFromProfile(this.guid,this.propertyPath)
           return values

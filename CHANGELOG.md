@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2025-04-01
+### Fixed
+- Hub subjects not being `bf:Hub`
+- Hub subjects not appearing in Marva
 
 
 ## [1.1.0] - 2025-03-31
@@ -14,11 +18,11 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Adds more detail display for Entities when searching (Hubs, names, etc.)
 - Added Variant title option to Hub creation modal with Scriptshifter support [BFP-347]
-- Simple lookups have the code "Author (aut)" removed from the label when selected 
+- Simple lookups have the code "Author (aut)" removed from the label when selected
 - Simple lookups have been limited to Eng lang
 
 ### Fixed
-- Improved building of Hubs 
+- Improved building of Hubs
 - Improved subject heading building
 - Improved suggest2/ API integration
 - Fix not being able to add literals to complex lookups

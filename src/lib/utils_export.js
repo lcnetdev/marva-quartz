@@ -1367,7 +1367,7 @@ const utilsExport = {
 			for (let item of items){
 				let uri = null
 				if (item.attributes['rdf:resource']){
-					uri = item.attributes['rdf:resource'].value
+					uri = item.attributes['rdf:resource'].valfue
 				}else if(item.attributes['rdf:about']){
 					uri = item.attributes['rdf:about'].value
 				}
@@ -1672,8 +1672,8 @@ const utilsExport = {
 	let bf2MarcInstances = rdfBasic.getElementsByTagName("bf:Instance")
 	for (let x = 0; x < bf2MarcInstances.length; x++){
 		if (bf2MarcInstances[x].parentNode && bf2MarcInstances[x].parentNode.tagName && bf2MarcInstances[x].parentNode.tagName.toLowerCase() == 'rdf'){
-			bf2MarcXmlElRdf.appendChild(bf2MarcInstances[x].cloneNode(true))	
-		}	
+			bf2MarcXmlElRdf.appendChild(bf2MarcInstances[x].cloneNode(true))
+		}
 	}
 	let bf2MarcItems = rdfBasic.getElementsByTagName("bf:Item")
 	for (let x = 0; x < bf2MarcItems.length; x++){
@@ -2237,7 +2237,7 @@ const utilsExport = {
 			field670b.innerHTML = mainTitleNote
 			field670.appendChild(field670b)
 		}
-		
+
 
 		let field670u = document.createElementNS(marcNamespace,"marcxml:subfield");
 		field670u.setAttribute( 'code', 'u')

@@ -2271,7 +2271,7 @@ export const useProfileStore = defineStore('profile', {
 
         let values = []
 
-        for (let v of valueLocation){              
+        for (let v of valueLocation){
               let URI = null
               let label = null
 
@@ -5359,7 +5359,6 @@ export const useProfileStore = defineStore('profile', {
       // if no empty ddc, create one
       if (!hasEmptyDDC){
         newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
-        console.info("newDDC: ", newDDC)
         ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC[0]]
       }
 
