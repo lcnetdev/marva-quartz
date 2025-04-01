@@ -167,7 +167,7 @@
             <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="copyCatLccn" /><br>
             <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority" /><br>
             <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
-            <label for="jackphy">Does this record contain non-Latin script?: </label><input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
+            <label for="jackphy">Does this record contain non-Latin script that should be retained? </label><input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
             <br>
             <h3>Load with profile:</h3>
             <div class="load-buttons">
@@ -184,14 +184,14 @@
               <h2 v-if="wcResults?.results && Number(wcResults?.results?.numberOfRecords) === 0">
                   No results :(
               </h2>
-              <h2 v-else-if="wcResults.error">
+              <h2 v-else-if="wcResults.error && !queryingWc">
                 There was an error getting the results: "{{ wcResults.error.message }}"
               </h2>
-              <h2 v-else-if="wcResults?.results?.briefRecords && wcResults?.results?.numberOfRecords > 0">
+              <h2 v-else-if="wcResults?.results?.briefRecords && wcResults?.results?.numberOfRecords > 0  && !queryingWc">
                 Showing {{ wcLimit <  wcResults.results.numberOfRecords ? wcLimit :  wcResults.results.numberOfRecords }} of {{ wcResults.results.numberOfRecords }} results
               </h2>
               <!-- Pagination -->
-              <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit)" class="wc-search-paging">
+              <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc" class="wc-search-paging">
                 <span :style="`${this.preferenceStore.styleModalTextColor()}`">
                   <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
                     <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
@@ -370,7 +370,8 @@
         copyCatLccn: null,
         recordPriority: 3,
         jackphyCheck: false,
-        ibcCheck: false
+        ibcCheck: false,
+        responseURL: null,
 
 
       }
@@ -598,16 +599,37 @@
         let parser = new DOMParser()
         xml = parser.parseFromString(xml, "text/xml")
 
-        console.info("xmlDoc: ", typeof xml, "--", xml.documentElement)
+        // Create a dummy 999 to pass user values to processor
+        let dummy999 = document.createElementNS("http://www.loc.gov/MARC21/slim", "datafield")
+        dummy999.setAttribute("tag", "999")
+        dummy999.setAttribute("ind1", " ")
+        dummy999.setAttribute("ind2", " ")
 
-        console.info("")
+        let subfieldA = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
+        subfieldA.setAttribute("code", "a")
+        subfieldA.innerHTML = this.copyCatLccn
+        dummy999.appendChild(subfieldA)
+
+        let subfieldB = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
+        subfieldB.setAttribute("code", "b")
+        subfieldB.innerHTML = this.recordPriority
+        dummy999.appendChild(subfieldB)
+
+        let subfieldC = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
+        subfieldC.setAttribute("code", "c")
+        subfieldC.innerHTML = this.jackphyCheck
+        dummy999.appendChild(subfieldC)
+
+        let subfieldD = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
+        subfieldD.setAttribute("code", "d")
+        subfieldD.innerHTML = this.determineLevel(this.selectedWcRecord)
+        dummy999.appendChild(subfieldD)
+
+        xml.documentElement.appendChild(dummy999)
 
         let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
+
         console.info("strXmlBasic: ", strXmlBasic)
-
-        // strXmlBasic = strXmlBasic.replace("<record>", "<marcxml:record>")
-        // console.info("strXmlBasic2: ", strXmlBasic)
-
 
         this.posting = true
         this.postResults = {}
@@ -615,6 +637,9 @@
         this.posting = false
 
         console.info("postResults: ", this.postResults)
+
+        this.responseURL = "http://preprod-8299.id.loc.gov/data/bibs/ocm45532466.mets.xml" //this.postResults.postLocation
+        // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html
       },
 
       loadFromAllRecord: function(eId){
@@ -1187,6 +1212,9 @@ h1, p {
   overflow-y: hidden;
   position: fixed;
   height: 90%;
+
+  margin-top: 5px;
+  margin-left: 1%;
 }
 
 .copy-cat-wrapper > * {
@@ -1201,6 +1229,7 @@ h1, p {
 
 /* , .copy-cat-marc  */
 .copy-cat-header{
+  font-size: 30px;
   grid-column: 1 / -1;
   /* needed for the floated layout */
   clear: both;
