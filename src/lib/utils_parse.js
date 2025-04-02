@@ -6,7 +6,6 @@ import short from 'short-uuid'
 
 import utilsRDF from './utils_rdf';
 
-
 const hashCode = s => s.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
 
 
@@ -1734,6 +1733,81 @@ const utilsParse = {
         profile.rt[pkey].unusedXml = false
       }
 
+      // keep track of the value we need to add
+      let groupTopLeveLiteralsToMerge = {}
+      // loop through and check if there are any top level literals we want to group
+      for (let key in profile.rt[pkey].pt){
+        let pt = profile.rt[pkey].pt[key]
+        // the list of props we allow to group are in the config
+        if (useConfigStore().groupTopLeveLiterals.indexOf(pt.propertyURI) > -1){
+          if (pt.userValue && pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){
+            if (!groupTopLeveLiteralsToMerge[pt.propertyURI]){
+              groupTopLeveLiteralsToMerge[pt.propertyURI] = {mergeUnder: pt.id, toRemove: [], values: []}
+            }else{
+              groupTopLeveLiteralsToMerge[pt.propertyURI].toRemove.push(pt.id)
+            }
+            groupTopLeveLiteralsToMerge[pt.propertyURI].values.push(pt.userValue[pt.propertyURI][0])
+          }                    
+        }
+      }
+      // loop through the list of properties we found to see if we have multiple to merge
+      for (let toGroupUri in groupTopLeveLiteralsToMerge){
+        for (let key in profile.rt[pkey].pt){
+          if (profile.rt[pkey].pt[key].propertyURI == toGroupUri){
+            let pt = profile.rt[pkey].pt[key]
+            if (pt.id == groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder){
+              pt.userValue[toGroupUri] = groupTopLeveLiteralsToMerge[toGroupUri].values
+            }            
+          }
+        }
+        for (let toRemove of groupTopLeveLiteralsToMerge[toGroupUri].toRemove){
+          if (profile.rt[pkey].ptOrder.indexOf(toRemove) > -1){
+            delete profile.rt[pkey].pt[toRemove]
+            profile.rt[pkey].ptOrder = profile.rt[pkey].ptOrder.filter((x) => { return x !== toRemove })
+          }
+        }
+      }
+      for (let toGroupUri in groupTopLeveLiteralsToMerge){
+        if (groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder){
+          let ptToReOrder = profile.rt[pkey].pt[groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder]
+          if (ptToReOrder && ptToReOrder.userValue && ptToReOrder.userValue[toGroupUri]){
+            
+            if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+              ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri ).reverse()
+            }else{
+              ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri )
+            }
+            
+          }
+        }
+      }
+
+      // we are going to go looking for literals inside bnodes that have two literals with one at least of them with a @language tag
+      for (let key in profile.rt[pkey].pt){
+        let pt = profile.rt[pkey].pt[key]
+        if (pt.userValue){
+          let propsFirstLevel = Object.keys(pt.userValue).filter(v => { return !v.startsWith('@') })
+          for (let p1 of propsFirstLevel){
+            for (let bnode of pt.userValue[p1]){
+              let propsSecondLevel = Object.keys(bnode).filter(v => { return !v.startsWith('@') })
+              for (let p2 of propsSecondLevel){
+                if (Array.isArray(bnode[p2]) && bnode[p2].length>1){
+                  if (bnode[p2].filter((v)=>{ return (v['@language'])}).length>0){                    
+                    // sort the array of literals so the latin one is first
+                    if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+                      bnode[p2] = useProfileStore().sortObjectsByLatinMatch(bnode[p2],p2).reverse()                    
+                    }else{
+                      bnode[p2] = useProfileStore().sortObjectsByLatinMatch(bnode[p2],p2)                    
+                    }
+
+                    
+                  }
+                }
+              }              
+            }
+          }
+        }      
+      }
 
       let adminMedtataPrimary = null
       let adminMedtataSecondary = []
@@ -1768,7 +1842,6 @@ const utilsParse = {
           // that will be our primary adminMetadata that they edit. Except, we want the `primary` Admin field to stay primary
           // even after it gets a status. Most of the admin fields will be hidden, but the Primary field in the instance will
           // remain and should continue to be editable.
-
           if (userValue){
 
             if (profile.rt[pkey].pt[key].parentId.includes(":Instance") && (!userValue['http://id.loc.gov/ontologies/bibframe/status'] || Object.keys(userValue).length > 7)){

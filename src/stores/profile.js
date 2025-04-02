@@ -1850,16 +1850,19 @@ export const useProfileStore = defineStore('profile', {
         pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
         cachePt[componentGuid] = pt
       }
+      
+      // used later to sort the literal order if needed
+      let checkLiteralOrder = null
 
-	  //clear the cache if the value was deleted
-	  if (value.trim() == ""){
-        if (Object.keys(cachePt).includes(componentGuid)){
-          delete cachePt[componentGuid]
-        }
-        for (let guid of Object.keys(cacheGuid)){
-          cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
-        }
-	  }
+      //clear the cache if the value was deleted
+      if (value.trim() == ""){
+          if (Object.keys(cachePt).includes(componentGuid)){
+            delete cachePt[componentGuid]
+          }
+          for (let guid of Object.keys(cacheGuid)){
+            cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+          }
+      }
 
       // console.log("--------pt 1------------")
       // console.log(JSON.stringify(pt,null,2))
@@ -1913,7 +1916,6 @@ export const useProfileStore = defineStore('profile', {
             // there is already values here, so we need to insert a new value into the hiearchy
 
             let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
-
             if (!parent){
               console.error("Trying to add second literal, could not find the property path parent", pt)
               return false
@@ -1931,6 +1933,8 @@ export const useProfileStore = defineStore('profile', {
                 '@guid': newGuid,
               }
             )
+
+            checkLiteralOrder = parent[lastProperty]
 
             // get a link to it we'll edit it below
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
@@ -1964,7 +1968,7 @@ export const useProfileStore = defineStore('profile', {
                 '@guid': newGuid,
               }
             )
-
+            checkLiteralOrder = parent[lastProperty]
             // get a link to it we'll edit it below
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
             // set a temp value that will be over written below
@@ -1987,6 +1991,7 @@ export const useProfileStore = defineStore('profile', {
 
         // and now add in the literal value into the correct property
         blankNode[lastProperty] = value
+
         // for electronicLocators, update the ID, so the XML can get built correctly
         if (isLocator && Object.keys(blankNode).some((key) => key == "http://id.loc.gov/ontologies/bibframe/electronicLocator")){
             blankNode["@id"] = value
@@ -2059,6 +2064,34 @@ export const useProfileStore = defineStore('profile', {
 
 
         }
+
+
+        // this will only trigger on adding new literal events, like scriptshifter, not editing
+        if (checkLiteralOrder && Array.isArray(checkLiteralOrder) && checkLiteralOrder.length>1){
+          if (pt.userValue){
+            let propsFirstLevel = Object.keys(pt.userValue).filter(v => { return !v.startsWith('@') })
+            for (let p1 of propsFirstLevel){
+              for (let bnode of pt.userValue[p1]){
+                let propsSecondLevel = Object.keys(bnode).filter(v => { return !v.startsWith('@') })
+                for (let p2 of propsSecondLevel){
+                  if (Array.isArray(bnode[p2]) && bnode[p2].length>1){
+                    if (bnode[p2].filter((v)=>{ return (v['@language'])}).length>0){                    
+                      // sort the array of literals so the latin one is first
+                      if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+                        bnode[p2] = this.sortObjectsByLatinMatch(bnode[p2],p2 ).reverse()  
+                      }else{
+                        bnode[p2] = this.sortObjectsByLatinMatch(bnode[p2],p2 )  
+                      }                                        
+                    }
+                  }
+                }              
+              }
+            }
+          } 
+        }
+
+
+
 
         // console.log("Before prune")
         // console.log(JSON.stringify(pt.userValue))
@@ -5873,6 +5906,30 @@ export const useProfileStore = defineStore('profile', {
 
 
     },
+
+    /**
+     * Sorts an array of objects based on whether a specified key's value matches the latinRegex pattern.
+     * It sorts the array with the latin objects first, followed by the non-Latin objects.
+     * 
+     * @param {Object[]} arr - Array of objects to sort
+     * @param {string} key - Object key whose value should be tested against latinRegex
+     * @return {Object[]} - Sorted array with non-Latin objects first
+     */
+    sortObjectsByLatinMatch(arr, key) {
+      return arr.sort((a, b) => {
+        // Handle cases where key doesn't exist
+        const aValue = a[key] || '';
+        const bValue = b[key] || '';
+        
+        const aIsLatin = latinRegex.test(aValue);
+        const bIsLatin = latinRegex.test(bValue);
+        
+        if (!bIsLatin && aIsLatin) return -1; 
+        if (bIsLatin && !aIsLatin) return 1;
+        return 0;
+      });
+    }        
+
 
     /**
      * Extracts Library of Congress Classification (LCC) data from the active profile and updates the activeShelfListData state
