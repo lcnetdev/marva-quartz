@@ -1268,6 +1268,13 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'layouts',
       },
 
+      '--l-custom-order' : {
+        desc: '',
+        descShort: '',
+        value: {},
+        type: 'object',
+        group: 'preferenes',
+      },
 
 
     }
@@ -1566,6 +1573,15 @@ export const usePreferenceStore = defineStore('preference', {
     // turn copy mode on/off
     toggleCopyMode: function(){
         this.copyMode = !this.copyMode
+    },
+
+    saveOrder: function(newOrder){
+      this.setValue('--l-custom-order', newOrder)
+    },
+
+    loadOrder: function(){
+      let currentOrder = this.returnValue('--l-custom-order')
+      return currentOrder
     },
 
     deleteLayout: function(target){

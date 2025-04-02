@@ -26,6 +26,7 @@ const utilsNetwork = {
       "controllerNamesSubdivision": new AbortController(),
       "controllerSubjectsSimple": new AbortController(),
       "controllerPayloadSubjectsSimpleSubdivision": new AbortController(),
+      "controllerSubjectsComplexPart": new AbortController(),
       "controllerSubjectsComplex": new AbortController(),
       "controllerHierarchicalGeographic": new AbortController(),
       "controllerWorksAnchored": new AbortController(),
@@ -466,6 +467,8 @@ const utilsNetwork = {
             if (url.includes('searchtype=keyword') && url.includes('q=?')){
               url = url.replace('q=?','q=')
             }
+
+            console.info("url: ", url)
 
             let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
@@ -2520,6 +2523,7 @@ const utilsNetwork = {
       let resultsSubjectsSimple=[]
       let resultsPayloadSubjectsSimpleSubdivision=[]
       let resultsSubjectsComplex=[]
+      let resultsSubjectsComplexPart=[]
       let resultsHierarchicalGeographic=[]
       let resultsWorksAnchored=[]
       let resultsWorksKeyword=[]

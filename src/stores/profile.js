@@ -438,14 +438,39 @@ export const useProfileStore = defineStore('profile', {
 
   },
   actions: {
-
-
     resetLocalComponentCache(){
       cachePt = {}
       cacheGuid = {}
       dataChangedTimeout = null
     },
 
+    /** Load the default component order */
+    useDefaultComponentOrder(){
+      let profileName = this.activeProfile.id
+      let profile = this.profiles[profileName]
+      for (let rt in this.activeProfile.rt){
+        this.activeProfile.rt[rt].ptOrder = profile.rt[rt].ptOrder
+      }
+    },
+
+    /** Save the cataloger's current component order */
+    saveCustomComponentOrder(){
+      let order = {}
+
+      for (let rt in this.activeProfile.rt){
+        let ptOrder = this.activeProfile.rt[rt].ptOrder
+        order[rt] = ptOrder
+      }
+      usePreferenceStore().saveOrder(order)
+      this.useCustomComponentOrder()
+    },
+    /** Load the saved custom component order */
+    useCustomComponentOrder(){
+      let order = usePreferenceStore().loadOrder()
+        for (let profileName in order){
+          this.activeProfile.rt[profileName].ptOrder = order[profileName]
+        }
+    },
 
     /**
     * The main first process that takes the raw profiles and processes them for use
@@ -2304,7 +2329,7 @@ export const useProfileStore = defineStore('profile', {
 
         let values = []
 
-        for (let v of valueLocation){              
+        for (let v of valueLocation){
               let URI = null
               let label = null
 
@@ -4846,7 +4871,6 @@ export const useProfileStore = defineStore('profile', {
             firstHasURI=true
           }
 
-
           if (allHasURI){return ['done_all','Linked']}
           if (firstHasURI){return ['warning','Partially Linked']}
 
@@ -5392,7 +5416,6 @@ export const useProfileStore = defineStore('profile', {
       // if no empty ddc, create one
       if (!hasEmptyDDC){
         newDDC = await this.duplicateComponentGetId(this.returnStructureByComponentGuid(guid)['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
-        console.info("newDDC: ", newDDC)
         ddcComponent = activeProfile.rt["lc:RT:bf2:Monograph:Work"].pt[newDDC[0]]
       }
 
@@ -5908,7 +5931,71 @@ export const useProfileStore = defineStore('profile', {
     }        
 
 
+    /**
+     * Extracts Library of Congress Classification (LCC) data from the active profile and updates the activeShelfListData state
+     * 
+     * This function:
+     * 1. Searches through all resource templates (rt) and property templates (pt) in the active profile
+     * 2. Looks for classification properties of type ClassificationLcc
+     * 3. Extracts the classification portion (class number) and item portion (cutter number)
+     * 4. Updates the activeShelfListData state with:
+     *    - class: The LCC class number
+     *    - classGuid: GUID for the class number component
+     *    - cutter: The cutter number
+     *    - cutterGuid: GUID for the cutter number component
+     *    - componentGuid: GUID of the parent classification component
+     *    - componentPropertyPath: Path to locate the item portion property
+     *
+     * Used by the shelf listing functionality to locate and modify LCC numbers.
+     * 
+     * 
+     * @return {void} Updates the activeShelfListData state directly
+     */
+    buildActiveShelfListDataFromProfile(){
 
+      // look through the active profile for the LCC data
+      for (let rt in this.activeProfile.rt){
+        for (let pt in this.activeProfile.rt[rt].pt){
+          pt = this.activeProfile.rt[rt].pt[pt]
+          if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
+            if (pt.userValue &&
+                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && 
+                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0] &&
+                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] &&
+                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"){
+
+                  let classObj = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
+
+                  if (
+                    classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'] &&
+                    classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] &&
+                    classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+                  ){
+                    this.activeShelfListData.class = classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+                    this.activeShelfListData.classGuid = classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['@guid']
+                  }
+                  if (
+                    classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'] &&
+                    classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0] &&
+                    classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
+                  ){
+                    this.activeShelfListData.cutter = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
+                    this.activeShelfListData.cutterGuid = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['@guid']
+                  }
+                  
+                  this.activeShelfListData.componentGuid = pt['@guid']
+                  this.activeShelfListData.componentPropertyPath = [
+                    {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
+                    {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
+                  ]
+                }              
+          }
+        }
+      }
+
+
+    },
+  
 
 
   },

@@ -1164,6 +1164,10 @@ methods: {
         type = this.typeLookup[id+offset]
       }
 
+      if (uri && uri.includes("/hubs/")){
+        type = "bf:Hub"
+      }
+
       this.components.push({
         label: ss,
         uri: uri,
@@ -2678,9 +2682,10 @@ methods: {
       componentTypes = false
     }
 
+    let complexSubjects = this.searchResults["subjectsComplex"].concat(this.searchResults["subjectsChildrenComplex"])
 
-    for (let el in this.searchResults["subjectsComplex"]){
-      let target = this.searchResults["subjectsComplex"][el]
+    for (let el in complexSubjects){
+      let target = complexSubjects[el]
       if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
         // we need to check the types of each element to make sure they really are the same terms
         // let targetContext = await utilsNetwork.returnContext(target.uri)
@@ -2725,7 +2730,7 @@ methods: {
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
           const target = frozenComponents[component]
-          if (frozenComponents.length > 1 && !(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || (target.uri && target.uri.includes("childrensSubjects/sj"))) && target.complex){
+          if (frozenComponents.length > 1 && !(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) ) && target.complex){
             let uri = target.uri
             let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
             if (uri){
@@ -2796,6 +2801,12 @@ methods: {
               }
               let marcKey = tag + "  " + sub + labels[idx]
 
+              let uriId = id
+
+              if (target.uri.includes("childrensSubjects/sj") && target.id > 0){
+                uriId = uriId - frozenComponents.filter((c) => !c.complex).length
+              }
+
               newComponents.splice(id, 0, ({
               "complex": false,
               "id": id,
@@ -2804,7 +2815,7 @@ methods: {
               "posEnd": labels[idx].length,
               "posStart": 0,
               "type": subfield,
-              "uri": data && data["components"] && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
+              "uri": data && data["components"] && data["components"][0]["@list"][uriId]["@id"].startsWith("http") ? data["components"][0]["@list"][uriId]["@id"] : "",
               "marcKey": marcKey,
               "fromComplex": true,
               "complexMarcKey": target.marcKey
@@ -2824,7 +2835,6 @@ methods: {
     if (newComponents.length > 0){
       this.components = newComponents
     }
-
     this.$emit('subjectAdded', this.components)
   },
 

@@ -29,7 +29,7 @@
                 </div>
           </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ) )">
-              <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
+                <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
                     :key="profileCompoent">
                   <template v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && profileStore.emptyComponents[profileName] && !profileStore.emptyComponents[profileName].includes(profileCompoent) ))">
                   <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
@@ -71,6 +71,7 @@
                 <button class="instanceDeleteButton" v-if="showDeleteInstanceButton(profileName)" @click="showDeleteInstanceModal(profileName)">Delete Item</button>
             </div>
         </template>
+
 
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
           <template v-if="(createLayoutMode && layoutActive) || layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])) ">
@@ -225,8 +226,6 @@
     },
 
     methods: {
-
-
         showErrors(guid){
 
           console.log(guid)
@@ -401,6 +400,7 @@
     mounted: function(){
         //populate when loading from a search
         this.populateTitle()
+        this.profileStore.useCustomComponentOrder()
     },
 
     updated: function(){
