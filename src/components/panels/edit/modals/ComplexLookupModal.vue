@@ -269,7 +269,7 @@
             // 2025-03 // there is currently an issue with ID suggest2/ that if you search with SOME diacritics it will fail
             // so there is now a flag that enables it searching it. So if they get NO results at all then try again with the flag
             // There will always be 1 result which is the literal
-            
+
             if (this.activeComplexSearch.length == 1 && this.activeComplexSearch[0].literal){
               // modify the payload to include the flag in the url
               searchPayload.url[0] = searchPayload.url[0] + '&keepdiacritics=true'
@@ -932,7 +932,6 @@
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
 				  </div>
-
                   <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % 25 ) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
                     <span :style="`${this.preferenceStore.styleModalTextColor()}`">
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
