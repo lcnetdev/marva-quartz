@@ -1771,7 +1771,13 @@ const utilsParse = {
         if (groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder){
           let ptToReOrder = profile.rt[pkey].pt[groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder]
           if (ptToReOrder && ptToReOrder.userValue && ptToReOrder.userValue[toGroupUri]){
-            ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri )
+            
+            if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+              ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri ).reverse()
+            }else{
+              ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri )
+            }
+            
           }
         }
       }
@@ -1780,30 +1786,28 @@ const utilsParse = {
       for (let key in profile.rt[pkey].pt){
         let pt = profile.rt[pkey].pt[key]
         if (pt.userValue){
-          console.log(pt.userValue)
           let propsFirstLevel = Object.keys(pt.userValue).filter(v => { return !v.startsWith('@') })
-          console.log(propsFirstLevel)          
           for (let p1 of propsFirstLevel){
             for (let bnode of pt.userValue[p1]){
               let propsSecondLevel = Object.keys(bnode).filter(v => { return !v.startsWith('@') })
-              console.log(propsSecondLevel)
               for (let p2 of propsSecondLevel){
-                if (Array.isArray(bnode[p2])){
-                  if (bnode[p2].filter((v)=>{ return (v['@language'])}).length>0){
+                if (Array.isArray(bnode[p2]) && bnode[p2].length>1){
+                  if (bnode[p2].filter((v)=>{ return (v['@language'])}).length>0){                    
+                    // sort the array of literals so the latin one is first
+                    if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+                      bnode[p2] = useProfileStore().sortObjectsByLatinMatch(bnode[p2],p2).reverse()                    
+                    }else{
+                      bnode[p2] = useProfileStore().sortObjectsByLatinMatch(bnode[p2],p2)                    
+                    }
+
                     
-                    console.log(p2,"Has lang tag")
-                    break
                   }
                 }
               }              
             }
-
           }
-        }
-        
+        }      
       }
-
-
 
       let adminMedtataPrimary = null
       let adminMedtataSecondary = []
