@@ -898,15 +898,15 @@ li.not-populated-hide:before{
 }
 
 .order-icon {
-  color: white;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-font-color')") !important;
   cursor: pointer;
   margin-right: 25%;
 }
 
 .order-icon:hover {
   border-radius: 25%;
-  background-color: white;
-  color: black;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-background-color')") !important;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-font-color')") !important;
   cursor: pointer;
 }
 
