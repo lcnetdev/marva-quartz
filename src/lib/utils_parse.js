@@ -398,6 +398,9 @@ const utilsParse = {
   transformRts: async function(profile){
     let toDeleteNoData = []
 
+    console.info("transformRts: ", profile)
+    console.info("hasInstance: ", this.hasInstance)
+
     // before we start processing make sure we have enough instance rts for the number needed
     let totalInstanceRts = 0
     let useInstanceRt = null
@@ -409,7 +412,6 @@ const utilsParse = {
         useInstanceRt = JSON.parse(JSON.stringify(profile.rt[pkey]))
       }
     }
-
 
     [...Array(this.hasInstance - totalInstanceRts)].forEach((_, i) => {
       let key = useInstanceRtName + '_'+(i+1)

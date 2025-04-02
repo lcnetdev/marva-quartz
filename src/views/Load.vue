@@ -148,7 +148,7 @@
               <div class="toggle-btn-grp cssonly">
                 <h3>Field to Search on</h3>
                 <div v-for="opt in indexSelectOptions">
-                  <input :id="opt.label" type="radio" :value="opt.value" class="search-mode-radio" v-model="wcIndex" name="searchIndex"/>
+                  <input :id="opt.label" type="radio" :value="opt.value" class="search-mode-radio" v-model="wcIndex" name="searchIndex" />
                     <label :for="opt.label" onclick="" class="toggle-btn">{{opt.label}}</label>
                   </div>
               </div>
@@ -171,7 +171,7 @@
             <br>
             <h3>Load with profile:</h3>
             <div class="load-buttons">
-              <button class="load-button" @click="loadCopyCat" :disabled="(selectedWcRecord) ? false : true"  v-for="s in startingPointsFiltered">
+              <button class="load-button" @click="loadCopyCat(s.instance)" :disabled="(selectedWcRecord) ? false : true"  v-for="s in startingPointsFiltered">
                 {{s.name}}
               </button>
             </div>
@@ -192,22 +192,25 @@
               </h2>
               <!-- Pagination -->
               <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc" class="wc-search-paging">
-                <span :style="`${this.preferenceStore.styleModalTextColor()}`">
-                  <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
-                    <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
-                  </a>
-                  <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
-                    <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
-                  </a>
-                  <span class="pagination-label" > Page {{ currentPage }} of {{ !isNaN(Math.ceil(wcResults.results.numberOfRecords / wcLimit)) ? Math.ceil(wcResults.results.numberOfRecords / wcLimit) : "Last Page"}} </span>
+                <tempalte v-slot:pagination>
+                  <span :style="`${this.preferenceStore.styleModalTextColor()}`">
+                    <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
+                      <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
+                    </a>
+                    <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
+                      <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
+                    </a>
+                    <span class="pagination-label" > Page {{ currentPage }} of {{ !isNaN(Math.ceil(wcResults.results.numberOfRecords / wcLimit)) ? Math.ceil(wcResults.results.numberOfRecords / wcLimit) : "Last Page"}} </span>
 
-                  <a href="#" title="next page" class="next" :class="{off: Math.ceil(wcResults.results.numberOfRecords / wcLimit) == this.currentPage}" @click="nextPage()">
-                    <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
-                  </a>
-                  <a href="#" title="last page" class="last" :class="{off: Math.ceil(wcResults.results.numberOfRecords / wcLimit) == this.currentPage}" @click="lastPage()">
-                    <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
-                  </a>
-                </span>
+                    <a href="#" title="next page" class="next" :class="{off: Math.ceil(wcResults.results.numberOfRecords / wcLimit) == this.currentPage}" @click="nextPage()">
+                      <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
+                    </a>
+                    <a href="#" title="last page" class="last" :class="{off: Math.ceil(wcResults.results.numberOfRecords / wcLimit) == this.currentPage}" @click="lastPage()">
+                      <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
+                    </a>
+                  </span>
+                </tempalte>
+                <slot name="pagination"></slot>
               </div>
             </div>
             <template v-if="queryingWc">
@@ -308,8 +311,6 @@
 
   const decimalTranslator = short("0123456789");
 
-
-
   export default {
     components: { Splitpanes, Pane, Nav, DataTable },
     data() {
@@ -333,7 +334,7 @@
 
         allRecords: [],
 
-        wcIndex: "ti",
+        wcIndex: "bn",
         wcType: "book",
         wcQuery: "",
         wcOffset: 1,
@@ -465,14 +466,12 @@
         const aacr2 = leader.at(18) == 'a'
         const marc260 = record.marcRaw.fields.filter((f) => f[0] == '260').join()
 
-        console.info("marc260: ", marc260, "--", marc260 == "")
-
         if (rdaRecord){
           return true
         } else if (marc260 == ""){
           return true
         } else if (!aacr2 && marc260 == ""){
-          return true //712204204 is not aacr2, but does have a 260
+          return true
         }
         return false
       },
@@ -498,10 +497,10 @@
         let catLevel = false
         if (pccRecord && isEng) {
           catLevel = 'PccAdapt'
-        } else if (catAgency == 'DLC' && catTransAgency == 'DLC'){
-          catLevel = 'OrigCop'
         } else if (this.oclcEncodingLevelsHigh.includes(catEncodeLevel) && !pccRecord && isEng){
           catLevel = 'CopyCat'
+        } else if (catAgency == 'DLC' && catTransAgency == 'DLC'){
+          catLevel = 'OrigCop'
         } else {
           catLevel = 'OrigRes'
         }
@@ -577,7 +576,7 @@
 
       },
 
-      loadCopyCat: async function(){
+      loadCopyCat: async function(profile){
         console.info("Loading " + this.selectedWcRecord['oclcNumber'] + " to ID")
         console.info("Loading: ", this.selectedWcRecord)
         console.info("type: ", typeof this.selectedWcRecord.marcXML)
@@ -640,7 +639,13 @@
         console.info("postResults: ", this.postResults)
 
         this.responseURL = "http://preprod-8299.id.loc.gov/data/bibs/ocm45532466.mets.xml" //this.postResults.postLocation
-        // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html
+        let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
+        this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"
+        console.info("urlToLoad: ", this.urlToLoad)
+        // this.loadUrl(profile)
+        // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
+        // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
+        // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
       },
 
       loadFromAllRecord: function(eId){
@@ -759,7 +764,7 @@
 
         }
 
-
+        console.info("urlToLoad: ", this.urlToLoad)
 
         if (this.urlToLoad.trim() !== ''){
 
@@ -1241,12 +1246,6 @@ h1, p {
   margin: 5px;
 }
 
-.wc-row:hover{
-  cursor:pointer;
-  background-color: whitesmoke;
-  color: black
-}
-
 /** MARC preview formatting */
 :deep() .marc.record{
   font-family: monospace;
@@ -1277,6 +1276,11 @@ h1, p {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-marc-hover')");
 }
 
+:deep() span.marc.subfield:hover > .subfield-label{
+  font-weight: bold;
+  font-style: italic;
+}
+
 .selected {
   background-color: antiquewhite !important;
   color: black;
@@ -1304,6 +1308,7 @@ h1, p {
 }
 
 .card:hover {
+  cursor: pointer;
   background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
 }
 
