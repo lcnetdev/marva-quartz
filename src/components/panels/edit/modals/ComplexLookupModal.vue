@@ -157,6 +157,21 @@
     },
 
     methods: {
+      generateLabel: function(data){
+        let label = !data.literal ? data.suggestLabel : data.label + ((data.literal) ? ' [Literal]' : '')
+
+        // if (label.includes("(USE ")){
+        //   label = data.label + " (USE FOR " + data.suggestLabel.replace(/\(USE.*\)/mg, "") + ")"
+        // }
+        // console.info("search: ", this.searchValueLocal)
+
+        // let re = new RegExp(String.raw`(${this.searchValueLocal})`, "i")
+        // label = label.replace(re, "??")
+
+        // console.info("label: ", label)
+
+        return label
+      },
       truncate: function(string){
         let stg = string
         if (string.length > 80){
@@ -269,7 +284,7 @@
             // 2025-03 // there is currently an issue with ID suggest2/ that if you search with SOME diacritics it will fail
             // so there is now a flag that enables it searching it. So if they get NO results at all then try again with the flag
             // There will always be 1 result which is the literal
-            
+
             if (this.activeComplexSearch.length == 1 && this.activeComplexSearch[0].literal){
               // modify the payload to include the flag in the url
               searchPayload.url[0] = searchPayload.url[0] + '&keepdiacritics=true'
@@ -932,7 +947,6 @@
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
 				  </div>
-
                   <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % 25 ) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
                     <span :style="`${this.preferenceStore.styleModalTextColor()}`">
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
@@ -981,9 +995,10 @@
                       Searching...
                     </option>
                     <template v-if="!isSimpleLookup()">
+                      <!-- .sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0)) -->
                       <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
                         <div class="option-text">
-                          {{ (!r.literal ? r.suggestLabel : r.label) + ((r.literal) ? ' [Literal]' : '') }}
+                          {{ generateLabel(r) }}
                         </div>
                       </option>
                     </template>

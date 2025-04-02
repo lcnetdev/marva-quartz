@@ -290,12 +290,9 @@
       startingPointsFiltered(){
         let points = []
         for (let k in this.startingPoints){
-
           if (this.startingPoints[k].work && this.startingPoints[k].instance){
             points.push(this.startingPoints[k])
           }
-
-
         }
 
         points.push( { "name": "HUB", "work": null, "instance": "lc:RT:bf2:HubBasic:Hub", "item": null },)

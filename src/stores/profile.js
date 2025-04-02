@@ -438,14 +438,39 @@ export const useProfileStore = defineStore('profile', {
 
   },
   actions: {
-
-
     resetLocalComponentCache(){
       cachePt = {}
       cacheGuid = {}
       dataChangedTimeout = null
     },
 
+    /** Load the default component order */
+    useDefaultComponentOrder(){
+      let profileName = this.activeProfile.id
+      let profile = this.profiles[profileName]
+      for (let rt in this.activeProfile.rt){
+        this.activeProfile.rt[rt].ptOrder = profile.rt[rt].ptOrder
+      }
+    },
+
+    /** Save the cataloger's current component order */
+    saveCustomComponentOrder(){
+      let order = {}
+
+      for (let rt in this.activeProfile.rt){
+        let ptOrder = this.activeProfile.rt[rt].ptOrder
+        order[rt] = ptOrder
+      }
+      usePreferenceStore().saveOrder(order)
+      this.useCustomComponentOrder()
+    },
+    /** Load the saved custom component order */
+    useCustomComponentOrder(){
+      let order = usePreferenceStore().loadOrder()
+        for (let profileName in order){
+          this.activeProfile.rt[profileName].ptOrder = order[profileName]
+        }
+    },
 
     /**
     * The main first process that takes the raw profiles and processes them for use

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2025-04-02
+### Added
+- Feature: Ability to set and save the order components appear in Marva [BFP-327]
+- Feature: Continuous scrolling in Shelf Listing
+
 ## [1.1.1] - 2025-04-01
 ### Fixed
 - Hub subjects not being `bf:Hub`
