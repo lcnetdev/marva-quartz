@@ -46,7 +46,15 @@ import { isReadonly } from 'vue';
 
 
     methods: {
-
+      saveOrder: function(){
+        this.profileStore.saveCustomComponentOrder()
+      },
+      useOrder: function(){
+        this.profileStore.useCustomComponentOrder()
+      },
+      useDefault: function(){
+        this.profileStore.useDefaultComponentOrder()
+      },
       // Whether or not a component that isn't explicitly in that layout should be included
       // this is important for adding components when a layout is open
       includeInLayout: function(checkId, targets){
@@ -344,6 +352,12 @@ import { isReadonly } from 'vue';
   <template  v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-accordion') == true">
     <AccordionList  :open-multiple-items="false">
 
+      <span style="margin-left: 15px;">
+        <span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">reorder</span>
+        <span class="material-icons order-icon simptip-position-right" data-tooltip="USE ORDER" @click="useOrder">sync</span>
+        <span class="material-icons order-icon simptip-position-right" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span>
+      </span>
+
       <template v-for="profileName in activeProfile.rtOrder" :key="profileName">
       <!-- <div v-for="profileName in activeProfile.rtOrder" class="sidebar" :key="profileName"> -->
 
@@ -374,7 +388,6 @@ import { isReadonly } from 'vue';
                     </div>
 
                   </template>
-
 
                   <ul class="sidebar-property-ul" role="list">
                           <draggable
@@ -408,7 +421,7 @@ import { isReadonly } from 'vue';
                                   </template>
                                 </li>
                               </template>
-                             </template>
+                            </template>
                           </draggable>
 
 
@@ -884,5 +897,17 @@ li.not-populated-hide:before{
   list-style: none;
 }
 
+.order-icon {
+  color: white;
+  cursor: pointer;
+  margin-right: 25%;
+}
+
+.order-icon:hover {
+  border-radius: 25%;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+}
 
 </style>
