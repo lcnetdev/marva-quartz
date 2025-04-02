@@ -353,7 +353,7 @@ import { isReadonly } from 'vue';
     <AccordionList  :open-multiple-items="false">
 
       <span style="margin-left: 15px;">
-        <span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">reorder</span>
+        <span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">list_alt</span>
         <span class="material-icons order-icon simptip-position-right" data-tooltip="USE ORDER" @click="useOrder">sync</span>
         <span class="material-icons order-icon simptip-position-right" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span>
       </span>

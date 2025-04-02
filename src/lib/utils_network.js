@@ -468,6 +468,8 @@ const utilsNetwork = {
               url = url.replace('q=?','q=')
             }
 
+            console.info("url: ", url)
+
             let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
             //Config only allows 25 results, this will add something to the results

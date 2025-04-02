@@ -157,6 +157,15 @@
     },
 
     methods: {
+      generateLabel: function(data){
+        let label = !data.literal ? data.suggestLabel : data.label + ((data.literal) ? ' [Literal]' : '')
+
+        if (label.includes("(USE ")){
+          label = data.label + " (USE FOR " + data.suggestLabel.replace(/\(USE.*\)/mg, "") + ")"
+        }
+
+        return label
+      },
       truncate: function(string){
         let stg = string
         if (string.length > 80){
@@ -980,9 +989,9 @@
                       Searching...
                     </option>
                     <template v-if="!isSimpleLookup()">
-                      <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
+                      <option v-for="(r,idx) in activeComplexSearch.sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0))" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
                         <div class="option-text">
-                          {{ (!r.literal ? r.suggestLabel : r.label) + ((r.literal) ? ' [Literal]' : '') }}
+                          {{ generateLabel(r) }}
                         </div>
                       </option>
                     </template>
