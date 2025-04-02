@@ -31,6 +31,7 @@
         
 
         initalHeight: 550,
+        changedHeight: 550,
         initalLeft: 50,
         initalWidth:950,
         initalTop:10,
@@ -105,7 +106,7 @@
           this.top = newRect.top
           this.left = newRect.left
 
-          // this.initalHeight = newRect.height
+          this.changedHeight = newRect.height
           // this.initalLeft = newRect.left
 
           this.$refs.shelfListingContent.style.height = newRect.height + 'px'
@@ -185,8 +186,11 @@
             this.results=initalResult
             this.searching=false
             // this.dragResize()
-            this.$refs.shelfListingDisplay.style.height = this.initalHeight - 44 + 'px'
+            
+            this.$refs.shelfListingContent.style.height = this.changedHeight + 'px'
+            this.$refs.shelfListingDisplay.style.height = this.changedHeight - 44 + 'px'
 
+            
 
             this.$nextTick(async () => {
               this.$refs.selected[0].scrollIntoView({ 
