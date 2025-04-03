@@ -513,8 +513,13 @@ export const useProfileStore = defineStore('profile', {
 
         // remove the extra pieces
         customOrder = customOrder.filter(el => !additionalToCustomOrder.includes(el))
-        customOrder = customOrder.concat(missingFromCustomOrder)
-        // this doesn't maintain the order if there's a change in the profile, but what's that order supposed to be if they changing it?
+        // customOrder = customOrder.concat(missingFromCustomOrder)
+
+        // add the missing peices in the same index from the default
+        for (let el of missingFromCustomOrder){
+          let idx = profileOrder.indexOf(el)
+          customOrder.splice(idx, 0, el)
+        }
 
         for (let el of customOrder){
           // These should all be base level names, no `_ + new Date()`
