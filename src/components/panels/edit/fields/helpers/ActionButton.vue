@@ -439,7 +439,6 @@
           guid: this.guid,
           fieldGuid: this.fieldGuid,
           structure: this.structure,
-          type: this.type,
           propertyPath:this.propertyPath
         }
         this.profileStore.showNacoStubCreateModal = true

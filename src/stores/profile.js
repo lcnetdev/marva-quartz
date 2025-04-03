@@ -5362,7 +5362,7 @@ export const useProfileStore = defineStore('profile', {
         alert("There was an error creating your NAR. Please report this issue.")
       }
 
-      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
+      // pubResuts = {'postLocation': 'https://id.loc.gov/authorities/names/n83122656', status: 'published'}
 
       console.log('pubResuts')
       console.log(pubResuts)
