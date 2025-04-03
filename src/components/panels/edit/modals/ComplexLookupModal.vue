@@ -23,6 +23,9 @@
       structure: Object,
       // the inital search value starting the search
       searchValue: String,
+      guid: String,
+      propertyPath: Array,
+
 
       // If this is populate, we want to pull up the authority record
       // without the user doing anything
@@ -99,7 +102,7 @@
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
-      ...mapWritableState(useProfileStore, ['lastComplexLookupString','showNacoStubCreateModal']),
+      ...mapWritableState(useProfileStore, ['lastComplexLookupString','showNacoStubCreateModal', 'activeNARStubComponent']),
 
 
 
@@ -752,7 +755,25 @@
         }
       },
 
+      displayProvisonalNAR(){        
+        if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom.length>0 && this.structure.valueConstraint.useValuesFrom.join(' ').indexOf('id.loc.gov/authorities/names')>-1){
+          return true
+        }
+        return false
+      },
+
       loadNacoStubModal(){
+
+        // store the info needed to pass to the process
+        this.activeNARStubComponent = {
+          type: 'lookupComplex',
+          guid: this.guid,
+          fieldGuid: null,
+          structure: this.structure,
+          propertyPath:this.propertyPath
+        }        
+
+
 
         this.$emit('hideComplexModal')
 
@@ -983,7 +1004,7 @@
               <button @click="forceSearch()">Search</button>
 
               <!-- REMOVE v-if BEFORE PROD USAGE -->
-              <button @click="loadNacoStubModal" style="float: right;" v-if="isStaging() == true">Create Provisional NAR</button>
+              <button @click="loadNacoStubModal" style="float: right;" v-if="isStaging() == true && displayProvisonalNAR() == true">Create Provisional NAR</button>
 
               <hr style="margin-top: 5px;">
               <div>
