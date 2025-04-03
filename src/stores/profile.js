@@ -490,6 +490,7 @@ export const useProfileStore = defineStore('profile', {
       }
 
       usePreferenceStore().saveOrder(order)
+      this.useCustomComponentOrder()
     },
 
     /** Load the saved custom component order */
@@ -503,11 +504,24 @@ export const useProfileStore = defineStore('profile', {
         let currentOrder = this.activeProfile.rt[profileName].ptOrder
         let customOrder = order[profileName]
         let tempOrder = []
+
+        // if there's a change to the profile, adjust the order accordingly
+        let profileOrder = profile.rt[profileName].ptOrder
+
+        let additionalToCustomOrder = customOrder.filter(el => !profileOrder.includes(el))
+        let missingFromCustomOrder = profileOrder.filter(el => !customOrder.includes(el))
+
+        // remove the extra pieces
+        customOrder = customOrder.filter(el => !additionalToCustomOrder.includes(el))
+        customOrder = customOrder.concat(missingFromCustomOrder)
+        // this doesn't maintain the order if there's a change in the profile, but what's that order supposed to be if they changing it?
+
         for (let el of customOrder){
           // These should all be base level names, no `_ + new Date()`
           let matchingComponents = currentOrder.filter(i => i.includes(el)) // keep like components together
           tempOrder = tempOrder.concat(matchingComponents.sort())
         }
+
         this.activeProfile.rt[profileName].ptOrder = tempOrder
       }
     },
