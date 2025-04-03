@@ -448,8 +448,17 @@ export const useProfileStore = defineStore('profile', {
     useDefaultComponentOrder(){
       let profileName = this.activeProfile.id
       let profile = this.profiles[profileName]
-      for (let rt in this.activeProfile.rt){
-        this.activeProfile.rt[rt].ptOrder = profile.rt[rt].ptOrder
+
+      for (let profileName in profile.rt){
+        let currentOrder = this.activeProfile.rt[profileName].ptOrder
+        let defaultOrder = profile.rt[profileName].ptOrder
+        let tempOrder = []
+        for (let el of defaultOrder){
+          // These should all be base level names, no `_ + new Date()`
+          let matchingComponents = currentOrder.filter(i => i.includes(el)) // keep like components together
+          tempOrder = tempOrder.concat(matchingComponents.sort())
+        }
+        this.activeProfile.rt[profileName].ptOrder = tempOrder
       }
     },
 
@@ -457,19 +466,50 @@ export const useProfileStore = defineStore('profile', {
     saveCustomComponentOrder(){
       let order = {}
 
+      let profileName = this.activeProfile.id
+      let profile = this.profiles[profileName]
+
       for (let rt in this.activeProfile.rt){
-        let ptOrder = this.activeProfile.rt[rt].ptOrder
-        order[rt] = ptOrder
+        let activeOrder = this.activeProfile.rt[rt].ptOrder
+        let frozenDefaultOrder = JSON.parse(JSON.stringify(profile.rt[rt].ptOrder))
+        // the order should only have base names for components
+        // They'll be grouped together if there is more than 1
+        let tempArray = []
+        for (let el of activeOrder){
+          if (!frozenDefaultOrder.includes(el)){
+            let defaultMatch = frozenDefaultOrder.filter(item => el == item)
+            if (!tempArray.includes(defaultMatch[0])){
+              tempArray.push(defaultMatch[0])
+            }
+          } else {
+            tempArray.push(el)
+          }
+        }
+
+        order[rt] = tempArray
       }
+
       usePreferenceStore().saveOrder(order)
-      this.useCustomComponentOrder()
     },
+
     /** Load the saved custom component order */
     useCustomComponentOrder(){
+      let profileName = this.activeProfile.id
+      let profile = this.profiles[profileName]
+
       let order = usePreferenceStore().loadOrder()
-        for (let profileName in order){
-          this.activeProfile.rt[profileName].ptOrder = order[profileName]
+
+      for (let profileName in order){
+        let currentOrder = this.activeProfile.rt[profileName].ptOrder
+        let customOrder = order[profileName]
+        let tempOrder = []
+        for (let el of customOrder){
+          // These should all be base level names, no `_ + new Date()`
+          let matchingComponents = currentOrder.filter(i => i.includes(el)) // keep like components together
+          tempOrder = tempOrder.concat(matchingComponents.sort())
         }
+        this.activeProfile.rt[profileName].ptOrder = tempOrder
+      }
     },
 
     /**
@@ -3547,7 +3587,7 @@ export const useProfileStore = defineStore('profile', {
         }
         */
 
-          if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/title'){
+          if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/title'){
             let titleUserValue = pt.userValue
             if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'] && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'].length>0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]){
               titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
@@ -3565,7 +3605,7 @@ export const useProfileStore = defineStore('profile', {
           }
 
 
-          if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/contribution'){
+          if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/contribution'){
             let contributorUserValue = pt.userValue
             let type="normal"
             if (contributorUserValue && contributorUserValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
@@ -3610,7 +3650,7 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
-          if (pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/subject' && firstSubject === null){
+          if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/subject' && firstSubject === null){
             let subjectUserValue = pt.userValue
             if (subjectUserValue && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'].length > 0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
               if (subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
@@ -4820,7 +4860,7 @@ export const useProfileStore = defineStore('profile', {
 
       for (let rt of this.activeProfile.rtOrder){
         for (let pt of this.activeProfile.rt[rt].ptOrder){
-          fieldValue = utilsProfile.returnGuidLocation(this.activeProfile.rt[rt].pt[pt].userValue,fieldGuid)
+          fieldValue = this.activeProfile.rt[rt].pt[pt] ? utilsProfile.returnGuidLocation(this.activeProfile.rt[rt].pt[pt].userValue,fieldGuid) : false
           if (fieldValue){break}
         }
         if (fieldValue){break}
@@ -5876,7 +5916,7 @@ export const useProfileStore = defineStore('profile', {
 
     /**
      * Extracts Library of Congress Classification (LCC) data from the active profile and updates the activeShelfListData state
-     * 
+     *
      * This function:
      * 1. Searches through all resource templates (rt) and property templates (pt) in the active profile
      * 2. Looks for classification properties of type ClassificationLcc
@@ -5890,8 +5930,8 @@ export const useProfileStore = defineStore('profile', {
      *    - componentPropertyPath: Path to locate the item portion property
      *
      * Used by the shelf listing functionality to locate and modify LCC numbers.
-     * 
-     * 
+     *
+     *
      * @return {void} Updates the activeShelfListData state directly
      */
     buildActiveShelfListDataFromProfile(){
@@ -5902,7 +5942,7 @@ export const useProfileStore = defineStore('profile', {
           pt = this.activeProfile.rt[rt].pt[pt]
           if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
             if (pt.userValue &&
-                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && 
+                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] &&
                 pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0] &&
                 pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] &&
                 pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"){
@@ -5925,20 +5965,20 @@ export const useProfileStore = defineStore('profile', {
                     this.activeShelfListData.cutter = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
                     this.activeShelfListData.cutterGuid = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['@guid']
                   }
-                  
+
                   this.activeShelfListData.componentGuid = pt['@guid']
                   this.activeShelfListData.componentPropertyPath = [
                     {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
                     {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
                   ]
-                }              
+                }
           }
         }
       }
 
 
     },
-  
+
 
 
   },
