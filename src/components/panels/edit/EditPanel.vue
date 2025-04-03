@@ -404,12 +404,11 @@
     },
 
     updated: function(){
-        let bibId = this.getBibId()
-		// Add the ID to the title when loading from "Your Records"
-
-        if (!document.title.includes(bibId)){
-            this.populateTitle()
-        }
+      let bibId = this.getBibId()
+    // Add the ID to the title when loading from "Your Records"
+      if (!document.title.includes(bibId)){
+          this.populateTitle()
+      }
     }
 
   }

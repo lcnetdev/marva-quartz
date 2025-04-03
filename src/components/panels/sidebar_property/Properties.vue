@@ -360,10 +360,10 @@ import { isReadonly } from 'vue';
   <template  v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-accordion') == true">
     <AccordionList  :open-multiple-items="false">
 
-      <span style="margin-left: 15px;">
-        <span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">list_alt</span>
-        <span class="material-icons order-icon simptip-position-right" data-tooltip="USE ORDER" @click="useOrder">sync</span>
-        <span class="material-icons order-icon simptip-position-right" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span>
+      <span class="order-actions-span">
+        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">list_alt</span></div>
+        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="USE ORDER" @click="useOrder">sync</span></div>
+        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span></div>
       </span>
 
       <template v-for="profileName in activeProfile.rtOrder" :key="profileName">
@@ -905,6 +905,21 @@ li.not-populated-hide:before{
   list-style: none;
 }
 
+.primary-component {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
+.order-actions-span {
+  width: 100%;
+  display: table;
+}
+
+.icon-container{
+  display: table-cell;
+  text-align: center;
+}
+
 .order-icon {
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-font-color')") !important;
   cursor: pointer;
@@ -916,11 +931,6 @@ li.not-populated-hide:before{
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-background-color')") !important;
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-font-color')") !important;
   cursor: pointer;
-}
-
-.primary-component {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
 }
 
 </style>
