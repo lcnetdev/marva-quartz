@@ -4644,6 +4644,86 @@ export const useProfileStore = defineStore('profile', {
     },
 
     /**
+     * Scans the entire active profile for paired literals where some have language tags and others don't.
+     * 
+     * This method looks for instances where a property contains multiple literal values,
+     * and at least one value has a language tag (@language) while at least one other value
+     * does not.
+     * 
+     * used for non-latin literals tool
+     * 
+     * The method examines:
+     * 1. All nested literals inside blank nodes
+     * 2. Top-level literals in properties specified in the config's groupTopLeveLiterals
+     * 
+     * @returns {Array<Object>} An array of objects containing:
+     *   - ptObj: The property template object containing the literal
+     *   - node: The node containing the untagged literal
+     *   - propertyURI: The URI of the property
+     *   - value: The literal value without a language tag
+     */
+    returnPairedLiteralsWithNoLang(){
+      
+        let results = []
+        function process (obj, func) {
+          if (obj && obj.userValue){
+            obj = obj.userValue
+          }  
+          if (Array.isArray(obj)){
+            obj.forEach(function (child) {
+              process(child, func);
+            });
+          }else if (typeof obj == 'object' && obj !== null){
+            for (let k in obj){
+              if (Array.isArray(obj[k])){
+                if (!k.startsWith('@') && obj[k].length>1){
+                  func(obj,k,obj[k]);
+                }
+                process(obj[k], func);
+
+              }
+            }
+          }
+  
+        }
+  
+
+        for (let rt of this.activeProfile.rtOrder){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            let ptObj = this.activeProfile.rt[rt].pt[pt]
+            process(ptObj, function (obj,key,value) {
+                // e.g.
+                // only array > 1 make it here
+                if (value.filter((v)=>{ return (v['@language'])}).length >= 1 && value.filter((v)=>{ return (v['@language'])}).length != value.length){
+                  // only arrays with @language in them make it here and only if they do nt all have it
+
+                  for (let n of value){
+                    if (!n['@language']){
+                      // some properties we don't care about
+                      if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) !== -1){
+                        continue
+                      }                      
+                      // sepcial for paired check
+                      if (['http://id.loc.gov/ontologies/bibframe/expressionOf'].indexOf(ptObj.propertyURI) !== -1){
+                        continue
+                      }
+                      results.push({
+                        ptObj:ptObj,
+                        node: n,
+                        propertyURI: key,
+                        value: n[key]
+                      })
+                    }
+                  }
+                }               
+            });
+          }
+        }
+        return results
+    },
+
+
+    /**
     *
     *
     * @return {array}
@@ -4699,8 +4779,6 @@ export const useProfileStore = defineStore('profile', {
           }
 
 
-
-
           process(ptObj, function (obj,key,value) {
               // e.g.
               // console.log(obj,key);
@@ -4709,7 +4787,8 @@ export const useProfileStore = defineStore('profile', {
                   ptObj:ptObj,
                   node: obj,
                   propertyURI: key,
-                  value: value
+                  value: value, 
+                  lang: obj['@language'],
                 })
               }
           });
