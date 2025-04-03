@@ -32,6 +32,9 @@
 
         bulkOptions: [],
         nonLatinLiterals:[],
+        pairedLiteralsNoLang:[],
+
+        viewMode: "nonLatin",
 
        // 2 char lang
        iso639_1: [{"code":"ab","name":"Abkhaz"},{"code":"aa","name":"Afar"},{"code":"af","name":"Afrikaans"},{"code":"ak","name":"Akan"},{"code":"sq","name":"Albanian"},{"code":"am","name":"Amharic"},{"code":"ar","name":"Arabic"},{"code":"an","name":"Aragonese"},{"code":"hy","name":"Armenian"},{"code":"as","name":"Assamese"},{"code":"av","name":"Avaric"},{"code":"ae","name":"Avestan"},{"code":"ay","name":"Aymara"},{"code":"az","name":"Azerbaijani"},{"code":"bm","name":"Bambara"},{"code":"ba","name":"Bashkir"},{"code":"eu","name":"Basque"},{"code":"be","name":"Belarusian"},{"code":"bn","name":"Bengali; Bangla"},{"code":"bh","name":"Bihari"},{"code":"bi","name":"Bislama"},{"code":"bs","name":"Bosnian"},{"code":"br","name":"Breton"},{"code":"bg","name":"Bulgarian"},{"code":"my","name":"Burmese"},{"code":"ca","name":"Catalan; Valencian"},{"code":"ch","name":"Chamorro"},{"code":"ce","name":"Chechen"},{"code":"ny","name":"Chichewa; Chewa; Nyanja"},{"code":"zh","name":"Chinese"},{"code":"cv","name":"Chuvash"},{"code":"kw","name":"Cornish"},{"code":"co","name":"Corsican"},{"code":"cr","name":"Cree"},{"code":"hr","name":"Croatian"},{"code":"cs","name":"Czech"},{"code":"da","name":"Danish"},{"code":"dv","name":"Divehi; Dhivehi; Maldivian;"},{"code":"nl","name":"Dutch"},{"code":"dz","name":"Dzongkha"},{"code":"en","name":"English"},{"code":"eo","name":"Esperanto"},{"code":"et","name":"Estonian"},{"code":"ee","name":"Ewe"},{"code":"fo","name":"Faroese"},{"code":"fj","name":"Fijian"},{"code":"fi","name":"Finnish"},{"code":"fr","name":"French"},{"code":"ff","name":"Fula; Fulah; Pulaar; Pular"},{"code":"gl","name":"Galician"},{"code":"ka","name":"Georgian"},{"code":"de","name":"German"},{"code":"el","name":"Greek, Modern"},{"code":"gn","name":"GuaranÃ­"},{"code":"gu","name":"Gujarati"},{"code":"ht","name":"Haitian; Haitian Creole"},{"code":"ha","name":"Hausa"},{"code":"he","name":"Hebrew (modern)"},{"code":"hz","name":"Herero"},{"code":"hi","name":"Hindi"},{"code":"ho","name":"Hiri Motu"},{"code":"hu","name":"Hungarian"},{"code":"ia","name":"Interlingua"},{"code":"id","name":"Indonesian"},{"code":"ie","name":"Interlingue"},{"code":"ga","name":"Irish"},{"code":"ig","name":"Igbo"},{"code":"ik","name":"Inupiaq"},{"code":"io","name":"Ido"},{"code":"is","name":"Icelandic"},{"code":"it","name":"Italian"},{"code":"iu","name":"Inuktitut"},{"code":"ja","name":"Japanese"},{"code":"jv","name":"Javanese"},{"code":"kl","name":"Kalaallisut, Greenlandic"},{"code":"kn","name":"Kannada"},{"code":"kr","name":"Kanuri"},{"code":"ks","name":"Kashmiri"},{"code":"kk","name":"Kazakh"},{"code":"km","name":"Khmer"},{"code":"ki","name":"Kikuyu, Gikuyu"},{"code":"rw","name":"Kinyarwanda"},{"code":"ky","name":"Kyrgyz"},{"code":"kv","name":"Komi"},{"code":"kg","name":"Kongo"},{"code":"ko","name":"Korean"},{"code":"ku","name":"Kurdish"},{"code":"kj","name":"Kwanyama, Kuanyama"},{"code":"la","name":"Latin"},{"code":"lb","name":"Luxembourgish, Letzeburgesch"},{"code":"lg","name":"Ganda"},{"code":"li","name":"Limburgish, Limburgan, Limburger"},{"code":"ln","name":"Lingala"},{"code":"lo","name":"Lao"},{"code":"lt","name":"Lithuanian"},{"code":"lu","name":"Luba-Katanga"},{"code":"lv","name":"Latvian"},{"code":"gv","name":"Manx"},{"code":"mk","name":"Macedonian"},{"code":"mg","name":"Malagasy"},{"code":"ms","name":"Malay"},{"code":"ml","name":"Malayalam"},{"code":"mt","name":"Maltese"},{"code":"mi","name":"MÄori"},{"code":"mr","name":"Marathi (MarÄá¹­hÄ«)"},{"code":"mh","name":"Marshallese"},{"code":"mn","name":"Mongolian"},{"code":"na","name":"Nauru"},{"code":"nv","name":"Navajo, Navaho"},{"code":"nb","name":"Norwegian BokmÃ¥l"},{"code":"nd","name":"North Ndebele"},{"code":"ne","name":"Nepali"},{"code":"ng","name":"Ndonga"},{"code":"nn","name":"Norwegian Nynorsk"},{"code":"no","name":"Norwegian"},{"code":"ii","name":"Nuosu"},{"code":"nr","name":"South Ndebele"},{"code":"oc","name":"Occitan"},{"code":"oj","name":"Ojibwe, Ojibwa"},{"code":"cu","name":"Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old Slavonic"},{"code":"om","name":"Oromo"},{"code":"or","name":"Oriya"},{"code":"os","name":"Ossetian, Ossetic"},{"code":"pa","name":"Panjabi, Punjabi"},{"code":"pi","name":"PÄli"},{"code":"fa","name":"Persian (Farsi)"},{"code":"pl","name":"Polish"},{"code":"ps","name":"Pashto, Pushto"},{"code":"pt","name":"Portuguese"},{"code":"qu","name":"Quechua"},{"code":"rm","name":"Romansh"},{"code":"rn","name":"Kirundi"},{"code":"ro","name":"Romanian, [])"},{"code":"ru","name":"Russian"},{"code":"sa","name":"Sanskrit (Saá¹ská¹›ta)"},{"code":"sc","name":"Sardinian"},{"code":"sd","name":"Sindhi"},{"code":"se","name":"Northern Sami"},{"code":"sm","name":"Samoan"},{"code":"sg","name":"Sango"},{"code":"sr","name":"Serbian"},{"code":"gd","name":"Scottish Gaelic; Gaelic"},{"code":"sn","name":"Shona"},{"code":"si","name":"Sinhala, Sinhalese"},{"code":"sk","name":"Slovak"},{"code":"sl","name":"Slovene"},{"code":"so","name":"Somali"},{"code":"st","name":"Southern Sotho"},{"code":"es","name":"Spanish; Castilian"},{"code":"su","name":"Sundanese"},{"code":"sw","name":"Swahili"},{"code":"ss","name":"Swati"},{"code":"sv","name":"Swedish"},{"code":"ta","name":"Tamil"},{"code":"te","name":"Telugu"},{"code":"tg","name":"Tajik"},{"code":"th","name":"Thai"},{"code":"ti","name":"Tigrinya"},{"code":"bo","name":"Tibetan Standard, Tibetan, Central"},{"code":"tk","name":"Turkmen"},{"code":"tl","name":"Tagalog"},{"code":"tn","name":"Tswana"},{"code":"to","name":"Tonga (Tonga Islands)"},{"code":"tr","name":"Turkish"},{"code":"ts","name":"Tsonga"},{"code":"tt","name":"Tatar"},{"code":"tw","name":"Twi"},{"code":"ty","name":"Tahitian"},{"code":"ug","name":"Uyghur, Uighur"},{"code":"uk","name":"Ukrainian"},{"code":"ur","name":"Urdu"},{"code":"uz","name":"Uzbek"},{"code":"ve","name":"Venda"},{"code":"vi","name":"Vietnamese"},{"code":"vo","name":"VolapÃ¼k"},{"code":"wa","name":"Walloon"},{"code":"cy","name":"Welsh"},{"code":"wo","name":"Wolof"},{"code":"fy","name":"Western Frisian"},{"code":"xh","name":"Xhosa"},{"code":"yi","name":"Yiddish"},{"code":"yo","name":"Yoruba"},{"code":"za","name":"Zhuang, Chuang"},{"code":"zu","name":"Zulu"}],
@@ -67,7 +70,7 @@
 
         let results = this.iso15924.map((d)=>{return {code:d.alpha_4, numeric: d.numeric,name:d.name}})
         results = results.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
-        console.log(results)
+        
         return results
       },
       /**
@@ -133,14 +136,19 @@
 
           for (let nl of this.nonLatinLiterals){
             this.profileStore.setBulkLang(nl.ptObj['@guid'],nl.node['@guid'],lang)
-
-
           }
 
 
         },
 
+        setLangAllPaired(lang){
 
+          for (let nl of this.pairedLiteralsNoLang ){
+            this.profileStore.setBulkLang(nl.ptObj['@guid'],nl.node['@guid'],lang)
+          }
+
+
+        },
        
 
         
@@ -154,8 +162,8 @@
 
         addDefaultOption(){
 
-          console.log(this.selectedLang,this.selectedScript)
-          console.log(this.bulkOptions)
+          // console.log(this.selectedLang,this.selectedScript)
+          // console.log(this.bulkOptions)
           let o = `${this.selectedLang}-${this.selectedScript}`
           if (this.bulkOptions.indexOf(o)==-1){
             this.bulkOptions.push(o)
@@ -221,8 +229,33 @@
       
       window.setTimeout(()=>{
         this.bulkOptions = this.preferenceStore.returnValue('--o-literal-lang-bulk-options')
-        console.log(this.bulkOptions)
         this.nonLatinLiterals = this.profileStore.returnAllNonLatinLiterals()
+        this.pairedLiteralsNoLang = this.profileStore.returnPairedLiteralsWithNoLang()
+
+        if (!this.bulkOptions){ this.bulkOptions = []}
+        // console.log(this.bulkOptions)
+        for (let nLL of this.nonLatinLiterals){
+          if (nLL.lang && this.bulkOptions.map(v => v.toLowerCase()).indexOf(nLL.lang.toLowerCase()) == -1){
+            this.bulkOptions.push(nLL.lang)
+          }            
+        }
+        for (let bo of this.bulkOptions){
+          let latinver = bo.split("-")[0] + '-Latn'
+          if (this.bulkOptions.map(v => v.toLowerCase()).indexOf(latinver.toLowerCase())==-1){
+            this.bulkOptions.push(latinver)
+          }
+        }
+        // for (let bo of this.bulkOptions){
+        //   let options = []
+        //   for (let o of [...new Set(nonLatinLiterals.map(v => v.lang))]){
+
+        //   }
+
+        //   // if ([...new Set(nonLatinLiterals.map(v => v.lang))])
+
+        // }
+
+
 
       },500)
 
@@ -276,9 +309,20 @@
               <button class="close-button" @pointerup="showNonLatinBulkModal=false">X</button>
             </div>
 
-            <div>
+
+
+            <div class="view-mode">
+              <button :class="{'button-selected':(viewMode=='nonLatin')}" @click="viewMode='nonLatin'">View Non-Latin Litearls</button>
+              <button :class="{'button-selected':(viewMode=='paired')}"   @click="viewMode='paired'">View Paired Literals with No Language</button>
+            </div>
+
+            <div v-if="viewMode=='nonLatin'">
               Below are non-Latin literals in the record, you can quickly assign a language and script to them with this list. To add a new option expand "Add Language Option" 
             </div>
+            <div v-if="viewMode=='paired'">
+              Below are literals in the record that are paired with a literal with a @langauge tag, you can quickly assign a language and script to them with this list. To add a new option expand "Add Language Option" 
+            </div>
+
 
             <details>
               <summary>Add Language Option</summary>
@@ -313,29 +357,43 @@
 
             </div>
 
-
             </details>
 
-            <fieldset>
-              <legend>Non-Latin literals in the record:</legend>
+            
+            
 
+            <fieldset v-if="viewMode === 'nonLatin'">
+              <legend>Non-Latin literals in the record:</legend>
               <div style="padding-bottom: 1em; padding-top: 1em;">
-                Set all literals below to: <button style="margin-right: 1em;" @click="setLangAll(b)"  v-for="b in bulkOptions">{{ b }}</button>
+                Set all literals below to: <button style="margin-right: 1em;" @click="setLangAll(b)"  v-for="b in bulkOptions.filter(v=> (v.toLowerCase().indexOf('latn')==-1))">{{ b }}</button>
                 <button @click="setLangAll(null)" >None</button>
               </div>
-
               <div class="nonlatin-literal" v-for="nl in nonLatinLiterals">
+                <div class="nonlatin-literal-uri">{{ nl.propertyURI }}</div>
+                <div class="nonlatin-literal-value">
+                  <span>{{ nl.value }}</span>
+                  <span style="background-color: whitesmoke; border-radius: 1em;" v-if="nl.node['@language']">@{{ nl.node['@language'] }}</span>
+                </div>
+                <div class="nonlatin-literal-buttons">Set individually:  <button @click="setLang(nl,b)" style="margin-right: 1em;" v-for="b in bulkOptions.filter(v=> (v.toLowerCase().indexOf('latn')==-1))">{{ b }}</button>  <button @click="setLang(nl,null)" style="margin-right: 1em;">None</button></div>
+                <hr>
+              </div>
+            </fieldset>
 
+            <fieldset v-if="viewMode === 'paired'">
+              <legend>Paired Literals with No Language Tag:</legend>
+              <div style="padding-bottom: 1em; padding-top: 1em;">
+                Set all literals below to: <button style="margin-right: 1em;" @click="setLangAllPaired(b)"  v-for="b in bulkOptions">{{ b }}</button>
+                <button @click="setLangAllPaired(null)" >None</button>
+              </div>
+              <div class="nonlatin-literal" v-for="nl in pairedLiteralsNoLang">
                 <div class="nonlatin-literal-uri">{{ nl.propertyURI }}</div>
                 <div class="nonlatin-literal-value">
                   <span>{{ nl.value }}</span>
                   <span style="background-color: whitesmoke; border-radius: 1em;" v-if="nl.node['@language']">@{{ nl.node['@language'] }}</span>
                 </div>
                 <div class="nonlatin-literal-buttons">Set individually:  <button @click="setLang(nl,b)" style="margin-right: 1em;" v-for="b in bulkOptions">{{ b }}</button>  <button @click="setLang(nl,null)" style="margin-right: 1em;">None</button></div>
-                
                 <hr>
               </div>
-
             </fieldset>
 
 
@@ -364,7 +422,22 @@
 
 <style scoped>
 
+.button-selected{
+  border: solid 2px steelblue;
+  font-weight: bold;
+}
+
+.view-mode{
+  text-align: center;
+  
+}
+.view-mode button{
+  font-size: 1em;
+  margin: 0.5em;
+  padding: 0.5em;
+}
 .nonlatin-literal-buttons{
+  margin-top: 0.5em;
   font-size: 0.8em;
 }
 .nonlatin-literal-buttons button{
