@@ -400,7 +400,7 @@
     mounted: function(){
         //populate when loading from a search
         this.populateTitle()
-        // this.profileStore.useCustomComponentOrder()
+        this.profileStore.useCustomComponentOrder()
     },
 
     updated: function(){
