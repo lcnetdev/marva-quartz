@@ -46,6 +46,14 @@ import { isReadonly } from 'vue';
 
 
     methods: {
+      isPrimaryComponent: function(order, target){
+        if (order.includes(target)){
+          return true
+        }
+
+
+        return false
+      },
       saveOrder: function(){
         this.profileStore.saveCustomComponentOrder()
       },
@@ -352,10 +360,10 @@ import { isReadonly } from 'vue';
   <template  v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-accordion') == true">
     <AccordionList  :open-multiple-items="false">
 
-      <span style="margin-left: 15px;">
-        <span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">list_alt</span>
-        <span class="material-icons order-icon simptip-position-right" data-tooltip="USE ORDER" @click="useOrder">sync</span>
-        <span class="material-icons order-icon simptip-position-right" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span>
+      <span class="order-actions-span">
+        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">list_alt</span></div>
+        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="USE ORDER" @click="useOrder">sync</span></div>
+        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span></div>
       </span>
 
       <template v-for="profileName in activeProfile.rtOrder" :key="profileName">
@@ -400,7 +408,7 @@ import { isReadonly } from 'vue';
                             <template #item="{element}">
                               <template v-if="!hideAdminField(activeProfile.rt[profileName].pt[element], profileName) && !activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI) && ( (layoutActive && layoutActiveFilter['properties'][profileName] && includeInLayout(activeProfile.rt[profileName].pt[element].id, layoutActiveFilter['properties'][profileName])) || !layoutActive || (createLayoutMode && layoutActive))">
                                 <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) && !layoutActive )}]">
-                                  <a href="#" @click.stop="jumpToElement(profileName, element)" class="sidebar-property-ul-alink">
+                                  <a href="#" @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-ul-alink', {'primary-component': isPrimaryComponent(profileStore.profiles[activeProfile.id].rt[profileName].ptOrder, activeProfile.rt[profileName].pt[element].id)},]">
                                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
                                       <span v-if="replacePropertyWithValue(activeProfile.rt[profileName].pt[element].propertyURI)">
                                         {{ returnHeadingLabel(activeProfile.rt[profileName].pt[element]) }}
@@ -895,6 +903,21 @@ li.not-populated-hide:before{
 }
 .sidebar-property-ul li {
   list-style: none;
+}
+
+.primary-component {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
+.order-actions-span {
+  width: 100%;
+  display: table;
+}
+
+.icon-container{
+  display: table-cell;
+  text-align: center;
 }
 
 .order-icon {
