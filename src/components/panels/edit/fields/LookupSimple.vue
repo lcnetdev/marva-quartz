@@ -27,7 +27,7 @@
               <span v-else style=""><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span></span>
               <a href="#" class="inline-remove-x" @click="removeValue(idx)" style="">x</a>
           </template> -->
-<!--
+          <!--
           <template v-for="(avl,idx) in simpleLookupValues" ></template>
             <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
             <input v-model="activeValue" class="inline-lookup-input can-select 1" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly"  />
@@ -82,7 +82,7 @@
                   </div>
                 </div>
                 <div class="lookup-fake-input-text" style="display: inline-block;">
-                  <input v-model="activeValue" class="inline-lookup-input can-select 2" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" />
+                  <input v-model="activeValue" class="inline-lookup-input can-select 2" ref="lookupInput" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" :placeholder="activePlaceholderText" />
                 </div>
 
               </div>
@@ -102,7 +102,7 @@
               </div>
             </div>
             <div class="lookup-fake-input-text">
-              <input v-model="activeValue" class="inline-lookup-input can-select 3" ref="lookupInput" :data-guid="structure['@guid']" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
+              <input v-model="activeValue" class="inline-lookup-input can-select 3" ref="lookupInput" :data-guid="structure['@guid']" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly" :placeholder="activePlaceholderText" />
             </div>
 
 
@@ -199,6 +199,8 @@ export default {
       uri: this.structure.valueConstraint.useValuesFrom[0],
       useValuesFrom: this.structure.valueConstraint.useValuesFrom,
       debounceTimeout: null,
+
+      activePlaceholderText: '',
 
       doubleDelete: false,
 
@@ -317,7 +319,7 @@ export default {
         return true
 
       }else{
-        console.log("this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath")
+        // console.log("this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath")
         // no value in it, but maybe its the "main" property, so display it anyway
         if (this.profileStore.inlineIsMainProperty(this.guid, this.structure,this.propertyPath)){
           return true
@@ -365,7 +367,7 @@ export default {
     },
 
     blur: function(event){
-
+      this.activePlaceholderText=''
       // when we blur they may be clicking a value in the list
       // so wait a bit before we close to register the click event
       window.setTimeout(()=>{
@@ -403,7 +405,15 @@ export default {
         let uriParts = this.uri.split("/suggest2?q=")
         let results = await utilsNetwork.loadSimpleLookupKeyword(uriParts[0], uriParts[1])
         utilsNetwork.lookupLibrary[this.uri] = results
-      }
+      }      
+
+      this.$nextTick(() => {
+        if (this.simpleLookupValues.length==0){                
+          this.activePlaceholderText = "(press spacebar to see all options, type to filter)"
+        }
+      })      
+
+
     },
 
     actionButtonCommand: function(cmd){
@@ -866,6 +876,7 @@ export default {
             }
 
             // this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':metadata[key].label[idx],URI:metadata[key].uri})
+            this.activePlaceholderText=''
             this.activeFilter = ''
             this.activeValue = ''
             this.activeSelect = ''
@@ -892,6 +903,8 @@ export default {
           // this.$store.dispatch("setValueSimple", { self: this, ptGuid: this.ptGuid, propertyPath: this.propertyPath, valueURI: null, valueLabel:event.target.value}).then((resultData) => {
           //   this.activeLookupValue.push({'http://www.w3.org/2000/01/rdf-schema#label':resultData.valueLabel, uriGuid: resultData.guid, labelGuid:resultData.guid})
           // })
+          this.activePlaceholderText=''
+
           this.profileStore.setValueSimple(this.guid,this.existingGuid,this.propertyPath,null,event.target.value)
 
 
@@ -957,7 +970,7 @@ export default {
 
         if (isMatch){
 
-          console.log("Found it",metadata[key].uri)
+          
 
           if (metadata[key].uri.indexOf('id.loc.gov')>-1){
             let uri = metadata[key].uri
@@ -1013,11 +1026,12 @@ export default {
 
     clickAdd: function(item){
 
+      this.activePlaceholderText=''
 
       this.displayAutocomplete=false
 
       this.activeSelect = item
-      console.log("this.activeSelect", this.activeSelect)
+      
       let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
 
       if (this.activeKeyword){
@@ -1089,7 +1103,7 @@ export default {
 
 
           }else{
-
+            this.activePlaceholderText=''
             this.activeFilter = ''
             this.activeValue = ''
             this.activeSelect = ''
@@ -1183,9 +1197,10 @@ export default {
             this.profileStore.addCammModeError(this.guid,'Network error resolving: "' + inputValue + '" please re-key it.' )
             return false
           }else{
-            console.log("checkUriResult",checkUriResult)
+            // console.log("checkUriResult",checkUriResult)
             // it is a valid code, so don't go searchng for it, set it and go
             if (!testOnly){
+              this.activePlaceholderText=''
               let addResults = await this.profileStore.setValueSimple(this.guid,lastAddedFieldGuid,this.propertyPath,checkUri,checkUriResult)
               lastAddedFieldGuid = this.simpleLookupValues.slice(-1)[0]['@guid']
               return true
@@ -1255,6 +1270,7 @@ export default {
 
 
           if (!testOnly){
+             this.activePlaceholderText=''
             let addResults = await this.profileStore.setValueSimple(this.guid,lastAddedFieldGuid,this.propertyPath,matches[0],useLabel)
             lastAddedFieldGuid = this.simpleLookupValues.slice(-1)[0]['@guid']
           }
@@ -1308,6 +1324,12 @@ export default {
 
 
 }
+
+.inline-lookup-input::placeholder{
+  font-size: 0.75em;;
+}
+
+
 .inline-lookup-input:focus-within{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')");
 }

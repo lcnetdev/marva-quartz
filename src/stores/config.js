@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 2,
-    versionPatch: 2,
+    versionPatch: 3,
 
 
     regionUrls: {
@@ -33,7 +33,7 @@ export const useConfigStore = defineStore('config', {
 
         id: 'https://id.loc.gov/',
         env : 'production',
-        dev: false,
+        dev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
       },
@@ -189,6 +189,11 @@ export const useConfigStore = defineStore('config', {
     'http://id.loc.gov/ontologies/bflc/projectedProvisionDate',
   ],
 
+  // these are predicates that will merged into one PT
+  groupTopLeveLiterals: [
+    'http://id.loc.gov/ontologies/bibframe/editionStatement',
+    'http://id.loc.gov/ontologies/bibframe/responsibilityStatement',
+  ],
 
   // these are properties that aren't allowed to be both when merging data with template
   templatesDataFlowCantBeBoth: [

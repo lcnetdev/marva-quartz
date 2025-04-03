@@ -1910,15 +1910,18 @@ export const useProfileStore = defineStore('profile', {
         cachePt[componentGuid] = pt
       }
 
-	  //clear the cache if the value was deleted
-	  if (value.trim() == ""){
-        if (Object.keys(cachePt).includes(componentGuid)){
-          delete cachePt[componentGuid]
-        }
-        for (let guid of Object.keys(cacheGuid)){
-          cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
-        }
-	  }
+      // used later to sort the literal order if needed
+      let checkLiteralOrder = null
+
+      //clear the cache if the value was deleted
+      if (value.trim() == ""){
+          if (Object.keys(cachePt).includes(componentGuid)){
+            delete cachePt[componentGuid]
+          }
+          for (let guid of Object.keys(cacheGuid)){
+            cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+          }
+      }
 
       // console.log("--------pt 1------------")
       // console.log(JSON.stringify(pt,null,2))
@@ -1972,7 +1975,6 @@ export const useProfileStore = defineStore('profile', {
             // there is already values here, so we need to insert a new value into the hiearchy
 
             let parent = utilsProfile.returnPropertyPathParent(pt,propertyPath)
-
             if (!parent){
               console.error("Trying to add second literal, could not find the property path parent", pt)
               return false
@@ -1990,6 +1992,8 @@ export const useProfileStore = defineStore('profile', {
                 '@guid': newGuid,
               }
             )
+
+            checkLiteralOrder = parent[lastProperty]
 
             // get a link to it we'll edit it below
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
@@ -2023,7 +2027,7 @@ export const useProfileStore = defineStore('profile', {
                 '@guid': newGuid,
               }
             )
-
+            checkLiteralOrder = parent[lastProperty]
             // get a link to it we'll edit it below
             blankNode = utilsProfile.returnGuidLocation(pt.userValue,newGuid)
             // set a temp value that will be over written below
@@ -2046,6 +2050,7 @@ export const useProfileStore = defineStore('profile', {
 
         // and now add in the literal value into the correct property
         blankNode[lastProperty] = value
+
         // for electronicLocators, update the ID, so the XML can get built correctly
         if (isLocator && Object.keys(blankNode).some((key) => key == "http://id.loc.gov/ontologies/bibframe/electronicLocator")){
             blankNode["@id"] = value
@@ -2118,6 +2123,34 @@ export const useProfileStore = defineStore('profile', {
 
 
         }
+
+
+        // this will only trigger on adding new literal events, like scriptshifter, not editing
+        if (checkLiteralOrder && Array.isArray(checkLiteralOrder) && checkLiteralOrder.length>1){
+          if (pt.userValue){
+            let propsFirstLevel = Object.keys(pt.userValue).filter(v => { return !v.startsWith('@') })
+            for (let p1 of propsFirstLevel){
+              for (let bnode of pt.userValue[p1]){
+                let propsSecondLevel = Object.keys(bnode).filter(v => { return !v.startsWith('@') })
+                for (let p2 of propsSecondLevel){
+                  if (Array.isArray(bnode[p2]) && bnode[p2].length>1){
+                    if (bnode[p2].filter((v)=>{ return (v['@language'])}).length>0){
+                      // sort the array of literals so the latin one is first
+                      if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+                        bnode[p2] = this.sortObjectsByLatinMatch(bnode[p2],p2 ).reverse()
+                      }else{
+                        bnode[p2] = this.sortObjectsByLatinMatch(bnode[p2],p2 )
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+
+
 
         // console.log("Before prune")
         // console.log(JSON.stringify(pt.userValue))
@@ -5388,7 +5421,7 @@ export const useProfileStore = defineStore('profile', {
         alert("There was an error creating your NAR. Please report this issue.")
       }
 
-      // pubResuts = {'postLocation': 'https://id.loc.gov/resources/hubs/a07eefde-6522-9b99-e760-5c92f7d396eb'}
+      // pubResuts = {'postLocation': 'https://id.loc.gov/authorities/names/n83122656', status: 'published'}
 
       console.log('pubResuts')
       console.log(pubResuts)
@@ -5934,6 +5967,30 @@ export const useProfileStore = defineStore('profile', {
     },
 
     /**
+     * Sorts an array of objects based on whether a specified key's value matches the latinRegex pattern.
+     * It sorts the array with the latin objects first, followed by the non-Latin objects.
+     *
+     * @param {Object[]} arr - Array of objects to sort
+     * @param {string} key - Object key whose value should be tested against latinRegex
+     * @return {Object[]} - Sorted array with non-Latin objects first
+     */
+    sortObjectsByLatinMatch(arr, key) {
+      return arr.sort((a, b) => {
+        // Handle cases where key doesn't exist
+        const aValue = a[key] || '';
+        const bValue = b[key] || '';
+
+        const aIsLatin = latinRegex.test(aValue);
+        const bIsLatin = latinRegex.test(bValue);
+
+        if (!bIsLatin && aIsLatin) return -1;
+        if (bIsLatin && !aIsLatin) return 1;
+        return 0;
+      });
+    },
+
+
+    /**
      * Extracts Library of Congress Classification (LCC) data from the active profile and updates the activeShelfListData state
      *
      * This function:
@@ -5995,6 +6052,63 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+
+    },
+    /**
+     * Reorders all non-Latin and Latin literals within the active profile based on user preferences.
+     *
+     * This function:
+     * 1. Traverses through all resource templates (rt) and property templates (pt) in the active profile
+     * 2. Examines both nested literals inside bnodes and top-level literals
+     * 3. When it finds multiple literals where at least one has a @language tag:
+     *    - For nested literals: Sorts the array using sortObjectsByLatinMatch()
+     *    - For top-level literals in groupTopLeveLiterals: Sorts using sortObjectsByLatinMatch()
+     * 4. The sort order is determined by the '--b-edit-main-literal-non-latin-first' preference:
+     *    - If true: Non-Latin literals appear first (reversed sort)
+     *    - If false: Latin literals appear first (normal sort)
+     *
+     * @return {void} Modifies the active profile's literal ordering directly
+     */
+    reorderAllNonLatinLiterals(){
+      // we are going to go looking for literals inside bnodes that have two literals with one at least of them with a @language tag
+      for (let pkey in this.activeProfile.rt){
+        for (let key in this.activeProfile.rt[pkey].pt){
+          let pt = this.activeProfile.rt[pkey].pt[key]
+          if (pt.userValue){
+            let propsFirstLevel = Object.keys(pt.userValue).filter(v => { return !v.startsWith('@') })
+            for (let p1 of propsFirstLevel){
+              for (let bnode of pt.userValue[p1]){
+                let propsSecondLevel = Object.keys(bnode).filter(v => { return !v.startsWith('@') })
+                for (let p2 of propsSecondLevel){
+                  if (Array.isArray(bnode[p2]) && bnode[p2].length>1){
+                    if (bnode[p2].filter((v)=>{ return (v['@language'])}).length>0){
+                      // sort the array of literals so the latin one is first
+                      console.log("bnode",bnode)
+                      if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+                        bnode[p2] = useProfileStore().sortObjectsByLatinMatch(bnode[p2],p2).reverse()
+                      }else{
+                        bnode[p2] = useProfileStore().sortObjectsByLatinMatch(bnode[p2],p2)
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            // also the top level literals
+            if (useConfigStore().groupTopLeveLiterals.indexOf(pt.propertyURI) > -1){
+              if (pt.userValue[pt.propertyURI]){
+                if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+                  pt.userValue[pt.propertyURI] = useProfileStore().sortObjectsByLatinMatch(pt.userValue[pt.propertyURI],pt.propertyURI).reverse()
+                }else{
+                  pt.userValue[pt.propertyURI] = useProfileStore().sortObjectsByLatinMatch(pt.userValue[pt.propertyURI],pt.propertyURI)
+                }
+
+              }
+
+            }
+          }
+        }
+      }
 
     },
 

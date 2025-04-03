@@ -638,7 +638,15 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Literal Field',
         range: [true,false]
     },
-
+    '--b-edit-main-literal-non-latin-first' : {
+      desc: 'With paired literals values (transliteration) always show the non-Latin value first (otherwise the Latin value will be first)',
+      descShort: 'Paired literals, show non-Latin First.',
+      value: false,
+      type: 'boolean',
+      unit: null,
+      group: 'Literal Field',
+      range: [true,false]
+    },
 
 
 
@@ -1477,6 +1485,15 @@ export const usePreferenceStore = defineStore('preference', {
 
       this.styleDefault[propertyName].value = value
       this.savePreferences()
+
+      // we can do any actions on specific preference changes here
+      console.log(propertyName, this.styleDefault[propertyName].value)
+      if (propertyName == '--b-edit-main-literal-non-latin-first'){
+        useProfileStore().reorderAllNonLatinLiterals()
+        
+      }
+
+
       return true
     },
 
@@ -1548,7 +1565,7 @@ export const usePreferenceStore = defineStore('preference', {
       this.diacriticUse = this.returnValue('--c-diacritics-enabled-macros')
       this.diacriticUse = [...new Set(this.diacriticUse)];
 
-      console.log(this.diacriticUse)
+      // console.log(this.diacriticUse)
       for (let d in this.diacriticPacks.macroExpress){
 
         let macros = this.diacriticPacks.macroExpress[d]
@@ -1559,7 +1576,7 @@ export const usePreferenceStore = defineStore('preference', {
           }
         }
       }
-      console.log(this.diacriticUseValues)
+      // console.log(this.diacriticUseValues)
     },
 
     // turn copy mode on/off

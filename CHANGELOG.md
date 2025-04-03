@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3] - 2025-04-03
+### Fixed
+- Improved custom order work with changes to profiles
+- Improved custom order when profile components don't match
+
 ## [1.2.2] - 2025-04-02
 ### Added
 - Feature: Ability to set and save the order components appear in Marva [BFP-327]
