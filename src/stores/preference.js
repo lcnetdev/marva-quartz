@@ -639,8 +639,8 @@ export const usePreferenceStore = defineStore('preference', {
         range: [true,false]
     },
     '--b-edit-main-literal-non-latin-first' : {
-      desc: 'With paired literals values (transliteration) always show the non-Latin value first (otherwise the Latin value will be first). (Requires Refresh)',
-      descShort: 'Paired literals, show non-Latin First. (Requires Refresh)',
+      desc: 'With paired literals values (transliteration) always show the non-Latin value first (otherwise the Latin value will be first)',
+      descShort: 'Paired literals, show non-Latin First.',
       value: false,
       type: 'boolean',
       unit: null,
@@ -1485,6 +1485,15 @@ export const usePreferenceStore = defineStore('preference', {
 
       this.styleDefault[propertyName].value = value
       this.savePreferences()
+
+      // we can do any actions on specific preference changes here
+      console.log(propertyName, this.styleDefault[propertyName].value)
+      if (propertyName == '--b-edit-main-literal-non-latin-first'){
+        useProfileStore().reorderAllNonLatinLiterals()
+        
+      }
+
+
       return true
     },
 
