@@ -130,7 +130,7 @@ export const useProfileStore = defineStore('profile', {
     mostCommonNonLatinScript: null,
     nonLatinScriptAgents: {},
 
-
+    pairedLitearlIndicatorLookup: {},
 
     // bf:title component/predicate for example, value will be the structure object for this component
 
@@ -2125,7 +2125,7 @@ export const useProfileStore = defineStore('profile', {
                 delete oldUv[p.propertyURI]
               }
 
-              console.log(p.propertyURI,'has',Object.keys(uv).length,'keys')
+              // console.log(p.propertyURI,'has',Object.keys(uv).length,'keys')
 
               // the oldUv so we have a references to where we will be in the next loop so we can delete from the parent obj
               oldUv = oldUv[p.propertyURI]
@@ -2136,7 +2136,12 @@ export const useProfileStore = defineStore('profile', {
             }
 
           //   console.log("Delete this guy",propertyPath )
-          // }
+          // }  
+
+
+          // also remove the paired literal lines if needed
+          console.log("Building lines")
+          utilsParse.buildPairedLiteralsIndicators(this.activeProfile)
 
 
         }
@@ -2164,6 +2169,9 @@ export const useProfileStore = defineStore('profile', {
               }
             }
           }
+
+          // also build the paired literal lines
+          utilsParse.buildPairedLiteralsIndicators(this.activeProfile)
         }
 
 

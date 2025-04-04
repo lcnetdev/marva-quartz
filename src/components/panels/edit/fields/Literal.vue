@@ -46,6 +46,18 @@
   <template v-else>
     <div class="lookup-fake-input" v-if="showField" >
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues" @focusin="focused">
+        
+        <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] && preferenceStore.returnValue('--b-edit-main-literal-display-paired-literal-line')" class="literal-paired-indicator">
+            
+            <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] >0"  v-html="drawIndicator(pairedLitearlIndicatorLookup[lValue['@guid']])">
+              
+            </div>
+  
+  
+          </div>
+
+
+
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
         <div :class="['literal-field', {'read-only': structure.propertyLabel=='Local identifier'}]">
 
@@ -115,6 +127,15 @@
             <action-button :type="'literal'" :structure="structure" :fieldGuid="lValue['@guid']"  :guid="guid"  @action-button-command="actionButtonCommand" />
           </div>
         </Transition>
+        <!-- <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']]" class="literal-paired-indicator">
+            
+          <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] >0"  v-html="drawIndicator(pairedLitearlIndicatorLookup[lValue['@guid']])">
+            
+          </div>
+
+
+        </div> -->
+        
       </div>
     </div>
 
@@ -996,6 +1017,67 @@ export default {
       return caretOffset;
     },
 
+    drawIndicator(count){
+
+
+      // document.getElementsByClassName('literal-paired-indicator')[0].parentNode
+      let literalSize = this.preferenceStore.returnValue('--n-edit-main-literal-font-size',true)
+
+      let svgHeight = 75
+      let svgWidth = 30
+
+      let length = 90 
+      let start = 5
+
+      // ratio up the distance of the line and start of the line when the font-size is set bigger
+      if (literalSize > 1.1){
+        length = 90 * (literalSize/1.1)
+        start = 5 * (literalSize/1.1)
+      }
+      
+      let color = this.preferenceStore.returnValue('--c-edit-main-literal-paired-literal-line-color')
+
+
+      return `
+      <style scoped>
+        svg.paired-line {
+          position: absolute;
+          z-index: 100;
+          top: -5px;
+          left: -10px;
+          pointer-events: none;
+        }
+      </style>                         
+      <svg xmlns:dc="http://purl.org/dc/elements/1.1/" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" viewBox="-2 -7.417834 70 180" width="${svgWidth}" height="${svgHeight}" class="paired-line">
+        <defs>
+          <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -3 6 6" markerWidth="6" markerHeight="6" color="black">
+            <g>
+              <path d="M 3.2 0 L 0 -1.2 L 0 1.2 Z" fill="${color}" stroke="${color}" stroke-width="1"/>
+            </g>
+          </marker>
+          <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker_2" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-5 -3 6 6" markerWidth="6" markerHeight="6" color="black">
+            <g>
+              <path d="M -3.2 0 L 0 1.2 L 0 -1.2 Z" fill="${color}" stroke="${color}" stroke-width="1"/>
+            </g>
+          </marker>
+        </defs>
+        <g id="Canvas_1" stroke-opacity="1" stroke-dasharray="none" fill="none" fill-opacity="1" stroke="none">
+          <title>Canvas 1</title>
+          <g id="Canvas_1_Layer_1">
+            <title>Layer 1</title>
+            <g id="Line_5">
+              <path d="M 21 ${start} L 0 ${start} L 0 ${length} L 21 ${length}" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledArrow_Marker_2)" stroke="${color}" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+
+      
+      `
+
+
+    }
+
 
 
   },
@@ -1008,7 +1090,7 @@ export default {
 
     ...mapState(useConfigStore, ['scriptShifterLangCodes', 'lccFeatureProperties']),
     ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
-    ...mapWritableState(useProfileStore, ['showShelfListingModal','activeField','activeProfile', 'literalLangShow', 'literalLangInfo','dataChangedTimestamp','activeShelfListData']),
+    ...mapWritableState(useProfileStore, ['showShelfListingModal','activeField','activeProfile', 'literalLangShow', 'literalLangInfo','dataChangedTimestamp','activeShelfListData','pairedLitearlIndicatorLookup']),
     ...mapState(usePreferenceStore, ['showPrefModal','showPrefModalgroup','styleDefault', 'showPrefModalGroup', 'fontFamilies']),
 
     myGuid(){
@@ -1081,7 +1163,9 @@ export default {
 
       return false
 
-    }
+    },
+
+
 
 
 
@@ -1159,6 +1243,16 @@ export default {
 </script>
 
 <style scoped>
+
+.literal-paired-indicator{
+  width: 1em;
+  position: relative;
+  margin-left: 1em;
+
+
+
+
+}
 
 fieldset{
   border: solid 1px rgb(133, 133, 133);
