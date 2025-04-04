@@ -47,9 +47,9 @@
     <div class="lookup-fake-input" v-if="showField" >
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues" @focusin="focused">
         
-        <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] && preferenceStore.returnValue('--b-edit-main-literal-display-paired-literal-line')" class="literal-paired-indicator">
+        <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] && preferenceStore.returnValue('--b-edit-main-literal-display-paired-literal-line')" class="literal-paired-indicator" :key="'line-holder-'+preferenceStore.returnValue('--c-edit-main-literal-paired-literal-line-color')">
             
-            <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] >0"  v-html="drawIndicator(pairedLitearlIndicatorLookup[lValue['@guid']])">
+            <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] >0"  v-html="drawIndicator(pairedLitearlIndicatorLookup[lValue['@guid']],lValue['@guid'])">
               
             </div>
   
@@ -126,16 +126,7 @@
           <div class="literal-action" v-if="showActionButton && myGuid == activeField">
             <action-button :type="'literal'" :structure="structure" :fieldGuid="lValue['@guid']"  :guid="guid"  @action-button-command="actionButtonCommand" />
           </div>
-        </Transition>
-        <!-- <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']]" class="literal-paired-indicator">
-            
-          <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] >0"  v-html="drawIndicator(pairedLitearlIndicatorLookup[lValue['@guid']])">
-            
-          </div>
-
-
-        </div> -->
-        
+        </Transition>        
       </div>
     </div>
 
@@ -971,7 +962,11 @@ export default {
         // but also make sure the old string has the language tag
         this.profileStore.setValueLiteral(this.guid,fieldValue[0]['@guid'],this.propertyPath,fieldValue[0]['value'],fromLang)
 
-
+        // make sure the new literal fits
+        this.$nextTick().then(() => {
+          this.expandHeightToContent()
+        })        
+        
 
 
       }
@@ -1017,65 +1012,104 @@ export default {
       return caretOffset;
     },
 
-    drawIndicator(count){
+    drawIndicator(count, elGuid){
 
 
-      // document.getElementsByClassName('literal-paired-indicator')[0].parentNode
-      let literalSize = this.preferenceStore.returnValue('--n-edit-main-literal-font-size',true)
-
-      let svgHeight = 75
-      let svgWidth = 30
-
-      let length = 90 
-      let start = 5
-
-      // ratio up the distance of the line and start of the line when the font-size is set bigger
-      if (literalSize > 1.1){
-        length = 90 * (literalSize/1.1)
-        start = 5 * (literalSize/1.1)
-      }
-      
       let color = this.preferenceStore.returnValue('--c-edit-main-literal-paired-literal-line-color')
 
+      
+      // this will fire off after the element has been rendrered so we know how large it is
+      this.$nextTick().then(() => {
 
-      return `
-      <style scoped>
-        svg.paired-line {
-          position: absolute;
-          z-index: 100;
-          top: -5px;
-          left: -10px;
-          pointer-events: none;
+
+        let textEl = document.querySelector('[data-guid="' + elGuid + '"]')
+        let elementSize = null
+        if (textEl){
+          elementSize = textEl.getBoundingClientRect()          
         }
-      </style>                         
-      <svg xmlns:dc="http://purl.org/dc/elements/1.1/" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" viewBox="-2 -7.417834 70 180" width="${svgWidth}" height="${svgHeight}" class="paired-line">
-        <defs>
-          <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -3 6 6" markerWidth="6" markerHeight="6" color="black">
-            <g>
-              <path d="M 3.2 0 L 0 -1.2 L 0 1.2 Z" fill="${color}" stroke="${color}" stroke-width="1"/>
-            </g>
-          </marker>
-          <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker_2" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-5 -3 6 6" markerWidth="6" markerHeight="6" color="black">
-            <g>
-              <path d="M -3.2 0 L 0 1.2 L 0 -1.2 Z" fill="${color}" stroke="${color}" stroke-width="1"/>
-            </g>
-          </marker>
-        </defs>
-        <g id="Canvas_1" stroke-opacity="1" stroke-dasharray="none" fill="none" fill-opacity="1" stroke="none">
-          <title>Canvas 1</title>
-          <g id="Canvas_1_Layer_1">
-            <title>Layer 1</title>
-            <g id="Line_5">
-              <path d="M 21 ${start} L 0 ${start} L 0 ${length} L 21 ${length}" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledArrow_Marker_2)" stroke="${color}" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
-            </g>
-          </g>
-        </g>
-      </svg>
+
+        let literalSize = this.preferenceStore.returnValue('--n-edit-main-literal-font-size',true)
+
+        let svgHeight = 175
+        let svgWidth = 30
+
+        let length = 100 
+        let start = 5
+
+        // ratio up the distance of the line and start of the line when the font-size is set bigger
+        if (elementSize){          
+          if (elementSize.height > 30){            
+            length =  elementSize.height * 4          
+          }   
+          if (elementSize.height > 50){            
+            length =  elementSize.height * 3          
+          }   
+          
+          // if (elementSize.height > 90){            
+          //   length =  elementSize.height * 4          
+          // }
+          
+          // if (elementSize.height > 100){            
+          //   length =  elementSize.height * 3          
+          // }
+        }
+
+
+        let svgEl = document.getElementById('literal-lines-' + elGuid)
+        
+        if (svgEl){
+          svgEl.parentNode.innerHTML = `   
+
+            <style scoped>
+              svg.paired-line {
+                position: absolute;
+                z-index: 100;
+                top: -5px;
+                left: -10px;
+                pointer-events: none;
+              }
+            </style>
+            
+            <svg xmlns:dc="http://purl.org/dc/elements/1.1/" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" viewBox="-2 -7.417834 70 480" width="${svgWidth}" height="${svgHeight}" class="paired-line">
+              <defs>
+                <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -3 6 6" markerWidth="6" markerHeight="6" color="black">
+                  <g>
+                    <path d="M 3.2 0 L 0 -1.2 L 0 1.2 Z" fill="${color}" stroke="${color}" stroke-width="1"/>
+                  </g>
+                </marker>
+                <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker_2" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-5 -3 6 6" markerWidth="6" markerHeight="6" color="black">
+                  <g>
+                    <path d="M -3.2 0 L 0 1.2 L 0 -1.2 Z" fill="${color}" stroke="${color}" stroke-width="1"/>
+                  </g>
+                </marker>
+              </defs>
+              <g id="Canvas_1" stroke-opacity="1" stroke-dasharray="none" fill="none" fill-opacity="1" stroke="none">
+                <title>Canvas 1</title>
+                <g id="Canvas_1_Layer_1">
+                  <title>Layer 1</title>
+                  <g id="Line_5">
+                    <path d="M 21 ${start} L 0 ${start} L 0 ${length} L 21 ${length}" marker-end="url(#FilledArrow_Marker)" marker-start="url(#FilledArrow_Marker_2)" stroke="${color}" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+                  </g>
+                </g>
+              </g>
+            </svg>      
+            `
+
+
+        }
+
+
+
+        
+
+
+
+      });
+
+      return `<svg id="literal-lines-${elGuid}"/>`
+
 
       
-      `
-
-
     }
 
 
@@ -1243,6 +1277,10 @@ export default {
 </script>
 
 <style scoped>
+
+
+
+
 
 .literal-paired-indicator{
   width: 1em;
