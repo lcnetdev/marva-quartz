@@ -458,6 +458,15 @@ export const useProfileStore = defineStore('profile', {
           let matchingComponents = currentOrder.filter(i => i.includes(el)) // keep like components together
           tempOrder = tempOrder.concat(matchingComponents.sort())
         }
+
+        //Need to get the admin fields
+        let components = Object.keys(this.activeProfile.rt[profileName].pt)
+        for (let c of components){
+          if (!tempOrder.includes(c)){
+            tempOrder.push(c)
+          }
+        }
+
         this.activeProfile.rt[profileName].ptOrder = tempOrder
       }
     },
@@ -525,6 +534,14 @@ export const useProfileStore = defineStore('profile', {
           // These should all be base level names, no `_ + new Date()`
           let matchingComponents = currentOrder.filter(i => i.includes(el)) // keep like components together
           tempOrder = tempOrder.concat(matchingComponents.sort())
+        }
+
+        //Need to get the admin fields
+        let components = Object.keys(this.activeProfile.rt[profileName].pt)
+        for (let c of components){
+          if (!tempOrder.includes(c)){
+            tempOrder.push(c)
+          }
         }
 
         this.activeProfile.rt[profileName].ptOrder = tempOrder
@@ -4704,17 +4721,17 @@ export const useProfileStore = defineStore('profile', {
 
     /**
      * Scans the entire active profile for paired literals where some have language tags and others don't.
-     * 
+     *
      * This method looks for instances where a property contains multiple literal values,
      * and at least one value has a language tag (@language) while at least one other value
      * does not.
-     * 
+     *
      * used for non-latin literals tool
-     * 
+     *
      * The method examines:
      * 1. All nested literals inside blank nodes
      * 2. Top-level literals in properties specified in the config's groupTopLeveLiterals
-     * 
+     *
      * @returns {Array<Object>} An array of objects containing:
      *   - ptObj: The property template object containing the literal
      *   - node: The node containing the untagged literal
@@ -4722,12 +4739,12 @@ export const useProfileStore = defineStore('profile', {
      *   - value: The literal value without a language tag
      */
     returnPairedLiteralsWithNoLang(){
-      
+
         let results = []
         function process (obj, func) {
           if (obj && obj.userValue){
             obj = obj.userValue
-          }  
+          }
           if (Array.isArray(obj)){
             obj.forEach(function (child) {
               process(child, func);
@@ -4743,9 +4760,9 @@ export const useProfileStore = defineStore('profile', {
               }
             }
           }
-  
+
         }
-  
+
 
         for (let rt of this.activeProfile.rtOrder){
           for (let pt of this.activeProfile.rt[rt].ptOrder){
@@ -4761,7 +4778,7 @@ export const useProfileStore = defineStore('profile', {
                       // some properties we don't care about
                       if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) !== -1){
                         continue
-                      }                      
+                      }
                       // sepcial for paired check
                       if (['http://id.loc.gov/ontologies/bibframe/expressionOf'].indexOf(ptObj.propertyURI) !== -1){
                         continue
@@ -4774,7 +4791,7 @@ export const useProfileStore = defineStore('profile', {
                       })
                     }
                   }
-                }               
+                }
             });
           }
         }
@@ -4846,7 +4863,7 @@ export const useProfileStore = defineStore('profile', {
                   ptObj:ptObj,
                   node: obj,
                   propertyURI: key,
-                  value: value, 
+                  value: value,
                   lang: obj['@language'],
                 })
               }

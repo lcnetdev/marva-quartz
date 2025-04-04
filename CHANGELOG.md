@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Improved custom order work with changes to profiles
 - Improved custom order when profile components don't match
+- Fix custom ordering removing AdminMetadata
 
 ## [1.2.2] - 2025-04-02
 ### Added
