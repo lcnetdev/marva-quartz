@@ -1777,6 +1777,18 @@ const utilsParse = {
             }else{
               ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri )
             }
+
+            // // also mark them as being paired literal
+            // ptToReOrder.userValue[toGroupUri].forEach((v, index)=>{       
+            //   if (index == 0){
+            //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'start'
+            //   }else if (index == ptToReOrder.userValue[toGroupUri].length-1){
+            //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'end'
+            //   }else{
+            //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'middle'
+            //   }
+            // })
+
             
           }
         }
@@ -1800,6 +1812,17 @@ const utilsParse = {
                       bnode[p2] = useProfileStore().sortObjectsByLatinMatch(bnode[p2],p2)                    
                     }
 
+                    // // also mark them as being paired literal
+                    // bnode[p2].forEach((v, index)=>{       
+                    //   if (index == 0){
+                    //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'start'
+                    //   }else if (index == bnode[p2].length-1){
+                    //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'end'
+                    //   }else{
+                    //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'middle'
+                    //   }
+                    // })
+
                     
                   }
                 }
@@ -1808,6 +1831,8 @@ const utilsParse = {
           }
         }      
       }
+      
+      this.buildPairedLiteralsIndicators(profile)
 
       let adminMedtataPrimary = null
       let adminMedtataSecondary = []
@@ -2104,8 +2129,71 @@ const utilsParse = {
 
   },
 
+  /**
+   * Sets up indicators for paired literals in a profile to manage UI presentation.
+   * 
+   * For these paired literals, it marks each value 
+   * with a position indicator ('start', 'middle', or 'end') in the pairedLitearlIndicatorLookup.
+   * 
+   * The indicators help the UI layer properly display multi-language text entries with
+   * appropriate styling
+   * 
+   * @param {Object} profile - The BibFrame profile object containing resource templates
+   * @returns {void} - Updates the pairedLitearlIndicatorLookup in the ProfileStore
+   */
+  buildPairedLiteralsIndicators: function(profile){
+
+      
+    useProfileStore().pairedLitearlIndicatorLookup = {}
+  
+    function process (obj, func) {
+      if (obj && obj.userValue){
+        obj = obj.userValue
+      }  
+      if (Array.isArray(obj)){
+        obj.forEach(function (child) {
+          process(child, func);
+        });
+      }else if (typeof obj == 'object' && obj !== null){
+        for (let k in obj){
+          if (Array.isArray(obj[k])){
+            if (!k.startsWith('@') && obj[k].length>1){
+              func(obj,k,obj[k]);
+            }
+            process(obj[k], func);
+
+          }
+        }
+      }
+
+    }
 
 
+    for (let rt of profile.rtOrder){
+      for (let pt of profile.rt[rt].ptOrder){
+        let ptObj = profile.rt[rt].pt[pt]
+        process(ptObj, function (obj,key,value) {
+            // e.g.
+            // only array > 1 make it here
+            if (value.filter((v)=>{ return (v['@language'])}).length >= 1){
+              // only arrays with @language in them make it here and only if they do nt all have it
+
+              value.forEach((v, index)=>{
+                if (index == 0){
+                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = value.length
+                }else if (index == value.length-1){
+                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
+                }else{
+                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
+                }
+              })        
+            }               
+        });
+      }
+    }
+
+
+  },
 
   /**
   * Will take a profile obj and make sure the Works have a hasInstance and the Instances have instanceOf

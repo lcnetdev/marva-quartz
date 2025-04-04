@@ -648,6 +648,23 @@ export const usePreferenceStore = defineStore('preference', {
       range: [true,false]
     },
 
+    '--b-edit-main-literal-display-paired-literal-line' : {
+      desc: 'Display a line between the two paired literals. Indicates that the two values are related.',
+      descShort: 'Display a line between the two paired literals.',
+      value: true,
+      type: 'boolean',
+      unit: null,
+      group: 'Literal Field',
+      range: [true,false]
+    },
+    '--c-edit-main-literal-paired-literal-line-color' : {
+      desc: 'Line color of the paired literal line',
+      descShort: 'Paired literal line color',
+      value: "#4b4b4b",
+      type: 'color',
+      group: 'Literal Field',
+      range: null
+    },
 
 
     // Lookup Field
