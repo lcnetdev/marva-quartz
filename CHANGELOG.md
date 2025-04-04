@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [1.2.4] - 2025-04-04
 ### Changed
 - Update Default library components: `Bib/Index`, `Color Ill., Color Map`, `Index` [BFP-370]
-
+- Remove icon from default component items
 
 ## [1.2.3] - 2025-04-03
 ### Fixed
