@@ -185,8 +185,9 @@
             <label for="jackphy">Does this record contain non-Latin script that should be retained? </label><input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
             <br>
             <h3>Load with profile:</h3>
+            !!{{ disableCopyCatButtons() }}
             <div class="load-buttons">
-              <button class="load-button" @click="loadCopyCat(s.instance)" :disabled="disableCopyCatButtons"  v-for="s in startingPointsFiltered">
+              <button class="load-button" @click="loadCopyCat(s.instance)" :disabled="disableCopyCatButtons()"  v-for="s in startingPointsFiltered">
                 {{s.name}}
               </button>
             </div>
@@ -207,7 +208,7 @@
               </h2>
               <!-- Pagination -->
               <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc" class="wc-search-paging">
-                <tempalte v-slot:pagination>
+
                   <span :style="`${this.preferenceStore.styleModalTextColor()}`">
                     <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
                       <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
@@ -224,7 +225,7 @@
                       <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
                     </a>
                   </span>
-                </tempalte>
+
                 <slot name="pagination"></slot>
               </div>
             </div>
@@ -431,10 +432,16 @@
 
     methods: {
       disableCopyCatButtons: function(){
-        let recordSelected = (this.selectedWcRecord) ? false : true
-        let existingLCCN = this.searchByLccnResults.length > 0 ? true : false
+        console.info("disableCopyCatButtons")
+        let recordSelected = (this.selectedWcRecord) ? true : false
+        let existingLCCN = (this.searchByLccnResults && this.searchByLccnResults.length > 0) ? true : false
 
-        return recordSelected && !existingLCCN
+        console.info("recordSelected: ", recordSelected, "--", this.selectedWcRecord)
+        console.info("existingLCCN: ", existingLCCN, "--", this.searchByLccnResults)
+
+        console.info(!recordSelected && !existingLCCN)
+
+        return !recordSelected && !existingLCCN
       },
       encodingLevel: function (value){
         if (this.oclcEncodingLevelsHigh.includes(value)){
@@ -671,10 +678,14 @@
         let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
         this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"
         console.info("urlToLoad: ", this.urlToLoad)
-        // this.loadUrl(profile)
+
         // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
         // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
         // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
+
+          this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/ocm45532466.cbd.xml"
+          console.info("profile: ", profile)
+          // this.loadUrl(profile)
       },
 
       loadFromAllRecord: function(eId){
