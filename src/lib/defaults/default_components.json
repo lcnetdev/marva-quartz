@@ -55,68 +55,6 @@
                         "label": "Bib (supp cntnt)"
                     },
                     {
-                        "id": "oQi93DZwLFw6wz4VNdwShV",
-                        "groupId": "Bib/Index",
-                        "position": 1,
-                        "structure": {
-                            "mandatory": "false",
-                            "repeatable": "true",
-                            "type": "lookup",
-                            "resourceTemplates": [],
-                            "valueConstraint": {
-                                "valueTemplateRefs": [],
-                                "useValuesFrom": [
-                                    "http://id.loc.gov/vocabulary/msupplcont"
-                                ],
-                                "valueDataType": {
-                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent"
-                                },
-                                "defaults": []
-                            },
-                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
-                            "propertyLabel": "Supplementary content",
-                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-MonographConsiderations(andMARC008)",
-                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
-                            "parentId": "lc:RT:bf2:Monograph:Work",
-                            "userValue": {
-                                "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
-                                "http://id.loc.gov/ontologies/bibframe/supplementaryContent": [
-                                    {
-                                        "@guid": "vCgCdTmcmhcjy3PGHDAXDn",
-                                        "@id": "http://id.loc.gov/vocabulary/msupplcont/bibliography",
-                                        "http://www.w3.org/2000/01/rdf-schema#label": [
-                                            {
-                                                "@guid": "tFys4XBvT8izGPUncnT7Za",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "bibliography (bibliography)"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "@id": "http://id.loc.gov/vocabulary/msupplcont/index",
-                                        "@guid": "6SoYJVRKoWciyxoZRRCEqe",
-                                        "http://www.w3.org/2000/01/rdf-schema#label": [
-                                            {
-                                                "@guid": "4CddwJ7aKRReFHJJqTZh77",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "index (index)"
-                                            }
-                                        ],
-                                        "@type": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent"
-                                    }
-                                ]
-                            },
-                            "@guid": null,
-                            "canBeHidden": true,
-                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
-                            "id": "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content",
-                            "hashCode": -13789748,
-                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
-                            "hasData": true,
-                            "userModified": true,
-                            "dataLoaded": false
-                        },
-                        "label": "Bib/Index (supp cntnt)"
-                    },
-                    {
                         "id": "wxMKo6adfY9AYw9iSkDoEB",
                         "groupId": "Board Books",
                         "position": 2,
@@ -180,115 +118,9 @@
                         "label": "Board books (gf)"
                     },
                     {
-                        "id": "uiwUFXh79yw5yq2kSVVsAo",
+                        "id": "jjXjohyesh3sx4qRK4KgjH",
                         "groupId": "Color Ill., Color Maps",
-                        "position": 3,
-                        "structure": {
-                            "mandatory": "false",
-                            "repeatable": "true",
-                            "type": "lookup",
-                            "resourceTemplates": [],
-                            "valueConstraint": {
-                                "valueTemplateRefs": [],
-                                "useValuesFrom": [
-                                    "http://id.loc.gov/vocabulary/millus"
-                                ],
-                                "valueDataType": {
-                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Illustration"
-                                },
-                                "repeatable": "true",
-                                "editable": "false",
-                                "defaults": []
-                            },
-                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
-                            "propertyLabel": "Illustrative content",
-                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-MonographConsiderations(andMARC008)",
-                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
-                            "parentId": "lc:RT:bf2:Monograph:Work",
-                            "userValue": {
-                                "@root": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
-                                "http://id.loc.gov/ontologies/bibframe/illustrativeContent": [
-                                    {
-                                        "@guid": "n9eYH8NiiPZwQtALcfevb9",
-                                        "@type": "http://id.loc.gov/ontologies/bibframe/Illustration",
-                                        "@id": "http://id.loc.gov/vocabulary/millus/ill",
-                                        "http://www.w3.org/2000/01/rdf-schema#label": [
-                                            {
-                                                "@guid": "sZPoL2RYygF9KZUctb6Cxi",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations (ill)"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            "@guid": null,
-                            "canBeHidden": true,
-                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
-                            "id": "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
-                            "hashCode": 205380255,
-                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
-                            "hasData": true,
-                            "userModified": true,
-                            "dataLoaded": false
-                        },
-                        "label": "Color ill, color maps (ill cntnt)"
-                    },
-                    {
-                        "id": "knAoj72CTJBEMUGWX482cW",
-                        "groupId": "Color Ill., Color Maps",
-                        "position": 4,
-                        "structure": {
-                            "mandatory": "false",
-                            "repeatable": "true",
-                            "type": "lookup",
-                            "resourceTemplates": [],
-                            "valueConstraint": {
-                                "valueTemplateRefs": [],
-                                "useValuesFrom": [
-                                    "http://id.loc.gov/vocabulary/mcolor"
-                                ],
-                                "valueDataType": {
-                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/ColorContent"
-                                },
-                                "defaults": []
-                            },
-                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/colorContent",
-                            "propertyLabel": "Color content",
-                            "remark": "https://original.rdatoolkit.org/7.17.html",
-                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
-                            "parentId": "lc:RT:bf2:Monograph:Work",
-                            "userValue": {
-                                "@root": "http://id.loc.gov/ontologies/bibframe/colorContent",
-                                "http://id.loc.gov/ontologies/bibframe/colorContent": [
-                                    {
-                                        "@guid": "syKd3NRZEA42jPSuMkSc8Z",
-                                        "@type": "http://id.loc.gov/ontologies/bibframe/ColorContent",
-                                        "@id": "http://id.loc.gov/vocabulary/mcolor/mul",
-                                        "http://www.w3.org/2000/01/rdf-schema#label": [
-                                            {
-                                                "@guid": "ajYpkVgxDKGf7DLPS2XjT7",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "color (mul)"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            "@guid": null,
-                            "canBeHidden": true,
-                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/colorContent|http://id.loc.gov/ontologies/bibframe/ColorContent",
-                            "id": "id_loc_gov_ontologies_bibframe_colorContent__color_content",
-                            "hashCode": -1574658025,
-                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/colorContent|http://id.loc.gov/ontologies/bibframe/ColorContent",
-                            "hasData": true,
-                            "userModified": true,
-                            "dataLoaded": false
-                        },
-                        "label": "Color ill, color maps (clr cntnt)"
-                    },
-                    {
-                        "id": "psg5S4vFBYoUkKLueaQsFs",
-                        "groupId": "Color Ill., Color Maps",
-                        "position": 5,
+                        "position": 1,
                         "structure": {
                             "mandatory": "false",
                             "repeatable": "true",
@@ -317,19 +149,19 @@
                                 "@root": "http://id.loc.gov/ontologies/bibframe/genreForm",
                                 "http://id.loc.gov/ontologies/bibframe/genreForm": [
                                     {
-                                        "@guid": "qRhz8woQ1yRzmjbaWXk4DS",
+                                        "@guid": "hwqpJTzEp6HPFdbJ7RmVrF",
                                         "@type": "http://www.loc.gov/mads/rdf/v1#GenreForm",
                                         "@id": "http://id.loc.gov/authorities/genreForms/gf2011026387",
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
-                                                "@guid": "4pyZvdkgggczcsEq6DfwXK",
+                                                "@guid": "tNsibtP6Eq8Mq431K3CXr6",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": "Maps",
                                                 "@language": "en"
                                             }
                                         ],
                                         "http://id.loc.gov/ontologies/bflc/marcKey": [
                                             {
-                                                "@guid": "hAHYQn2h2u52Msp13Lm1LG",
+                                                "@guid": "i8s2YnqXohM1gJCk5UsuBu",
                                                 "http://id.loc.gov/ontologies/bflc/marcKey": "155  $aMaps"
                                             }
                                         ]
@@ -349,9 +181,9 @@
                         "label": "Color ill, color maps (gf)"
                     },
                     {
-                        "id": "12U79Pa2gsD43GNcx3BeRM",
+                        "id": "9MsWfD3NLGiT2SQWW6jzsQ",
                         "groupId": "Color Ill., Color Maps",
-                        "position": 6,
+                        "position": 2,
                         "structure": {
                             "mandatory": "true",
                             "repeatable": "true",
@@ -383,12 +215,12 @@
                                 "@root": "http://id.loc.gov/ontologies/bibframe/content",
                                 "http://id.loc.gov/ontologies/bibframe/content": [
                                     {
-                                        "@guid": "qs7i2KErdfpxQebeXxBdHS",
+                                        "@guid": "u9nHvqnfhJZtALqWfw1mkG",
                                         "@type": "http://id.loc.gov/ontologies/bibframe/Content",
                                         "@id": "http://id.loc.gov/vocabulary/contentTypes/cri",
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
-                                                "@guid": "dRVVUgVuBu9aP4Wy9CKVAi",
+                                                "@guid": "p9aBJtEtK8xmmSQD2Wr7a7",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": "cartographic image (cri)"
                                             }
                                         ]
@@ -406,6 +238,112 @@
                             "dataLoaded": false
                         },
                         "label": "Color ill, color maps (cntnt type)"
+                    },
+                    {
+                        "id": "edCbktnxShKEwGJaH8MQw7",
+                        "groupId": "Color Ill., Color Maps",
+                        "position": 3,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/millus"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Illustration"
+                                },
+                                "repeatable": "true",
+                                "editable": "false",
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                            "propertyLabel": "Illustrative content",
+                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-MonographConsiderations(andMARC008)",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                                "http://id.loc.gov/ontologies/bibframe/illustrativeContent": [
+                                    {
+                                        "@guid": "93WTt3zjGk7uvDqKxQdfPv",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Illustration",
+                                        "@id": "http://id.loc.gov/vocabulary/millus/ill",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "tf4kCiRgaBoyzMZ1toeQf7",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations (ill)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "id": "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
+                            "hashCode": 205380255,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Color ill, color maps (ill cntnt)"
+                    },
+                    {
+                        "id": "7nNJVUNvy2fLWtgFEqLLPQ",
+                        "groupId": "Color Ill., Color Maps",
+                        "position": 4,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/mcolor"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/ColorContent"
+                                },
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/colorContent",
+                            "propertyLabel": "Color content",
+                            "remark": "https://original.rdatoolkit.org/7.17.html",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/colorContent",
+                                "http://id.loc.gov/ontologies/bibframe/colorContent": [
+                                    {
+                                        "@guid": "oQjHbqZzpDZrbwbueq7SXY",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/ColorContent",
+                                        "@id": "http://id.loc.gov/vocabulary/mcolor/mul",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "twigRcScQG1Vw1kWsEpo49",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "color (mul)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/colorContent|http://id.loc.gov/ontologies/bibframe/ColorContent",
+                            "id": "id_loc_gov_ontologies_bibframe_colorContent__color_content",
+                            "hashCode": -1574658025,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/colorContent|http://id.loc.gov/ontologies/bibframe/ColorContent",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Color ill, color maps (clr cntnt)"
                     },
                     {
                         "id": "e23K4t6fH8tbAzuaB8uzM4",
@@ -716,9 +654,9 @@
                         "label": "Illustrations , map (ill cntnt)"
                     },
                     {
-                        "id": "ahEhfXn41MtA9EaUMCweev",
+                        "id": "tyYpwBrvo28L5N1cMt6ZaE",
                         "groupId": "Index",
-                        "position": 12,
+                        "position": 0,
                         "structure": {
                             "mandatory": "false",
                             "repeatable": "true",
@@ -743,11 +681,11 @@
                                 "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
                                 "http://id.loc.gov/ontologies/bibframe/supplementaryContent": [
                                     {
-                                        "@guid": "3qh93DGTBCFvYYkfQALFcn",
+                                        "@guid": "9sJpuwTywqSY1QGTSTzfq6",
                                         "@id": "http://id.loc.gov/vocabulary/msupplcont/index",
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
-                                                "@guid": "19FHxbw63W4arnVSZTzxVG",
+                                                "@guid": "oCsHwetaWhyz65HUcAuZ3a",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": "index (index)"
                                             }
                                         ]
@@ -1544,6 +1482,69 @@
                             "dataLoaded": false
                         },
                         "label": "Discography (gf)"
+                    },
+                    {
+                        "id": "gnKf9qXvBer5MmuZo34F12",
+                        "groupId": "Bib/Index",
+                        "position": 5,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "lookup",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [],
+                                "useValuesFrom": [
+                                    "http://id.loc.gov/vocabulary/msupplcont"
+                                ],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent"
+                                },
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
+                            "propertyLabel": "Supplementary content",
+                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-MonographConsiderations(andMARC008)",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
+                                "http://id.loc.gov/ontologies/bibframe/supplementaryContent": [
+                                    {
+                                        "@guid": "oaCjZfAH3KZzvcSEMhNC9r",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
+                                        "@id": "http://id.loc.gov/vocabulary/msupplcont/bibliography",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "g5B4T3UHiDXn5e2iK6aUL2",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "bibliography "
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "@id": "http://id.loc.gov/vocabulary/msupplcont/index",
+                                        "@guid": "hDNozjhqMeH7t4V4F5SunD",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "rAoQXAgoUW23ZFpzwJJt1N",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "index "
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent"
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
+                            "id": "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content",
+                            "hashCode": -13789748,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Bib/Index (supp cntnt)"
                     }
                 ]
             },
@@ -1661,7 +1662,7 @@
                         "label": "Bib (inst note)"
                     },
                     {
-                        "id": "wbxmhnds2SNgeCkXgv3xZ2",
+                        "id": "eWqYsYscSi9reWU9hNzWen",
                         "groupId": "Bib/Index",
                         "position": 2,
                         "structure": {
@@ -1686,21 +1687,21 @@
                                 "@root": "http://id.loc.gov/ontologies/bibframe/note",
                                 "http://id.loc.gov/ontologies/bibframe/note": [
                                     {
-                                        "@guid": "vSjPNQ5KbvxEmKCHU3f8JP",
+                                        "@guid": "dbNojHB9THiQDt4akodaZy",
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
-                                                "@guid": "7EuC3sfRBEqPEJY3xxKq87",
+                                                "@guid": "tTMgm9P5xvMTtgpAe1st4c",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": "Includes bibliographical references (pages <#####>) and index."
                                             }
                                         ],
                                         "@type": "http://id.loc.gov/ontologies/bibframe/Note",
                                         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
                                             {
-                                                "@guid": "ukqj5j3tjxrSgRJ4QFSCT6",
+                                                "@guid": "j5aAg6GWsCm7BJoBmdBUC3",
                                                 "@id": "http://id.loc.gov/vocabulary/mnotetype/biblio",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
-                                                        "@guid": "7EgLYVh5v5jk925H3bnY6t",
+                                                        "@guid": "pMHWBV9aRMsWaVbvB8Ms2E",
                                                         "http://www.w3.org/2000/01/rdf-schema#label": "bibliography (biblio)"
                                                     }
                                                 ],
@@ -2314,9 +2315,9 @@
                         "label": "Illustrations, map (inst note)"
                     },
                     {
-                        "id": "8gb8rhJrQ85HuQCM2BP1J3",
+                        "id": "9hDgD6zpGXZpvhujVGLywC",
                         "groupId": "Index",
-                        "position": 14,
+                        "position": 0,
                         "structure": {
                             "mandatory": "false",
                             "repeatable": "true",
@@ -2339,27 +2340,14 @@
                                 "@root": "http://id.loc.gov/ontologies/bibframe/note",
                                 "http://id.loc.gov/ontologies/bibframe/note": [
                                     {
-                                        "@guid": "fLNvASvFAPg2yaYsvUiCAR",
+                                        "@guid": "i8Ez3jf9Dto62PqBU4qP58",
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
-                                                "@guid": "rYzzZNx1JWMgeffT6petqr",
+                                                "@guid": "rqnDfNtz4VtCGwKtxhGaFr",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": "Includes index."
                                             }
                                         ],
-                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
-                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
-                                            {
-                                                "@guid": "qsX92md9LjfZc2t3zmZWR9",
-                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/index",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": [
-                                                    {
-                                                        "@guid": "vuuMnZzB1zKcZdR8p4m8Y7",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "index (index)"
-                                                    }
-                                                ],
-                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
-                                            }
-                                        ]
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note"
                                     }
                                 ]
                             },
@@ -2828,6 +2816,68 @@
                             "dataLoaded": false
                         },
                         "label": "Discography (inst note)"
+                    },
+                    {
+                        "id": "nfrU6YS59WVvVzsJUySHDK",
+                        "groupId": "Color Ill., Color Maps",
+                        "position": 1,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": [
+                                    "lc:RT:bf2:Note"
+                                ],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyLabel": "Notes about the Instance",
+                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Notesonnotes",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Instance",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "16uaAHuNhyQDtqbgVEjxXN",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "c9eGzfXsxoDuGX1EFmNFQ6",
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/physical",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "gcvkLqgzw65pU9q3gP43mX",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details "
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "pt6BVnRLTorTvoQWxkofar",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Illustration (color), color maps"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                            "hashCode": 1294285788,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "userModified": true,
+                            "dataLoaded": false
+                        },
+                        "label": "Color ill, color maps (inst note)"
                     }
                 ]
             }

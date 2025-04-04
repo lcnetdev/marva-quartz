@@ -581,7 +581,7 @@ import { isReadonly } from 'vue';
                 <template v-for="component in clProfile.groups[group]">
                    <li class="sidebar-property-li sidebar-property-li-cl ">
 
-                  <button :class="{'material-icons' : true, 'component-library-settings-button': true, 'component-library-settings-button-invert': (activeComponentLibrary == component.id)  }" @click="configComponentLibrary(component.id)">settings_applications</button>
+                  <button v-if="clProfile.type != 'default'" :class="{'material-icons' : true, 'component-library-settings-button': true, 'component-library-settings-button-invert': (activeComponentLibrary == component.id)  }" @click="configComponentLibrary(component.id)">settings_applications</button>
 
 
 
