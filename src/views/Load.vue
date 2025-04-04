@@ -164,14 +164,29 @@
 
             </form>
             <hr>
-            <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="copyCatLccn" /><br>
+            <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="loadSearch" /><br>
+            <template v-if="searchByLccnResults && searchByLccnResults.length > 0">
+              <template v-if="typeof searchByLccnResults === 'string'">
+
+              </template>
+              <template v-else>
+                <br>
+                <h3>There's a record with this LCCN...</h3>
+                <ul>
+                  <li v-for="(r,idx) in searchByLccnResults" :key="r.idURL">
+                    <a class="copy-cat-url" :href="r.bfdbURL" target="_blank">{{ r.label }}</a>
+                  </li>
+                </ul>
+              </template>
+            </template>
+            <br>
             <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority" /><br>
             <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
             <label for="jackphy">Does this record contain non-Latin script that should be retained? </label><input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
             <br>
             <h3>Load with profile:</h3>
             <div class="load-buttons">
-              <button class="load-button" @click="loadCopyCat(s.instance)" :disabled="(selectedWcRecord) ? false : true"  v-for="s in startingPointsFiltered">
+              <button class="load-button" @click="loadCopyCat(s.instance)" :disabled="disableCopyCatButtons"  v-for="s in startingPointsFiltered">
                 {{s.name}}
               </button>
             </div>
@@ -374,6 +389,7 @@
         jackphyCheck: false,
         ibcCheck: false,
         responseURL: null,
+        existingLccn: false,
 
 
       }
@@ -414,6 +430,12 @@
     },
 
     methods: {
+      disableCopyCatButtons: function(){
+        let recordSelected = (this.selectedWcRecord) ? false : true
+        let existingLCCN = this.searchByLccnResults.length > 0 ? true : false
+
+        return recordSelected && !existingLCCN
+      },
       encodingLevel: function (value){
         if (this.oclcEncodingLevelsHigh.includes(value)){
           return 'High'
@@ -588,12 +610,19 @@
         //     case "'": return "&apos;"
         //   }
         // })
+        this.existingLccn = false
 
         xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
 
-        if (!this.copyCatLccn){
+        // if (!this.copyCatLccn){
+        if (!this.urlToLoad){
           alert("This needs an LCCN to continue.")
           return
+        } else {
+          if (this.urlToLoad.length != 10){
+            alert("It looks like this LCCN is not correct. Try entering it again.")
+            return
+          }
         }
 
         let parser = new DOMParser()
@@ -607,7 +636,7 @@
 
         let subfieldA = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
         subfieldA.setAttribute("code", "a")
-        subfieldA.innerHTML = this.copyCatLccn
+        subfieldA.innerHTML = this.urlToLoad
         dummy999.appendChild(subfieldA)
 
         let subfieldB = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
@@ -729,6 +758,12 @@
       },
 
       loadSearch: function(){
+        console.info("loadSearch: ", this.urlToLoad)
+
+        if (!this.urlToLoad){
+          this.searchByLccnResults = []
+        }
+
         this.lccnLoadSelected = null
 
         if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")){

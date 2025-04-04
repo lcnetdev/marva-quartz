@@ -411,6 +411,32 @@ const utilsNetwork = {
 
     },
 
+    searchLccn: async function name(lccn) {
+      let url = "https://id.loc.gov/resources/instances/identifier/"
+      if (useConfigStore().returnUrls.displayLCOnlyFeatures){
+        url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/"
+      }
+
+      url = url + lccn
+
+      let result = await fetch(
+        url,
+        {
+          method: 'HEAD',
+          redirect: 'manual',
+          // mode: 'cors',
+          headers: {
+            'Access-Control-Expose-Headers': 'x-preflabel',
+            'access-control-allow-headers': 'x-preflabel'
+          }
+        }
+      )
+
+      console.info("\n\nresult: ", result)
+
+      return result
+    },
+
     /**
     * Looks for instances by LCCN against ID, returns into for them to be displayed and load the resource
     * @param {searchPayload} searchPayload - the {@link searchPayload} to look for
