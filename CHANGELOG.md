@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Improved complex subject lookups
 
+### Changed
+- `Left Anchored` search options appear before `Keyword` in complex lookups
+
 
 ## [1.2.4] - 2025-04-04
 ### Changed
