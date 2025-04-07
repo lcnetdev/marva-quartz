@@ -2005,19 +2005,18 @@ methods: {
     }
 
     if (this.pickLookup[this.pickPostion].complex){
-      // if it is a complex authorized heading then just replace the whole things with it
-      // console.info("this.subjectString: ", this.subjectString)
-      // console.info("this.pickPostion: ", this.pickPostion)
-      // console.info("this.pickLookup[this.pickPostion].label: ", this.pickLookup[this.pickPostion].label)
+      // if it is a complex authorized heading then just replace the whole things with it, sometimes
+      let splitString = this.subjectString.split('--')
+      if (splitString.includes(this.pickLookup[this.pickPostion].label.replaceAll('-','‑'))){
+        let idx = splitString.indexOf(this.pickLookup[this.pickPostion].label.replaceAll('-','‑'))
+        if (idx == this.activeComponentIndex){
+          splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
+          this.subjectString = splitString.join('--')
+        }
+      } else {
+        this.subjectString = this.pickLookup[this.pickPostion].label
+      }
 
-      // let splitString = this.subjectString.split('--')
-      // console.info("splitString: ", splitString)
-      // splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
-
-      // this.subjectString = splitString.join('--')
-
-      this.subjectString = this.pickLookup[this.pickPostion].label
-      console.info("this.subjectString: ", this.subjectString)
 
       this.activeComponentIndex = 0
 
