@@ -2006,10 +2006,22 @@ methods: {
 
     if (this.pickLookup[this.pickPostion].complex){
       // if it is a complex authorized heading then just replace the whole things with it
+      // console.info("this.subjectString: ", this.subjectString)
+      // console.info("this.pickPostion: ", this.pickPostion)
+      // console.info("this.pickLookup[this.pickPostion].label: ", this.pickLookup[this.pickPostion].label)
+
+      // let splitString = this.subjectString.split('--')
+      // console.info("splitString: ", splitString)
+      // splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
+
+      // this.subjectString = splitString.join('--')
+
       this.subjectString = this.pickLookup[this.pickPostion].label
+      console.info("this.subjectString: ", this.subjectString)
+
       this.activeComponentIndex = 0
 
-      this.componetLookup = {}
+      // this.componetLookup = {}
       this.componetLookup[this.activeComponentIndex] = {}
 
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
@@ -2366,6 +2378,7 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    console.info("subjectStringChanged: ", this.subjectString)
     this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 

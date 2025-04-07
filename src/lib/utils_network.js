@@ -2690,9 +2690,8 @@ const utilsNetwork = {
       if (pos == 0){
         exact = exact.concat(resultsExactName)
         exact = exact.concat(resultsExactSubject)
-        resultsSubjectsComplex = resultsSubjectsComplex.concat(resultsSubjectsComplexSearchVal.filter((item) => !resultsSubjectsComplex.includes(item)))
+        resultsSubjectsComplex = resultsSubjectsComplex.concat(resultsSubjectsComplexSearchVal.filter((item) => !resultsSubjectsComplex.some((o) => o.label == item.label))) //dedupe
       }
-
 
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
