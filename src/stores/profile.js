@@ -2172,6 +2172,7 @@ export const useProfileStore = defineStore('profile', {
           }
 
           // also build the paired literal lines
+          this.reorderAllNonLatinLiterals()
           utilsParse.buildPairedLiteralsIndicators(this.activeProfile)
         }
 
