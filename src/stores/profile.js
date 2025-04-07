@@ -151,6 +151,7 @@ export const useProfileStore = defineStore('profile', {
     emptyComponents: {},
 
 
+
   }),
   getters: {
 
@@ -3638,7 +3639,7 @@ export const useProfileStore = defineStore('profile', {
       // console.log("work",work)
       if (work){
         for (let ptId of work.ptOrder){
-          let pt = work.pt[ptId]
+          let pt = JSON.parse(JSON.stringify(work.pt[ptId]))
 
           /*
           //
@@ -3669,9 +3670,23 @@ export const useProfileStore = defineStore('profile', {
             if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'] && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'].length>0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]){
               titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
               if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle']){
-                if (titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'][0] && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
-                  title = titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                
+
+                let titleBnodeSorted = titleUserValue
+                
+
+                if (titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 1){
+                  // there are multiple titles, we want to make sure to pick the latin one
+                  titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'] = this.sortObjectsByLatinMatch(titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'],'http://id.loc.gov/ontologies/bibframe/mainTitle')
                 }
+
+                
+
+
+                if (titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 0 && titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0] && titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
+                  title = titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                }              
+
               }
               if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum']){
                 if (titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum'].length > 0 && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum'][0] && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum'][0]['http://id.loc.gov/ontologies/bflc/nonSortNum']){
@@ -6079,18 +6094,67 @@ export const useProfileStore = defineStore('profile', {
      * @return {Object[]} - Sorted array with non-Latin objects first
      */
     sortObjectsByLatinMatch(arr, key) {
-      return arr.sort((a, b) => {
-        // Handle cases where key doesn't exist
-        const aValue = a[key] || '';
-        const bValue = b[key] || '';
 
-        const aIsLatin = latinRegex.test(aValue);
-        const bIsLatin = latinRegex.test(bValue);
+      // if they have language tags in them then we know how to sort
+      // console.log(JSON.stringify(arr,null,2))
+      // console.log(arr.filter((v)=>{ return (v['@language'])}).length)
+      if (arr.filter((v)=>{ return (v['@language'])}).length >= 1){
+      //   // sort by language tags
+        return arr.sort((a, b) => {
+          let aLang = a['@language'] || '';
+          let bLang = b['@language'] || '';
 
-        if (!bIsLatin && aIsLatin) return -1;
-        if (bIsLatin && !aIsLatin) return 1;
-        return 0;
-      });
+          
+          aLang = aLang.toLowerCase()
+          bLang = bLang.toLowerCase()
+          let aIsLatin = true
+          let bIsLatin = true
+
+          if (aLang.length > 0 && aLang.indexOf("-latn") == -1){
+            aIsLatin = false
+          }else if (aLang.length > 0 && aLang.indexOf("-latn") > -1){
+            aIsLatin = true
+          }else if (aLang.length == 0){
+            aIsLatin = true
+          }
+
+          if (bLang.length > 0 && bLang.indexOf("-latn") == -1){
+            bIsLatin = false
+          }else if (bLang.length > 0 && bLang.indexOf("-latn") > -1){
+            bIsLatin = true
+          }else if (bLang.length == 0){
+            bIsLatin = true
+          }
+                   
+          if (!bIsLatin && aIsLatin) return -1;
+
+          if (bIsLatin && !aIsLatin) return 1;
+          return 0;
+        });
+
+
+
+      }else{
+
+        // no tags, try the regex
+        return arr.sort((a, b) => {
+          // Handle cases where key doesn't exist
+          const aValue = a[key] || '';
+          const bValue = b[key] || '';
+          console.log(aValue, 'latinregex:',latinRegex.test(aValue))
+          console.log(bValue, 'latinregex:',latinRegex.test(bValue))
+          const aIsLatin = latinRegex.test(aValue);
+          const bIsLatin = latinRegex.test(bValue);
+  
+          if (!bIsLatin && aIsLatin) return -1;
+          if (bIsLatin && !aIsLatin) return 1;
+          return 0;
+        });
+
+      }
+
+
+
     },
 
 
@@ -6158,67 +6222,34 @@ export const useProfileStore = defineStore('profile', {
 
 
     },
-    /**
-     * Reorders all non-Latin and Latin literals within the active profile based on user preferences.
-     *
-     * This function:
-     * 1. Traverses through all resource templates (rt) and property templates (pt) in the active profile
-     * 2. Examines both nested literals inside bnodes and top-level literals
-     * 3. When it finds multiple literals where at least one has a @language tag:
-     *    - For nested literals: Sorts the array using sortObjectsByLatinMatch()
-     *    - For top-level literals in groupTopLeveLiterals: Sorts using sortObjectsByLatinMatch()
-     * 4. The sort order is determined by the '--b-edit-main-literal-non-latin-first' preference:
-     *    - If true: Non-Latin literals appear first (reversed sort)
-     *    - If false: Latin literals appear first (normal sort)
-     *
-     * @return {void} Modifies the active profile's literal ordering directly
-     */
+
+
     reorderAllNonLatinLiterals(){
-      // we are going to go looking for literals inside bnodes that have two literals with one at least of them with a @language tag
-      for (let pkey in this.activeProfile.rt){
-        for (let key in this.activeProfile.rt[pkey].pt){
-          let pt = this.activeProfile.rt[pkey].pt[key]
-          if (pt.userValue){
-            let propsFirstLevel = Object.keys(pt.userValue).filter(v => { return !v.startsWith('@') })
-            for (let p1 of propsFirstLevel){
-              for (let bnode of pt.userValue[p1]){
-                let propsSecondLevel = Object.keys(bnode).filter(v => { return !v.startsWith('@') })
-                for (let p2 of propsSecondLevel){
-                  if (Array.isArray(bnode[p2]) && bnode[p2].length>1){
-                    if (bnode[p2].filter((v)=>{ return (v['@language'])}).length>0){
-                      // sort the array of literals so the latin one is first
-                      console.log("bnode",bnode)
-                      if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
-                        bnode[p2] = useProfileStore().sortObjectsByLatinMatch(bnode[p2],p2).reverse()
-                      }else{
-                        bnode[p2] = useProfileStore().sortObjectsByLatinMatch(bnode[p2],p2)
-                      }
-                    }
-                  }
-                }
-              }
-            }
-            // also the top level literals
-            if (useConfigStore().groupTopLeveLiterals.indexOf(pt.propertyURI) > -1){
-              if (pt.userValue[pt.propertyURI]){
-                if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
-                  pt.userValue[pt.propertyURI] = useProfileStore().sortObjectsByLatinMatch(pt.userValue[pt.propertyURI],pt.propertyURI).reverse()
-                }else{
-                  pt.userValue[pt.propertyURI] = useProfileStore().sortObjectsByLatinMatch(pt.userValue[pt.propertyURI],pt.propertyURI)
-                }
+      this.activeProfile = utilsParse.reorderAllNonLatinLiterals(this.activeProfile)
 
-              }
+    }
 
-            }
-          }
-        }
-      }
+ 
+  
 
-    },
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
   },
+
 
 
 

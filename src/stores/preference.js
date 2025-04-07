@@ -4,6 +4,7 @@ import { getCurrentInstance } from 'vue'
 import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyager_macro_express.json"
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
 import utilsProfile from '../lib/utils_profile'
+import utilsParse from '../lib/utils_parse'
 
 export const usePreferenceStore = defineStore('preference', {
   state: () => ({
@@ -1504,10 +1505,10 @@ export const usePreferenceStore = defineStore('preference', {
       this.savePreferences()
 
       // we can do any actions on specific preference changes here
-      console.log(propertyName, this.styleDefault[propertyName].value)
       if (propertyName == '--b-edit-main-literal-non-latin-first'){
         useProfileStore().reorderAllNonLatinLiterals()
-        
+        utilsParse.buildPairedLiteralsIndicators(useProfileStore().activeProfile)
+        useProfileStore ().dataChanged()
       }
 
 
