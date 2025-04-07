@@ -1776,62 +1776,14 @@ const utilsParse = {
               ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri ).reverse()
             }else{
               ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri )
-            }
-
-            // // also mark them as being paired literal
-            // ptToReOrder.userValue[toGroupUri].forEach((v, index)=>{       
-            //   if (index == 0){
-            //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'start'
-            //   }else if (index == ptToReOrder.userValue[toGroupUri].length-1){
-            //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'end'
-            //   }else{
-            //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'middle'
-            //   }
-            // })
-
-            
+            }            
           }
         }
       }
 
       // we are going to go looking for literals inside bnodes that have two literals with one at least of them with a @language tag
-      for (let key in profile.rt[pkey].pt){
-        let pt = profile.rt[pkey].pt[key]
-        if (pt.userValue){
-          let propsFirstLevel = Object.keys(pt.userValue).filter(v => { return !v.startsWith('@') })
-          for (let p1 of propsFirstLevel){
-            for (let bnode of pt.userValue[p1]){
-              let propsSecondLevel = Object.keys(bnode).filter(v => { return !v.startsWith('@') })
-              for (let p2 of propsSecondLevel){
-                if (Array.isArray(bnode[p2]) && bnode[p2].length>1){
-                  if (bnode[p2].filter((v)=>{ return (v['@language'])}).length>0){                    
-                    // sort the array of literals so the latin one is first
-                    if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
-                      bnode[p2] = useProfileStore().sortObjectsByLatinMatch(bnode[p2],p2).reverse()                    
-                    }else{
-                      bnode[p2] = useProfileStore().sortObjectsByLatinMatch(bnode[p2],p2)                    
-                    }
-
-                    // // also mark them as being paired literal
-                    // bnode[p2].forEach((v, index)=>{       
-                    //   if (index == 0){
-                    //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'start'
-                    //   }else if (index == bnode[p2].length-1){
-                    //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'end'
-                    //   }else{
-                    //     useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = 'middle'
-                    //   }
-                    // })
-
-                    
-                  }
-                }
-              }              
-            }
-          }
-        }      
-      }
       
+      profile = this.reorderAllNonLatinLiterals(profile)
       this.buildPairedLiteralsIndicators(profile)
 
       let adminMedtataPrimary = null
@@ -2064,13 +2016,10 @@ const utilsParse = {
           Object.keys(profile.rt[pkey].pt[key].userValue).forEach((userURI)=>{
             if (!userURI.includes('@')){
               if (allUris.indexOf(userURI)===-1){
-
                 profile.rt[pkey].pt[key].missingProfile.push(userURI)
-
                 uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI].unAssingedProperties.push(userURI)
               }
             }
-
           })
 
           if (uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI].unAssingedProperties.length>0){
@@ -2314,7 +2263,75 @@ const utilsParse = {
 
     return  userValue
 
-  }
+  },
+
+  /**
+   * Reorders all multi-lingual literal values throughout the profile based on script type and user preferences.
+   *
+   * This method recursively traverses the entire profile data structure searching for arrays of literal
+   * values that contain at least one element with a language tag (@language). When found, it sorts these
+   * arrays according to the user's preference for display order:
+   *
+   * - When "--b-edit-main-literal-non-latin-first" is true: Non-Latin literals appear first (reverse sort)
+   * - When "--b-edit-main-literal-non-latin-first" is false: Latin literals appear first (standard sort)
+   *
+   * The sorting is performed using the ProfileStore's sortObjectsByLatinMatch method, which checks each
+   * value against Latin character patterns to determine the appropriate ordering.
+   *
+   * @param {Object} profile - The BibFrame profile object containing resource templates
+   * @return {Object} - The profile with reordered literal arrays
+   */
+   reorderAllNonLatinLiterals: function(profile){
+
+    function process (obj, func) {
+      if (obj && obj.userValue){
+        obj = obj.userValue
+      }  
+      if (Array.isArray(obj)){
+        obj.forEach(function (child) {
+          process(child, func);
+        });
+      }else if (typeof obj == 'object' && obj !== null){
+        for (let k in obj){
+          if (Array.isArray(obj[k])){
+            if (!k.startsWith('@') && obj[k].length>1){
+              func(obj,k,obj[k]);
+            }
+            process(obj[k], func);
+
+          }
+        }
+      }
+    }    
+    for (let rt of profile.rtOrder){
+      for (let pt of profile.rt[rt].ptOrder){
+        let ptObj = profile.rt[rt].pt[pt]
+        process(ptObj, function (obj,key,value) {
+            // e.g.
+            // only array > 1 make it here
+          
+            // don't try to sort marcKey            
+            if (["http://id.loc.gov/ontologies/bibframe/contribution","http://id.loc.gov/ontologies/bibframe/subject"].indexOf(ptObj.propertyURI)>-1){
+              return null
+            }
+
+            if (value.length > 1 && value.filter((v)=>{ return (v['@language'])}).length >= 1){
+              // only arrays with @language in them make it here and only if they do nt all have it
+              if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+                value = useProfileStore().sortObjectsByLatinMatch(value,key).reverse()
+              }else{
+                value = useProfileStore().sortObjectsByLatinMatch(value,key)
+              }
+            }               
+        });
+      }
+    }
+
+    return profile
+
+
+  },
+
 
 
 

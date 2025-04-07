@@ -20,7 +20,7 @@
       <template v-else>
 
         <template v-for="lValue in literalValues">
-
+          
           <span class="bfcode-display-mode-holder-label simptip-position-top" :data-tooltip="structure.propertyLabel"   :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
 
           <span contenteditable="plaintext-only" @focusin="focused" @blur="blured" @keydown="keyDown" class="inline-mode-editable-span can-select" @keyup="navKey" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}{{(lValue['@language'] != null) ? '@'+lValue['@language'] : ''}}</span>
@@ -46,7 +46,7 @@
   <template v-else>
     <div class="lookup-fake-input" v-if="showField" >
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues" @focusin="focused">
-        
+
         <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] && preferenceStore.returnValue('--b-edit-main-literal-display-paired-literal-line')" class="literal-paired-indicator" :key="'line-holder-'+preferenceStore.returnValue('--c-edit-main-literal-paired-literal-line-color')">
             
             <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] >0"  v-html="drawIndicator(pairedLitearlIndicatorLookup[lValue['@guid']],lValue['@guid'])">
@@ -375,7 +375,7 @@ export default {
 
 
     },
-
+    
     calculateCutter(toCut,howLong){
       return utilsMisc.calculateCutter(toCut,howLong)
     },
@@ -1174,6 +1174,7 @@ export default {
         if (data.contributors && data.contributors.length>0){
           data.contributors[0].secondLetterLabel = data.contributors[0].label.substring(1)
         }
+
         return data
       }
       return false
