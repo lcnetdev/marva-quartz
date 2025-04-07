@@ -103,7 +103,7 @@
                     <div v-if="searchResults && searchResults.exact.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
                       <span class="subject-results-heading">Known Label</span>
                       <div v-for="(subject,idx) in searchResults.exact" @click="selectContext((searchResults.names.length - idx)*-1-2)" @mouseover="loadContext((searchResults.names.length - idx)*-1-2)" :data-id="((searchResults.names.length - idx)*-1-2)" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1-2 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1-2 ), 'picked': (pickLookup[(searchResults.names.length - idx)*-1-2] && pickLookup[(searchResults.names.length - idx)*-1-2].picked) }]" >
-                        <template v-if="subject.label == activeComponent.label.replace('‑', '-')">
+                        <template v-if="subject.label == activeComponent.label.replaceAll('‑', '-')">
                           {{subject.label}}
                         </template>
                         <template v-else>
