@@ -103,7 +103,7 @@
                     <div v-if="searchResults && searchResults.exact.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
                       <span class="subject-results-heading">Known Label</span>
                       <div v-for="(subject,idx) in searchResults.exact" @click="selectContext((searchResults.names.length - idx)*-1-2)" @mouseover="loadContext((searchResults.names.length - idx)*-1-2)" :data-id="((searchResults.names.length - idx)*-1-2)" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1-2 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1-2 ), 'picked': (pickLookup[(searchResults.names.length - idx)*-1-2] && pickLookup[(searchResults.names.length - idx)*-1-2].picked) }]" >
-                        <template v-if="subject.label == activeComponent.label.replace('‑', '-')">
+                        <template v-if="subject.label == activeComponent.label.replaceAll('‑', '-')">
                           {{subject.label}}
                         </template>
                         <template v-else>
@@ -2005,11 +2005,23 @@ methods: {
     }
 
     if (this.pickLookup[this.pickPostion].complex){
-      // if it is a complex authorized heading then just replace the whole things with it
-      this.subjectString = this.pickLookup[this.pickPostion].label
-      this.activeComponentIndex = 0
+      // if it is a complex authorized heading then just replace the whole things with it, sometimes
+      let splitString = this.subjectString.split('--')
+      let splitStringLower = this.subjectString.toLowerCase().split('--')
 
-      this.componetLookup = {}
+      if (splitStringLower.includes(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())){
+        let idx = splitStringLower.indexOf(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())
+        if (idx == this.activeComponentIndex){
+          splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
+          this.subjectString = splitString.join('--')
+        }
+      } else {
+        // Replace the whole thing
+        this.subjectString = this.pickLookup[this.pickPostion].label
+        this.componetLookup = {}
+        this.activeComponentIndex = 0
+      }
+
       this.componetLookup[this.activeComponentIndex] = {}
 
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.5] - 2025-04-07
+### Fixed
+- Improved complex subject lookups
+
+
 ## [1.2.4] - 2025-04-04
 ### Changed
 - Update Default library components: `Bib/Index`, `Color Ill., Color Map`, `Index` [BFP-370]
