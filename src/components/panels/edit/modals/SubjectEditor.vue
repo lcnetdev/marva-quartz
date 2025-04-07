@@ -1659,6 +1659,7 @@ methods: {
   }, 500),
 
   navStringClick: function(event){
+    console.info("navStringClick")
     // when clicked send it over to the navString func with fake key property to trigger if statement
     event.key='ArrowLeft'
     this.navString(event)
@@ -2007,20 +2008,21 @@ methods: {
     if (this.pickLookup[this.pickPostion].complex){
       // if it is a complex authorized heading then just replace the whole things with it, sometimes
       let splitString = this.subjectString.split('--')
-      if (splitString.includes(this.pickLookup[this.pickPostion].label.replaceAll('-','‑'))){
-        let idx = splitString.indexOf(this.pickLookup[this.pickPostion].label.replaceAll('-','‑'))
+      let splitStringLower = this.subjectString.toLowerCase().split('--')
+
+      if (splitStringLower.includes(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())){
+        let idx = splitStringLower.indexOf(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())
         if (idx == this.activeComponentIndex){
           splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
           this.subjectString = splitString.join('--')
         }
       } else {
+        // Replace the whole thing
         this.subjectString = this.pickLookup[this.pickPostion].label
+        this.componetLookup = {}
+        this.activeComponentIndex = 0
       }
 
-
-      this.activeComponentIndex = 0
-
-      // this.componetLookup = {}
       this.componetLookup[this.activeComponentIndex] = {}
 
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
@@ -2377,7 +2379,6 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
-    console.info("subjectStringChanged: ", this.subjectString)
     this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
