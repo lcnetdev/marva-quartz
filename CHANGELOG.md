@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.5] - 2025-04-07
+### Fixed
+- Improved complex subject lookups
+
+### Changed
+- `Left Anchored` search options appear before `Keyword` in complex lookups
+
+
+## [1.2.4] - 2025-04-04
+### Changed
+- Update Default library components: `Bib/Index`, `Color Ill., Color Map`, `Index` [BFP-370]
+- Remove icon from default component items
+
+## [1.2.3] - 2025-04-03
+### Fixed
+- Improved custom order work with changes to profiles
+- Improved custom order when profile components don't match
+- Fix custom ordering removing AdminMetadata
+
+## [1.2.2] - 2025-04-02
+### Added
+- Feature: Ability to set and save the order components appear in Marva [BFP-327]
+- Feature: Continuous scrolling in Shelf Listing
+
 ## [1.1.1] - 2025-04-01
 ### Fixed
 - Hub subjects not being `bf:Hub`

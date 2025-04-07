@@ -439,6 +439,7 @@
         },
 
         close(){
+
           this.activeHubStubComponent = {}
           this.activeHubStubData = {}
           this.showHubStubCreateModal=false
@@ -580,6 +581,16 @@
 
 
 
+        },
+
+        checkBeforeClosing(event){
+          if (this.hubTitle && this.hubTitle.trim().length > 0){
+              if (confirm("Are you sure you want to close? You will lose any Hub info you have entered.")){
+                return true
+              }else{
+                event.stop()
+              }
+            }
         },
 
         keyup(event){
@@ -757,6 +768,8 @@
       :hide-overlay="false"
       :overlay-transition="'vfm-fade'"
 
+      @beforeClose="checkBeforeClosing"
+
       
     >
         <VueDragResize
@@ -778,7 +791,7 @@
             <h3 style="margin-bottom: 1em;">Create Quick Hub</h3>
             <div style="display: flex; margin-bottom: 1em;">
               <div style="flex-grow: 1;">
-                <input type="text" ref="hub-title" v-model="hubTitle" class="title" placeholder="Hub Title">
+                <input type="text" ref="hub-title" v-model="hubTitle" class="title" placeholder="Hub Title" @keydown="keydown" @keyup="keyup">
               </div>
               <div style="flex-shrink: 1;">
                <button v-if="activeHubStubData && activeHubStubData.title" class="title-button" @click="hubTitle=activeHubStubData.title"><span class="material-icons" style="font-size: 20px;">arrow_back</span><span class="title-button-copy">Use Work Title</span></button>

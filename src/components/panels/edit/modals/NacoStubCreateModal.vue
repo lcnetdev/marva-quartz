@@ -892,7 +892,7 @@
       }
       if (this.lastComplexLookupString.trim() != ''){
         this.oneXX = '1XX  $a'+this.lastComplexLookupString
-        this.checkOneXX
+        this.checkOneXX()
 
       }
 

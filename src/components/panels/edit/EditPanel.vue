@@ -29,7 +29,7 @@
                 </div>
           </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ) )">
-              <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
+                <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
                     :key="profileCompoent">
                   <template v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && profileStore.emptyComponents[profileName] && !profileStore.emptyComponents[profileName].includes(profileCompoent) ))">
                   <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
@@ -72,9 +72,10 @@
             </div>
         </template>
 
+
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
           <template v-if="(createLayoutMode && layoutActive) || layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])) ">
-            <template v-if="!hideProps.includes(activeProfile.rt[profileName].pt[profileCompoent].propertyURI)">
+            <template v-if="activeProfile.rt[profileName].pt[profileCompoent] && !hideProps.includes(activeProfile.rt[profileName].pt[profileCompoent].propertyURI)">
 
               <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
@@ -225,8 +226,6 @@
     },
 
     methods: {
-
-
         showErrors(guid){
 
           console.log(guid)
@@ -401,15 +400,15 @@
     mounted: function(){
         //populate when loading from a search
         this.populateTitle()
+        this.profileStore.useCustomComponentOrder()
     },
 
     updated: function(){
-        let bibId = this.getBibId()
-		// Add the ID to the title when loading from "Your Records"
-
-        if (!document.title.includes(bibId)){
-            this.populateTitle()
-        }
+      let bibId = this.getBibId()
+    // Add the ID to the title when loading from "Your Records"
+      if (!document.title.includes(bibId)){
+          this.populateTitle()
+      }
     }
 
   }

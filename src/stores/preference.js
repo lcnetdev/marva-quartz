@@ -4,6 +4,7 @@ import { getCurrentInstance } from 'vue'
 import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyager_macro_express.json"
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
 import utilsProfile from '../lib/utils_profile'
+import utilsParse from '../lib/utils_parse'
 
 export const usePreferenceStore = defineStore('preference', {
   state: () => ({
@@ -231,7 +232,14 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Sidebars - Property',
         range: [true,false]
-    },
+      },
+      '--l-custom-order' : {
+        desc: '',
+        descShort: '',
+        value: {},
+        type: 'object',
+        group: 'preferenes',
+      },
 
 
 
@@ -638,8 +646,33 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Literal Field',
         range: [true,false]
     },
+    '--b-edit-main-literal-non-latin-first' : {
+      desc: 'With paired literals values (transliteration) always show the non-Latin value first (otherwise the Latin value will be first)',
+      descShort: 'Paired literals, show non-Latin First.',
+      value: false,
+      type: 'boolean',
+      unit: null,
+      group: 'Literal Field',
+      range: [true,false]
+    },
 
-
+    '--b-edit-main-literal-display-paired-literal-line' : {
+      desc: 'Display a line between the two paired literals. Indicates that the two values are related.',
+      descShort: 'Display a line between the two paired literals.',
+      value: true,
+      type: 'boolean',
+      unit: null,
+      group: 'Literal Field',
+      range: [true,false]
+    },
+    '--c-edit-main-literal-paired-literal-line-color' : {
+      desc: 'Line color of the paired literal line',
+      descShort: 'Paired literal line color',
+      value: "#4b4b4b",
+      type: 'color',
+      group: 'Literal Field',
+      range: null
+    },
 
 
     // Lookup Field
@@ -1312,6 +1345,8 @@ export const usePreferenceStore = defineStore('preference', {
           range: [1,2]
       },
 
+
+
     }
   }),
 
@@ -1520,6 +1555,15 @@ export const usePreferenceStore = defineStore('preference', {
 
       this.styleDefault[propertyName].value = value
       this.savePreferences()
+
+      // we can do any actions on specific preference changes here
+      if (propertyName == '--b-edit-main-literal-non-latin-first'){
+        useProfileStore().reorderAllNonLatinLiterals()
+        utilsParse.buildPairedLiteralsIndicators(useProfileStore().activeProfile)
+        useProfileStore ().dataChanged()
+      }
+
+
       return true
     },
 
@@ -1591,7 +1635,7 @@ export const usePreferenceStore = defineStore('preference', {
       this.diacriticUse = this.returnValue('--c-diacritics-enabled-macros')
       this.diacriticUse = [...new Set(this.diacriticUse)];
 
-      console.log(this.diacriticUse)
+      // console.log(this.diacriticUse)
       for (let d in this.diacriticPacks.macroExpress){
 
         let macros = this.diacriticPacks.macroExpress[d]
@@ -1602,12 +1646,21 @@ export const usePreferenceStore = defineStore('preference', {
           }
         }
       }
-      console.log(this.diacriticUseValues)
+      // console.log(this.diacriticUseValues)
     },
 
     // turn copy mode on/off
     toggleCopyMode: function(){
         this.copyMode = !this.copyMode
+    },
+
+    saveOrder: function(newOrder){
+      this.setValue('--l-custom-order', newOrder)
+    },
+
+    loadOrder: function(){
+      let currentOrder = this.returnValue('--l-custom-order')
+      return currentOrder
     },
 
     deleteLayout: function(target){

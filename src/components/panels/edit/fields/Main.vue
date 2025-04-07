@@ -38,7 +38,7 @@
       :level="level+1"
       :structure="structure"
       :guid="guid"
-      :readOnly="readOnly"
+      :readOnly="readOnly"       
     />
 
     <!-- {{structure}} -->
@@ -76,7 +76,7 @@ import { usePreferenceStore } from '@/stores/preference'
 
 import { mapStores, mapState } from 'pinia'
 
-import short from 'short-uuid'
+// import short from 'short-uuid'
 // const translator = short();
 // const short = require('short-uuid');
 
@@ -254,7 +254,8 @@ export default {
 
 
       return 'white'
-    }
+    },
+
 
 
 

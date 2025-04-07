@@ -158,16 +158,18 @@
           },
         ]
 
-        if (this.$route.path.includes('load')){
-          menuButtonSubMenu.push(
-            {
-              text: "Copy Cat.",
-              click: () => {
-                this.profileStore.copyCatMode = !this.profileStore.copyCatMode
-              },
-              emoji: this.profileStore.copyCatMode ? "heavy_check_mark" : "smile_cat"
-            }
-          )
+        if (this.isStaging()){
+          if (this.$route.path.includes('load')){
+            menuButtonSubMenu.push(
+              {
+                text: "Copy Cat.",
+                click: () => {
+                  this.profileStore.copyCatMode = !this.profileStore.copyCatMode
+                },
+                emoji: this.profileStore.copyCatMode ? "heavy_check_mark" : "smile_cat"
+              }
+            )
+          }
         }
 
 
@@ -636,6 +638,14 @@
     // },
 
     methods: {
+
+      isStaging: function(){
+        if (useConfigStore().returnUrls.env == "staging" || useConfigStore().returnUrls.dev == true){
+          return true
+        }else{
+          return false
+        }
+      },
 
       returnPixleAsPercent: function(pixles){
         return pixles/window.innerHeight*100

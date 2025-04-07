@@ -6,7 +6,6 @@ import short from 'short-uuid'
 
 import utilsRDF from './utils_rdf';
 
-
 const hashCode = s => s.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
 
 
@@ -1736,6 +1735,58 @@ const utilsParse = {
         profile.rt[pkey].unusedXml = false
       }
 
+      // keep track of the value we need to add
+      let groupTopLeveLiteralsToMerge = {}
+      // loop through and check if there are any top level literals we want to group
+      for (let key in profile.rt[pkey].pt){
+        let pt = profile.rt[pkey].pt[key]
+        // the list of props we allow to group are in the config
+        if (useConfigStore().groupTopLeveLiterals.indexOf(pt.propertyURI) > -1){
+          if (pt.userValue && pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){
+            if (!groupTopLeveLiteralsToMerge[pt.propertyURI]){
+              groupTopLeveLiteralsToMerge[pt.propertyURI] = {mergeUnder: pt.id, toRemove: [], values: []}
+            }else{
+              groupTopLeveLiteralsToMerge[pt.propertyURI].toRemove.push(pt.id)
+            }
+            groupTopLeveLiteralsToMerge[pt.propertyURI].values.push(pt.userValue[pt.propertyURI][0])
+          }                    
+        }
+      }
+      // loop through the list of properties we found to see if we have multiple to merge
+      for (let toGroupUri in groupTopLeveLiteralsToMerge){
+        for (let key in profile.rt[pkey].pt){
+          if (profile.rt[pkey].pt[key].propertyURI == toGroupUri){
+            let pt = profile.rt[pkey].pt[key]
+            if (pt.id == groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder){
+              pt.userValue[toGroupUri] = groupTopLeveLiteralsToMerge[toGroupUri].values
+            }            
+          }
+        }
+        for (let toRemove of groupTopLeveLiteralsToMerge[toGroupUri].toRemove){
+          if (profile.rt[pkey].ptOrder.indexOf(toRemove) > -1){
+            delete profile.rt[pkey].pt[toRemove]
+            profile.rt[pkey].ptOrder = profile.rt[pkey].ptOrder.filter((x) => { return x !== toRemove })
+          }
+        }
+      }
+      for (let toGroupUri in groupTopLeveLiteralsToMerge){
+        if (groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder){
+          let ptToReOrder = profile.rt[pkey].pt[groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder]
+          if (ptToReOrder && ptToReOrder.userValue && ptToReOrder.userValue[toGroupUri]){
+            
+            if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+              ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri ).reverse()
+            }else{
+              ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri )
+            }            
+          }
+        }
+      }
+
+      // we are going to go looking for literals inside bnodes that have two literals with one at least of them with a @language tag
+      
+      profile = this.reorderAllNonLatinLiterals(profile)
+      this.buildPairedLiteralsIndicators(profile)
 
       let adminMedtataPrimary = null
       let adminMedtataSecondary = []
@@ -1770,7 +1821,6 @@ const utilsParse = {
           // that will be our primary adminMetadata that they edit. Except, we want the `primary` Admin field to stay primary
           // even after it gets a status. Most of the admin fields will be hidden, but the Primary field in the instance will
           // remain and should continue to be editable.
-
           if (userValue){
 
             if (profile.rt[pkey].pt[key].parentId.includes(":Instance") && (!userValue['http://id.loc.gov/ontologies/bibframe/status'] || Object.keys(userValue).length > 7)){
@@ -1968,13 +2018,10 @@ const utilsParse = {
           Object.keys(profile.rt[pkey].pt[key].userValue).forEach((userURI)=>{
             if (!userURI.includes('@')){
               if (allUris.indexOf(userURI)===-1){
-
                 profile.rt[pkey].pt[key].missingProfile.push(userURI)
-
                 uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI].unAssingedProperties.push(userURI)
               }
             }
-
           })
 
           if (uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI].unAssingedProperties.length>0){
@@ -2033,8 +2080,71 @@ const utilsParse = {
 
   },
 
+  /**
+   * Sets up indicators for paired literals in a profile to manage UI presentation.
+   * 
+   * For these paired literals, it marks each value 
+   * with a position indicator ('start', 'middle', or 'end') in the pairedLitearlIndicatorLookup.
+   * 
+   * The indicators help the UI layer properly display multi-language text entries with
+   * appropriate styling
+   * 
+   * @param {Object} profile - The BibFrame profile object containing resource templates
+   * @returns {void} - Updates the pairedLitearlIndicatorLookup in the ProfileStore
+   */
+  buildPairedLiteralsIndicators: function(profile){
+
+      
+    useProfileStore().pairedLitearlIndicatorLookup = {}
+  
+    function process (obj, func) {
+      if (obj && obj.userValue){
+        obj = obj.userValue
+      }  
+      if (Array.isArray(obj)){
+        obj.forEach(function (child) {
+          process(child, func);
+        });
+      }else if (typeof obj == 'object' && obj !== null){
+        for (let k in obj){
+          if (Array.isArray(obj[k])){
+            if (!k.startsWith('@') && obj[k].length>1){
+              func(obj,k,obj[k]);
+            }
+            process(obj[k], func);
+
+          }
+        }
+      }
+
+    }
 
 
+    for (let rt of profile.rtOrder){
+      for (let pt of profile.rt[rt].ptOrder){
+        let ptObj = profile.rt[rt].pt[pt]
+        process(ptObj, function (obj,key,value) {
+            // e.g.
+            // only array > 1 make it here
+            if (value.filter((v)=>{ return (v['@language'])}).length >= 1){
+              // only arrays with @language in them make it here and only if they do nt all have it
+
+              value.forEach((v, index)=>{
+                if (index == 0){
+                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = value.length
+                }else if (index == value.length-1){
+                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
+                }else{
+                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
+                }
+              })        
+            }               
+        });
+      }
+    }
+
+
+  },
 
   /**
   * Will take a profile obj and make sure the Works have a hasInstance and the Instances have instanceOf
@@ -2155,7 +2265,75 @@ const utilsParse = {
 
     return  userValue
 
-  }
+  },
+
+  /**
+   * Reorders all multi-lingual literal values throughout the profile based on script type and user preferences.
+   *
+   * This method recursively traverses the entire profile data structure searching for arrays of literal
+   * values that contain at least one element with a language tag (@language). When found, it sorts these
+   * arrays according to the user's preference for display order:
+   *
+   * - When "--b-edit-main-literal-non-latin-first" is true: Non-Latin literals appear first (reverse sort)
+   * - When "--b-edit-main-literal-non-latin-first" is false: Latin literals appear first (standard sort)
+   *
+   * The sorting is performed using the ProfileStore's sortObjectsByLatinMatch method, which checks each
+   * value against Latin character patterns to determine the appropriate ordering.
+   *
+   * @param {Object} profile - The BibFrame profile object containing resource templates
+   * @return {Object} - The profile with reordered literal arrays
+   */
+   reorderAllNonLatinLiterals: function(profile){
+
+    function process (obj, func) {
+      if (obj && obj.userValue){
+        obj = obj.userValue
+      }  
+      if (Array.isArray(obj)){
+        obj.forEach(function (child) {
+          process(child, func);
+        });
+      }else if (typeof obj == 'object' && obj !== null){
+        for (let k in obj){
+          if (Array.isArray(obj[k])){
+            if (!k.startsWith('@') && obj[k].length>1){
+              func(obj,k,obj[k]);
+            }
+            process(obj[k], func);
+
+          }
+        }
+      }
+    }    
+    for (let rt of profile.rtOrder){
+      for (let pt of profile.rt[rt].ptOrder){
+        let ptObj = profile.rt[rt].pt[pt]
+        process(ptObj, function (obj,key,value) {
+            // e.g.
+            // only array > 1 make it here
+          
+            // don't try to sort marcKey            
+            if (["http://id.loc.gov/ontologies/bibframe/contribution","http://id.loc.gov/ontologies/bibframe/subject"].indexOf(ptObj.propertyURI)>-1){
+              return null
+            }
+
+            if (value.length > 1 && value.filter((v)=>{ return (v['@language'])}).length >= 1){
+              // only arrays with @language in them make it here and only if they do nt all have it
+              if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+                value = useProfileStore().sortObjectsByLatinMatch(value,key).reverse()
+              }else{
+                value = useProfileStore().sortObjectsByLatinMatch(value,key)
+              }
+            }               
+        });
+      }
+    }
+
+    return profile
+
+
+  },
+
 
 
 

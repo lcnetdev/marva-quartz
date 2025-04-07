@@ -158,7 +158,6 @@
         },
         booleanValueChange: function(){
           for (let id in this.booleanValue){
-            console.log(id,this.booleanValue[id])
             this.preferenceStore.setValue(id,this.booleanValue[id])
           }
         },
