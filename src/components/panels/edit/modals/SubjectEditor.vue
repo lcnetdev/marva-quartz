@@ -1659,7 +1659,6 @@ methods: {
   }, 500),
 
   navStringClick: function(event){
-    console.info("navStringClick")
     // when clicked send it over to the navString func with fake key property to trigger if statement
     event.key='ArrowLeft'
     this.navString(event)
