@@ -140,7 +140,7 @@
         <div class="copy-cat-wrapper">
           <header class="copy-cat-header">Copy Cat Search</header>
           <div class="copy-cat-search">
-            <h1>Search</h1>
+            <h1>Search OCLC</h1>
             <form ref="urlToLoadForm" v-on:submit.prevent="">
               <input placeholder="Enter Value to Search" class="url-to-load" type="text" v-model="wcQuery" ref="urlToLoad">
               <button @click="worldCatSearch(false, true)">Search</button>
@@ -578,13 +578,6 @@
       },
 
       worldCatSearch: async function(marc=false, pageReset=false){
-        console.info("searching world cat")
-        console.info("query: ", this.wcQuery)
-        console.info("index: ", this.wcIndex)
-        console.info("type: ", this.wcType)
-        console.info("offset: ", this.wcOffset)
-        console.info("limit: ", this.wcLimit)
-
         if (pageReset){
           this.currentPage = 1
         }
@@ -606,16 +599,9 @@
         }
 
         this.queryingWc = false
-        console.info("this.wcResults: ", this.wcResults)
-
       },
 
       loadCopyCat: async function(profile){
-        console.info("Loading " + this.selectedWcRecord['oclcNumber'] + " to ID")
-        console.info("Loading: ", this.selectedWcRecord)
-        console.info("type: ", typeof this.selectedWcRecord.marcXML)
-        console.info("xml: ", this.selectedWcRecord.marcXML)
-        console.info("xml no spaces: ", this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><'))
         let xml =  this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
         this.existingLccn = false
 
@@ -665,27 +651,21 @@
 
         let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
-        console.info("strXmlBasic: ", strXmlBasic)
-
         this.posting = true
         this.postResults = {}
         this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
         this.posting = false
 
-        console.info("postResults: ", this.postResults)
-
         this.responseURL = this.postResults.postLocation
         let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
         // this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
         this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
-        console.info("urlToLoad: ", this.urlToLoad)
 
         // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
         // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
         // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
 
 
-          console.info("profile: ", profile)
           this.loadUrl(profile)
       },
 
@@ -770,8 +750,6 @@
       },
 
       loadSearch: function(){
-        console.info("loadSearch: ", this.urlToLoad)
-
         if (!this.urlToLoad){
           this.searchByLccnResults = []
         }
@@ -810,8 +788,6 @@
           this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
 
         }
-
-        console.info("urlToLoad: ", this.urlToLoad)
 
         if (this.urlToLoad.trim() !== ''){
 

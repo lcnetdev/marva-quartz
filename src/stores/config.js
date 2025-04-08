@@ -58,6 +58,10 @@ export const useConfigStore = defineStore('config', {
         // profiles : '/bfe2/util/profiles/profile/prod',
         // profiles: 'https://preprod-3001.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
         starting : '/bfe2/util/profiles/starting/stage',
+
+        worldCat: 'https://preprod-3001.id.loc.gov/bfe2/util/worldcat/',
+        copyCatUpload: 'https://preprod-3001.id.loc.gov/bfe2/util/copycat/upload', // change ports for production
+
         id: 'https://preprod-8288.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
@@ -80,6 +84,9 @@ export const useConfigStore = defineStore('config', {
         // starting : 'https://editor.id.loc.gov/api/listconfigs?where=index.resourceType:startingPoints&where=index.label:config',
         profiles : '/bfe2/util/profiles/profile/prod',
         starting : '/bfe2/util/profiles/starting/prod',
+
+        worldCat: 'https://editor.id.loc.gov/bfe2/util/worldcat/',
+        copyCatUpload: 'https://editor.id.loc.gov/bfe2/util/upload', // change ports for production
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',

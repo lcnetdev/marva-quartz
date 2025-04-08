@@ -2138,7 +2138,7 @@ export const useProfileStore = defineStore('profile', {
             }
 
           //   console.log("Delete this guy",propertyPath )
-          // }  
+          // }
 
 
           // also remove the paired literal lines if needed
@@ -3244,8 +3244,6 @@ export const useProfileStore = defineStore('profile', {
     //console.log("Profile store: Validating?")
     let xml = await utilsExport.buildXML(this.activeProfile)
 
-    console.info("xml: ", xml.xlmStringBasic)
-    return false
     let response = await utilsNetwork.validate(xml.xlmStringBasic)
 
     return response
@@ -3270,8 +3268,6 @@ export const useProfileStore = defineStore('profile', {
       }
 
       let xml = await utilsExport.buildXML(this.activeProfile)
-
-      console.info("xml: ", xml.xlmStringBasic)
 
       let pubResuts
 
@@ -3676,22 +3672,22 @@ export const useProfileStore = defineStore('profile', {
             if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'] && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'].length>0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]){
               titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
               if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle']){
-                
+
 
                 let titleBnodeSorted = titleUserValue
-                
+
 
                 if (titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 1){
                   // there are multiple titles, we want to make sure to pick the latin one
                   titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'] = this.sortObjectsByLatinMatch(titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'],'http://id.loc.gov/ontologies/bibframe/mainTitle')
                 }
 
-                
+
 
 
                 if (titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 0 && titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0] && titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                   title = titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
-                }              
+                }
 
               }
               if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum']){
@@ -4372,7 +4368,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {array} the id and guid of the newPropertyId
     */
     duplicateComponentGetId: async function(componentGuid, structure, profileName, predecessor){
-      console.info("duplicateComponentGetId")
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
@@ -4477,8 +4472,6 @@ export const useProfileStore = defineStore('profile', {
         // they changed something
         this.dataChanged()
 
-        console.info("newPropertyId: ", newPropertyId)
-        console.info("newPt['@guid']: ", newPt['@guid'])
         return [newPropertyId, newPt['@guid']]
 
       }else{
@@ -5588,8 +5581,6 @@ export const useProfileStore = defineStore('profile', {
           const userValue = target.userValue
           const classification = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]
           const type = classification["@type"]
-          console.info("classification: ", classification)
-          console.info("classification: ", Object.keys(classification).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion"))
           if (!pt.deleted){
             lastClassifiction = pt
             //type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc" &&
@@ -5602,9 +5593,6 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-
-      console.info("lastClassifiction: ", lastClassifiction)
-      console.info("hasEmptyDDC: ", hasEmptyDDC)
 
       // if no empty ddc, create one
       if (!hasEmptyDDC){
@@ -5626,10 +5614,6 @@ export const useProfileStore = defineStore('profile', {
       } else {
         dewey = deweyInfo.dewey
       }
-
-      console.info("ddcComponent: ", ddcComponent)
-      console.info("userValue: ", userValue)
-
       const newGuid = short.generate()
       userValue["@type"] = "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"
       userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(dewey) }]
@@ -6122,7 +6106,7 @@ export const useProfileStore = defineStore('profile', {
           let aLang = a['@language'] || '';
           let bLang = b['@language'] || '';
 
-          
+
           aLang = aLang.toLowerCase()
           bLang = bLang.toLowerCase()
           let aIsLatin = true
@@ -6143,7 +6127,7 @@ export const useProfileStore = defineStore('profile', {
           }else if (bLang.length == 0){
             bIsLatin = true
           }
-                   
+
           if (!bIsLatin && aIsLatin) return -1;
 
           if (bIsLatin && !aIsLatin) return 1;
@@ -6163,7 +6147,7 @@ export const useProfileStore = defineStore('profile', {
           console.log(bValue, 'latinregex:',latinRegex.test(bValue))
           const aIsLatin = latinRegex.test(aValue);
           const bIsLatin = latinRegex.test(bValue);
-  
+
           if (!bIsLatin && aIsLatin) return -1;
           if (bIsLatin && !aIsLatin) return 1;
           return 0;
@@ -6247,8 +6231,8 @@ export const useProfileStore = defineStore('profile', {
 
     }
 
- 
-  
+
+
 
 
 

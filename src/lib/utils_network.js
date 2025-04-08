@@ -433,8 +433,6 @@ const utilsNetwork = {
         }
       )
 
-      console.info("\n\nresult: ", result)
-
       return result
     },
 
@@ -2850,13 +2848,10 @@ const utilsNetwork = {
   },
 
   worldCatSearch: async function(query, index, type, offset, limit, marc=false){
-    console.info("worldCatSearch")
     // consonsole.info("useConfigStore().returnUrls >>", useConfigStore().returnUrls)
     let baseUrl = useConfigStore().returnUrls.worldCat
 
     let url = baseUrl + "search/"
-
-    console.info("worldCatSearch: ", url)
 
     const rawResponse = await fetch(url, {
       method: 'POST',
@@ -2929,7 +2924,6 @@ const utilsNetwork = {
           method: 'HEAD',
         }
       )
-      console.info("resp: ", resp)
 
       return resp
     }
@@ -2946,8 +2940,6 @@ const utilsNetwork = {
   addCopyCat: async function(xml){
     let url = useConfigStore().returnUrls.copyCatUpload
 
-    console.info("url: ", url)
-
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
@@ -2957,11 +2949,7 @@ const utilsNetwork = {
       body: JSON.stringify({marcxml:xml})
     });
 
-    console.info("rawResponse: ", rawResponse)
-
     const content = await rawResponse.json();
-
-    console.info("content: ", content)
 
     return content
 
@@ -2977,9 +2965,6 @@ const utilsNetwork = {
   */
 
   publish: async function(xml,eid,activeProfile){
-    console.info("publish: ", typeof xml)
-    console.info("publish: ", xml)
-
     // console.log("activeProfile",activeProfile)
     let postingHub = false
 
@@ -2994,8 +2979,6 @@ const utilsNetwork = {
     let url = useConfigStore().returnUrls.publish
 
     let uuid = translator.toUUID(translator.new())
-
-    console.info("url: ", url)
 
     const rawResponse = await fetch(url, {
       method: 'POST',
