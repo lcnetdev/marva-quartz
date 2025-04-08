@@ -2922,7 +2922,7 @@ const utilsNetwork = {
 
   checkLccn: async function(lccn){
     if (lccn.length == 10){
-      let url = "https://preprod-8299.id.loc.gov/resources/instances/identifier/" + lccn
+      let url = "https://preprod-8299.id.loc.gov/resources/instances/identifier/" + lccn  //TODO: update this URL for production
       let resp = await fetch(
         url,
         {

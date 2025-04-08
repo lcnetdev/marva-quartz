@@ -165,19 +165,18 @@
             </form>
             <hr>
             <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="checkLccn" /><br>
-            <template v-if="searchByLccnResults && searchByLccnResults.length > 0">
-              <template v-if="typeof searchByLccnResults === 'string'">
-
-              </template>
-              <template v-else>
-                <br>
-                <h3>There's a record with this LCCN...</h3>
-                <ul>
-                  <li v-for="(r,idx) in searchByLccnResults" :key="r.idURL">
-                    <a class="copy-cat-url" :href="r.bfdbURL" target="_blank">{{ r.label }}</a>
-                  </li>
-                </ul>
-              </template>
+            <template v-if="existingLCCN">
+              <br>
+              <h3>
+                <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">A Record with this LCCN Exists</a>
+              </h3>
+              <span class="badge badge-warning no-hover">You won't be able to continue with this LCCN.</span>
+              <br>
+            </template>
+            <template v-else-if="urlToLoad.length < 10">
+              <br>
+              <span class="badge badge-warning no-hover">LCCNs should be 10 characters long.</span>
+              <br>
             </template>
             <br>
             <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority" /><br>
@@ -390,6 +389,7 @@
         ibcCheck: false,
         responseURL: null,
         existingLCCN: null,
+        existingRecordUrl: "",
 
 
       }
@@ -437,7 +437,17 @@
 
       checkLccn: async function(){
         let resp = await utilsNetwork.checkLccn(this.urlToLoad)
-        this.existingLCCN = resp.status != 404
+        try {
+          this.existingLCCN = resp.status != 404
+          if (this.existingLCCN){
+            this.existingRecordUrl = resp.url
+          } else {
+            this.existingRecordUrl = ""
+          }
+        } catch {
+          this.existingLCCN = null
+          this.existingRecordUrl = ""
+        }
       },
 
       encodingLevel: function (value){
@@ -1422,6 +1432,16 @@ h1, p {
 .badge-info {
   color: #fff;
   background-color: #17a2b8;
+}
+
+.badge.no-hover:hover {
+  cursor: unset;
+  background-color: #ffc107;;
+  color: #212529;
+}
+
+.existing-lccn-note {
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
 }
 
 /* We need to set the widths used on floated items back to auto, and remove the bottom margin as when we have grid we have gaps. */
