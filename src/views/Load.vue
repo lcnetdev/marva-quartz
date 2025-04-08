@@ -164,7 +164,7 @@
 
             </form>
             <hr>
-            <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="loadSearch" /><br>
+            <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="checkLccn" /><br>
             <template v-if="searchByLccnResults && searchByLccnResults.length > 0">
               <template v-if="typeof searchByLccnResults === 'string'">
 
@@ -185,7 +185,6 @@
             <label for="jackphy">Does this record contain non-Latin script that should be retained? </label><input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
             <br>
             <h3>Load with profile:</h3>
-            !!{{ disableCopyCatButtons() }}
             <div class="load-buttons">
               <button class="load-button" @click="loadCopyCat(s.instance)" :disabled="disableCopyCatButtons()"  v-for="s in startingPointsFiltered">
                 {{s.name}}
@@ -270,7 +269,7 @@
                     </ul>
                   </div>
                   <div class="card-text">
-                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': isRdaRecord(row), 'badge-warning': !isRdaRecord(row)}]" data-tooltip="RDA: 040 $e = RDA and leader/18='a' and 260 is not present">{{ isRdaRecord(row) ? "RDA" : "Not RDA" }}</span>
+                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': isRdaRecord(row), 'badge-warning': !isRdaRecord(row)}]" data-tooltip="RDA: 040 $e = RDA and leader/18!='a' and 260 is not present">{{ isRdaRecord(row) ? "RDA" : "Not RDA" }}</span>
                     <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'High', 'badge-warning': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'Low'}]" :data-tooltip="'Encoding Level: \'' + row.catalogingInfo.levelOfCataloging + '\''" v-if="row.catalogingInfo.levelOfCataloging">{{ encodingLevel(row.catalogingInfo.levelOfCataloging) }}</span>
                     <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Agency" v-if="row.catalogingInfo.catalogingAgency">{{ row.catalogingInfo.catalogingAgency }}</span>
                     <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Language" v-if="row.catalogingInfo.catalogingLanguage">{{ row.catalogingInfo.catalogingLanguage }}</span>
@@ -390,7 +389,7 @@
         jackphyCheck: false,
         ibcCheck: false,
         responseURL: null,
-        existingLccn: false,
+        existingLCCN: null,
 
 
       }
@@ -429,17 +428,18 @@
 
     methods: {
       disableCopyCatButtons: function(){
-        console.info("disableCopyCatButtons")
         let recordSelected = (this.selectedWcRecord) ? true : false
-        let existingLCCN = (this.searchByLccnResults && this.searchByLccnResults.length > 0) ? true : false
 
-        console.info("recordSelected: ", recordSelected, "--", this.selectedWcRecord)
-        console.info("existingLCCN: ", existingLCCN, "--", this.searchByLccnResults)
+        if (this.existingLCCN == null){ return true }
 
-        console.info(!recordSelected && !existingLCCN)
-
-        return !recordSelected && !existingLCCN
+        return !(recordSelected && !this.existingLCCN)
       },
+
+      checkLccn: async function(){
+        let resp = await utilsNetwork.checkLccn(this.urlToLoad)
+        this.existingLCCN = resp.status != 404
+      },
+
       encodingLevel: function (value){
         if (this.oclcEncodingLevelsHigh.includes(value)){
           return 'High'
@@ -582,14 +582,12 @@
         this.selectedWcRecord = false
 
         this.queryingWc = true
-        //console.log("Validating: ", this.validating)
         if (this.currentPage != 1){
           this.wcOffset = this.wcLimit * (this.currentPage - 1)
         } else {
           this.wcOffset = 1
         }
 
-        console.info("offset: ", this.wcOffset)
         const cleanQuery = this.wcQuery.trim()
         try{
           this.wcResults = await utilsNetwork.worldCatSearch(cleanQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
@@ -609,11 +607,6 @@
         console.info("xml: ", this.selectedWcRecord.marcXML)
         console.info("xml no spaces: ", this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><'))
         let xml =  this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
-        // .replace(/[']/g, function(c){
-        //   switch (c){
-        //     case "'": return "&apos;"
-        //   }
-        // })
         this.existingLccn = false
 
         xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
@@ -666,23 +659,24 @@
 
         this.posting = true
         this.postResults = {}
-        // this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
+        this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
         this.posting = false
 
         console.info("postResults: ", this.postResults)
 
-        this.responseURL = "http://preprod-8299.id.loc.gov/data/bibs/ocm45532466.mets.xml" //this.postResults.postLocation
+        this.responseURL = this.postResults.postLocation
         let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
-        this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"
+        // this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
+        this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
         console.info("urlToLoad: ", this.urlToLoad)
 
         // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
         // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
         // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
 
-          this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/ocm45532466.cbd.xml"
+
           console.info("profile: ", profile)
-          // this.loadUrl(profile)
+          this.loadUrl(profile)
       },
 
       loadFromAllRecord: function(eId){

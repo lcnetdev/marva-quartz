@@ -2920,6 +2920,22 @@ const utilsNetwork = {
     }
   },
 
+  checkLccn: async function(lccn){
+    if (lccn.length == 10){
+      let url = "https://preprod-8299.id.loc.gov/resources/instances/identifier/" + lccn
+      let resp = await fetch(
+        url,
+        {
+          method: 'HEAD',
+        }
+      )
+      console.info("resp: ", resp)
+
+      return resp
+    }
+    return null
+  },
+
   /**
    * Send copy cat record to ID
    *

@@ -159,7 +159,7 @@
         ]
 
         if (this.isStaging()){
-          if (this.$route.path.includes('load')){
+          if (!this.$route.path.includes('edit')){
             menuButtonSubMenu.push(
               {
                 text: "Copy Cat.",
