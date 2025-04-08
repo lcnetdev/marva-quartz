@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.6] - 2025-04-08
+## Fixed
+- Broken property navigation for items
+
+
 ## [1.2.5] - 2025-04-07
 ### Fixed
 - Improved complex subject lookups
