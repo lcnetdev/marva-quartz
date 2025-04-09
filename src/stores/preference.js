@@ -1719,6 +1719,30 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
 
+    isNarTester(){
+
+      let canTest = ["kevinford","pfrank","eram","ctur","trod","jowill","ntra","ddavis","nalf","fd07","cyea","fc80","smcc","tsod","fo","hhuh","yshi","cc33","amors","cd01","mnaz","cgir","pkho","cf31","stellier","test",'matt']
+
+      // Convert initials and code to lowercase if they exist
+      const initials = this.catInitals ? this.catInitals.toLowerCase() : '';
+      const code = this.catCode ? this.catCode.toLowerCase() : '';
+      
+      // Convert all test strings to lowercase
+      const canTestLower = canTest.map(item => item.toLowerCase());
+      
+      // Check if initials or code match any of the test strings
+      return canTestLower.some(testStr => 
+        (initials && initials.includes(testStr)) || 
+        (code && code.includes(testStr))
+      );
+
+
+    },
+
+
+
+
+
     /**
     * Take a url and rewrites it to match the url pattern of the current enviornment
     * @param {string} url - the url to modfidfy

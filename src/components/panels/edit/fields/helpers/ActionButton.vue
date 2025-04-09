@@ -455,9 +455,10 @@
       },
 
       showBuildNacoStub(){
-        console.log("this.isStaging()",this.isStaging())
 
-        if (this.isStaging() == false){ return false} // REMOVE BEFORE PROD USAGE
+        // if (this.isStaging() == false){ return false} // REMOVE BEFORE PROD USAGE
+
+        if (!this.preferenceStore.isNarTester()) return false
 
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
