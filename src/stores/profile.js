@@ -2850,8 +2850,6 @@ export const useProfileStore = defineStore('profile', {
                     break
                 }
 
-                console.info("     p: ", p.propertyURI)
-
                 if (!currentUserValuePos[p.propertyURI]){
                     currentUserValuePos[p.propertyURI] = []
                 }
@@ -3120,7 +3118,6 @@ export const useProfileStore = defineStore('profile', {
             // they changed something
             this.dataChanged()
 
-            console.info("userValue: ", userValue)
             // console.log("USERVALUE IS",userValue)
             pt.userValue = userValue
         }
