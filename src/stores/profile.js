@@ -5903,7 +5903,7 @@ export const useProfileStore = defineStore('profile', {
                       }
                     }
                     this.activeProfile.rt[component.parentId].ptOrder.splice(insertAt+1, 0, newId);
-
+                    this.dataChanged()
                     return [component.parentId,newId]
                   }
 
