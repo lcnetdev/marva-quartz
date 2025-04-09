@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - Paired latin/non-latin indicators showing up in some drop down menus
 - AdminMD components could "generate" a new admin field [BFP-382]
 - Fix `GeoCoverage` swapping to non-lating form when `Paired literals...` preference is set
+- Fix auto dewey logic
 
 ### Changed
 - Update to Default Library `Index` & `Bib` [BFP-381]
