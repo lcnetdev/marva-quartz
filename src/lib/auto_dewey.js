@@ -2602,6 +2602,5 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
             if (sGenre$ == "Drama" && sCountry$ == "Sweden" && sDewey$ == "Period1600") dewey = "839.72/5"
         }
 
-        console.info("dewey: ", dewey)
         return dewey
     }

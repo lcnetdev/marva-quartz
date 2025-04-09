@@ -2287,7 +2287,6 @@ const utilsParse = {
       if (obj && obj.userValue){
         obj = obj.userValue
       }
-      console.info("      processing: ", obj)
       if (Array.isArray(obj)){
         obj.forEach(function (child) {
           process(child, func);
