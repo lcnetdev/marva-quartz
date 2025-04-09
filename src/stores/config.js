@@ -32,8 +32,8 @@ export const useConfigStore = defineStore('config', {
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
         id: 'https://id.loc.gov/',
-        env : 'production',
-        dev: false,
+        env : 'staging',
+        dev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
       },
@@ -359,6 +359,16 @@ export const useConfigStore = defineStore('config', {
             {
                 'LCDGT':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all": true},
                 'MARC':{"url":"https://id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=10&offset=<OFFSET>", "all": true}
+            }
+        ]
+     },
+     "https://id.loc.gov/ontologies/bflc/creatorCharacteristic" : {
+        "name":"creatorCharacteristic",
+        "type":"complex",
+        "processor" : 'lcAuthorities',
+        "modes":[
+            {
+                'LCDGT':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all": true},
             }
         ]
      },
