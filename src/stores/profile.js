@@ -2850,7 +2850,7 @@ export const useProfileStore = defineStore('profile', {
                     break
                 }
 
-
+                console.info("     p: ", p.propertyURI)
 
                 if (!currentUserValuePos[p.propertyURI]){
                     currentUserValuePos[p.propertyURI] = []
@@ -2862,6 +2862,10 @@ export const useProfileStore = defineStore('profile', {
                   thisLevelType = await utilsRDF.suggestTypeNetwork(p.propertyURI)
                 }
 
+                // if it's a complexSubject, replace bf:Topic with madsrdf:ComplexSubject -- the conversion expects this
+                if (thisLevelType == "http://id.loc.gov/ontologies/bibframe/Topic" && propertyPath.some((obj) => obj.propertyURI == "http://www.loc.gov/mads/rdf/v1#componentList")){
+                  thisLevelType = 'madsrdf:ComplexSubject'
+                }
 
                 let thisLevel = {'@guid':short.generate()}
                 if (!utilsRDF.isUriALiteral(thisLevelType)){
@@ -3116,6 +3120,7 @@ export const useProfileStore = defineStore('profile', {
             // they changed something
             this.dataChanged()
 
+            console.info("userValue: ", userValue)
             // console.log("USERVALUE IS",userValue)
             pt.userValue = userValue
         }
