@@ -4,9 +4,12 @@ All notable changes to this project will be documented in this file.
 
 
 ## [1.2.7] - 2025-04-09
-## Fixed
+### Fixed
 - Paired latin/non-latin indicators showing up in some drop down menus
-- AdminMD components could "generate" a new admin field
+- AdminMD components could "generate" a new admin field [BFP-382]
+
+### Changed
+- Update to Default Library `Index` & `Bib` [BFP-381]
 
 ## [1.2.6] - 2025-04-08
 ## Fixed
