@@ -20,7 +20,7 @@
       <template v-else>
 
         <template v-for="lValue in literalValues">
-          
+
           <span class="bfcode-display-mode-holder-label simptip-position-top" :data-tooltip="structure.propertyLabel"   :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
 
           <span contenteditable="plaintext-only" @focusin="focused" @blur="blured" @keydown="keyDown" class="inline-mode-editable-span can-select" @keyup="navKey" @input="valueChanged" :ref="'input_' + lValue['@guid']" :data-guid="lValue['@guid']">{{lValue.value}}{{(lValue['@language'] != null) ? '@'+lValue['@language'] : ''}}</span>
@@ -48,12 +48,12 @@
       <div class="literal-holder" @click="focusClick(lValue)" v-for="lValue in literalValues" @focusin="focused">
 
         <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] && preferenceStore.returnValue('--b-edit-main-literal-display-paired-literal-line')" class="literal-paired-indicator" :key="'line-holder-'+preferenceStore.returnValue('--c-edit-main-literal-paired-literal-line-color')">
-            
+
             <div v-if="pairedLitearlIndicatorLookup[lValue['@guid']] >0"  v-html="drawIndicator(pairedLitearlIndicatorLookup[lValue['@guid']],lValue['@guid'])">
-              
+
             </div>
-  
-  
+
+
           </div>
 
 
@@ -126,7 +126,7 @@
           <div class="literal-action" v-if="showActionButton && myGuid == activeField">
             <action-button :type="'literal'" :structure="structure" :fieldGuid="lValue['@guid']"  :guid="guid"  @action-button-command="actionButtonCommand" />
           </div>
-        </Transition>        
+        </Transition>
       </div>
     </div>
 
@@ -375,7 +375,7 @@ export default {
 
 
     },
-    
+
     calculateCutter(toCut,howLong){
       return utilsMisc.calculateCutter(toCut,howLong)
     },
@@ -965,8 +965,8 @@ export default {
         // make sure the new literal fits
         this.$nextTick().then(() => {
           this.expandHeightToContent()
-        })        
-        
+        })
+
 
 
       }
@@ -1017,7 +1017,7 @@ export default {
 
       let color = this.preferenceStore.returnValue('--c-edit-main-literal-paired-literal-line-color')
 
-      
+
       // this will fire off after the element has been rendrered so we know how large it is
       this.$nextTick().then(() => {
 
@@ -1025,7 +1025,7 @@ export default {
         let textEl = document.querySelector('[data-guid="' + elGuid + '"]')
         let elementSize = null
         if (textEl){
-          elementSize = textEl.getBoundingClientRect()          
+          elementSize = textEl.getBoundingClientRect()
         }
 
         let literalSize = this.preferenceStore.returnValue('--n-edit-main-literal-font-size',true)
@@ -1033,43 +1033,43 @@ export default {
         let svgHeight = 175
         let svgWidth = 30
 
-        let length = 100 
+        let length = 100
         let start = 5
 
         // ratio up the distance of the line and start of the line when the font-size is set bigger
-        if (elementSize){          
-          if (elementSize.height > 30){            
-            length =  elementSize.height * 4          
-          }   
-          if (elementSize.height > 50){            
-            length =  elementSize.height * 3          
-          }   
-          
-          // if (elementSize.height > 90){            
-          //   length =  elementSize.height * 4          
+        if (elementSize){
+          if (elementSize.height > 30){
+            length =  elementSize.height * 4
+          }
+          if (elementSize.height > 50){
+            length =  elementSize.height * 3
+          }
+
+          // if (elementSize.height > 90){
+          //   length =  elementSize.height * 4
           // }
-          
-          // if (elementSize.height > 100){            
-          //   length =  elementSize.height * 3          
+
+          // if (elementSize.height > 100){
+          //   length =  elementSize.height * 3
           // }
         }
 
 
         let svgEl = document.getElementById('literal-lines-' + elGuid)
-        
+
         if (svgEl){
-          svgEl.parentNode.innerHTML = `   
+          svgEl.parentNode.innerHTML = `
 
             <style scoped>
               svg.paired-line {
                 position: absolute;
-                z-index: 100;
+                z-index: 50;
                 top: -5px;
                 left: -10px;
                 pointer-events: none;
               }
             </style>
-            
+
             <svg xmlns:dc="http://purl.org/dc/elements/1.1/" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xl="http://www.w3.org/1999/xlink" viewBox="-2 -7.417834 70 480" width="${svgWidth}" height="${svgHeight}" class="paired-line">
               <defs>
                 <marker orient="auto" overflow="visible" markerUnits="strokeWidth" id="FilledArrow_Marker" stroke-linejoin="miter" stroke-miterlimit="10" viewBox="-1 -3 6 6" markerWidth="6" markerHeight="6" color="black">
@@ -1092,7 +1092,7 @@ export default {
                   </g>
                 </g>
               </g>
-            </svg>      
+            </svg>
             `
 
 
@@ -1100,7 +1100,7 @@ export default {
 
 
 
-        
+
 
 
 
@@ -1109,7 +1109,7 @@ export default {
       return `<svg id="literal-lines-${elGuid}"/>`
 
 
-      
+
     }
 
 
@@ -1287,10 +1287,6 @@ export default {
   width: 1em;
   position: relative;
   margin-left: 1em;
-
-
-
-
 }
 
 fieldset{
