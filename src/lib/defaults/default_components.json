@@ -4,7 +4,7 @@
             "lc:RT:bf2:Monograph:Work:Default": {
                 "groups": [
                     {
-                        "id": "uPGPwtgYsvoh8E9NjJAKED",
+                        "id": "oLLQ3Cg1Fcpbr7tL2Faagz",
                         "groupId": "Bib",
                         "position": 0,
                         "structure": {
@@ -31,12 +31,13 @@
                                 "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
                                 "http://id.loc.gov/ontologies/bibframe/supplementaryContent": [
                                     {
-                                        "@guid": "vCgCdTmcmhcjy3PGHDAXDn",
+                                        "@guid": "tHtLhtfQDmRz25nJgbutbY",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
                                         "@id": "http://id.loc.gov/vocabulary/msupplcont/bibliography",
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
-                                                "@guid": "tFys4XBvT8izGPUncnT7Za",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "bibliography (bibliography)"
+                                                "@guid": "sdoP1bhYjUrTJi9vVB6QPH",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "bibliography "
                                             }
                                         ]
                                     }
@@ -654,9 +655,9 @@
                         "label": "Illustrations , map (ill cntnt)"
                     },
                     {
-                        "id": "tyYpwBrvo28L5N1cMt6ZaE",
+                        "id": "oSiKP8iGGHji4ALjoE1Mu1",
                         "groupId": "Index",
-                        "position": 0,
+                        "position": 1,
                         "structure": {
                             "mandatory": "false",
                             "repeatable": "true",
@@ -681,12 +682,13 @@
                                 "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
                                 "http://id.loc.gov/ontologies/bibframe/supplementaryContent": [
                                     {
-                                        "@guid": "9sJpuwTywqSY1QGTSTzfq6",
+                                        "@guid": "eJdhegHZwxTd51dQeFRSxy",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
                                         "@id": "http://id.loc.gov/vocabulary/msupplcont/index",
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
-                                                "@guid": "oCsHwetaWhyz65HUcAuZ3a",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "index (index)"
+                                                "@guid": "7rX1GtPwYs4ztBB84obBth",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "index "
                                             }
                                         ]
                                     }
