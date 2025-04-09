@@ -2137,7 +2137,7 @@ export const useProfileStore = defineStore('profile', {
             }
 
           //   console.log("Delete this guy",propertyPath )
-          // }  
+          // }
 
 
           // also remove the paired literal lines if needed
@@ -3671,22 +3671,22 @@ export const useProfileStore = defineStore('profile', {
             if (titleUserValue && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'] && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'].length>0 && titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]){
               titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
               if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle']){
-                
+
 
                 let titleBnodeSorted = titleUserValue
-                
+
 
                 if (titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 1){
                   // there are multiple titles, we want to make sure to pick the latin one
                   titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'] = this.sortObjectsByLatinMatch(titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'],'http://id.loc.gov/ontologies/bibframe/mainTitle')
                 }
 
-                
+
 
 
                 if (titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 0 && titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0] && titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                   title = titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
-                }              
+                }
 
               }
               if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bflc/nonSortNum']){
@@ -5731,7 +5731,6 @@ export const useProfileStore = defineStore('profile', {
 
               // if it is an admin metadata do something special
               if (component.propertyURI == "http://id.loc.gov/ontologies/bibframe/adminMetadata"){
-
                 for (let pt in this.activeProfile.rt[component.parentId].pt){
                   if (this.activeProfile.rt[component.parentId].pt[pt].propertyURI == component.propertyURI && this.activeProfile.rt[component.parentId].pt[pt].adminMetadataType && this.activeProfile.rt[component.parentId].pt[pt].adminMetadataType == 'primary' ){
                     ptObjFound = this.activeProfile.rt[component.parentId].pt[pt]
@@ -5766,7 +5765,6 @@ export const useProfileStore = defineStore('profile', {
                         }
                       }
                     }
-
                     console.log("localId",localId)
                     console.log("local040",local040)
 
@@ -5848,23 +5846,36 @@ export const useProfileStore = defineStore('profile', {
                   component = this.componentLibraryUpdateUserValueGuid(component)
 
 
-                  if (Object.keys(ptObjFound.userValue).length <= 1){
+                  if (Object.keys(ptObjFound.userValue).length <= 1 || ptObjFound.id.includes("id_loc_gov_ontologies_bibframe_adminmetadata")){
                     // if this is 1 or 0 then the userdata is empty, with just a @root property
                     // there is no user data added yet
                     // we can just overwrite whats there with our component
                     // we don't need to adjust the order, its 1-for-1
                     // find it again and overwrite
-                    for (let pt in this.activeProfile.rt[component.parentId].pt){
-                      if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
-                        this.activeProfile.rt[component.parentId].pt[pt] = JSON.parse(JSON.stringify(component))
-                        this.dataChanged()
-                        return [component.parentId,pt]
+
+                    // Admin metadata should overwrite the existing values, otherwise we create a new Admin field, which we shouldn't do
+                    if (!ptObjFound.id.includes("id_loc_gov_ontologies_bibframe_adminmetadata")){
+                      for (let pt in this.activeProfile.rt[component.parentId].pt){
+                        if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
+                          this.activeProfile.rt[component.parentId].pt[pt] = JSON.parse(JSON.stringify(component))
+                          this.dataChanged()
+                          return [component.parentId,pt]
+                        }
+                      }
+                    } else {
+                      // Need an exception for Admin to ensure we're not making changes to a different admin field
+                      for (let pt in this.activeProfile.rt[component.parentId].pt){
+                        if (this.activeProfile.rt[component.parentId].pt[pt].id == ptObjFound.id){
+                          component.id = ptObjFound.id
+                          this.activeProfile.rt[component.parentId].pt[pt] = JSON.parse(JSON.stringify(component))
+                          this.dataChanged()
+                          return [component.parentId,pt]
+                        }
                       }
                     }
 
 
                   }else{
-
                     // we can't replace the one that is there, already has data, so construct a new place for it
 
                     // first find out how many of these components there are
@@ -5892,7 +5903,7 @@ export const useProfileStore = defineStore('profile', {
                       }
                     }
                     this.activeProfile.rt[component.parentId].ptOrder.splice(insertAt+1, 0, newId);
-
+                    this.dataChanged()
                     return [component.parentId,newId]
                   }
 
@@ -6105,7 +6116,7 @@ export const useProfileStore = defineStore('profile', {
           let aLang = a['@language'] || '';
           let bLang = b['@language'] || '';
 
-          
+
           aLang = aLang.toLowerCase()
           bLang = bLang.toLowerCase()
           let aIsLatin = true
@@ -6126,7 +6137,7 @@ export const useProfileStore = defineStore('profile', {
           }else if (bLang.length == 0){
             bIsLatin = true
           }
-                   
+
           if (!bIsLatin && aIsLatin) return -1;
 
           if (bIsLatin && !aIsLatin) return 1;
@@ -6146,7 +6157,7 @@ export const useProfileStore = defineStore('profile', {
           console.log(bValue, 'latinregex:',latinRegex.test(bValue))
           const aIsLatin = latinRegex.test(aValue);
           const bIsLatin = latinRegex.test(bValue);
-  
+
           if (!bIsLatin && aIsLatin) return -1;
           if (bIsLatin && !aIsLatin) return 1;
           return 0;
@@ -6230,8 +6241,8 @@ export const useProfileStore = defineStore('profile', {
 
     }
 
- 
-  
+
+
 
 
 

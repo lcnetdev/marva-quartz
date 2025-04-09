@@ -116,7 +116,6 @@ import { isReadonly } from 'vue';
 
 
       addComponentLibrary(event,clId,supressPropmpt){
-
         if (event){
           if (this.clDebounce){return false}
           event.preventDefault()
@@ -154,8 +153,6 @@ import { isReadonly } from 'vue';
 
 
       addComponentLibraryGroup(group){
-
-
         let sentFirstComponentOfGroup = false
         let supressPrompt = false
         for (let groups of this.returnComponentLibrary){
