@@ -1747,7 +1747,7 @@ const utilsParse = {
               groupTopLeveLiteralsToMerge[pt.propertyURI].toRemove.push(pt.id)
             }
             groupTopLeveLiteralsToMerge[pt.propertyURI].values.push(pt.userValue[pt.propertyURI][0])
-          }                    
+          }
         }
       }
       // loop through the list of properties we found to see if we have multiple to merge
@@ -1757,7 +1757,7 @@ const utilsParse = {
             let pt = profile.rt[pkey].pt[key]
             if (pt.id == groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder){
               pt.userValue[toGroupUri] = groupTopLeveLiteralsToMerge[toGroupUri].values
-            }            
+            }
           }
         }
         for (let toRemove of groupTopLeveLiteralsToMerge[toGroupUri].toRemove){
@@ -1771,18 +1771,18 @@ const utilsParse = {
         if (groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder){
           let ptToReOrder = profile.rt[pkey].pt[groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder]
           if (ptToReOrder && ptToReOrder.userValue && ptToReOrder.userValue[toGroupUri]){
-            
+
             if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
               ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri ).reverse()
             }else{
               ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri )
-            }            
+            }
           }
         }
       }
 
       // we are going to go looking for literals inside bnodes that have two literals with one at least of them with a @language tag
-      
+
       profile = this.reorderAllNonLatinLiterals(profile)
       this.buildPairedLiteralsIndicators(profile)
 
@@ -2080,25 +2080,25 @@ const utilsParse = {
 
   /**
    * Sets up indicators for paired literals in a profile to manage UI presentation.
-   * 
-   * For these paired literals, it marks each value 
+   *
+   * For these paired literals, it marks each value
    * with a position indicator ('start', 'middle', or 'end') in the pairedLitearlIndicatorLookup.
-   * 
+   *
    * The indicators help the UI layer properly display multi-language text entries with
    * appropriate styling
-   * 
+   *
    * @param {Object} profile - The BibFrame profile object containing resource templates
    * @returns {void} - Updates the pairedLitearlIndicatorLookup in the ProfileStore
    */
   buildPairedLiteralsIndicators: function(profile){
 
-      
+
     useProfileStore().pairedLitearlIndicatorLookup = {}
-  
+
     function process (obj, func) {
       if (obj && obj.userValue){
         obj = obj.userValue
-      }  
+      }
       if (Array.isArray(obj)){
         obj.forEach(function (child) {
           process(child, func);
@@ -2135,8 +2135,8 @@ const utilsParse = {
                 }else{
                   useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
                 }
-              })        
-            }               
+              })
+            }
         });
       }
     }
@@ -2286,7 +2286,8 @@ const utilsParse = {
     function process (obj, func) {
       if (obj && obj.userValue){
         obj = obj.userValue
-      }  
+      }
+      console.info("      processing: ", obj)
       if (Array.isArray(obj)){
         obj.forEach(function (child) {
           process(child, func);
@@ -2302,16 +2303,17 @@ const utilsParse = {
           }
         }
       }
-    }    
+    }
     for (let rt of profile.rtOrder){
       for (let pt of profile.rt[rt].ptOrder){
         let ptObj = profile.rt[rt].pt[pt]
+
         process(ptObj, function (obj,key,value) {
             // e.g.
             // only array > 1 make it here
-          
-            // don't try to sort marcKey            
-            if (["http://id.loc.gov/ontologies/bibframe/contribution","http://id.loc.gov/ontologies/bibframe/subject"].indexOf(ptObj.propertyURI)>-1){
+
+            // don't try to sort marcKey
+            if (["http://id.loc.gov/ontologies/bibframe/contribution","http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/geographicCoverage"].indexOf(ptObj.propertyURI)>-1){
               return null
             }
 
@@ -2322,8 +2324,9 @@ const utilsParse = {
               }else{
                 value = useProfileStore().sortObjectsByLatinMatch(value,key)
               }
-            }               
+            }
         });
+
       }
     }
 
