@@ -2159,12 +2159,6 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
     }
 
     export function onPeriodClicked(periodNumber, sDewey$, sGenre$, sCountry$){
-        console.info("onPeriodClicked")
-        console.info("periodNumber: ", periodNumber)
-        console.info("sDewey$: ", sDewey$)
-        console.info("sGenre$: ", sGenre$)
-        console.info("sCountry$: ", sCountry$)
-
         console.log('onPeriodClicked', periodNumber, sDewey$, sGenre$, sCountry$)
 
         let dewey
