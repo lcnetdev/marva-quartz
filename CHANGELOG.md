@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [1.2.7] - 2025-04-09
+## Fixed
+- Paired latin/non-latin indicators showing up in some drop down menus
+
+
 ## [1.2.6] - 2025-04-08
 ## Fixed
 - Broken property navigation for items
