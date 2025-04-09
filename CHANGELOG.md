@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Update to Default Library `Index` & `Bib` [BFP-381]
+- Change the XML structure of `ComplexSubjects`
 
 
 ## [1.2.6] - 2025-04-08
