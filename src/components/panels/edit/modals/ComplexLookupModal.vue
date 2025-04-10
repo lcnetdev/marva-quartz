@@ -163,15 +163,17 @@
       generateLabel: function(data){
         let label = !data.literal ? data.suggestLabel : data.label + ((data.literal) ? ' [Literal]' : '')
 
-        // if (label.includes("(USE ")){
-        //   label = data.label + " (USE FOR " + data.suggestLabel.replace(/\(USE.*\)/mg, "") + ")"
+        if (label.includes("(USE ")){
+          label = data.label + " (USE FOR " + data.suggestLabel.replace(/\(USE.*\)/mg, "") + ")"
+        }
+
+        // let re = new RegExp(String.raw`(${this.searchValueLocal})`, "ig")
+        // let match = re.exec(label)
+        // if (match){
+        //   let start = re.lastIndex - match[0].length
+        //   let end =   re.lastIndex - 1
+        //   label = label.slice(0, start) + "<span class='highlight-search-string'>" + label.slice(start, end+1) + "</span>" + label.slice(end+1)
         // }
-        // console.info("search: ", this.searchValueLocal)
-
-        // let re = new RegExp(String.raw`(${this.searchValueLocal})`, "i")
-        // label = label.replace(re, "??")
-
-        // console.info("label: ", label)
 
         return label
       },
@@ -755,7 +757,7 @@
         }
       },
 
-      displayProvisonalNAR(){     
+      displayProvisonalNAR(){
         if (!this.preferenceStore.isNarTester()){
           return false
         }
@@ -774,7 +776,7 @@
           fieldGuid: null,
           structure: this.structure,
           propertyPath:this.propertyPath
-        }        
+        }
 
 
 
@@ -1019,10 +1021,9 @@
                       Searching...
                     </option>
                     <template v-if="!isSimpleLookup()">
-                      <!-- .sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0)) -->
-                      <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
+                      <option v-for="(r,idx) in activeComplexSearch.sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0))" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
                         <div class="option-text">
-                          {{ generateLabel(r) }}
+                          <span v-html="generateLabel(r)"></span>
                         </div>
                       </option>
                     </template>
@@ -1431,6 +1432,10 @@
 
 .option-text {
   text-wrap: wrap;
+}
+
+:deep() .highlight-search-string{
+  font-weight: bold;
 }
 
 </style>

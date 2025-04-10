@@ -15,6 +15,8 @@ All notable changes to this project will be documented in this file.
 - Update to Default Library `Index` & `Bib` [BFP-381]
 - Change the XML structure of `ComplexSubjects`
 - Add Complex Lookup for LCDGT - `Creator Characteristic`
+- Sort of Names in subject results to be based on shown label
+- Change display of labels with `USE` to keep emphasis on the authorized term. `A (USE B)` > `B (USE FOR A)`
 
 
 ## [1.2.6] - 2025-04-08
