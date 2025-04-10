@@ -2792,6 +2792,7 @@ export const useProfileStore = defineStore('profile', {
 
         }
         // they changed something
+
         this.dataChanged()
 
       }else{
