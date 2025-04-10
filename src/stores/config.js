@@ -28,14 +28,16 @@ export const useConfigStore = defineStore('config', {
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
         starting: 'http://localhost:9401/util/profiles/starting/prod',
         // worldCat: 'http://localhost:9401/worldcat/',
-        worldCat: 'http://localhost:5200/worldcat/',
-        copyCatUpload: 'http://localhost:5200/copycat/upload', // change ports for production
+        // worldCat: 'http://localhost:5200/worldcat/',
+        // copyCatUpload: 'http://localhost:5200/copycat/upload', // change ports for production
+
+        worldCat: 'https://preprod-3001.id.loc.gov/bfe2/util/worldcat/',
+        copyCatUpload: 'https://preprod-3001.id.loc.gov/bfe2/util/copycat/upload',
+
         // starting: 'http://localhost:9401/util/profiles/starting/prod',
 
         // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
         profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
-        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
-        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
         starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
         profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 

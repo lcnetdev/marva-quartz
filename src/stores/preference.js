@@ -1778,13 +1778,13 @@ export const usePreferenceStore = defineStore('preference', {
       // Convert initials and code to lowercase if they exist
       const initials = this.catInitals ? this.catInitals.toLowerCase() : '';
       const code = this.catCode ? this.catCode.toLowerCase() : '';
-      
+
       // Convert all test strings to lowercase
       const canTestLower = canTest.map(item => item.toLowerCase());
-      
+
       // Check if initials or code match any of the test strings
-      return canTestLower.some(testStr => 
-        (initials && initials.includes(testStr)) || 
+      return canTestLower.some(testStr =>
+        (initials && initials.includes(testStr)) ||
         (code && code.includes(testStr))
       );
 
