@@ -488,13 +488,22 @@ export default {
           )
         }else{
           delete contextValue.typeFull
+
+          let type = (contextValue.type && (contextValue.type.includes("Hub") || contextValue.type.includes("Work")) ) ? contextValue.type : contextValue.extra.rdftypes[0]
+          if (type == 'Authority'){
+            let struct = this.profileStore.returnStructureByGUID(this.guid)
+            if (struct.valueConstraint.valueDataType.dataTypeURI){
+              type = struct.valueConstraint.valueDataType.dataTypeURI
+            }
+          }
+
           this.profileStore.setValueComplex(
             this.guid,
             null,
             this.propertyPath,
             contextValue.uri,
             contextValue.title,
-            (contextValue.type && (contextValue.type.includes("Hub") || contextValue.type.includes("Work")) ) ? contextValue.type : contextValue.extra.rdftypes[0],
+            type,
             contextValue.extra,
             (contextValue.extra && contextValue.extra.marcKeys) ? contextValue.extra.marcKeys[0] : null,
           )

@@ -2305,12 +2305,13 @@ const utilsParse = {
     for (let rt of profile.rtOrder){
       for (let pt of profile.rt[rt].ptOrder){
         let ptObj = profile.rt[rt].pt[pt]
+
         process(ptObj, function (obj,key,value) {
             // e.g.
             // only array > 1 make it here
 
             // don't try to sort marcKey
-            if (["http://id.loc.gov/ontologies/bibframe/contribution","http://id.loc.gov/ontologies/bibframe/subject"].indexOf(ptObj.propertyURI)>-1){
+            if (["http://id.loc.gov/ontologies/bibframe/contribution","http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/geographicCoverage"].indexOf(ptObj.propertyURI)>-1){
               return null
             }
 
@@ -2323,6 +2324,7 @@ const utilsParse = {
               }
             }
         });
+
       }
     }
 

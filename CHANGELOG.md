@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [1.2.8] - 2025-04-10
+### Fixed
+- Fixed XML created for `Creator characteristic`
+
+
+## [1.2.7] - 2025-04-09
+### Fixed
+- Paired latin/non-latin indicators showing up in some drop down menus
+- AdminMD components could "generate" a new admin field [BFP-382]
+- Fix `GeoCoverage` swapping to non-lating form when `Paired literals...` preference is set
+- Fix auto dewey logic
+- Fix Double `|x` appearing with `Biograpahy` in linked subject input
+
+### Changed
+- Update to Default Library `Index` & `Bib` [BFP-381]
+- Change the XML structure of `ComplexSubjects`
+- Add Complex Lookup for LCDGT - `Creator Characteristic`
+- Sort of Names in subject results to be based on shown label
+- Change display of labels with `USE` to keep emphasis on the authorized term. `A (USE B)` > `B (USE FOR A)`
+
+
 ## [1.2.6] - 2025-04-08
 ## Fixed
 - Broken property navigation for items
