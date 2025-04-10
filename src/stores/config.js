@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 2,
-    versionPatch: 7,
+    versionPatch: 8,
 
 
     regionUrls: {
@@ -25,14 +25,17 @@ export const useConfigStore = defineStore('config', {
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
-        starting: 'http://localhost:9401/util/profiles/starting/prod',
+        // starting: 'http://localhost:9401/util/profiles/starting/prod',
 
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
+        starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
+        profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
         id: 'https://id.loc.gov/',
-        env : 'production',
+        env : 'staging',
         dev: false,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',

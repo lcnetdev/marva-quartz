@@ -1064,7 +1064,7 @@
 
                     </div>
                     <div class="complex-lookup-modal-display-buttons">
-
+                      {{ activeContext }}
                       <button @click="$emit('emitComplexValue', activeContext)">Add [Shift+Enter]</button>
                       <button @click=" reset(); $emit('hideComplexModal')">Cancel [ESC]</button>
 

@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.8] - 2025-04-10
+### Fixed
+- Fixed XML created for `Creator characteristic`
+
+
 ## [1.2.7] - 2025-04-09
 ### Fixed
 - Paired latin/non-latin indicators showing up in some drop down menus
