@@ -170,10 +170,10 @@
               <h3>
                 <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">A Record with this LCCN Exists</a>
               </h3>
-              <span class="badge badge-warning no-hover">You won't be able to continue with this LCCN.</span>
+              <span class="badge badge-warning no-hover">If you continue, the copy cat record will be merged with the existing record.</span>
               <br>
             </template>
-            <template v-else-if="urlToLoad.length < 10">
+            <template v-else-if="urlToLoad.length < 10 && urlToLoad.length != 0">
               <br>
               <span class="badge badge-warning no-hover">LCCNs should be 10 characters long.</span>
               <br>
@@ -432,7 +432,7 @@
 
         if (this.existingLCCN == null){ return true }
 
-        return !(recordSelected && !this.existingLCCN)
+        return !recordSelected
       },
 
       checkLccn: async function(){
@@ -601,7 +601,20 @@
         this.queryingWc = false
       },
 
+      createSubField: function(code, value, parent){
+        let subfield = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
+        subfield.setAttribute("code", code)
+        subfield.innerHTML = value
+        parent.appendChild(subfield)
+      },
+
       loadCopyCat: async function(profile){
+        let continueWithLoad = true
+        if (this.existingLCCN){
+          continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
+        }
+        if (!continueWithLoad) { return }
+
         let xml =  this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
         this.existingLccn = false
 
@@ -627,46 +640,38 @@
         dummy999.setAttribute("ind1", " ")
         dummy999.setAttribute("ind2", " ")
 
-        let subfieldA = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
-        subfieldA.setAttribute("code", "a")
-        subfieldA.innerHTML = this.urlToLoad
-        dummy999.appendChild(subfieldA)
+        this.createSubField("a", this.urlToLoad, dummy999)
+        this.createSubField("b", this.recordPriority, dummy999)
+        this.createSubField("c", this.jackphyCheck, dummy999)
+        this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummy999)
 
-        let subfieldB = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
-        subfieldB.setAttribute("code", "b")
-        subfieldB.innerHTML = this.recordPriority
-        dummy999.appendChild(subfieldB)
-
-        let subfieldC = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
-        subfieldC.setAttribute("code", "c")
-        subfieldC.innerHTML = this.jackphyCheck
-        dummy999.appendChild(subfieldC)
-
-        let subfieldD = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
-        subfieldD.setAttribute("code", "d")
-        subfieldD.innerHTML = this.determineLevel(this.selectedWcRecord)
-        dummy999.appendChild(subfieldD)
+        if (this.existingLCCN){
+          this.createSubField("e", "overlay bib", dummy999)
+        }
 
         xml.documentElement.appendChild(dummy999)
 
         let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
+        console.info("strXmlBasic: ", strXmlBasic)
+
         this.posting = true
         this.postResults = {}
-        this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
+        // this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
         this.posting = false
 
-        this.responseURL = this.postResults.postLocation
-        let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
+        // this.responseURL = this.postResults.postLocation
+        // console.info(">>>>>>>", this.responseURL)
+        // let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
         // this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
-        this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
+        // this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
 
         // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
         // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
         // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
 
 
-          this.loadUrl(profile)
+          // this.loadUrl(profile)
       },
 
       loadFromAllRecord: function(eId){

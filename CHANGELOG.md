@@ -3,7 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 
-## [1.2.8] - 2025-04-10
+## [1.3.0] - 2025-04-10
+### Changed
+- Add functionality for CopyCat from OCLC
+
 ### Fixed
 - Fixed XML created for `Creator characteristic`
 

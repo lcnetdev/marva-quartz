@@ -6,8 +6,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 1,
-    versionMinor: 2,
-    versionPatch: 8,
+    versionMinor: 3,
+    versionPatch: 0,
 
 
     regionUrls: {
@@ -27,19 +27,25 @@ export const useConfigStore = defineStore('config', {
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
         starting: 'http://localhost:9401/util/profiles/starting/prod',
-        // worldCat: 'http://localhost:9401/worldcat/',
-        // worldCat: 'http://localhost:5200/worldcat/',
-        // copyCatUpload: 'http://localhost:5200/copycat/upload', // change ports for production
 
-        worldCat: 'https://preprod-3001.id.loc.gov/bfe2/util/worldcat/',
-        copyCatUpload: 'https://preprod-3001.id.loc.gov/bfe2/util/copycat/upload',
+        worldCat: 'http://localhost:5200/worldcat/',
+        copyCatUpload: 'http://localhost:5200/copycat/upload', // change ports for production
+
+        // worldCat: 'https://editor.id.loc.gov/bfe2/util/worldcat/',
+        // copyCatUpload: 'https://editor.id.loc.gov/bfe2/util/copycat/upload',
 
         // starting: 'http://localhost:9401/util/profiles/starting/prod',
-
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
-        starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
-        profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
+        // starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
+        // profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
+        // util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
+        // utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
+        // scriptshifter: 'https://preprod-3001.id.loc.gov/bfe2/scriptshifter/',
+        // publishNar: 'https://preprod-3001.id.loc.gov/bfe2/util/nacostub/staging',
+        // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
+        // shelfListing: 'https://preprod-8230.id.loc.gov/',
 
         id: 'https://id.loc.gov/',
         env : 'staging',
@@ -92,7 +98,7 @@ export const useConfigStore = defineStore('config', {
         starting : '/bfe2/util/profiles/starting/prod',
 
         worldCat: 'https://editor.id.loc.gov/bfe2/util/worldcat/',
-        copyCatUpload: 'https://editor.id.loc.gov/bfe2/util/upload', // change ports for production
+        copyCatUpload: 'https://editor.id.loc.gov/bfe2/util/copycat/upload',
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',

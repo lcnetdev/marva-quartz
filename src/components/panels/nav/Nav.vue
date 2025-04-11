@@ -158,7 +158,7 @@
           },
         ]
 
-        if (this.preferenceStore.isNarTester()){
+        if (this.isStaging && this.preferenceStore.isNarTester()){
           if (!this.$route.path.includes('edit')){
             menuButtonSubMenu.push(
               {
