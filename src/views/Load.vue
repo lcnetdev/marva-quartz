@@ -136,161 +136,7 @@
       </div>
 
       <div v-else>
-        <!-- source: https://gridbyexample.com/patterns/header-twocol-footer/ -->
-        <div class="copy-cat-wrapper">
-          <header class="copy-cat-header">Copy Cat Search</header>
-          <div class="copy-cat-search">
-            <h1>Search OCLC</h1>
-            <form ref="urlToLoadForm" v-on:submit.prevent="">
-              <input placeholder="Enter Value to Search" class="url-to-load" type="text" v-model="wcQuery" ref="urlToLoad">
-              <button @click="worldCatSearch(false, true)">Search</button>
-              <br>
-              <div class="toggle-btn-grp cssonly">
-                <h3>Field to Search on</h3>
-                <div v-for="opt in indexSelectOptions">
-                  <input :id="opt.label" type="radio" :value="opt.value" class="search-mode-radio" v-model="wcIndex" name="searchIndex" />
-                    <label :for="opt.label" onclick="" class="toggle-btn">{{opt.label}}</label>
-                  </div>
-              </div>
-
-              <br>
-              <label for="target-type">What are you looking for </label>
-              <select name="target-type" v-model="wcType">
-                <option value="book">Book (Print)</option>
-                <option value="ebook">Book (Digital)</option>
-                <option value="audiobook">Audio Book</option>
-                <option value="music">Music</option>
-              </select>
-
-            </form>
-            <hr>
-            <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="checkLccn" /><br>
-            <template v-if="existingLCCN">
-              <br>
-              <h3>
-                <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">A Record with this LCCN Exists</a>
-              </h3>
-              <span class="badge badge-warning no-hover">If you continue, the copy cat record will be merged with the existing record.</span>
-              <br>
-            </template>
-            <template v-else-if="urlToLoad.length < 10 && urlToLoad.length != 0">
-              <br>
-              <span class="badge badge-warning no-hover">LCCNs should be 10 characters long.</span>
-              <br>
-            </template>
-            <br>
-            <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority" /><br>
-            <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
-            <label for="jackphy">Does this record contain non-Latin script that should be retained? </label><input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
-            <br>
-            <h3>Load with profile:</h3>
-            <div class="load-buttons">
-              <button class="load-button" @click="loadCopyCat(s.instance)" :disabled="disableCopyCatButtons()"  v-for="s in startingPointsFiltered">
-                {{s.name}}
-              </button>
-            </div>
-
-          </div>
-          <div class="copy-cat-results">
-            <h1>Results</h1>
-
-            <div>
-              <h2 v-if="wcResults?.results && Number(wcResults?.results?.numberOfRecords) === 0">
-                  No results :(
-              </h2>
-              <h2 v-else-if="wcResults.error && !queryingWc">
-                There was an error getting the results: "{{ wcResults.error.message }}"
-              </h2>
-              <h2 v-else-if="wcResults?.results?.briefRecords && wcResults?.results?.numberOfRecords > 0  && !queryingWc">
-                Showing {{ wcLimit <  wcResults.results.numberOfRecords ? wcLimit :  wcResults.results.numberOfRecords }} of {{ wcResults.results.numberOfRecords }} results
-              </h2>
-              <!-- Pagination -->
-              <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc" class="wc-search-paging">
-
-                  <span :style="`${this.preferenceStore.styleModalTextColor()}`">
-                    <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
-                      <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
-                    </a>
-                    <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
-                      <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
-                    </a>
-                    <span class="pagination-label" > Page {{ currentPage }} of {{ !isNaN(Math.ceil(wcResults.results.numberOfRecords / wcLimit)) ? Math.ceil(wcResults.results.numberOfRecords / wcLimit) : "Last Page"}} </span>
-
-                    <a href="#" title="next page" class="next" :class="{off: Math.ceil(wcResults.results.numberOfRecords / wcLimit) == this.currentPage}" @click="nextPage()">
-                      <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
-                    </a>
-                    <a href="#" title="last page" class="last" :class="{off: Math.ceil(wcResults.results.numberOfRecords / wcLimit) == this.currentPage}" @click="lastPage()">
-                      <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
-                    </a>
-                  </span>
-
-                <slot name="pagination"></slot>
-              </div>
-            </div>
-            <template v-if="queryingWc">
-                <li>Searching...</li>
-            </template>
-            <template v-else-if="!queryingWc && wcResults.results && wcResults.results.numberOfRecords > 0">
-              <div class="card" v-for="(row) in wcResults.results.briefRecords" :class="['wc-row', {'selected': selectedWcRecord['oclcNumber'] == row['oclcNumber']}]" @click="selectedWcRecord = row">
-                <div class="card-body">
-                  <div class="card-icon"></div>
-                  <div class="card-title">
-                    <span :class="['badge', 'simptip-position-top', {'badge-success': determineLevel(row) == 'PccAdapt', 'badge-warning': determineLevel(row) == 'OrigRes', 'badge-info': determineLevel(row) == 'CopyCat', 'badge-danger': determineLevel(row) == 'OrigCop'}]"
-                      :data-tooltip="catLevelToolTip(determineLevel(row))">
-                      {{ determineLevel(row) }}
-                    </span>
-                    {{ row['title'] }} ({{ row['language'] }})
-                  </div>
-                  <div class="card-subtitle">{{ row['creator'] }}</div>
-                  <div class="card-text border-bottom">
-                    <labe class="card-label">Format: </labe>
-                      <span v-if="row['specificFormat'] == 'Digital'" data-tooltip="This is a digital resource. Make sure that's what you want." :class="['badge badge-secondary', 'simptip-position-top', {'badge-info': true}]">
-                        {{ row['specificFormat'] }}
-                      </span>
-                      <span v-else>{{ row['specificFormat'] }}</span>
-                      <br>
-                    <label class="card-label">Publisher:</label> {{ row['publisher'] }} ({{row['publicationPlace']}})<br>
-                    <label class="card-label">008 Date:</label> {{ row['date'] }}<br>
-                    <span v-if="getMarcFieldAsString(row, '300')">
-                      <label class="card-label">Marc 300: </label>{{ getMarcFieldAsString(row, '300') }}
-                    </span>
-                  </div>
-                  <div class="card-text border-bottom" v-if="row['isbns'] && row['isbns'].length > 0">
-                    <label class="card-label">ISBNs:</label>
-                    <ul>
-                      <li v-for="(item) in row['isbns']">{{ item }}</li>
-                    </ul>
-                  </div>
-                  <div class="card-text border-bottom" v-if="row['issns'] && row['issns'].length > 0">
-                    <label class="card-label">ISSNs:</label>
-                    <ul>
-                      <li v-for="(item) in row['issns']">{{ item }}</li>
-                    </ul>
-                  </div>
-                  <div class="card-text">
-                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': isRdaRecord(row), 'badge-warning': !isRdaRecord(row)}]" data-tooltip="RDA: 040 $e = RDA and leader/18!='a' and 260 is not present">{{ isRdaRecord(row) ? "RDA" : "Not RDA" }}</span>
-                    <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'High', 'badge-warning': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'Low'}]" :data-tooltip="'Encoding Level: \'' + row.catalogingInfo.levelOfCataloging + '\''" v-if="row.catalogingInfo.levelOfCataloging">{{ encodingLevel(row.catalogingInfo.levelOfCataloging) }}</span>
-                    <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Agency" v-if="row.catalogingInfo.catalogingAgency">{{ row.catalogingInfo.catalogingAgency }}</span>
-                    <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Language" v-if="row.catalogingInfo.catalogingLanguage">{{ row.catalogingInfo.catalogingLanguage }}</span>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </div>
-          <div class="copy-cat-marc">
-            <div v-if="Object.keys(selectedWcRecord).length > 0">
-              Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }} <br>
-              Marc Preview<br>
-              <hr class="marc-divider">
-              <div v-html="selectedWcRecord['marcHTML']"></div>
-            </div>
-          </div>
-          <!-- <footer class="copy-cat-marc" v-if="Object.keys(selectedWcRecord).length > 0">
-            Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }} <br>
-            Marc Preview<br>
-            <div v-html="selectedWcRecord['marcHTML']"></div>
-          </footer> -->
-        </div>
+        <CopyCat />
       </div>
     </pane>
   </splitpanes>
@@ -319,6 +165,7 @@
 
   import { DataTable } from "@jobinsjp/vue3-datatable"
   import "@jobinsjp/vue3-datatable/dist/style.css"
+  import CopyCat from './CopyCat.vue'
 
   if (TimeAgo.getDefaultLocale() != 'en'){TimeAgo.addDefaultLocale(en)}
   const timeAgo = new TimeAgo('en-US')
@@ -326,7 +173,7 @@
   const decimalTranslator = short("0123456789");
 
   export default {
-    components: { Splitpanes, Pane, Nav, DataTable },
+    components: { Splitpanes, Pane, Nav, DataTable, CopyCat},
     data() {
       return {
 
@@ -348,15 +195,18 @@
 
         allRecords: [],
 
-        wcIndex: "bn",
+        wcIndex: "",
         wcType: "book",
         wcQuery: "",
         wcOffset: 1,
         wcLimit: 10,
         queryingWc: false,
         wcResults: [],
+        // https://help.oclc.org/Librarian_Toolbox/Searching_WorldCat_Indexes/Bibliographic_records/Bibliographic_record_indexes/Bibliographic_record_index_lists/Alphabetical_list_of_available_WorldCat.org_bibliographic_record_indexes
         indexSelectOptions: [
+          { label: 'Controll Number', value: '' },
           { label: 'ISBN', value: 'bn' },
+          { label: 'ISSN', value: 'in' },
           { label: 'Title', value: 'ti' },
           { label: 'Name', value: 'au' },
           { label: 'Keyword', value: 'kw' },
@@ -390,6 +240,7 @@
         responseURL: null,
         existingLCCN: null,
         existingRecordUrl: "",
+        hasLccn: false,
 
 
       }
@@ -431,6 +282,7 @@
         let recordSelected = (this.selectedWcRecord) ? true : false
 
         if (this.existingLCCN == null){ return true }
+        if (this.checkRecordHasLccn(selectedWcRecord)) { return false }
 
         return !recordSelected
       },
@@ -492,6 +344,23 @@
         } catch(err) {
           console.error("err: ", err)
           return false
+        }
+      },
+
+      isSerial: function(record){
+        let leader = record.marcRaw.leader
+        let bibLevel = leader.at(7)
+
+        return ["b", "s"].includes(bibLevel)
+      },
+
+      checkRecordHasLccn: function(record){
+        if (record){
+          console.info(">> ", record.marcRaw.fields)
+          let marc010 = this.getMarcFieldAsString(record, "010")
+          if (!marc010) {return false}
+
+          return marc010.includes('$a')
         }
       },
 
@@ -591,12 +460,30 @@
           this.wcOffset = 1
         }
 
+        if (this.wcIndex == ""){
+          console.info("need to determine what this is: ", this.wcQuery)
+          if (this.wcQuery.trim().startsWith("o")){
+            console.info("oclc search")
+            this.wcType = 'oclc'
+          } else {
+            this.wcIndex = 'bn'
+          }
+        } else {
+          this.wcType = 'book'
+        }
+
         const cleanQuery = this.wcQuery.trim()
         try{
           this.wcResults = await utilsNetwork.worldCatSearch(cleanQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
+          if (!Object.keys(this.wcResults.results).includes("numberOfRecords")){
+            this.wcResults.results["numberOfRecords"] = 1
+            this.wcResults.results["briefRecords"] = [this.wcResults.results]
+          }
         } catch(err) {
           this.wcResults = {"error": err}
         }
+
+        console.info("this.wcResults: ", this.wcResults)
 
         this.queryingWc = false
       },
@@ -1415,10 +1302,16 @@ h1, p {
   background-color: #17a2b8;
 }
 
-.badge.no-hover:hover {
+.badge.badge-warning.no-hover:hover {
   cursor: unset;
-  background-color: #ffc107;;
+  background-color: #ffc107;
   color: #212529;
+}
+
+.badge.badge-info.no-hover:hover {
+  cursor: unset;
+  background-color: #17a2b8;
+  color: #fff;
 }
 
 .existing-lccn-note {

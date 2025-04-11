@@ -405,13 +405,13 @@ export default {
         let uriParts = this.uri.split("/suggest2?q=")
         let results = await utilsNetwork.loadSimpleLookupKeyword(uriParts[0], uriParts[1])
         utilsNetwork.lookupLibrary[this.uri] = results
-      }      
+      }
 
       this.$nextTick(() => {
-        if (this.simpleLookupValues.length==0){                
+        if (this.simpleLookupValues.length==0){
           this.activePlaceholderText = "(press spacebar to see all options, type to filter)"
         }
-      })      
+      })
 
 
     },
@@ -970,7 +970,7 @@ export default {
 
         if (isMatch){
 
-          
+
 
           if (metadata[key].uri.indexOf('id.loc.gov')>-1){
             let uri = metadata[key].uri
@@ -1031,7 +1031,7 @@ export default {
       this.displayAutocomplete=false
 
       this.activeSelect = item
-      
+
       let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
 
       if (this.activeKeyword){

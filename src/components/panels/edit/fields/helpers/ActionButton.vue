@@ -340,11 +340,11 @@
         }
 
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
-          if ( (pt && pt.activeType && pt.activeType == "http://id.loc.gov/ontologies/bibframe/Work" ) || (pt && pt.activeType && pt.activeType == "http://id.loc.gov/ontologies/bibframe/Hub") ){    
+          if ( (pt && pt.activeType && pt.activeType == "http://id.loc.gov/ontologies/bibframe/Work" ) || (pt && pt.activeType && pt.activeType == "http://id.loc.gov/ontologies/bibframe/Hub") ){
             return true
           }
         }
-       
+
         return false
       },
 
@@ -432,7 +432,7 @@
       },
 
       buildNacoStub(){
-        
+
 
         this.profileStore.activeNARStubComponent = {
           type: this.type,

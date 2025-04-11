@@ -2848,6 +2848,14 @@ const utilsNetwork = {
   },
 
   worldCatSearch: async function(query, index, type, offset, limit, marc=false){
+    console.info("worldCatSearch")
+    console.info("     query: ", query)
+    console.info("     index: ", index)
+    console.info("     type: ", type)
+    console.info("     offset: ", offset)
+    console.info("     limit: ", limit)
+    console.info("     marc: ", marc)
+
     // consonsole.info("useConfigStore().returnUrls >>", useConfigStore().returnUrls)
     let baseUrl = useConfigStore().returnUrls.worldCat
 
