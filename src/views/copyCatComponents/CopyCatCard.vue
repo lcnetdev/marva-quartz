@@ -1,5 +1,4 @@
 <template>
-  {{ selectedWcRecord['oclcNumber'] }} -- {{ record['oclcNumber'] }}!!
     <div class="card" :class="['wc-row', {'selected': selectedWcRecord['oclcNumber'] == record['oclcNumber']}, {'serial': isSerial(record)}]" @click="$emit('selectedCard', record)">
         <div class="card-body">
             <div class="card-icon"></div>
