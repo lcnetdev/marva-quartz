@@ -767,7 +767,8 @@
       },
 
       loadNacoStubModal(){
-
+        // Set the current value for NAR creation
+        this.lastComplexLookupString = this.searchValueLocal
         // store the info needed to pass to the process
         this.activeNARStubComponent = {
           type: 'lookupComplex',
