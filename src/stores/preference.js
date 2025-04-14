@@ -525,7 +525,7 @@ export const usePreferenceStore = defineStore('preference', {
     '--c-edit-main-splitpane-edit-scroll-bar-track-color' : {
       value:'#fafafa',
       desc: 'The color of the scroll bar track (background).',
-      descShort: 'Scrollbard Track Color',
+      descShort: 'Scrollbar Track Color',
       type: 'color',
       group: 'Edit Panel',
       range: null
@@ -533,7 +533,7 @@ export const usePreferenceStore = defineStore('preference', {
     '--c-edit-main-splitpane-edit-scroll-bar-thumb-color' : {
       value:'#c7c7c7',
       desc: 'The color of the scroll bar thumb (the part you grab).',
-      descShort: 'Scrollbard Thumb Color',
+      descShort: 'Scrollbar Thumb Color',
       type: 'color',
       group: 'Edit Panel',
       range: null
@@ -668,17 +668,18 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
 
-    // Lookup Field
-    '--n-edit-main-lookup-background-color' : {
-      desc: 'The background color of the entity badge',
-      descShort: 'Lookup value background color',
-      value: 1,
-      step: 0.1,
-      type: 'number',
-      unit: 'em',
-      group: 'Lookup Field',
-      range: [1,2]
-  },
+  // Lookup Field
+  // Not sure what this is supposed to be
+  // '--n-edit-main-lookup-background-color' : {
+  //   desc: 'The background color of the entity badge',
+  //   descShort: 'Lookup value background color',
+  //   value: 1,
+  //   step: 0.1,
+  //   type: 'number',
+  //   unit: 'em',
+  //   group: 'Lookup Field',
+  //   range: [1,2]
+  // },
   '--c-edit-main-lookup-background-color' : {
     desc: 'The background color of the entity badge',
     descShort: 'Lookup value background color',
@@ -1726,13 +1727,13 @@ export const usePreferenceStore = defineStore('preference', {
       // Convert initials and code to lowercase if they exist
       const initials = this.catInitals ? this.catInitals.toLowerCase() : '';
       const code = this.catCode ? this.catCode.toLowerCase() : '';
-      
+
       // Convert all test strings to lowercase
       const canTestLower = canTest.map(item => item.toLowerCase());
-      
+
       // Check if initials or code match any of the test strings
-      return canTestLower.some(testStr => 
-        (initials && initials.includes(testStr)) || 
+      return canTestLower.some(testStr =>
+        (initials && initials.includes(testStr)) ||
         (code && code.includes(testStr))
       );
 
