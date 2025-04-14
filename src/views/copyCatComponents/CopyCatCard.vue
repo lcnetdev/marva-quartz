@@ -3,10 +3,13 @@
         <div class="card-body">
             <div class="card-icon"></div>
             <div class="card-title">
-                <span :class="['badge', 'simptip-position-top', {'badge-success': determineLevel(record) == 'PccAdapt', 'badge-warning': determineLevel(record) == 'OrigRes', 'badge-info': determineLevel(record) == 'CopyCat', 'badge-danger': determineLevel(record) == 'OrigCop'}]"
-                :data-tooltip="catLevelToolTip(determineLevel(record))">
-                {{ determineLevel(record) }}
-                </span>
+                <Badge
+                  :text="determineLevel(record)"
+                  :badgeType="badgeLevel(record)"
+                  :noHover="false"
+                  tipPos="top"
+                  :toolTip="catLevelToolTip(determineLevel(record))"
+                />
                 {{ record['title'] }} ({{ record['language'] }})
             </div>
             <div class="card-subtitle">{{ record['creator'] }}</div>
@@ -36,10 +39,10 @@
                 </ul>
             </div>
             <div class="card-text">
-                <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': isRdaRecord(record), 'badge-warning': !isRdaRecord(record)}]" data-tooltip="RDA: 040 $e = RDA and leader/18!='a' and 260 is not present">{{ isRdaRecord(record) ? "RDA" : "Not RDA" }}</span>
-                <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': encodingLevel(record.catalogingInfo.levelOfCataloging) == 'High', 'badge-warning': encodingLevel(record.catalogingInfo.levelOfCataloging) == 'Low'}]" :data-tooltip="'Encoding Level: \'' + record.catalogingInfo.levelOfCataloging + '\''" v-if="record.catalogingInfo.levelOfCataloging">{{ encodingLevel(record.catalogingInfo.levelOfCataloging) }}</span>
-                <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Agency" v-if="record.catalogingInfo.catalogingAgency">{{ record.catalogingInfo.catalogingAgency }}</span>
-                <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Language" v-if="record.catalogingInfo.catalogingLanguage">{{ record.catalogingInfo.catalogingLanguage }}</span>
+                <Badge :text="isRdaRecord(record) ? 'RDA' : 'Not RDA'" :badgeType="isRdaRecord(record) ? 'success' : 'warning'" :noHover="false" tipPos="top" toolTip="DA: 040 $e = RDA and leader/18!='a' and 260 is not present" />
+                <Badge :text="encodingLevel(record.catalogingInfo.levelOfCataloging)" :badgeType="encodingLevel(record.catalogingInfo.levelOfCataloging) == 'High' ? 'success' : 'warning'" :noHover="false" tipPos="top" :toolTip="'Encoding Level: \'' + record.catalogingInfo.levelOfCataloging + '\''" />
+                <Badge :text="record.catalogingInfo.catalogingAgency" badgeType="secondary" :noHover="false" tipPos="top" toolTip="Cataloging Agency" />
+                <Badge v-if="record.catalogingInfo.catalogingLanguage" :text="record.catalogingInfo.catalogingLanguage" badgeType="secondary" :noHover="false" tipPos="top" toolTip="Cataloging Language" />
             </div>
         </div>
     </div>
@@ -51,8 +54,10 @@
 import { usePreferenceStore } from '@/stores/preference'
 import { mapStores, mapState, mapWritableState } from 'pinia'
 
+import Badge from './Badge.vue'
 
 export default{
+    components: { Badge },
     name: 'CopyCatCard',
     props: {
         record: Object,
@@ -69,6 +74,12 @@ export default{
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
     },
     methods:{
+        badgeLevel: function(record){
+          if (this.determineLevel(record) == 'PccAdapt') { return 'success' }
+          else if (this.determineLevel(record) == 'OrigRes') { return 'warning' }
+          else if (this.determineLevel(record) == 'CopyCat') { return 'info' }
+          else if (this.determineLevel(record) == 'OrigCop') { return 'danger' }
+        },
         determineLevel: function(record){
           /**
            * PCCAdapt -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as full-level RDA.

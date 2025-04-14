@@ -10,7 +10,13 @@
 
           <!-- source: https://gridbyexample.com/patterns/header-twocol-footer/ -->
           <div class="copy-cat-wrapper">
-            <header class="copy-cat-header">Copy Cat Search</header>
+            <header class="copy-cat-header">
+              Copy Cat Search
+              <Badge text="text" :noHover="true" badgeType="info" />
+
+              !!<Badge :text="'what'"  badgeType="success" :noHover="false" tipPos="top" toolTip="DA: 040 $e = RDA and leader/18!='a' and 260 is not present" />??
+
+            </header>
             <div class="copy-cat-search">
               <h1>Search OCLC</h1>
               <form ref="urlToLoadForm" v-on:submit.prevent="">
@@ -137,6 +143,7 @@
 
     import CopyCatCard from './copyCatComponents/CopyCatCard.vue'
     import Pagination from './copyCatComponents/Pagination.vue'
+    import Badge from './copyCatComponents/Badge.vue'
 
     import { DataTable } from "@jobinsjp/vue3-datatable"
     import "@jobinsjp/vue3-datatable/dist/style.css"
@@ -147,7 +154,7 @@
     const decimalTranslator = short("0123456789");
 
     export default {
-      components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard,Pagination },
+      components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard, Pagination, Badge },
       data() {
         return {
 
