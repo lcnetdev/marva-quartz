@@ -334,7 +334,6 @@
 
       inputKeyup: function(event){
 
-
         // text macros
         let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
         if (useTextMacros && useTextMacros.length>0){
@@ -768,7 +767,8 @@
       },
 
       loadNacoStubModal(){
-
+        // Set the current value for NAR creation
+        this.lastComplexLookupString = this.searchValueLocal
         // store the info needed to pass to the process
         this.activeNARStubComponent = {
           type: 'lookupComplex',

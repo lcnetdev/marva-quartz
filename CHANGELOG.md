@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.9] - 2025-04-14
+### Changed
+- Update indicators in NAR template
+- How the NAR modal gets a value
+
+
 ## [1.2.8] - 2025-04-10
 ### Fixed
 - Fixed XML created for `Creator characteristic`
