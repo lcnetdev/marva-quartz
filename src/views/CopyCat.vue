@@ -73,7 +73,6 @@
             </div>
             <div class="copy-cat-results">
               <h1>Results</h1>
-              !!{{ Object.keys(wcResults) }}
               <div>
                 <h2 v-if="wcResults?.results && Number(wcResults?.results?.numberOfRecords) === 0">
                     No results :(
@@ -86,25 +85,7 @@
                 </h2>
                 <!-- Pagination -->
                 <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc" class="wc-search-paging">
-
-                    <span :style="`${this.preferenceStore.styleModalTextColor()}`">
-                      <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
-                      </a>
-                      <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
-                      </a>
-                      <span class="pagination-label" > Page {{ currentPage }} of {{ !isNaN(Math.ceil(wcResults.results.numberOfRecords / wcLimit)) ? Math.ceil(wcResults.results.numberOfRecords / wcLimit) : "Last Page"}} </span>
-
-                      <a href="#" title="next page" class="next" :class="{off: Math.ceil(wcResults.results.numberOfRecords / wcLimit) == this.currentPage}" @click="nextPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
-                      </a>
-                      <a href="#" title="last page" class="last" :class="{off: Math.ceil(wcResults.results.numberOfRecords / wcLimit) == this.currentPage}" @click="lastPage()">
-                        <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
-                      </a>
-                    </span>
-
-                  <slot name="pagination"></slot>
+                  <Pagination :wcResults="wcResults" :wcLimit="wcLimit" :currentPage="searchPage" @emitCurrentPage="setSearchPage" />
                 </div>
               </div>
               <template v-if="queryingWc">
@@ -114,51 +95,10 @@
                 <template v-for="(row) in wcResults.results.briefRecords">
                     <CopyCatCard :record="row" :selectedWcRecord="selectedWcRecord" @selectedCard="setSelectedRecord" />
                 </template>
-                <!-- <div class="card" v-for="(row) in wcResults.results.briefRecords" :class="['wc-row', {'selected': selectedWcRecord['oclcNumber'] == row['oclcNumber']}, {'serial': isSerial(row)}]" @click="selectedWcRecord = row">
-                  <div class="card-body">
-                    <div class="card-icon"></div>
-                    <div class="card-title">
-                      <span :class="['badge', 'simptip-position-top', {'badge-success': determineLevel(row) == 'PccAdapt', 'badge-warning': determineLevel(row) == 'OrigRes', 'badge-info': determineLevel(row) == 'CopyCat', 'badge-danger': determineLevel(row) == 'OrigCop'}]"
-                        :data-tooltip="catLevelToolTip(determineLevel(row))">
-                        {{ determineLevel(row) }}
-                      </span>
-                      {{ row['title'] }} ({{ row['language'] }})
-                    </div>
-                    <div class="card-subtitle">{{ row['creator'] }}</div>
-                    <div class="card-text border-bottom">
-                      <labe class="card-label">Format: </labe>
-                        <span v-if="row['specificFormat'] == 'Digital'" data-tooltip="This is a digital resource. Make sure that's what you want." :class="['badge badge-secondary', 'simptip-position-top', {'badge-info': true}]">
-                          {{ row['specificFormat'] }}
-                        </span>
-                        <span v-else>{{ row['specificFormat'] }}</span>
-                        <br>
-                      <label class="card-label">Publisher:</label> {{ row['publisher'] }} ({{row['publicationPlace']}})<br>
-                      <label class="card-label">008 Date:</label> {{ row['date'] }}<br>
-                      <span v-if="getMarcFieldAsString(row, '300')">
-                        <label class="card-label">Marc 300: </label>{{ getMarcFieldAsString(row, '300') }}
-                      </span>
-                    </div>
-                    <div class="card-text border-bottom" v-if="row['isbns'] && row['isbns'].length > 0">
-                      <label class="card-label">ISBNs:</label>
-                      <ul>
-                        <li v-for="(item) in row['isbns']">{{ item }}</li>
-                      </ul>
-                    </div>
-                    <div class="card-text border-bottom" v-if="row['issns'] && row['issns'].length > 0">
-                      <label class="card-label">ISSNs:</label>
-                      <ul>
-                        <li v-for="(item) in row['issns']">{{ item }}</li>
-                      </ul>
-                    </div>
-                    <div class="card-text">
-                      <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': isRdaRecord(row), 'badge-warning': !isRdaRecord(row)}]" data-tooltip="RDA: 040 $e = RDA and leader/18!='a' and 260 is not present">{{ isRdaRecord(row) ? "RDA" : "Not RDA" }}</span>
-                      <span :class="['badge badge-secondary', 'simptip-position-top', {'badge-success': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'High', 'badge-warning': encodingLevel(row.catalogingInfo.levelOfCataloging) == 'Low'}]" :data-tooltip="'Encoding Level: \'' + row.catalogingInfo.levelOfCataloging + '\''" v-if="row.catalogingInfo.levelOfCataloging">{{ encodingLevel(row.catalogingInfo.levelOfCataloging) }}</span>
-                      <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Agency" v-if="row.catalogingInfo.catalogingAgency">{{ row.catalogingInfo.catalogingAgency }}</span>
-                      <span class="badge badge-secondary simptip-position-top" data-tooltip="Cataloging Language" v-if="row.catalogingInfo.catalogingLanguage">{{ row.catalogingInfo.catalogingLanguage }}</span>
-                    </div>
-                  </div>
-                </div> -->
               </template>
+              <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc" class="wc-search-paging">
+                <Pagination :wcResults="wcResults" :wcLimit="wcLimit" :currentPage="searchPage" @emitCurrentPage="setSearchPage" />
+              </div>
             </div>
             <div class="copy-cat-marc">
               <div v-if="Object.keys(selectedWcRecord).length > 0">
@@ -168,11 +108,6 @@
                 <div v-html="selectedWcRecord['marcHTML']"></div>
               </div>
             </div>
-            <!-- <footer class="copy-cat-marc" v-if="Object.keys(selectedWcRecord).length > 0">
-              Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }} <br>
-              Marc Preview<br>
-              <div v-html="selectedWcRecord['marcHTML']"></div>
-            </footer> -->
           </div>
 
       </pane>
@@ -201,6 +136,7 @@
     import en from 'javascript-time-ago/locale/en'
 
     import CopyCatCard from './copyCatComponents/CopyCatCard.vue'
+    import Pagination from './copyCatComponents/Pagination.vue'
 
     import { DataTable } from "@jobinsjp/vue3-datatable"
     import "@jobinsjp/vue3-datatable/dist/style.css"
@@ -211,7 +147,7 @@
     const decimalTranslator = short("0123456789");
 
     export default {
-      components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard },
+      components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard,Pagination },
       data() {
         return {
 
@@ -269,7 +205,7 @@
           oclcEncodingLevelsHigh: [' ', '1', 'I'],
           oclcEncodingLevelsLow: ['K', 'M', '3', '4', '5', '7', '8'],
           selectedWcRecord: false,
-          currentPage: 1,
+          searchPage: 1,
           posting: false,
           copyCatLccn: null,
           recordPriority: 3,
@@ -320,11 +256,17 @@
             this.selectedWcRecord = value
         },
 
+        setSearchPage: function(value){
+          console.info("\nsetSearchPage: ", value)
+          this.searchPage = value
+          this.worldCatSearch()
+        },
+
         disableCopyCatButtons: function(){
           let recordSelected = (this.selectedWcRecord) ? true : false
 
           if (this.existingLCCN == null){ return true }
-          if (this.checkRecordHasLccn(selectedWcRecord)) { return false }
+          if (this.checkRecordHasLccn(this.selectedWcRecord)) { return false }
 
           return !recordSelected
         },
@@ -398,7 +340,6 @@
 
         checkRecordHasLccn: function(record){
           if (record){
-            console.info(">> ", record.marcRaw.fields)
             let marc010 = this.getMarcFieldAsString(record, "010")
             if (!marc010) {return false}
 
@@ -456,48 +397,18 @@
 
         },
 
-        firstPage: function(){
-          // if not the first page allow
-          if (this.currentPage !== 1){
-            this.currentPage = 1
-            this.worldCatSearch()
-          }
-        },
-        prevPage: function(){
-          // if not the first page allow
-          if (this.currentPage !== 1){
-            this.currentPage--
-            this.worldCatSearch()
-          }
-        },
-
-        nextPage: function(){
-          let max = Math.ceil(this.wcResults.results.numberOfRecords / this.wcLimit)
-
-          if (max > this.currentPage){
-            this.currentPage++
-            this.worldCatSearch()
-          }
-        },
-        lastPage: function(){
-          let max = Math.ceil(this.wcResults.results.numberOfRecords / this.wcLimit)
-
-          if (max > this.currentPage){
-            this.currentPage = max
-            this.worldCatSearch()
-          }
-        },
 
         worldCatSearch: async function(marc=false, pageReset=false){
+          console.info("searching: ", this.searchPage, "--", pageReset)
           if (pageReset){
-            this.currentPage = 1
+            this.searchPage = 1
           }
 
           this.selectedWcRecord = false
 
           this.queryingWc = true
-          if (this.currentPage != 1){
-            this.wcOffset = this.wcLimit * (this.currentPage - 1)
+          if (this.searchPage != 1){
+            this.wcOffset = this.wcLimit * (this.searchPage - 1)
           } else {
             this.wcOffset = 1
           }
@@ -528,6 +439,8 @@
           console.info("this.wcResults: ", this.wcResults)
 
           this.queryingWc = false
+
+          console.info("finished searching: ", this.searchPage)
         },
 
         createSubField: function(code, value, parent){
