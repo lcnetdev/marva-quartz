@@ -1,13 +1,13 @@
 <script>
   import { usePreferenceStore } from '@/stores/preference'
   import { useConfigStore } from '@/stores/config'
-  import { useProfileStore } from '@/stores/profile'  
+  import { useProfileStore } from '@/stores/profile'
 
-  
+
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
   import VueDragResize from 'vue3-drag-resize'
-  
+
 
   import utilsNetwork from '@/lib/utils_network';
 
@@ -15,7 +15,7 @@
   export default {
     components: {
       VueFinalModal,
-      VueDragResize,     
+      VueDragResize,
 
     },
 
@@ -42,11 +42,11 @@
         selectedLang: 'na',
 
         searching: false,
-        
+
         postStatus: 'unposted',
 
         newNarUri: null,
-        
+
         nextInputIsVoyagerModeDiacritics: false,
 
 
@@ -89,16 +89,16 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore),
-      ...mapStores(useConfigStore),      
-      ...mapStores(useProfileStore),      
+      ...mapStores(useConfigStore),
+      ...mapStores(useProfileStore),
 
       ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeNARStubComponent','lastComplexLookupString']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
 
-      
-      
+
+
 
     },
 
@@ -112,7 +112,7 @@
     },
 
     methods: {
-        
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -125,8 +125,8 @@
         },
 
 
-   
-        
+
+
         onSelectElement (event) {
           const tagName = event.target.tagName
 
@@ -154,7 +154,7 @@
           let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI, this.mainTitleDate, this.mainTitleLccn, note)
 
 
-          
+
 
           results.xml = results.xml.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
 
@@ -165,7 +165,7 @@
 
 
           this.tmpXML=results.xml
-          
+
 
           if (results && results.pubResuts && results.pubResuts.msgObj && results.pubResuts.msgObj.errorMessage){
 
@@ -173,7 +173,7 @@
 
           }
 
-          
+
 
           if (results && results.pubResuts && results.pubResuts.status){
 
@@ -190,7 +190,7 @@
             }else if (this.oneXXParts.fieldTag == "147"){
               type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
             }
-              
+
             let useName = ''
             for (let key in this.oneXXParts){
               if (key.length==1){
@@ -216,7 +216,7 @@
 
           // if (results && results.postLocation){
           //   results.postLocation = results.postLocation.replace("http://",'https://')
-          //   
+          //
 
 
 
@@ -226,9 +226,9 @@
           //   this.postStatus='error'
           // }
 
-          
 
-          
+
+
           // console.log(results)
 
 
@@ -260,10 +260,10 @@
 
           if (!authLabel){
             this.searching = false
-            return false            
+            return false
           }else if (authLabel.length<=2){
             this.searching = false
-            return false 
+            return false
           }
           let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true )
 
@@ -279,7 +279,7 @@
               if (results && results.metadata.values && results.metadata.values[key]&& results.metadata.values[key].more){
                 toAdd.more = results.metadata.values[key].more
               }
-              
+
               // Dont add name titles
               if(toAdd.more && toAdd.more.rdftypes && toAdd.more.rdftypes.length>0 && toAdd.more.rdftypes.indexOf("NameTitle") >-1 ){
                 continue
@@ -295,7 +295,7 @@
           }else{
             this.oneXXResults = formatted
           }
-          
+
           this.searching = false
 
 
@@ -310,11 +310,11 @@
             this.oneXXErrors.push(this.oneXX.slice(0,3) + " Invalid Tag")
             return false
           }
-          
+
 
           let oneXXParts = this.oneXX.split("$")
           if (oneXXParts.length>0){
-            
+
             let fieldTag = oneXXParts[0].slice(0,3)
 
             let indicators = oneXXParts[0].slice(3,5)
@@ -330,7 +330,7 @@
             }
             this.oneXXParts = {}
             let dollarParts = oneXXParts.slice(1)
-            
+
             let dollarKey = {}
 
             for (let dp of dollarParts){
@@ -369,16 +369,16 @@
 
             if (dollarKey.a){
               window.clearTimeout(this.oneXXResultsTimeout)
-              this.oneXXResultsTimeout = window.setTimeout(()=>{                
+              this.oneXXResultsTimeout = window.setTimeout(()=>{
                 this.searchAuthLabel(authLabel,'1xx')
               },500)
               this.disableAddButton=false
             }
-            
+
 
 
           }else{
-            
+
             errors.push("Bad 1XX")
           }
 
@@ -395,9 +395,9 @@
           if (this.oneXXErrors.length>0){
             this.disableAddButton = true
           }
-          
 
-          
+
+
 
         },
 
@@ -413,7 +413,7 @@
 
           let fourXXParts = this.fourXX.split("$")
           if (fourXXParts.length>0){
-            
+
             let fieldTag = fourXXParts[0].slice(0,3)
 
             let indicators = fourXXParts[0].slice(3,5)
@@ -424,11 +424,11 @@
             if (indicators.charAt(1) != ' ' && indicators.charAt(1) != '/' && indicators.charAt(1) != '1' && indicators.charAt(1) != '2' && indicators.charAt(1) != '3' && indicators.charAt(1) != '0'){
               if (this.fourXXErrors.indexOf("Invalid indicator character(s)") == -1){
                 this.fourXXErrors.push("Invalid indicator character(s)")
-              }              
+              }
             }
             this.fourXXParts = {}
             let dollarParts = fourXXParts.slice(1)
-            
+
             let dollarKey = {}
 
             for (let dp of dollarParts){
@@ -466,7 +466,7 @@
 
             if (dollarKey.a){
               window.clearTimeout(this.fourXXResultsTimeout)
-              this.fourXXResultsTimeout = window.setTimeout(()=>{                
+              this.fourXXResultsTimeout = window.setTimeout(()=>{
                 this.searchAuthLabel(authLabel,'4xx')
               },500)
               this.disableAddButton=false
@@ -475,7 +475,7 @@
 
 
           }else{
-            
+
             errors.push("Bad 4XX")
           }
 
@@ -489,9 +489,9 @@
             this.disableAddButton = true
             // this.fourXXErrors.push("You need to add a bf:mainTitle to the work first")
           }
-          
 
-          
+
+
 
         },
 
@@ -805,7 +805,7 @@
             this.checkFourXX()
           }
 
-          // 400  $a강민, 건$d1990 
+          // 400  $a강민, 건$d1990
           // let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
 
 
@@ -856,10 +856,10 @@
           return options
 
         },
-       
 
 
-    
+
+
 
     },
 
@@ -943,7 +943,7 @@
       :hide-overlay="false"
       :overlay-transition="'vfm-fade'"
 
-      
+
     >
         <VueDragResize
           :is-active="true"
@@ -958,7 +958,7 @@
           :stickSize="22"
         >
           <div id="non-latin-bulk-content" ref="nonLatinBulkContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
-            
+
             <div class="menu-buttons">
               <button class="close-button" @pointerup="close">X</button>
             </div>
@@ -986,28 +986,28 @@
 
 
                 <template v-for="ss in transliterateOptions()">
-                  
+
                   <option :value="ss.key+'-'+ss.dir">{{ ss.label }}</option>
                 </template>
-                
-                
+
+
 
               </select>
             </div>
 
-            
-            
-            
+
+
+
 
             <div id="error-info">
-              
+
               <div>
                 <div class="error-info-title">Heading Uniqueness Check:</div>
                 <div class="error-info-display">
-                  
+
                   <template v-if="searching">
 
-                    
+
                     <div>
                       <span class="material-icons search-in-progress-icon">search</span>
                       <span class="search-in-progress-text">Searching...</span>
@@ -1015,20 +1015,20 @@
 
                   </template>
                   <template v-else>
-                      
+
                     <div v-if="oneXX.trim().length == 0">
                       <span class="error-info-display-field">Enter 1XX value to search</span>
                     </div>
 
-                    <template v-if="oneXXResults.length>0">                      
+                    <template v-if="oneXXResults.length>0">
                       <div>
                         <span class="material-icons not-unique-icon">cancel</span>
                         <span class="not-unique-text">1XX Heading FOUND in LCNAF file:</span>
                       </div>
                     </template>
 
-                    
-                    <template v-if="oneXXResults.length==0 && oneXXParts && oneXXParts.a && searching==false">                      
+
+                    <template v-if="oneXXResults.length==0 && oneXXParts && oneXXParts.a && searching==false">
                       <div>
                         <span class="material-icons unique-icon">check</span>
                         <span class="not-unique-text">1XX: Heading NOT found in LCNAF file:</span>
@@ -1050,15 +1050,15 @@
                     </template>
 
 
-                    <template v-if="fourXXResults.length>0">                      
+                    <template v-if="fourXXResults.length>0">
                       <div>
                         <span class="material-icons not-unique-icon">cancel</span>
                         <span class="not-unique-text">4XX Heading FOUND in LCNAF file:</span>
                       </div>
                     </template>
 
-                    
-                    <template v-if="fourXXResults.length==0 && fourXXParts && fourXXParts.a && searching==false">                      
+
+                    <template v-if="fourXXResults.length==0 && fourXXParts && fourXXParts.a && searching==false">
                       <div>
                         <span class="material-icons unique-icon">check</span>
                         <span class="not-unique-text">4XX: Heading NOT found in LCNAF file:</span>
@@ -1083,10 +1083,10 @@
 
 
 
-                    
+
 
                   </template>
-                  
+
                   <template v-if="oneXXErrors.length>0">
                     <div v-for="e in oneXXErrors">
                       <div><span class="material-icons warning">warning</span><span class="warning-text">{{ e }}</span></div>
@@ -1097,15 +1097,15 @@
                       <div><span class="material-icons warning">warning</span><span class="warning-text">{{ e }}</span></div>
                     </div>
                   </template>
-                  
+
 
                 </div>
               </div>
-              <div> 
+              <div>
                 <div class="error-info-title">Other Checks:</div>
 
 
-                <template v-if="mainTitle">                      
+                <template v-if="mainTitle">
                       <div>
                         <span class="material-icons unique-icon">check</span>
                         <span class="not-unique-text">670 $a: Found</span>
@@ -1117,9 +1117,9 @@
                         <span class="not-unique-text">670 $a: NOT Found</span><span data-tooltip="Add main title to Work" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
                       </div>
                 </template>
-                
 
-                <template v-if="mainTitleDate">                      
+
+                <template v-if="mainTitleDate">
                       <div>
                         <span class="material-icons unique-icon">check</span>
                         <span class="not-unique-text">670 $a Date: Found</span>
@@ -1133,7 +1133,7 @@
                 </template>
 
 
-                <template v-if="mainTitleLccn">                      
+                <template v-if="mainTitleLccn">
                       <div>
                         <span class="material-icons unique-icon">check</span>
                         <span class="not-unique-text">670 $w: Found</span>
@@ -1157,11 +1157,11 @@
 
               </div>
 
-              
+
               <!-- <div v-for="e in oneXXErrors"><span class="material-icons warning">warning</span>{{ e }}</div>
               <div v-for="e in fourXXErrors"><span class="material-icons warning">warning</span>{{ e }}</div>
 
-              
+
               <template v-if="oneXXResults.length>0 && oneXXResults.length<=5">
                 <div v-for="r in oneXXResults" style="margin-bottom: 1em;">
                   <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
@@ -1211,17 +1211,17 @@
               <div style="flex:1; text-align: center"><button @click="close" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Cancel</button></div>
             </div>
 
-<!--             
+<!--
             <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpXML">{{ tmpXML }}</textarea>
  -->
 
             <div style="display: flex; padding: 1.5em; font-size: 1.5em;" v-if="postStatus=='posting'">
               <div >Posting... Please wait...</div>
-              
+
 
 
             </div>
-            
+
             <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpErrorMessage">{{ tmpErrorMessage }}</textarea>
 
 
@@ -1234,7 +1234,7 @@
 
             </div>
 
-            
+
           </div>
 
 
@@ -1242,7 +1242,7 @@
     </VueFinalModal>
 
 
-    
+
 
 </template>
 <style>
@@ -1342,7 +1342,7 @@ select{
   .help-icon{
     font-size: 20px;
   }
-  
+
 
   .option{
     display: flex;
@@ -1415,13 +1415,13 @@ select{
     padding-right: 5px;
 
   }
-  
-  
+
+
   @keyframes grow {
     0% { transform: scale(1); }
     50% { transform: scale(2); color: blue }
     100% { transform: scale(1); }
   }
-  
+
 
 </style>

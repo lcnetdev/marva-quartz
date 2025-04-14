@@ -12,10 +12,6 @@
           <div class="copy-cat-wrapper">
             <header class="copy-cat-header">
               Copy Cat Search
-              <Badge text="text" :noHover="true" badgeType="info" />
-
-              !!<Badge :text="'what'"  badgeType="success" :noHover="false" tipPos="top" toolTip="DA: 040 $e = RDA and leader/18!='a' and 260 is not present" />??
-
             </header>
             <div class="copy-cat-search">
               <h1>Search OCLC</h1>
@@ -44,7 +40,11 @@
               <hr>
               <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="checkLccn" /><br>
               <template v-if="checkRecordHasLccn(selectedWcRecord)">
-                <span class="badge badge-info no-hover">The selected record has an LCCN. You can leave this blank.</span>
+                <Badge
+                  text="The selected record has an LCCN. You can leave this blank."
+                  badgeType="info"
+                  :noHover="true"
+                />
               </template>
               <br>
               <template v-if="existingLCCN">
@@ -52,12 +52,20 @@
                 <h3>
                   <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">A Record with this LCCN Exists</a>
                 </h3>
-                <span class="badge badge-warning no-hover">If you continue, the copy cat record will be merged with the existing record.</span>
+                <Badge
+                  text="If you continue, the copy cat record will be merged with the existing record."
+                  badgeType="warning"
+                  :noHover="true"
+                />
                 <br>
               </template>
               <template v-else-if="urlToLoad.length < 10 && urlToLoad.length != 0">
                 <br>
-                <span class="badge badge-warning no-hover">LCCNs should be 10 characters long.</span>
+                <Badge
+                  text="LCCNs should be 10 characters long."
+                  badgeType="warning"
+                  :noHover="true"
+                />
                 <br>
               </template>
               <br>
@@ -67,7 +75,11 @@
               <br>
               <h3>Load with profile:</h3>
               <template v-if="posting">
-                <span class="badge badge-info">Sending record for processing. This may take a moment.</span>
+                <Badge
+                  text="Sending record for processing. This may take a moment."
+                  badgeType="info"
+                  :noHover="true"
+                />
               </template>
               <template></template>
               <div class="load-buttons">
@@ -185,7 +197,7 @@
           wcResults: [],
           // https://help.oclc.org/Librarian_Toolbox/Searching_WorldCat_Indexes/Bibliographic_records/Bibliographic_record_indexes/Bibliographic_record_index_lists/Alphabetical_list_of_available_WorldCat.org_bibliographic_record_indexes
           indexSelectOptions: [
-            { label: 'Controll Number', value: '' },
+            { label: 'Control Number', value: 'ar' },
             { label: 'ISBN', value: 'bn' },
             { label: 'ISSN', value: 'in' },
             { label: 'Title', value: 'ti' },
@@ -1161,119 +1173,6 @@
   .selected {
     background-color: antiquewhite !important;
     color: black;
-  }
-
-  /* Bootstrap card */
-  .card {
-    position: relative;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color:  v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color')");
-    color: black;
-    background-clip: border-box;
-    border: 1px solid rgba(0,0,0,.125);
-    border-radius: .25rem;
-
-    margin-bottom: 5px;
-  }
-
-  .card:hover {
-    cursor: pointer;
-    background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
-  }
-
-  .card-body {
-    -webkit-box-flex: 1;
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto;
-    padding: 1.25rem;
-  }
-
-  .card-title {
-    margin-bottom: .75rem;
-    font-size: 1.25rem;
-  }
-
-  .card-subtitle {
-    color: #6c757d !important;
-    margin-bottom: .5rem !important;
-    margin-top: -.375rem;
-  }
-
-  .card-text.border-bottom {
-    border-bottom: solid gray;
-  }
-
-  .card-label {
-    font-weight: bold;
-  }
-
-  .badge {
-    display: inline-block;
-    padding: .25em .4em;
-    font-size: 75%;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: .25rem;
-    margin-right: 5px;
-  }
-
-  .badge-primary {
-    color: #fff;
-    background-color: #007bff;
-  }
-
-  .badge-secondary {
-    color: white;
-    background-color: #6c757d;;
-  }
-
-  .badge:hover {
-    cursor: help;
-    background-color: black;
-    color: white;
-  }
-
-  .badge-success {
-    color: #fff;
-    background-color: #28a745;
-  }
-
-  .badge-warning {
-    color: #212529;
-    background-color: #ffc107;
-  }
-
-  .badge-danger {
-    color: #fff;
-    background-color: #dc3545;
-  }
-
-  .badge-info {
-    color: #fff;
-    background-color: #17a2b8;
-  }
-
-  .badge.badge-warning.no-hover:hover {
-    cursor: unset;
-    background-color: #ffc107;
-    color: #212529;
-  }
-
-  .badge.badge-info.no-hover:hover {
-    cursor: unset;
-    background-color: #17a2b8;
-    color: #fff;
   }
 
   .existing-lccn-note {

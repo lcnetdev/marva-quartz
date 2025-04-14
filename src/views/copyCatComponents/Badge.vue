@@ -92,16 +92,8 @@ export default{
     color: white;
   }
 
-  .badge.badge-warning.no-hover:hover {
-    cursor: unset;
-    background-color: #ffc107;
-    color: #212529;
-  }
-
-  .badge.badge-info.no-hover:hover {
-    cursor: unset;
-    background-color: #17a2b8;
-    color: #fff;
+  .badge.no-hover {
+    pointer-events: none;
   }
 
 </style>
