@@ -334,7 +334,6 @@
 
       inputKeyup: function(event){
 
-
         // text macros
         let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
         if (useTextMacros && useTextMacros.length>0){
