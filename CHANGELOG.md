@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - Update indicators in NAR template
 - How the NAR modal gets a value
 - Removed preference that doesn't do anything
+- Hub modal layout
 
 
 ## [1.2.8] - 2025-04-10

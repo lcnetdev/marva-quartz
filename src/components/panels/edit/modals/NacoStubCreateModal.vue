@@ -306,7 +306,7 @@
           this.disableAddButton = true
           if (this.oneXX.length<3){ return true}
 
-          if (/#/.test(this.oneXX.slice(3,5))){
+          if (/#|[^0-9 ]/.test(this.oneXX.slice(3,5))){
             this.oneXXErrors.push("There's an invalid indicator for 1XX")
           }
 
@@ -408,7 +408,7 @@
           this.disableAddButton = true
           if (this.fourXX.length<3){ return true}
 
-          if (/#/.test(this.fourXX.slice(3,5))){
+          if (/#|[^0-9 ]/.test(this.fourXX.slice(3,5))){
             this.fourXXErrors.push("There's an invalid indicator for 1XX")
           }
 
