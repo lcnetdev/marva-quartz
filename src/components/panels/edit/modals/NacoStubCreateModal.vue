@@ -306,8 +306,7 @@
           this.disableAddButton = true
           if (this.oneXX.length<3){ return true}
 
-          let countInd = (this.oneXX.match(/#/g) || []).length;
-          if (countInd > 0){
+          if (/#/.test(this.oneXX.slice(3,5))){
             this.oneXXErrors.push("There's an invalid indicator for 1XX")
           }
 
@@ -409,9 +408,8 @@
           this.disableAddButton = true
           if (this.fourXX.length<3){ return true}
 
-          let countInd = (this.oneXX.match(/#/g) || []).length;
-          if (countInd > 0){
-            this.oneXXErrors.push("There's an invalid indicator for 4XX")
+          if (/#/.test(this.fourXX.slice(3,5))){
+            this.fourXXErrors.push("There's an invalid indicator for 1XX")
           }
 
           if (!/4[0-9]{2}/.test(this.fourXX.slice(0,3))){
