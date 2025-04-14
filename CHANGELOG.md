@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file.
 
 
 ## [1.2.9] - 2025-04-14
+### Fixed
+- Typo in preferences
+
 ### Changed
 - Update indicators in NAR template
 - How the NAR modal gets a value
+- Removed preference that doesn't do anything
 
 
 ## [1.2.8] - 2025-04-10
