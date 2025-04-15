@@ -892,7 +892,7 @@
       this.statementOfResponsibility = this.profileStore.nacoStubReturnSoR()
 
       if (this.statementOfResponsibility){
-        this.mainTitleNote = "statement of responsibility (" + this.statementOfResponsibility  + ")"
+        this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
       }
 
       this.workURI =  this.profileStore.nacoStubReturnWorkURI()
