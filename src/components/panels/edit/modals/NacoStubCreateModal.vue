@@ -75,6 +75,7 @@
         mainTitleDate: null,
         mainTitleNote: '',
         workURI: false,
+        statementOfResponsibility: null,
 
         tmpXML:false,
 
@@ -888,7 +889,11 @@
       this.mainTitle = this.profileStore.nacoStubReturnMainTitle()
       this.mainTitleLccn = this.profileStore.nacoStubReturnLCCN()
       this.mainTitleDate = this.profileStore.nacoStubReturnDate()
+      this.statementOfResponsibility = this.profileStore.nacoStubReturnSoR()
 
+      if (this.statementOfResponsibility){
+        this.mainTitleNote = "statement of responsibility (" + this.statementOfResponsibility  + ")"
+      }
 
       this.workURI =  this.profileStore.nacoStubReturnWorkURI()
       // console.log("this.workURIthis.workURIthis.workURI",this.workURI)
@@ -1152,7 +1157,11 @@
                       </div>
                 </template>
 
-                <input placeholder="670 $b (optional)" v-model="mainTitleNote" style="width:100%; margin-bottom:0.25em"/>
+                <div style="white-space: nowrap; display: inline-block; width: 80%">
+                  <span class="material-icons edit-icon">edit</span>
+                  <label>670 $b: </label>
+                  <input placeholder="(optional)" v-model="mainTitleNote" style="width:100%; margin-bottom:0.25em"/>
+                </div>
 
                 <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
                   <div style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}{{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
@@ -1419,7 +1428,12 @@ select{
     color: green;
     font-size: 20px;
     padding-right: 5px;
+  }
 
+  .edit-icon {
+    color: black;
+    font-size: 20px;
+    padding-right: 5px;
   }
 
 

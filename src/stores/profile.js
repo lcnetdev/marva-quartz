@@ -5356,6 +5356,29 @@ export const useProfileStore = defineStore('profile', {
     },
 
     /**
+     * Look for the Statement of Responsibility in the record to add to the 670 $b
+     *
+     */
+    nacoStubReturnSoR(){
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/responsibilityStatement"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
+                )
+                return pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
+            }
+          }
+        }
+      }
+      return false
+    },
+
+    /**
      * Retrieves the main title from the NACO stub work profile by traversing the resource template structure.
      * Looks for a property with URI "http://id.loc.gov/ontologies/bibframe/title" and extracts its main title value.
      *
