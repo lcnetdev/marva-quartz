@@ -41,17 +41,23 @@
               <hr>
               <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="checkLccn" />
               <br>
-              {{ existingLCCN }}
+              <Badge
+                v-if="loadLccnFromRecord(selectedWcRecord)"
+                text="This LCCN is from the selected record."
+                noHover="true"
+                badgeType="primary"
+              />
+              <br>
               <template v-if="existingLCCN">
                 <br>
-                <h3>
-                  <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">A Record with this LCCN Exists</a>
-                </h3>
                 <Badge
-                  text="If you continue, the copy cat record will be merged with the existing record."
+                  text="A record with this LCCN exists. If you continue, the copy cat record will be merged with the existing record."
                   badgeType="warning"
                   :noHover="true"
                 />
+                <h4>
+                  <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Record with this LCCN Exists</a>
+                </h4>
                 <br>
               </template>
               <template v-else-if="urlToLoad.length < 10 && urlToLoad.length != 0">
@@ -228,6 +234,7 @@
           existingLCCN: null,
           existingRecordUrl: "",
           hasLccn: false,
+          checkingLCCN: false,
 
 
         }
@@ -257,7 +264,6 @@
 
           points.push( { "name": "HUB", "work": null, "instance": "lc:RT:bf2:HubBasic:Hub", "item": null },)
 
-          console.log(points)
           return points
         }
 
@@ -266,7 +272,6 @@
 
       methods: {
         loadLccnFromRecord: function(record){
-          console.info("loadLccnFromRecord")
           let marc010 = this.getMarcFieldAsString(record, "010")
           if (!marc010) { return false }
 
@@ -277,7 +282,6 @@
         },
 
         setSelectedRecord: function(value){
-          console.info("setSelectedRecord")
           this.selectedWcRecord = value
 
           // check if there's an LCCN in the record
@@ -301,13 +305,17 @@
         },
 
         checkLccn: async function(){
-          if (!thischeckLccn){
+          console.info("checkLCCN")
+          if (!this.urlToLoad){
             this.existingRecordUrl = ""
             this.existingLCCN = false
             return false
           }
+
           this.checkingLCCN = true
           let resp = await utilsNetwork.checkLccn(this.urlToLoad)
+          console.info("     >>>>> ", resp)
+          this.checkingLCCN = false
           try {
             this.existingLCCN = resp.status != 404
             if (this.existingLCCN){
@@ -319,7 +327,7 @@
             this.existingLCCN = null
             this.existingRecordUrl = ""
           }
-          this.checkingLCCN = false
+
         },
 
         encodingLevel: function (value){

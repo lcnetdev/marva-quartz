@@ -54,6 +54,7 @@ export default{
     vertical-align: baseline;
     border-radius: .25rem;
     margin-right: 5px;
+    text-wrap: auto;
   }
 
   .badge-primary {
