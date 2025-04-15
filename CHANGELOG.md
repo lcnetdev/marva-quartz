@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.10] - 2025-04-15
+### Changed
+- NAR modal populates `670 $b` with statement of responsibilty when possible
+- NAR modal layout change
 
 ## [1.2.9] - 2025-04-14
 ### Fixed
