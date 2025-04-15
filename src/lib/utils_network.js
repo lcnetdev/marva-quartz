@@ -2923,19 +2923,22 @@ const utilsNetwork = {
     }
   },
 
+  /**
+   * Check if the given LCCN belongs to a record in ID
+   *
+   * @param {string} lccn - LCCN to check against ID
+   * @returns
+   */
   checkLccn: async function(lccn){
-    if (lccn.length == 10){
-      let url = "https://preprod-8299.id.loc.gov/resources/instances/identifier/" + lccn  //TODO: update this URL for production
-      let resp = await fetch(
-        url,
-        {
-          method: 'HEAD',
-        }
-      )
+    let url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/" + lccn  //TODO: update this URL for production
+    let resp = await fetch(
+      url,
+      {
+        method: 'HEAD',
+      }
+    )
 
-      return resp
-    }
-    return null
+    return resp
   },
 
   /**

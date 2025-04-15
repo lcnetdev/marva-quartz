@@ -309,4 +309,9 @@ export default{
   .existing-lccn-note {
     color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
   }
+
+  .serial{
+    pointer-events: none;
+  }
+
 </style>

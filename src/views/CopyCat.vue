@@ -24,6 +24,7 @@
                   <div v-for="opt in indexSelectOptions">
                     <input :id="opt.label" type="radio" :value="opt.value" class="search-mode-radio" v-model="wcIndex" name="searchIndex" />
                       <label :for="opt.label" onclick="" class="toggle-btn">{{opt.label}}</label>
+                      <a v-if="opt.value == 'sn'" href="https://help.oclc.org/Librarian_Toolbox/Searching_WorldCat_Indexes/Bibliographic_records/Bibliographic_record_indexes/Indexes_S_to_Z/Standard_Number" target="_blank" class="material-icons index-help">help</a>
                     </div>
                 </div>
 
@@ -38,15 +39,9 @@
 
               </form>
               <hr>
-              <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="checkLccn" /><br>
-              <template v-if="checkRecordHasLccn(selectedWcRecord)">
-                <Badge
-                  text="The selected record has an LCCN. You can leave this blank."
-                  badgeType="info"
-                  :noHover="true"
-                />
-              </template>
+              <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="checkLccn" />
               <br>
+              {{ existingLCCN }}
               <template v-if="existingLCCN">
                 <br>
                 <h3>
@@ -120,8 +115,9 @@
             </div>
             <div class="copy-cat-marc">
               <div v-if="Object.keys(selectedWcRecord).length > 0">
-                Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }} <br>
-                Marc Preview<br>
+                Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }}
+                <br>
+                MARC Preview<br>
                 <hr class="marc-divider">
                 <div v-html="selectedWcRecord['marcHTML']"></div>
               </div>
@@ -188,18 +184,16 @@
 
           allRecords: [],
 
-          wcIndex: "",
+          wcIndex: "sn",
           wcType: "book",
           wcQuery: "",
           wcOffset: 1,
           wcLimit: 10,
           queryingWc: false,
           wcResults: [],
-          // https://help.oclc.org/Librarian_Toolbox/Searching_WorldCat_Indexes/Bibliographic_records/Bibliographic_record_indexes/Bibliographic_record_index_lists/Alphabetical_list_of_available_WorldCat.org_bibliographic_record_indexes
+          // https://help.oclc.org/Librarian_Toolbox/Searching_WorldCat_Indexes/Bibliographic_records/Bibliographic_record_indexes/Bibliographic_record_index_lists/Alphabetical_list_of_available_WorldShare_and_WorldCat_Discovery_bibliographic_record_indexes
           indexSelectOptions: [
-            { label: 'Control Number', value: 'ar' },
-            { label: 'ISBN', value: 'bn' },
-            { label: 'ISSN', value: 'in' },
+            { label: 'Standard Numbers', value: 'sn' },
             { label: 'Title', value: 'ti' },
             { label: 'Name', value: 'au' },
             { label: 'Keyword', value: 'kw' },
@@ -271,12 +265,27 @@
       },
 
       methods: {
+        loadLccnFromRecord: function(record){
+          console.info("loadLccnFromRecord")
+          let marc010 = this.getMarcFieldAsString(record, "010")
+          if (!marc010) { return false }
+
+          let idx = marc010.indexOf("$a")
+          this.urlToLoad = marc010.slice(idx+2).trim()
+          this.checkLccn()
+          return this.urlToLoad
+        },
+
         setSelectedRecord: function(value){
-            this.selectedWcRecord = value
+          console.info("setSelectedRecord")
+          this.selectedWcRecord = value
+
+          // check if there's an LCCN in the record
+          this.loadLccnFromRecord(value)
+          this.checkLccn()
         },
 
         setSearchPage: function(value){
-          console.info("\nsetSearchPage: ", value)
           this.searchPage = value
           this.worldCatSearch()
         },
@@ -284,13 +293,20 @@
         disableCopyCatButtons: function(){
           let recordSelected = (this.selectedWcRecord) ? true : false
 
-          if (this.existingLCCN == null){ return true }
           if (this.checkRecordHasLccn(this.selectedWcRecord)) { return false }
+          if (!this.urlToLoad){ return true }
+          if (this.checkingLCCN) { return true }
 
           return !recordSelected
         },
 
         checkLccn: async function(){
+          if (!thischeckLccn){
+            this.existingRecordUrl = ""
+            this.existingLCCN = false
+            return false
+          }
+          this.checkingLCCN = true
           let resp = await utilsNetwork.checkLccn(this.urlToLoad)
           try {
             this.existingLCCN = resp.status != 404
@@ -303,6 +319,7 @@
             this.existingLCCN = null
             this.existingRecordUrl = ""
           }
+          this.checkingLCCN = false
         },
 
         encodingLevel: function (value){
@@ -338,7 +355,7 @@
                 if (idx%2 == 0 ){
                   return "$" + item
                 } else {
-                  return " " + item
+                  return " " + item.trim()
                 }
               }).join("")
 
@@ -350,19 +367,12 @@
           }
         },
 
-        isSerial: function(record){
-          let leader = record.marcRaw.leader
-          let bibLevel = leader.at(7)
-
-          return ["b", "s"].includes(bibLevel)
-        },
-
         checkRecordHasLccn: function(record){
           if (record){
             let marc010 = this.getMarcFieldAsString(record, "010")
-            if (!marc010) {return false}
+            if (!marc010) { return false }
 
-            return marc010.includes('$a')
+            if (marc010.includes('$a')){return true}
           }
         },
 
@@ -418,7 +428,6 @@
 
 
         worldCatSearch: async function(marc=false, pageReset=false){
-          console.info("searching: ", this.searchPage, "--", pageReset)
           if (pageReset){
             this.searchPage = 1
           }
@@ -432,19 +441,12 @@
             this.wcOffset = 1
           }
 
-          if (this.wcIndex == ""){
-            console.info("need to determine what this is: ", this.wcQuery)
-            if (this.wcQuery.trim().startsWith("o")){
-              console.info("oclc search")
-              this.wcType = 'oclc'
-            } else {
-              this.wcIndex = 'bn'
-            }
-          } else {
-            this.wcType = 'book'
+          const cleanQuery = this.wcQuery.trim()
+
+          if (this.wcIndex == 'sn'){
+            this.wcIndex = "sn: " + cleanQuery + " OR " + "no: "
           }
 
-          const cleanQuery = this.wcQuery.trim()
           try{
             this.wcResults = await utilsNetwork.worldCatSearch(cleanQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
             if (!Object.keys(this.wcResults.results).includes("numberOfRecords")){
@@ -455,11 +457,7 @@
             this.wcResults = {"error": err}
           }
 
-          console.info("this.wcResults: ", this.wcResults)
-
           this.queryingWc = false
-
-          console.info("finished searching: ", this.searchPage)
         },
 
         createSubField: function(code, value, parent){
@@ -480,17 +478,18 @@
           this.existingLccn = false
 
           xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
-
+          let continueWithLccn = true
           // if (!this.copyCatLccn){
           if (!this.urlToLoad){
             alert("This needs an LCCN to continue.")
             return
           } else {
             if (this.urlToLoad.length != 10){
-              alert("It looks like this LCCN is not correct. Try entering it again.")
-              return
+              continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
             }
           }
+
+          if (!continueWithLccn){ return }
 
           let parser = new DOMParser()
           xml = parser.parseFromString(xml, "text/xml")
@@ -522,7 +521,6 @@
           this.posting = false
 
           // this.responseURL = this.postResults.postLocation
-          // console.info(">>>>>>>", this.responseURL)
           // let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
           // this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
           // this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
@@ -1176,6 +1174,12 @@
   }
 
   .existing-lccn-note {
+    color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
+  }
+
+  .index-help{
+    font-size: 14px;
+    text-decoration: none;
     color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
   }
 
