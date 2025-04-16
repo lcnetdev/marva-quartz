@@ -89,7 +89,7 @@
                   <button @click="searchModeSwitch('LCSHNAF')" :data-tooltip="'Shortcut: CTRL+ALT+1'" :class="['simptip-position-bottom',{'active':(searchMode==='LCSHNAF')}]">LCSH/NAF</button>
                   <button @click="searchModeSwitch('CHILD')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='CHILD')}]">Children's Subjects</button>
                   <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button>
-                  <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button>
+                  <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
                   <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+5'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
 
                 </div>
@@ -97,9 +97,29 @@
 
 
                 <div :style="`flex:1; align-self: flex-end; height: 95%; ${this.preferenceStore.styleModalBackgroundColor()}`" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
-
                   <div v-if="activeSearch!==false">{{activeSearch}}</div>
                   <div v-if="searchResults !== null" style="height: 95%">
+
+                    <div v-if="searchResults && searchResults.exact.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
+                      <span class="subject-results-heading">Known Label</span>
+                      <div v-for="(subject,idx) in searchResults.exact" @click="selectContext((searchResults.names.length - idx)*-1-2)" @mouseover="loadContext((searchResults.names.length - idx)*-1-2)" :data-id="((searchResults.names.length - idx)*-1-2)" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1-2 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1-2 ), 'picked': (pickLookup[(searchResults.names.length - idx)*-1-2] && pickLookup[(searchResults.names.length - idx)*-1-2].picked) }]" >
+                        <template v-if="subject.label == activeComponent.label.replaceAll('‑', '-')">
+                          {{subject.label}}
+                        </template>
+                        <template v-else>
+                            {{subject.label}}
+                            <span class="subject-variant">
+                              ((VARIANT))
+                            </span>
+                        </template>
+                        <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
+                        <span v-if="subject.collections"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
+                      </div>
+                    </div>
+
                     <div v-if="searchResults && searchResults.names.length>0 && !this.searching" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
                       <span class="subject-results-heading">LCNAF</span>
                       <div v-for="(name,idx) in searchResults.names" @click="selectContext((searchResults.names.length - idx)*-1)" @mouseover="loadContext((searchResults.names.length - idx)*-1)" :data-id="(searchResults.names.length - idx)*-1" :key="name.uri" :class="['fake-option', {'unselected':(pickPostion != (searchResults.names.length - idx)*-1 ), 'selected':(pickPostion == (searchResults.names.length - idx)*-1 ),'picked': (pickLookup[(searchResults.names.length - idx)*-1] && pickLookup[(searchResults.names.length - idx)*-1].picked)}]">
@@ -107,6 +127,9 @@
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
                           <span v-if="name.collections"> {{ this.buildAddtionalInfo(name.collections) }}</span>
+                          <div class="may-sub-container" style="display: inline;">
+                            <AuthTypeIcon v-if="name.collections && name.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                          </div>
                         </div>
                     </div>
 
@@ -116,32 +139,48 @@
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
                     <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
                       <span class="subject-results-heading">Simple</span>
-                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
-                        {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
+                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >
+                      {{subject.suggestLabel}}
+                        <span  v-if="subject.literal">
+                          {{subject.label}}
+                        </span>
+                        <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
 
                     <!-- ChildrenSubjects -->
                     <div v-if="searchResults && searchResults.subjectsChildrenComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
-                      <span class="subject-results-heading">CYAK Complex</span>
+                      <span class="subject-results-heading">CYAC Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
                   <div v-if="searchResults && searchResults.subjectsChildren.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
-                    <span class="subject-results-heading">CYAK Simple</span>
+                    <span class="subject-results-heading">CYAC Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <div class="may-sub-container" style="display: inline;">
+                          <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
+                        </div>
                       </div>
                     </div>
 
@@ -151,59 +190,52 @@
                   </div>
                 </div>
 
-
+                <!-- Results Panel -->
+                <!-- !!{{ contextData }} -->
                 <div :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()};`"  :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
                   <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                   <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
                     <h3 v-if="contextData.title">
-                        <span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + contextData.type">
-                            <AuthTypeIcon v-if="contextData.type" :type="contextData.type"></AuthTypeIcon>
+                        <span class="modal-context-icon simptip-position-top" v-if="contextData.rdftypes" :data-tooltip="'Type: ' + contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]">
+                            <AuthTypeIcon :type="contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]"></AuthTypeIcon>
                         </span>
-                        {{Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
+                        {{ Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
+                        <!-- <AuthTypeIcon v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon> -->
+                        <sup style="font-size: .5em;" v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')">(may subd geog)</sup>
                     </h3>
-                    <div class="modal-context-data-title">{{contextData.type}}</div>
+                    <h3 v-if="contextData.literal">
+                      {{ contextData.label }} [Literal]
+                    </h3>
+
+                    <div class="modal-context-data-title" v-if="contextData.rdftypes">{{contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]}}</div>
                     <a style="color:#2c3e50" :href="contextData.uri" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
 
-                    <div v-if="contextData.nonLatinTitle && contextData.nonLatinTitle.length>0">
-                      <div class="modal-context-data-title">Non-Latin Auth Label:</div>
+                    <br><br>
+
+                    <template v-for="key in panelDetailOrder">
+                    <div v-if="contextData[key] && contextData[key].length>0">
+                      <div class="modal-context-data-title modal-context-data-title-add-gap">{{ this.labelMap[key] }}:</div>
                       <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.nonLatinTitle" v-bind:key="'var' + idx">{{v['@value']}}{{ v['@language'] }}</li>
+                        <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
+                          <template v-if="v.startsWith('http')">
+                            <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                          </template>
+                          <template v-else-if="key == 'lcclasss'">
+                            <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                            <!-- <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a> -->
+                          </template>
+                          <template v-else-if="key == 'broaders' || key == 'sees'">
+                            <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                          </template>
+                          <template v-else>
+                            {{v}}
+                          </template>
+                        </li>
+                        <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ contextData[key] }}</li>
                       </ul>
                     </div>
+                  </template>
 
-                    <div v-if="contextData.variant && contextData.variant.length>0">
-                      <div class="modal-context-data-title">Variants:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in contextData.variant" v-bind:key="'var' + idx">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <!-- Literals won't have `nodeMap` -->
-                    <div v-if="contextData.literal != true">
-                      <div v-for="key in Object.keys(contextData.nodeMap)" :key="key">
-                        <div class="modal-context-data-title">{{key}}:</div>
-                          <ul>
-                            <li class="modal-context-data-li" v-for="v in contextData.nodeMap[key]" v-bind:key="v">{{v}}</li>
-                          </ul>
-                      </div>
-                    </div>
-                    <div v-else>
-                      <div class="modal-context-data-title">{{ contextData.label }} [Literal]</div>
-                    </div>
-
-                    <div v-if="contextData.source && contextData.source.length>0">
-                      <div class="modal-context-data-title">Sources:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-for="v in contextData.source" v-bind:key="v">{{v}}</li>
-                      </ul>
-                    </div>
-
-                    <div v-if="contextData.marcKey && contextData.marcKey.length>0">
-                      <div class="modal-context-data-title">MARC Key:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-bind:key="contextData.marcKey">{{ Array.isArray(contextData.marcKey) ? contextData.marcKey[0]["@value"] : contextData.marcKey }}</li>
-                      </ul>
-                    </div>
 
                     <div v-if="this.pickCurrent != null">
                       <div class="clear-selected">
@@ -238,10 +270,10 @@
                     <div  style="display: flex;">
                       <div  style="flex:1; position: relative;">
                         <form autocomplete="off" style="height: 3em;">
-                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input">
+                          <input v-on:keydown.enter.prevent="navInput"  placeholder="Enter Subject Headings Here" ref="subjectInput"  autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick" class="input-single-subject subject-input" id="subject-input">
                         </form>
                         <div v-for="(c, idx) in components" :ref="'cBackground' + idx" :class="['color-holder',{'color-holder-okay':(c.uri !== null || c.literal)},{'color-holder-type-okay':(c.type !== null || showTypes===false)}]" v-bind:key="idx">
-						  {{c.label}}
+                          {{c.label}}
                         </div>
                       </div>
                     </div>
@@ -707,6 +739,10 @@ margin-top: 10px;
   height: 100%;
 }
 
+.subject-variant {
+  color: #ffc107;
+  font-weight: bold;
+}
 
 /*
 .left-menu-list-item-has-data::before {
@@ -719,6 +755,14 @@ li::before {
   color: #999999;
 }*/
 
+</style>
+
+<style>
+  div.may-sub-container span span.material-icons-outlined {
+    font-size: .8em;
+    position: relative;
+    top: -3px;
+  }
 </style>
 
 <script>
@@ -762,7 +806,7 @@ props: {
   isLiteral: Boolean,
   profileData: Object,
   searchType: String,
-
+  fromPaste: Boolean,
 },
 
 watch: {
@@ -823,7 +867,38 @@ data: function() {
       'madsrdf:GenreForm': {label:'Genre ($v)', value:'madsrdf:GenreForm',selected:false},
       'madsrdf:Geographic': {label:'Geographic ($z)', value:'madsrdf:Geographic',selected:false},
       'madsrdf:Temporal': {label:'Chronological ($y)', value:'madsrdf:Temporal',selected:false},
-    }
+    },
+
+    labelMap: {
+      "notes": "Notes",
+      "nonlatinLabels": "Non-Latin Authoritative Labels",
+      "variantLabels": "Variants",
+      "varianttitles": "Varants Titles",
+      "birthdates": "Date of Birth",
+      "birthplaces": "Place of Birth",
+      "locales": "Associated Locales",
+      "activityfields": "Fields of Activity",
+      "occupations": "Occupations",
+      "languages": "Associated Languages",
+      "lcclasss": "LC Classification",
+      "broaders": "Has Broader Authority",
+      "gacs": "GAC(s)",
+      "collections": "MADS Collections",
+      "sources": "Sources",
+      "subjects": "Subjects",
+      "marcKeys": "MARC Key",
+      "relateds": "Related",
+      "contributors": "Contributors",
+      "identifiers": "Identifiers",
+      "sees": "See Also"
+    },
+    panelDetailOrder: [
+      "notes","nonlatinLabels","variantLabels", "varianttitles", "sees", "contributors",
+      "relateds","birthdates","birthplaces","locales","activityfields","occupations",
+      "languages","lcclasss","identifiers","broaders","gacs","collections",
+      "sources", "subjects", "marcKeys"
+    ],
+
 
 
   }
@@ -856,8 +931,13 @@ methods: {
 
   //parse complex headings so we can have complete and broken up headings
   parseComplexSubject: async function(uri){
-    let data = await utilsNetwork.fetchSimpleLookup(uri + ".json", true)
-
+    let returnUrls = useConfigStore().returnUrls
+    let url = uri
+    if (returnUrls.env == 'production'){
+      url = url.replace('http://id.', 'https://preprod-8080.id.')
+      url = url.replace('https://id.', 'https://preprod-8080.id.')
+    }
+    let data = await utilsNetwork.fetchSimpleLookup(url + ".json", true)
     let components = false
     let subfields = false
     let marcKey = false
@@ -917,6 +997,10 @@ methods: {
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
             this.typeLookup[subjIdx] = 'madsrdf:Temporal'
           }
+          if (type.includes("Hub") || type.includes("Work")){
+            this.typeLookup[subjIdx] = type
+          }
+
 
           if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
             lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
@@ -951,10 +1035,13 @@ methods: {
             this.typeLookup[0] = 'madsrdf:GenreForm'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic" || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))){
-            this.typeLookup[0] = 'madsrdf:Geographic'
+          this.typeLookup[0] = 'madsrdf:Geographic'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")){
             this.typeLookup[0] = 'madsrdf:Temporal'
+        }
+        if (type.includes("Hub") || type.includes("Work")){
+          this.typeLookup[0] = type
         }
 
         if (Object.keys(incomingSubjects).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")){
@@ -976,6 +1063,7 @@ methods: {
             console.error(err)
         }
     }
+
   },
 
   /**
@@ -985,7 +1073,10 @@ methods: {
    * but there won't be components.
    */
   buildComponents: function(searchString){
+    // searchString = searchString.replace("—", "--") // when copying a heading from class web
+
     let subjectStringSplit = searchString.split('--')
+
     let targetIndex = []
     let componentLookUpCount = Object.keys(this.componetLookup).length
 
@@ -1032,7 +1123,27 @@ methods: {
 
     let activePosStart = 0
 
+    /**
+     * When a string in the middle of a heading changes, the typeLookup will get thrown off.
+     * Need a way to track this.
+     */
+    let diff = []
+    // if (subjectStringSplit.length < Object.keys(this.componetLookup).length){
+    //   diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes( Object.keys(this.componetLookup[x])[0]))
+    // }
+
+    let offset = 0
     for (let ss of subjectStringSplit){
+      if (subjectStringSplit.length < Object.keys(this.componetLookup).length){
+        diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes( Object.keys(this.componetLookup[x])[0]))
+      }
+
+      if(diff.length > 0){
+        if ( diff.includes(id.toString()) && id.toString() == diff.at(-1)){
+          offset = Object.keys(this.componetLookup).length - subjectStringSplit.length
+        }
+      }
+
       // check the lookup to see if we have the data for this label
       let uri = null
       let type = null
@@ -1041,25 +1152,27 @@ methods: {
       let nonLatinLabel = null
       let nonLatinMarcKey = null
 
-
-      if (this.componetLookup[id] && this.componetLookup[id][ss]){
-        literal = this.componetLookup[id][ss].literal
-        uri = this.componetLookup[id][ss].uri
-        marcKey = this.componetLookup[id][ss].marcKey
-        nonLatinLabel = this.componetLookup[id][ss].nonLatinTitle
-        nonLatinMarcKey = this.componetLookup[id][ss].nonLatinMarcKey
-
+      if (this.componetLookup[id+offset] && this.componetLookup[id+offset][ss]){
+        literal = this.componetLookup[id+offset][ss].literal
+        uri = this.componetLookup[id+offset][ss].uri
+        marcKey = this.componetLookup[id+offset][ss].marcKey
+        nonLatinLabel = this.componetLookup[id+offset][ss].nonLatinTitle
+        nonLatinMarcKey = this.componetLookup[id+offset][ss].nonLatinMarcKey
       }
 
-      if (this.typeLookup[id]){
-        type = this.typeLookup[id]
+      if (this.typeLookup[id+offset]){
+        type = this.typeLookup[id+offset]
+      }
+
+      if (uri && uri.includes("/hubs/")){
+        type = "bf:Hub"
       }
 
       this.components.push({
         label: ss,
         uri: uri,
         id: id,
-        type:type,
+        type: type, //this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
         complex: ss.includes('‑‑'),
         literal:literal,
         posStart: activePosStart,
@@ -1077,6 +1190,7 @@ methods: {
 
     //make sure the searchString matches the components
     this.subjectString = this.components.map((component) => component.label).join("--")
+
   },
 
   /**
@@ -1172,7 +1286,6 @@ methods: {
      */
 
     if (mode == "GEO"){
-      this.typeLookup[this.activeComponentIndex] = 'madsrdf:Geographic'
       /**
        * When dealing with a switch to GEO, we need to combine the "loose" components
        * into 1 so the search will work.
@@ -1191,90 +1304,91 @@ methods: {
         }
       }
 
-	  //only stitch the loose components togethere if there are 2 next to each other
-	  if (indx.length == 2 && indx[1]-1 == indx[0]){
-		  /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		   *  !! the `not` hyphens are very important !!
-		   *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		   */
-		  // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
-		  this.activeComponentIndex = Number(indx[0])
+      //only stitch the loose components togethere if there are 2 next to each other
+      if (indx.length == 2 && indx[1]-1 == indx[0]){
+        /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         *  !! the `not` hyphens are very important !!
+         *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         */
+        // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
+        this.activeComponentIndex = Number(indx[0])
 
-		  //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
-		  this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
-		  //this.activeComponent = looseComponents[this.activeComponentIndex]
+        //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
+        this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
+        //this.activeComponent = looseComponents[this.activeComponentIndex]
 
-		  this.activeComponent.id = this.activeComponentIndex
+        this.activeComponent.id = this.activeComponentIndex
 
-		  //update the active component with the loose components
-		  for (let c in looseComponents){
-			if (c != 0){
-			  let part1 = ""
-				if (c == 1){
-				  part1 = looseComponents[0].label
-				} else {
-				  part1 = this.activeComponent.label
-				}
-			  const part2 = looseComponents[c].label
-			  this.activeComponent.label = part1 + "‑‑" + part2
-			  this.activeComponent.posEnd = looseComponents[c].posEnd
-			}
-		  }
-		  this.activeComponent.posStart = looseComponents[0].posStart
+        //update the active component with the loose components
+        for (let c in looseComponents){
+          if (c != 0){
+            let part1 = ""
+            if (c == 1){
+              part1 = looseComponents[0].label
+            } else {
+              part1 = this.activeComponent.label
+            }
+            const part2 = looseComponents[c].label
+            this.activeComponent.label = part1 + "‑‑" + part2
+            this.activeComponent.posEnd = looseComponents[c].posEnd
+          }
+        }
+        this.activeComponent.posStart = looseComponents[0].posStart
 
-		  // we need to make sure the order is maintained
-		  // use the component map to determine maintain order
-		  let final = []
-		  for (let el in componentMap){
-			let good = componentMap[el] != '-'
-			if (good){
-			  final.push(this.components[el].label)
-			} else {
-			  final.push(this.activeComponent.label)
-			}
-		  }
+        // we need to make sure the order is maintained
+        // use the component map to determine maintain order
+        let final = []
+        for (let el in componentMap){
+          let good = componentMap[el] != '-'
+          if (good){
+            final.push(this.components[el].label)
+          } else {
+            final.push(this.activeComponent.label)
+          }
+        }
 
-		  final = new Set(final)
-		  final = Array.from(final)
+        final = new Set(final)
+        final = Array.from(final)
 
-		  this.subjectString =  final.join("--")
+        this.subjectString =  final.join("--")
 
-		  //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
-		  this.components.splice(indx[0], indx.length, this.activeComponent)
+        //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
+        this.components.splice(indx[0], indx.length, this.activeComponent)
 
-		  // need to make sure postStart and posEnd are correct, and the id
-		  this.adjustStartEndPos(this.components)
-		  for (let x in this.components){
-			let prev = null
-			let current = this.components[x]
+        // need to make sure postStart and posEnd are correct, and the id
+        this.adjustStartEndPos(this.components)
+        for (let x in this.components){
+          let prev = null
+          let current = this.components[x]
 
-			if (x > 0){
-			  prev = this.components[x] - 1
-			} else if (x == 0) {
-			  current.posStart = 0
-			} else {
-			  current.posStart = prev.posEnd + 2
-			}
-			current.posEnd = current.posStart + current.label.length
+          if (x > 0){
+            prev = this.components[x] - 1
+          } else if (x == 0) {
+            current.posStart = 0
+          } else {
+            current.posStart = prev.posEnd + 2
+          }
+          current.posEnd = current.posStart + current.label.length
 
-			current.id = x
-		  }
+          current.id = x
+        }
 
-		  // get the boxes lined up correctly
-		  this.renderHintBoxes()
+        // get the boxes lined up correctly
+        try{
+          this.renderHintBoxes()
+        } catch(err) {}
 
-		  // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
-		  for (let i in this.components){
-			for (let j in this.componetLookup){
-			  const key = Object.keys(this.componetLookup[j])[0]
-			  if (this.components[i].label == key){
-				this.componetLookup[i] = this.componetLookup[j]
-			  }
-			}
-		  }
-	  }
+        // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
+        for (let i in this.components){
+          for (let j in this.componetLookup){
+            const key = Object.keys(this.componetLookup[j])[0]
+            if (this.components[i].label == key){
+            this.componetLookup[i] = this.componetLookup[j]
+            }
+          }
+        }
+      }
     } else {
-      this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
       // Above we took loose components and combined them,
       // here we undo that incase someone made a mistake and the geo
       // term has a subject in it that needs to be split out.
@@ -1476,6 +1590,10 @@ methods: {
       that.pickLookup[(that.searchResults.names.length - x)*-1] = that.searchResults.names[x]
     }
 
+    for (let x in that.searchResults.exact){
+      that.pickLookup[(that.searchResults.names.length - x)*-1-2] = that.searchResults.exact[x]
+    }
+
     for (let k in that.pickLookup){
       that.pickLookup[k].picked = false
       if (searchString.toLowerCase() == that.pickLookup[k].label.toLowerCase() && !that.pickLookup[k].literal ){
@@ -1503,7 +1621,8 @@ methods: {
     // that.contextData.dispatch("clearContext", { self: that})
     if (that.pickLookup[that.pickPostion] && !that.pickLookup[that.pickPostion].literal){
       that.contextRequestInProgress = true
-      that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
+      // that.contextData = await utilsNetwork.returnContext(that.pickLookup[that.pickPostion].uri)
+      that.contextData = that.getContext()
 
       // keep a local copy of it for looking up subject type
       if (that.contextData){
@@ -1611,6 +1730,35 @@ methods: {
       this.contextData = this.pickLookup[this.pickPostion]
       return false
     }
+    //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
+    this.contextData = this.pickLookup[this.pickPostion].extra
+
+    if (this.pickLookup[this.pickPostion].uri){
+      this.contextData.literal = false
+      this.contextData.title = this.pickLookup[this.pickPostion].label
+      this.contextData.uri = this.pickLookup[this.pickPostion].uri
+      if (Object.keys(this.contextData).includes("marcKeys")){
+        this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKeys[0]
+      } else if (Object.keys(this.contextData).includes("marcKey")){
+        this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
+      }
+      let types = this.pickLookup[this.pickPostion].extra['rdftypes']
+      this.contextData.type = types.includes("Hub") ? "bf:Hub" :  types.includes("Work") ? "bf:Work" : "madsrdf:" +  types[0]
+      this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
+      this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
+
+    } else {
+      this.contextData.literal = true
+    }
+
+    this.contextRequestInProgress = false
+  },
+
+  _getContextDeprecated: async function(){
+    if (this.pickLookup[this.pickPostion].literal){
+      this.contextData = this.pickLookup[this.pickPostion]
+      return false
+    }
 
     this.contextRequestInProgress = true
     this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
@@ -1658,16 +1806,21 @@ methods: {
   buildAddtionalInfo: function(collections){
     if (collections){
       let out = []
-      if (collections.includes("LCSHAuthorizedHeadings") || collections.includes("NamesAuthorizedHeadings")){
+      if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings") || collections.includes("http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings")){
         out.push("(Auth Hd)")
-      } else if (collections.includes("GenreFormSubdivisions")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")){
         out.push("(GnFrm)")
-      } else if (collections.includes("GeographicSubdivisions")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions")){
         out.push("(GeoSubDiv)")
-      } else if (collections.includes("LCSH_Childrens")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSH_Childrens")){
           out.push("(ChldSubj)")
-      } else if (collections.includes("Subdivisions")){
+      } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")){
         out.push("(SubDiv)")
+      }
+
+      // favor SubDiv over GnFrm
+      if (out.includes("(GnFrm)") && collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")){
+        out = ["(SubDiv)"]
       }
 
       // if (collections.includes("LCNAF")){
@@ -1858,20 +2011,29 @@ methods: {
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
       this.getContext()
+      //Science—Experiments
     }
-    if (this.pickLookup[this.pickPostion].complex){ //&& !this.pickLookup[this.pickPostion].subdivision
-      // if it is a complex authorized heading then just replace the whole things with it
-      if (!this.pickLookup[this.pickPostion].subdivision){
-        this.subjectString = this.pickLookup[this.pickPostion].label
-        this.activeComponentIndex = 0
+
+    if (this.pickLookup[this.pickPostion].complex){
+      // if it is a complex authorized heading then just replace the whole things with it, sometimes
+      let splitString = this.subjectString.split('--')
+      let splitStringLower = this.subjectString.toLowerCase().split('--')
+
+      if (splitStringLower.includes(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())){
+        let idx = splitStringLower.indexOf(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())
+        if (idx == this.activeComponentIndex){
+          splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
+          this.subjectString = splitString.join('--')
+        }
       } else {
-        let splitString = this.subjectString.split('--')
-        splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
-        this.subjectString = splitString.join('--')
+        // Replace the whole thing
+        this.subjectString = this.pickLookup[this.pickPostion].label
+        this.componetLookup = {}
+        this.activeComponentIndex = 0
       }
 
-      this.componetLookup = {}
       this.componetLookup[this.activeComponentIndex] = {}
+
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
       for (let k in this.pickLookup){
         this.pickLookup[k].picked=false
@@ -1894,12 +2056,10 @@ methods: {
 
     }else{
       // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
-
       // take the subject string and split
       let splitString = this.subjectString.split('--')
 
       // replace the string with what we selected
-
       splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
 
       this.subjectString = splitString.join('--')
@@ -1909,7 +2069,7 @@ methods: {
         this.componetLookup[this.activeComponentIndex]= {}
       }
 
-	  let _ = await this.getContext() //ensure the pickLookup has the marcKey
+      let _ = await this.getContext() //ensure the pickLookup has the marcKey
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-','‑')] = this.pickLookup[this.pickPostion]
 
       for (let k in this.pickLookup){
@@ -1918,14 +2078,20 @@ methods: {
 
       this.pickLookup[this.pickPostion].picked=true
 
+      try {
+        let marcKey = this.pickLookup[this.pickPostion].marcKey
+        let type = marcKey.match(/\$[axyzv]{1}/g)
+        type = this.getTypeFromSubfield(type[0])
+        this.setTypeClick(null, type)
+      } catch(err) {
+        console.error("Error getting the type. ", err)
+      }
 
       // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
       //Need something to prevent recursion
       if (update == true){
         this.subjectStringChanged()
       }
-
-
     }
 
 
@@ -1964,8 +2130,6 @@ methods: {
         return
       }
 
-
-
       this.selectContext()
 
     }else if (event.ctrlKey && event.key == "1"){
@@ -1987,7 +2151,7 @@ methods: {
         // if the last component has a URI then it was just selected
         // so we are not in the middle of a indirect heading, we are about to type it
         // so let them put in normal --
-        if (lastC.uri){
+        if (lastC.uri && this.activeComponentIndex == this.components.length-1){
           return true
         }
 
@@ -1998,7 +2162,6 @@ methods: {
 
       }
 
-
       let start = event.target.selectionStart
       let end = event.target.selectionEnd
       // console.log(this.subjectString.substring(0,start),'|',this.subjectString.substring(end,this.subjectString.length))
@@ -2006,14 +2169,17 @@ methods: {
       this.subjectString = this.subjectString.substring(0,start) + '‑' + this.subjectString.substring(end,this.subjectString.length)
       this.subjectString=this.subjectString.trim()
 
-
       this.$nextTick(() => {
           // console.log(start,end)
-          event.target.setSelectionRange(start+1,end+1)
+          if (end-start > 0){
+            event.target.setSelectionRange(start+1,start+1)
+          } else {
+            event.target.setSelectionRange(start+1,end+1)
+          }
 
       })
 
-      this.subjectStringChanged()
+      this.subjectStringChanged(event)
 
       event.preventDefault()
       return false
@@ -2141,6 +2307,10 @@ methods: {
     if (this.activeComponent && this.activeComponent.type){
       if (this.activeTypes[this.activeComponent.type]){
         this.activeTypes[this.activeComponent.type].selected=true
+      } else if (this.activeComponent.type == 'madsrdf:HierarchicalGeographic') {
+        this.activeTypes["madsrdf:Geographic"].selected=true
+      } else {
+        this.activeTypes["madsrdf:Topic"].selected=true
       }
     } else if (this.activeComponent.type == null && this.activeComponent.marcKey != null){ //fall back on the marcKey, this can be null if the selection is too fast?
         let subfield = this.activeComponent.marcKey.slice(5, 7)
@@ -2164,13 +2334,11 @@ methods: {
 
   },
 
-
-
   setTypeClick: function(event,type){
-    this.typeLookup[this.activeComponentIndex] =type
+    this.activeComponent.type = type
+    this.typeLookup[this.activeComponentIndex] = type
     this.subjectStringChanged()
     this.$refs.subjectInput.focus()
-
   },
 
   renderHintBoxes: function(){
@@ -2220,13 +2388,14 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
     //fake the "click" so the results panel populates
     if (this.initialLoad == true) {
-      let pieces = this.$refs.subjectInput.value.split("--")
+      let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
       let lastPiece = pieces.at(-1)
-      this.searchApis(lastPiece, this.$refs.subjectInput.value, this)
+      this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
       this.initialLoad = false
     }
 
@@ -2289,10 +2458,12 @@ methods: {
 
     // if they are typing in the heading select it as we go
     if (event){
+
       for (let c of this.components){
         if (event.target.selectionStart >= c.posStart && event.target.selectionStart <= c.posEnd+1){
           this.activeComponent = c
           this.activeComponentIndex = c.id
+
           // it is not empty
           // it dose not end with "-" so it the '--' typing doesn't trigger
           if (c.label.trim() != '' && !c.label.endsWith('-')){
@@ -2340,25 +2511,25 @@ methods: {
       window.setTimeout(()=>{
         for (let x of this.components){
           if (this.localContextCache[x.uri]){
-
-
-            if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
-              x.type = 'madsrdf:Geographic'
-            }
-
-
-            if (this.localContextCache[x.uri].type === 'GenreForm'){
-              x.type = 'madsrdf:GenreForm'
-            } else if (this.localContextCache[x.uri].type === 'Temporal'){
-              x.type = 'madsrdf:Temporal'
-            } else if (this.localContextCache[x.uri].type === 'Geographic'){
-              x.type = 'madsrdf:Geographic'
-            } else if (this.localContextCache[x.uri].type === 'Topic'){
-              x.type = 'madsrdf:Topic'
+            if (this.activeComponent.type){
+              // don't do anything
             } else {
-                x.type = 'madsrdf:Topic'
-            }
+              if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
+                x.type = 'madsrdf:Geographic'
+              }
 
+              if (this.localContextCache[x.uri].type === 'GenreForm'){
+                x.type = 'madsrdf:GenreForm'
+              } else if (this.localContextCache[x.uri].type === 'Temporal'){
+                x.type = 'madsrdf:Temporal'
+              } else if (this.localContextCache[x.uri].type === 'Geographic'){
+                x.type = 'madsrdf:Geographic'
+              } else if (this.localContextCache[x.uri].type === 'Topic'){
+                x.type = 'madsrdf:Topic'
+              } else {
+                x.type = 'madsrdf:Topic'
+              }
+            }
           }
 
         }
@@ -2476,6 +2647,29 @@ methods: {
 
   },
 
+  getTypeFromSubfield: function(subfield){
+    switch(subfield){
+    case("$a"):
+      subfield = "madsrdf:Topic"
+      break
+    case("$x"):
+      subfield = "madsrdf:Topic"
+      break
+    case("$v"):
+      subfield = "madsrdf:GenreForm"
+      break
+    case("$y"):
+      subfield = "madsrdf:Temporal"
+      break
+    case("$z"):
+      subfield = "madsrdf:Geographic"
+      break
+    default:
+      subfield = false
+    }
+
+    return subfield
+  },
 
   add: async function(){
     //remove any existing thesaurus label, so it has the most current
@@ -2485,12 +2679,17 @@ methods: {
     // remove our werid hyphens before we send it back
     for (let c of this.components){
       c.label = c.label.replaceAll('‑','-')
-
       // we have the full mads type from the build process, check if the component is a id name authortiy
       // if so over write the user defined type with the full type from the authority file so that
       // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
       if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]){
-        c.type = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
+        let tempType = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:')
+        if (!Object.keys(this.activeTypes).includes(tempType)){
+          c.type = tempType
+        }
+        if (c.type == 'madsrdf:Topic'){
+          c.type = tempType
+        }
       }
     }
 
@@ -2505,32 +2704,37 @@ methods: {
       componentTypes = false
     }
 
+    let complexSubjects = this.searchResults["subjectsComplex"].concat(this.searchResults["subjectsChildrenComplex"])
 
-    for (let el in this.searchResults["subjectsComplex"]){
-      let target = this.searchResults["subjectsComplex"][el]
+    for (let el in complexSubjects){
+      let target = complexSubjects[el]
       if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false){
+        // we need to check the types of each element to make sure they really are the same terms
+        // let targetContext = await utilsNetwork.returnContext(target.uri)
+        let targetContext = target.extra
 
-		  // we need to check the types of each element to make sure they really are the same terms
-		  let targetContext = await utilsNetwork.returnContext(target.uri)
+        let marcKey = ""
+        if (Array.isArray(targetContext.marcKey) && typeof targetContext.marcKey[0] == 'string'){
+          marcKey = targetContext.marcKey[0]
+        } else if (targetContext.marcKey){
+          marcKey = targetContext.marcKey //[0]["@value"]
+        }
 
-          //TODO: look up the URIs for the split up complex term
-		  let marcKey = targetContext.marcKey[0]["@value"].slice(5)
-
-		  if (marcKey == componentTypes){
-			//the entire built subject can be replaced by 1 term
-			match = true
-			this.components.push({
-			  "complex": target.complex,
-			  "id": 0,
-			  "label": target.label,
-			  "literal": false,
-			  "posEnd": target.label.length,
-			  "posStart": 0,
-			  "type": "madsrdf:Topic",
-			  "uri": target.uri,
-              "marcKey": targetContext.marcKey[0]["@value"]
-			})
-		  }
+        if (marcKey.slice(5) == componentTypes){
+          //the entire built subject can be replaced by 1 term
+          match = true
+          this.components.push({
+            "complex": target.complex,
+            "id": 0,
+            "label": target.label,
+            "literal": false,
+            "posEnd": target.label.length,
+            "posStart": 0,
+            "type": "madsrdf:Topic",
+            "uri": target.uri,
+            "marcKey": marcKey
+          })
+        }
       }
     }
 
@@ -2548,122 +2752,105 @@ methods: {
         let allComplex = frozenComponents.every(c => c.complex)
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
-			const target = frozenComponents[component]
-      if (!(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) || (target.uri && target.uri.includes("childrensSubjects/sj"))) && target.complex){
-        let uri = target.uri
-        let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
-        if (uri){
-          data = await this.parseComplexSubject(uri)
-        } else {
-          data = target
-        }
+          const target = frozenComponents[component]
+          if (frozenComponents.length > 1 && !(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type) ) && target.complex){
+            let uri = target.uri
+            let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
+            if (uri){
+              data = await this.parseComplexSubject(uri)
+            } else {
+              data = target
+            }
+            let subs
+            subs = target.marcKey.slice(5)
+              // subfields = subfields.match(/\$./g)
+              subs = subs.match(/\$[axyzv]{1}/g)
+            const complexLabel = target.label
+            // build the new components
+            let id = prevItems
+            let labels = complexLabel.split("--")
+            for (let idx in labels){
+              let subfield
+              if (data){
+                subfield = data["subfields"][idx]
+              } else if (target.marcKey){
+                let marcKey = target.marcKey.slice(5)
+                subfield = marcKey.match(/\$[axyzv]{1}/g)
+                subfield = subfield[idx]
+              }
 
-				let subs
-				subs = target.marcKey.slice(5)
-			    // subfields = subfields.match(/\$./g)
-			    subs = subs.match(/\$[axyzv]{1}/g)
-				const complexLabel = target.label
-				// build the new components
-				let id = 0
-        if (allComplex){
-          id = prevItems
-        }
-				let labels = complexLabel.split("--")
-				for (let idx in labels){
-				  let subfield
-				  if (data){
-				    subfield = data["subfields"][idx]
-				  } else if (target.marcKey){
-					  let marcKey = target.marcKey.slice(5)
-					  subfield = marcKey.match(/\$[axyzv]{1}/g)
-					  subfield = subfield[idx]
-				  }
+            subfield = this.getTypeFromSubfield(subfield)
 
-				  switch(subfield){
-					case("$a"):
-					  subfield = "madsrdf:Topic"
-					  break
-					case("$x"):
-					  subfield = "madsrdf:Topic"
-					  break
-					case("$v"):
-					  subfield = "madsrdf:GenreForm"
-					  break
-					case("$y"):
-					  subfield = "madsrdf:Temporal"
-					  break
-					case("$z"):
-					  subfield = "madsrdf:Geographic"
-					  break
-					default:
-					  subfield = false
-				  }
+              // Override the subfield of the first element based on the marc tag
+              let tag = target.marcKey.slice(0,3)
+              if (idx == 0){
+                switch(tag){
+                  case "151":
+                  subfield = "madsrdf:Geographic"
+                  break
+                  case "100":
+                  subfield = "madsrdf:PersonalName"
+                  break
+                  default:
+                  subfield = "madsrdf:Topic"
+                }
+              }
 
-				  // Override the subfield of the first element based on the marc tag
-				  let tag = target.marcKey.slice(0,3)
-				  if (idx == 0){
-					  switch(tag){
-						  case "151":
-							subfield = "madsrdf:Geographic"
-							break
-						  case "100":
-							subfield = "madsrdf:PersonalName"
-							break
-						  default:
-							subfield = "madsrdf:Topic"
-					  }
-				  }
+              // make a marcKey for the component
+              // We've got the label, subfield and the tag for the first element
+              let sub
+              if (data) {
+              sub = data["subfields"][idx]
+              } else {
+                sub = subs[idx]
+              }
+              if (idx == 0){
+                tag = tag
+              } else {
+                // build the tag from the subfield
+                switch(sub){
+                case("$v"):
+                  tag = "185"
+                  break
+                case("$y"):
+                  tag = "182"
+                  break
+                case("$z"):
+                  tag = "181"
+                  break
+                default:
+                  tag = "180"
+                }
+              }
+              let marcKey = tag + "  " + sub + labels[idx]
 
-				  // make a marcKey for the component
-				  // We've got the label, subfield and the tag for the first element
-				  let sub
-				  if (data) {
-					sub = data["subfields"][idx]
-				  } else {
-					  sub = subs[idx]
-				  }
-				  if (idx == 0){
-					  tag = tag
-				  } else {
-					  // build the tag from the subfield
-					  switch(sub){
-						case("$v"):
-						  tag = "185"
-						  break
-						case("$y"):
-						  tag = "182"
-						  break
-						case("$z"):
-						  tag = "181"
-						  break
-						default:
-						  tag = "180"
-					  }
-				  }
-				  let marcKey = tag + "  " + sub + labels[idx]
+              let uriId = id
 
-				  // newComponents.splice(id, 0, ({
-            newComponents.splice(prevItems, 0, ({
-					"complex": false,
-					"id": prevItems,
-					"label": labels[idx],
-					"literal": false,
-					"posEnd": labels[idx].length,
-					"posStart": 0,
-					"type": subfield,
-					"uri": data && data["components"][0]["@list"][id]["@id"].startsWith("http") ? data["components"][0]["@list"][id]["@id"] : "",
-					"marcKey": marcKey,
-                    "fromComplex": true,
-                    "complexMarcKey": target.marcKey
-				  }))
-				  id++
-				  prevItems++
-				}
+              if (target.uri.includes("childrensSubjects/sj") && target.id > 0){
+                uriId = uriId - frozenComponents.filter((c) => !c.complex).length
+              }
 
-			} else {
-				newComponents.push(target)
-				prevItems++
-			}
+              newComponents.splice(id, 0, ({
+              "complex": false,
+              "id": id,
+              "label": labels[idx],
+              "literal": false,
+              "posEnd": labels[idx].length,
+              "posStart": 0,
+              "type": subfield,
+              "uri": data && data["components"] && data["components"][0]["@list"][uriId]["@id"].startsWith("http") ? data["components"][0]["@list"][uriId]["@id"] : "",
+              "marcKey": marcKey,
+              "fromComplex": true,
+              "complexMarcKey": target.marcKey
+              }))
+              id++
+              prevItems++
+            }
+
+          } else {
+            newComponents.push(target)
+            prevItems++
+          }
 		}
 	}
 
@@ -2671,7 +2858,6 @@ methods: {
     if (newComponents.length > 0){
       this.components = newComponents
     }
-
     this.$emit('subjectAdded', this.components)
   },
 
@@ -2977,11 +3163,15 @@ updated: function() {
     }
   }
 
+  let searchValue = this.searchValue
+  if (!searchValue){ return }
+  searchValue = searchValue.replace("—", "--")
+
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
-  if (this.searchValue && this.components.length != this.searchValue.split("--").length && !this.searchValue.endsWith('-')){
+  if (searchValue && this.components.length != searchValue.split("--").length && !searchValue.endsWith('-')){
     this.buildLookupComponents(incomingSubjects)
-    this.buildComponents(this.searchValue)
+    this.buildComponents(searchValue)
 
     this.initialLoad = false
     this.subjectStringChanged()
@@ -2991,7 +3181,7 @@ updated: function() {
 
   // this supports loading existing information into the forms
   if (this.authorityLookup != null) {
-    this.authorityLookupLocal = this.authorityLookup
+    this.authorityLookupLocal = this.authorityLookup.replace("—", "--")
     this.subjectInput = this.authorityLookupLocal
     this.linkModeString = this.authorityLookupLocal
     try {
@@ -3025,8 +3215,10 @@ updated: function() {
                   } else {
                     idx = pos
                   }
-                  this.selectContext(idx, false)
-                  this.validateOkayToAdd()
+                  if (!this.fromPaste){
+                    this.selectContext(idx, false)
+                    this.validateOkayToAdd()
+                  }
                 } catch(err) {
                   console.error(err)
                 }

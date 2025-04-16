@@ -1,12 +1,23 @@
 import {useConfigStore} from "../stores/config";
 import {useProfileStore} from "../stores/profile";
+import {usePreferenceStore} from "../stores/preference";
 
 import short from 'short-uuid'
 
 import utilsRDF from './utils_rdf';
 
-
 const hashCode = s => s.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
+
+
+const unEscapeHTML = str => str.replace(/&amp;|&lt;|&gt;|&#39;|&quot;/g,
+  tag => ({
+      '&amp;': '&',
+      '&lt;': '<',
+      '&gt;': '>',
+      "&#39;": "'",
+      '&quot;': '"'
+    }[tag]));
+
 
 
 const utilsParse = {
@@ -289,30 +300,34 @@ const utilsParse = {
         // console.log('hasSeries',hasSeries)
         // console.log('hasAssociatedResource',hasAssociatedResource)
 
-
-
-
-
       // old Logic
-       if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
+      if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
+      } else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-       }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
-          child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1){
-          child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bf/Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+      }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+      } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
-       } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
+      } else if ( (child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       } else if (child.innerHTML.indexOf("bf:Work")>-1){
+      } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 ) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
+        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
+      } else if (child.innerHTML.indexOf("bf:Work")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-       }else{
-          // leave blank?
-        }
+      }else{
+      // leave blank?
+      }
 
-
+        // console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
+        // console.log("-->", child)
+        // console.log(child.innerHTML)
 
       }
     }
@@ -406,7 +421,6 @@ const utilsParse = {
     let rtsToRemove = []
 
     for (const pkey in profile.rt) {
-
       let tle = ""
       let isHub = false
       if (pkey.includes(':Work')){
@@ -588,8 +602,6 @@ const utilsParse = {
         let el = []
         // let elHashOrder = []
         for (let e of xml.children){
-
-
           if (this.UriNamespace(e.tagName) == propertyURI){
 
 
@@ -602,6 +614,9 @@ const utilsParse = {
               if (ptk.valueConstraint.valueTemplateRefs.indexOf(e.attributes['local:pthint'].value) > -1){
                 // it matches, so use this one for sure
                 // make sure to remove the hint attribute
+                // console.log("Putting into ptk:",ptk)
+                // console.log("This:", e)
+
                 e.removeAttribute('local:pthint')
                 el.push(e)
               }else{
@@ -616,10 +631,13 @@ const utilsParse = {
                   }
                 }
                 if (foundPtToUse){
+
                   // jump to the next el this one will get grabbed by the one it is suppose to use
                   continue
                 }else{
                   // we did not find a place to put this el, so we need to add it here
+                  // console.log("Putting into ptk:",ptk)
+                  // console.log("This:", e)
                   e.removeAttribute('local:pthint')
                   el.push(e)
                 }
@@ -651,8 +669,6 @@ const utilsParse = {
           pt[k] = ptk
           continue
         }
-
-
 
         // sometimes the profile has a rdf:type selectable in the profile itself, we probably
         // took that piece of data out eariler and set it at the RT level, so fake that userValue for this piece of
@@ -849,8 +865,6 @@ const utilsParse = {
 
               }else{
 
-
-
                 if (!userValue[eProperty]){
                   userValue[eProperty] = []
                 }
@@ -867,7 +881,7 @@ const utilsParse = {
                 }
 
                 if (e.innerHTML != null && e.innerHTML.trim() != ''){
-                  userValue[eProperty] = e.innerHTML
+                  userValue[eProperty] = unEscapeHTML(e.innerHTML)
 
                   // does it have a data type or lang
                   if (e.attributes && e.attributes['rdf:datatype']){
@@ -935,8 +949,6 @@ const utilsParse = {
 
                 // now loop through all the children
                 for (let gChild of child.children){
-
-
                   if (this.UriNamespace(gChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
                     if (this.testSeperateRdfTypeProperty(populateData)){
@@ -967,7 +979,7 @@ const utilsParse = {
                           "http://www.w3.org/2000/01/rdf-schema#label": [
                             {
                             "@guid": short.generate(),
-                            "http://www.w3.org/2000/01/rdf-schema#label": gChild.innerHTML
+                            "http://www.w3.org/2000/01/rdf-schema#label": unEscapeHTML(gChild.innerHTML)
                             }
                           ]
                           }
@@ -1020,7 +1032,7 @@ const utilsParse = {
                       }
 
                       if (gChild.innerHTML != null && gChild.innerHTML.trim() != ''){
-                        gChildData[gChildProperty] = gChild.innerHTML
+                        gChildData[gChildProperty] = unEscapeHTML(gChild.innerHTML)
 
                         // does it have a data type or lang
                         if (gChild.attributes && gChild.attributes['rdf:datatype']){
@@ -1095,7 +1107,6 @@ const utilsParse = {
                         // </bf:genreForm>
 
 
-
                         gChildData['@type'] = this.UriNamespace(ggChild.tagName)
 
                         // check for URI
@@ -1115,17 +1126,24 @@ const utilsParse = {
                           // not a bnode, just a one liner property of the bnode
                           if (this.UriNamespace(gggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
-
                             if (gggChild.attributes && gggChild.attributes['rdf:about']){
                               gChildData['@type'] = gggChild.attributes['rdf:about'].value
                             }else if (gggChild.attributes && gggChild.attributes['rdf:resource']){
-                              gChildData['@type'] = gggChild.attributes['rdf:resource'].value
+                              let value = gggChild.attributes['rdf:resource'].value
+                              // gChildData['@type'] = value //gggChild.attributes['rdf:resource'].value
+                              if (propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation' && value == 'http://id.loc.gov/ontologies/bflc/Uncontrolled'){
+                                gChildData['@type'] = this.UriNamespace(ggChild.tagName)
+                              } else {
+                                gChildData['@type'] = value
+                              }
+
                             }else{
                               console.warn('---------------------------------------------')
                               console.warn('There was a gggChild RDF Type node but could not extract the type')
                               console.warn(gggChild)
                               console.warn('---------------------------------------------')
                             }
+
 
 
                           }else if (gggChild.children.length ==0){
@@ -1148,7 +1166,7 @@ const utilsParse = {
                               }
 
                               if (gggChild.innerHTML != null && gggChild.innerHTML.trim() != ''){
-                                gggChildData[gggChildProperty] = gggChild.innerHTML
+                                gggChildData[gggChildProperty] = unEscapeHTML(gggChild.innerHTML)
                                 // does it have a data type or lang
                                 if (gggChild.attributes && gggChild.attributes['rdf:datatype']){
                                   gggChildData['@datatype'] = gggChild.attributes['rdf:datatype'].value
@@ -1186,11 +1204,21 @@ const utilsParse = {
 
                             // new obj
                             let gggData = {'@guid': short.generate()}
-
+                            let lastClass = null
 
                             for (let ggggChild of gggChild.children){
 
                               if (this.isClass(ggggChild.tagName)){
+
+                                if (lastClass == ggggChild.tagName){
+                                  // in cases like so: <bf:status><bf:Status/><bf:Status/></bf:status>
+                                  // but this is bad non-conformant XML :(
+                                  // add the data and make a new one
+                                  gChildData[gggChildProperty].push(gggData)
+                                  gggData = {'@guid': short.generate()}
+
+                                }
+                                lastClass = ggggChild.tagName
 
                                 // we will flag this as having a deep hiearcy to review later if we should let them be able to edit it
                                 ptk.deepHierarchy = true
@@ -1265,7 +1293,7 @@ const utilsParse = {
                                       }
 
                                       if (gggggChild.innerHTML != null && gggggChild.innerHTML.trim() != ''){
-                                        ggggChildData[gggggChildProperty] = gggggChild.innerHTML
+                                        ggggChildData[gggggChildProperty] = unEscapeHTML(gggggChild.innerHTML)
 
                                         // does it have a data type or lang
                                         if (gggggChild.attributes && gggggChild.attributes['rdf:datatype']){
@@ -1359,7 +1387,7 @@ const utilsParse = {
                                             }
 
                                             if (g7Child.innerHTML != null && g7Child.innerHTML.trim() != ''){
-                                              g6ChildData[g7ChildProperty] = g7Child.innerHTML
+                                              g6ChildData[g7ChildProperty] = unEscapeHTML(g7Child.innerHTML)
 
                                               // does it have a data type or lang
                                               if (g7Child.attributes && g7Child.attributes['rdf:datatype']){
@@ -1490,7 +1518,7 @@ const utilsParse = {
                                 let ggggChildData = {'@guid': short.generate()}
 
                                 if (ggggChild.innerHTML != null && ggggChild.innerHTML.trim() != ''){
-                                  ggggChildData[ggggChildProperty] = ggggChild.innerHTML
+                                  ggggChildData[ggggChildProperty] = unEscapeHTML(ggggChild.innerHTML)
 
                                   // does it have a data type or lang
                                   if (ggggChild.attributes && ggggChild.attributes['rdf:datatype']){
@@ -1561,7 +1589,7 @@ const utilsParse = {
                             }
 
                             if (ggChild.innerHTML != null && ggChild.innerHTML.trim() != ''){
-                              ggChildData[ggChildProperty] = ggChild.innerHTML
+                              ggChildData[ggChildProperty] = unEscapeHTML(ggChild.innerHTML)
                               // does it have a data type or lang
                               if (ggChild.attributes && ggChild.attributes['rdf:datatype']){
                                 ggChildData['@datatype'] = ggChild.attributes['rdf:datatype'].value
@@ -1705,6 +1733,58 @@ const utilsParse = {
         profile.rt[pkey].unusedXml = false
       }
 
+      // keep track of the value we need to add
+      let groupTopLeveLiteralsToMerge = {}
+      // loop through and check if there are any top level literals we want to group
+      for (let key in profile.rt[pkey].pt){
+        let pt = profile.rt[pkey].pt[key]
+        // the list of props we allow to group are in the config
+        if (useConfigStore().groupTopLeveLiterals.indexOf(pt.propertyURI) > -1){
+          if (pt.userValue && pt.userValue[pt.propertyURI] && pt.userValue[pt.propertyURI][0]){
+            if (!groupTopLeveLiteralsToMerge[pt.propertyURI]){
+              groupTopLeveLiteralsToMerge[pt.propertyURI] = {mergeUnder: pt.id, toRemove: [], values: []}
+            }else{
+              groupTopLeveLiteralsToMerge[pt.propertyURI].toRemove.push(pt.id)
+            }
+            groupTopLeveLiteralsToMerge[pt.propertyURI].values.push(pt.userValue[pt.propertyURI][0])
+          }
+        }
+      }
+      // loop through the list of properties we found to see if we have multiple to merge
+      for (let toGroupUri in groupTopLeveLiteralsToMerge){
+        for (let key in profile.rt[pkey].pt){
+          if (profile.rt[pkey].pt[key].propertyURI == toGroupUri){
+            let pt = profile.rt[pkey].pt[key]
+            if (pt.id == groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder){
+              pt.userValue[toGroupUri] = groupTopLeveLiteralsToMerge[toGroupUri].values
+            }
+          }
+        }
+        for (let toRemove of groupTopLeveLiteralsToMerge[toGroupUri].toRemove){
+          if (profile.rt[pkey].ptOrder.indexOf(toRemove) > -1){
+            delete profile.rt[pkey].pt[toRemove]
+            profile.rt[pkey].ptOrder = profile.rt[pkey].ptOrder.filter((x) => { return x !== toRemove })
+          }
+        }
+      }
+      for (let toGroupUri in groupTopLeveLiteralsToMerge){
+        if (groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder){
+          let ptToReOrder = profile.rt[pkey].pt[groupTopLeveLiteralsToMerge[toGroupUri].mergeUnder]
+          if (ptToReOrder && ptToReOrder.userValue && ptToReOrder.userValue[toGroupUri]){
+
+            if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+              ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri ).reverse()
+            }else{
+              ptToReOrder.userValue[toGroupUri] = useProfileStore().sortObjectsByLatinMatch(ptToReOrder.userValue[toGroupUri],toGroupUri )
+            }
+          }
+        }
+      }
+
+      // we are going to go looking for literals inside bnodes that have two literals with one at least of them with a @language tag
+
+      profile = this.reorderAllNonLatinLiterals(profile)
+      this.buildPairedLiteralsIndicators(profile)
 
       let adminMedtataPrimary = null
       let adminMedtataSecondary = []
@@ -1718,14 +1798,14 @@ const utilsParse = {
           let userValue = profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'][0]
 
           // // if it doesnt already have a cataloger id use ours
-          // if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
-          //   userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
-          //     {
-          //       "@guid": short.generate(),
-          //       "http://id.loc.gov/ontologies/bflc/catalogerId": useProfileStore().catInitials
-          //     }
-          //   ]
-          // }
+          if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
+            userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
+              {
+                "@guid": short.generate(),
+                "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
+              }
+            ]
+          }
 
           // // we need to set the procInfo, so use whatever we have in the profile
           // userValue['http://id.loc.gov/ontologies/bflc/procInfo'] = [
@@ -1736,10 +1816,12 @@ const utilsParse = {
           // ]
 
           // using MARC2BF rules 2.6+ we need to find the admin metadata that does not have a status
-          // that will be our primary adminMetadat that they edit
-
+          // that will be our primary adminMetadata that they edit. Except, we want the `primary` Admin field to stay primary
+          // even after it gets a status. Most of the admin fields will be hidden, but the Primary field in the instance will
+          // remain and should continue to be editable.
           if (userValue){
-            if (!userValue['http://id.loc.gov/ontologies/bibframe/status']){
+
+            if (profile.rt[pkey].pt[key].parentId.includes(":Instance") && (!userValue['http://id.loc.gov/ontologies/bibframe/status'] || Object.keys(userValue).length > 7)){
               profile.rt[pkey].pt[key].adminMetadataType = 'primary'
               adminMedtataPrimary = key
             }else{
@@ -1934,13 +2016,10 @@ const utilsParse = {
           Object.keys(profile.rt[pkey].pt[key].userValue).forEach((userURI)=>{
             if (!userURI.includes('@')){
               if (allUris.indexOf(userURI)===-1){
-
                 profile.rt[pkey].pt[key].missingProfile.push(userURI)
-
                 uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI].unAssingedProperties.push(userURI)
               }
             }
-
           })
 
           if (uniquePropertyURIs[profile.rt[pkey].pt[key].propertyURI].unAssingedProperties.length>0){
@@ -1988,8 +2067,6 @@ const utilsParse = {
       if (index !== -1) {
         profile.rtOrder.splice(index, 1);
       }
-
-
     }
 
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
@@ -2001,8 +2078,71 @@ const utilsParse = {
 
   },
 
+  /**
+   * Sets up indicators for paired literals in a profile to manage UI presentation.
+   *
+   * For these paired literals, it marks each value
+   * with a position indicator ('start', 'middle', or 'end') in the pairedLitearlIndicatorLookup.
+   *
+   * The indicators help the UI layer properly display multi-language text entries with
+   * appropriate styling
+   *
+   * @param {Object} profile - The BibFrame profile object containing resource templates
+   * @returns {void} - Updates the pairedLitearlIndicatorLookup in the ProfileStore
+   */
+  buildPairedLiteralsIndicators: function(profile){
 
 
+    useProfileStore().pairedLitearlIndicatorLookup = {}
+
+    function process (obj, func) {
+      if (obj && obj.userValue){
+        obj = obj.userValue
+      }
+      if (Array.isArray(obj)){
+        obj.forEach(function (child) {
+          process(child, func);
+        });
+      }else if (typeof obj == 'object' && obj !== null){
+        for (let k in obj){
+          if (Array.isArray(obj[k])){
+            if (!k.startsWith('@') && obj[k].length>1){
+              func(obj,k,obj[k]);
+            }
+            process(obj[k], func);
+
+          }
+        }
+      }
+
+    }
+
+
+    for (let rt of profile.rtOrder){
+      for (let pt of profile.rt[rt].ptOrder){
+        let ptObj = profile.rt[rt].pt[pt]
+        process(ptObj, function (obj,key,value) {
+            // e.g.
+            // only array > 1 make it here
+            if (value.filter((v)=>{ return (v['@language'])}).length >= 1){
+              // only arrays with @language in them make it here and only if they do nt all have it
+
+              value.forEach((v, index)=>{
+                if (index == 0){
+                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = value.length
+                }else if (index == value.length-1){
+                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
+                }else{
+                  useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
+                }
+              })
+            }
+        });
+      }
+    }
+
+
+  },
 
   /**
   * Will take a profile obj and make sure the Works have a hasInstance and the Instances have instanceOf
@@ -2123,7 +2263,77 @@ const utilsParse = {
 
     return  userValue
 
-  }
+  },
+
+  /**
+   * Reorders all multi-lingual literal values throughout the profile based on script type and user preferences.
+   *
+   * This method recursively traverses the entire profile data structure searching for arrays of literal
+   * values that contain at least one element with a language tag (@language). When found, it sorts these
+   * arrays according to the user's preference for display order:
+   *
+   * - When "--b-edit-main-literal-non-latin-first" is true: Non-Latin literals appear first (reverse sort)
+   * - When "--b-edit-main-literal-non-latin-first" is false: Latin literals appear first (standard sort)
+   *
+   * The sorting is performed using the ProfileStore's sortObjectsByLatinMatch method, which checks each
+   * value against Latin character patterns to determine the appropriate ordering.
+   *
+   * @param {Object} profile - The BibFrame profile object containing resource templates
+   * @return {Object} - The profile with reordered literal arrays
+   */
+   reorderAllNonLatinLiterals: function(profile){
+
+    function process (obj, func) {
+      if (obj && obj.userValue){
+        obj = obj.userValue
+      }
+      if (Array.isArray(obj)){
+        obj.forEach(function (child) {
+          process(child, func);
+        });
+      }else if (typeof obj == 'object' && obj !== null){
+        for (let k in obj){
+          if (Array.isArray(obj[k])){
+            if (!k.startsWith('@') && obj[k].length>1){
+              func(obj,k,obj[k]);
+            }
+            process(obj[k], func);
+
+          }
+        }
+      }
+    }
+    for (let rt of profile.rtOrder){
+      for (let pt of profile.rt[rt].ptOrder){
+        let ptObj = profile.rt[rt].pt[pt]
+
+        process(ptObj, function (obj,key,value) {
+            // e.g.
+            // only array > 1 make it here
+
+            // don't try to sort marcKey
+            if (["http://id.loc.gov/ontologies/bibframe/contribution","http://id.loc.gov/ontologies/bibframe/subject", "http://id.loc.gov/ontologies/bibframe/geographicCoverage"].indexOf(ptObj.propertyURI)>-1){
+              return null
+            }
+
+            if (value.length > 1 && value.filter((v)=>{ return (v['@language'])}).length >= 1){
+              // only arrays with @language in them make it here and only if they do nt all have it
+              if (usePreferenceStore().returnValue('--b-edit-main-literal-non-latin-first')){
+                value = useProfileStore().sortObjectsByLatinMatch(value,key).reverse()
+              }else{
+                value = useProfileStore().sortObjectsByLatinMatch(value,key)
+              }
+            }
+        });
+
+      }
+    }
+
+    return profile
+
+
+  },
+
 
 
 

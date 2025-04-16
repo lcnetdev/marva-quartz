@@ -5,9 +5,10 @@ import utilsNetwork from '@/lib/utils_network';
 export const useConfigStore = defineStore('config', {
   state: () => ({
 
-    versionMajor: 0,
-    versionMinor: 17,
-    versionPatch: 38,
+    versionMajor: 1,
+    versionMinor: 2,
+    versionPatch: 10,
+
 
     regionUrls: {
 
@@ -20,19 +21,24 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
         validate: 'http://localhost:5200/validate',
+        publishNar: 'http://localhost:9401/util/nacostub/staging',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         profiles : 'http://localhost:9401/util/profiles/profile/prod',
-        starting: 'http://localhost:9401/util/profiles/starting/prod',
+        // starting: 'http://localhost:9401/util/profiles/starting/prod',
 
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
+        starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
+        profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
         id: 'https://id.loc.gov/',
         env : 'staging',
-        dev: true,
+        dev: false,
         displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
       },
 
       staging:{
@@ -40,8 +46,9 @@ export const useConfigStore = defineStore('config', {
         ldpjs : 'https://preprod-3001.id.loc.gov/bfe2/api-staging/',
         util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
-        scriptshifter: 'https://editor.id.loc.gov/bfe2/scriptshifter/',
+        scriptshifter: 'https://preprod-3001.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
+        publishNar: 'https://preprod-3001.id.loc.gov/bfe2/util/nacostub/staging',
         validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         // bfdb : 'https://preprod-8210.id.loc.gov/',
@@ -53,7 +60,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8288.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
-
+        simpleLookupLang: 'en',
       },
 
       production:{
@@ -63,6 +70,7 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://editor.id.loc.gov/bfe2/util-lang/',
         scriptshifter  :  'https://editor.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://editor.id.loc.gov/bfe2/util/publish/production',
+        publishNar: 'https://editor.id.loc.gov/bfe2/util/nacostub/production',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         validate: 'https://editor.id.loc.gov/bfe2/util/validate',
         bfdb : 'https://preprod-8230.id.loc.gov/',
@@ -75,6 +83,7 @@ export const useConfigStore = defineStore('config', {
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',
         displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
       },
 
       bibframeDotOrg:{
@@ -91,7 +100,8 @@ export const useConfigStore = defineStore('config', {
         id: 'https://id.loc.gov/',
         env : 'production',
         publicEndpoints:true,
-        displayLCOnlyFeatures: false
+        displayLCOnlyFeatures: false,
+        simpleLookupLang: 'en',
       }
 
     },
@@ -182,6 +192,11 @@ export const useConfigStore = defineStore('config', {
     'http://id.loc.gov/ontologies/bflc/projectedProvisionDate',
   ],
 
+  // these are predicates that will merged into one PT
+  groupTopLeveLiterals: [
+    'http://id.loc.gov/ontologies/bibframe/editionStatement',
+    'http://id.loc.gov/ontologies/bibframe/responsibilityStatement',
+  ],
 
   // these are properties that aren't allowed to be both when merging data with template
   templatesDataFlowCantBeBoth: [
@@ -314,6 +329,19 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2023537239',label:"test2", idUrl:'https://id.loc.gov/resources/instances/2023537239.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+    {lccn:'2023537239',label:"test2", idUrl:'https://id.loc.gov/resources/instances/2023537239.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+    {lccn:'2023478592',label:"test3", idUrl:'https://id.loc.gov/resources/instances/2023478592.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    {lccn:'2025363067',label:"test4", idUrl:'https://id.loc.gov/resources/instances/2025363067.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+
+    {lccn:'2020467568',label:"Muliple Series Status Test", idUrl:'https://id.loc.gov/resources/instances/2020467568.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+    {lccn:'2026888777',label:"Secondary Instance Test", idUrl:'https://id.loc.gov/resources/instances/2026888777.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+
+
+
+
   ],
 
 
@@ -326,11 +354,32 @@ export const useConfigStore = defineStore('config', {
                 }
             ]
      },
-    "http://id.loc.gov/authorities/demographicTerms" : {"name":"demographicTerms", "type":"complex", "modes":[
-      {
-      'LCDGT All':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
-      }
-    ]},
+     "http://id.loc.gov/bflists/intendedAudiences" : {
+        "name":"intendedAudiences",
+        "type":"complex",
+        "processor" : 'lcAuthorities',
+        "modes":[
+            {
+                'LCDGT':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all": true},
+                'MARC':{"url":"https://id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=10&offset=<OFFSET>", "all": true}
+            }
+        ]
+     },
+     "http://id.loc.gov/authorities/demographicTerms/collection_LCDGT_General" : {
+        "name":"creatorCharacteristic",
+        "type":"complex",
+        "processor" : 'lcAuthorities',
+        "modes":[
+            {
+                'LCDGT':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all": true},
+            }
+        ]
+     },
+    // "http://id.loc.gov/authorities/demographicTerms" : {"name":"demographicTerms", "type":"complex", "modes":[
+    //   {
+    //   'LCDGT All':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
+    //   }
+    // ]},
     "http://id.loc.gov/authorities/genreForms" : {
       "name":"genreForms",
       "type":"complex",
@@ -428,6 +477,18 @@ export const useConfigStore = defineStore('config', {
 			]
 		},
 
+    "http://id.loc.gov/vocabulary/maudience" : {
+			"name":"audience",
+			"type":"complex",
+			"processor" : 'lcAuthorities',
+			"modes":[
+				{
+					'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience.html"},
+					'LCDGT':{"url": "https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+				}
+			]
+		},
+
 
     "HierarchicalGeographic": {
       "name":"names",
@@ -436,7 +497,7 @@ export const useConfigStore = defineStore('config', {
 
       "modes":[
         {
-          'All':{"url":"https://preprod-8288.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+          'All':{"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
         }
       ]
     },
@@ -448,21 +509,21 @@ export const useConfigStore = defineStore('config', {
       "processor" : 'lcAuthorities',
       "modes":[
         {
-          'All':{"url":"https://preprod-8288.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
+          'All':{"url":"https://preprod-8080.id.loc.gov/suggest2/?q=<QUERY>&count=25&rdftype=HierarchicalGeographic", "all":true},
         }
       ]
     },
 
-    "http://id.loc.gov/authorities/demographicTerms": {
-      "name":"demographicTerms",
-      "type":"complex",
-      "processor" : 'lcAuthorities',
-      "modes":[
-        {
-          'LCDGT All':{"url":"https://preprod-8288.id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>", "all":true},
-        }
-      ]
-    },
+    // "http://id.loc.gov/authorities/demographicTerms": {
+    //   "name":"demographicTerms",
+    //   "type":"complex",
+    //   "processor" : 'lcAuthorities',
+    //   "modes":[
+    //     {
+    //       'LCDGT All':{"url":"https://preprod-8288.id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>", "all":true},
+    //     }
+    //   ]
+    // },
 
 
     "http://id.loc.gov/entities/providers" : {"name":"providers", "type":"complex", "modes":[]},
@@ -479,24 +540,19 @@ export const useConfigStore = defineStore('config', {
 
     "https://preprod-8230.id.loc.gov/resources/works" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-      "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
-      "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
+        "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype='keyword'", "all":true},
+        "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype='keyword'"},
       }
     ]},
 
     "https://preprod-8088.id.loc.gov/resources/works/" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-      "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
-      "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
+        "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
 
       }
     ]},
@@ -506,38 +562,29 @@ export const useConfigStore = defineStore('config', {
 
     "https://preprod-8295.id.loc.gov/resources/works" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-      "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
-      "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
+        "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
+        "Hubs - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Hubs - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
       }
     ]},
 
     "https://preprod-8210.id.loc.gov/resources/works/" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-      "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
-      "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
+        "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
+        "Hubs - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Hubs - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
       }
     ]},
 
 
     "https://preprod-8295.id.loc.gov/resources/works/" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-      "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
-      "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
+        "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
+        "Hubs - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Hubs - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
       }
     ]},
 
@@ -545,52 +592,42 @@ export const useConfigStore = defineStore('config', {
 
 
 
-    "https://preprod-8080.id.loc.gov/resources/works" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
-      {
-      "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
-      "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+    // "https://preprod-8080.id.loc.gov/resources/works" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+    //   {
+    //   "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype=keyword", "all":true},
+    //   "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+    //   "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype=keyword"},
+    //   "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+    //   }
+    // ]},
 
-      "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
-      }
-    ]},
-
-    "https://preprod-8080.id.loc.gov/resources/works/" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
-      {
-      "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
-      "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
-
-      "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
-      }
-    ]},
+    // "https://preprod-8080.id.loc.gov/resources/works/" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+    //   {
+    //   "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
+    //   "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+    //   "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
+    //   "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+    //   }
+    // ]},
 
     "https://preprod-8080.id.loc.gov/resources/hubs" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-
-
-
-      "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>","all":true},
-
-      "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
+        "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>","all":true},
+      }
+    ]},
+    "https://preprod-8080.id.loc.gov/resources/hubs/" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
+      {
+        "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>","all":true},
       }
     ]},
 
 
     "https://id.loc.gov/resources/hubs" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-
-
-
-      "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>","all":true},
-
-      "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
+        "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>","all":true},
       }
     ]},
 
@@ -599,13 +636,8 @@ export const useConfigStore = defineStore('config', {
 
     "https://preprod-8080.id.loc.gov/resources/hubs" : {"name":"Hubs", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-
-
-
-      "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>","all":true},
-
-      "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
+        "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>","all":true},
       }
     ]},
 
@@ -640,7 +672,7 @@ export const useConfigStore = defineStore('config', {
     "http://id.loc.gov/vocabulary/marcauthen" : {"name":"marcauthen", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/marcgt" : {"name":"marcgt", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/maspect" : {"name":"maspect", "type":"simple", "modes":[]},
-    "http://id.loc.gov/vocabulary/maudience" : {"name":"maudience", "type":"simple", "modes":[]},
+    // "http://id.loc.gov/vocabulary/maudience" : {"name":"maudience", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mbroadstd" : {"name":"mbroadstd", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mcapturestorage" : {"name":"mcapturestorage", "type":"simple", "modes":[]},
     "http://id.loc.gov/vocabulary/mcolor" : {"name":"mcolor", "type":"simple", "modes":[]},

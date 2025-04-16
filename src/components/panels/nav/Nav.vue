@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <Teleport to="body">
       <div id="nav-holder">
         <vue-file-toolbar-menu :content="my_menu" />
@@ -24,6 +23,10 @@
         <AdHocModal ref="adHocModal" v-model="showAdHocModal" />
       </template>
 
+      <template v-if="showSelectionModal==true">
+        <GenericSelectionModal @emitSelection="getImportSelection" @closeModal="closeImportSelection" :title="importTitle" :options="importOptions" :modalSettings="modalSettings" :multiple="true" v-model="showSelectionModal" />
+      </template>
+
     </Teleport>
 
   </div>
@@ -42,14 +45,28 @@
   import RecoveryModal from "@/components/panels/nav/RecoveryModal.vue";
   import ItemInstanceSelectionModal from "@/components/panels/nav/ItemInstanceSelectionModal.vue";
   import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
+  import GenericSelectionModal from '../edit/modals/GenericSelectionModal.vue'
+  
+  import TimeAgo from 'javascript-time-ago'
+  import en from 'javascript-time-ago/locale/en'
+  if (TimeAgo.getDefaultLocale() != 'en'){TimeAgo.addDefaultLocale(en)}
+  const timeAgo = new TimeAgo('en-US')
+
+
+
 
   export default {
-    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal },
     data() {
       return {
         allSelected: false,
         instances: [],
         layoutHash: null,
+        importTitle: "",
+        importOptions: {},
+        modalSettings: [],
+        importSelection: [],
+        showSelectionModal: false,
       }
     },
     props:{
@@ -63,11 +80,11 @@
 
       ...mapStores(useProfileStore,usePreferenceStore),
 
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'activeProfilePosted']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode']),
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted','activeProfilePostedTimestamp']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -308,10 +325,11 @@
               { text: 'Sidebars - Previews', click: () => this.preferenceStore.togglePrefModal('Sidebars - Previews')},
               { text: 'Sidebars - Property', click: () => this.preferenceStore.togglePrefModal('Sidebars - Property')},
               { text: 'Shelflisting', click: () => this.preferenceStore.togglePrefModal('Shelflisting')},
+              // { text: 'CAMM Mode', click: () => this.preferenceStore.togglePrefModal('CAMM Mode')},
 
               { is: 'separator'},
               { text: 'Export Prefs', click: () => this.exportPreferences(), icon: 'download' },
-              { text: 'Import Prefs', click: () => this.importPreferences(), icon: 'upload' },
+              { text: 'Import Prefs', click: () => this.showImportSelectionModal(), icon: 'upload' },
               { is: 'separator'},
               { text: 'Reset Prefs', click: () => this.preferenceStore.resetPreferences(), icon: 'restart_alt' },
 
@@ -337,6 +355,12 @@
                 this.layoutActiveFilter=null
                 this.layoutHash=null
                 this.createLayoutMode=false
+
+                //if ad hoc mode is on cycle on/off, otherwise an initially hidden component will remain hidden
+                if (this.preferenceStore.returnValue('--c-general-ad-hoc')){
+                  this.showAllElements()
+                  this.hideAllElements()
+                }
               }
             }
           )
@@ -478,18 +502,30 @@
           menu.push(
             {
               text: "Post",
-              icon: "sailing",
+              id:"post-button",
+              ref:"test",
+              icon: (this.activeProfilePosted) ? "mark_email_read" : "sailing",
               click: () => {
                 this.showPostModal = true;
                 this.$nextTick(()=>{
+
+                  // can't assign a ref attr to the element here so do it old way
+                  // only do this the first time
+                  if (!this.activeProfilePosted){
+                    document.getElementById('post-button').addEventListener('mouseenter',()=>{
+                      console.log(timeAgo.format(this.activeProfilePostedTimestamp) )
+                      document.getElementById('post-button').dataset.tooltip = "Posted: " + timeAgo.format(this.activeProfilePostedTimestamp) + "."
+                    })
+                  }
                   this.$refs.postmodal.post();
                   this.profileStore.saveRecord()
-                  this.activeProfilePosted = true
+                  
                 })
               },
-              class: (this.activeProfilePosted) ? "record-posted" : "record-unposted",
+              class: (this.activeProfilePosted) ? "record-posted simptip-position-bottom" : "record-unposted simptip-position-bottom",
             }
           )
+
 
           if (this.preferenceStore.copyMode){
               menu.push({ is: "separator" })
@@ -542,11 +578,12 @@
           }
         }
 
-        if (this.activeProfile.id){
+        if (this.activeProfile.id && this.$route.name == 'Edit'){
           menu.push(
             {
               text: "Profile: " + this.activeProfile.id,
-              class: "current-profile"
+              class: "current-profile",
+              
             }
           )
           }
@@ -700,7 +737,66 @@
         document.body.removeChild(temp)
       },
 
-      importPreferences: function(){
+      getImportSelection: function(selection){
+        this.importSelection = selection
+
+        if (this.importSelection.length > 0){
+          this.showSelectionModal = false
+        } else {
+          alert("Nothing is selected.")
+        }
+
+        this.importPreferences(this.importSelection)
+      },
+
+      closeImportSelection: function(){
+        this.showSelectionModal = false
+      },
+
+      showImportSelectionModal: function(){
+        this.importTitle = "Which Preferences would you like to import?"
+        this.importOptions = [
+          {
+            label: "Everything",
+            value: "all"
+          },
+          {
+            label: "Marva Styling",
+            value: "style"
+          },
+          {
+            label: "Script Shifter Settings",
+            value: "scriptShifter"
+          },
+          {
+            label: "Text Macro Settings",
+            value: "textMacro"
+          },
+          {
+            label: "Diacritic Macro Settings",
+            value: "diacriticMacro"
+          },
+          {
+            label: "Custom Layouts",
+            value: "layouts"
+          }
+          ,
+          {
+            label: "Component Library",
+            value: "componentLibrary"
+          }
+        ]
+        this.modalSettings = {
+          height: 300,
+          width: 500,
+          buttonText: "Import",
+          initalLeft: 300,
+          initalTop: 250
+        }
+        this.showSelectionModal = true
+      },
+
+      importPreferences: function(selection=null){
         const that = this
 
         var temp = document.createElement("input")
@@ -714,23 +810,49 @@
           reader.onload = function(e){
             var contents = JSON.parse(e.target.result)
 
-            that.preferenceStore.loadPreferences(contents["prefs"])
-            window.localStorage.setItem('marva-preferences', JSON.stringify(contents["prefs"]))
-            if (contents["scriptShifterOptions"]){
+            if (selection && selection.includes('all')){
+              that.preferenceStore.loadPreferences(contents["prefs"])
+              window.localStorage.setItem('marva-preferences', JSON.stringify(contents["prefs"]))
+            }
+
+            if (contents["scriptShifterOptions"] && (selection && (selection.includes('scriptShifter') || selection.includes('all')))){
               that.preferenceStore.scriptShifterOptions = contents["scriptShifterOptions"]
               window.localStorage.setItem('marva-scriptShifterOptions', JSON.stringify(contents["scriptShifterOptions"]))
             }
 
-            if (contents["marvaComponentLibrary"]){
+            if (contents["marvaComponentLibrary"] && (selection && (selection.includes('componentLibrary') || selection.includes('all')))){
               that.preferenceStore.componentLibrary = contents["marvaComponentLibrary"]
               window.localStorage.setItem('marva-componentLibrary', JSON.stringify(contents["marvaComponentLibrary"]))
             }
 
-            if (contents["diacriticUse"]){
+            if (contents["diacriticUse"] && (selection && (selection.includes('diacriticMacro') || selection.includes('all')))){
               that.preferenceStore.diacriticUse = contents["diacriticUse"]
               window.localStorage.setItem('marva-diacriticUse', JSON.stringify(contents["diacriticUse"]))
+              that.preferenceStore.buildDiacriticSettings()
+
+              const incoming = contents.prefs['styleDefault']['--c-diacritics-enabled-macros'].value
+              that.preferenceStore.setValue('--c-diacritics-enabled-macros', incoming)
             }
-            that.preferenceStore.buildDiacriticSettings()
+
+            if (selection && (selection.includes('textMacro') || selection.includes('all'))){
+              const incoming = contents.prefs['styleDefault']['--o-diacritics-text-macros'].value
+              that.preferenceStore.setValue('--o-diacritics-text-macros', incoming)
+            }
+
+            if (selection && (selection.includes('layouts') || selection.includes('all'))){
+              const incoming = contents.prefs['styleDefault']['--l-custom-layouts'].value
+              that.preferenceStore.setValue('--l-custom-layouts', incoming)
+            }
+
+            if (selection && (selection.includes('style') || selection.includes('all'))){
+              for (let item in contents.prefs['styleDefault']){
+                if (!['--l-custom-layouts', '--o-diacritics-text-macros', '--c-diacritics-enabled-macros'].includes(item)){
+                  const incoming = contents.prefs['styleDefault'][item].value
+                  that.preferenceStore.setValue(item, incoming)
+                }
+              }
+            }
+
           }
 
           reader.readAsText(file)
@@ -800,18 +922,66 @@
         for (let rt in this.activeProfile.rt){
           for (let pt in this.activeProfile.rt[rt].pt){
             let component = this.activeProfile.rt[rt].pt[pt]
-            if ( component.valueConstraint.defaults.length > 0){
-              // top level component
-              this.profileStore.insertDefaultValuesComponent(component['@guid'], component)
-              continue
-            }
-            //go deeper
-            let parentStructure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
-            for (let vRt of component.valueConstraint.valueTemplateRefs){
-              for (let template of this.profileStore.rtLookup[vRt].propertyTemplates){
-                if (component.preferenceId.includes(vRt)){
+            let structure = this.profileStore.returnStructureByComponentGuid(component['@guid'])
+            if (structure.propertyLabel != 'Admin Metadata' || structure.adminMetadataType == 'primary') {
+              if ( component.valueConstraint.defaults.length > 0){
+                // top level component
+                if (Object.keys(component.userValue).every(k => k.startsWith("@"))){ // it's empty
+                  this.profileStore.insertDefaultValuesComponent(component['@guid'], structure)
+                  continue
+                }
+              }
+              //go deeper
+              for (let vRt of component.valueConstraint.valueTemplateRefs){
+                for (let template of this.profileStore.rtLookup[vRt].propertyTemplates){
                   if (template.valueConstraint.defaults && template.valueConstraint.defaults.length > 0){
-                    this.profileStore.insertDefaultValuesComponent(parentStructure['@guid'], template)
+                    // for classifiction, we want to make sure we're only working on the currently selected template
+                    if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification'){
+                      let selection = document.getElementById(structure['@guid']+'-select')
+                      let selected
+                      let target
+                      if (selection){
+                        selected = selection.options[selection.selectedIndex].text
+                        switch (selected){
+                          case 'Dewey Decimal classification':
+                            target = "lc:RT:bf2:DDC"
+                            break
+                          case 'National Library of Medicine classification':
+                            target = "lc:RT:bf2:NLM"
+                            break
+                          case 'Other classification number':
+                            target = "lc:RT:bf2:OtherClass"
+                            break
+                          default:
+                            target = "lc:RT:bf2:LCC"
+                        }
+                        if (target == vRt){
+                          this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                        }
+                      }
+                    } else if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
+                      let selection = document.getElementById(structure['@guid']+'-select')
+                      let selected
+                      let target
+                      if (selection){
+                        selected = selection.options[selection.selectedIndex].text
+                        switch (selected){
+                          case 'CYAC subject':
+                            target = "lc:RT:bf2:Topic:Childrens:Components"
+                            break
+                          case 'Geographic subjects':
+                            target = "lc:RT:bf2:Topic:Place:Components"
+                            break
+                          default:
+                            target = "lc:RT:bf2:Components"
+                        }
+                        if (target == vRt){
+                          this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                        }
+                      }
+                    }else if (vRt != 'lc:RT:bf2:SeriesHub'){
+                      this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
+                    }
                   }
                 }
               }
@@ -819,7 +989,6 @@
           }
         }
       }
-
     },
 
     created() {}
@@ -914,7 +1083,7 @@
       position: absolute !important;
       right: 0;
     }
-    .record-posted{
+    .record-posted .icon{
       color: green !important;
     }
     .save-not-saved span{

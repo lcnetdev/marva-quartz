@@ -559,6 +559,7 @@ const utilsExport = {
 				// console.log('ptObj.userValue',ptObj.userValue)
 
 				let userValue
+				let userValueSiblings = []
 
         		// the uservalue could be stored in a few places depending on the nesting
 				if (ptObj.userValue[ptObj.propertyURI] && ptObj.userValue[ptObj.propertyURI][0]){
@@ -579,6 +580,17 @@ const utilsExport = {
 							}
 						}
 					}
+
+					if (ptObj.userValue[ptObj.propertyURI].length>1){
+						// some top level simpleLookup values like bf:content could have multiple values in it but we are really only setup to handle one
+						// so keep track of them for later
+						userValueSiblings = JSON.parse(JSON.stringify(ptObj.userValue[ptObj.propertyURI])).slice(1)
+						// console.log("Got the siblings:", userValueSiblings)
+
+
+					}
+
+
 
 				}else if (ptObj.userValue[ptObj.propertyURI]){
 					userValue = ptObj.userValue[ptObj.propertyURI]
@@ -750,6 +762,8 @@ const utilsExport = {
 
 					// is it a Blank node
 					if (this.isBnode(userValue)){
+						xmlLog.push(`userValue: ${JSON.parse(JSON.stringify(userValue))}`)
+
 						// this.debug(ptObj.propertyURI,'root level element, is bnode', userValue)
 						xmlLog.push(`Root level bnode: ${ptObj.propertyURI}`)
 
@@ -807,6 +821,14 @@ const utilsExport = {
 									// yes
 									let bnodeLvl2 = this.createBnode(value1,key1)
 
+									//carve out an expection for associated resource is a series
+									if (bnodeLvl1.tagName == 'bf:Relation' && bnodeLvl2.tagName == 'bf:Series' && pLvl2.tagName == 'bf:associatedResource'){
+										let rdftype = this.createElByBestNS('rdf:type')
+										rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', 'http://id.loc.gov/ontologies/bflc/Uncontrolled')
+										bnodeLvl2.appendChild(rdftype)
+									}
+
+
 									pLvl2.appendChild(bnodeLvl2)
 									bnodeLvl1.appendChild(pLvl2)
 									xmlLog.push(`Creating bnode lvl 2 for it ${bnodeLvl2.tagName}`)
@@ -816,12 +838,21 @@ const utilsExport = {
 										let pLvl3 = this.createElByBestNS(key2)
 
 										xmlLog.push(`Creating lvl 3 property: ${pLvl3.tagName} for ${key2}`)
-
+										let lastBnodeLvl3TagName = null
                                         for (let value2 of value1[key2]){
                                             if (this.isBnode(value2)){
                                                 // more nested bnode
                                                 // one more level
                                                 let bnodeLvl3 = this.createBnode(value2,key2)
+
+												if (lastBnodeLvl3TagName == bnodeLvl3.tagName){
+													// console.log("Creating multiple bnodes of the same type in a row", bnodeLvl3.tagName)
+													// if we are doing this we need to create a new parent property to put the new one into
+													pLvl3 = this.createElByBestNS(key2)
+												}
+												lastBnodeLvl3TagName = bnodeLvl3.tagName
+
+
                                                 pLvl3.appendChild(bnodeLvl3)
                                                 bnodeLvl2.appendChild(pLvl3)
                                                 xmlLog.push(`Creating lvl 3 bnode: ${bnodeLvl3.tagName} for ${key2}`)
@@ -836,7 +867,6 @@ const utilsExport = {
                                                             pLvl4.appendChild(bnodeLvl4)
                                                             bnodeLvl3.appendChild(pLvl4)
                                                             xmlLog.push(`Creating lvl 4 bnode: ${bnodeLvl4.tagName} for ${key3}`)
-
 
                                                             for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
                                                                 for (let value4 of value3[key4]){
@@ -975,8 +1005,35 @@ const utilsExport = {
 						}
 						pLvl1.appendChild(bnodeLvl1)
 						rootEl.appendChild(pLvl1)
-
 						componentXmlLookup[`${rt}-${pt}`] = formatXML(pLvl1.outerHTML)
+
+						// this is kind of a hack here, since the system wasn't designed orgianlly to have multiple top level lookup to live in the same bnode
+						// for example bf:content there should be a single bf:content->bf:Content node for each value but in the interface it is nice to allow multiple
+						// inputs in the same component. So allow them to do that but we will build those shallow sibling bnodes right here after we created the first one
+						if (userValueSiblings.length>0){
+							for (let uv of userValueSiblings){
+								xmlLog.push(`Root level sibling bnode: ${ptObj.propertyURI}`)
+								let pLvl1Sibling = this.createElByBestNS(ptObj.propertyURI)
+								let bnodeLvl1Sibling = this.createBnode(uv, ptObj.propertyURI)
+								//we are only checking for a label as a nested property, we will not loop through the properties looking for stuff
+
+								if (uv['http://www.w3.org/2000/01/rdf-schema#label']){
+									let rdftype = this.createElByBestNS('http://www.w3.org/2000/01/rdf-schema#label')
+									rdftype.innerHTML=escapeHTML(uv['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
+									xmlLog.push(`This bnode just has a label : ${rdftype}`)
+									bnodeLvl1Sibling.appendChild(rdftype)
+								}else{
+									console.warn("There was no label for this sibling top level bnode, so there is porbably another way the label is being passed or something else is wrong.",bnodeLvl1Sibling)
+								}
+
+								// add to the structure
+								pLvl1Sibling.appendChild(bnodeLvl1Sibling)
+								rootEl.appendChild(pLvl1Sibling)
+							}
+						}
+
+
+
 
 					}else{
 						// this.debug(ptObj.propertyURI, 'root level element does not look like a bnode', userValue)
@@ -1235,7 +1292,7 @@ const utilsExport = {
 		// console.log("tleLookup --- tleLookup")
 		// console.log(tleLookup)
 
-
+		// console.log("xmlLogxmlLogxmlLog",xmlLog)
 		// Add in a adminMetadata to the resources with this user id
 		// catInitals.log(profile)
 		//get user info from preferenceStore instead of the profile
@@ -1310,7 +1367,7 @@ const utilsExport = {
 			for (let item of items){
 				let uri = null
 				if (item.attributes['rdf:resource']){
-					uri = item.attributes['rdf:resource'].value
+					uri = item.attributes['rdf:resource'].valfue
 				}else if(item.attributes['rdf:about']){
 					uri = item.attributes['rdf:about'].value
 				}
@@ -1587,7 +1644,7 @@ const utilsExport = {
       almaXmlElRecord.appendChild(almaXmlElRdf)
       almaXmlElBib.appendChild(almaXmlElRecord)
 
-      for (let el of almaWorksEl){ almaXmlElRdf.appendChild(el) }
+	  for (let el of almaWorksEl){ almaXmlElRdf.appendChild(el) }
       for (let el of almaInstancesEl){ almaXmlElRdf.appendChild(el) }
       for (let el of almaItemsEl){ almaXmlElRdf.appendChild(el) }
 
@@ -1601,36 +1658,41 @@ const utilsExport = {
     }
 
 
-        // build the BF2MARC package
 
-		let bf2MarcXmlElRdf = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF')
-		// bf2MarcXmlElRdf.setAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
-		for (let el of rdfBasic.getElementsByTagName("bf:Work")){ bf2MarcXmlElRdf.appendChild(el) }
-		for (let el of rdfBasic.getElementsByTagName("bf:Instance")){ bf2MarcXmlElRdf.appendChild(el) }
-		for (let el of rdfBasic.getElementsByTagName("bf:Item")){ bf2MarcXmlElRdf.appendChild(el) }
-		let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
-		// console.log(strBf2MarcXmlElBib, strXmlFormatted, strXmlBasic, strXml)
-
-		// console.log("-------componentXmlLookup",componentXmlLookup)
-    // console.log(strXmlFormatted)
-    // console.log("------")
-    // console.log(strXmlBasic)
-
-        // let newXML = this.splitComplexSubjects(strBf2MarcXmlElBib)
-        // strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(newXML)
-
-		return {
-			xmlDom: rdf,
-			xmlStringFormatted: strXmlFormatted,
-			xlmString: strXml,
-			bf2Marc: strBf2MarcXmlElBib,
-			xlmStringBasic: strXmlBasic,
-			voidTitle: xmlVoidDataTitle,
-			voidContributor:xmlVoidDataContributor,
-			componentXmlLookup:componentXmlLookup
+	// build the BF2MARC package
+	let bf2MarcXmlElRdf = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF')
+	let bf2MarcWorks = rdfBasic.getElementsByTagName("bf:Work")
+	for (let x = 0; x < bf2MarcWorks.length; x++){
+		if (bf2MarcWorks[x].parentNode && bf2MarcWorks[x].parentNode.tagName && bf2MarcWorks[x].parentNode.tagName.toLowerCase() == 'rdf'){
+			bf2MarcXmlElRdf.appendChild(bf2MarcWorks[x].cloneNode(true))
 		}
+	}
+	let bf2MarcInstances = rdfBasic.getElementsByTagName("bf:Instance")
+	for (let x = 0; x < bf2MarcInstances.length; x++){
+		if (bf2MarcInstances[x].parentNode && bf2MarcInstances[x].parentNode.tagName && bf2MarcInstances[x].parentNode.tagName.toLowerCase() == 'rdf'){
+			bf2MarcXmlElRdf.appendChild(bf2MarcInstances[x].cloneNode(true))
+		}
+	}
+	let bf2MarcItems = rdfBasic.getElementsByTagName("bf:Item")
+	for (let x = 0; x < bf2MarcItems.length; x++){
+		if (bf2MarcItems[x].parentNode && bf2MarcItems[x].parentNode.tagName && bf2MarcItems[x].parentNode.tagName.toLowerCase() == 'rdf'){
+			bf2MarcXmlElRdf.appendChild(bf2MarcItems[x].cloneNode(true))
+		}
+	}
+	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
+	// console.info("strXmlBasic: ", strXmlBasic)
+	return {
+		xmlDom: rdf,
+		xmlStringFormatted: strXmlFormatted,
+		xlmString: strXml,
+		bf2Marc: strBf2MarcXmlElBib,
+		xlmStringBasic: strXmlBasic,
+		voidTitle: xmlVoidDataTitle,
+		voidContributor:xmlVoidDataContributor,
+		componentXmlLookup:componentXmlLookup
+	}
   },
 
     //This was handled in the `add()` of `SubjectEditor.vue`, but there are some situtations where that don't work as intended
@@ -1745,6 +1807,20 @@ const utilsExport = {
     },
 
 
+
+	creatHubStubURI: async function(hubCreatorObj,title){
+
+		let aap = utilsProfile.returnAap(hubCreatorObj.label,title)
+
+		let aapHash = await md5(aap)
+		aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
+		let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
+
+		return hubUri
+
+	},
+
+
 	/**
 	 * Builds the Hub Stub XML to be sent off to post
 	 *
@@ -1753,10 +1829,9 @@ const utilsExport = {
 	* @param {string} langObj - {uri:"",label:""}
 	 * @return {string}
 	 */
-	createHubStubXML: async function(hubCreatorObj,title,langObj,catalogerId){
+	createHubStubXML: async function(hubCreatorObj,title,variant,variantLanguage,langObj,catalogerId){
 
 
-		
 
 
 		// we are creating the xml in two formats, create the root node for both
@@ -1777,15 +1852,17 @@ const utilsExport = {
 		if (!title) return false
 
 		if (!hubCreatorObj){ hubCreatorObj = {'label':''}}
-		if (!hubCreatorObj.label){ hubCreatorObj.label = ''} 
+		if (!hubCreatorObj.label){ hubCreatorObj.label = ''}
 
-		
 
-		let aap = utilsProfile.returnAap(hubCreatorObj.label,title)
-		
-		let aapHash = await md5(aap)
-		aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
-		let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
+
+		// let aap = utilsProfile.returnAap(hubCreatorObj.label,title)
+
+		// let aapHash = await md5(aap)
+		// aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
+		// let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
+		let hubUri = await this.creatHubStubURI(hubCreatorObj,title)
+
 
 
 		// da hub
@@ -1802,6 +1879,31 @@ const utilsExport = {
 		elTitleClass.appendChild(elMainTitle)
 		elTitleProperty.appendChild(elTitleClass)
 		elHub.appendChild(elTitleProperty)
+
+
+
+
+		// variant
+		if (variant){
+
+			let elTitleVariantProperty = document.createElementNS(this.namespace.bf ,'bf:title')
+			let elTitleVariantClass = document.createElementNS(this.namespace.bf ,'bf:VariantTitle')
+			let elMainTitleVariant = document.createElementNS(this.namespace.bf ,'bf:mainTitle')
+
+			if (variantLanguage){
+				elMainTitleVariant.setAttribute('xml:lang', variantLanguage)
+			}
+
+			elMainTitleVariant.innerHTML = variant
+
+
+
+
+			// attach
+			elTitleVariantClass.appendChild(elMainTitleVariant)
+			elTitleVariantProperty.appendChild(elTitleVariantClass)
+			elHub.appendChild(elTitleVariantProperty)
+		}
 
 
 
@@ -1947,7 +2049,222 @@ const utilsExport = {
 		// console.log(xml)
 		return xml
 
+	},
+
+	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote){
+		let marcNamespace = "http://www.loc.gov/MARC21/slim"
+
+		let rootEl = document.createElementNS(marcNamespace,"marcxml:record");
+
+		let leader = document.createElementNS(marcNamespace,"marcxml:leader");
+		leader.innerHTML = "     nz  a22     ni 4500"
+		rootEl.appendChild(leader)
+
+
+
+		let field001 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field001.setAttribute( 'tag', '001')
+		field001.innerHTML = "n"+lccn
+		rootEl.appendChild(field001)
+
+		let field003 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field003.setAttribute( 'tag', '003')
+		field003.innerHTML = "DLC"
+		rootEl.appendChild(field003)
+
+		function pad2(n) { return n < 10 ? '0' + n : n }
+		let date = new Date();
+		let dateValue = date.getFullYear().toString() + pad2(date.getMonth() + 1) + pad2( date.getDate()) + pad2( date.getHours() ) + pad2( date.getMinutes() ) + pad2( date.getSeconds() )
+		dateValue = dateValue + ".0"
+
+
+		let field005 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field005.setAttribute( 'tag', '005')
+		field005.innerHTML = dateValue
+		rootEl.appendChild(field005)
+
+
+		let field008 = document.createElementNS(marcNamespace,"marcxml:controlfield");
+		field008.setAttribute( 'tag', '008')
+		let year2Digits = dateValue.slice(2,4)
+		let month2Digits = dateValue.slice(4,6)
+		let day2Digits = dateValue.slice(6,8)
+
+		let pos29 = "n"
+		// did they make a 4xx
+		if (fourXXParts && fourXXParts.a){
+			pos29 = 'b'
+		}
+
+
+		field008.innerHTML = `${year2Digits}${month2Digits}${day2Digits}`  + 'n| azannaabn' + " ".repeat(10) + '|' + pos29+ ' aac' + " ".repeat(6)
+		console.log("field008.innerHTML", field008.innerHTML)
+		rootEl.appendChild(field008)
+
+		let field010 = document.createElementNS(marcNamespace,"marcxml:datafield");
+		field010.setAttribute( 'tag', '010')
+		field010.setAttribute( 'ind1', ' ')
+		field010.setAttribute( 'ind2', ' ')
+		let field010a = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field010a.setAttribute( 'code', 'a')
+		field010a.innerHTML = `n ${lccn}`
+		field010.appendChild(field010a)
+		rootEl.appendChild(field010)
+
+
+
+		let field040 = document.createElementNS(marcNamespace,"marcxml:datafield");
+		field040.setAttribute( 'tag', '040')
+		field040.setAttribute( 'ind1', ' ')
+		field040.setAttribute( 'ind2', ' ')
+		let field040a = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040a.setAttribute( 'code', 'a')
+		field040a.innerHTML = 'DLC'
+		field040.appendChild(field040a)
+
+		let field040b = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040b.setAttribute( 'code', 'b')
+		field040b.innerHTML = 'eng'
+		field040.appendChild(field040b)
+
+		let field040e = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040e.setAttribute( 'code', 'e')
+		field040e.innerHTML = 'rda'
+		field040.appendChild(field040e)
+
+		let field040c = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field040c.setAttribute( 'code', 'c')
+		field040c.innerHTML = 'DLC'
+		field040.appendChild(field040c)
+
+
+		rootEl.appendChild(field040)
+
+
+		// ---- 985
+		let field985 = document.createElementNS(marcNamespace,"marcxml:datafield");
+		field985.setAttribute( 'tag', '985')
+		field985.setAttribute( 'ind1', ' ')
+		field985.setAttribute( 'ind2', ' ')
+
+		let field985e = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field985e.setAttribute( 'code', 'e')
+		field985e.innerHTML = 'MARVA-NAR'
+		field985.appendChild(field985e)
+
+		let field985d = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field985d.setAttribute( 'code', 'd')
+		field985d.innerHTML = `${date.getFullYear().toString()}-${pad2(date.getMonth() + 1)}-${pad2( date.getDate())}`
+
+		field985.appendChild(field985d)
+
+		rootEl.appendChild(field985)
+
+
+
+		let fieldName = document.createElementNS(marcNamespace,"marcxml:datafield");
+		fieldName.setAttribute( 'tag', oneXXParts.fieldTag)
+		fieldName.setAttribute( 'ind1', oneXXParts.indicators.charAt(0))
+		fieldName.setAttribute( 'ind2', oneXXParts.indicators.charAt(1))
+		for (let key of Object.keys(oneXXParts)){
+			if (key.length == 1){
+				let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+				subfield.setAttribute( 'code', key)
+				subfield.innerHTML = oneXXParts[key]
+				fieldName.appendChild(subfield)
+			}
+		}
+		// 110//$aMiller, Sam$d1933
+		rootEl.appendChild(fieldName)
+
+		// did they make a 4xx
+		if (fourXXParts && fourXXParts.a){
+			let fieldName4xx = document.createElementNS(marcNamespace,"marcxml:datafield");
+			fieldName4xx.setAttribute( 'tag', fourXXParts.fieldTag)
+			fieldName4xx.setAttribute( 'ind1', fourXXParts.indicators.charAt(0))
+			fieldName4xx.setAttribute( 'ind2', fourXXParts.indicators.charAt(1))
+			for (let key of Object.keys(fourXXParts)){
+				// only add the subfields
+				if (key.length == 1){
+					let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+					subfield.setAttribute( 'code', key)
+					subfield.innerHTML = fourXXParts[key]
+					fieldName4xx.appendChild(subfield)
+				}
+			}
+
+			rootEl.appendChild(fieldName4xx)
+		}
+
+
+
+		if (pos29 === 'b'){
+
+			let field667 = document.createElementNS(marcNamespace,"marcxml:datafield");
+			field667.setAttribute( 'tag', '667')
+			field667.setAttribute( 'ind1', ' ')
+			field667.setAttribute( 'ind2', ' ')
+			let field667a = document.createElementNS(marcNamespace,"marcxml:subfield");
+			field667a.setAttribute( 'code', 'a')
+			field667a.innerHTML = "Non-Latin script references not evaluated."
+			field667.appendChild(field667a)
+
+			rootEl.appendChild(field667)
+
+
+		}
+
+
+
+
+		let field670 = document.createElementNS(marcNamespace,"marcxml:datafield");
+		field670.setAttribute( 'tag', '670')
+		field670.setAttribute( 'ind1', ' ')
+		field670.setAttribute( 'ind2', ' ')
+		let field670a = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field670a.setAttribute( 'code', 'a')
+
+		let title = mainTitle
+		if (mainTitleDate){
+			title = title + ', ' + mainTitleDate
+		}
+		field670a.innerHTML = title
+		field670.appendChild(field670a)
+
+		if (mainTitleNote){
+			let field670b = document.createElementNS(marcNamespace,"marcxml:subfield");
+			field670b.setAttribute( 'code', 'b')
+			field670b.innerHTML = mainTitleNote
+			field670.appendChild(field670b)
+		}
+
+
+		let field670u = document.createElementNS(marcNamespace,"marcxml:subfield");
+		field670u.setAttribute( 'code', 'u')
+		field670u.innerHTML = workURI
+		field670.appendChild(field670u)
+
+
+		if (mainTitleLccn){
+			let field670w = document.createElementNS(marcNamespace,"marcxml:subfield");
+			field670w.setAttribute( 'code', 'w')
+			field670w.innerHTML = '(DLC)' + mainTitleLccn
+			field670.appendChild(field670w)
+		}
+
+
+
+		rootEl.appendChild(field670)
+
+
+
+		let xml = (new XMLSerializer()).serializeToString(rootEl)
+
+		console.log(xml)
+		return xml
+
 	}
+
 }
 
 

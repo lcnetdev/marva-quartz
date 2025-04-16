@@ -43,8 +43,7 @@ const utilsRDF = {
     'owl': 'http://www.w3.org/2002/07/owl#',
 		'void':'http://rdfs.org/ns/void#',
     'lcc': 'http://id.loc.gov/ontologies/lcc#',
-
-
+    'vartitletype': 'http://id.loc.gov/vocabulary/vartitletype/',
   },
 
 
@@ -261,7 +260,7 @@ const utilsRDF = {
     let objProp = prop.getElementsByTagName("owl:ObjectProperty")
     let dataProp = prop.getElementsByTagName("owl:DatatypeProperty")
 
-    
+
 
 
 
@@ -273,6 +272,7 @@ const utilsRDF = {
       range=range[0]
       if (range.attributes['rdf:resource']){
         result = range.attributes['rdf:resource'].value
+        return result
       }
     }else{
       // check if it has a rdfs:subPropertyOf, if it does then we can ask for that
@@ -353,7 +353,7 @@ const utilsRDF = {
 
     }
 
-    
+
 
 
 

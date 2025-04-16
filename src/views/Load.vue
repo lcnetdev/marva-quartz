@@ -183,13 +183,16 @@
                 <div style="padding:5px;">
                   Use these blank templates to test, but any record that you want to post to Voyager must originate in Voyager. Marva cannot currently assign Voyager bib numbers, so you need to create a stub record in Voyager and then load it into Marva.
                 </div>
-                <div>
-                  <div class="load-buttons">
-                    <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>
+                <details>
+                  <summary><span style="text-decoration: underline;">Click Here</span> to access blank record templates. Currently these are only for testing input, and cannot be used for posting or in production.</summary>
+                  <div>
+                    <div class="load-buttons">
+                      <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{s.name}}</button>
 
 
+                    </div>
                   </div>
-                </div>
+                </details>
 
 
 
@@ -278,10 +281,7 @@
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
       ...mapState(useConfigStore, ['testData']),
       ...mapState(useProfileStore, ['startingPoints','profiles']),
-      ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents']),
-
-
-
+      ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents','activeProfilePosted','activeProfilePostedTimestamp']),
 
 
       // // gives read access to this.count and this.double
@@ -290,12 +290,9 @@
       startingPointsFiltered(){
         let points = []
         for (let k in this.startingPoints){
-
           if (this.startingPoints[k].work && this.startingPoints[k].instance){
             points.push(this.startingPoints[k])
           }
-
-
         }
 
         points.push( { "name": "HUB", "work": null, "instance": "lc:RT:bf2:HubBasic:Hub", "item": null },)
@@ -455,6 +452,9 @@
             useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
           }
         }
+
+        this.activeProfilePosted = false
+        this.activeProfilePostedTimestamp = false
 
         // check if the input field is empty
         if (this.urlToLoad == "" && useProfile===null){
@@ -668,7 +668,7 @@
   }
 </style>
 
-<style scoped>  
+<style scoped>
 
 
 #test-data-table{
@@ -690,7 +690,7 @@
 
   background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important;
   color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
-  
+
   background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')")  !important;
 
 }

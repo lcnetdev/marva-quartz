@@ -274,9 +274,7 @@ const utilsProfile = {
     let pointerParent = null
     let parentP = null
     for (let p of propertyPath){
-
       p = p.propertyURI
-
       if (pointer[p][0]){
         // we may or maynot need to create a @type for this level, depending on what type of property it is,
         // so test first the property info in the profile
@@ -291,7 +289,7 @@ const utilsProfile = {
           // don't need to set the type, as its not a blank node, just a nested property
           if (utilsRDF.isUriALiteral(type) === false){
             // if it doesn't yet have a type then go ahead and set it
-			// OR if the suggested type is PrimaryContribution, override the existing type
+            // OR if the suggested type is PrimaryContribution, override the existing type
             if (!pointer[p][0]['@type'] || type.includes("PrimaryContribution")){
               pointer[p][0]['@type'] = type
             }
@@ -398,7 +396,9 @@ const utilsProfile = {
 
       if (isLocator){
         // deleting this avoids the creation of a "rdf:Resource" tag for "URL of Instance"
-        delete pointer[0]["@type"]
+        if (pointer[0]["@type"] != 'http://id.loc.gov/ontologies/bibframe/SupplementaryContent'){
+          delete pointer[0]["@type"]
+        }
       }
 
       return pointer

@@ -1,7 +1,6 @@
 <template>
 
 
-
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true">
 
       <div style="text-align: right;">
@@ -30,14 +29,14 @@
                 </div>
           </template>
             <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ) )">
-              <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
+                <div v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder"
                     :key="profileCompoent">
                   <template v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && profileStore.emptyComponents[profileName] && !profileStore.emptyComponents[profileName].includes(profileCompoent) ))">
                   <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
                     <template v-if="(createLayoutMode && layoutActive) || layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])) ">
 
                       <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
-                        <div class="component-label 1" >
+                        <div class="component-label 1" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">
                             <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
@@ -73,9 +72,10 @@
             </div>
         </template>
 
+
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
           <template v-if="(createLayoutMode && layoutActive) || layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])) ">
-            <template v-if="!hideProps.includes(activeProfile.rt[profileName].pt[profileCompoent].propertyURI)">
+            <template v-if="activeProfile.rt[profileName].pt[profileCompoent] && !hideProps.includes(activeProfile.rt[profileName].pt[profileCompoent].propertyURI)">
 
               <template v-if="(preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === true && activeProfile.rt[profileName].pt[profileCompoent].canBeHidden === false) || preferenceStore.returnValue('--b-edit-main-splitpane-edit-adhoc-mode') === false">
 
@@ -86,7 +86,7 @@
                     <div v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
                       <template v-if="this.dualEdit == false">
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
-                          <div class="component-label 2" >
+                          <div class="component-label 2" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">
                             <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" :value="profileName" :checked="layoutActiveFilter && layoutActiveFilter['properties'][profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
@@ -96,7 +96,7 @@
                     </template>
                     <template v-if="this.dualEdit == true">
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && (profileName.indexOf(':Instance') == -1 && profileName.indexOf(':Item') == -1 )">
-                          <div class="component-label 3" >
+                          <div class="component-label 3" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">
                           <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                           <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                           {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
@@ -108,7 +108,15 @@
                       <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
                         <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
                         <div v-if="profileName.indexOf(':Instance') > -1 && profileName.indexOf(':Item') == -1" class="inline-mode-resource-color-instance">&nbsp;</div>
-                        <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
+                        <template v-if="profileStore.cammModeErrors[activeProfile.rt[profileName].pt[profileCompoent]['@guid']]">
+
+                          <span :class="{'material-icons' : true, 'inline-mode-error-icon': true, 'simptip-position-right':true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent])}" @click="showErrors(activeProfile.rt[profileName].pt[profileCompoent]['@guid'])">warning</span>
+
+                        </template>
+                        <template v-else>
+                          <button @mouseenter="inlineRowButtonMouseEnter" :class="{'inline-mode-mian-button': true, 'inline-mode-mian-button-has-ref' : profileStore.ptHasRefComponent(activeProfile.rt[profileName].pt[profileCompoent]) }"></button>
+                        </template>
+
                       </template>
 
                       <!-- index == -1 means it's the work, so just add the work -->
@@ -218,7 +226,14 @@
     },
 
     methods: {
+        showErrors(guid){
 
+          console.log(guid)
+          let msg = this.profileStore.cammModeErrors[guid].join("\n")
+          alert(msg)
+
+
+        },
 
         showDebug: function(event,data){
 
@@ -262,6 +277,7 @@
         //We only want the editable admin field under instances to show up
         // Don't show READONLY ADMIN fields in the instance, Don't show any admin fields in the work
         hideAdminField: function(component, profileName){
+
           let readOnly = this.isReadOnly(component)
           let isWork = profileName.includes(':Work')
           let isAdminField = component.propertyURI.includes('adminMetadata')
@@ -367,7 +383,7 @@
                   for (let el of document.getElementById(`edit_${newVal.parentId}_${newVal.id}`).querySelectorAll('input,textarea')){
                     el.style.background='transparent'
                   }
-                },500);
+                },1000);
 
 
               },10);
@@ -384,15 +400,15 @@
     mounted: function(){
         //populate when loading from a search
         this.populateTitle()
+        this.profileStore.useCustomComponentOrder()
     },
 
     updated: function(){
-        let bibId = this.getBibId()
-		// Add the ID to the title when loading from "Your Records"
-
-        if (!document.title.includes(bibId)){
-            this.populateTitle()
-        }
+      let bibId = this.getBibId()
+    // Add the ID to the title when loading from "Your Records"
+      if (!document.title.includes(bibId)){
+          this.populateTitle()
+      }
     }
 
   }
@@ -400,6 +416,15 @@
 </script>
 <style scoped>
 
+.inline-mode-error-icon{
+  font-size: 16px;
+  color:red;
+  animation-name: grow;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  z-index: 1000;
+  margin-right: 17px;
+}
 
 .read-only{
   padding-left: 2em;
@@ -455,6 +480,7 @@
 
 .edit-panel-instance{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')") !important;
+  padding-bottom: 5em;
 }
 .edit-panel-item{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-item')") !important;
@@ -468,6 +494,9 @@
 .component-label{
   font-size: 0.85em;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+}
+.label-bold{
+  font-weight: bold;
 }
 
 div.instanceInfoWrapper {
@@ -483,6 +512,17 @@ div.instanceInfoWrapper {
 .instanceDeleteButton {
     float: right;
     margin-right: 5px;
+}
+
+
+
+@keyframes grow {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.5);
+    }
 }
 
 

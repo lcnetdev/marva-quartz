@@ -1,7 +1,9 @@
 <script>
   import { usePreferenceStore } from '@/stores/preference'
+  import { useProfileStore } from '@/stores/profile'
+
   import { useConfigStore } from '@/stores/config'
-  import { mapStores, mapState } from 'pinia'
+  import { mapStores, mapState, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
 
   import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
@@ -21,6 +23,9 @@
       structure: Object,
       // the inital search value starting the search
       searchValue: String,
+      guid: String,
+      propertyPath: Array,
+
 
       // If this is populate, we want to pull up the authority record
       // without the user doing anything
@@ -37,6 +42,7 @@
 
         activeComplexSearch: [],
         activeComplexSearchInProgress: false,
+        activeSimpleLookup: [],
         controller: new AbortController(),
 
         initalSearchState: true,
@@ -46,13 +52,40 @@
         offsetStep: 25,
         currentPage: 1,
         maxPage: 0,
-
         activeContext: null,
-
-
         nextInputIsVoyagerModeDiacritics: false,
-
 		    searchType: "left",
+
+
+        labelMap: {
+          "notes": "Notes",
+          "nonlatinLabels": "Non-Latin Authoritative Labels",
+          "variantLabels": "Variants",
+          "varianttitles": "Varants Titles",
+          "birthdates": "Date of Birth",
+          "birthplaces": "Place of Birth",
+          "locales": "Associated Locales",
+          "activityfields": "Fields of Activity",
+          "occupations": "Occupations",
+          "languages": "Associated Languages",
+          "lcclasss": "LC Classification",
+          "broaders": "Has Broader Authority",
+          "gacs": "GAC(s)",
+          "collections": "MADS Collections",
+          "sources": "Sources",
+          "marcKeys": "MARC Key",
+          "relateds": "Related",
+          "contributors": "Contributors",
+          "identifiers": "Identifiers",
+          "subjects": "Subjects",
+          "sees": "See Also"
+
+        },
+        panelDetailOrder: [
+          "notes","nonlatinLabels","variantLabels", "varianttitles", "sees", "contributors", "relateds","birthdates","birthplaces","locales",
+          "activityfields","occupations","languages","lcclasss", "identifiers", "broaders","gacs","collections",
+          "sources", "subjects", "marcKeys"
+        ],
       }
     },
     computed: {
@@ -67,8 +100,9 @@
 
       ...mapState(useConfigStore, ['lookupConfig']),
 
-      ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
+      ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
+      ...mapWritableState(useProfileStore, ['lastComplexLookupString','showNacoStubCreateModal', 'activeNARStubComponent']),
 
 
 
@@ -99,7 +133,7 @@
 
 
 
-      
+
 
 
 
@@ -115,6 +149,8 @@
 
 
       modeSelect: async function(){
+        this.activeComplexSearch = []
+        this.activeSimpleLookup = []
         this.doSearch()
 
       }
@@ -124,14 +160,40 @@
     },
 
     methods: {
+      generateLabel: function(data){
+        let label = !data.literal ? data.suggestLabel : data.label + ((data.literal) ? ' [Literal]' : '')
+
+        if (label.includes("(USE ")){
+          label = data.label + " (USE FOR " + data.suggestLabel.replace(/\(USE.*\)/mg, "") + ")"
+        }
+
+        // let re = new RegExp(String.raw`(${this.searchValueLocal})`, "ig")
+        // let match = re.exec(label)
+        // if (match){
+        //   let start = re.lastIndex - match[0].length
+        //   let end =   re.lastIndex - 1
+        //   label = label.slice(0, start) + "<span class='highlight-search-string'>" + label.slice(start, end+1) + "</span>" + label.slice(end+1)
+        // }
+
+        return label
+      },
+      truncate: function(string){
+        let stg = string
+        if (string.length > 80){
+          stg = stg.slice(0, 80) + "..."
+        }
+        return string
+      },
       // Reset stored values
       // This is for when the modal is closed, we want to reset things so nothing is preloaded
       // and the user starts from zero
       reset: function(){
         this.activeContext = null
         this.activeComplexSearch = []
+        this.activeSimpleLookup = []
+        this.activeSimpleLookupCache = []
         this.searchValueLocal = null
-            this.authorityLookupLocal = null
+        this.authorityLookupLocal = null
       },
 
       // watching the search input, when it changes kick off a search
@@ -142,12 +204,17 @@
           this.controller = new AbortController()
         }
 
-        if (!this.searchValueLocal){ return false}
+        if (!this.isSimpleLookup()){
+          if (!this.searchValueLocal){ return false}
 
-        if (this.searchValueLocal.trim()==''){
-          return false
+          if (this.searchValueLocal.trim()==''){
+            return false
+          }
+        } else {
+          if (!this.searchValueLocal){
+            this.searchValueLocal = ""
+          }
         }
-
         if (this.searchValueLocal.length<3){
           // if it is non-latin
           if (this.searchValueLocal.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/)){
@@ -156,6 +223,9 @@
             // check the config, some vocabs have very short codes, like the marc geo
             // so if it is configed to allow short search overtide the < 3 rule
             let minCharBeforeSearch = 3
+            if (this.isSimpleLookup()){
+              minCharBeforeSearch = -1
+            }
             this.modalSelectOptions.forEach((a)=>{
               if (a.minCharBeforeSearch && a.minCharBeforeSearch < minCharBeforeSearch){
                 minCharBeforeSearch = a.minCharBeforeSearch
@@ -179,7 +249,8 @@
           processor: null,
           url: [],
           searchValue: this.searchValueLocal,   //This changed from searchValueLocal, to match what is expected in `utils_network.js`
-          signal: this.controller.signal        //Allows canceling the correct call
+          signal: this.controller.signal,        //Allows canceling the correct call
+          type: 'simple'
         }
         // if (this.modeSelect == 'All'){
         //   this.modalSelectOptions.forEach((a)=>{
@@ -194,29 +265,74 @@
           this.modalSelectOptions.forEach((a)=>{
             if (a.label==this.modeSelect){
               searchPayload.processor=a.processor
-              searchPayload.url.push(
-                a.urls
-                  .replace('<QUERY>', this.searchValueLocal)
-                  .replace('<OFFSET>', offset)
-				  .replace('<TYPE>', searchType)
-              )
+              if (a.urls.includes("<QUERY>")){
+                searchPayload.type = 'complex'
+                searchPayload.url.push(
+                  a.urls
+                    .replace('<QUERY>', this.searchValueLocal)
+                    .replace('<OFFSET>', offset)
+                    .replace('<TYPE>', searchType)
+                )
+              } else { // we're mixing a simple lookup and a complex one
+                searchPayload.url.push(a.urls)
+              }
             }
           })
 
-        // wrapping this in setTimeout might not be needed anymore
-        this.searchTimeout = window.setTimeout(async ()=>{
-          this.activeComplexSearchInProgress = true
-          this.activeComplexSearch = []
-          this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
-          this.activeComplexSearchInProgress = false
-          this.initalSearchState =false
-        }, 400)
+          // wrapping this in setTimeout might not be needed anymore
+        if (searchPayload.type == 'complex'){
+          this.searchTimeout = window.setTimeout(async ()=>{
+            this.activeComplexSearchInProgress = true
+            this.activeComplexSearch = []
+            this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
+
+            // 2025-03 // there is currently an issue with ID suggest2/ that if you search with SOME diacritics it will fail
+            // so there is now a flag that enables it searching it. So if they get NO results at all then try again with the flag
+            // There will always be 1 result which is the literal
+
+            if (this.activeComplexSearch.length == 1 && this.activeComplexSearch[0].literal){
+              // modify the payload to include the flag in the url
+              searchPayload.url[0] = searchPayload.url[0] + '&keepdiacritics=true'
+              this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
+            }
+
+            this.activeComplexSearchInProgress = false
+            this.initalSearchState =false
+          }, 100)
+        } else {
+          let filter = function(obj, target){
+            let result = []
+            for (let key in obj){
+              if (key != target[0].replace(".html", "").replace("https", "http")){
+                result.push(obj[key])
+              }
+            }
+
+            return result
+          }
+
+          let results = await utilsNetwork.loadSimpleLookup(searchPayload.url)
+          utilsNetwork.lookupLibrary[searchPayload.url] = results
+          this.activeSimpleLookup = filter(results.metadata.values, searchPayload.url).sort((a,b) => (a.label[0] > b.label[0]) ? 1 : (a.label[0] < b.label[0]) ? -1 : 0)
+
+          if (this.searchValueLocal.length > 0){
+            this.activeSimpleLookup.push({
+              uri: "",
+              label: [this.searchValueLocal],
+              code: [],
+              displayLabel: [this.searchValueLocal + " [Literal]"]
+            })
+          }
+          if (this.searchValueLocal && this.searchValueLocal.length > 1){
+            this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].includes(this.searchValueLocal))
+          }
+          // this.selectChange()
+        }
       },
 
 
 
       inputKeyup: function(event){
-
 
         // text macros
         let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
@@ -228,6 +344,13 @@
             }
           }
         }
+
+        // only store for agents
+        if (this.structure && this.structure.parentId && this.structure.parentId.toLowerCase().indexOf("agent") >-1){
+          this.lastComplexLookupString = event.target.value
+        }
+
+
       },
 
 
@@ -237,7 +360,11 @@
       inputKeydown: function(event){
         if (event.key==='ArrowDown'){
           this.$refs.selectOptions.focus()
-          this.$refs.selectOptions.value=this.activeComplexSearch[0].uri
+          try {
+            this.$refs.selectOptions.value=this.activeComplexSearch[0].uri
+          } catch {
+            this.$refs.selectOptions.value=this.activeSimpleLookup[0].uri
+          }
           this.selectChange()
           return true
         }
@@ -478,7 +605,6 @@
 
 
       returnContextTitle(title){
-
         if (!Array.isArray(title)){
           title=[title]
         }
@@ -487,7 +613,6 @@
         //let noLang = title.filter((v)=>{ if (v['@language']){return false}else{return true} })
         //GenreForm seem to have the lang tag even when there is only English values
         let noLang = title.filter((v)=> typeof v['@language'] == "undefined" || (v['@language'] && v['@language'] == "en") )
-
         if (noLang && noLang[0] && noLang[0]['@value']){ return noLang[0]['@value']}
 
         return 'ERROR - Cannot find label'
@@ -541,6 +666,11 @@
         let toLoad = null
         if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
           toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
+          if (!toLoad){
+            let label = this.activeSimpleLookup[this.$refs.selectOptions.selectedIndex].label
+            let uri = this.$refs.selectOptions.value
+            toLoad = {label: label, uri: uri, literal: false, undifferentiated: false}
+          }
         } else {
           // We're loading existing data and want to preselect the search result
           // that matches that value
@@ -561,6 +691,8 @@
 
         console.log("toLoad: ", toLoad)
 
+        if (!toLoad){ return false }
+
         this.activeContext = {
             "contextValue": true,
             "source": [],
@@ -573,8 +705,11 @@
             "genreForm": null,
             "nodeMap": {},
             "precoordinated" : false,
-            "literal": true,
+            "literal": (toLoad && toLoad.literal) ? true : false,
             "loading":true,
+            "extra": toLoad.extra ? toLoad.extra : {},
+            "gacs": toLoad.extra ? toLoad.extra.gacs : [],
+            "marcKey": (toLoad.extra && toLoad.extra.marcKeys) ? toLoad.extra.marcKeys[0] : ''
           }
 
         if (toLoad && toLoad.literal){
@@ -582,12 +717,23 @@
         }
 
         let results = null
-        try {
-            results = await utilsNetwork.returnContext(toLoad.uri)
-            results.loading = false
-        } catch {
-            results = null
+        results = this.activeContext
+        // results = await utilsNetwork.returnContext(toLoad.uri)
+
+        if (toLoad.uri.includes('/works/')){
+          results.type = 'Work'
+          results.typeFull='http://id.loc.gov/ontologies/bibframe/Work'
+        } else if (toLoad.uri.includes('/hubs/')){
+          results.type = 'Hub'
+          results.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
         }
+        // try {
+        //   let r = await utilsNetwork.returnContext(toLoad.uri)
+        //   // r = this.activeContext
+        // } catch(err) {
+        //     // r = this.activeContext
+        // }
+        results.loading = false
 
         // if this happens it means they selected something else very quickly
         // so don't go on and set it to this context, because its no longer the one they have selected
@@ -599,8 +745,52 @@
 
         }
 
-
         this.activeContext = results
+      },
+
+      isStaging(){
+        if (useConfigStore().returnUrls.env == "staging" || useConfigStore().returnUrls.dev == true){
+          return true
+        }else{
+          return false
+        }
+      },
+
+      displayProvisonalNAR(){
+        if (!this.preferenceStore.isNarTester()){
+          return false
+        }
+        if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom.length>0 && this.structure.valueConstraint.useValuesFrom.join(' ').indexOf('id.loc.gov/authorities/names')>-1){
+          return true
+        }
+        return false
+      },
+
+      loadNacoStubModal(){
+        // Set the current value for NAR creation
+        this.lastComplexLookupString = this.searchValueLocal
+        // store the info needed to pass to the process
+        this.activeNARStubComponent = {
+          type: 'lookupComplex',
+          guid: this.guid,
+          fieldGuid: null,
+          structure: this.structure,
+          propertyPath:this.propertyPath
+        }
+
+
+
+        this.$emit('hideComplexModal')
+
+        this.$nextTick(() => {
+
+          this.showNacoStubCreateModal = true
+
+        })
+
+
+        // this.displayCo/
+
       },
 
       rewriteURI: function(uri){
@@ -662,18 +852,26 @@
         this.doSearch()
       },
 
-	  changeSearchType: function(event){
-		if (event.target.checked){
-			this.searchType = "keyword"
-		} else {
-			this.searchType = "left"
-		}
-		this.doSearch()
-	  },
+      changeSearchType: function(event){
+        if (event.target.checked){
+          this.searchType = "keyword"
+        } else {
+          this.searchType = "left"
+        }
+        this.doSearch()
+      },
+
+      isSimpleLookup: function(){
+        const mode = this.modeSelect
+        const options = this.modalSelectOptions
+        const activeMode = options.filter((opt) => opt.label == mode)[0]
+
+        return !activeMode.urls.includes("<QUERY>")
+      },
 
     },
 
-    updated: function(){
+    updated: function(event){
       if (this.authorityLookup == null){
         //Reset this so the input field isn't loaded with the old data
         this.activeComplexSearch = []
@@ -696,7 +894,10 @@
               this.selectChange()
             }, (2 * 1000)
             )
-          } else {
+          } else if (this.isSimpleLookup()){
+            this.searchValueLocal = this.searchValue
+            this.doSearch()
+          }else {
             this.searchValueLocal = this.searchValue
           }
 
@@ -724,7 +925,7 @@
     },
 
     mounted() {
-      //console.log("mounted yeah")
+      // console.log("mounted yeah", this.structure)
 
       if (this.modeSelect === null){
 
@@ -758,6 +959,7 @@
       :lock-scroll="true"
       class="complex-lookup-modal"
       content-class="complex-lookup-modal-content"
+      @before-close="$emit('hideComplexModal'); reset();"
       >
 
       <div ref="complexLookupModalContainer" class="complex-lookup-modal-container" :style="`${this.preferenceStore.styleModalBackgroundColor()}`">
@@ -767,12 +969,10 @@
           <div class="complex-lookup-modal-container-parts">
 
             <div class="complex-lookup-modal-search">
-
               <template v-if="preferenceStore.returnValue('--b-edit-complex-use-select-dropdown') === false">
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
 				  </div>
-
                   <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % 25 ) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
                     <span :style="`${this.preferenceStore.styleModalTextColor()}`">
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
@@ -807,21 +1007,32 @@
               </template>
               <input class="lookup-input" v-model="searchValueLocal" ref="inputLookup" @keydown="inputKeydown($event)" @keyup="inputKeyup($event)" type="text" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`" />
               <button @click="forceSearch()">Search</button>
+
+              <!-- REMOVE v-if BEFORE PROD USAGE -->
+              <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create Provisional NAR</button>
+
               <hr style="margin-top: 5px;">
               <div>
                   <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`">
-
-                    <option v-if="activeComplexSearch.length == 0 && activeComplexSearchInProgress == false && initalSearchState != true">
+                    <option v-if="(activeComplexSearch.length == 0 && activeSimpleLookup.length == 0)&& activeComplexSearchInProgress == false && initalSearchState != true">
                       No results found.
                     </option>
                     <option v-if="activeComplexSearchInProgress == true">
                       Searching...
                     </option>
-
-                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result" v-html="' ' + (!r.literal ? r.suggestLabel : r.label) + ((r.literal) ? ' [Literal]' : '')">
-                    </option>
+                    <template v-if="!isSimpleLookup()">
+                      <option v-for="(r,idx) in activeComplexSearch.sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0))" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
+                        <div class="option-text">
+                          <span v-html="generateLabel(r)"></span>
+                        </div>
+                      </option>
+                    </template>
+                    <template v-else-if="activeSimpleLookup && Object.keys(activeSimpleLookup).length > 0">
+                      <option v-for="(r, idx) in activeSimpleLookup" @click="selectChange()" :data-label="r.label" :value="r.uri" v-bind:key="idx" class="complex-lookup-result" v-html="r.displayLabel">
+                      </option>
+                    </template>
                   </select>
-
+                  <br>
 
               </div>
 
@@ -832,63 +1043,89 @@
 
             <div ref="complexLookupModalDisplay" class="complex-lookup-modal-display" :style="`${this.preferenceStore.styleModalTextColor()};`">
 
-              <template v-if="activeContext !== null">
-
-                  <h3><span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.type"><AuthTypeIcon v-if="activeContext.type" :type="activeContext.type"></AuthTypeIcon></span>{{returnContextTitle(activeContext.title)}}</h3>
-
-
+              <template v-if="activeContext !== null && Object.keys(activeContext.extra).length > 0">
+                  <h3>
+                    <span class="modal-context-icon simptip-position-top" :data-tooltip="'Type: ' + activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0] ">
+                      <AuthTypeIcon v-if="activeContext.extra.rdftypes" :type="activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]">
+                      </AuthTypeIcon>
+                    </span>
+                    {{ activeContext.title }}
+                  </h3>
                   <div class="complex-lookup-modal-display-type-buttons">
                     <div>
-                        <div class="modal-context-data-title">{{activeContext.type}}</div>
+                        <div class="modal-context-data-title">{{activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]}}</div>
                         <div v-if="activeContext.depreciated" style="background: pink;">
                           DEPRECIATED AUTHORITY
                         </div>
-                        <div v-if="activeContext.nodeMap['MADS Collection'] && activeContext.nodeMap['MADS Collection'].includes('NamesUndifferentiated')" style="background: pink;">
+                        <div v-if="activeContext.extra.collections && activeContext.extra.collections.includes('http://id.loc.gov/authorities/names/collection_NamesUndifferentiated')" style="background: pink;">
                           THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN <a href="https://www.loc.gov/aba/pcc/rda/PCC%20RDA%20guidelines/Z01%20008%2032%202014rfeb.pdf" target="_blank">DCM Z1 008/32</a>.
                         </div>
                         <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on id.loc.gov</a>
 
                     </div>
                     <div class="complex-lookup-modal-display-buttons">
-
                       <button @click="$emit('emitComplexValue', activeContext)">Add [Shift+Enter]</button>
-                      <button @click="$emit('hideComplexModal')">Cancel [ESC]</button>
+                      <button @click=" reset(); $emit('hideComplexModal')">Cancel [ESC]</button>
 
                     </div>
 
 
                   </div>
 
-                  <div v-if="returnNonLatinAuthLabels(activeContext.title).length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Non-Latin Authoritative Labels:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in returnNonLatinAuthLabels(activeContext.title)" v-bind:key="'auth' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-if="activeContext.variant && activeContext.variant.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Variants:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.variant" v-bind:key="'var' + idx">{{v}}</li>
-                    </ul>
-                  </div>
-
-                  <div v-for="key in Object.keys(activeContext.nodeMap)" :key="key">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">{{key}}:</div>
+                  <template v-for="key in panelDetailOrder">
+                    <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
+                      <div class="modal-context-data-title modal-context-data-title-add-gap">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                       <ul>
-                        <li class="modal-context-data-li" v-for="(v,idx) in activeContext.nodeMap[key]" v-bind:key="key+idx">{{v}}</li>
+                        <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
+                          <template v-if="v.startsWith('http')">
+                            <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                          </template>
+                          <template v-else-if="key == 'lcclasss'">
+                            <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                            <!-- <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a> -->
+                          </template>
+                          <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
+                            <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                          </template>
+                          <template v-else>
+                            {{v}}
+                          </template>
+                        </li>
+                        <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
                       </ul>
+                    </div>
+                  </template>
+              </template>
+
+              <template v-else-if="activeContext !== null">
+                <h3>
+                  {{ Array.isArray(activeContext.title) ? activeContext.title[0] : activeContext.title }}
+                  <span v-if="activeContext.literal">[Literal]</span>
+                </h3>
+
+                <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on id.loc.gov</a>
+
+                <br>
+
+                <div v-if="activeContext.uri">
+                  <div class="modal-context-data-title modal-context-data-title-add-gap">MADS Collections:</div>
+                  <ul>
+                    <li class="modal-context-data-li">
+                     <a :href="activeContext.uri" target="_blank">
+                      {{ activeContext.uri.split("/").at(-2) }}
+                     </a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="complex-lookup-modal-display-type-buttons">
+                  <div class="complex-lookup-modal-display-type-buttons">
+                    <div class="complex-lookup-modal-display-buttons">
+                      <button @click="$emit('emitComplexValue', activeContext)">Add [Shift+Enter]</button>
+                      <button @click=" reset(); $emit('hideComplexModal')">Cancel [ESC]</button>
+                    </div>
                   </div>
-
-
-                  <div v-if="activeContext.source && activeContext.source.length>0">
-                    <div class="modal-context-data-title modal-context-data-title-add-gap">Sources:</div>
-                    <ul>
-                      <li class="modal-context-data-li" v-for="(v,idx) in activeContext.source" v-bind:key="'sources-'+idx">{{v}}</li>
-                    </ul>
-
-
-                  </div>
+                </div>
 
               </template>
 
@@ -925,10 +1162,10 @@
 .complex-lookup-modal-container{
   margin-left: auto;
   margin-right: auto;
-  
-  
 
-  
+
+
+
   width: 85vw;
   height: 95vh;
 }
@@ -942,7 +1179,7 @@
   /* CSS rules here for screens lower than 750px */
   .complex-lookup-modal-container{
 
-    
+
     width: 99vw;
     height: 95vh;
   }
@@ -1015,6 +1252,7 @@
     width: 100%;
     margin: 3px;
     font-size: 1.5em;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
   }
 
   .toggle-btn-grp div:focus{
@@ -1189,7 +1427,14 @@
   top: 5px;
   position: absolute;
   z-index: 100000;
+}
 
+.option-text {
+  text-wrap: wrap;
+}
+
+:deep() .highlight-search-string{
+  font-weight: bold;
 }
 
 </style>

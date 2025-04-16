@@ -1,15 +1,13 @@
 <template>
 
   <template  v-if="structure.valueConstraint.valueTemplateRefs.length > 1">
-
-
     <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
-      <select style="display: inline; width: 20px; border-color:whitesmoke; background-color: transparent;" @change="templateChange($event)">
+      <select :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}" style="display: inline; width: 20px; border-color:whitesmoke; background-color: transparent;" @change="templateChange($event)">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
     </template>
     <template v-else>
-      <select :id="structure['@guid']+'-select'" @change="templateChange($event)" style="">
+      <select :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}" :id="structure['@guid']+'-select'" @change="templateChange($event)" style="">
           <option v-for="rt in allRtTemplate" :value="rt.id" :selected="(rt.id === thisRtTemplate.id)">{{rt.resourceLabel}}</option>
       </select>
     </template>
@@ -131,6 +129,9 @@ export default {
                 if (val['@type'] && this.rtLookup[tmpid].resourceURI === val['@type']){
                   useId = tmpid
                   foundBetter = true
+                  if (tmpid == 'lc:RT:bf2:Topic:SubjectWork' && key == 'http://www.loc.gov/mads/rdf/v1#componentList'){ // a hub with subdivisions should be `lc:RT:bf2:Components`
+                    useId = 'lc:RT:bf2:Components'
+                  }
                 }
               }
             }
@@ -442,10 +443,9 @@ select{
   border-top: none;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-show-field-labels-color')");
   background-color: transparent;
-
-
-
-
+}
+.label-bold{
+  font-weight: bold;
 }
 
 </style>

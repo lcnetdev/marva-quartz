@@ -3,7 +3,7 @@
   import { useConfigStore } from '@/stores/config'
 
 
-  import {  mapStores, mapWritableState } from 'pinia'
+  import {  mapStores, mapWritableState, mapState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
   import VueDragResize from 'vue3-drag-resize'
 
@@ -24,6 +24,7 @@
         validating: false,
         initalHeight: 400,
         initalLeft: (window.innerWidth /2 ) - 450,
+        validationMessage: []
 
 
       }
@@ -33,9 +34,10 @@
       // ...
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,useConfigStore),
-
+      ...mapState(useProfileStore, ['activeProfile', 'activeComponent']),
       // ...mapState(usePreferenceStore, ['debugModalData']),
-      ...mapWritableState(useProfileStore, ['showValidateModal']),
+      ...mapWritableState(useProfileStore, ['showValidateModal', 'activeComponent']),
+
     },
 
 
@@ -52,7 +54,6 @@
           this.$refs.errorHolder.style.height = newRect.height + 'px'
 
         },
-
 
         post: async function(){
           //console.log("** validating **")
@@ -77,6 +78,40 @@
             this.status = Object.values(this.validationResults.status)[0]
             this.results = Object.values(this.validationResults.validation)
           }
+
+          for (let r of this.results){
+            this.validationMessage.push({
+              level: r.level,
+              message: this.processMessage(r.message)
+            })
+          }
+        },
+
+        processMessage: function(msg){
+          if (msg.includes("**")){
+            let matchComponent = msg.match(/(\*\*(.*)\*\*)/)
+            let matchRt = msg.match(/@(.*)@/)
+            if (matchComponent.length > 0){
+              msg = msg.replace(matchComponent[0], matchComponent.at(-1))
+              if (matchRt){
+                msg = msg.replace(matchRt[0], matchRt.at(-1))
+                return [msg, matchComponent.at(-1), matchRt.at(-1)]
+              }
+              return [msg, matchComponent.at(-1), null]
+            }
+          } else {
+            return [msg, null, null]
+          }
+        },
+
+        jumpToComponent:function(processedMessage){
+          const jumpTarget = this.profileStore.returnComponentByPropertyLabel(processedMessage[1], processedMessage[2])
+          if (jumpTarget){
+            this.done()
+            this.activeComponent = jumpTarget
+          } else {
+            console.warn("Couldn't jump to component: ", processedMessage[1])
+          }
         },
     },
 
@@ -92,8 +127,8 @@
       display-directive="show"
       :hide-overlay="false"
       :overlay-transition="'vfm-fade'"
-      :click-to-close="false"
-      :esc-to-close="false"
+      :click-to-close="true"
+      :esc-to-close="true"
 
     >
         <VueDragResize
@@ -114,8 +149,11 @@
             <div v-if="validating == false">
               <span v-if="!Object.keys(validationResults).includes('error')" >
                 <span v-if="status === 'validated'">Validation found the following:</span>
-                  <ul v-for="({level, message}) in results">
-                    <li :class="'level-' + level">{{ level }}: {{ message }}</li>
+                  <ul v-for="({level, message}) in validationMessage">
+                    <li :class="['level-' + level, {'action-jump': message[1]}]" @click="jumpToComponent(message)">
+                      <span v-if="message[1]" :class="['material-icons']">move_down</span>
+                      {{ level }}: {{ message[0] }}
+                    </li>
                   </ul>
               </span>
               <span v-else>
@@ -224,5 +262,14 @@
     color: #0c5460;
     background-color: #d1ecf1;
     border-color: #bee5eb;
+  }
+
+  .action-jump:hover{
+    color: #004085;
+    background-color: #cce5ff;
+    border-color: #b8daff;
+  }
+  .action-jump {
+    cursor: pointer;
   }
 </style>

@@ -4,6 +4,7 @@ import { getCurrentInstance } from 'vue'
 import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyager_macro_express.json"
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
 import utilsProfile from '../lib/utils_profile'
+import utilsParse from '../lib/utils_parse'
 
 export const usePreferenceStore = defineStore('preference', {
   state: () => ({
@@ -50,8 +51,6 @@ export const usePreferenceStore = defineStore('preference', {
     layoutActiveFilter: null,
     customLayouts: {},
     createLayoutMode: false,
-
-
 
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
@@ -199,36 +198,44 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Sidebars - Property',
         range: [true,false]
+      },
+      '--b-edit-main-splitpane-properties-component-library-prompt-to-add' : {
+        desc: 'Ask before adding a component from the library.',
+        descShort: 'Prompt to add Library Component',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Property',
+        range: [true,false]
+      },
+      '--c-edit-main-splitpane-slider-color' : {
+          value:'#ffffff',
+          desc: 'Color of the dividing line / resize line.',
+          descShort: 'Resize Line Color',
+          type: 'color',
+          group: 'Sidebars - Property',
+          range: null
+      },
+      '--c-edit-main-splitpane-slider-border-color' : {
+        value:'#eee',
+        desc: 'Color of the dividing line / resize line Border.',
+        descShort: 'Resize Line Border Color',
+        type: 'color',
+        group: 'Sidebars - Property',
+        range: null
+      },
+      '--b-edit-main-splitpane-properties-show-defaults' : {
+        desc: 'Display the default Component Library in the Property Panel.',
+        descShort: 'Default Component Library',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Property',
+        range: [true,false]
     },
-    '--b-edit-main-splitpane-properties-component-library-prompt-to-add' : {
-      desc: 'Ask before adding a component from the library.',
-      descShort: 'Prompt to add Library Component',
-      value: true,
-      type: 'boolean',
-      unit: null,
-      group: 'Sidebars - Property',
-      range: [true,false]
-  },
 
-    '--c-edit-main-splitpane-slider-color' : {
-      value:'#ffffff',
-      desc: 'Color of the dividing line / resize line.',
-      descShort: 'Resize Line Color',
-      type: 'color',
-      group: 'Sidebars - Property',
-      range: null
-  },
-  '--c-edit-main-splitpane-slider-border-color' : {
-    value:'#eee',
-    desc: 'Color of the dividing line / resize line Border.',
-    descShort: 'Resize Line Border Color',
-    type: 'color',
-    group: 'Sidebars - Property',
-    range: null
-},
 
-  
-  
+
 
 
       // not implemented
@@ -314,7 +321,15 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Sidebars - Previews',
         range: [true, false]
-    },
+      },
+      '--c-edit-main-splitpane-opac-marc-html-highlight-color' : {
+          value:'transparent',
+          desc: 'The background color of the subfield in the marc preview when hovering over it.',
+          descShort: 'Subfield Highlight Color',
+          type: 'color',
+          group: 'Sidebars - Previews',
+          range: null
+       },
 
 
 
@@ -440,7 +455,17 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Edit Panel',
         range: null
       },
-      
+      '--b-edit-main-splitpane-edit-show-field-labels-bold' : {
+          desc: 'Make the field labels bold.',
+          descShort: 'Bold Field Labels.',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
+
+
 
 
 
@@ -453,15 +478,7 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Edit Panel',
           range: [true,false]
       },
-      '--b-edit-main-splitpane-edit-inline-mode' : {
-          desc: 'One line edit mode via bf short code tags.',
-          descShort: 'Inline edit mode',
-          value: false,
-          type: 'boolean',
-          unit: null,
-          group: 'Edit Panel',
-          range: [true,false]
-      },
+
 
       '--b-edit-main-splitpane-edit-adhoc-mode' : {
           desc: 'Add properties as needed using a drop down list.',
@@ -508,7 +525,7 @@ export const usePreferenceStore = defineStore('preference', {
     '--c-edit-main-splitpane-edit-scroll-bar-track-color' : {
       value:'#fafafa',
       desc: 'The color of the scroll bar track (background).',
-      descShort: 'Scrollbard Track Color',
+      descShort: 'Scrollbar Track Color',
       type: 'color',
       group: 'Edit Panel',
       range: null
@@ -516,7 +533,7 @@ export const usePreferenceStore = defineStore('preference', {
     '--c-edit-main-splitpane-edit-scroll-bar-thumb-color' : {
       value:'#c7c7c7',
       desc: 'The color of the scroll bar thumb (the part you grab).',
-      descShort: 'Scrollbard Thumb Color',
+      descShort: 'Scrollbar Thumb Color',
       type: 'color',
       group: 'Edit Panel',
       range: null
@@ -587,8 +604,6 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Literal Field',
         range: null
       },
-
-
       '--c-edit-main-literal-lang-label-background-color' : {
         desc: 'The background color of the language indicator',
         descShort: 'Lang Label Background Color',
@@ -605,7 +620,6 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Literal Field',
         range: null
       },
-
       '--n-edit-main-literal-lang-label-font-size' : {
         desc: 'The fontsize of the language indicator',
         descShort: 'Lang Label Font Size',
@@ -616,21 +630,56 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Literal Field',
         range: [1,2]
     },
+    '--b-edit-main-literal-bold-font' : {
+        desc: 'Literal Text Bold.',
+        descShort: 'Make literals bold.',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Literal Field',
+        range: [true,false]
+    },
+    '--b-edit-main-literal-non-latin-first' : {
+      desc: 'With paired literals values (transliteration) always show the non-Latin value first (otherwise the Latin value will be first)',
+      descShort: 'Paired literals, show non-Latin First.',
+      value: false,
+      type: 'boolean',
+      unit: null,
+      group: 'Literal Field',
+      range: [true,false]
+    },
+
+    '--b-edit-main-literal-display-paired-literal-line' : {
+      desc: 'Display a line between the two paired literals. Indicates that the two values are related.',
+      descShort: 'Display a line between the two paired literals.',
+      value: true,
+      type: 'boolean',
+      unit: null,
+      group: 'Literal Field',
+      range: [true,false]
+    },
+    '--c-edit-main-literal-paired-literal-line-color' : {
+      desc: 'Line color of the paired literal line',
+      descShort: 'Paired literal line color',
+      value: "#4b4b4b",
+      type: 'color',
+      group: 'Literal Field',
+      range: null
+    },
 
 
-
-
-    // Lookup Field
-    '--n-edit-main-lookup-background-color' : {
-      desc: 'The background color of the entity badge',
-      descShort: 'Lookup value background color',
-      value: 1,
-      step: 0.1,
-      type: 'number',
-      unit: 'em',
-      group: 'Lookup Field',
-      range: [1,2]
-  },
+  // Lookup Field
+  // Not sure what this is supposed to be
+  // '--n-edit-main-lookup-background-color' : {
+  //   desc: 'The background color of the entity badge',
+  //   descShort: 'Lookup value background color',
+  //   value: 1,
+  //   step: 0.1,
+  //   type: 'number',
+  //   unit: 'em',
+  //   group: 'Lookup Field',
+  //   range: [1,2]
+  // },
   '--c-edit-main-lookup-background-color' : {
     desc: 'The background color of the entity badge',
     descShort: 'Lookup value background color',
@@ -678,6 +727,16 @@ export const usePreferenceStore = defineStore('preference', {
     type: 'color',
     group: 'Lookup Field',
     range: null
+  },
+  '--n-edit-main-lookup-font-size' : {
+      desc: 'The font size for the text in a lookup element.',
+      descShort: 'Lookup font size',
+      value: 0.75,
+      step: 0.05,
+      type: 'number',
+      unit: 'em',
+      group: 'Lookup Field',
+      range: [0.75,2]
   },
 
 
@@ -869,9 +928,9 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Action Button',
         range: [1,2]
     },
-    
 
-      // MODALS 
+
+      // MODALS
 
       '--c-edit-modals-background-color' : {
         value:'white',
@@ -880,7 +939,7 @@ export const usePreferenceStore = defineStore('preference', {
         type: 'color',
         group: 'Modals',
         range: null
-      },     
+      },
       '--c-edit-modals-background-color-accent' : {
         value:'whitesmoke',
         desc: 'Used for off background color accents',
@@ -888,8 +947,8 @@ export const usePreferenceStore = defineStore('preference', {
         type: 'color',
         group: 'Modals',
         range: null
-      },     
-      
+      },
+
       '--c-edit-modals-text-color' : {
         value:'black',
         desc: 'Text color of popup modals',
@@ -897,9 +956,9 @@ export const usePreferenceStore = defineStore('preference', {
         type: 'color',
         group: 'Modals',
         range: null
-      }, 
+      },
 
-      
+
 
 
       // COMPLEX LOOKUP
@@ -1023,7 +1082,15 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'General',
           range: [true,false]
       },
-
+      '--b-general-auto-save' : {
+        desc: 'When On the record will be saved to the backend on every change.',
+        descShort: 'Auto Save Mode',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'General',
+        range: [true,false]
+    },
 
 
       // diacritics
@@ -1161,6 +1228,30 @@ export const usePreferenceStore = defineStore('preference', {
         range: [true,false]
     },
 
+
+    '--b-edit-main-splitpane-edit-inline-mode' : {
+      desc: 'Compact Advanced Modular Mode.',
+      descShort: 'Use CAMM Mode',
+      value: false,
+      type: 'boolean',
+      unit: null,
+      group: 'CAMM Mode',
+      range: [true,false]
+    },
+    '--b-edit-main-splitpane-camm-hide-action-button' : {
+      desc: 'Hide action button in CAMM mode, only keyboard shortcut (Ctrl+\\).',
+      descShort: 'Hide Action Button',
+      value: true,
+      type: 'boolean',
+      unit: null,
+      group: 'CAMM Mode',
+      range: [true,false]
+    },
+
+
+
+
+
       // scriptshifter
       '--b-scriptshifter-capitalize-first-letter' : {
         desc: 'Capitalize the first letter of the transliterated string.',
@@ -1196,6 +1287,13 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'layouts',
       },
 
+      '--l-custom-order' : {
+        desc: '',
+        descShort: '',
+        value: {},
+        type: 'object',
+        group: 'preferenes',
+      },
 
 
     }
@@ -1325,6 +1423,18 @@ export const usePreferenceStore = defineStore('preference', {
           if (prefs.styleDefault[k].group == "Shelflisting"){
             prefs.styleDefault[k].group = "Shelflisting"
           }
+
+          if (k == '--b-edit-main-splitpane-edit-inline-mode'){
+            prefs.styleDefault[k].group = 'CAMM Mode'
+            prefs.styleDefault[k].desc = 'Compact Advanced Modular Mode.'
+            prefs.styleDefault[k].descShort = 'Use CAMM Mode'
+            // prefs.styleDefault[k].value = false
+
+
+
+          }
+
+
         }
 
         // if there is a new style in the defaults that is not in their saved prefs.
@@ -1354,7 +1464,7 @@ export const usePreferenceStore = defineStore('preference', {
 
 
 
-    
+
 
     /**
     * returns the value of the preference property requested
@@ -1394,6 +1504,15 @@ export const usePreferenceStore = defineStore('preference', {
 
       this.styleDefault[propertyName].value = value
       this.savePreferences()
+
+      // we can do any actions on specific preference changes here
+      if (propertyName == '--b-edit-main-literal-non-latin-first'){
+        useProfileStore().reorderAllNonLatinLiterals()
+        utilsParse.buildPairedLiteralsIndicators(useProfileStore().activeProfile)
+        useProfileStore ().dataChanged()
+      }
+
+
       return true
     },
 
@@ -1463,13 +1582,9 @@ export const usePreferenceStore = defineStore('preference', {
     buildDiacriticSettings: function(){
 
       this.diacriticUse = this.returnValue('--c-diacritics-enabled-macros')
-
-
       this.diacriticUse = [...new Set(this.diacriticUse)];
 
-      console.log(this.diacriticUse)
-
-
+      // console.log(this.diacriticUse)
       for (let d in this.diacriticPacks.macroExpress){
 
         let macros = this.diacriticPacks.macroExpress[d]
@@ -1479,17 +1594,22 @@ export const usePreferenceStore = defineStore('preference', {
             this.diacriticUseValues.push(macro)
           }
         }
-
-
       }
-      console.log(this.diacriticUseValues)
-
-
+      // console.log(this.diacriticUseValues)
     },
 
     // turn copy mode on/off
     toggleCopyMode: function(){
         this.copyMode = !this.copyMode
+    },
+
+    saveOrder: function(newOrder){
+      this.setValue('--l-custom-order', newOrder)
+    },
+
+    loadOrder: function(){
+      let currentOrder = this.returnValue('--l-custom-order')
+      return currentOrder
     },
 
     deleteLayout: function(target){
@@ -1563,7 +1683,7 @@ export const usePreferenceStore = defineStore('preference', {
       // return the layout hash value so we can correctly refresh the current layout when editing
       return layoutHash
     },
-    
+
     setTheme(themeName){
 
       let doubleChk = confirm("You want to switch your theme? Your current color settings will be permanently changed. If you want to save your current color settings download your preferences with 'Export Prefs' Do you want to continue?")
@@ -1571,30 +1691,57 @@ export const usePreferenceStore = defineStore('preference', {
       // to make the default list below download your preferences and then and open your javascript console and this code will generate the data to put in here as a new theme
       // let prefs = xxx_paste_replace_it_herexxx
       // let themeColors = {}; for (let p in prefs.prefs.styleDefault){if (prefs.prefs.styleDefault[p].type == 'color'){themeColors[p] = prefs.prefs.styleDefault[p].value}}; console.log(JSON.stringify(themeColors))
-  
+
       let darkMode = {"--c-edit-main-splitpane-properties-background-color":"#000000ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#353535ff","--c-edit-main-splitpane-slider-border-color":"#4b4b4bff","--c-edit-main-splitpane-opac-background-color":"#000000ff","--c-edit-main-splitpane-opac-highlight-background-color":"#ffffffff","--c-edit-main-splitpane-opac-font-color":"#ffffffff","--c-edit-main-splitpane-edit-background-color-work":"#202f32ff","--c-edit-main-splitpane-edit-background-color-instance":"#380038ff","--c-edit-main-splitpane-edit-background-color-item":"#5965c0ff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#4654b9ff","--c-edit-main-splitpane-edit-component-label-color":"#dededeff","--c-edit-main-splitpane-edit-focused-field-color":"#353535ff","--c-edit-main-splitpane-edit-field-color":"#000000ff","--c-edit-main-splitpane-edit-field-border-color":"#333333ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#c9c9c9ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#212121ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-background-color":"#000000ff","--c-edit-main-splitpane-nav-font-color":"#ffffffff","--c-edit-main-literal-font-color":"#ffffffff","--c-edit-main-literal-lang-label-background-color":"#4b4b4bff","--c-edit-main-literal-lang-label-font-color":"#ffffffff","--c-edit-main-lookup-background-color":"#353535ff","--c-edit-main-lookup-border-color":"#4b4b4bff","--c-edit-main-lookup-text-color":"#ffffffff","--c-edit-main-lookup-icon-linked-color":"#1c7d76ff","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#000000ff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"#ffffffff","--c-edit-general-action-button-color":"#ffffffff","--c-edit-general-action-button-background-color":"#353535ff","--c-edit-general-action-button-border-color":"#a9a9a9ff","--n-edit-general-action-button-continer-background-color":"#212121ff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#4b4b4bff","--c-edit-general-action-button-menu-button-background-color":"#000000ff","--c-edit-general-action-button-menu-button-border-color":"#a9a9a9ff","--c-edit-general-action-button-menu-button-text-color":"#ffffffff","--c-edit-modals-background-color":"#212121ff","--c-edit-modals-background-color-accent":"#353535ff","--c-edit-modals-text-color":"#ffffffff","--c-general-icon-instance-color":"#8b588b","--c-general-icon-work-color":"#7badad","--c-general-icon-item-color":"#eaeaea"}
       let grayMode = {"--c-edit-main-splitpane-properties-background-color":"#353535ff","--c-edit-main-splitpane-properties-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-properties-font-color":"#fff","--c-edit-main-splitpane-properties-empty-indicator-color":"#6f6f6f","--c-edit-main-splitpane-properties-populated-indicator-color":"green","--c-edit-main-splitpane-slider-color":"#a9a9a9ff","--c-edit-main-splitpane-slider-border-color":"#808080ff","--c-edit-main-splitpane-opac-background-color":"#a9a9a9ff","--c-edit-main-splitpane-opac-highlight-background-color":"#6f6f6f","--c-edit-main-splitpane-opac-font-color":"#202124","--c-edit-main-splitpane-edit-background-color-work":"#a1a1a1ff","--c-edit-main-splitpane-edit-background-color-instance":"#b8a9b6ff","--c-edit-main-splitpane-edit-background-color-item":"#bda2baff","--c-edit-main-splitpane-edit-background-color-instance-secondary":"#ba95b7ff","--c-edit-main-splitpane-edit-component-label-color":"black","--c-edit-main-splitpane-edit-focused-field-color":"#dededeff","--c-edit-main-splitpane-edit-field-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-field-border-color":"#969696ff","--c-edit-main-splitpane-edit-show-field-labels-color":"#000000ff","--c-edit-main-splitpane-edit-scroll-bar-track-color":"#a9a9a9ff","--c-edit-main-splitpane-edit-scroll-bar-thumb-color":"#c7c7c7","--c-edit-main-splitpane-nav-background-color":"#a9a9a9ff","--c-edit-main-splitpane-nav-font-color":"#202124","--c-edit-main-literal-font-color":"black","--c-edit-main-literal-lang-label-background-color":"#dededeff","--c-edit-main-literal-lang-label-font-color":"#090909","--c-edit-main-lookup-background-color":"#dededeff","--c-edit-main-lookup-border-color":"#353535ff","--c-edit-main-lookup-text-color":"black","--c-edit-main-lookup-icon-linked-color":"green","--c-edit-main-lookup-simple-lookup-autocomplete-background-color":"#dededeff","--c-edit-main-lookup-simple-lookup-autocomplete-text-color":"black","--c-edit-general-action-button-color":"#202124","--c-edit-general-action-button-background-color":"#dededeff","--c-edit-general-action-button-border-color":"#202124","--n-edit-general-action-button-continer-background-color":"#dededeff","--c-edit-general-action-button-continer-border-color":"#202124","--c-edit-general-action-button-continer-color":"#202124","--n-edit-general-action-button-continer-background-highlight-color":"whitesmoke","--c-edit-general-action-button-menu-background-color":"#dededeff","--c-edit-general-action-button-menu-button-background-color":"rgb(239, 239, 239)","--c-edit-general-action-button-menu-button-border-color":"black","--c-edit-general-action-button-menu-button-text-color":"black","--c-edit-modals-background-color":"#a9a9a9ff","--c-edit-modals-background-color-accent":"#dededeff","--c-edit-modals-text-color":"black","--c-general-icon-instance-color":"#ba95b7ff","--c-general-icon-work-color":"#a9a9a9ff","--c-general-icon-item-color":"#eaeaea"}
 
+      const ignore = ["--l-custom-layouts", "--c-diacritics-enabled-macros", "--o-diacritics-text-macros"]
+
       if (themeName == 'default'){
         // just loop through the defaults and set all them to the default value
+        //  Don't touch diacritic, layouts, etc.
         console.log(this.styleDefaultOrginal)
         for (let key in this.styleDefaultOrginal){
-          this.setValue(key, this.styleDefaultOrginal[key].value) 
+          this.setValue(key, this.styleDefaultOrginal[key].value)
         }
-        
+
       }else if (themeName == 'dark'){
         for (let key in darkMode){
-          this.setValue(key, darkMode[key]) 
-        }               
+          this.setValue(key, darkMode[key])
+        }
       }else if (themeName == 'gray'){
         for (let key in grayMode){
-          this.setValue(key, grayMode[key]) 
-        }               
+          this.setValue(key, grayMode[key])
+        }
       }
-      
+
       this.savePreferences()
-  
+
     },
+
+
+    isNarTester(){
+
+      let canTest = ["kevinford","pfrank","eram","ctur","trod","jowill","ntra","ddavis","nalf","fd07","cyea","fc80","smcc","tsod","fo","hhuh","yshi","cc33","amors","cd01","mnaz","cgir","pkho","cf31","stellier","test",'matt']
+
+      // Convert initials and code to lowercase if they exist
+      const initials = this.catInitals ? this.catInitals.toLowerCase() : '';
+      const code = this.catCode ? this.catCode.toLowerCase() : '';
+
+      // Convert all test strings to lowercase
+      const canTestLower = canTest.map(item => item.toLowerCase());
+
+      // Check if initials or code match any of the test strings
+      return canTestLower.some(testStr =>
+        (initials && initials.includes(testStr)) ||
+        (code && code.includes(testStr))
+      );
+
+
+    },
+
+
+
 
 
     /**
