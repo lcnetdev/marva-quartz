@@ -17,9 +17,11 @@
         <div class="copy-cat-search">
           <h1>Search OCLC</h1>
           <form ref="urlToLoadForm" v-on:submit.prevent="">
-            <input placeholder="Enter Value to Search" class="url-to-load" type="text" v-model="wcQuery"
-              ref="urlToLoad">
-            <button @click="worldCatSearch(false, true)">Search</button>
+            <div class="search-box" style="display: flex; flex-direction: row;">
+              <input placeholder="Enter Value to Search" class="url-to-load" type="text" v-model="wcQuery"
+                ref="urlToLoad">
+              <button class="material-icons search-button" @click="worldCatSearch(false, true)">search</button>
+            </div>
             <br>
             <div class="toggle-btn-grp cssonly">
               <h3>Field to Search on</h3>
@@ -694,14 +696,42 @@ label {
   cursor: pointer;
 }
 
+.search-box{
+  display: flex;
+  flex-direction: row;
+  border: 1px solid grey;
+  padding: 1px;
+  background-color: #fff;
+}
+
+.search-box:focus-within{
+  outline: 2px solid v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')") ;
+}
+
 .url-to-load {
   font-size: 1.25em;
-  margin-bottom: 1em;
-  margin-top: 1em;
-
-
-  width: 80%;
+  width: 100%;
+  border: none;
 }
+
+.url-to-load:focus{
+  outline: none;
+}
+
+.search-button{
+  display: block;
+  height: 30px !important;
+  width: 30px !important;
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')") ;
+}
+
+.search-button:hover{
+  filter: saturate(3);
+}
+
 
 .load-buttons {
   text-align: justify;
