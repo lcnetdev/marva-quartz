@@ -1,1215 +1,893 @@
 <template>
 
-    <splitpanes class="default-theme" horizontal>
+  <splitpanes class="default-theme" horizontal>
 
-      <pane class="header" :size="returnPixleAsPercent(preferenceStore.returnValue('--n-edit-main-splitpane-nav-height',true))">
-        <Nav/>
-      </pane>
+    <pane class="header"
+      :size="returnPixleAsPercent(preferenceStore.returnValue('--n-edit-main-splitpane-nav-height', true))">
+      <Nav />
+    </pane>
 
-      <pane>
+    <pane>
 
-          <!-- source: https://gridbyexample.com/patterns/header-twocol-footer/ -->
-          <div class="copy-cat-wrapper">
-            <header class="copy-cat-header">
-              Copy Cat Search
-            </header>
-            <div class="copy-cat-search">
-              <h1>Search OCLC</h1>
-              <form ref="urlToLoadForm" v-on:submit.prevent="">
-                <input placeholder="Enter Value to Search" class="url-to-load" type="text" v-model="wcQuery" ref="urlToLoad">
-                <button @click="worldCatSearch(false, true)">Search</button>
-                <br>
-                <div class="toggle-btn-grp cssonly">
-                  <h3>Field to Search on</h3>
-                  <div v-for="opt in indexSelectOptions">
-                    <input :id="opt.label" type="radio" :value="opt.value" class="search-mode-radio" v-model="wcIndex" name="searchIndex" />
-                      <label :for="opt.label" onclick="" class="toggle-btn">{{opt.label}}</label>
-                      <a v-if="opt.value == 'sn'" href="https://help.oclc.org/Librarian_Toolbox/Searching_WorldCat_Indexes/Bibliographic_records/Bibliographic_record_indexes/Indexes_S_to_Z/Standard_Number" target="_blank" class="material-icons index-help">help</a>
-                    </div>
-                </div>
-
-                <br>
-                <label for="target-type">What are you looking for </label>
-                <select name="target-type" v-model="wcType">
-                  <option value="book">Book (Print)</option>
-                  <option value="ebook">Book (Digital)</option>
-                  <option value="audiobook">Audio Book</option>
-                  <option value="music">Music</option>
-                </select>
-
-              </form>
-              <hr>
-              <label for="lccn">LCCN: </label>
-              <input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="checkLccn" :disabled="loadLccnFromRecord(selectedWcRecord)" />
-              <Badge
-                v-if="loadLccnFromRecord(selectedWcRecord)"
-                text="This LCCN is from the selected record."
-                noHover="true"
-                badgeType="primary"
-              />
-              <br>
-              <template v-if="existingLCCN">
-                <br>
-                <Badge
-                  text="A record with this LCCN exists. If you continue, the copy cat record will be merged with the existing record."
-                  badgeType="warning"
-                  :noHover="true"
-                />
-                <h4>
-                  <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this LCCN</a>
-                </h4>
-                <br>
-              </template>
-              <template v-else-if="urlToLoad.length < 10 && urlToLoad.length != 0">
-                <br>
-                <Badge
-                  text="LCCNs should be 10 characters long."
-                  badgeType="warning"
-                  :noHover="true"
-                />
-                <br>
-              </template>
-              <br>
-              <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority" :class="{'needs-input': !recordPriority}" /><br>
-              <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
-              <label for="jackphy">Does this record contain non-Latin script that should be retained? </label><input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
-              <br>
-              <h3>Load with profile:</h3>
-              <template v-if="posting">
-                <Badge
-                  text="Sending record for processing. This may take a moment."
-                  badgeType="info"
-                  :noHover="true"
-                />
-              </template>
-              <template></template>
-              <div class="load-buttons">
-                <button :class="['load-button', {'disabled-button': disableCopyCatButtons()}]" @click="loadCopyCat(s.instance)"  v-for="s in startingPointsFiltered">
-                  {{s.name}}
-                </button>
-              </div>
-
-            </div>
-            <div class="copy-cat-results">
-              <h1>Results</h1>
-              <div>
-                <h2 v-if="wcResults?.results && Number(wcResults?.results?.numberOfRecords) === 0">
-                    No results :(
-                </h2>
-                <h2 v-else-if="wcResults.error && !queryingWc">
-                  There was an error getting the results: "{{ wcResults.error.message }}"
-                </h2>
-                <h2 v-else-if="wcResults?.results?.briefRecords && wcResults?.results?.numberOfRecords > 0  && !queryingWc">
-                  Showing {{ wcLimit <  wcResults.results.numberOfRecords ? wcLimit :  wcResults.results.numberOfRecords }} of {{ wcResults.results.numberOfRecords }} results
-                </h2>
-                <!-- Pagination -->
-                <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc" class="wc-search-paging">
-                  <Pagination :wcResults="wcResults" :wcLimit="wcLimit" :currentPage="searchPage" @emitCurrentPage="setSearchPage" />
-                </div>
-              </div>
-              <template v-if="queryingWc">
-                  <li>Searching...</li>
-              </template>
-              <template v-else-if="!queryingWc && wcResults.results && wcResults.results.numberOfRecords > 0">
-                <template v-for="(row) in wcResults.results.briefRecords">
-                    <CopyCatCard :record="row" :selectedWcRecord="selectedWcRecord" @selectedCard="setSelectedRecord" />
-                </template>
-              </template>
-              <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc" class="wc-search-paging">
-                <Pagination :wcResults="wcResults" :wcLimit="wcLimit" :currentPage="searchPage" @emitCurrentPage="setSearchPage" />
+      <!-- source: https://gridbyexample.com/patterns/header-twocol-footer/ -->
+      <div class="copy-cat-wrapper">
+        <header class="copy-cat-header">
+          Copy Cat Search
+        </header>
+        <div class="copy-cat-search">
+          <h1>Search OCLC</h1>
+          <form ref="urlToLoadForm" v-on:submit.prevent="">
+            <input placeholder="Enter Value to Search" class="url-to-load" type="text" v-model="wcQuery"
+              ref="urlToLoad">
+            <button @click="worldCatSearch(false, true)">Search</button>
+            <br>
+            <div class="toggle-btn-grp cssonly">
+              <h3>Field to Search on</h3>
+              <div v-for="opt in indexSelectOptions">
+                <input :id="opt.label" type="radio" :value="opt.value" class="search-mode-radio" v-model="wcIndex"
+                  name="searchIndex" />
+                <label :for="opt.label" onclick="" class="toggle-btn">{{ opt.label }}</label>
+                <a v-if="opt.value == 'sn'"
+                  href="https://help.oclc.org/Librarian_Toolbox/Searching_WorldCat_Indexes/Bibliographic_records/Bibliographic_record_indexes/Indexes_S_to_Z/Standard_Number"
+                  target="_blank" class="material-icons index-help">help</a>
               </div>
             </div>
-            <div class="copy-cat-marc">
-              <div v-if="Object.keys(selectedWcRecord).length > 0">
-                Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }}
-                <br>
-                MARC Preview<br>
-                <hr class="marc-divider">
-                <div v-html="selectedWcRecord['marcHTML']"></div>
-              </div>
-            </div>
+
+            <br>
+            <label for="target-type">What are you looking for </label>
+            <select name="target-type" v-model="wcType">
+              <option value="book">Book (Print)</option>
+              <option value="ebook">Book (Digital)</option>
+              <option value="audiobook">Audio Book</option>
+              <option value="music">Music</option>
+            </select>
+
+          </form>
+          <hr>
+          <label for="lccn">LCCN: </label>
+          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
+            :disabled="loadLccnFromRecord(selectedWcRecord)" />
+          <Badge v-if="loadLccnFromRecord(selectedWcRecord)" text="This LCCN is from the selected record."
+            noHover="true" badgeType="primary" />
+          <br>
+          <template v-if="existingLCCN">
+            <br>
+            <Badge
+              text="A record with this LCCN exists. If you continue, the copy cat record will be merged with the existing record."
+              badgeType="warning" :noHover="true" />
+            <h4>
+              <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this LCCN</a>
+            </h4>
+            <br>
+          </template>
+          <template v-else-if="urlToLoad.length < 10 && urlToLoad.length != 0">
+            <br>
+            <Badge text="LCCNs should be 10 characters long." badgeType="warning" :noHover="true" />
+            <br>
+          </template>
+          <br>
+          <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority"
+            :class="{ 'needs-input': !recordPriority }" /><br>
+          <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
+          <label for="jackphy">Does this record contain non-Latin script that should be retained? </label><input
+            name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
+          <br>
+          <h3>Load with profile:</h3>
+          <template v-if="posting">
+            <Badge text="Sending record for processing. This may take a moment." badgeType="info" :noHover="true" />
+          </template>
+          <template></template>
+          <div class="load-buttons">
+            <button :class="['load-button', { 'disabled-button': disableCopyCatButtons() }]"
+              @click="loadCopyCat(s.instance)" v-for="s in startingPointsFiltered">
+              {{ s.name }}
+            </button>
           </div>
 
-      </pane>
-    </splitpanes>
+        </div>
+        <div class="copy-cat-results">
+          <h1>Results</h1>
+          <div>
+            <h2 v-if="wcResults?.results && Number(wcResults?.results?.numberOfRecords) === 0">
+              No results :(
+            </h2>
+            <h2 v-else-if="wcResults.error && !queryingWc">
+              There was an error getting the results: "{{ wcResults.error.message }}"
+            </h2>
+            <h2 v-else-if="wcResults?.results?.briefRecords && wcResults?.results?.numberOfRecords > 0 && !queryingWc">
+              Showing {{ wcLimit < wcResults.results.numberOfRecords ? wcLimit : wcResults.results.numberOfRecords }} of
+                {{ wcResults.results.numberOfRecords }} results </h2>
+                <!-- Pagination -->
+                <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc"
+                  class="wc-search-paging">
+                  <Pagination :wcResults="wcResults" :wcLimit="wcLimit" :currentPage="searchPage"
+                    @emitCurrentPage="setSearchPage" />
+                </div>
+          </div>
+          <template v-if="queryingWc">
+            <li>Searching...</li>
+          </template>
+          <template v-else-if="!queryingWc && wcResults.results && wcResults.results.numberOfRecords > 0">
+            <template v-for="(row) in wcResults.results.briefRecords">
+              <CopyCatCard :record="row" :selectedWcRecord="selectedWcRecord" @selectedCard="setSelectedRecord" />
+            </template>
+          </template>
+          <div v-if="(wcResults.results && wcResults.results.numberOfRecords > wcLimit) && !queryingWc"
+            class="wc-search-paging">
+            <Pagination :wcResults="wcResults" :wcLimit="wcLimit" :currentPage="searchPage"
+              @emitCurrentPage="setSearchPage" />
+          </div>
+        </div>
+        <div class="copy-cat-marc">
+          <div v-if="Object.keys(selectedWcRecord).length > 0">
+            Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }}
+            <br>
+            MARC Preview<br>
+            <hr class="marc-divider">
+            <div v-html="selectedWcRecord['marcHTML']"></div>
+          </div>
+        </div>
+      </div>
 
-  </template>
+    </pane>
+  </splitpanes>
 
-
-  <script>
-
-    import { Splitpanes, Pane } from 'splitpanes'
-    import 'splitpanes/dist/splitpanes.css'
-    import { usePreferenceStore } from '@/stores/preference'
-    import { useConfigStore } from '@/stores/config'
-    import { useProfileStore } from '@/stores/profile'
-
-    import { mapStores, mapState, mapWritableState } from 'pinia'
-
-    import Nav from "@/components/panels/nav/Nav.vue";
-
-    import utilsProfile from '@/lib/utils_profile';
-    import utilsNetwork from '@/lib/utils_network';
-    import utilsParse from '@/lib/utils_parse';
-    import short from 'short-uuid'
-    import TimeAgo from 'javascript-time-ago'
-    import en from 'javascript-time-ago/locale/en'
-
-    import CopyCatCard from './copyCatComponents/CopyCatCard.vue'
-    import Pagination from './copyCatComponents/Pagination.vue'
-    import Badge from './copyCatComponents/Badge.vue'
-
-    import { DataTable } from "@jobinsjp/vue3-datatable"
-    import "@jobinsjp/vue3-datatable/dist/style.css"
-
-    if (TimeAgo.getDefaultLocale() != 'en'){TimeAgo.addDefaultLocale(en)}
-    const timeAgo = new TimeAgo('en-US')
-
-    const decimalTranslator = short("0123456789");
-
-    export default {
-      components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard, Pagination, Badge },
-      data() {
-        return {
-
-          urlToLoad:'',
-
-          continueRecords: [],
-
-          urlToLoadIsHttp: false,
-
-          searchByLccnResults: null,
-          lccnToSearchTimeout: null,
-
-          lccnLoadSelected:false,
+</template>
 
 
-          displayDashboard:true,
-          displayAllRecords: false,
-          isLoadingAllRecords:false,
+<script>
 
-          allRecords: [],
+import { Splitpanes, Pane } from 'splitpanes'
+import 'splitpanes/dist/splitpanes.css'
+import { usePreferenceStore } from '@/stores/preference'
+import { useConfigStore } from '@/stores/config'
+import { useProfileStore } from '@/stores/profile'
 
-          wcIndex: "sn",
-          wcType: "book",
-          wcQuery: "",
-          wcOffset: 1,
-          wcLimit: 10,
-          queryingWc: false,
-          wcResults: [],
-          // https://help.oclc.org/Librarian_Toolbox/Searching_WorldCat_Indexes/Bibliographic_records/Bibliographic_record_indexes/Bibliographic_record_index_lists/Alphabetical_list_of_available_WorldShare_and_WorldCat_Discovery_bibliographic_record_indexes
-          indexSelectOptions: [
-            { label: 'Standard Numbers', value: 'sn' },
-            { label: 'Title', value: 'ti' },
-            { label: 'Name', value: 'au' },
-            { label: 'Keyword', value: 'kw' },
-          ],
-          wcLoadSelected: false,
-          wcLabels: [
-            'CatLevel', 'title', 'creator', 'date', 'language', 'generalFormat',
-            'publisher', 'publicationPlace', 'isbns', 'issns'
-          ],
-          wcLabelMap: {
-            "title": "Title",
-            "creator": "Creator",
-            "date": "Date",
-            "language": "Language",
-            "generalFormat": "Format",
-            "publisher": "Publisher",
-            "publicationPlace": "Place of Publication",
-            "isbns": "ISBNs",
-            "issns": "ISSNs",
-            "CatLevel": "CatLevel"
-          },
-          oclcEncodingLevelsHigh: [' ', '1', 'I'],
-          oclcEncodingLevelsLow: ['K', 'M', '3', '4', '5', '7', '8'],
-          selectedWcRecord: false,
-          searchPage: 1,
-          posting: false,
-          copyCatLccn: null,
-          recordPriority: 3,
-          jackphyCheck: false,
-          ibcCheck: false,
-          responseURL: null,
-          existingLCCN: null,
-          existingRecordUrl: "",
-          hasLccn: false,
-          checkingLCCN: false,
+import { mapStores, mapState, mapWritableState } from 'pinia'
+
+import Nav from "@/components/panels/nav/Nav.vue";
+
+import utilsProfile from '@/lib/utils_profile';
+import utilsNetwork from '@/lib/utils_network';
+import utilsParse from '@/lib/utils_parse';
+import short from 'short-uuid'
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en'
+
+import CopyCatCard from './copyCatComponents/CopyCatCard.vue'
+import Pagination from './copyCatComponents/Pagination.vue'
+import Badge from './copyCatComponents/Badge.vue'
+
+import { DataTable } from "@jobinsjp/vue3-datatable"
+import "@jobinsjp/vue3-datatable/dist/style.css"
+
+if (TimeAgo.getDefaultLocale() != 'en') { TimeAgo.addDefaultLocale(en) }
+const timeAgo = new TimeAgo('en-US')
+
+const decimalTranslator = short("0123456789");
+
+export default {
+  components: { Splitpanes, Pane, Nav, DataTable, CopyCatCard, Pagination, Badge },
+  data() {
+    return {
+
+      urlToLoad: '',
+
+      continueRecords: [],
+
+      urlToLoadIsHttp: false,
+
+      searchByLccnResults: null,
+      lccnToSearchTimeout: null,
+
+      lccnLoadSelected: false,
 
 
-        }
+      displayDashboard: true,
+      displayAllRecords: false,
+      isLoadingAllRecords: false,
+
+      allRecords: [],
+
+      wcIndex: "sn",
+      wcType: "book",
+      wcQuery: "",
+      wcOffset: 1,
+      wcLimit: 10,
+      queryingWc: false,
+      wcResults: [],
+      // https://help.oclc.org/Librarian_Toolbox/Searching_WorldCat_Indexes/Bibliographic_records/Bibliographic_record_indexes/Bibliographic_record_index_lists/Alphabetical_list_of_available_WorldShare_and_WorldCat_Discovery_bibliographic_record_indexes
+      indexSelectOptions: [
+        { label: 'Standard Numbers', value: 'sn' },
+        { label: 'Title', value: 'ti' },
+        { label: 'Name', value: 'au' },
+        { label: 'Keyword', value: 'kw' },
+      ],
+      wcLoadSelected: false,
+      wcLabels: [
+        'CatLevel', 'title', 'creator', 'date', 'language', 'generalFormat',
+        'publisher', 'publicationPlace', 'isbns', 'issns'
+      ],
+      wcLabelMap: {
+        "title": "Title",
+        "creator": "Creator",
+        "date": "Date",
+        "language": "Language",
+        "generalFormat": "Format",
+        "publisher": "Publisher",
+        "publicationPlace": "Place of Publication",
+        "isbns": "ISBNs",
+        "issns": "ISSNs",
+        "CatLevel": "CatLevel"
       },
-      computed: {
-        // other computed properties
-        // ...
-        // gives access to this.counterStore and this.userStore
-        ...mapStores(usePreferenceStore),
-        ...mapStores(useProfileStore),
-        ...mapState(usePreferenceStore, ['styleDefault','panelDisplay']),
-        ...mapState(useConfigStore, ['testData']),
-        ...mapState(useProfileStore, ['startingPoints','profiles', 'copyCatMode']),
-        ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents','activeProfilePosted','activeProfilePostedTimestamp', 'copyCatMode']),
+      oclcEncodingLevelsHigh: [' ', '1', 'I'],
+      oclcEncodingLevelsLow: ['K', 'M', '3', '4', '5', '7', '8'],
+      selectedWcRecord: false,
+      searchPage: 1,
+      posting: false,
+      copyCatLccn: null,
+      recordPriority: 3,
+      jackphyCheck: false,
+      ibcCheck: false,
+      responseURL: null,
+      existingLCCN: null,
+      existingRecordUrl: "",
+      hasLccn: false,
+      checkingLCCN: false,
 
 
-        // // gives read access to this.count and this.double
-        // ...mapState(usePreferenceStore, ['profilesLoaded']),
+    }
+  },
+  computed: {
+    // other computed properties
+    // ...
+    // gives access to this.counterStore and this.userStore
+    ...mapStores(usePreferenceStore),
+    ...mapStores(useProfileStore),
+    ...mapState(usePreferenceStore, ['styleDefault', 'panelDisplay']),
+    ...mapState(useConfigStore, ['testData']),
+    ...mapState(useProfileStore, ['startingPoints', 'profiles', 'copyCatMode']),
+    ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode']),
 
-        startingPointsFiltered(){
-          let points = []
-          for (let k in this.startingPoints){
-            if (this.startingPoints[k].work && this.startingPoints[k].instance){
-              points.push(this.startingPoints[k])
-            }
-          }
 
-          points.push( { "name": "HUB", "work": null, "instance": "lc:RT:bf2:HubBasic:Hub", "item": null },)
+    // // gives read access to this.count and this.double
+    // ...mapState(usePreferenceStore, ['profilesLoaded']),
 
-          return points
+    startingPointsFiltered() {
+      let points = []
+      for (let k in this.startingPoints) {
+        if (this.startingPoints[k].work && this.startingPoints[k].instance) {
+          points.push(this.startingPoints[k])
         }
+      }
+
+      points.push({ "name": "HUB", "work": null, "instance": "lc:RT:bf2:HubBasic:Hub", "item": null },)
+
+      return points
+    }
 
 
-      },
+  },
 
-      methods: {
-        loadLccnFromRecord: function(record){
-          let marc010 = this.getMarcFieldAsString(record, "010")
-          if (!marc010) { return false }
+  methods: {
+    loadLccnFromRecord: function (record) {
+      let marc010 = this.getMarcFieldAsString(record, "010")
+      if (!marc010) { return false }
 
-          let idx = marc010.indexOf("$a")
-          this.urlToLoad = marc010.slice(idx+2).trim()
-          this.checkLccn()
-          return this.urlToLoad
-        },
+      let idx = marc010.indexOf("$a")
+      this.urlToLoad = marc010.slice(idx + 2).trim()
+      this.checkLccn()
+      return this.urlToLoad
+    },
 
-        setSelectedRecord: function(value){
-          this.selectedWcRecord = value
+    setSelectedRecord: function (value) {
+      this.selectedWcRecord = value
 
-          // check if there's an LCCN in the record
-          this.loadLccnFromRecord(value)
-          this.checkLccn()
-        },
+      // check if there's an LCCN in the record
+      this.loadLccnFromRecord(value)
+      this.checkLccn()
+    },
 
-        setSearchPage: function(value){
-          this.searchPage = value
-          this.worldCatSearch()
-        },
+    setSearchPage: function (value) {
+      this.searchPage = value
+      this.worldCatSearch()
+    },
 
-        disableCopyCatButtons: function(){
-          if (!this.recordPriority){ return true }
+    /**
+     * Enabled when:
+     *    Record is selected
+     *    LCCN is present
+     *    Priority is given
+     *    Not sending record to BFDB
+     */
+    disableCopyCatButtons: function () {
+      if (this.posting) { return true }
+      if (!this.recordPriority) { return true }
 
-          let recordSelected = (this.selectedWcRecord) ? true : false
+      let recordSelected = (this.selectedWcRecord) ? true : false
 
-          if (this.checkRecordHasLccn(this.selectedWcRecord)) { return false }
-          if (!this.urlToLoad){ return true }
-          if (this.checkingLCCN) { return true }
+      if (this.checkRecordHasLccn(this.selectedWcRecord)) { return false }
+      if (!this.urlToLoad) { return true }
+      if (this.checkingLCCN) { return true }
 
-          return !recordSelected
-        },
+      return !recordSelected
+    },
 
-        checkLccn: async function(){
-          console.info("checkLCCN")
-          if (!this.urlToLoad){
-            this.existingRecordUrl = ""
-            this.existingLCCN = false
-            return false
-          }
+    checkLccn: async function () {
+      console.info("checkLCCN")
+      if (!this.urlToLoad) {
+        this.existingRecordUrl = ""
+        this.existingLCCN = false
+        return false
+      }
 
-          this.checkingLCCN = true
-          let resp = await utilsNetwork.checkLccn(this.urlToLoad)
-          console.info("     >>>>> ", resp)
-          this.checkingLCCN = false
-          try {
-            this.existingLCCN = resp.status != 404
-            if (this.existingLCCN){
-              this.existingRecordUrl = resp.url
+      this.checkingLCCN = true
+      let resp = await utilsNetwork.checkLccn(this.urlToLoad)
+      console.info("     >>>>> ", resp)
+      this.checkingLCCN = false
+      try {
+        this.existingLCCN = resp.status != 404
+        if (this.existingLCCN) {
+          this.existingRecordUrl = resp.url
+        } else {
+          this.existingRecordUrl = ""
+        }
+      } catch {
+        this.existingLCCN = null
+        this.existingRecordUrl = ""
+      }
+
+    },
+
+    encodingLevel: function (value) {
+      if (this.oclcEncodingLevelsHigh.includes(value)) {
+        return 'High'
+      }
+      return 'Low'
+    },
+
+    catLevelToolTip: function (value) {
+      switch (value) {
+        case "PccAdapt":
+          return "042 contains 'pcc' & Language = English"
+        case "CopyCat":
+          return "Encoding Level is 'high', Not PCC record, Language = English"
+        case "OrigRes":
+          return "Low level record, Not PCC, or not English"
+        case "OrigCop":
+          return "Cataloging Agency and Transcribing Agency are 'DLC'"
+        default:
+          return "You shouldn't be seeing this. Let someone know the value is '" + value + "'"
+      }
+    },
+
+    getMarcFieldAsString: function (record, target) {
+      try {
+        let fields = record.marcRaw.fields.filter((f) => f[0] == target)
+
+        for (let field of fields) {
+          let tag = field[0]
+          let indicators = field[1]
+          let subfields = field.slice(2).map((item, idx) => {
+            if (idx % 2 == 0) {
+              return "$" + item
             } else {
-              this.existingRecordUrl = ""
+              return " " + item.trim()
             }
-          } catch {
-            this.existingLCCN = null
-            this.existingRecordUrl = ""
-          }
+          }).join("")
 
-        },
+          return tag + indicators + subfields
+        }
+      } catch (err) {
+        console.error("err: ", err)
+        return false
+      }
+    },
 
-        encodingLevel: function (value){
-          if (this.oclcEncodingLevelsHigh.includes(value)){
-            return 'High'
-          }
-          return 'Low'
-        },
+    checkRecordHasLccn: function (record) {
+      if (record) {
+        let marc010 = this.getMarcFieldAsString(record, "010")
+        if (!marc010) { return false }
 
-        catLevelToolTip: function(value){
-          switch (value){
-            case "PccAdapt":
-              return "042 contains 'pcc' & Language = English"
-            case "CopyCat":
-              return "Encoding Level is 'high', Not PCC record, Language = English"
-            case "OrigRes":
-              return "Low level record, Not PCC, or not English"
-            case "OrigCop":
-              return "Cataloging Agency and Transcribing Agency are 'DLC'"
-            default:
-              return "You shouldn't be seeing this. Let someone know the value is '" + value  +"'"
-          }
-        },
+        if (marc010.includes('$a')) { return true }
+      }
+    },
 
-        getMarcFieldAsString: function(record, target){
-          try{
-            let fields = record.marcRaw.fields.filter((f) => f[0] == target)
+    isRdaRecord: function (record) {
+      const marc040 = record.marcRaw.fields.filter((f) => f[0] == '040').join()
+      const rdaRecord = marc040.includes('e,rda')
+      const leader = record.marcRaw.leader
+      const aacr2 = leader.at(18) == 'a'
+      const marc260 = record.marcRaw.fields.filter((f) => f[0] == '260').join()
 
-            for (let field of fields){
-              let tag = field[0]
-              let indicators = field[1]
-              let subfields = field.slice(2).map((item, idx) => {
-                if (idx%2 == 0 ){
-                  return "$" + item
-                } else {
-                  return " " + item.trim()
-                }
-              }).join("")
+      if (rdaRecord) {
+        return true
+      } else if (marc260 == "") {
+        return true
+      } else if (!aacr2 && marc260 == "") {
+        return true
+      }
+      return false
+    },
 
-              return tag + indicators + subfields
-            }
-          } catch(err) {
-            console.error("err: ", err)
-            return false
-          }
-        },
+    determineLevel: function (record) {
+      /**
+       * PCCAdapt -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as full-level RDA.
+       * Copycat  -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as RDA, with 042 = lccopycat. Exceptionally: process according to “encoding level 7 lccopycat” procedures (DCM B13, Appendix 7).
+       * OrigRes  -- indicates that the record is a lower-level record, and/or that the language of cataloging is other than English.
+       * OrigCop  -- indicates that an existing LC RDA record for another edition can be used to create a new full-level RDA record.
+       */
 
-        checkRecordHasLccn: function(record){
-          if (record){
-            let marc010 = this.getMarcFieldAsString(record, "010")
-            if (!marc010) { return false }
+      this.isRdaRecord(record)
 
-            if (marc010.includes('$a')){return true}
-          }
-        },
+      const catLang = record.catalogingInfo.catalogingLanguage
+      const isEng = catLang == "eng"
+      const catEncodeLevel = record.catalogingInfo.levelOfCataloging
+      const catAgency = record.catalogingInfo.catalogingAgency
+      const catTransAgency = record.catalogingInfo.transcribingAgency
+      const marc042 = record.marcRaw.fields.filter((f) => f[0] == '042').join()
+      const pccRecord = marc042.includes('pcc')
 
-        isRdaRecord: function(record){
-          const marc040   = record.marcRaw.fields.filter((f) => f[0] == '040').join()
-          const rdaRecord = marc040.includes('e,rda')
-          const leader = record.marcRaw.leader
-          const aacr2 = leader.at(18) == 'a'
-          const marc260 = record.marcRaw.fields.filter((f) => f[0] == '260').join()
+      let catLevel = false
+      if (pccRecord && isEng) {
+        catLevel = 'PccAdapt'
+      } else if (this.oclcEncodingLevelsHigh.includes(catEncodeLevel) && !pccRecord && isEng) {
+        catLevel = 'CopyCat'
+      } else if (catAgency == 'DLC' && catTransAgency == 'DLC') {
+        catLevel = 'OrigCop'
+      } else {
+        catLevel = 'OrigRes'
+      }
 
-          if (rdaRecord){
-            return true
-          } else if (marc260 == ""){
-            return true
-          } else if (!aacr2 && marc260 == ""){
-            return true
-          }
+      return catLevel //catLang + " " + catEncodeLevel + " " + catAgency + " " + pccRecord
+
+    },
+
+
+    worldCatSearch: async function (marc = false, pageReset = false) {
+      if (pageReset) {
+        this.searchPage = 1
+      }
+
+      this.selectedWcRecord = false
+
+      this.queryingWc = true
+      if (this.searchPage != 1) {
+        this.wcOffset = this.wcLimit * (this.searchPage - 1)
+      } else {
+        this.wcOffset = 1
+      }
+
+      const cleanQuery = this.wcQuery.trim()
+
+      if (this.wcIndex == 'sn') {
+        this.wcIndex = "sn: " + cleanQuery + " OR " + "no: "
+      }
+
+      try {
+        this.wcResults = await utilsNetwork.worldCatSearch(cleanQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
+        if (!Object.keys(this.wcResults.results).includes("numberOfRecords")) {
+          this.wcResults.results["numberOfRecords"] = 1
+          this.wcResults.results["briefRecords"] = [this.wcResults.results]
+        }
+      } catch (err) {
+        this.wcResults = { "error": err }
+      }
+
+      if (this.wcIndex.includes("sn")) {
+        this.wcIndex = 'sn'
+      }
+
+      this.queryingWc = false
+    },
+
+    createSubField: function (code, value, parent) {
+      let subfield = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
+      subfield.setAttribute("code", code)
+      subfield.innerHTML = value
+      parent.appendChild(subfield)
+    },
+
+    loadCopyCat: async function (profile) {
+      let continueWithLoad = true
+      if (this.existingLCCN) {
+        continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
+      }
+      if (!continueWithLoad) { return }
+
+      let xml = this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
+      this.existingLccn = false
+
+      xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
+      let continueWithLccn = true
+      // if (!this.copyCatLccn){
+      if (!this.urlToLoad) {
+        alert("This needs an LCCN to continue.")
+        return
+      } else {
+        if (this.urlToLoad.length != 10) {
+          continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
+        }
+      }
+
+      if (!continueWithLccn) { return }
+
+      let parser = new DOMParser()
+      xml = parser.parseFromString(xml, "text/xml")
+
+      // Create a dummy 999 to pass user values to processor
+      let dummy999 = document.createElementNS("http://www.loc.gov/MARC21/slim", "datafield")
+      dummy999.setAttribute("tag", "999")
+      dummy999.setAttribute("ind1", " ")
+      dummy999.setAttribute("ind2", " ")
+
+      this.createSubField("a", this.urlToLoad, dummy999)
+      this.createSubField("b", this.recordPriority, dummy999)
+      this.createSubField("c", this.jackphyCheck, dummy999)
+      this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummy999)
+
+      if (this.existingLCCN) {
+        this.createSubField("e", "overlay bib", dummy999)
+      }
+
+      xml.documentElement.appendChild(dummy999)
+
+      let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
+
+      console.info("strXmlBasic: ", strXmlBasic)
+
+      this.posting = true
+      this.postResults = {}
+      // this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
+      this.posting = false
+
+      // this.responseURL = this.postResults.postLocation
+      // let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
+      // this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
+      // this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
+
+      // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
+      // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
+      // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
+
+      try {
+        // this.loadUrl(profile)
+      } catch (err) {
+        alert("Couldn't ")
+      }
+    },
+
+    returnPixleAsPercent: function (pixles) {
+      return pixles / window.innerHeight * 100
+    },
+
+    loadUrl: async function (useInstanceProfile, multiTestFlag) {
+      if (this.lccnLoadSelected) {
+
+        this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
+
+      }
+
+      if (this.urlToLoad.trim() !== '') {
+
+        let xml = await utilsNetwork.fetchBfdbXML(this.urlToLoad)
+        if (!xml) {
+          alert("There was an error retrieving that URL. Are you sure it is correct: " + this.urlToLoad)
           return false
-        },
-
-        determineLevel: function(record){
-          /**
-           * PCCAdapt -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as full-level RDA.
-           * Copycat  -- indicates that the record is a fuller-level record, and the language of cataloging is English. Process the record as RDA, with 042 = lccopycat. Exceptionally: process according to “encoding level 7 lccopycat” procedures (DCM B13, Appendix 7).
-           * OrigRes  -- indicates that the record is a lower-level record, and/or that the language of cataloging is other than English.
-           * OrigCop  -- indicates that an existing LC RDA record for another edition can be used to create a new full-level RDA record.
-           */
-
-          this.isRdaRecord(record)
-
-          const catLang   = record.catalogingInfo.catalogingLanguage
-          const isEng = catLang == "eng"
-          const catEncodeLevel  = record.catalogingInfo.levelOfCataloging
-          const catAgency = record.catalogingInfo.catalogingAgency
-          const catTransAgency = record.catalogingInfo.transcribingAgency
-          const marc042   = record.marcRaw.fields.filter((f) => f[0] == '042').join()
-          const pccRecord = marc042.includes('pcc')
-
-          let catLevel = false
-          if (pccRecord && isEng) {
-            catLevel = 'PccAdapt'
-          } else if (this.oclcEncodingLevelsHigh.includes(catEncodeLevel) && !pccRecord && isEng){
-            catLevel = 'CopyCat'
-          } else if (catAgency == 'DLC' && catTransAgency == 'DLC'){
-            catLevel = 'OrigCop'
-          } else {
-            catLevel = 'OrigRes'
-          }
-
-          return catLevel //catLang + " " + catEncodeLevel + " " + catAgency + " " + pccRecord
-
-        },
-
-
-        worldCatSearch: async function(marc=false, pageReset=false){
-          if (pageReset){
-            this.searchPage = 1
-          }
-
-          this.selectedWcRecord = false
-
-          this.queryingWc = true
-          if (this.searchPage != 1){
-            this.wcOffset = this.wcLimit * (this.searchPage - 1)
-          } else {
-            this.wcOffset = 1
-          }
-
-          const cleanQuery = this.wcQuery.trim()
-
-          if (this.wcIndex == 'sn'){
-            this.wcIndex = "sn: " + cleanQuery + " OR " + "no: "
-          }
-
-          try{
-            this.wcResults = await utilsNetwork.worldCatSearch(cleanQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
-            if (!Object.keys(this.wcResults.results).includes("numberOfRecords")){
-              this.wcResults.results["numberOfRecords"] = 1
-              this.wcResults.results["briefRecords"] = [this.wcResults.results]
-            }
-          } catch(err) {
-            this.wcResults = {"error": err}
-          }
-
-          if ( this.wcIndex.includes("sn")){
-            this.wcIndex = 'sn'
-          }
-
-          this.queryingWc = false
-        },
-
-        createSubField: function(code, value, parent){
-          let subfield = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
-          subfield.setAttribute("code", code)
-          subfield.innerHTML = value
-          parent.appendChild(subfield)
-        },
-
-        loadCopyCat: async function(profile){
-          let continueWithLoad = true
-          if (this.existingLCCN){
-            continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
-          }
-          if (!continueWithLoad) { return }
-
-          let xml =  this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
-          this.existingLccn = false
-
-          xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
-          let continueWithLccn = true
-          // if (!this.copyCatLccn){
-          if (!this.urlToLoad){
-            alert("This needs an LCCN to continue.")
-            return
-          } else {
-            if (this.urlToLoad.length != 10){
-              continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
-            }
-          }
-
-          if (!continueWithLccn){ return }
-
-          let parser = new DOMParser()
-          xml = parser.parseFromString(xml, "text/xml")
-
-          // Create a dummy 999 to pass user values to processor
-          let dummy999 = document.createElementNS("http://www.loc.gov/MARC21/slim", "datafield")
-          dummy999.setAttribute("tag", "999")
-          dummy999.setAttribute("ind1", " ")
-          dummy999.setAttribute("ind2", " ")
-
-          this.createSubField("a", this.urlToLoad, dummy999)
-          this.createSubField("b", this.recordPriority, dummy999)
-          this.createSubField("c", this.jackphyCheck, dummy999)
-          this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummy999)
-
-          if (this.existingLCCN){
-            this.createSubField("e", "overlay bib", dummy999)
-          }
-
-          xml.documentElement.appendChild(dummy999)
-
-          let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
-
-          console.info("strXmlBasic: ", strXmlBasic)
-
-          this.posting = true
-          this.postResults = {}
-          // this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
-          this.posting = false
-
-          // this.responseURL = this.postResults.postLocation
-          // let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
-          // this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
-          // this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
-
-          // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
-          // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
-          // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
-
-
-            // this.loadUrl(profile)
-        },
-
-        loadFromAllRecord: function(eId){
-
-
-          this.profileStore.prepareForNewRecord()
-
-          this.$router.push({ name: 'Edit', params: { recordId: eId } })
-
-
-        },
-
-
-
-
-
-        allRecordsRowClick: function(row){
-
-
-
-        },
-
-        loadAllRecords: async function(event){
-          event.preventDefault()
-
-          this.displayDashboard = false
-          this.displayAllRecords = true
-          this.isLoadingAllRecords=true
-
-          let allRecordsRaw = await utilsNetwork.searchSavedRecords()
-
-          this.allRecords = []
-          for (let r of allRecordsRaw){
-
-            let obj = {
-              'Id': r.eid,
-
-              'RTs': r.rstused,
-              'Type': r.typeid,
-              'Title': r.title,
-              'Status': r.status,
-              'Urls': r.externalid,
-              'Time': r.time,
-              'User': r.user,
-
-
-
-            }
-            this.allRecords.push(obj)
-
-
-          }
-          // let lccnLookup = {}
-
-
-          this.isLoadingAllRecords=false
-        },
-
-        returnTimeAgo: function(timestamp){
-          return timeAgo.format(timestamp*1000)
-        },
-
-
-        returnPixleAsPercent: function(pixles){
-          return pixles/window.innerHeight*100
-        },
-
-        loadTestData: function(meta){
-
-
-          let href = window.location.href.split("/")
-          this.urlToLoad = `/${href[3]}/${href[4]}/test_files/${meta.lccn}.xml`
-          this.urlToLoadIsHttp=true
-          this.loadUrl(meta.profileId)
-        },
-
-        loadYourRecord: async function(){
-
-
-
-        },
-
-        loadSearch: function(){
-          if (!this.urlToLoad){
-            this.searchByLccnResults = []
-          }
-
-          this.lccnLoadSelected = null
-
-          if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")){
-            this.urlToLoadIsHttp = true
-            return false
-          }else{
-            this.urlToLoadIsHttp = false
-
-          }
-          // lccns are not short
-          if (this.urlToLoad.length < 8){ return false}
-
-          window.clearTimeout(this.lccnToSearchTimeout)
-            this.searchByLccnResults = 'Searching...'
-            this.lccnToSearchTimeout = window.setTimeout(async ()=>{
-
-            this.searchByLccnResults = await utilsNetwork.searchInstanceByLCCN(this.urlToLoad)
-
-            // If there's only one result, load it so the user doesn't have to do any clicking
-            if (this.searchByLccnResults.length == 1) {
-              this.lccnLoadSelected = this.searchByLccnResults[0]
-            }
-
-          },500)
-
-
-        },
-
-        loadUrl: async function(useInstanceProfile,multiTestFlag){
-          if (this.lccnLoadSelected){
-
-            this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
-
-          }
-
-          if (this.urlToLoad.trim() !== ''){
-
-            let xml = await utilsNetwork.fetchBfdbXML(this.urlToLoad)
-            if (!xml){
-              alert("There was an error retrieving that URL. Are you sure it is correct: " + this.urlToLoad)
-              return false
-            }
-            // if (xml.indexOf('<rdf:RDF'))
-
-
-            // check for XML problems here ?
-
-            utilsParse.parseXml(xml)
-
-
-
-          }
-
-          // find the right profile to use from the instance profile name used
-          let useProfile = null
-          console.log("this.profiles",this.profiles)
-          console.log("useInstanceProfile",useInstanceProfile)
-          for (let key in this.profiles){
-            if (this.profiles[key].rtOrder.indexOf(useInstanceProfile)>-1){
-              useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
-            }
-          }
-
-          this.activeProfilePosted = false
-          this.activeProfilePostedTimestamp = false
-
-          // check if the input field is empty
-          if (this.urlToLoad == "" && useProfile===null){
-            alert("Please enter the URL or Identifier of the record you want to load.")
-            return false
-          }
-
-          if (useProfile===null){
-            alert('No profile selected. Select a profile under "Load with profile."')
-            return false
-          }
-
-          if (this.urlToLoad.trim() !== ''){
-
-
-
-            // we might need to load in a item
-            if (utilsParse.hasItem>0){
-              // loop the number of ITEMS there are in the XML
-              Array.from(Array(utilsParse.hasItem)).map((_,i) => {
-                let useItemRtLabel
-                // look for the RT for this item
-                useItemRtLabel = useInstanceProfile.replace(':Instance',':Item')
-
-                let foundCorrectItemProfile = false
-                for (let pkey in this.profiles){
-                  for (let rtkey in this.profiles[pkey].rt){
-                    if (rtkey == useItemRtLabel){
-                      let useRtLabel =  useItemRtLabel + '-' + (i+1)
-                      let useItem = JSON.parse(JSON.stringify(this.profiles[pkey].rt[rtkey]))
-
-                      // make the guids for all the properties unique
-                      for (let ptk in useItem.pt){
-                        useItem.pt[ptk]['@guid'] = short.generate()
-                      }
-
-
-                      // console.log('using',this.profiles[pkey].rt[rtkey])
-                      foundCorrectItemProfile = true
-                      useProfile.rtOrder.push(useRtLabel)
-                      useProfile.rt[useRtLabel] = useItem
-                      // console.log(JSON.parse(JSON.stringify(useProfile)))
-                    }
+        }
+        // check for XML problems here ?
+        utilsParse.parseXml(xml)
+      }
+
+      // find the right profile to use from the instance profile name used
+      let useProfile = null
+      for (let key in this.profiles) {
+        if (this.profiles[key].rtOrder.indexOf(useInstanceProfile) > -1) {
+          useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
+        }
+      }
+
+      this.activeProfilePosted = false
+      this.activeProfilePostedTimestamp = false
+
+      if (this.urlToLoad.trim() !== '') {
+        // we might need to load in a item
+        if (utilsParse.hasItem > 0) {
+          // loop the number of ITEMS there are in the XML
+          Array.from(Array(utilsParse.hasItem)).map((_, i) => {
+            let useItemRtLabel
+            // look for the RT for this item
+            useItemRtLabel = useInstanceProfile.replace(':Instance', ':Item')
+
+            let foundCorrectItemProfile = false
+            for (let pkey in this.profiles) {
+              for (let rtkey in this.profiles[pkey].rt) {
+                if (rtkey == useItemRtLabel) {
+                  let useRtLabel = useItemRtLabel + '-' + (i + 1)
+                  let useItem = JSON.parse(JSON.stringify(this.profiles[pkey].rt[rtkey]))
+
+                  // make the guids for all the properties unique
+                  for (let ptk in useItem.pt) {
+                    useItem.pt[ptk]['@guid'] = short.generate()
                   }
+
+                  // console.log('using',this.profiles[pkey].rt[rtkey])
+                  foundCorrectItemProfile = true
+                  useProfile.rtOrder.push(useRtLabel)
+                  useProfile.rt[useRtLabel] = useItem
+                  // console.log(JSON.parse(JSON.stringify(useProfile)))
                 }
-
-
-                if (!foundCorrectItemProfile){
-                  console.warn('error: foundCorrectItemProfile not set ---------')
-                  console.warn(this.rtLookup[useItemRtLabel])
-                }
-              });
-            }
-          }
-
-          if (!useProfile.log){
-            useProfile.log = []
-          }
-
-          // setup the log and set the procinfo so the post process knows what to do with this record
-          useProfile.log.push({action:'loadInstance',from:this.urlToLoad})
-          useProfile.procInfo= "update instance"
-
-          // also give it an ID for storage
-          if (!useProfile.eId){
-            let uuid = 'e' + decimalTranslator.new()
-            uuid = uuid.substring(0,8)
-            useProfile.eId= uuid
-            useProfile.neweId = true
-          }
-
-
-          if (!useProfile.user){
-            useProfile.user = this.preferenceStore.returnUserNameForSaving
-          }
-
-          if (!useProfile.status){
-            useProfile.status = 'unposted'
-          }
-
-
-
-
-          if (this.urlToLoad.trim() !== ''){
-            let profileDataMerge  = await utilsParse.transformRts(useProfile)
-            this.activeProfile = profileDataMerge
-          }else{
-            // if there is not url they are making it from scratch, so we need to link the instances and work together
-            useProfile = utilsParse.linkInstancesWorks(useProfile)
-
-            this.activeProfile = useProfile
-
-            // prime this for ad hoc mode
-            for (let rt in this.activeProfile.rt){
-              this.emptyComponents[rt] = []
-              for (let element in this.activeProfile.rt[rt].pt){
-                // const e = this.activeProfile.rt[rt].pt[element]
-                // if (e.mandatory != 'true'){
-                //   this.emptyComponents[rt].push(element)
-                // }
-                this.profileStore.addToAdHocMode(rt, element)
               }
             }
-          }
 
-          if (multiTestFlag){
-            this.$router.push(`/multiedit/`)
-            return true
-          }
-
-          this.$router.push(`/edit/${useProfile.eId}`)
-
-
-
-        },
-
-
-       async refreshSavedRecords(){
-
-
-
-          let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
-
-            let lccnLookup = {}
-
-            // in this view we want to remove any records that are repeats, so only show the latest LCCN being edited
-            this.continueRecords = []
-            for (let r of records){
-              if (r.lccn && r.lccn != '' && r.lccn !== null){
-                if (!lccnLookup[r.lccn]){
-                  this.continueRecords.push(r)
-                  lccnLookup[r.lccn]=true
-                }
-              }else{
-                // no LCCN just add it
-                this.continueRecords.push(r)
-              }
-
+            if (!foundCorrectItemProfile) {
+              console.warn('error: foundCorrectItemProfile not set ---------')
+              console.warn(this.rtLookup[useItemRtLabel])
             }
-
-
-        },
-
-
-
-
-
-
-
-
-
-      },
-
-      mounted: async function(){
-        this.refreshSavedRecords()
-
-        //reset the title
-        document.title = `Marva`;
-
-      },
-
-
-
-      created: async function(){
-
-        this.refreshSavedRecords()
-
-        // this is checking to see if the route is available to load the passed URL to it
-        let intervalLoadUrl = window.setInterval(()=>{
-            if (this.$route && this.$route.query && this.$route.query.url){
-
-              this.urlToLoad = this.$route.query.url
-              this.urlToLoadIsHttp=true
-              window.clearInterval(intervalLoadUrl)
-
-            }
-
-          },500)
-
-          let intervalLoadProfile = window.setInterval(()=>{
-            if (this.$route && this.$route.query && this.$route.query.profile && this.startingPointsFiltered && this.startingPointsFiltered.length>0){
-              console.log("Weerrr looookiinnn at the profile!", this.$route.query.profile)
-              let possibleInstanceProfiles = this.startingPointsFiltered.map((v)=>v.instance)
-              if (possibleInstanceProfiles.indexOf(this.$route.query.profile) >-1){
-                this.loadUrl(this.$route.query.profile)
-              }
-              window.clearInterval(intervalLoadProfile)
-              // loadUrl
-            }
-
-          },600)
-
-
-      }
-    }
-
-  </script>
-
-  <style>
-    .dt-bg-gray-50{
-      background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')")  !important;
-      color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
-
-    }
-    .dt-bg-white{
-      background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important;
-      color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
-
-
-
-    }
-  </style>
-
-  <style scoped>
-
-
-  #test-data-table{
-    width:100%;
-
-
-
-  }
-
-  #all-records-table{
-
-    height: 90vh;
-    overflow-y: auto;
-
-  }
-
-
-  .test-data:nth-child(odd) {
-
-    background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important;
-    color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
-
-    background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')")  !important;
-
-  }
-
-  .test-data a{
-    color:inherit!important;
-    text-decoration: none;
-
-  }
-  .test-data a:hover{
-    text-decoration: underline;
-  }
-  .test-data button{
-    width: 100%;
-  }
-  .saved-records-empty{
-    margin-top: 2em;
-    margin-left: 1em;
-    font-style: italic;
-  }
-
-  label{
-    cursor: pointer;
-  }
-
-    ol{
-      list-style: none;
-      padding-left: 0;
-      margin-bottom: 2em;
-    }
-
-    .continue-record .material-icons{
-        position: absolute;
-        right: 0;
-        top: 0;
-        color: limegreen;
+          });
+        }
       }
 
-    .continue-record-list{
-      margin-top: 1em;
-      padding-left: 0.1em;
-      list-style: none;
-      height: 85vh;
-      overflow-y: auto;
+      if (!useProfile.log) {
+        useProfile.log = []
+      }
 
-    }
+      // setup the log and set the procinfo so the post process knows what to do with this record
+      useProfile.log.push({ action: 'loadInstance', from: this.urlToLoad })
+      useProfile.procInfo = "update instance"
 
-    .continue-record a{
-      text-decoration: none;
-      color: inherit !important;
-    }
+      // also give it an ID for storage
+      if (!useProfile.eId) {
+        let uuid = 'e' + decimalTranslator.new()
+        uuid = uuid.substring(0, 8)
+        useProfile.eId = uuid
+        useProfile.neweId = true
+      }
 
-    .continue-record:hover{
-      box-shadow: 0px 0px 3px -1px rgba(0,0,0,0.46);
-      background-color: whitesmoke;
+      if (!useProfile.user) {
+        useProfile.user = this.preferenceStore.returnUserNameForSaving
+      }
 
-    }
+      if (!useProfile.status) {
+        useProfile.status = 'unposted'
+      }
 
-    .continue-record-list li:nth-of-type(1n+100) {
-      display: none;
-    }
+      if (this.urlToLoad.trim() !== '') {
+        let profileDataMerge = await utilsParse.transformRts(useProfile)
+        this.activeProfile = profileDataMerge
+      } else {
+        // if there is not url they are making it from scratch, so we need to link the instances and work together
+        useProfile = utilsParse.linkInstancesWorks(useProfile)
 
-    .continue-record-title{
-      font-style: italic;
-    }
-    .continue-record{
-      border: solid 1px lightgray;
-      padding: 4px;
-      position: relative;
+        this.activeProfile = useProfile
 
-    }
-    .continue-record-lastedit{
-      color: grey;
-    }
-    .load-columns{
-      display: flex;
-    }
+        // prime this for ad hoc mode
+        for (let rt in this.activeProfile.rt) {
+          this.emptyComponents[rt] = []
+          for (let element in this.activeProfile.rt[rt].pt) {
+            this.profileStore.addToAdHocMode(rt, element)
+          }
+        }
+      }
 
-    .load-columns > div{
-      flex: 1;
-    }
-    .url-to-load{
-      font-size: 1.25em;
-      margin-bottom: 1em;
-      margin-top: 1em;
+      if (multiTestFlag) {
+        this.$router.push(`/multiedit/`)
+        return true
+      }
+
+      this.$router.push(`/edit/${useProfile.eId}`)
+    },
+  },
+
+  mounted: async function () {
+    //reset the title
+    document.title = `Marva`;
+  },
+  created: async function () { }
+}
+
+</script>
 
 
-      width: 80%;
-    }
-    .load-buttons{
-      text-align: justify;
-    }
-    .load-button{
-      font-size: 1.25em;
-      margin: 0.25em;
-      background-color: white;
-      border: solid 1px var(--c-black-mute);
-      border-radius: 2px;
-      cursor: pointer;
-    }
-    .load-button:hover{
-      border: solid 1px var(--c-black);
-      background-color: var(--c-white-soft);
-    }
+<style scoped>
+label {
+  cursor: pointer;
+}
 
-    .header{
-      background-color: white !important;
-    }
-    body{
-      background-color: white;
-    }
+.url-to-load {
+  font-size: 1.25em;
+  margin-bottom: 1em;
+  margin-top: 1em;
 
-    .load{
-      background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')")  !important;
-      color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')")  !important;
 
-      padding: 1em;
-    }
-    hr{
-      margin-bottom: 2em;
-      margin-top: 2em;
-    }
-    summary{
-      cursor: pointer;
-    }
-    .load-test-data-column{
-      height: 95vh;
-      overflow-y: auto;
-      padding-bottom: 5em;
-    }
-    .header{
-      background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-background-color')") !important;
+  width: 80%;
+}
 
-    }
+.load-buttons {
+  text-align: justify;
+}
 
-  /****** Copy Cat ******/
-  *, *:before, *:after {
-    box-sizing: border-box;
+.load-button {
+  font-size: 1.25em;
+  margin: 0.25em;
+  background-color: white;
+  border: solid 1px var(--c-black-mute);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.load-button:hover {
+  border: solid 1px var(--c-black);
+  background-color: var(--c-white-soft);
+}
+
+.header {
+  background-color: white !important;
+}
+
+body {
+  background-color: white;
+}
+
+.load {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color')") !important;
+  color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')") !important;
+
+  padding: 1em;
+}
+
+hr {
+  margin-bottom: 2em;
+  margin-top: 2em;
+}
+
+.header {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-background-color')") !important;
+
+}
+
+/****** Copy Cat ******/
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 40px;
+  font-family: 'Open Sans', 'sans-serif';
+  background-color: #fff;
+  color: #444;
+}
+
+h1,
+p {
+  margin: 0 0 1em 0;
+}
+
+/* no grid support? */
+.copy-cat-search {
+  float: left;
+  width: 20%;
+}
+
+.copy-cat-search {
+  max-height: 1000px;
+  overflow-y: scroll;
+}
+
+.copy-cat-results {
+  float: left;
+  width: 20%;
+  max-height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.copy-cat-marc {
+  float: right;
+  width: 45%;
+  height: 100%;
+  overflow-y: scroll;
+}
+
+/* make a grid */
+.copy-cat-wrapper {
+  max-width: 98%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  grid-gap: 10px;
+
+  overflow-y: hidden;
+  position: fixed;
+  height: 90%;
+
+  margin-top: 5px;
+  margin-left: 1%;
+}
+
+.copy-cat-wrapper>* {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-components')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
+  border-radius: 5px;
+  padding: 20px;
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-copy-cat-font-size')");
+  /* needed for the floated layout*/
+  margin-bottom: 10px;
+}
+
+/* , .copy-cat-marc  */
+.copy-cat-header {
+  font-size: 30px;
+  grid-column: 1 / -1;
+  /* needed for the floated layout */
+  clear: both;
+}
+
+.marc-divider {
+  margin: 5px;
+}
+
+/** MARC preview formatting */
+:deep() .marc.record {
+  font-family: monospace;
+  height: 90%;
+}
+
+:deep() .marc.indicators {
+  white-space: pre;
+}
+
+
+:deep() .marc.subfield.subfield-0 .subfield-value,
+:deep() .marc.subfield.subfield-1 .subfield-value {
+  width: 4.5em;
+  display: inline-block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.5);
+  vertical-align: bottom;
+}
+
+:deep() div.marc.field {
+  text-indent: 4em hanging;
+}
+
+:deep() span.marc.subfield:hover {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-marc-hover')");
+}
+
+:deep() span.marc.subfield:hover>.subfield-label {
+  font-weight: bold;
+  font-style: italic;
+}
+
+.existing-lccn-note {
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
+}
+
+.index-help {
+  font-size: 14px;
+  text-decoration: none;
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
+}
+
+.disabled-button {
+  pointer-events: none;
+  background-color: grey;
+}
+
+.needs-input {
+  border: 2px solid red;
+}
+
+/* We need to set the widths used on floated items back to auto, and remove the bottom margin as when we have grid we have gaps. */
+@supports (display: grid) {
+  .copy-cat-wrapper>* {
+    width: auto;
+    margin: 0;
   }
-
-  body {
-    margin: 40px;
-    font-family: 'Open Sans', 'sans-serif';
-    background-color: #fff;
-    color: #444;
-  }
-
-  h1, p {
-    margin: 0 0 1em 0;
-  }
-
-  /* no grid support? */
-  .copy-cat-search {
-    float: left;
-    width: 20%;
-  }
-  .copy-cat-search{
-    max-height: 1000px;
-    overflow-y: scroll;
-  }
-
-  .copy-cat-results {
-    float: left;
-    width: 20%;
-    max-height: 100%;
-    overflow-y: scroll;
-    overflow-x: hidden;
-  }
-
-  .copy-cat-marc {
-    float: right;
-    width: 45%;
-    height: 100%;
-    overflow-y: scroll;
-  }
-
-  /* make a grid */
-  .copy-cat-wrapper {
-    max-width: 98%;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr 2fr;
-    grid-gap: 10px;
-
-    overflow-y: hidden;
-    position: fixed;
-    height: 90%;
-
-    margin-top: 5px;
-    margin-left: 1%;
-  }
-
-  .copy-cat-wrapper > * {
-    background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-components')");
-    color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
-    border-radius: 5px;
-    padding: 20px;
-    font-size: v-bind("preferenceStore.returnValue('--n-edit-copy-cat-font-size')");
-    /* needed for the floated layout*/
-    margin-bottom: 10px;
-  }
-
-  /* , .copy-cat-marc  */
-  .copy-cat-header{
-    font-size: 30px;
-    grid-column: 1 / -1;
-    /* needed for the floated layout */
-    clear: both;
-  }
-
-  .marc-divider{
-    margin: 5px;
-  }
-
-  /** MARC preview formatting */
-  :deep() .marc.record{
-    font-family: monospace;
-    height: 90%;
-  }
-
-  :deep() .marc.indicators {
-    white-space: pre;
-  }
-
-
-  :deep() .marc.subfield.subfield-0 .subfield-value,
-  :deep() .marc.subfield.subfield-1 .subfield-value{
-    width: 4.5em;
-    display: inline-block;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    color: rgba(0, 0, 0, 0.5);
-    vertical-align: bottom;
-  }
-
-  :deep() div.marc.field{
-    text-indent: 4em hanging;
-  }
-
-  :deep() span.marc.subfield:hover{
-    background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-marc-hover')");
-  }
-
-  :deep() span.marc.subfield:hover > .subfield-label{
-    font-weight: bold;
-    font-style: italic;
-  }
-
-  .existing-lccn-note {
-    color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
-  }
-
-  .index-help{
-    font-size: 14px;
-    text-decoration: none;
-    color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
-  }
-
-  .disabled-button{
-    pointer-events: none;
-    background-color: grey;
-  }
-
-  .needs-input {
-    border: 2px solid red;
-  }
-
-  /* We need to set the widths used on floated items back to auto, and remove the bottom margin as when we have grid we have gaps. */
-  @supports (display: grid) {
-    .copy-cat-wrapper > * {
-      width: auto;
-      margin: 0;
-    }
-  }
-
-
-  </style>
-
-
+}
+</style>
