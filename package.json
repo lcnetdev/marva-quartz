@@ -7,8 +7,6 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:unit": "vitest --environment jsdom --root src/",
-    "test:e2e": "start-server-and-test preview :4173 'cypress run --e2e'",
-    "test:e2e:dev": "start-server-and-test 'vite dev --port 4173' :4173 'cypress open --e2e'",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
@@ -39,7 +37,6 @@
     "@vitejs/plugin-vue": "^5.0.0",
     "@vue/eslint-config-prettier": "^7.1.0",
     "@vue/test-utils": "^2.3.2",
-    "cypress": "^12.13.0",
     "eslint": "^8.41.0",
     "eslint-plugin-cypress": "^2.13.3",
     "eslint-plugin-vue": "^9.14.1",
