@@ -53,7 +53,7 @@ export default{
     white-space: nowrap;
     vertical-align: baseline;
     border-radius: .25rem;
-    margin-right: 5px;
+    margin-right: 6px;
     text-wrap: auto;
   }
 

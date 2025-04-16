@@ -1320,8 +1320,8 @@ export const usePreferenceStore = defineStore('preference', {
       },
       '--c-edit-copy-cat-card-color-selected' : {
           value:'antiquewhite',
-          desc: 'The color search results.',
-          descShort: 'Results Color',
+          desc: 'The color selected result.',
+          descShort: 'Selected Color',
           type: 'color',
           group: 'Copy Cat',
           range: null

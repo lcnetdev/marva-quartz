@@ -39,8 +39,8 @@
 
               </form>
               <hr>
-              <label for="lccn">LCCN: </label><input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="checkLccn" />
-              <br>
+              <label for="lccn">LCCN: </label>
+              <input name="lccn" id="lccn"  type="text" v-model="urlToLoad" @input="checkLccn" :disabled="loadLccnFromRecord(selectedWcRecord)" />
               <Badge
                 v-if="loadLccnFromRecord(selectedWcRecord)"
                 text="This LCCN is from the selected record."
@@ -56,7 +56,7 @@
                   :noHover="true"
                 />
                 <h4>
-                  <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Record with this LCCN Exists</a>
+                  <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this LCCN</a>
                 </h4>
                 <br>
               </template>
@@ -70,7 +70,7 @@
                 <br>
               </template>
               <br>
-              <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority" /><br>
+              <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority" :class="{'needs-input': !recordPriority}" /><br>
               <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
               <label for="jackphy">Does this record contain non-Latin script that should be retained? </label><input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
               <br>
@@ -84,7 +84,7 @@
               </template>
               <template></template>
               <div class="load-buttons">
-                <button class="load-button" @click="loadCopyCat(s.instance)" :disabled="disableCopyCatButtons()"  v-for="s in startingPointsFiltered">
+                <button :class="['load-button', {'disabled-button': disableCopyCatButtons()}]" @click="loadCopyCat(s.instance)"  v-for="s in startingPointsFiltered">
                   {{s.name}}
                 </button>
               </div>
@@ -295,6 +295,8 @@
         },
 
         disableCopyCatButtons: function(){
+          if (!this.recordPriority){ return true }
+
           let recordSelected = (this.selectedWcRecord) ? true : false
 
           if (this.checkRecordHasLccn(this.selectedWcRecord)) { return false }
@@ -463,6 +465,10 @@
             }
           } catch(err) {
             this.wcResults = {"error": err}
+          }
+
+          if ( this.wcIndex.includes("sn")){
+            this.wcIndex = 'sn'
           }
 
           this.queryingWc = false
@@ -1176,11 +1182,6 @@
     font-style: italic;
   }
 
-  .selected {
-    background-color: antiquewhite !important;
-    color: black;
-  }
-
   .existing-lccn-note {
     color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
   }
@@ -1189,6 +1190,15 @@
     font-size: 14px;
     text-decoration: none;
     color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
+  }
+
+  .disabled-button{
+    pointer-events: none;
+    background-color: grey;
+  }
+
+  .needs-input {
+    border: 2px solid red;
   }
 
   /* We need to set the widths used on floated items back to auto, and remove the bottom margin as when we have grid we have gaps. */

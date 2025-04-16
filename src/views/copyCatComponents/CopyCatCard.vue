@@ -189,8 +189,9 @@ export default{
 
 <style>
 .selected {
-    background-color: antiquewhite !important;
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')") !important;
     color: black;
+    filter: saturate(.75);
   }
 
   /* Bootstrap card */
@@ -216,7 +217,7 @@ export default{
 
   .card:hover {
     cursor: pointer;
-    background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')") ;
   }
 
   .card-body {
@@ -245,66 +246,6 @@ export default{
     font-weight: bold;
   }
 
-  .badge {
-    display: inline-block;
-    padding: .25em .4em;
-    font-size: 75%;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: .25rem;
-    margin-right: 5px;
-  }
-
-  .badge-primary {
-    color: #fff;
-    background-color: #007bff;
-  }
-
-  .badge-secondary {
-    color: white;
-    background-color: #6c757d;;
-  }
-
-  .badge:hover {
-    cursor: help;
-    background-color: black;
-    color: white;
-  }
-
-  .badge-success {
-    color: #fff;
-    background-color: #28a745;
-  }
-
-  .badge-warning {
-    color: #212529;
-    background-color: #ffc107;
-  }
-
-  .badge-danger {
-    color: #fff;
-    background-color: #dc3545;
-  }
-
-  .badge-info {
-    color: #fff;
-    background-color: #17a2b8;
-  }
-
-  .badge.badge-warning.no-hover:hover {
-    cursor: unset;
-    background-color: #ffc107;
-    color: #212529;
-  }
-
-  .badge.badge-info.no-hover:hover {
-    cursor: unset;
-    background-color: #17a2b8;
-    color: #fff;
-  }
 
   .existing-lccn-note {
     color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-font-color')");
@@ -312,6 +253,10 @@ export default{
 
   .serial{
     pointer-events: none;
+  }
+
+  .badge.simptip-position-top::after {
+    margin-left: -55px;
   }
 
 </style>
