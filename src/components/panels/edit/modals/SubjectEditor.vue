@@ -2039,17 +2039,14 @@ methods: {
       if (this.searchStringPos > 0){ // we're looking at a subdivision and we've got a complex heading. Figure out if the pieces
         replacePos = [this.searchStringPos]
         let incomingPieces = this.pickLookup[this.pickPostion].label.toLowerCase().split("‑‑")
-        console.info("searchStringPos: ", this.searchStringPos)
         for (let termIdx in incomingPieces){
 
           //check if the next piece is in the incoming
           if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos+1])){
-            console.info("match after: ", splitStringLower[this.searchStringPos+1])
             replacePos.push(this.searchStringPos+1)
           }
           //check if the prev piece is in the incoming
           else if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos-1])){
-            console.info("match before: ", splitStringLower[this.searchStringPos-1])
             replacePos.unshift(this.searchStringPos-1)
           }
         }
@@ -2063,13 +2060,7 @@ methods: {
           this.subjectString = splitString.join('--')
         }
       } if (replacePos.length > 0){
-        console.info("replacePos: ", replacePos)
-        console.info("BEFORE splitString: ", splitString)
-
         splitString.splice(replacePos[0], replacePos.length, this.pickLookup[this.pickPostion].label)
-
-        console.info("AFTER splitString: ", splitString)
-
         this.subjectString = splitString.join('--')
         this.activeComponentIndex = replacePos[0]
       } else {
