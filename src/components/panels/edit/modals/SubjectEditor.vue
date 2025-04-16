@@ -849,6 +849,7 @@ data: function() {
     typeLookup:{},
     okayToAdd: false,
     lowResMode: false,
+    searchStringPos: 0,
 
     searchMode: "LCSHNAF",
 
@@ -1491,11 +1492,25 @@ methods: {
 
     let searchStringFullPieces = searchStringFull.split('--')
     let currentPos = searchStringFullPieces.indexOf(searchString)
+    that.searchStringPos = currentPos
 
-    let complexSub = null
-    console.info("currentPos: ", currentPos)
+    let complexSub = []
+
     if (currentPos > 0){
-      complexSub = searchStringFullPieces.slice(currentPos).join("--")
+      let newTerm = searchStringFullPieces.slice(currentPos, currentPos+2).join("--")
+      if (newTerm.includes("--")){
+        complexSub.push(newTerm)
+      }
+    }
+    if (currentPos > 1){
+      let newTerm = searchStringFullPieces.slice(currentPos-1, currentPos+1).join("--")
+      if (newTerm.includes("--")){
+        complexSub.push(newTerm)
+      }
+    }
+
+    if (complexSub.length < 2){
+      complexSub.push('')
     }
 
     that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
@@ -2019,12 +2034,35 @@ methods: {
       let splitString = this.subjectString.split('--')
       let splitStringLower = this.subjectString.toLowerCase().split('--')
 
+      // if the selected heading is made of parts of the search string
+      let replacePos = []
+      if (this.searchStringPos > 0){ // we're looking at a subdivision and we've got a complex heading. Figure out if the pieces
+        replacePos = [this.searchStringPos]
+        let incomingPieces = this.pickLookup[this.pickPostion].label.toLowerCase().split("‑‑")
+        for (let termIdx in incomingPieces){
+
+          //check if the next piece is in the incoming
+          if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos+1])){
+            replacePos.push(this.searchStringPos+1)
+          }
+          //check if the prev piece is in the incoming
+          else if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos-1])){
+            replacePos.unshift(this.searchStringPos-1)
+          }
+        }
+      }
+
+
       if (splitStringLower.includes(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())){
         let idx = splitStringLower.indexOf(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())
         if (idx == this.activeComponentIndex){
           splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
           this.subjectString = splitString.join('--')
         }
+      } if (replacePos.length > 0){
+        splitString.splice(replacePos[0], replacePos.length, this.pickLookup[this.pickPostion].label)
+        this.subjectString = splitString.join('--')
+        this.activeComponentIndex = replacePos[0]
       } else {
         // Replace the whole thing
         this.subjectString = this.pickLookup[this.pickPostion].label
@@ -2035,6 +2073,7 @@ methods: {
       this.componetLookup[this.activeComponentIndex] = {}
 
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
+
       for (let k in this.pickLookup){
         this.pickLookup[k].picked=false
       }
@@ -2779,7 +2818,7 @@ methods: {
                 subfield = subfield[idx]
               }
 
-            subfield = this.getTypeFromSubfield(subfield)
+              subfield = this.getTypeFromSubfield(subfield)
 
               // Override the subfield of the first element based on the marc tag
               let tag = target.marcKey.slice(0,3)
@@ -2826,7 +2865,11 @@ methods: {
 
               let uriId = id
 
+              // Adjust the ID to account for shifts as things are added/removed compared to the starting subjectHeading
               if (target.uri.includes("childrensSubjects/sj") && target.id > 0){
+                uriId = uriId - frozenComponents.filter((c) => !c.complex).length
+              }
+              if (target.id > 0 && target.complex){
                 uriId = uriId - frozenComponents.filter((c) => !c.complex).length
               }
 
