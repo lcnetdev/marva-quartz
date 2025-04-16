@@ -2863,15 +2863,12 @@ methods: {
               }
               let marcKey = tag + "  " + sub + labels[idx]
 
-              let uriId = id
+              let uriId = idx
 
               // Adjust the ID to account for shifts as things are added/removed compared to the starting subjectHeading
-              if (target.uri.includes("childrensSubjects/sj") && target.id > 0){
-                uriId = uriId - frozenComponents.filter((c) => !c.complex).length
-              }
-              if (target.id > 0 && target.complex){
-                uriId = uriId - frozenComponents.filter((c) => !c.complex).length
-              }
+              // if (target.uri.includes("childrensSubjects/sj") && target.id > 0){
+              //   uriId = uriId - frozenComponents.filter((c) => !c.complex).length
+              // }
 
               newComponents.splice(id, 0, ({
               "complex": false,
