@@ -34,6 +34,8 @@ export const useConfigStore = defineStore('config', {
         starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
         profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
+        util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
+
         id: 'https://id.loc.gov/',
         env : 'staging',
         dev: false,
