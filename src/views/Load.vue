@@ -194,55 +194,6 @@
         isLoadingAllRecords:false,
 
         allRecords: [],
-
-        wcIndex: "",
-        wcType: "book",
-        wcQuery: "",
-        wcOffset: 1,
-        wcLimit: 10,
-        queryingWc: false,
-        wcResults: [],
-        // https://help.oclc.org/Librarian_Toolbox/Searching_WorldCat_Indexes/Bibliographic_records/Bibliographic_record_indexes/Bibliographic_record_index_lists/Alphabetical_list_of_available_WorldCat.org_bibliographic_record_indexes
-        indexSelectOptions: [
-          { label: 'Controll Number', value: '' },
-          { label: 'ISBN', value: 'bn' },
-          { label: 'ISSN', value: 'in' },
-          { label: 'Title', value: 'ti' },
-          { label: 'Name', value: 'au' },
-          { label: 'Keyword', value: 'kw' },
-        ],
-        wcLoadSelected: false,
-        wcLabels: [
-          'CatLevel', 'title', 'creator', 'date', 'language', 'generalFormat',
-          'publisher', 'publicationPlace', 'isbns', 'issns'
-        ],
-        wcLabelMap: {
-          "title": "Title",
-          "creator": "Creator",
-          "date": "Date",
-          "language": "Language",
-          "generalFormat": "Format",
-          "publisher": "Publisher",
-          "publicationPlace": "Place of Publication",
-          "isbns": "ISBNs",
-          "issns": "ISSNs",
-          "CatLevel": "CatLevel"
-        },
-        oclcEncodingLevelsHigh: [' ', '1', 'I'],
-        oclcEncodingLevelsLow: ['K', 'M', '3', '4', '5', '7', '8'],
-        selectedWcRecord: false,
-        currentPage: 1,
-        posting: false,
-        copyCatLccn: null,
-        recordPriority: 3,
-        jackphyCheck: false,
-        ibcCheck: false,
-        responseURL: null,
-        existingLCCN: null,
-        existingRecordUrl: "",
-        hasLccn: false,
-
-
       }
     },
     computed: {
