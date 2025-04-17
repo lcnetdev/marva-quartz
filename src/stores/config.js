@@ -16,7 +16,10 @@ export const useConfigStore = defineStore('config', {
 
         ldpjs : 'http://localhost:9401/api-staging/',
         util  : 'http://localhost:9401/util/',
+
         // util  : 'http://localhost:5200/',
+        // util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
+
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
@@ -24,17 +27,33 @@ export const useConfigStore = defineStore('config', {
         publishNar: 'http://localhost:9401/util/nacostub/staging',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
-        profiles : 'http://localhost:9401/util/profiles/profile/prod',
+
+        // localhost server stage profiles
+        // profiles : 'http://localhost:9401/util/profiles/profile/stage',
+        // starting: 'http://localhost:9401/util/profiles/starting/stage',
+
+        // localhost server prod profiles
+        // profiles : 'http://localhost:9401/util/profiles/profile/prod',
         // starting: 'http://localhost:9401/util/profiles/starting/prod',
 
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
-        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        // offical stage profiles that work outside firewall
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
         // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
-        starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
-        profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
-        util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
+        // offical prod profiles that work outside firewall
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+
+        // offical stage profiles inside the firewall
+        // starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
+        // profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
+
+        // offical prod profiles inside the firewall
+        // starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
+        // profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
+
+
+        
 
         id: 'https://id.loc.gov/',
         env : 'staging',
