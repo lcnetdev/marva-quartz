@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.11] - 2025-04-17
+### Added
+- Ability to find and use complex subdivisions in the subject builder
+
 ## [1.2.10] - 2025-04-15
 ### Changed
 - NAR modal populates `670 $b` with statement of responsibilty when possible

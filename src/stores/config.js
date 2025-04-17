@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 2,
-    versionPatch: 10,
+    versionPatch: 11,
 
 
     regionUrls: {
@@ -33,6 +33,8 @@ export const useConfigStore = defineStore('config', {
         // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
         starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
         profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
+
+        util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
 
         id: 'https://id.loc.gov/',
         env : 'staging',

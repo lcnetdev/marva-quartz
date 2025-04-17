@@ -44,7 +44,7 @@ export default {
       if (type == 'Geographic') return "Geographic"
       if (type == 'HierarchicalGeographic') return "Geographic"
       if (type == 'GenreForm') return "Genre Form"
-      if (type == 'ComplexSubject') return "Complex Subject"
+      if (type == 'madsrdf:ComplexSubject') return "Complex Subject"
       if (type == 'Topic') return "Topic Subject"
 
       if (type == 'Authority') return "Topic" //iconSubjectComplex
@@ -78,8 +78,6 @@ export default {
 
 
 
-
-
       if (this.type && typeof this.type === 'string'){
         let type = this.type
 
@@ -93,7 +91,8 @@ export default {
         if (type == 'Geographic') return iconGeographic
         if (type == 'HierarchicalGeographic') return iconGeographic
         if (type == 'GenreForm') return iconGenre
-        if (type == 'ComplexSubject') return iconSubjectComplex
+        if (type == 'madsrdf:ComplexSubject') return iconSubjectComplex
+
         if (type == 'Topic') return iconSubjectTopic
 
         if (type == 'Authority') return iconSubjectComplex
