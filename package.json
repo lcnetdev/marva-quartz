@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test:unit": "vitest --environment jsdom --root src/",
+    "test:unit": "vitest --environment jsdom  --no-isolate --root src/",
+    "test:unit_debug": "vitest --environment jsdom --silent=false --no-isolate --root src/",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
@@ -40,10 +41,10 @@
     "eslint": "^8.41.0",
     "eslint-plugin-cypress": "^2.13.3",
     "eslint-plugin-vue": "^9.14.1",
-    "jsdom": "^22.1.0",
+    "jsdom": "^26.1.0",
     "prettier": "^2.8.8",
     "start-server-and-test": "^2.0.0",
     "vite": "^5.2.11",
-    "vitest": "^0.31.4"
+    "vitest": "^3.1.1"
   }
 }
