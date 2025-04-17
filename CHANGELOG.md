@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Ability to find and use complex subdivisions in the subject builder
 
+### Fixed
+- Fix `Jurisdictions` being of type `Organization`
+
+
 ## [1.2.10] - 2025-04-15
 ### Changed
 - NAR modal populates `670 $b` with statement of responsibilty when possible

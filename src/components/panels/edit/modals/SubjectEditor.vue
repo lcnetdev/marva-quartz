@@ -1758,8 +1758,16 @@ methods: {
         this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
       }
       let types = this.pickLookup[this.pickPostion].extra['rdftypes']
+
       this.contextData.type = types.includes("Hub") ? "bf:Hub" :  types.includes("Work") ? "bf:Work" : "madsrdf:" +  types[0]
       this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
+
+      //Check if it's a Jurisdiction, and overwrite
+      if (this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")){
+        this.contextData.type = "bf:Jursidiction"
+      this.contextData.typeFull = "http://id.loc.gov/ontologies/bibframe/Jurisdiction"
+      }
+
       this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
 
     } else {
