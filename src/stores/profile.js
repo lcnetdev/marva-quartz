@@ -5295,9 +5295,7 @@ export const useProfileStore = defineStore('profile', {
       for (let rt of this.activeProfile.rtOrder){
         for (let pt of this.activeProfile.rt[rt].ptOrder){
           let purl = utilsParse.namespaceUri(this.activeProfile.rt[rt].pt[pt].propertyURI)
-
           if (purl == property){
-            console.log(this.activeProfile.rt[rt].pt[pt])
             if (this.activeProfile.rt[rt].pt[pt].valueConstraint && this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom && this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom.length>0){
               return this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom[0]
             }
@@ -5306,6 +5304,33 @@ export const useProfileStore = defineStore('profile', {
 
         }
       }
+
+
+      // we didn't find it see if it has instead a templateref value
+      for (let rt of this.activeProfile.rtOrder){
+        for (let pt of this.activeProfile.rt[rt].ptOrder){
+          let purl = utilsParse.namespaceUri(this.activeProfile.rt[rt].pt[pt].propertyURI)
+          if (purl == property){
+            if (this.activeProfile.rt[rt].pt[pt].valueConstraint && this.activeProfile.rt[rt].pt[pt].valueConstraint.valueTemplateRefs && this.activeProfile.rt[rt].pt[pt].valueConstraint.valueTemplateRefs.length>0){
+              let lookForTemplate = this.activeProfile.rt[rt].pt[pt].valueConstraint.valueTemplateRefs[0]
+              for (let pName in this.profiles){
+                if (this.profiles[pName].rtOrder.includes(lookForTemplate)){
+                  for (let p of this.profiles[pName].rt[lookForTemplate].ptOrder){
+                    let purl2 = utilsParse.namespaceUri(this.profiles[pName].rt[lookForTemplate].pt[p].propertyURI)                    
+                    if (purl2 == property || purl2 == 'owl:sameAs'){
+                      if (this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint && this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint.useValuesFrom && this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint.useValuesFrom.length>0){
+                        return this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint.useValuesFrom[0]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+
       return false
     },
 
