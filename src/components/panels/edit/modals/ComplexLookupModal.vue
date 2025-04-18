@@ -794,6 +794,7 @@
       },
 
       rewriteURI: function(uri){
+        let returnUrls = useConfigStore().returnUrls
 
         if (!uri){
           return false
@@ -804,9 +805,20 @@
         }
 
         if (uri.includes('/resources/hubs/') || uri.includes('/resources/works/') || uri.includes('/resources/instances/') || uri.includes('/resources/items/')){
-          let returnUrls = useConfigStore().returnUrls
           uri = uri.replace('https://id.loc.gov/', returnUrls.bfdb )
           uri = uri.replace('http://id.loc.gov/', returnUrls.bfdb )
+        }
+
+        // use internal links for prodcution
+        if (returnUrls.dev || returnUrls.publicEndpoints){
+          uri = uri.replace('http://preprod.id.','https://id.')
+          uri = uri.replace('https://preprod-8230.id.loc.gov','https://id.loc.gov')
+          uri = uri.replace('https://test-8080.id.lctl.gov','https://id.loc.gov')
+          uri = uri.replace('https://preprod-8080.id.loc.gov','https://id.loc.gov')
+          uri = uri.replace('https://preprod-8288.id.loc.gov','https://id.loc.gov')
+        } else { // if it's not dev or public make sure we're using 8080
+          uri = uri.replace('https://id.loc.gov', 'https://preprod-8080.id.loc.gov')
+          uri = uri.replace('http://id.loc.gov', 'https://preprod-8080.id.loc.gov')
         }
 
 

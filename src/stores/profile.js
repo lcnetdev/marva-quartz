@@ -5316,7 +5316,7 @@ export const useProfileStore = defineStore('profile', {
               for (let pName in this.profiles){
                 if (this.profiles[pName].rtOrder.includes(lookForTemplate)){
                   for (let p of this.profiles[pName].rt[lookForTemplate].ptOrder){
-                    let purl2 = utilsParse.namespaceUri(this.profiles[pName].rt[lookForTemplate].pt[p].propertyURI)                    
+                    let purl2 = utilsParse.namespaceUri(this.profiles[pName].rt[lookForTemplate].pt[p].propertyURI)
                     if (purl2 == property || purl2 == 'owl:sameAs'){
                       if (this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint && this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint.useValuesFrom && this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint.useValuesFrom.length>0){
                         return this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint.useValuesFrom[0]

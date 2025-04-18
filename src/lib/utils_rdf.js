@@ -92,8 +92,6 @@ const utilsRDF = {
           }
       }
 
-
-
       // find a template name to use
       if (pt && pt.valueConstraint && pt.valueConstraint && pt.valueConstraint.valueTemplateRefs && pt.valueConstraint.valueTemplateRefs.length>0){
           let possibleTypes = []
@@ -247,6 +245,10 @@ const utilsRDF = {
     if (propertyURI==='http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
       return 'http://www.w3.org/2000/01/rdf-schema#Resource'
     }
+    // If a subject gets edited, we can end up here and it'll return "rdfs:Resource" instead of "bf:Topic"
+    if (propertyURI === 'http://id.loc.gov/ontologies/bibframe/subject'){
+      return 'http://id.loc.gov/ontologies/bibframe/Topic'
+    }
 
 
 
@@ -259,11 +261,6 @@ const utilsRDF = {
 
     let objProp = prop.getElementsByTagName("owl:ObjectProperty")
     let dataProp = prop.getElementsByTagName("owl:DatatypeProperty")
-
-
-
-
-
 
     // console.log("propXml",propXml)
 
