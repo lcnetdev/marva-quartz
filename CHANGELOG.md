@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [1.2.12] - 2025-04-18
+### Fixed
+- Custom Order changing the order of fields when records are loaded in
+
+### Changed
+- Make sure that subjects are grouped by source with LCSH terms first
+- Show value of Classification components in property panel
+
+
 ## [1.2.11] - 2025-04-17
 ### Added
 - Ability to find and use complex subdivisions in the subject builder

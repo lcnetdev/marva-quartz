@@ -534,7 +534,7 @@ export const useProfileStore = defineStore('profile', {
         for (let el of customOrder){
           // These should all be base level names, no `_ + new Date()`
           let matchingComponents = currentOrder.filter(i => i.includes(el)) // keep like components together
-          tempOrder = tempOrder.concat(matchingComponents.sort())
+          tempOrder = tempOrder.concat(matchingComponents) //.sort()
         }
 
         //Need to get the admin fields
