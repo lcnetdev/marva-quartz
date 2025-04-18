@@ -225,15 +225,16 @@ const utilsParse = {
 
 
       // xml = xml.replace(/(<\/?.*?>)/g, '$1\n');
-
+      console.log("THE XML IS",xml)
       this.activeDom = parser.parseFromString(xml, 'application/xml');
       this.testDom = parser.parseFromString(xml, 'application/xml');
-
+      console.log(this.activeDom.children)
 
       let root = this.activeDom.getElementsByTagName('rdf:RDF')
+      console.log("------",root.length)
       if (root.length > 0){ root = root[0]}
 
-
+      
       this.hasInstance = 0
       for (let rdfChild of root.children){
         if (rdfChild.tagName == 'bf:Instance'){
