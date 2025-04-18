@@ -309,7 +309,6 @@ import { isReadonly } from 'vue';
               && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]
               && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
           ){
-            console.info("????")
             classPort = component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
           }
 
