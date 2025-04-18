@@ -208,7 +208,7 @@
                     </h3>
 
                     <div class="modal-context-data-title" v-if="contextData.rdftypes">{{contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]}}</div>
-                    <a style="color:#2c3e50" :href="contextData.uri" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
+                    <a style="color:#2c3e50" :href="rewriteURI(contextData.uri)" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
 
                     <br><br>
 
@@ -914,6 +914,25 @@ computed: {
 
 },
 methods: {
+  rewriteURI: function(uri){
+    if (!uri){ return false }
+    let returnUrls = useConfigStore().returnUrls
+
+    // use internal links for prodcution
+    if (returnUrls.dev || returnUrls.publicEndpoints){
+      uri = uri.replace('http://preprod.id.','https://id.')
+      uri = uri.replace('https://preprod-8230.id.loc.gov','https://id.loc.gov')
+      uri = uri.replace('https://test-8080.id.lctl.gov','https://id.loc.gov')
+      uri = uri.replace('https://preprod-8080.id.loc.gov','https://id.loc.gov')
+      uri = uri.replace('https://preprod-8288.id.loc.gov','https://id.loc.gov')
+    } else { // if it's not dev or public make sure we're using 8080
+      uri = uri.replace('https://id.loc.gov', 'https://preprod-8080.id.loc.gov')
+      uri = uri.replace('http://id.loc.gov', 'https://preprod-8080.id.loc.gov')
+    }
+
+
+    return uri
+  },
   hasOverFlow: function(element){
     let overflow = element.scrollHeight > element.clientHeight
     return overflow
