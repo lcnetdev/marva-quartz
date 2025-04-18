@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Make sure that subjects are grouped by source with LCSH terms first
+- Show value of Classification components in property panel
 
 
 ## [1.2.11] - 2025-04-17
