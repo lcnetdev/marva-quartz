@@ -445,9 +445,7 @@ const utilsNetwork = {
               urlTemplate[idx] = urlTemplate[idx].replace('q=?','q=')+'&searchtype=keyword'
             }
           }
-
         }
-
 
         let results = []
         for (let url of urlTemplate) {
@@ -462,6 +460,9 @@ const utilsNetwork = {
               url = url.replace('https://id.loc.gov', 'https://preprod-8080.id.loc.gov')
             }
 
+            if (usePreferenceStore().returnValue('--b-edit-complex-include-usage')){
+              url = url + "&usage=true"
+            }
 
             url = url + "&blastdacache=" + Date.now()
 
@@ -485,6 +486,7 @@ const utilsNetwork = {
                 // console.log("URL",url)
                 // console.log("r",r)
                 for (let hit of r.hits){
+                  console.info("hit: ", hit)
                   let hitAdd = {
                     collections: hit.more.collections ? hit.more.collections : [],
                     label: hit.aLabel,
@@ -496,7 +498,8 @@ const utilsNetwork = {
                     extra: hit.more,
                     total: r.count,
                     undifferentiated: false,
-                    subdivision: searchPayload.subdivision ? true : false
+                    subdivision: searchPayload.subdivision ? true : false,
+                    count: Object.keys(hit).includes("subject-of") ? hit["subject-of"] : 0
                   }
 
                   if (hitAdd.label=='' && hitAdd.suggestLabel.includes('DEPRECATED')){
