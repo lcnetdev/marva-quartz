@@ -2226,7 +2226,7 @@ const utilsExport = {
 
 		let title = mainTitle
 		if (mainTitleDate){
-			title = title + ', ' + mainTitleDate
+			title = title + ', ' + mainTitleDate + ':'
 		}
 		field670a.innerHTML = title
 		field670.appendChild(field670a)

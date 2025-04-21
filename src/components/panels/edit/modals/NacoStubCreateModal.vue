@@ -77,6 +77,8 @@
         workURI: false,
         statementOfResponsibility: null,
 
+        zero46: null,
+
         tmpXML:false,
 
         scriptShifterOptions: {},
@@ -93,7 +95,7 @@
       ...mapStores(useConfigStore),
       ...mapStores(useProfileStore),
 
-      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeNARStubComponent','lastComplexLookupString']),
+      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeNARStubComponent','lastComplexLookupString','savedNARModalData']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
@@ -379,6 +381,25 @@
               this.disableAddButton=false
             }
 
+            if (dollarKey.d){
+              let lifeDates  = dollarKey.d.split('-')
+              if (lifeDates.length>1){
+                this.zero46 = {}
+                this.zero46.f = lifeDates[0]
+                if (lifeDates[1].trim().length>0){
+                  this.zero46.g = lifeDates[1]
+                }
+                
+              }
+              if (lifeDates.length==1){
+                this.zero46 = {}
+                this.zero46.f = lifeDates[0]
+              }
+                
+
+              
+            }
+
 
 
           }else{
@@ -478,6 +499,8 @@
               },500)
               this.disableAddButton=false
             }
+
+
 
 
 
@@ -751,6 +774,40 @@
 
         },
 
+        
+        async presetChange(event){
+          if (event.target.value == 'home'){return true}
+          let OnexxPart = null
+          let FourxxPart = null
+          if (event.target.value.indexOf("and")>-1){
+            OnexxPart = event.target.value.split("and ")[0]
+            FourxxPart = event.target.value.split("and ")[1]
+          }else{
+            OnexxPart = event.target.value
+          }
+          if (OnexxPart){
+            if (this.oneXX.indexOf("$a")>-1){
+              this.oneXX = OnexxPart + "$a"+ this.oneXX.split("$a")[1]
+            }else{
+              this.oneXX = OnexxPart + "$a"
+            }
+            this.checkOneXX()
+          }
+          if (FourxxPart){
+            if (this.fourXX.indexOf("$a")>-1){
+              this.fourXX = FourxxPart + "$a"+ this.fourXX.split("$a")[1]
+            }else{
+              this.fourXX = FourxxPart + "$a"
+            }
+            this.checkFourXX()
+          }
+
+          window.setTimeout(()=>{
+            event.target.value = 'home'
+          },500)
+
+        },
+
         async transliterateChange(event){
 
           if (event.target.value == 'home'){return true}
@@ -865,6 +922,16 @@
         },
 
 
+        storeBeforeClosing(){
+          // put the onexx and four xx into a var for next time if they havent posted it yet
+          if (this.postStatus != 'posted'){
+            this.savedNARModalData.oneXX = this.oneXX
+            this.savedNARModalData.fourXX = this.fourXX
+            this.savedNARModalData.mainTitleNote = this.mainTitleNote
+          }else{
+            this.savedNARModalData = {}
+          }
+        }
 
 
 
@@ -893,6 +960,18 @@
 
       if (this.statementOfResponsibility){
         this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
+      }
+
+      if (this.savedNARModalData.oneXX){
+        this.oneXX = this.savedNARModalData.oneXX
+        this.checkOneXX()
+      }
+      if (this.savedNARModalData.fourXX){
+        this.fourXX = this.savedNARModalData.fourXX
+        this.checkFourXX()
+      }
+      if (this.savedNARModalData.mainTitleNote){
+        this.mainTitleNote = this.savedNARModalData.mainTitleNote
       }
 
       this.workURI =  this.profileStore.nacoStubReturnWorkURI()
@@ -954,6 +1033,7 @@
       :hide-overlay="false"
       :overlay-transition="'vfm-fade'"
 
+      @beforeClose="storeBeforeClosing"
 
     >
         <VueDragResize
@@ -988,10 +1068,24 @@
                 <input type="text" ref="hub-title" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d....">
               </div>
             </div>
-            <div style="float: right;">
 
+            <div style="display: flex; margin-bottom: 1em;">
+              <div style="flex: 1;">
+                <select @change="presetChange">
+                  <option value="home">Presets</option>
+                  <option value="1001 ">"1001 "</option>
+                  <option value="1001 and 4001 ">"1001 " &amp; "4001 "</option>
+                  <option value="1102 ">"1102 "</option>
+                  <option value="1102 and 4102 ">"1102 " &amp; "4102 "</option>
+                  <option value="1112 ">"1112 "</option>
+                  <option value="1112 and 4112 ">"1112 " &amp; "4112 "</option>
 
-              <select @change="transliterateChange">
+                  
+
+                </select>
+              </div>
+              <div style="flex: 1;">
+                <select @change="transliterateChange">
                 <option value="home">Transliterate</option>
                 <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
 
@@ -1004,7 +1098,13 @@
 
 
               </select>
+
+
+              </div>
+
+
             </div>
+ 
 
 
 
@@ -1160,7 +1260,7 @@
                 <div style="white-space: nowrap; display: inline-block; width: 80%">
                   <span class="material-icons edit-icon">edit</span>
                   <label>670 $b: </label>
-                  <input placeholder="(optional)" v-model="mainTitleNote" style="width:100%; margin-bottom:0.25em"/>
+                  <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em"/>
                 </div>
 
                 <template v-if="mainTitle && mainTitleDate && mainTitleLccn">

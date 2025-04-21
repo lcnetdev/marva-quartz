@@ -98,6 +98,8 @@ export const useProfileStore = defineStore('profile', {
 
     activeNARStubComponent:{},
 
+    savedNARModalData:{},
+
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
@@ -5425,7 +5427,25 @@ export const useProfileStore = defineStore('profile', {
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
                 )
-                return pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                {
+                  
+                  // look for the one that is set as latin first, if we can find it
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
+                    if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
+                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']                       
+                    }
+                  }
+
+                  // otherwise look for the first one that doesn't have a language tag
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
+                    if (!aTitle['@language']){
+                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']                       
+                    }
+                  }
+
+                  // if we can't find one without a language tag, just return the first one
+                  return pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                }
             }
           }
         }
