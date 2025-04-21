@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.14] - 2025-04-21
+### Fixed
+- Not being able to load resource without subjects
+
+
 ## [1.2.12] - 2025-04-18
 ### Fixed
 - Custom Order changing the order of fields when records are loaded in
