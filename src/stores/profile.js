@@ -98,6 +98,8 @@ export const useProfileStore = defineStore('profile', {
 
     activeNARStubComponent:{},
 
+    savedNARModalData:{},
+
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,

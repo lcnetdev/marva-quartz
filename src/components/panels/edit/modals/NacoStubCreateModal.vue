@@ -93,7 +93,7 @@
       ...mapStores(useConfigStore),
       ...mapStores(useProfileStore),
 
-      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeNARStubComponent','lastComplexLookupString']),
+      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeNARStubComponent','lastComplexLookupString','savedNARModalData']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
@@ -753,9 +753,7 @@
 
         
         async presetChange(event){
-
           if (event.target.value == 'home'){return true}
-
           let OnexxPart = null
           let FourxxPart = null
           if (event.target.value.indexOf("and")>-1){
@@ -764,32 +762,26 @@
           }else{
             OnexxPart = event.target.value
           }
-
           if (OnexxPart){
             if (this.oneXX.indexOf("$a")>-1){
               this.oneXX = OnexxPart + "$a"+ this.oneXX.split("$a")[1]
             }else{
               this.oneXX = OnexxPart + "$a"
             }
+            this.checkOneXX()
           }
           if (FourxxPart){
             if (this.fourXX.indexOf("$a")>-1){
               this.fourXX = FourxxPart + "$a"+ this.fourXX.split("$a")[1]
             }else{
               this.fourXX = FourxxPart + "$a"
-
             }
+            this.checkFourXX()
           }
 
-
-
-
           window.setTimeout(()=>{
-
             event.target.value = 'home'
-
           },500)
-
 
         },
 
@@ -907,6 +899,16 @@
         },
 
 
+        storeBeforeClosing(){
+          // put the onexx and four xx into a var for next time if they havent posted it yet
+          if (this.postStatus != 'posted'){
+            this.savedNARModalData.oneXX = this.oneXX
+            this.savedNARModalData.fourXX = this.fourXX
+            this.savedNARModalData.mainTitleNote = this.mainTitleNote
+          }else{
+            this.savedNARModalData = {}
+          }
+        }
 
 
 
@@ -935,6 +937,18 @@
 
       if (this.statementOfResponsibility){
         this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
+      }
+
+      if (this.savedNARModalData.oneXX){
+        this.oneXX = this.savedNARModalData.oneXX
+        this.checkOneXX()
+      }
+      if (this.savedNARModalData.fourXX){
+        this.fourXX = this.savedNARModalData.fourXX
+        this.checkFourXX()
+      }
+      if (this.savedNARModalData.mainTitleNote){
+        this.mainTitleNote = this.savedNARModalData.mainTitleNote
       }
 
       this.workURI =  this.profileStore.nacoStubReturnWorkURI()
@@ -996,6 +1010,7 @@
       :hide-overlay="false"
       :overlay-transition="'vfm-fade'"
 
+      @beforeClose="storeBeforeClosing"
 
     >
         <VueDragResize
