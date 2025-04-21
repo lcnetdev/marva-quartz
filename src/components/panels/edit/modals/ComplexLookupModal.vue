@@ -757,6 +757,7 @@
       },
 
       displayProvisonalNAR(){
+        return true
         if (!this.preferenceStore.isNarTester()){
           return false
         }
