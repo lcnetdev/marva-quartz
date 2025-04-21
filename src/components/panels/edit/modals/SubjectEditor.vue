@@ -153,7 +153,7 @@
                           {{subject.label}}
                         </span>
                         <span  v-if="subject.literal">[Literal]</span>
-                        <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }} {{ subject.count }}!!</span>
+                        <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }} [{{ subject.count }}]</span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>

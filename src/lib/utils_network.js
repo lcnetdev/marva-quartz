@@ -499,7 +499,8 @@ const utilsNetwork = {
                     total: r.count,
                     undifferentiated: false,
                     subdivision: searchPayload.subdivision ? true : false,
-                    count: Object.keys(hit).includes("subject-of") ? hit["subject-of"] : 0
+                    countSubj: Object.keys(hit).includes("subject-of") ? hit["subject-of"] : 0,
+                    countName: Object.keys(hit).includes("contributions") ? hit["contributions"] : 0
                   }
 
                   if (hitAdd.label=='' && hitAdd.suggestLabel.includes('DEPRECATED')){
