@@ -2051,7 +2051,8 @@ const utilsExport = {
 
 	},
 
-	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote){
+	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46){
+
 		let marcNamespace = "http://www.loc.gov/MARC21/slim"
 
 		let rootEl = document.createElementNS(marcNamespace,"marcxml:record");
@@ -2141,6 +2142,39 @@ const utilsExport = {
 		rootEl.appendChild(field040)
 
 
+		if (zero46 && Object.keys(zero46).length > 0){
+
+			let field046 = document.createElementNS(marcNamespace,"marcxml:datafield");
+			field046.setAttribute( 'tag', '046')
+			field046.setAttribute( 'ind1', ' ')
+			field046.setAttribute( 'ind2', ' ')
+
+			if (zero46.f){
+				let field046f = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field046f.setAttribute( 'code', 'f')
+				field046f.innerHTML = zero46.f
+				field046.appendChild(field046f)
+			}
+			if (zero46.g && zero46.g.length > 0){
+				let field046g = document.createElementNS(marcNamespace,"marcxml:subfield");
+				field046g.setAttribute( 'code', 'g')
+				field046g.innerHTML = zero46.g
+				field046.appendChild(field046g)
+			}
+
+			let field0462 = document.createElementNS(marcNamespace,"marcxml:subfield");
+			field0462.setAttribute( 'code', '2')
+			field0462.innerHTML = 'edtf'
+			field046.appendChild(field0462)
+
+			rootEl.appendChild(field046)
+
+		}
+
+
+
+
+
 		// ---- 985
 		let field985 = document.createElementNS(marcNamespace,"marcxml:datafield");
 		field985.setAttribute( 'tag', '985')
@@ -2226,7 +2260,7 @@ const utilsExport = {
 
 		let title = mainTitle
 		if (mainTitleDate){
-			title = title + ', ' + mainTitleDate + ':'
+			title = title + ', ' + mainTitleDate + ': '
 		}
 		field670a.innerHTML = title
 		field670.appendChild(field670a)
