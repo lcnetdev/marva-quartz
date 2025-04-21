@@ -77,6 +77,8 @@
         workURI: false,
         statementOfResponsibility: null,
 
+        zero46: null,
+
         tmpXML:false,
 
         scriptShifterOptions: {},
@@ -379,6 +381,25 @@
               this.disableAddButton=false
             }
 
+            if (dollarKey.d){
+              let lifeDates  = dollarKey.d.split('-')
+              if (lifeDates.length>1){
+                this.zero46 = {}
+                this.zero46.f = lifeDates[0]
+                if (lifeDates[1].trim().length>0){
+                  this.zero46.g = lifeDates[1]
+                }
+                
+              }
+              if (lifeDates.length==1){
+                this.zero46 = {}
+                this.zero46.f = lifeDates[0]
+              }
+                
+
+              
+            }
+
 
 
           }else{
@@ -478,6 +499,8 @@
               },500)
               this.disableAddButton=false
             }
+
+
 
 
 
