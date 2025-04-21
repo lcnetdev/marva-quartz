@@ -1160,7 +1160,7 @@
                 <div style="white-space: nowrap; display: inline-block; width: 80%">
                   <span class="material-icons edit-icon">edit</span>
                   <label>670 $b: </label>
-                  <input placeholder="(optional)" v-model="mainTitleNote" style="width:100%; margin-bottom:0.25em"/>
+                  <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em"/>
                 </div>
 
                 <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
