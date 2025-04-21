@@ -26,7 +26,7 @@
         top: 200,
         left: 0,
 
-        initalHeight: 500,
+        initalHeight: 550,
         initalLeft: 400,
 
 
@@ -136,6 +136,10 @@
           if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT' || tagName === 'SPAN'|| tagName === 'TD') {
             event.stopPropagation()
           }
+          if (event.target.classList.contains('selectable')) {
+            event.stopPropagation()
+          }
+
         },
 
         async buildNacoStub(){
@@ -1264,14 +1268,14 @@
                 </div>
 
                 <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
-                  <div style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
+                  <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
                 </template>
                 <template v-else>
-                  <div style="font-family: monospace; background-color: whitesmoke;">Missing 670 Date Field! Can't build 670</div>
+                  <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">Missing 670 Date Field! Can't build 670</div>
                 </template>
 
                 <template v-if="zero46 && Object.keys(zero46).length>0">
-                  <div style="font-family: monospace; background-color: whitesmoke;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
+                  <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
                 </template>
                   
 
