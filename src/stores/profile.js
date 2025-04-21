@@ -5597,12 +5597,12 @@ export const useProfileStore = defineStore('profile', {
       * @param {string} langObj - {uri:"",label:""}
       * @return {String}
       */
-    async buildPostNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote){
-      console.log(oneXX,fourXX,mainTitle,workURI)
+    async buildPostNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46){
+      console.log(oneXX,fourXX,mainTitle,workURI,zero46)
 
       let lccn = await utilsNetwork.nacoLccn()
 
-      let xml = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote)
+      let xml = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46)
 
       let pubResuts
       try{

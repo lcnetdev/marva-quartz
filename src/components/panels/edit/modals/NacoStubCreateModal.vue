@@ -154,7 +154,7 @@
           }
 
 
-          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI, this.mainTitleDate, this.mainTitleLccn, note)
+          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46)
 
 
 
@@ -1264,11 +1264,17 @@
                 </div>
 
                 <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
-                  <div style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}{{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
+                  <div style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
                 </template>
                 <template v-else>
                   <div style="font-family: monospace; background-color: whitesmoke;">Missing 670 Date Field! Can't build 670</div>
                 </template>
+
+                <template v-if="zero46 && Object.keys(zero46).length>0">
+                  <div style="font-family: monospace; background-color: whitesmoke;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
+                </template>
+                  
+
 
               </div>
 
