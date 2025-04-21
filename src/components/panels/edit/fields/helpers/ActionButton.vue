@@ -457,9 +457,9 @@
       showBuildNacoStub(){
 
         // if (this.isStaging() == false){ return false} // REMOVE BEFORE PROD USAGE
-        return true
-        if (!this.preferenceStore.isNarTester()) return false
 
+
+        
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
 
