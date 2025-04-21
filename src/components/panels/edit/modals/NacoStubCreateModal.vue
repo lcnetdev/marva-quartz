@@ -751,6 +751,48 @@
 
         },
 
+        
+        async presetChange(event){
+
+          if (event.target.value == 'home'){return true}
+
+          let OnexxPart = null
+          let FourxxPart = null
+          if (event.target.value.indexOf("and")>-1){
+            OnexxPart = event.target.value.split("and ")[0]
+            FourxxPart = event.target.value.split("and ")[1]
+          }else{
+            OnexxPart = event.target.value
+          }
+
+          if (OnexxPart){
+            if (this.oneXX.indexOf("$a")>-1){
+              this.oneXX = OnexxPart + "$a"+ this.oneXX.split("$a")[1]
+            }else{
+              this.oneXX = OnexxPart + "$a"
+            }
+          }
+          if (FourxxPart){
+            if (this.fourXX.indexOf("$a")>-1){
+              this.fourXX = FourxxPart + "$a"+ this.fourXX.split("$a")[1]
+            }else{
+              this.fourXX = FourxxPart + "$a"
+
+            }
+          }
+
+
+
+
+          window.setTimeout(()=>{
+
+            event.target.value = 'home'
+
+          },500)
+
+
+        },
+
         async transliterateChange(event){
 
           if (event.target.value == 'home'){return true}
@@ -988,10 +1030,24 @@
                 <input type="text" ref="hub-title" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d....">
               </div>
             </div>
-            <div style="float: right;">
 
+            <div style="display: flex; margin-bottom: 1em;">
+              <div style="flex: 1;">
+                <select @change="presetChange">
+                  <option value="home">Presets</option>
+                  <option value="1001 ">"1001 "</option>
+                  <option value="1001 and 4001 ">"1001 " &amp; "4001 "</option>
+                  <option value="1102 ">"1102 "</option>
+                  <option value="1102 and 4102 ">"1102 " &amp; "4102 "</option>
+                  <option value="1112 ">"1112 "</option>
+                  <option value="1112 and 4112 ">"1112 " &amp; "4112 "</option>
 
-              <select @change="transliterateChange">
+                  
+
+                </select>
+              </div>
+              <div style="flex: 1;">
+                <select @change="transliterateChange">
                 <option value="home">Transliterate</option>
                 <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
 
@@ -1004,7 +1060,13 @@
 
 
               </select>
+
+
+              </div>
+
+
             </div>
+ 
 
 
 
