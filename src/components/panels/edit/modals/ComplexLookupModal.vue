@@ -305,7 +305,7 @@
               offset = 0
               this.currentPage--
               this.doSearch()
-              alert("This is the end. The other pages are just an illusion. Going back 1 page.")
+              alert("Other pages are just an illusion. This is the end.")
             }
           }, 100)
         } else {
