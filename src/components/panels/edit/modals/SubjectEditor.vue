@@ -1537,6 +1537,39 @@ methods: {
     this.$refs.subjectInput.focus()
   },
 
+  /**
+   * Build the pick lookup so we can adjust the sorting here.
+   *
+   * Without rebuilding the picklookup list, selectiong will be off.
+   * We do it here so that we can adjust the current search results without
+   * needing to do another search.
+   *
+   */
+  buildPickLookup: function(){
+    for (let x in this.searchResults.subjectsComplex){
+      this.pickLookup[x] = this.searchResults.subjectsComplex[x]
+    }
+
+    for (let x in this.searchResults.subjectsChildrenComplex){
+      this.pickLookup[x] = this.searchResults.subjectsChildrenComplex[x]
+    }
+
+    for (let x in this.searchResults.subjectsSimple){
+      this.pickLookup[parseInt(x)+parseInt(this.searchResults.subjectsComplex.length)] = this.searchResults.subjectsSimple[x]
+    }
+
+    for (let x in this.searchResults.subjectsChildren){
+      this.pickLookup[parseInt(x)+parseInt(this.searchResults.subjectsChildrenComplex.length)] = this.searchResults.subjectsChildren[x]
+    }
+
+    for (let x in this.searchResults.names){
+      this.pickLookup[(this.searchResults.names.length - x)*-1] = this.searchResults.names[x]
+    }
+
+    for (let x in this.searchResults.exact){
+      this.pickLookup[(this.searchResults.names.length - x)*-1-2] = this.searchResults.exact[x]
+    }
+  },
 
   // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
   searchApis: debounce(async (searchString, searchStringFull, that) => {
@@ -1658,29 +1691,7 @@ methods: {
 
     that.pickPostion = that.searchResults.subjectsSimple.length + that.searchResults.subjectsComplex.length -1
 
-    for (let x in that.searchResults.subjectsComplex){
-      that.pickLookup[x] = that.searchResults.subjectsComplex[x]
-    }
-
-    for (let x in that.searchResults.subjectsChildrenComplex){
-      that.pickLookup[x] = that.searchResults.subjectsChildrenComplex[x]
-    }
-
-    for (let x in that.searchResults.subjectsSimple){
-      that.pickLookup[parseInt(x)+parseInt(that.searchResults.subjectsComplex.length)] = that.searchResults.subjectsSimple[x]
-    }
-
-    for (let x in that.searchResults.subjectsChildren){
-      that.pickLookup[parseInt(x)+parseInt(that.searchResults.subjectsChildrenComplex.length)] = that.searchResults.subjectsChildren[x]
-    }
-
-    for (let x in that.searchResults.names){
-      that.pickLookup[(that.searchResults.names.length - x)*-1] = that.searchResults.names[x]
-    }
-
-    for (let x in that.searchResults.exact){
-      that.pickLookup[(that.searchResults.names.length - x)*-1-2] = that.searchResults.exact[x]
-    }
+    that.buildPickLookup()
 
     for (let k in that.pickLookup){
       that.pickLookup[k].picked = false
@@ -1921,6 +1932,8 @@ methods: {
           }
         })
 
+        this.buildPickLookup()
+
       } else if (typeSort == 'useageDesc'){
         this.searchResults[r] = records.sort((a,b) => {
           if (a.count === undefined){
@@ -1935,9 +1948,11 @@ methods: {
             return 1
           }
         })
-      }
-    }
 
+        this.buildPickLookup()
+      }
+
+    }
   },
 
   buildCount: function(subject){

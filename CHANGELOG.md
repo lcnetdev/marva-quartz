@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 
 ## [1.2.15] - 2025-04-22
+### Fix
+- Issue with usage sorting selecting the wrong entry
+
+### Changed
+- Move `Hub` left of `Works` in lookups
+
 ### Added
 - Support for usage statistics from Suggest2
 
