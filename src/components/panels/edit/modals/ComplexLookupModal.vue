@@ -279,7 +279,7 @@
             }
           })
 
-          // wrapping this in setTimeout might not be needed anymore
+        // wrapping this in setTimeout might not be needed anymore
         if (searchPayload.type == 'complex'){
           this.searchTimeout = window.setTimeout(async ()=>{
             this.activeComplexSearchInProgress = true
@@ -298,6 +298,15 @@
 
             this.activeComplexSearchInProgress = false
             this.initalSearchState =false
+
+            if (this.activeComplexSearch.length == 0 && offset > 0){
+              // reset offset, set the page back one
+              // this can happen because the "total" given from the suggest service reflects the number before deduping.
+              offset = 0
+              this.currentPage--
+              this.doSearch()
+              alert("This is the end. The other pages are just an illusion. Going back 1 page.")
+            }
           }, 100)
         } else {
           let filter = function(obj, target){

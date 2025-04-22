@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Move `Hub` left of `Works` in lookups
+- How pagination deals with getting no results
 
 ### Added
 - Support for usage statistics from Suggest2
