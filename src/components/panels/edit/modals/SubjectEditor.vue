@@ -120,7 +120,6 @@
                         <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
                         <span v-if="subject.collections">
                           {{ this.buildAddtionalInfo(subject.collections) }}
-                          {{ buildCount(subject) }}
                         </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
@@ -134,7 +133,10 @@
                         <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
-                          <span v-if="name.collections"> {{ this.buildAddtionalInfo(name.collections) }} {{ buildCount(name) }}</span>
+                          <span v-if="name.collections">
+                            {{ this.buildAddtionalInfo(name.collections) }}
+                            <span v-if="name.count && name.count > 0" class="usage-count" :style="{'background-color': setBackgroundColor(name.count, searchResults.names)}">{{ buildCount(name) }}</span>
+                          </span>
                           <div class="may-sub-container" style="display: inline;">
                             <AuthTypeIcon v-if="name.collections && name.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                           </div>
@@ -146,7 +148,10 @@
                       <span class="subject-results-heading">Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
-                        <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }} {{ buildCount(subjectC) }}</span>
+                        <span v-if="subjectC.collections">
+                          {{ this.buildAddtionalInfo(subjectC.collections) }}
+                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count" :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsComplex)}">{{ buildCount(subjectC) }}</span>
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -163,7 +168,7 @@
                         <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal">
                           {{ this.buildAddtionalInfo(subject.collections) }}
-                          <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject) }}</span>
+                          <span v-if="subject.count && subject.count > 0" class="usage-count" :style="{'background-color': setBackgroundColor(subject.count, searchResults.subjectsSimple)}">{{ buildCount(subject) }}</span>
                         </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
@@ -177,7 +182,10 @@
                       <span class="subject-results-heading">CYAC Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
-                        <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }} {{ buildCount(subjectC) }}</span>
+                        <span v-if="subjectC.collections">
+                          {{ this.buildAddtionalInfo(subjectC.collections) }}
+                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count" :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}">{{ buildCount(subjectC) }}</span>
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -188,7 +196,10 @@
                     <span class="subject-results-heading">CYAC Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
-                        <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }} {{ buildCount(subjectC) }}</span>
+                        <span v-if="!subject.literal">
+                          {{ this.buildAddtionalInfo(subject.collections) }}
+                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count" :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}">{{ buildCount(subjectC) }}</span>
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -767,11 +778,8 @@ li::before {
 }*/
 
 .usage-count {
-  /**
-  var h = (1.0 - value) * 240
-  return "hsl(" + h + ", 100%, 50%)";
-   */
-  background-color: blue;
+  color: white;
+  text-shadow: black 0px 0px 10px;
 }
 
 </style>
@@ -926,8 +934,6 @@ data: function() {
     ],
     selectedSortOrder: "alpha",
 
-
-
   }
 },
 
@@ -940,6 +946,17 @@ computed: {
 
 },
 methods: {
+  setBackgroundColor: function(value, records){
+    // 5 color heatmap: https://stackoverflow.com/questions/12875486/what-is-the-algorithm-to-create-colors-for-a-heatmap
+    let range =  records.map((r) => r.count).filter(n => n != undefined)
+    let min = Math.min(...range)
+    let max = Math.max(...range)
+
+    let normalizedValue = (value - min) / (max - min)
+
+    let h = (1.0 - normalizedValue) * 240
+    return "hsl(" + h + ", 100%, 50%)";
+  },
   rewriteURI: function(uri){
     if (!uri){ return false }
     let returnUrls = useConfigStore().returnUrls
@@ -1897,6 +1914,8 @@ methods: {
             return 0 //-1
           } else if ( a.count > b.count){
             return -1
+          } else if (a.count == 0 && b.count == 0){
+            return 0
           } else {
             return 1
           }
