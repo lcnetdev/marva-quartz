@@ -1036,7 +1036,7 @@ export const usePreferenceStore = defineStore('preference', {
         step: 5,
       },
       '--b-edit-complex-include-usage' : {
-        desc: 'Include the usage numbers for subject headings.',
+        desc: 'Include the usage numbers for subject headings. This might increase search time.',
         descShort: 'Include Usage',
         value: false,
         type: 'boolean',

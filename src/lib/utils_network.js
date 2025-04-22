@@ -486,7 +486,9 @@ const utilsNetwork = {
                 // console.log("URL",url)
                 // console.log("r",r)
                 for (let hit of r.hits){
-                  console.info("hit: ", hit)
+                  let countSubj = Object.keys(hit).includes("subject-of") ? hit["subject-of"] : 0
+                  let countName = Object.keys(hit).includes("contributions") ? hit["contributions"] : 0
+
                   let hitAdd = {
                     collections: hit.more.collections ? hit.more.collections : [],
                     label: hit.aLabel,
@@ -499,8 +501,7 @@ const utilsNetwork = {
                     total: r.count,
                     undifferentiated: false,
                     subdivision: searchPayload.subdivision ? true : false,
-                    countSubj: Object.keys(hit).includes("subject-of") ? hit["subject-of"] : 0,
-                    countName: Object.keys(hit).includes("contributions") ? hit["contributions"] : 0
+                    count: countSubj + countName
                   }
 
                   if (hitAdd.label=='' && hitAdd.suggestLabel.includes('DEPRECATED')){
