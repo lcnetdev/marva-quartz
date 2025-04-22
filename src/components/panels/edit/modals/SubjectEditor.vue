@@ -92,12 +92,13 @@
                   <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
                   <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+5'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
 
-                  | Sort:
-                  <select v-model="selectedSortOrder" @change="applySort">
-                    <option value="default">Select and option</option>
-                    <option value="alpha">Alpha</option>
-                    <option value="useageDesc">Highest Usage</option>
-                  </select>
+                  <template v-if="preferenceStore.returnValue('--b-edit-complex-include-usage')">
+                    | Sort:
+                    <select v-model="selectedSortOrder" @change="applySort">
+                      <option value="alpha">Alpha</option>
+                      <option value="useageDesc">Highest Usage</option>
+                    </select>
+                  </template>
                 </div>
 
 
@@ -135,7 +136,8 @@
                           <span> [LCNAF]</span>
                           <span v-if="name.collections">
                             {{ this.buildAddtionalInfo(name.collections) }}
-                            <span v-if="name.count && name.count > 0" class="usage-count" :style="{'background-color': setBackgroundColor(name.count, searchResults.names)}">{{ buildCount(name) }}</span>
+                            <!-- :style="{'background-color': setBackgroundColor(name.count, searchResults.names)}" -->
+                            <span v-if="name.count && name.count > 0" class="usage-count" >{{ buildCount(name) }}</span>
                           </span>
                           <div class="may-sub-container" style="display: inline;">
                             <AuthTypeIcon v-if="name.collections && name.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
@@ -150,7 +152,8 @@
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections">
                           {{ this.buildAddtionalInfo(subjectC.collections) }}
-                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count" :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsComplex)}">{{ buildCount(subjectC) }}</span>
+                          <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsComplex)}" -->
+                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count" >{{ buildCount(subjectC) }}</span>
                         </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
@@ -168,7 +171,8 @@
                         <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal">
                           {{ this.buildAddtionalInfo(subject.collections) }}
-                          <span v-if="subject.count && subject.count > 0" class="usage-count" :style="{'background-color': setBackgroundColor(subject.count, searchResults.subjectsSimple)}">{{ buildCount(subject) }}</span>
+                          <!-- :style="{'background-color': setBackgroundColor(subject.count, searchResults.subjectsSimple)}" -->
+                          <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject) }}</span>
                         </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
@@ -184,7 +188,8 @@
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections">
                           {{ this.buildAddtionalInfo(subjectC.collections) }}
-                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count" :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}">{{ buildCount(subjectC) }}</span>
+                          <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}" -->
+                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count">{{ buildCount(subjectC) }}</span>
                         </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
@@ -198,7 +203,8 @@
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal">
                           {{ this.buildAddtionalInfo(subject.collections) }}
-                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count" :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}">{{ buildCount(subjectC) }}</span>
+                          <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}" -->
+                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count">{{ buildCount(subjectC) }}</span>
                         </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
@@ -778,8 +784,9 @@ li::before {
 }*/
 
 .usage-count {
-  color: white;
-  text-shadow: black 0px 0px 10px;
+  color: ;
+  /* color: white;
+  text-shadow: black 0px 0px 10px; */
 }
 
 </style>
@@ -932,22 +939,26 @@ data: function() {
       "languages","lcclasss","identifiers","broaders","gacs","collections",
       "sources", "subjects", "marcKeys"
     ],
-    selectedSortOrder: "alpha",
+    selectedSortOrder: ""
 
   }
 },
 
 computed: {
-
   ...mapStores(usePreferenceStore),
   ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
-
-
-
 },
 methods: {
+  /**
+   * Set the background color for the usage numbers. Based on 5 color heat map
+   * https://stackoverflow.com/questions/12875486/what-is-the-algorithm-to-create-colors-for-a-heatmap
+   *
+   * @param value - the value of the term that will create the color
+   * @param records - a list of records to get the min/max
+   *
+   * @return the CSS value for the background color
+   */
   setBackgroundColor: function(value, records){
-    // 5 color heatmap: https://stackoverflow.com/questions/12875486/what-is-the-algorithm-to-create-colors-for-a-heatmap
     let range =  records.map((r) => r.count).filter(n => n != undefined)
     let min = Math.min(...range)
     let max = Math.max(...range)
@@ -1743,6 +1754,10 @@ methods: {
         }
       // },100)
     })
+
+    if (that.preferenceStore.returnValue('--b-edit-complex-include-usage')){
+      that.applySort()
+    }
   }, 500),
 
   navStringClick: function(event){
@@ -3285,7 +3300,12 @@ created: function () {
 },
 
 before: function () {},
-mounted: function(){},
+mounted: function(){
+  if (this.preferenceStore.returnValue('--b-edit-complex-include-usage')){
+    this.selectedSortOrder = 'useageDesc'
+    this.applySort()
+  }
+},
 
 
 updated: function() {
