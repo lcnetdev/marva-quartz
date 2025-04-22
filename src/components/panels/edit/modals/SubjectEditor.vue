@@ -92,8 +92,14 @@
                   <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
                   <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+5'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
 
+                  <template v-if="preferenceStore.returnValue('--b-edit-complex-include-usage')">
+                    | Sort:
+                    <select v-model="selectedSortOrder" @change="applySort">
+                      <option value="alpha">Alpha</option>
+                      <option value="useageDesc">Highest Usage</option>
+                    </select>
+                  </template>
                 </div>
-
 
 
                 <div :style="`flex:1; align-self: flex-end; height: 95%; ${this.preferenceStore.styleModalBackgroundColor()}`" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
@@ -113,7 +119,9 @@
                             </span>
                         </template>
                         <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
-                        <span v-if="subject.collections"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <span v-if="subject.collections">
+                          {{ this.buildAddtionalInfo(subject.collections) }}
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -126,7 +134,11 @@
                         <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
-                          <span v-if="name.collections"> {{ this.buildAddtionalInfo(name.collections) }}</span>
+                          <span v-if="name.collections">
+                            {{ this.buildAddtionalInfo(name.collections) }}
+                            <!-- :style="{'background-color': setBackgroundColor(name.count, searchResults.names)}" -->
+                            <span v-if="name.count && name.count > 0" class="usage-count" >{{ buildCount(name) }}</span>
+                          </span>
                           <div class="may-sub-container" style="display: inline;">
                             <AuthTypeIcon v-if="name.collections && name.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                           </div>
@@ -138,7 +150,11 @@
                       <span class="subject-results-heading">Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
-                        <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
+                        <span v-if="subjectC.collections">
+                          {{ this.buildAddtionalInfo(subjectC.collections) }}
+                          <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsComplex)}" -->
+                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count" >{{ buildCount(subjectC) }}</span>
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -153,7 +169,11 @@
                           {{subject.label}}
                         </span>
                         <span  v-if="subject.literal">[Literal]</span>
-                        <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <span v-if="!subject.literal">
+                          {{ this.buildAddtionalInfo(subject.collections) }}
+                          <!-- :style="{'background-color': setBackgroundColor(subject.count, searchResults.subjectsSimple)}" -->
+                          <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject) }}</span>
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -166,7 +186,11 @@
                       <span class="subject-results-heading">CYAC Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
-                        <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
+                        <span v-if="subjectC.collections">
+                          {{ this.buildAddtionalInfo(subjectC.collections) }}
+                          <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}" -->
+                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count">{{ buildCount(subjectC) }}</span>
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -177,7 +201,11 @@
                     <span class="subject-results-heading">CYAC Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
-                        <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <span v-if="!subject.literal">
+                          {{ this.buildAddtionalInfo(subject.collections) }}
+                          <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}" -->
+                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count">{{ buildCount(subjectC) }}</span>
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -755,6 +783,12 @@ li::before {
   color: #999999;
 }*/
 
+.usage-count {
+  color: ;
+  /* color: white;
+  text-shadow: black 0px 0px 10px; */
+}
+
 </style>
 
 <style>
@@ -815,6 +849,10 @@ watch: {
   searchValue: function(){
     this.subjectString = this.searchValue
     this.linkModeString = this.searchValue
+  },
+
+  watchSort: function(){
+    this.selectedSortOrder = this.applySort()
   }
 
 },
@@ -891,29 +929,45 @@ data: function() {
       "relateds": "Related",
       "contributors": "Contributors",
       "identifiers": "Identifiers",
-      "sees": "See Also"
+      "sees": "See Also",
+      "countSubj": "Subject ff",
+      "countName": "Contributor to",
     },
     panelDetailOrder: [
-      "notes","nonlatinLabels","variantLabels", "varianttitles", "sees", "contributors",
+      "countSubj", "countName", "notes","nonlatinLabels","variantLabels", "varianttitles", "sees", "contributors",
       "relateds","birthdates","birthplaces","locales","activityfields","occupations",
       "languages","lcclasss","identifiers","broaders","gacs","collections",
       "sources", "subjects", "marcKeys"
     ],
-
-
+    selectedSortOrder: ""
 
   }
 },
 
 computed: {
-
   ...mapStores(usePreferenceStore),
   ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
-
-
-
 },
 methods: {
+  /**
+   * Set the background color for the usage numbers. Based on 5 color heat map
+   * https://stackoverflow.com/questions/12875486/what-is-the-algorithm-to-create-colors-for-a-heatmap
+   *
+   * @param value - the value of the term that will create the color
+   * @param records - a list of records to get the min/max
+   *
+   * @return the CSS value for the background color
+   */
+  setBackgroundColor: function(value, records){
+    let range =  records.map((r) => r.count).filter(n => n != undefined)
+    let min = Math.min(...range)
+    let max = Math.max(...range)
+
+    let normalizedValue = (value - min) / (max - min)
+
+    let h = (1.0 - normalizedValue) * 240
+    return "hsl(" + h + ", 100%, 50%)";
+  },
   rewriteURI: function(uri){
     if (!uri){ return false }
     let returnUrls = useConfigStore().returnUrls
@@ -1700,6 +1754,10 @@ methods: {
         }
       // },100)
     })
+
+    if (that.preferenceStore.returnValue('--b-edit-complex-include-usage')){
+      that.applySort()
+    }
   }, 500),
 
   navStringClick: function(event){
@@ -1843,6 +1901,50 @@ methods: {
   clearSelected: function(){
     this.pickLookup[this.pickCurrent].picked = false
     this.pickCurrent = null
+  },
+
+  applySort: function(){
+    let typeSort = this.selectedSortOrder
+
+    for (let r in this.searchResults){
+      let records = this.searchResults[r]
+      if (typeSort == 'alpha'){
+        this.searchResults[r] = records.sort((a, b) => {
+          if (a.suggestLabel === undefined){
+            return 0 //1
+          } else if (b.suggestLabel === undefined){
+            return 0 //-1
+          } else if ( a.suggestLabel.toLowerCase().replace("--", " ") > b.suggestLabel.toLowerCase().replace("--", " ")){
+            return 1
+          } else {
+            return -1
+          }
+        })
+
+      } else if (typeSort == 'useageDesc'){
+        this.searchResults[r] = records.sort((a,b) => {
+          if (a.count === undefined){
+            return 0 //1
+          } else if (b.count === undefined){
+            return 0 //-1
+          } else if ( a.count > b.count){
+            return -1
+          } else if (a.count == 0 && b.count == 0){
+            return 0
+          } else {
+            return 1
+          }
+        })
+      }
+    }
+
+  },
+
+  buildCount: function(subject){
+    if (subject.count){
+      return "["  + subject.count + "]"
+    }
+
   },
 
   buildAddtionalInfo: function(collections){
@@ -3198,7 +3300,12 @@ created: function () {
 },
 
 before: function () {},
-mounted: function(){},
+mounted: function(){
+  if (this.preferenceStore.returnValue('--b-edit-complex-include-usage')){
+    this.selectedSortOrder = 'useageDesc'
+    this.applySort()
+  }
+},
 
 
 updated: function() {

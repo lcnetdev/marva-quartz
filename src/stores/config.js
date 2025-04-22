@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 2,
-    versionPatch: 14,
+    versionPatch: 15,
 
 
     regionUrls: {
@@ -56,7 +56,7 @@ export const useConfigStore = defineStore('config', {
 
 
         id: 'https://id.loc.gov/',
-        env : 'staging',
+        env : 'production',
         dev: false,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',

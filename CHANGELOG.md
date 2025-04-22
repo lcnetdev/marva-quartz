@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.15] - 2025-04-22
+### Added
+- Support for usage statistics from Suggest2
+
+
 ## [1.2.14] - 2025-04-21
 ### Fixed
 - Not being able to load resource without subjects
