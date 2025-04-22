@@ -1691,32 +1691,7 @@ methods: {
 
     that.pickPostion = that.searchResults.subjectsSimple.length + that.searchResults.subjectsComplex.length -1
 
-    // sort? searchResults
     that.buildPickLookup()
-
-    // for (let x in that.searchResults.subjectsComplex){
-    //   that.pickLookup[x] = that.searchResults.subjectsComplex[x]
-    // }
-
-    // for (let x in that.searchResults.subjectsChildrenComplex){
-    //   that.pickLookup[x] = that.searchResults.subjectsChildrenComplex[x]
-    // }
-
-    // for (let x in that.searchResults.subjectsSimple){
-    //   that.pickLookup[parseInt(x)+parseInt(that.searchResults.subjectsComplex.length)] = that.searchResults.subjectsSimple[x]
-    // }
-
-    // for (let x in that.searchResults.subjectsChildren){
-    //   that.pickLookup[parseInt(x)+parseInt(that.searchResults.subjectsChildrenComplex.length)] = that.searchResults.subjectsChildren[x]
-    // }
-
-    // for (let x in that.searchResults.names){
-    //   that.pickLookup[(that.searchResults.names.length - x)*-1] = that.searchResults.names[x]
-    // }
-
-    // for (let x in that.searchResults.exact){
-    //   that.pickLookup[(that.searchResults.names.length - x)*-1-2] = that.searchResults.exact[x]
-    // }
 
     for (let k in that.pickLookup){
       that.pickLookup[k].picked = false
