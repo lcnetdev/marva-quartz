@@ -2364,8 +2364,8 @@ const utilsNetwork = {
       let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
       let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
 
-      let subjectUrlComplexSubdivison1 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[0])).replace('&count=25','&count='+numResultsComplex/3).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
-      let subjectUrlComplexSubdivison2 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[1])).replace('&count=25','&count='+numResultsComplex/3).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let subjectUrlComplexSubdivison1 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[0])).replace('&count=25','&count='+Math.ceil(numResultsComplex/3)).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let subjectUrlComplexSubdivison2 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[1])).replace('&count=25','&count='+Math.ceil(numResultsComplex/3)).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
       let subjectUrlComplexSubdivison3 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>', searchVal).replace('&count=25','&count='+numResultsComplex/3).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       // let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
@@ -2707,7 +2707,7 @@ const utilsNetwork = {
       if (mode == "HUBS"){
         // over write the subjects if we are doing a work search
         resultsSubjectsSimple = resultsHubsAnchored
-        resultsSubjectsComplex = resultsHubsKeyword
+        resultsSubjectsComplex = [] //resultsHubsKeyword
       }
 
       //determine position of search and set results accordingly
