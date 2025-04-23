@@ -1035,6 +1035,15 @@ export const usePreferenceStore = defineStore('preference', {
         range: [5, 100],
         step: 5,
       },
+      '--b-edit-complex-include-usage' : {
+        desc: 'Include the usage numbers for subject headings. This might increase search time.',
+        descShort: 'Include Usage',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Complex Lookup',
+        range: [true,false]
+      },
 
       //general
       '--c-general-icon-instance-color' : {

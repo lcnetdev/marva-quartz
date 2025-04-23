@@ -10,6 +10,7 @@ export const useConfigStore = defineStore('config', {
     versionPatch: 17,
 
 
+
     regionUrls: {
 
       dev:{
@@ -18,7 +19,7 @@ export const useConfigStore = defineStore('config', {
         util  : 'http://localhost:9401/util/',
 
         // util  : 'http://localhost:5200/',
-        // util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
+        util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
 
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
@@ -56,7 +57,7 @@ export const useConfigStore = defineStore('config', {
 
 
         id: 'https://id.loc.gov/',
-        env : 'staging',
+        env : 'production',
         dev: false,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
@@ -78,7 +79,8 @@ export const useConfigStore = defineStore('config', {
         // profiles : '/bfe2/util/profiles/profile/prod',
         // profiles: 'https://preprod-3001.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
         starting : '/bfe2/util/profiles/starting/stage',
-        id: 'https://preprod-8288.id.loc.gov/',
+        // id: 'https://preprod-8288.id.loc.gov/',
+        id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
@@ -561,20 +563,19 @@ export const useConfigStore = defineStore('config', {
 
     "https://preprod-8230.id.loc.gov/resources/works" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-        "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-        "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype='keyword'", "all":true},
         "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
         "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype='keyword'"},
+        "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype='keyword'", "all":true},
       }
     ]},
 
     "https://preprod-8088.id.loc.gov/resources/works/" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-        "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-        "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
         "Hubs - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
         "Hubs - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
-
+        "Works - Left Anchored":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Keyword":{"url":"https://preprod-8080.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
       }
     ]},
 
@@ -583,29 +584,31 @@ export const useConfigStore = defineStore('config', {
 
     "https://preprod-8295.id.loc.gov/resources/works" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-        "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-        "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
         "Hubs - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
         "Hubs - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
+
       }
     ]},
 
     "https://preprod-8210.id.loc.gov/resources/works/" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-        "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-        "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
         "Hubs - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
         "Hubs - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
+
       }
     ]},
 
 
     "https://preprod-8295.id.loc.gov/resources/works/" : {"name":"Works", "processor" : 'lcAuthorities', "type":"complex", "modes":[
       {
-        "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-        "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
         "Hubs - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
         "Hubs - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/hubs/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Left Anchored":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+        "Works - Keyword":{"url":"https://preprod-8295.id.loc.gov/resources/works/suggest2/?q=?<QUERY>&count=25&offset=<OFFSET>", "all":true},
       }
     ]},
 

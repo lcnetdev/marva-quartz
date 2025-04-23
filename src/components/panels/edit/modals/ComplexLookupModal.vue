@@ -279,7 +279,7 @@
             }
           })
 
-          // wrapping this in setTimeout might not be needed anymore
+        // wrapping this in setTimeout might not be needed anymore
         if (searchPayload.type == 'complex'){
           this.searchTimeout = window.setTimeout(async ()=>{
             this.activeComplexSearchInProgress = true
@@ -298,6 +298,15 @@
 
             this.activeComplexSearchInProgress = false
             this.initalSearchState =false
+
+            if (this.activeComplexSearch.length == 0 && offset > 0){
+              // reset offset, set the page back one
+              // this can happen because the "total" given from the suggest service reflects the number before deduping.
+              offset = 0
+              this.currentPage--
+              this.doSearch()
+              alert("You've reached last page with results. The other pages are empty.")
+            }
           }, 100)
         } else {
           let filter = function(obj, target){
@@ -1034,6 +1043,7 @@
                       Searching...
                     </option>
                     <template v-if="!isSimpleLookup()">
+                      <!-- .sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0)) -->
                       <option v-for="(r,idx) in activeComplexSearch.sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0))" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
                         <div class="option-text">
                           <span v-html="generateLabel(r)"></span>
