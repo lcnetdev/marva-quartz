@@ -26,7 +26,7 @@
         top: 200,
         left: 0,
 
-        initalHeight: 550,
+        initalHeight: 560,
         initalLeft: 400,
 
 
@@ -74,12 +74,20 @@
         mainTitleLccn: null,
         mainTitleDate: null,
         mainTitleNote: '',
-        workURI: false,
+        instanceURI: false,
         statementOfResponsibility: null,
 
         zero46: null,
 
         tmpXML:false,
+
+        MARCXml:false,
+        MARCText:false,
+        MARClccn:false,
+
+        showPreview: false,
+
+
 
         scriptShifterOptions: {},
 
@@ -123,7 +131,7 @@
           this.top = newRect.top
           this.left = newRect.left
 
-          this.$refs.nonLatinBulkContent.style.height = newRect.height + 'px'
+          this.$refs.narFieldsContent.style.height = newRect.height + 'px'
 
         },
 
@@ -144,12 +152,10 @@
 
         async buildNacoStub(){
 
-
-          this.postStatus='posting'
-
-          if (this.workURI.indexOf('id.loc.gov') > -1){
+        
+          if (this.instanceURI.indexOf('id.loc.gov') > -1){
             // lc thing, if we have preprod-XXXX server prfix in staging env.
-            this.workURI = 'http://id.loc.gov' + this.workURI.split('id.loc.gov')[1]
+            this.instanceURI = 'http://id.loc.gov' + this.instanceURI.split('id.loc.gov')[1]
           }
 
           let note = null
@@ -157,98 +163,74 @@
             note = this.mainTitleNote
           }
 
+          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46)
 
-          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46)
+          this.MARCXml = results.xml
+          this.MARCText = results.text
+          this.MARClccn = results.lccn
 
-
-
-
-          results.xml = results.xml.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
-
-          results.xml = results.xml.replace(/\<\/marcxml:controlfield>/g,"</marcxml:controlfield>\n")
-          results.xml = results.xml.replace(/\<\/marcxml:leader>/g,"</marcxml:leader>\n")
-          results.xml = results.xml.replace(/\<\/marcxml:datafield>/g,"</marcxml:datafield>\n")
-          results.xml = results.xml.replace(/\<\/marcxml:subfield>/g,"</marcxml:subfield>\n")
-
-
-          this.tmpXML=results.xml
-
-
-          if (results && results.pubResuts && results.pubResuts.msgObj && results.pubResuts.msgObj.errorMessage){
-
-            this.tmpErrorMessage = results.pubResuts.msgObj.errorMessage
-
-          }
-
-
-
-          if (results && results.pubResuts && results.pubResuts.status){
-
-            let type = "http://www.loc.gov/mads/rdf/v1#Name"
-
-            if (this.oneXXParts.fieldTag == "100"){
-              type = "http://www.loc.gov/mads/rdf/v1#PersonalName"
-            }else if (this.oneXXParts.fieldTag == "110"){
-              type = "http://www.loc.gov/mads/rdf/v1#CorporateName"
-            }else if (this.oneXXParts.fieldTag == "111"){
-              type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
-            }else if (this.oneXXParts.fieldTag == "130"){
-              typer = "http://www.loc.gov/mads/rdf/v1#NameTitle"
-            }else if (this.oneXXParts.fieldTag == "147"){
-              type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
-            }
-
-            let useName = ''
-            for (let key in this.oneXXParts){
-              if (key.length==1){
-                useName = useName + this.oneXXParts[key] + ' '
-              }
-            }
-            useName=useName.trim()
-            // console.log(this.oneXXParts)
-            // console.log(useName)
-
-
-            let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
-
-            this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
-            // componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null
-
-            this.newNarUri=results.pubResuts.postLocation
-            this.postStatus='posted'
-
-          }
-
-          // console.log(results)
-
-          // if (results && results.postLocation){
-          //   results.postLocation = results.postLocation.replace("http://",'https://')
-          //
-
-
-
-
-          // }else{
-          //   alert("Error posting!")
-          //   this.postStatus='error'
-          // }
-
-
-
-
-          // console.log(results)
-
-
-          // this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
+          this.showPreview = true
 
 
 
         },
 
-        close(){
+
+        async postNacoStub(){
+
+            this.postStatus='posting'
+            let results = await this.profileStore.postNacoStub(this.MARCXml,this.MARClccn)
+
+            results.xml = results.xml.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
+            results.xml = results.xml.replace(/\<\/marcxml:controlfield>/g,"</marcxml:controlfield>\n")
+            results.xml = results.xml.replace(/\<\/marcxml:leader>/g,"</marcxml:leader>\n")
+            results.xml = results.xml.replace(/\<\/marcxml:datafield>/g,"</marcxml:datafield>\n")
+            results.xml = results.xml.replace(/\<\/marcxml:subfield>/g,"</marcxml:subfield>\n")
+            this.tmpXML=results.xml
+            if (results && results.pubResuts && results.pubResuts.msgObj && results.pubResuts.msgObj.errorMessage){
+              this.tmpErrorMessage = results.pubResuts.msgObj.errorMessage
+            }
+            if (results && results.pubResuts && results.pubResuts.status){
+              let type = "http://www.loc.gov/mads/rdf/v1#Name"
+              if (this.oneXXParts.fieldTag == "100"){
+                type = "http://www.loc.gov/mads/rdf/v1#PersonalName"
+              }else if (this.oneXXParts.fieldTag == "110"){
+                type = "http://www.loc.gov/mads/rdf/v1#CorporateName"
+              }else if (this.oneXXParts.fieldTag == "111"){
+                type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
+              }else if (this.oneXXParts.fieldTag == "130"){
+                typer = "http://www.loc.gov/mads/rdf/v1#NameTitle"
+              }else if (this.oneXXParts.fieldTag == "147"){
+                type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
+              }
+              let useName = ''
+              for (let key in this.oneXXParts){
+                if (key.length==1){
+                  useName = useName + this.oneXXParts[key] + ' '
+                }
+              }
+              useName=useName.trim()
+              // console.log(this.oneXXParts)
+              // console.log(useName)
+              let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
+              this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
+              // componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null
+              this.newNarUri=results.pubResuts.postLocation
+              this.postStatus='posted'
+            }
+
+        },
+
+        close(event){
+
+          if (this.postStatus=='posted'){
+            this.savedNARModalData = {}
+          }
+
           this.activeNARStubComponent = {}
           this.showNacoStubCreateModal=false
           this.postStatus=='unposted'
+          this.showPreview = false
 
         },
 
@@ -312,8 +294,8 @@
           this.oneXXErrors = []
           this.disableAddButton = true
           if (this.oneXX.length<3){ return true}
-
-          if (/#|[^0-9 ]/.test(this.oneXX.slice(3,5))){
+          
+          if (/[^0-9 #]/.test(this.oneXX.slice(3,5))){
             this.oneXXErrors.push("There's an invalid indicator for 1XX")
           }
 
@@ -322,7 +304,7 @@
             return false
           }
 
-          let oneXXParts = this.oneXX.split("$")
+          let oneXXParts = this.oneXX.split(/[$‡|]/)
           if (oneXXParts.length>0){
 
             let fieldTag = oneXXParts[0].slice(0,3)
@@ -330,10 +312,10 @@
             let indicators = oneXXParts[0].slice(3,5)
 
 
-            if (indicators.charAt(0) != ' ' && indicators.charAt(0) != '/' && indicators.charAt(0) != '1' && indicators.charAt(0) != '2' && indicators.charAt(0) != '3' && indicators.charAt(0) != '0'){
+            if (indicators.charAt(0) != ' ' && indicators.charAt(0) != '/' && indicators.charAt(0) != '#' && indicators.charAt(0) != '1' && indicators.charAt(0) != '2' && indicators.charAt(0) != '3' && indicators.charAt(0) != '0'){
               this.oneXXErrors.push("Invalid indicator character(s)")
             }
-            if (indicators.charAt(1) != ' ' && indicators.charAt(1) != '/' && indicators.charAt(1) != '1' && indicators.charAt(1) != '2' && indicators.charAt(1) != '3' && indicators.charAt(1) != '0'){
+            if (indicators.charAt(1) != ' ' && indicators.charAt(1) != '/' && indicators.charAt(1) != '#' && indicators.charAt(1) != '1' && indicators.charAt(1) != '2' && indicators.charAt(1) != '3' && indicators.charAt(1) != '0'){
               if (this.oneXXErrors.indexOf("Invalid indicator character(s)") == -1){
                 this.oneXXErrors.push("Invalid indicator character(s)")
               }
@@ -347,12 +329,12 @@
 
               let subfield = dp.slice(0,1)
               let value = dp.slice(1)
-              dollarKey[subfield] = value
+              dollarKey[subfield] = value.trim()
 
               // console.log(dollarKey)
             }
             dollarKey.fieldTag = fieldTag
-            dollarKey.indicators = indicators
+            dollarKey.indicators = indicators.replace(/[#]/g,' ')
 
             this.oneXXParts = dollarKey
             let authLabel = ""
@@ -375,6 +357,7 @@
               authLabel = authLabel + ' ' + dollarKey.g
             }
 
+            
 
 
             if (dollarKey.a){
@@ -434,8 +417,8 @@
           this.disableAddButton = true
           if (this.fourXX.length<3){ return true}
 
-          if (/#|[^0-9 ]/.test(this.fourXX.slice(3,5))){
-            this.fourXXErrors.push("There's an invalid indicator for 1XX")
+          if (/[^0-9 #]/.test(this.fourXX.slice(3,5))){
+            this.fourXXErrors.push("There's an invalid indicator for 4XX")
           }
 
           if (!/4[0-9]{2}/.test(this.fourXX.slice(0,3))){
@@ -443,17 +426,17 @@
             return false
           }
 
-          let fourXXParts = this.fourXX.split("$")
+          let fourXXParts = this.fourXX.split(/[$‡|]/)
           if (fourXXParts.length>0){
 
             let fieldTag = fourXXParts[0].slice(0,3)
 
             let indicators = fourXXParts[0].slice(3,5)
 
-            if (indicators.charAt(0) != ' ' && indicators.charAt(0) != '/' && indicators.charAt(0) != '1' && indicators.charAt(0) != '2' && indicators.charAt(0) != '3' && indicators.charAt(0) != '0'){
+            if (indicators.charAt(0) != ' ' && indicators.charAt(0) != '/' && indicators.charAt(0) != '#' && indicators.charAt(0) != '1' && indicators.charAt(0) != '2' && indicators.charAt(0) != '3' && indicators.charAt(0) != '0'){
               this.fourXXErrors.push("Invalid indicator character(s)")
             }
-            if (indicators.charAt(1) != ' ' && indicators.charAt(1) != '/' && indicators.charAt(1) != '1' && indicators.charAt(1) != '2' && indicators.charAt(1) != '3' && indicators.charAt(1) != '0'){
+            if (indicators.charAt(1) != ' ' && indicators.charAt(1) != '/' && indicators.charAt(1) != '#' && indicators.charAt(1) != '1' && indicators.charAt(1) != '2' && indicators.charAt(1) != '3' && indicators.charAt(1) != '0'){
               if (this.fourXXErrors.indexOf("Invalid indicator character(s)") == -1){
                 this.fourXXErrors.push("Invalid indicator character(s)")
               }
@@ -467,11 +450,11 @@
 
               let subfield = dp.slice(0,1)
               let value = dp.slice(1)
-              dollarKey[subfield] = value
+              dollarKey[subfield] = value.trim()
 
             }
             dollarKey.fieldTag = fieldTag
-            dollarKey.indicators = indicators
+            dollarKey.indicators = indicators.replace(/[#]/g,' ')
 
             this.fourXXParts = dollarKey
             let authLabel = ""
@@ -789,22 +772,32 @@
           }else{
             OnexxPart = event.target.value
           }
+
           if (OnexxPart){
             if (this.oneXX.indexOf("$a")>-1){
               this.oneXX = OnexxPart + "$a"+ this.oneXX.split("$a")[1]
+            }else if (this.oneXX.indexOf("‡a")>-1){
+              this.oneXX = OnexxPart + "‡a"+ this.oneXX.split("‡a")[1]
             }else{
               this.oneXX = OnexxPart + "$a"
             }
             this.checkOneXX()
           }
+
           if (FourxxPart){
             if (this.fourXX.indexOf("$a")>-1){
               this.fourXX = FourxxPart + "$a"+ this.fourXX.split("$a")[1]
+            }else if (this.fourXX.indexOf("‡a")>-1){
+              this.fourXX = FourxxPart + "‡a"+ this.fourXX.split("‡a")[1]
             }else{
               this.fourXX = FourxxPart + "$a"
             }
             this.checkFourXX()
           }
+
+
+
+          
 
           window.setTimeout(()=>{
             event.target.value = 'home'
@@ -834,7 +827,7 @@
               oneXXString = "1" + fourXXATrans.fieldTag.charAt(1)+ fourXXATrans.fieldTag.charAt(2)
             }
             if (fourXXATrans.indicators){
-              oneXXString = oneXXString + fourXXATrans.indicators
+              oneXXString = oneXXString + fourXXATrans.indicators.replace(/[\s]/g,'#')
             }
 
             let subfields = Object.keys(fourXXATrans).filter((v)=>{ return (v.length==1)}).sort()
@@ -858,7 +851,7 @@
               fourXXString = "4" + oneXXATrans.fieldTag.charAt(1)+ oneXXATrans.fieldTag.charAt(2)
             }
             if (oneXXATrans.indicators){
-              fourXXString = fourXXString + oneXXATrans.indicators
+              fourXXString = fourXXString + oneXXATrans.indicators.replace(/[\s]/g,'#')
             }
 
             let subfields = Object.keys(oneXXATrans).filter((v)=>{ return (v.length==1)}).sort()
@@ -978,8 +971,8 @@
         this.mainTitleNote = this.savedNARModalData.mainTitleNote
       }
 
-      this.workURI =  this.profileStore.nacoStubReturnWorkURI()
-      // console.log("this.workURIthis.workURIthis.workURI",this.workURI)
+      this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
+      // console.log("this.instanceURIthis.instanceURIthis.instanceURI",this.instanceURI)
       if (!this.mainTitle){
         this.disableAddButton = true
         // this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
@@ -1052,306 +1045,274 @@
           :sticks="['br']"
           :stickSize="22"
         >
-          <div id="non-latin-bulk-content" ref="nonLatinBulkContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
+          <div id="nar-fields-content" ref="narFieldsContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
 
             <div class="menu-buttons">
               <button class="close-button" @pointerup="close">X</button>
             </div>
 
-            <h3 style="margin-bottom: 1em;">Create Provisional NAR</h3>
-            <div style="display: flex; margin-bottom: 1em;">
-              <div style="flex-grow: 1; position: relative;">
-                <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
-                <input type="text" ref="hub-title" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-">
+            <template v-if="showPreview == false">
+
+              <h3 style="margin-bottom: 1em;">Create Name Authority Record</h3>
+              <div style="display: flex; margin-bottom: 1em;">
+                <div style="flex-grow: 1; position: relative;">
+                  <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
+                  <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-">
+                </div>
               </div>
-            </div>
-            <div style="display: flex; margin-bottom: 1em;">
-              <div style="flex-grow: 1;">
-                <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
+              <div style="display: flex; margin-bottom: 1em;">
+                <div style="flex-grow: 1;">
+                  <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
 
-                <input type="text" ref="hub-title" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d....">
+                  <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d....">
+                </div>
               </div>
-            </div>
 
-            <div style="display: flex; margin-bottom: 1em;">
-              <div style="flex: 1;">
-                <select @change="presetChange">
-                  <option value="home">Presets</option>
-                  <option value="1001 ">"1001 "</option>
-                  <option value="1001 and 4001 ">"1001 " &amp; "4001 "</option>
-                  <option value="1102 ">"1102 "</option>
-                  <option value="1102 and 4102 ">"1102 " &amp; "4102 "</option>
-                  <option value="1112 ">"1112 "</option>
-                  <option value="1112 and 4112 ">"1112 " &amp; "4112 "</option>
+              <div style="display: flex; margin-bottom: 1em;">
+                <div style="flex: 1;">
+                  <select @change="presetChange" class="preset-select">
+                    <option class="preset-option" value="home">Presets</option>
+                    <option class="preset-option" value="1001#">"1001 "</option>
+                    <option class="preset-option" value="1001#and 4001#">"1001 " &amp; "4001 "</option>
+                    <option class="preset-option" value="1102#">"1102 "</option>
+                    <option class="preset-option" value="1102#and 4102#">"1102 " &amp; "4102 "</option>
+                    <option class="preset-option" value="1112#">"1112 "</option>
+                    <option class="preset-option" value="1112#and 4112#">"1112 " &amp; "4112 "</option>
 
-                  
+                    
+
+                  </select>
+                </div>
+                <div style="flex: 1;">
+                  <select @change="transliterateChange">
+                  <option value="home">Transliterate</option>
+                  <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
+
+
+                  <template v-for="ss in transliterateOptions()">
+
+                    <option :value="ss.key+'-'+ss.dir">{{ ss.label }}</option>
+                  </template>
+
+
 
                 </select>
-              </div>
-              <div style="flex: 1;">
-                <select @change="transliterateChange">
-                <option value="home">Transliterate</option>
-                <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
 
 
-                <template v-for="ss in transliterateOptions()">
-
-                  <option :value="ss.key+'-'+ss.dir">{{ ss.label }}</option>
-                </template>
-
-
-
-              </select>
+                </div>
 
 
               </div>
-
-
-            </div>
- 
+  
 
 
 
 
 
-            <div id="error-info">
+              <div id="error-info">
 
-              <div>
-                <div class="error-info-title">Heading Uniqueness Check:</div>
-                <div class="error-info-display">
+                <div>
+                  <div class="error-info-title">Heading Uniqueness Check:</div>
+                  <div class="error-info-display">
 
-                  <template v-if="searching">
+                    <template v-if="searching">
 
 
-                    <div>
-                      <span class="material-icons search-in-progress-icon">search</span>
-                      <span class="search-in-progress-text">Searching...</span>
-                    </div>
+                      <div>
+                        <span class="material-icons search-in-progress-icon">search</span>
+                        <span class="search-in-progress-text">Searching...</span>
+                      </div>
 
+                    </template>
+                    <template v-else>
+
+                      <div v-if="oneXX.trim().length == 0">
+                        <span class="error-info-display-field">Enter 1XX value to search</span>
+                      </div>
+
+                      <template v-if="oneXXResults.length>0">
+                        <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">1XX Heading FOUND in LCNAF file:</span>
+                        </div>
+                      </template>
+
+
+                      <template v-if="oneXXResults.length==0 && oneXXParts && oneXXParts.a && searching==false">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">1XX: Heading NOT found in LCNAF file:</span>
+                        </div>
+                      </template>
+
+                      <template v-if="oneXXResults.length>0 && oneXXResults.length<=5">
+                        <div v-for="r in oneXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                        </div>
+                      </template>
+                      <template v-else-if="oneXXResults.length>0 && oneXXResults.length>5">
+                      <details style="margin-bottom: 1em; padding-left: 2em;">
+                        <summary>There are {{ oneXXResults.length }} hits on that name.</summary>
+                        <div v-for="r in oneXXResults">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                        </div>
+                      </details>
+                      </template>
+
+
+                      <template v-if="fourXXResults.length>0">
+                        <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">4XX Heading FOUND in LCNAF file:</span>
+                        </div>
+                      </template>
+
+
+                      <template v-if="fourXXResults.length==0 && fourXXParts && fourXXParts.a && searching==false">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">4XX: Heading NOT found in LCNAF file:</span>
+                        </div>
+                      </template>
+
+                      <template v-if="fourXXResults.length>0 && fourXXResults.length<=5">
+                        <div v-for="r in fourXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                        </div>
+                      </template>
+                      <template v-else-if="fourXXResults.length>0 && fourXXResults.length>5">
+                      <details style="margin-bottom: 1em; padding-left: 2em;">
+                        <summary>There are {{ fourXXResults.length }} hits on that name.</summary>
+                        <div v-for="r in fourXXResults">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                        </div>
+                      </details>
+                      </template>
+
+
+
+
+
+
+
+                    </template>
+
+                    <template v-if="oneXXErrors.length>0">
+                      <div v-for="e in oneXXErrors">
+                        <div><span class="material-icons warning">warning</span><span class="warning-text">{{ e }}</span></div>
+                      </div>
+                    </template>
+                    <template v-if="fourXXErrors.length>0">
+                      <div v-for="e in fourXXErrors">
+                        <div><span class="material-icons warning">warning</span><span class="warning-text">{{ e }}</span></div>
+                      </div>
+                    </template>
+
+
+                  </div>
+                </div>
+                <div>
+                  <div class="error-info-title">Other Checks:</div>
+
+
+                  <template v-if="mainTitle">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">670 $a: Found</span>
+                        </div>
                   </template>
                   <template v-else>
-
-                    <div v-if="oneXX.trim().length == 0">
-                      <span class="error-info-display-field">Enter 1XX value to search</span>
-                    </div>
-
-                    <template v-if="oneXXResults.length>0">
-                      <div>
-                        <span class="material-icons not-unique-icon">cancel</span>
-                        <span class="not-unique-text">1XX Heading FOUND in LCNAF file:</span>
-                      </div>
-                    </template>
-
-
-                    <template v-if="oneXXResults.length==0 && oneXXParts && oneXXParts.a && searching==false">
-                      <div>
-                        <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">1XX: Heading NOT found in LCNAF file:</span>
-                      </div>
-                    </template>
-
-                    <template v-if="oneXXResults.length>0 && oneXXResults.length<=5">
-                      <div v-for="r in oneXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
-                        <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                      </div>
-                    </template>
-                    <template v-else-if="oneXXResults.length>0 && oneXXResults.length>5">
-                    <details style="margin-bottom: 1em; padding-left: 2em;">
-                      <summary>There are {{ oneXXResults.length }} hits on that name.</summary>
-                      <div v-for="r in oneXXResults">
-                        <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                      </div>
-                    </details>
-                    </template>
-
-
-                    <template v-if="fourXXResults.length>0">
-                      <div>
-                        <span class="material-icons not-unique-icon">cancel</span>
-                        <span class="not-unique-text">4XX Heading FOUND in LCNAF file:</span>
-                      </div>
-                    </template>
-
-
-                    <template v-if="fourXXResults.length==0 && fourXXParts && fourXXParts.a && searching==false">
-                      <div>
-                        <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">4XX: Heading NOT found in LCNAF file:</span>
-                      </div>
-                    </template>
-
-                    <template v-if="fourXXResults.length>0 && fourXXResults.length<=5">
-                      <div v-for="r in fourXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
-                        <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                      </div>
-                    </template>
-                    <template v-else-if="fourXXResults.length>0 && fourXXResults.length>5">
-                    <details style="margin-bottom: 1em; padding-left: 2em;">
-                      <summary>There are {{ fourXXResults.length }} hits on that name.</summary>
-                      <div v-for="r in fourXXResults">
-                        <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                      </div>
-                    </details>
-                    </template>
-
-
-
-
-
-
-
+                    <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">670 $a: NOT Found</span><span data-tooltip="Add main title to Work" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        </div>
                   </template>
 
-                  <template v-if="oneXXErrors.length>0">
-                    <div v-for="e in oneXXErrors">
-                      <div><span class="material-icons warning">warning</span><span class="warning-text">{{ e }}</span></div>
-                    </div>
+
+                  <template v-if="mainTitleDate">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">670 $a Date: Found</span>
+                        </div>
                   </template>
-                  <template v-if="fourXXErrors.length>0">
-                    <div v-for="e in fourXXErrors">
-                      <div><span class="material-icons warning">warning</span><span class="warning-text">{{ e }}</span></div>
+                  <template v-else>
+                    <div>
+                      <span class="material-icons not-unique-icon">cancel</span>
+                      <span class="not-unique-text">670 $a Date: NOT Found</span><span data-tooltip="Add date to Instance Provision Activity" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
                     </div>
                   </template>
 
 
-                </div>
-              </div>
-              <div>
-                <div class="error-info-title">Other Checks:</div>
+                  <template v-if="mainTitleLccn">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">670 $w: Found</span>
+                        </div>
+                  </template>
+                  <template v-else>
+                    <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">670 $w: NOT Found</span> <span data-tooltip="Add LCCN to Instance" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        </div>
+                  </template>
 
-
-                <template v-if="mainTitle">
-                      <div>
-                        <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">670 $a: Found</span>
-                      </div>
-                </template>
-                <template v-else>
-                  <div>
-                        <span class="material-icons not-unique-icon">cancel</span>
-                        <span class="not-unique-text">670 $a: NOT Found</span><span data-tooltip="Add main title to Work" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
-                      </div>
-                </template>
-
-
-                <template v-if="mainTitleDate">
-                      <div>
-                        <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">670 $a Date: Found</span>
-                      </div>
-                </template>
-                <template v-else>
-                  <div>
-                    <span class="material-icons not-unique-icon">cancel</span>
-                    <span class="not-unique-text">670 $a Date: NOT Found</span><span data-tooltip="Add date to Instance Provision Activity" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                  <div style="white-space: nowrap; display: inline-block; width: 80%">
+                    <span class="material-icons edit-icon">edit</span>
+                    <label>670 $b: </label>
+                    <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em"/>
                   </div>
-                </template>
+
+                  <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
+                  </template>
+                  <template v-else>
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">Missing 670 Date Field! Can't build 670</div>
+                  </template>
+
+                  <template v-if="zero46 && Object.keys(zero46).length>0">
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
+                  </template>
+                    
 
 
-                <template v-if="mainTitleLccn">
-                      <div>
-                        <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">670 $w: Found</span>
-                      </div>
-                </template>
-                <template v-else>
-                  <div>
-                        <span class="material-icons not-unique-icon">cancel</span>
-                        <span class="not-unique-text">670 $w: NOT Found</span> <span data-tooltip="Add LCCN to Instance" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
-                      </div>
-                </template>
-
-                <div style="white-space: nowrap; display: inline-block; width: 80%">
-                  <span class="material-icons edit-icon">edit</span>
-                  <label>670 $b: </label>
-                  <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em"/>
                 </div>
-
-                <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
-                  <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
-                </template>
-                <template v-else>
-                  <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">Missing 670 Date Field! Can't build 670</div>
-                </template>
-
-                <template v-if="zero46 && Object.keys(zero46).length>0">
-                  <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
-                </template>
-                  
-
 
               </div>
 
+            </template>
 
-              <!-- <div v-for="e in oneXXErrors"><span class="material-icons warning">warning</span>{{ e }}</div>
-              <div v-for="e in fourXXErrors"><span class="material-icons warning">warning</span>{{ e }}</div>
+            <template v-if="showPreview==true">
 
-
-              <template v-if="oneXXResults.length>0 && oneXXResults.length<=5">
-                <div v-for="r in oneXXResults" style="margin-bottom: 1em;">
-                  <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                </div>
-              </template>
-              <template v-else-if="oneXXResults.length>0 && oneXXResults.length>5">
-               <details style="margin-bottom: 1em;">
-                <summary>1XX: There are {{ oneXXResults.length }} hits on that name.</summary>
-                <div v-for="r in oneXXResults">
-                  <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                </div>
-               </details>
-              </template>
+              <textarea class="preview" disabled>
+                {{ MARCText }}
+              </textarea>
 
 
-              <template v-if="fourXXResults.length>0 && fourXXResults.length<=5">
-                <div v-for="r in fourXXResults" style="margin-bottom: 1em;">
-                  <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                </div>
-              </template>
-              <template v-else-if="fourXXResults.length>0 && fourXXResults.length>5">
-               <details style="margin-bottom: 1em;">
-                <summary>4XX: There are {{ fourXXResults.length }} hits on that name.</summary>
-                <div v-for="r in fourXXResults">
-                  <a :href="r.uri" target="_blank">4ccc{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                </div>
-               </details>
-              </template> -->
-
-            </div>
-
-
-            <!-- <div v-if="mainTitle">
-              <span>Using title for 670:</span> <span style="font-family: monospace; background-color: aliceblue;">{{ mainTitle }}</span>
-              <span>{{ mainTitleLccn }}</span>
-              <span> {{ mainTitleDate }} </span>
-            </div> -->
-
+            </template>
 
             <hr>
-            <!-- <div v-if="postStatus!='posted'">
-              Fill out the 1XX and optional 4XX field using MARC field notation.
-            </div> -->
 
-            <div style="display: flex; padding: 1.5em;" v-if="postStatus=='unposted'">
-              <div style="flex:1; text-align: center;"><button style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;" @click="buildNacoStub" :disabled="disableAddButton">Generate Stub</button></div>
+
+            <div style="display: flex; padding: 1.5em;" v-if="postStatus=='unposted' && showPreview == false">
+              <div style="flex:1; text-align: center;"><button style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;" @click="buildNacoStub" :disabled="disableAddButton">Preview NAR</button></div>
               <div style="flex:1; text-align: center"><button @click="close" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Cancel</button></div>
             </div>
 
-<!--
-            <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpXML">{{ tmpXML }}</textarea>
- -->
+            <div style="display: flex; padding: 1.5em;" v-if="postStatus=='unposted' && showPreview == true">
+              <div style="flex:1; text-align: center;"><button class="post-nar-button" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;" @click="postNacoStub" :disabled="disableAddButton">Post NAR</button></div>
+              <div style="flex:1; text-align: center"><button @click="showPreview=false" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Go Back</button></div>
+            </div>
+
 
             <div style="display: flex; padding: 1.5em; font-size: 1.5em;" v-if="postStatus=='posting'">
               <div >Posting... Please wait...</div>
-
-
-
             </div>
 
             <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpErrorMessage">{{ tmpErrorMessage }}</textarea>
 
 
-            <div style="display: flex; padding: 1.5em;" v-if="postStatus=='posted'">
-              <div >The Provisional NAR was created! If you would like to see it please click the link, it will open in new tab:</div>
+            <div style="display: flex; padding: 0 1.5em 1.5em 1.5em;" v-if="postStatus=='posted'">
+              <div >The NAR was created! If you would like to see it please click the link, it will open in new tab:</div>
               <div><a :href="newNarUri" target="_blank">{{ newNarUri }}</a></div>
             </div>
             <div v-if="postStatus=='posted'" style="text-align: center;">
@@ -1380,6 +1341,24 @@
 </style>
 
 <style scoped>
+
+.post-nar-button{
+  -webkit-box-shadow:0px 0px 53px 4px rgba(46,255,53,0.9);
+  -moz-box-shadow: 0px 0px 53px 4px rgba(46,255,53,0.9);
+  box-shadow: 0px 0px 53px 4px rgba(46,255,53,0.9);
+
+}
+.preview{
+  background-color: whitesmoke;
+  min-height: 350px;
+  width: 100% !important;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.1em;
+}
+
+.preset-select, .preset-option{
+ font-family: monospace;
+}
 
 .paste-from-search{
   position: absolute;
@@ -1442,6 +1421,7 @@ select{
 
   .title{
     font-size: 1.35em;
+    font-family: monospace;
     width:100%;
   }
   .title-button{
@@ -1482,7 +1462,7 @@ select{
     font-size: 0.8em;
     color:gray;
   }
-  #non-latin-bulk-content{
+  #nar-fields-content{
     padding: 1em;
 
     overflow-y: scroll;

@@ -2287,6 +2287,7 @@ const utilsParse = {
           subjects.push(subjUserValue)
           subjectOrder.push(pt)
           let source
+
           try {
             if (subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://id.loc.gov/ontologies/bibframe/source']){
               source = subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://id.loc.gov/ontologies/bibframe/source'][0]['@id']
