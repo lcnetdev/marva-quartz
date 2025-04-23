@@ -5584,7 +5584,24 @@ export const useProfileStore = defineStore('profile', {
       }
       return false
     },
-
+    /**
+     * Retrieves the Work Instance from the NACO stub profile by searching through resource templates.
+     * Returns the first URI found in a resource template containing ":Work" in its name.
+     *
+     * @returns {(string|false)} The Work URI if found, false otherwise
+     * @access public
+     * @requires activeProfile - Profile must be loaded with valid RT structure
+     */
+    nacoStubReturnInstanceURI(){
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          if (this.activeProfile.rt[rt].URI){
+            return this.activeProfile.rt[rt].URI
+          }
+        }
+      }
+      return false
+    },
 
 
 
@@ -5597,14 +5614,18 @@ export const useProfileStore = defineStore('profile', {
       * @param {string} langObj - {uri:"",label:""}
       * @return {String}
       */
-    async buildPostNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46){
+    async buildNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46){
       console.log(oneXX,fourXX,mainTitle,workURI,zero46)
-
       let lccn = await utilsNetwork.nacoLccn()
+      let NARData = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46)
+      NARData.lccn = lccn
+      return NARData
+    },
 
-      let xml = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46)
+    async postNacoStub(xml,lccn){
 
       let pubResuts
+
       try{
         pubResuts = await utilsNetwork.publishNar(xml)
       }catch (error){
@@ -5613,20 +5634,13 @@ export const useProfileStore = defineStore('profile', {
       }
 
       // pubResuts = {'postLocation': 'https://id.loc.gov/authorities/names/n83122656', status: 'published'}
-
       console.log('pubResuts')
       console.log(pubResuts)
-
-
       return {
         xml: xml,
         pubResuts: pubResuts,
         lccn: lccn
       }
-
-
-
-
 
     },
 

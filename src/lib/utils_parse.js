@@ -2287,12 +2287,12 @@ const utilsParse = {
           subjects.push(subjUserValue)
           subjectOrder.push(pt)
           let source
-          if (subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://id.loc.gov/ontologies/bibframe/source']){
+          if (subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://id.loc.gov/ontologies/bibframe/source']){
             source = subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://id.loc.gov/ontologies/bibframe/source'][0]['@id']
             if (source == 'http://id.loc.gov/authorities/subjects'){
               source = 'lcsh'
             }
-          } else if (subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].includes("id.loc.gov")){
+          } else if (subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].includes("id.loc.gov")){
             source = "lcsh"
           } else {
             source = "unknown"
