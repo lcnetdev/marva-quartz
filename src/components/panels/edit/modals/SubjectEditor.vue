@@ -1768,6 +1768,9 @@ methods: {
 
     if (that.preferenceStore.returnValue('--b-edit-complex-include-usage')){
       that.applySort()
+    } else {
+      that.selectedSortOrder = 'alpha'
+      that.applySort()
     }
   }, 500),
 
@@ -3324,6 +3327,7 @@ mounted: function(){
     this.selectedSortOrder = 'useageDesc'
     this.applySort()
   } else {
+    console.info("mounted: sort")
     this.selectedSortOrder = 'alpha'
     this.applySort()
   }
