@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.16] - 2025-04-23
+### Changed
+- Final page message is less cryptic
+
+
 ## [1.2.15] - 2025-04-22
 ### Fix
 - Issue with usage sorting selecting the wrong entry
