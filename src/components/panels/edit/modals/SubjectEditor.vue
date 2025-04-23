@@ -204,7 +204,7 @@
                         <span v-if="!subject.literal">
                           {{ this.buildAddtionalInfo(subject.collections) }}
                           <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}" -->
-                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count">{{ buildCount(subjectC) }}</span>
+                          <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject) }}</span>
                         </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
