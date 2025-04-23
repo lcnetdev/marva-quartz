@@ -3327,7 +3327,6 @@ mounted: function(){
     this.selectedSortOrder = 'useageDesc'
     this.applySort()
   } else {
-    console.info("mounted: sort")
     this.selectedSortOrder = 'alpha'
     this.applySort()
   }
