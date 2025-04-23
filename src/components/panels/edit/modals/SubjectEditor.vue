@@ -164,7 +164,7 @@
                     <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
                       <span class="subject-results-heading">Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >
-                      {{subject.suggestLabel}}
+                        {{ subject.suggestLabel }}
                         <span  v-if="subject.literal">
                           {{subject.label}}
                         </span>
@@ -1667,12 +1667,12 @@ methods: {
     if (that.searchMode == 'WORKS' || that.searchMode == 'HUBS'){
       for (let s of that.searchResults.subjectsSimple){
         if (s.suggestLabel && s.suggestLabel.includes(' (USE ')){
-          s.suggestLabel = s.label
+          s.suggestLabel = s.label + " (USE FOR " + s.vlabel + ")"
         }
       }
       for (let s of that.searchResults.subjectsComplex){
         if (s.suggestLabel && s.suggestLabel.includes(' (USE ')){
-          s.suggestLabel = s.label
+          s.suggestLabel = s.label + " (USE FOR " + s.vlabel + ")"
         }
       }
     }
@@ -1767,6 +1767,9 @@ methods: {
     })
 
     if (that.preferenceStore.returnValue('--b-edit-complex-include-usage')){
+      that.applySort()
+    } else {
+      that.selectedSortOrder = 'alpha'
       that.applySort()
     }
   }, 500),
@@ -1916,6 +1919,10 @@ methods: {
 
   applySort: function(){
     let typeSort = this.selectedSortOrder
+
+    if (this.searchMode == 'WORKS' || this.searchMode == 'HUBS'){
+      typeSort = 'alpha'
+    }
 
     for (let r in this.searchResults){
       let records = this.searchResults[r]
@@ -3318,6 +3325,9 @@ before: function () {},
 mounted: function(){
   if (this.preferenceStore.returnValue('--b-edit-complex-include-usage')){
     this.selectedSortOrder = 'useageDesc'
+    this.applySort()
+  } else {
+    this.selectedSortOrder = 'alpha'
     this.applySort()
   }
 },

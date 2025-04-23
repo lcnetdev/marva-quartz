@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ## [1.2.16] - 2025-04-23
 ### Changed
 - Final page message is less cryptic
+- Order of Hubs in subject search
 
 
 ## [1.2.15] - 2025-04-22
