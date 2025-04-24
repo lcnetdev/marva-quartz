@@ -90,7 +90,7 @@
                   <button @click="searchModeSwitch('CHILD')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='CHILD')}]">Children's Subjects</button>
                   <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button>
                   <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
-                  <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+5'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
+                  <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
 
                   <template v-if="preferenceStore.returnValue('--b-edit-complex-include-usage')">
                     | Sort:
@@ -2312,14 +2312,10 @@ methods: {
       event.preventDefault()
       return false
     }else if (event.key == 'Enter'){
-
-
-
       if (event.shiftKey){
         this.add()
         return
       }
-
       this.selectContext()
 
     }else if (event.ctrlKey && event.key == "1"){
@@ -2328,11 +2324,15 @@ methods: {
 
     }else if (event.ctrlKey && event.key == "2"){
 
-      this.searchModeSwitch("GEO")
+    this.searchModeSwitch("CHILD")
 
     }else if (event.ctrlKey && event.key == "3"){
 
-      this.searchModeSwitch("WORKS")
+      this.searchModeSwitch("GEO")
+
+    }else if (event.ctrlKey && event.key == "4"){
+
+      this.searchModeSwitch("HUBS")
 
     }else if (this.searchMode == 'GEO' && event.key == "-"){
       if (this.components.length>0){
