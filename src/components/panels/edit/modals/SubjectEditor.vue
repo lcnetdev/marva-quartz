@@ -561,8 +561,9 @@
 
 
   .fake-option{
-    font-size: 1.25em;
+    font-size: 1em;
     cursor: pointer;
+    text-indent: 2em hanging;
   }
 
   .fake-option:hover{
@@ -1777,19 +1778,19 @@ methods: {
           }
         }
         // alert(smallest_size)
-        for (let el of document.getElementsByClassName("fake-option")){
-          if (el.offsetHeight > smallest_size){
-            let startFontSize = 1.25
-            while (el.offsetHeight >smallest_size){
-              startFontSize=startFontSize-0.01
-              el.style.fontSize = startFontSize + 'em';
-              if (startFontSize<=0.01){
-                el.style.fontSize = "1.25em"
-                break
-              }
-            }
-          }
-        }
+        // for (let el of document.getElementsByClassName("fake-option")){
+        //   if (el.offsetHeight > smallest_size){
+        //     let startFontSize = 1.25
+        //     while (el.offsetHeight >smallest_size){
+        //       startFontSize=startFontSize-0.01
+        //       el.style.fontSize = startFontSize + 'em';
+        //       if (startFontSize<=0.01){
+        //         el.style.fontSize = "1.25em"
+        //         break
+        //       }
+        //     }
+        //   }
+        // }
       // },100)
     })
 

@@ -1285,11 +1285,15 @@
     overflow-y: auto;
     outline:none;
   }
+
+  .complex-lookup-result{
+    text-indent: 2em hanging;
+  }
+
   .complex-lookup-results{
     padding: 0 1em 0 1em;
     height: 73%;
     margin-top: 1.25em;
-
   }
 
   .lookup-input{
