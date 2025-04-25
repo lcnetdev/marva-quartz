@@ -539,8 +539,10 @@ const utilsExport = {
 			xmlLog.push(`Looping through the PTs`)
 
 			for (let pt of profile.rt[rt].ptOrder){
+
         		// extract the pt, this is the individual component like a <mainTitle>
 				let ptObj = profile.rt[rt].pt[pt]
+
 				if (ptObj.deleted){
 					continue
 				}
@@ -2052,10 +2054,10 @@ const utilsExport = {
 	},
 
 	buildMarcTxtLine: function(tag,ind1,ind2,subfields){
-		
-		
+
+
 		let marcTxt = `${tag} ${ind1}${ind2} ${subfields.join(" ")}\n`
-		
+
 
 		return marcTxt
 	},
@@ -2064,7 +2066,7 @@ const utilsExport = {
 		let marcTxt = ''
 		marcTxt = marcTxt + "111111111122222222223333333333\n"
 		marcTxt = marcTxt + "       123456789012345678901234567890123456789\n"
-		
+
 		let marcNamespace = "http://www.loc.gov/MARC21/slim"
 
 		let rootEl = document.createElementNS(marcNamespace,"marcxml:record");
@@ -2203,7 +2205,7 @@ const utilsExport = {
 			subfieldsValues.push(`$2 edtf`)
 			field046.appendChild(field0462)
 			rootEl.appendChild(field046)
-		 
+
 			marcTxt =  marcTxt+ this.buildMarcTxtLine('046',' ',' ',subfieldsValues)
 
 
@@ -2233,7 +2235,7 @@ const utilsExport = {
 		// 110//$aMiller, Sam$d1933
 		rootEl.appendChild(fieldName)
 		marcTxt =  marcTxt+ this.buildMarcTxtLine(oneXXParts.fieldTag, oneXXParts.indicators.charAt(0).replace(" ","#"), oneXXParts.indicators.charAt(1).replace(" ","#"), oneXXSubfieldsValues)
-		
+
 
 		// did they make a 4xx
 		if (fourXXParts && fourXXParts.a){

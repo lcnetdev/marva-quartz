@@ -435,6 +435,7 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
+      console.info("setComplexValue: ", contextValue)
       if (contextValue.literal){
         this.profileStore.setValueComplex(
             this.guid,
@@ -448,6 +449,7 @@ export default {
           )
       } else if (Object.keys(contextValue.extra).length == 0){
         // Intended audience mixes simple and complex lookups, so do check
+        console.info("set Simple")
         this.profileStore.setValueSimple(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title[0])
       } else {
         if (contextValue.uri && contextValue.uri.includes('/works/')){
