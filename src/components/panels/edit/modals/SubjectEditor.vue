@@ -163,7 +163,7 @@
 
                     <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
                       <span class="subject-results-heading">Simple</span>
-                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >
+                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal), unusable: !checkUsable(subject)}]" >
                         {{ subject.suggestLabel }}
                         <span  v-if="subject.literal">
                           {{subject.label}}
@@ -171,6 +171,7 @@
                         <span  v-if="subject.literal">[Literal]</span>
                         <span v-if="!subject.literal">
                           {{ this.buildAddtionalInfo(subject.collections) }}
+                          <span class="from-auth" v-if="checkFromAuth(subject)"> (Auth)</span>
                           <!-- :style="{'background-color': setBackgroundColor(subject.count, searchResults.subjectsSimple)}" -->
                           <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject) }}</span>
                         </span>
@@ -254,6 +255,9 @@
                           </template>
                           <template v-else-if="key == 'broaders' || key == 'sees'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                          </template>
+                          <template v-else-if="key == 'notes'">
+                            <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
                           </template>
                           <template v-else>
                             {{v}}
@@ -557,8 +561,9 @@
 
 
   .fake-option{
-    font-size: 1.25em;
+    font-size: 1em;
     cursor: pointer;
+    text-indent: 2em hanging;
   }
 
   .fake-option:hover{
@@ -784,9 +789,16 @@ li::before {
 }*/
 
 .usage-count {
-  color: ;
   /* color: white;
   text-shadow: black 0px 0px 10px; */
+}
+
+.from-auth {
+  font-weight: bold;
+}
+
+.unusable {
+  color: red;
 }
 
 </style>
@@ -949,6 +961,21 @@ computed: {
   ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 },
 methods: {
+  checkUsable: function(data){
+    let notes = data.extra.notes || []
+    if (notes.includes("THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS RECORD HAS BEEN REVIEWED AND/OR UPDATED")){
+      return false
+    }
+    return true
+  },
+  checkFromAuth: function(data){
+    let notes = data.extra.notes || []
+    let identifiers = data.extra.identifiers || []
+
+    let looksLikeLccn = identifiers.filter((i) => i.startsWith("n")).length > 0 ? true : false
+
+    return looksLikeLccn
+  },
   /**
    * Set the background color for the usage numbers. Based on 5 color heat map
    * https://stackoverflow.com/questions/12875486/what-is-the-algorithm-to-create-colors-for-a-heatmap
@@ -1750,19 +1777,19 @@ methods: {
           }
         }
         // alert(smallest_size)
-        for (let el of document.getElementsByClassName("fake-option")){
-          if (el.offsetHeight > smallest_size){
-            let startFontSize = 1.25
-            while (el.offsetHeight >smallest_size){
-              startFontSize=startFontSize-0.01
-              el.style.fontSize = startFontSize + 'em';
-              if (startFontSize<=0.01){
-                el.style.fontSize = "1.25em"
-                break
-              }
-            }
-          }
-        }
+        // for (let el of document.getElementsByClassName("fake-option")){
+        //   if (el.offsetHeight > smallest_size){
+        //     let startFontSize = 1.25
+        //     while (el.offsetHeight >smallest_size){
+        //       startFontSize=startFontSize-0.01
+        //       el.style.fontSize = startFontSize + 'em';
+        //       if (startFontSize<=0.01){
+        //         el.style.fontSize = "1.25em"
+        //         break
+        //       }
+        //     }
+        //   }
+        // }
       // },100)
     })
 
