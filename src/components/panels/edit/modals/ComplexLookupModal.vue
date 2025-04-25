@@ -169,7 +169,6 @@
         return true
       },
       checkFromAuth: function(data){
-        console.info(data)
         let notes = data.extra.notes || []
         let identifiers = data.extra.identifiers || []
 

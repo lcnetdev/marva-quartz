@@ -1499,13 +1499,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
-      console.info("\nsetValueSimple")
-      console.info("\tcomponentGuid: ", componentGuid)
-      console.info("\tfieldGuid: ", fieldGuid)
-      console.info("\tpropertyPath: ", propertyPath)
-      console.info("\tURI: ", URI)
-      console.info("\tlabel: ", label)
-
       console.log("componentGuid, fieldGuid, propertyPath, URI, label")
       console.log(componentGuid, fieldGuid, propertyPath, URI, label)
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
@@ -1537,11 +1530,7 @@ export const useProfileStore = defineStore('profile', {
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
 
-          console.info("\t\tbuildBlankNodeResult:", JSON.parse(JSON.stringify(buildBlankNodeResult)))
-
-
           pt = buildBlankNodeResult[0]
-          console.info("\t\tpt:", JSON.parse(JSON.stringify(pt)))
 
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
@@ -4113,7 +4102,6 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
-    console.info("insertDefaultValues")
     // console.log(componentGuid)
     // console.log("structure",structure)
 
