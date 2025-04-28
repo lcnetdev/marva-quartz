@@ -102,6 +102,7 @@ export default {
 
       // // grab the first component from the struecture, but there might be mutluple ones
       let useId = this.structure.valueConstraint.valueTemplateRefs[0]
+
       let foundBetter = false
 
       let userValue = this.structure.userValue
@@ -111,12 +112,16 @@ export default {
         userValue = this.structure.userValue[this.structure.propertyURI][0]
       }
 
+      //TODO: for RBMS, where the URI is the same as Genre/Form, it'll always use G/F. Get it to not do this
+
       // do we have user data and a possible @type to use
       if (userValue['@type']){
         // loop thrugh all the refs and see if there is a URI that matches it better
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
           //if tmpid is 'lc:RT:bf2:Agents:Contribution', need to look somehwere else
           if (foundBetter) return false
+
+          let selection = this.structure['@guid']+'-select'
           if (tmpid == "lc:RT:bf2:Agents:Contribution"){
           } else if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
             useId = tmpid
@@ -161,6 +166,7 @@ export default {
 
         for (let idx in this.structure.valueConstraint.valueTemplateRefs){
           let template = this.structure.valueConstraint.valueTemplateRefs[idx]
+
           if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
             let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
             if (target){
@@ -171,7 +177,7 @@ export default {
                 useId = typeMap[type]
               }
             } else { //there's no user agent
-            let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]
+              let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]
               let type = target[0]["@type"]
               if (type && this.rtLookup[template].resourceURI === type){
                 useId = template
@@ -282,6 +288,8 @@ export default {
       //If the selection is for Children's Subjects, use manual override
       if(nextRef.id == "lc:RT:bf2:Topic:Childrens:Components"){
         this.manualOverride = "lc:RT:bf2:Topic:Childrens:Components"
+      } else if (nextRef.id == 'lc:RT:bf2:RareMat:RBMS'){
+        this.manualOverride = "lc:RT:bf2:RareMat:RBMS"
       } else {
         this.manualOverride = null
       }

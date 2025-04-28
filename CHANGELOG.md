@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.18] - 2025-04-28
+### Added
+- Manual override for RBMS to support dual LCGFT/RBMS lookup
+
+
+
 ## [1.2.16] - 2025-04-23
 ### Changed
 - Final page message is less cryptic

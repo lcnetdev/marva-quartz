@@ -1684,7 +1684,9 @@ const utilsExport = {
 		}
 	}
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
-	console.info("strXmlBasic: ", strXmlBasic)
+
+	// console.info("strXmlBasic: ", strXmlBasic)
+
 	return {
 		xmlDom: rdf,
 		xmlStringFormatted: strXmlFormatted,
