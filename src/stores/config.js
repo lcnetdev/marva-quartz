@@ -409,7 +409,8 @@ export const useConfigStore = defineStore('config', {
       "processor" : 'lcAuthorities',
       "modes":[
         {
-          'LCGFT All':{"url":"https://id.loc.gov/authorities/genreForms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true}
+          'LCGFT All':{"url":"https://id.loc.gov/authorities/genreForms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
+          'RBMS':{"url":"https://id.loc.gov/vocabulary/rbmscv.html"},
         }
       ]
 

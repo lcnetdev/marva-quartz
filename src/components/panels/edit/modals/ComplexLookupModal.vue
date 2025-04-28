@@ -350,7 +350,7 @@
             })
           }
           if (this.searchValueLocal && this.searchValueLocal.length > 1){
-            this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].includes(this.searchValueLocal))
+            this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].toLowerCase().includes(this.searchValueLocal.toLowerCase()))
           }
           // this.selectChange()
         }
