@@ -88,7 +88,6 @@ export default {
 
 
     thisRtTemplate(){
-      console.info("thisRtTemplate")
       if (this.manualOverride !== null){
         for (let tmpid of this.structure.valueConstraint.valueTemplateRefs){
           console.log('tmpid',tmpid)
@@ -103,9 +102,6 @@ export default {
 
       // // grab the first component from the struecture, but there might be mutluple ones
       let useId = this.structure.valueConstraint.valueTemplateRefs[0]
-
-      console.info("\n\nuseId: ", useId)
-      console.info("\tstructure: ", this.structure)
 
       let foundBetter = false
 
@@ -122,19 +118,12 @@ export default {
       if (userValue['@type']){
         // loop thrugh all the refs and see if there is a URI that matches it better
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
-          console.info("tmpid: ", tmpid, "--", foundBetter)
           //if tmpid is 'lc:RT:bf2:Agents:Contribution', need to look somehwere else
           if (foundBetter) return false
 
-          console.info("\tLookup[tmpid]: ", this.rtLookup[tmpid] )
-          console.info("\tuserValue: ", userValue)
-
           let selection = this.structure['@guid']+'-select'
-          console.info("selection: ", selection)
-
           if (tmpid == "lc:RT:bf2:Agents:Contribution"){
           } else if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
-            console.info("\t### Found better: ", tmpid)
             useId = tmpid
             foundBetter = true
           }
@@ -178,9 +167,6 @@ export default {
         for (let idx in this.structure.valueConstraint.valueTemplateRefs){
           let template = this.structure.valueConstraint.valueTemplateRefs[idx]
 
-          console.info("\ttemplate: ", template)
-          console.info("\tparentUserValue: ", parentUserValue)
-
           if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
             let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
             if (target){
@@ -207,7 +193,6 @@ export default {
         if (this.rtLookup[useId]){
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
 
-          console.info("use: ", use)
           return use
           // this.multiTemplateSelect = use.resourceLabel
           // this.multiTemplateSelectURI = useId
@@ -297,7 +282,6 @@ export default {
   methods: {
 
     templateChange(event){
-      console.info("templateChange: ", event.target.value)
       let nextRef = this.allRtTemplate.filter((v)=>{ return (v.id === event.target.value) })[0]
       let thisRef = this.thisRtTemplate
 
