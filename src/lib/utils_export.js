@@ -2064,7 +2064,7 @@ const utilsExport = {
 		return marcTxt
 	},
 
-	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,instanceUri, mainTitleDate, mainTitleLccn, mainTitleNote,zero46){
+	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,instanceUri, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667){
 		let marcTxt = ''
 		marcTxt = marcTxt + "111111111122222222223333333333\n"
 		marcTxt = marcTxt + "       123456789012345678901234567890123456789\n"
@@ -2093,7 +2093,7 @@ const utilsExport = {
 
 		let pos29 = "n"
 		// did they make a 4xx
-		if (fourXXParts && fourXXParts.a){
+		if (fourXXParts && fourXXParts.a && add667){
 			pos29 = 'b'
 		}
 
@@ -2172,7 +2172,7 @@ const utilsExport = {
 		field040c.innerHTML = 'DLC'
 		field040.appendChild(field040c)
 
-		marcTxt =  marcTxt+ this.buildMarcTxtLine('040',' ',' ',[`$a DLC`, `$b ebg`, `$e rda`, `$c DLC`])
+		marcTxt =  marcTxt+ this.buildMarcTxtLine('040',' ',' ',[`$a DLC`, `$b eng`, `$e rda`, `$c DLC`])
 
 
 		rootEl.appendChild(field040)
