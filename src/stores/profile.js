@@ -5614,10 +5614,10 @@ export const useProfileStore = defineStore('profile', {
       * @param {string} langObj - {uri:"",label:""}
       * @return {String}
       */
-    async buildNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46){
+    async buildNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667){
       console.log(oneXX,fourXX,mainTitle,workURI,zero46)
       let lccn = await utilsNetwork.nacoLccn()
-      let NARData = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46)
+      let NARData = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667)
       NARData.lccn = lccn
       return NARData
     },
@@ -6324,9 +6324,18 @@ export const useProfileStore = defineStore('profile', {
     reorderAllNonLatinLiterals(){
       this.activeProfile = utilsParse.reorderAllNonLatinLiterals(this.activeProfile)
 
+    },
+
+    /**
+     * Tests if the passed string contains only Latin characters or includes non-Latin characters.
+     *
+     * @param {string} inputString - The string to test.
+     * @returns {boolean} - True if the string contains only Latin characters, false otherwise.
+     */
+    isLatin(inputString) {
+      // Regex to match common Latin characters, numbers, punctuation, and extended Latin ranges.      
+      return latinRegex.test(inputString);
     }
-
-
 
 
 

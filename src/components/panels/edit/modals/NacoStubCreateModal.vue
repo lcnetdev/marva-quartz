@@ -88,6 +88,8 @@
         showPreview: false,
 
 
+        add667: false,
+
 
         scriptShifterOptions: {},
 
@@ -163,7 +165,7 @@
             note = this.mainTitleNote
           }
 
-          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46)
+          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667)
 
           this.MARCXml = results.xml
           this.MARCText = results.text
@@ -387,6 +389,23 @@
               
             }
 
+            if (dollarKey.a){
+              if (/[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)){
+               console.log("found a hyphenated name")
+               if (dollarKey.a.split(',')[0]){
+                let hyphenated = dollarKey.a.split(',')[0].split('-')
+                console.log(hyphenated)
+               }
+               
+
+               
+              }
+          
+
+            }
+
+
+
 
 
           }else{
@@ -488,7 +507,15 @@
             }
 
 
+            if (this.fourXXParts && this.fourXXParts.a){
+              if (this.profileStore.isLatin(this.fourXXParts.a) === false){
+                this.add667 = true
+              }else if (this.profileStore.isLatin(this.fourXXParts.a) === true){
+                this.add667 = false
+              }
 
+            }
+            
 
 
           }else{
@@ -1272,8 +1299,16 @@
                   <template v-if="zero46 && Object.keys(zero46).length>0">
                     <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
                   </template>
-                    
+                  
+                  <div class="selectable" style="font-family: monospace;"> 
 
+                    <input type="checkbox" v-model="add667" id="add-667"/>
+                    <label for="add-667" style="vertical-align: super; padding-left: 1em;">Add 667 Note</label>
+
+                  </div>
+
+
+                  
 
                 </div>
 

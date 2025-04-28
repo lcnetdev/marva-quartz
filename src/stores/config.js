@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 2,
-    versionPatch: 17,
+    versionPatch: 19,
 
 
 
@@ -19,7 +19,7 @@ export const useConfigStore = defineStore('config', {
         util  : 'http://localhost:9401/util/',
 
         // util  : 'http://localhost:5200/',
-        util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
+        // util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
 
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',

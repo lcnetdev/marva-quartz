@@ -766,10 +766,8 @@
       },
 
       displayProvisonalNAR(){
-        return true
-        if (!this.preferenceStore.isNarTester()){
-          return false
-        }
+
+        
         if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom.length>0 && this.structure.valueConstraint.useValuesFrom.join(' ').indexOf('id.loc.gov/authorities/names')>-1){
           return true
         }
@@ -1031,7 +1029,7 @@
               <button @click="forceSearch()">Search</button>
 
               <!-- REMOVE v-if BEFORE PROD USAGE -->
-              <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create Provisional NAR</button>
+              <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create NAR</button>
 
               <hr style="margin-top: 5px;">
               <div>
