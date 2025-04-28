@@ -38,7 +38,7 @@
       :level="level+1"
       :structure="structure"
       :guid="guid"
-      :readOnly="readOnly"       
+      :readOnly="readOnly"
     />
 
     <!-- {{structure}} -->
@@ -212,9 +212,6 @@ export default {
         }
       })
       return type
-
-
-
     },
 
     returnBackgroundColor(){

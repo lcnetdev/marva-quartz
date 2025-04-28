@@ -160,6 +160,23 @@
     },
 
     methods: {
+
+      checkUsable: function(data){
+        let notes = data.extra.notes || []
+        if (notes.includes("THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS RECORD HAS BEEN REVIEWED AND/OR UPDATED")){
+          return false
+        }
+        return true
+      },
+      checkFromAuth: function(data){
+        let notes = data.extra.notes || []
+        let identifiers = data.extra.identifiers || []
+
+        let looksLikeLccn = identifiers.filter((i) => i.startsWith("n")).length > 0 ? true : false
+
+        return looksLikeLccn
+      },
+
       generateLabel: function(data){
         let label = !data.literal ? data.suggestLabel : data.label + ((data.literal) ? ' [Literal]' : '')
 
@@ -1043,8 +1060,9 @@
                     <template v-if="!isSimpleLookup()">
                       <!-- .sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0)) -->
                       <option v-for="(r,idx) in activeComplexSearch.sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0))" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
-                        <div class="option-text">
+                        <div :class="['option-text', {unusable: !checkUsable(r)}]">
                           <span v-html="generateLabel(r)"></span>
+                          <span v-if="checkFromAuth(r)" class="from-auth"> (Auth)</span>
                         </div>
                       </option>
                     </template>
@@ -1103,11 +1121,13 @@
                           </template>
                           <template v-else-if="key == 'lcclasss'">
                             <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
-                            <!-- <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a> -->
                           </template>
                           <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
                           </template>
+                          <teamplate v-else-if="key == 'notes'">
+                            <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
+                          </teamplate>
                           <template v-else>
                             {{v}}
                           </template>
@@ -1262,11 +1282,15 @@
     overflow-y: auto;
     outline:none;
   }
+
+  .complex-lookup-result{
+    text-indent: 2em hanging;
+  }
+
   .complex-lookup-results{
     padding: 0 1em 0 1em;
     height: 73%;
     margin-top: 1.25em;
-
   }
 
   .lookup-input{
@@ -1456,6 +1480,14 @@
 
 :deep() .highlight-search-string{
   font-weight: bold;
+}
+
+.from-auth {
+  font-weight: bold;
+}
+
+.unusable {
+  color: red;
 }
 
 </style>

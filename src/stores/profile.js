@@ -1530,7 +1530,6 @@ export const useProfileStore = defineStore('profile', {
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
 
-
           pt = buildBlankNodeResult[0]
 
           // now we can make a link to the parent of where the literal value should live
@@ -5428,18 +5427,18 @@ export const useProfileStore = defineStore('profile', {
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
                 )
                 {
-                  
+
                   // look for the one that is set as latin first, if we can find it
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
-                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']                       
+                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
                     }
                   }
 
                   // otherwise look for the first one that doesn't have a language tag
                   for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                     if (!aTitle['@language']){
-                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']                       
+                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
                     }
                   }
 
