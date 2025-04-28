@@ -1638,6 +1638,22 @@ export const useProfileStore = defineStore('profile', {
 
         }
 
+        if (URI.includes("rbmscv")){
+          blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+            {
+                  "@guid": short.generate(),
+                  "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                  "@id": "http://id.loc.gov/vocabulary/genreFormSchemes/rbmscv",
+                  "http://www.w3.org/2000/01/rdf-schema#label": [
+                      {
+                          "@guid": short.generate(),
+                          "http://www.w3.org/2000/01/rdf-schema#label": "RBMS Controlled Vocabularies"
+                      }
+                  ]
+              }
+          ]
+        }
+
         // they changed something
         this.dataChanged()
 
