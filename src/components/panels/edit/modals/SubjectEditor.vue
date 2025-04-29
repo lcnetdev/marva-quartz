@@ -172,6 +172,7 @@
                         <span v-if="!subject.literal">
                           {{ this.buildAddtionalInfo(subject.collections) }}
                           <span class="from-auth" v-if="checkFromAuth(subject)"> (Auth)</span>
+                          <span class="from-rda" v-if="checkFromRda(subject)"> [RDA]</span>
                           <!-- :style="{'background-color': setBackgroundColor(subject.count, searchResults.subjectsSimple)}" -->
                           <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject) }}</span>
                         </span>
@@ -793,6 +794,7 @@ li::before {
   text-shadow: black 0px 0px 10px; */
 }
 
+.from-rda,
 .from-auth {
   font-weight: bold;
 }
@@ -967,6 +969,18 @@ methods: {
       return false
     }
     return true
+  },
+  checkFromRda: function(data){
+    let notes = data.extra.notes || []
+    let isRda = false
+
+    for (let note of notes){
+      if (note.includes("$erda")){
+        isRda = true
+      }
+    }
+
+    return isRda
   },
   checkFromAuth: function(data){
     let notes = data.extra.notes || []

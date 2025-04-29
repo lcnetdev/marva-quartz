@@ -168,6 +168,20 @@
         }
         return true
       },
+
+      checkFromRda: function(data){
+        let notes = data.extra.notes || []
+        let isRda = false
+
+        for (let note of notes){
+          if (note.includes("$erda")){
+            isRda = true
+          }
+        }
+
+        return isRda
+      },
+
       checkFromAuth: function(data){
         let notes = data.extra.notes || []
         let identifiers = data.extra.identifiers || []
@@ -784,7 +798,7 @@
 
       displayProvisonalNAR(){
 
-        
+
         if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom.length>0 && this.structure.valueConstraint.useValuesFrom.join(' ').indexOf('id.loc.gov/authorities/names')>-1){
           return true
         }
@@ -1063,6 +1077,7 @@
                         <div :class="['option-text', {unusable: !checkUsable(r)}]">
                           <span v-html="generateLabel(r)"></span>
                           <span v-if="checkFromAuth(r)" class="from-auth"> (Auth)</span>
+                          <span v-if="checkFromRda(r)" class="from-rda"> [RDA]</span>
                         </div>
                       </option>
                     </template>
@@ -1482,6 +1497,7 @@
   font-weight: bold;
 }
 
+.from-rda,
 .from-auth {
   font-weight: bold;
 }
