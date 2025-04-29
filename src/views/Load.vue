@@ -15,7 +15,35 @@
 
 
         <pane class="load" v-if="displayAllRecords">
-          <button @click="displayAllRecords=false;displayDashboard=true">Close</button>
+          <button style="float: right;" @click="displayAllRecords=false;displayDashboard=true">Close</button>
+          <div v-if="dashBoard && dashBoard.totalDays">
+            <h1>
+              <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_note</span>
+              <span>Dashboard</span></h1>
+            <div style="display:flex; padding: 1em;">
+              <div style="flex:2;">
+                <h2>Last 24 Hours</h2>
+                <p>Unique Users: {{Object.keys(dashBoard.byTimePeriod.last24Hours.uniqueUsers).length}}</p>
+                <p>Worked Records: {{dashBoard.byTimePeriod.last24Hours.workedRecords}}</p>
+                <p>Posted Records: {{dashBoard.byTimePeriod.last24Hours.postedRecords}}</p>
+              </div>
+              <div style="flex:2;">
+                <h2>Last 7 Days</h2>
+                <p>Unique Users: {{Object.keys(dashBoard.byTimePeriod.last7Days.uniqueUsers).length}}</p>
+                <p>Worked Records: {{dashBoard.byTimePeriod.last7Days.workedRecords}}</p>
+                <p>Posted Records: {{dashBoard.byTimePeriod.last7Days.postedRecords}}</p>
+              </div>
+              <div style="flex:2;">
+                <h2>Last {{ dashBoard.totalDays }} Days</h2>
+                <p>Unique Users: {{Object.keys(dashBoard.byTimePeriod.all.uniqueUsers).length}}</p>
+                <p>Worked Records: {{dashBoard.byTimePeriod.all.workedRecords}}</p>
+                <p>Posted Records: {{dashBoard.byTimePeriod.all.postedRecords}}</p>
+              </div>
+              
+
+            </div>
+          </div>
+
           <div id="all-records-table">
             <DataTable  :loading="isLoadingAllRecords" :rows="allRecords" striped hoverable>
 
@@ -24,7 +52,7 @@
               <template #tbody="{row}">
 
                 <td>
-                  <a href="#" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
+                  <a :href="'/bfe2/quartz/edit/'+row.Id" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
 
                 </td>
 
@@ -267,6 +295,8 @@
         displayAllRecords: false,
         isLoadingAllRecords:false,
 
+        dashBoard: {},
+
         allRecords: []
 
 
@@ -328,14 +358,39 @@
       },
 
       loadAllRecords: async function(event){
-        event.preventDefault()
+        if (event) {event.preventDefault()}
 
         this.displayDashboard = false
         this.displayAllRecords = true
         this.isLoadingAllRecords=true
 
         let allRecordsRaw = await utilsNetwork.searchSavedRecords()
+        let dashBoard = {
+          byTimePeriod:{
+            'last24Hours':{
+              uniqueUsers: {},              
+              workedRecords: 0,
+              postedRecords: 0,
+            },
+            'last7Days':{
+              uniqueUsers: {},              
+              workedRecords: 0,
+              postedRecords: 0,
+            },
+            'all':{
+              uniqueUsers: {},              
+              workedRecords: 0,
+              postedRecords: 0,
+            }
+          },          
+          totalDays:0,
 
+        }
+        let oldestDate = 10000000000000
+        let last24Hours = Math.floor(new Date().getTime()/1000 - 86400)
+        let last7Days = Math.floor(new Date().getTime()/1000 - 604800)
+
+        let postedByAgo= {}
         this.allRecords = []
         for (let r of allRecordsRaw){
 
@@ -349,15 +404,38 @@
             'Urls': r.externalid,
             'Time': r.time,
             'User': r.user,
-
-
-
           }
+
+          let date = new Date(r.time);
+          let timestamp = date.getTime()/1000;
+
+          dashBoard.byTimePeriod.all.uniqueUsers[r.user]=true
+          dashBoard.byTimePeriod.all.workedRecords++
+          if (r.status == 'published'){
+            dashBoard.byTimePeriod.all.postedRecords++
+          }
+          if (timestamp > last24Hours){
+            dashBoard.byTimePeriod.last24Hours.uniqueUsers[r.user]=true
+            dashBoard.byTimePeriod.last24Hours.workedRecords++
+            if (r.status == 'published'){
+              dashBoard.byTimePeriod.last24Hours.postedRecords++
+            }
+          }
+          if (timestamp > last7Days){
+            dashBoard.byTimePeriod.last7Days.uniqueUsers[r.user]=true
+            dashBoard.byTimePeriod.last7Days.workedRecords++
+            if (r.status == 'published'){
+              dashBoard.byTimePeriod.last7Days.postedRecords++
+            }
+          }
+          if (timestamp < oldestDate){
+            oldestDate = timestamp
+          }         
           this.allRecords.push(obj)
-
-
         }
-        // let lccnLookup = {}
+        dashBoard.totalDays = Math.floor((new Date().getTime()/1000 - oldestDate)/86400)       
+        console.log(dashBoard)
+        this.dashBoard = dashBoard
 
 
         this.isLoadingAllRecords=false
@@ -610,9 +688,12 @@
 
     mounted: async function(){
       this.refreshSavedRecords()
-
-	  //reset the title
-	  document.title = `Marva`;
+      if (window.location.hash && window.location.hash == '#stats'){
+        console.log("showing stats")
+        this.loadAllRecords()
+      }
+      //reset the title
+      document.title = `Marva`;
 
     },
 
