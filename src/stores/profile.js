@@ -1499,6 +1499,13 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
+      console.info("\nsetValueSimple")
+      console.info("\tcomponentGuid: ",componentGuid)
+      console.info("\tfieldGuid: ",fieldGuid)
+      console.info("\tpropertyPath: ",propertyPath)
+      console.info("\tURI: ", URI)
+      console.info("\tlabel: ", label)
+
       console.log("componentGuid, fieldGuid, propertyPath, URI, label")
       console.log(componentGuid, fieldGuid, propertyPath, URI, label)
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
@@ -1630,6 +1637,23 @@ export const useProfileStore = defineStore('profile', {
 
 
         }
+
+        if (URI.includes("rbmscv")){
+          blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+            {
+                  "@guid": short.generate(),
+                  "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                  "@id": "http://id.loc.gov/vocabulary/genreFormSchemes/rbmscv",
+                  "http://www.w3.org/2000/01/rdf-schema#label": [
+                      {
+                          "@guid": short.generate(),
+                          "http://www.w3.org/2000/01/rdf-schema#label": "RBMS Controlled Vocabularies"
+                      }
+                  ]
+              }
+          ]
+        }
+
         // they changed something
         this.dataChanged()
 
@@ -2531,6 +2555,13 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
+      console.info("\nsetValueComplex")
+      console.info("fieldGuid: ", fieldGuid)
+      console.info("propertyPath: ", propertyPath)
+      console.info("URI: ", URI)
+      console.info("label: ", label)
+      console.info("type: ", type)
+      console.info("nodeMap: ", nodeMap)
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2765,6 +2796,26 @@ export const useProfileStore = defineStore('profile', {
           //   ]
           // }
 
+          // add the source for Genre/Form
+          if (propertyPath.map((obj) => obj.propertyURI).includes("http://id.loc.gov/ontologies/bibframe/genreForm")){
+            console.info("set source Genre/Form: ", blankNode)
+            let objId = blankNode['@id']
+            if (nodeMap.collections.includes('http://id.loc.gov/authorities/genreForms/collection_LCGFT_General')){
+              blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+                {
+                      "@guid": short.generate(),
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                      "@id": "http://id.loc.gov/authorities/genreForms/collection_LCGFT_General",
+                      "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                              "@guid": short.generate(),
+                              "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress genre/form terms for library and archival materials"
+                          }
+                      ]
+                  }
+              ]
+            }
+          }
 
 
 
@@ -2811,8 +2862,15 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
+      console.info("\nsetValueSubject")
+      console.info("\tcomponentGuid: ", componentGuid)
+      console.info("\tsubjectComponents: ", subjectComponents)
+      console.info("\tpropertyPath: ", propertyPath)
         // we're just going to overwrite the whole userValue with the constructed headings
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+
+        console.info("\tpt: ", JSON.parse(JSON.stringify(pt)))
 
         // console.log('-----')
         // console.log(pt)
@@ -2886,6 +2944,8 @@ export const useProfileStore = defineStore('profile', {
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"][0]){
+
+                  console.info("!! source !!")
 
                 userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"] = JSON.parse(JSON.stringify(pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"]))
             }
@@ -3062,6 +3122,8 @@ export const useProfileStore = defineStore('profile', {
               if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/subjects') >-1){
                 if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
 
+                  console.info("add source 1")
+
                   currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] =  [
                     {
                             "@guid": short.generate(),
@@ -3078,6 +3140,9 @@ export const useProfileStore = defineStore('profile', {
                 }
                 break
               } else if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/names') >-1){
+
+                console.info("add source 2")
+
                 if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
 
                   currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] =  [
@@ -3123,6 +3188,8 @@ export const useProfileStore = defineStore('profile', {
             // console.log("USERVALUE IS",userValue)
             pt.userValue = userValue
         }
+
+      console.info("\tpt after: ", JSON.parse(JSON.stringify(pt)))
 
     },
 
