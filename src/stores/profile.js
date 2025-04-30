@@ -1499,13 +1499,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
-      console.info("\nsetValueSimple")
-      console.info("\tcomponentGuid: ",componentGuid)
-      console.info("\tfieldGuid: ",fieldGuid)
-      console.info("\tpropertyPath: ",propertyPath)
-      console.info("\tURI: ", URI)
-      console.info("\tlabel: ", label)
-
       console.log("componentGuid, fieldGuid, propertyPath, URI, label")
       console.log(componentGuid, fieldGuid, propertyPath, URI, label)
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
@@ -2555,13 +2548,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
-      console.info("\nsetValueComplex")
-      console.info("fieldGuid: ", fieldGuid)
-      console.info("propertyPath: ", propertyPath)
-      console.info("URI: ", URI)
-      console.info("label: ", label)
-      console.info("type: ", type)
-      console.info("nodeMap: ", nodeMap)
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2798,7 +2784,6 @@ export const useProfileStore = defineStore('profile', {
 
           // add the source for Genre/Form
           if (propertyPath.map((obj) => obj.propertyURI).includes("http://id.loc.gov/ontologies/bibframe/genreForm")){
-            console.info("set source Genre/Form: ", blankNode)
             let objId = blankNode['@id']
             if (nodeMap.collections.includes('http://id.loc.gov/authorities/genreForms/collection_LCGFT_General')){
               blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
@@ -2862,15 +2847,8 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
-      console.info("\nsetValueSubject")
-      console.info("\tcomponentGuid: ", componentGuid)
-      console.info("\tsubjectComponents: ", subjectComponents)
-      console.info("\tpropertyPath: ", propertyPath)
         // we're just going to overwrite the whole userValue with the constructed headings
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
-
-        console.info("\tpt: ", JSON.parse(JSON.stringify(pt)))
 
         // console.log('-----')
         // console.log(pt)
@@ -2944,8 +2922,6 @@ export const useProfileStore = defineStore('profile', {
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"][0]){
-
-                  console.info("!! source !!")
 
                 userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"] = JSON.parse(JSON.stringify(pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"]))
             }
@@ -3122,8 +3098,6 @@ export const useProfileStore = defineStore('profile', {
               if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/subjects') >-1){
                 if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
 
-                  console.info("add source 1")
-
                   currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] =  [
                     {
                             "@guid": short.generate(),
@@ -3140,8 +3114,6 @@ export const useProfileStore = defineStore('profile', {
                 }
                 break
               } else if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/names') >-1){
-
-                console.info("add source 2")
 
                 if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
 
@@ -3188,9 +3160,6 @@ export const useProfileStore = defineStore('profile', {
             // console.log("USERVALUE IS",userValue)
             pt.userValue = userValue
         }
-
-      console.info("\tpt after: ", JSON.parse(JSON.stringify(pt)))
-
     },
 
 
@@ -4299,10 +4268,28 @@ export const useProfileStore = defineStore('profile', {
       }
 
       if (!isParentTop){
-        pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
+        const oldValues = Object.keys(pt.userValue[baseURI][0])
+        const newValues = Object.keys(JSON.parse(JSON.stringify(userValue)))
+
+        // don't overwrite existing values
+        let matches = newValues.filter((nV) => !oldValues.includes(nV))
+
+        Object.filter = (obj, predicate) =>
+          Object.keys(obj)
+                .filter( key => predicate(key) )
+                .reduce( (res, key) => Object.assign(res, { [key]: obj[key] }), {} );
+
+        let filtered = Object.filter(JSON.parse(JSON.stringify(userValue)), key => matches.includes(key))
+
+        Object.assign(pt.userValue[baseURI][0], JSON.parse(JSON.stringify(filtered)))
       } else {
         //We're not in a nested component, so we can just set the userValue
-        pt.userValue = JSON.parse(JSON.stringify(userValue))
+        //   But don't overwrite an existing value
+        for (let key in pt.userValue){
+          if (!key.startsWith('@') && typeof pt.userValue[key][0] == 'object' && Object.keys(pt.userValue[key][0]).length == 0){
+            pt.userValue = JSON.parse(JSON.stringify(userValue))
+          }
+        }
       }
       // they changed something
       this.dataChanged()
@@ -6399,7 +6386,7 @@ export const useProfileStore = defineStore('profile', {
      * @returns {boolean} - True if the string contains only Latin characters, false otherwise.
      */
     isLatin(inputString) {
-      // Regex to match common Latin characters, numbers, punctuation, and extended Latin ranges.      
+      // Regex to match common Latin characters, numbers, punctuation, and extended Latin ranges.
       return latinRegex.test(inputString);
     }
 
