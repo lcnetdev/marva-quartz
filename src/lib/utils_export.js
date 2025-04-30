@@ -185,7 +185,7 @@ const utilsExport = {
   * @return {boolean}
   */
 	createLiteral: function(property,userValue){
-        let p = this.createElByBestNS(property)
+		let p = this.createElByBestNS(property)
 
 
 		// it should be stored under the same key
@@ -945,9 +945,9 @@ const utilsExport = {
                                     if (keys.length>0){
 										for (let key2 of keys){
 											if (typeof value1[key2] == 'string' || typeof value1[key2] == 'number'){
-                                                    let p2 = this.createLiteral(key2, value1)
-                                                    xmlLog.push(`Creating literal ${JSON.stringify(value1)}`)
-                                                    if (p2!==false) bnodeLvl1.appendChild(p2);
+												xmlLog.push(`Creating literal ${JSON.stringify(value1)}`)
+												let p2 = this.createLiteral(key2, value1)
+												if (p2!==false) bnodeLvl1.appendChild(p2);
 											}else if (Array.isArray(value1[key2])){
 												for (let arrayValue of value1[key2]){
 													let keysLevel2 = Object.keys(arrayValue).filter(k => (!k.includes('@') ? true : false ) )
