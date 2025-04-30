@@ -432,7 +432,7 @@
       },
 
       buildNacoStub(){
-
+        this.profileStore.lastComplexLookupString = "" // unset this
 
         this.profileStore.activeNARStubComponent = {
           type: this.type,
@@ -458,7 +458,7 @@
 
         // if (this.isStaging() == false){ return false} // REMOVE BEFORE PROD USAGE
 
-        if (!this.preferenceStore.isNarTester()) return false
+
 
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;

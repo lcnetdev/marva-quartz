@@ -99,6 +99,8 @@ export const useProfileStore = defineStore('profile', {
 
     activeNARStubComponent:{},
 
+    savedNARModalData:{},
+
     showShelfListingModal: false,
     activeShelfListData:{
       class:null,
@@ -512,6 +514,7 @@ export const useProfileStore = defineStore('profile', {
       let order = usePreferenceStore().loadOrder()
 
       for (let profileName in order){
+        if (!Object.keys(this.activeProfile.rt).includes(profileName)){ continue }
         let currentOrder = this.activeProfile.rt[profileName].ptOrder
         let customOrder = order[profileName]
         let tempOrder = []
@@ -535,7 +538,7 @@ export const useProfileStore = defineStore('profile', {
         for (let el of customOrder){
           // These should all be base level names, no `_ + new Date()`
           let matchingComponents = currentOrder.filter(i => i.includes(el)) // keep like components together
-          tempOrder = tempOrder.concat(matchingComponents.sort())
+          tempOrder = tempOrder.concat(matchingComponents) //.sort()
         }
 
         //Need to get the admin fields
@@ -1529,7 +1532,6 @@ export const useProfileStore = defineStore('profile', {
           // create the path to the blank node
           let buildBlankNodeResult = await utilsProfile.buildBlanknode(pt,propertyPath)
 
-
           pt = buildBlankNodeResult[0]
 
           // now we can make a link to the parent of where the literal value should live
@@ -1630,6 +1632,23 @@ export const useProfileStore = defineStore('profile', {
 
 
         }
+
+        if (URI.includes("rbmscv")){
+          blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+            {
+                  "@guid": short.generate(),
+                  "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                  "@id": "http://id.loc.gov/vocabulary/genreFormSchemes/rbmscv",
+                  "http://www.w3.org/2000/01/rdf-schema#label": [
+                      {
+                          "@guid": short.generate(),
+                          "http://www.w3.org/2000/01/rdf-schema#label": "RBMS Controlled Vocabularies"
+                      }
+                  ]
+              }
+          ]
+        }
+
         // they changed something
         this.dataChanged()
 
@@ -2765,6 +2784,25 @@ export const useProfileStore = defineStore('profile', {
           //   ]
           // }
 
+          // add the source for Genre/Form
+          if (propertyPath.map((obj) => obj.propertyURI).includes("http://id.loc.gov/ontologies/bibframe/genreForm")){
+            let objId = blankNode['@id']
+            if (nodeMap.collections.includes('http://id.loc.gov/authorities/genreForms/collection_LCGFT_General')){
+              blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+                {
+                      "@guid": short.generate(),
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                      "@id": "http://id.loc.gov/authorities/genreForms/collection_LCGFT_General",
+                      "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                              "@guid": short.generate(),
+                              "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress genre/form terms for library and archival materials"
+                          }
+                      ]
+                  }
+              ]
+            }
+          }
 
 
 
@@ -3078,6 +3116,7 @@ export const useProfileStore = defineStore('profile', {
                 }
                 break
               } else if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/names') >-1){
+
                 if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
 
                   currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] =  [
@@ -3123,7 +3162,6 @@ export const useProfileStore = defineStore('profile', {
             // console.log("USERVALUE IS",userValue)
             pt.userValue = userValue
         }
-
     },
 
 
@@ -4233,10 +4271,28 @@ export const useProfileStore = defineStore('profile', {
       }
 
       if (!isParentTop){
-        pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
+        const oldValues = Object.keys(pt.userValue[baseURI][0])
+        const newValues = Object.keys(JSON.parse(JSON.stringify(userValue)))
+
+        // don't overwrite existing values
+        let matches = newValues.filter((nV) => !oldValues.includes(nV))
+
+        Object.filter = (obj, predicate) =>
+          Object.keys(obj)
+                .filter( key => predicate(key) )
+                .reduce( (res, key) => Object.assign(res, { [key]: obj[key] }), {} );
+
+        let filtered = Object.filter(JSON.parse(JSON.stringify(userValue)), key => matches.includes(key))
+
+        Object.assign(pt.userValue[baseURI][0], JSON.parse(JSON.stringify(filtered)))
       } else {
         //We're not in a nested component, so we can just set the userValue
-        pt.userValue = JSON.parse(JSON.stringify(userValue))
+        //   But don't overwrite an existing value
+        for (let key in pt.userValue){
+          if (!key.startsWith('@') && typeof pt.userValue[key][0] == 'object' && Object.keys(pt.userValue[key][0]).length == 0){
+            pt.userValue = JSON.parse(JSON.stringify(userValue))
+          }
+        }
       }
       // they changed something
       this.dataChanged()
@@ -5297,9 +5353,7 @@ export const useProfileStore = defineStore('profile', {
       for (let rt of this.activeProfile.rtOrder){
         for (let pt of this.activeProfile.rt[rt].ptOrder){
           let purl = utilsParse.namespaceUri(this.activeProfile.rt[rt].pt[pt].propertyURI)
-
           if (purl == property){
-            console.log(this.activeProfile.rt[rt].pt[pt])
             if (this.activeProfile.rt[rt].pt[pt].valueConstraint && this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom && this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom.length>0){
               return this.activeProfile.rt[rt].pt[pt].valueConstraint.useValuesFrom[0]
             }
@@ -5308,6 +5362,33 @@ export const useProfileStore = defineStore('profile', {
 
         }
       }
+
+
+      // we didn't find it see if it has instead a templateref value
+      for (let rt of this.activeProfile.rtOrder){
+        for (let pt of this.activeProfile.rt[rt].ptOrder){
+          let purl = utilsParse.namespaceUri(this.activeProfile.rt[rt].pt[pt].propertyURI)
+          if (purl == property){
+            if (this.activeProfile.rt[rt].pt[pt].valueConstraint && this.activeProfile.rt[rt].pt[pt].valueConstraint.valueTemplateRefs && this.activeProfile.rt[rt].pt[pt].valueConstraint.valueTemplateRefs.length>0){
+              let lookForTemplate = this.activeProfile.rt[rt].pt[pt].valueConstraint.valueTemplateRefs[0]
+              for (let pName in this.profiles){
+                if (this.profiles[pName].rtOrder.includes(lookForTemplate)){
+                  for (let p of this.profiles[pName].rt[lookForTemplate].ptOrder){
+                    let purl2 = utilsParse.namespaceUri(this.profiles[pName].rt[lookForTemplate].pt[p].propertyURI)
+                    if (purl2 == property || purl2 == 'owl:sameAs'){
+                      if (this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint && this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint.useValuesFrom && this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint.useValuesFrom.length>0){
+                        return this.profiles[pName].rt[lookForTemplate].pt[p].valueConstraint.useValuesFrom[0]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+
       return false
     },
 
@@ -5358,6 +5439,29 @@ export const useProfileStore = defineStore('profile', {
     },
 
     /**
+     * Look for the Statement of Responsibility in the record to add to the 670 $b
+     *
+     */
+    nacoStubReturnSoR(){
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/responsibilityStatement"){
+              if (pt.userValue
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]
+                  && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
+                )
+                return pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
+            }
+          }
+        }
+      }
+      return false
+    },
+
+    /**
      * Retrieves the main title from the NACO stub work profile by traversing the resource template structure.
      * Looks for a property with URI "http://id.loc.gov/ontologies/bibframe/title" and extracts its main title value.
      *
@@ -5379,7 +5483,25 @@ export const useProfileStore = defineStore('profile', {
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
                 )
-                return pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                {
+
+                  // look for the one that is set as latin first, if we can find it
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
+                    if (aTitle['@language'] && aTitle['@language'].toLowerCase().indexOf('latn')>-1){
+                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                    }
+                  }
+
+                  // otherwise look for the first one that doesn't have a language tag
+                  for (let aTitle of pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
+                    if (!aTitle['@language']){
+                      return aTitle['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                    }
+                  }
+
+                  // if we can't find one without a language tag, just return the first one
+                  return pt.userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                }
             }
           }
         }
@@ -5518,7 +5640,24 @@ export const useProfileStore = defineStore('profile', {
       }
       return false
     },
-
+    /**
+     * Retrieves the Work Instance from the NACO stub profile by searching through resource templates.
+     * Returns the first URI found in a resource template containing ":Work" in its name.
+     *
+     * @returns {(string|false)} The Work URI if found, false otherwise
+     * @access public
+     * @requires activeProfile - Profile must be loaded with valid RT structure
+     */
+    nacoStubReturnInstanceURI(){
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          if (this.activeProfile.rt[rt].URI){
+            return this.activeProfile.rt[rt].URI
+          }
+        }
+      }
+      return false
+    },
 
 
 
@@ -5531,14 +5670,18 @@ export const useProfileStore = defineStore('profile', {
       * @param {string} langObj - {uri:"",label:""}
       * @return {String}
       */
-    async buildPostNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote){
-      console.log(oneXX,fourXX,mainTitle,workURI)
-
+    async buildNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667){
+      console.log(oneXX,fourXX,mainTitle,workURI,zero46)
       let lccn = await utilsNetwork.nacoLccn()
+      let NARData = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667)
+      NARData.lccn = lccn
+      return NARData
+    },
 
-      let xml = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote)
+    async postNacoStub(xml,lccn){
 
       let pubResuts
+
       try{
         pubResuts = await utilsNetwork.publishNar(xml)
       }catch (error){
@@ -5547,20 +5690,13 @@ export const useProfileStore = defineStore('profile', {
       }
 
       // pubResuts = {'postLocation': 'https://id.loc.gov/authorities/names/n83122656', status: 'published'}
-
       console.log('pubResuts')
       console.log(pubResuts)
-
-
       return {
         xml: xml,
         pubResuts: pubResuts,
         lccn: lccn
       }
-
-
-
-
 
     },
 
@@ -6244,9 +6380,18 @@ export const useProfileStore = defineStore('profile', {
     reorderAllNonLatinLiterals(){
       this.activeProfile = utilsParse.reorderAllNonLatinLiterals(this.activeProfile)
 
+    },
+
+    /**
+     * Tests if the passed string contains only Latin characters or includes non-Latin characters.
+     *
+     * @param {string} inputString - The string to test.
+     * @returns {boolean} - True if the string contains only Latin characters, false otherwise.
+     */
+    isLatin(inputString) {
+      // Regex to match common Latin characters, numbers, punctuation, and extended Latin ranges.
+      return latinRegex.test(inputString);
     }
-
-
 
 
 

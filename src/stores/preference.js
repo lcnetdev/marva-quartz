@@ -532,7 +532,7 @@ export const usePreferenceStore = defineStore('preference', {
     '--c-edit-main-splitpane-edit-scroll-bar-track-color' : {
       value:'#fafafa',
       desc: 'The color of the scroll bar track (background).',
-      descShort: 'Scrollbard Track Color',
+      descShort: 'Scrollbar Track Color',
       type: 'color',
       group: 'Edit Panel',
       range: null
@@ -540,7 +540,7 @@ export const usePreferenceStore = defineStore('preference', {
     '--c-edit-main-splitpane-edit-scroll-bar-thumb-color' : {
       value:'#c7c7c7',
       desc: 'The color of the scroll bar thumb (the part you grab).',
-      descShort: 'Scrollbard Thumb Color',
+      descShort: 'Scrollbar Thumb Color',
       type: 'color',
       group: 'Edit Panel',
       range: null
@@ -675,17 +675,18 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
 
-    // Lookup Field
-    '--n-edit-main-lookup-background-color' : {
-      desc: 'The background color of the entity badge',
-      descShort: 'Lookup value background color',
-      value: 1,
-      step: 0.1,
-      type: 'number',
-      unit: 'em',
-      group: 'Lookup Field',
-      range: [1,2]
-  },
+  // Lookup Field
+  // Not sure what this is supposed to be
+  // '--n-edit-main-lookup-background-color' : {
+  //   desc: 'The background color of the entity badge',
+  //   descShort: 'Lookup value background color',
+  //   value: 1,
+  //   step: 0.1,
+  //   type: 'number',
+  //   unit: 'em',
+  //   group: 'Lookup Field',
+  //   range: [1,2]
+  // },
   '--c-edit-main-lookup-background-color' : {
     desc: 'The background color of the entity badge',
     descShort: 'Lookup value background color',
@@ -1040,6 +1041,15 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Complex Lookup',
         range: [5, 100],
         step: 5,
+      },
+      '--b-edit-complex-include-usage' : {
+        desc: 'Include the usage numbers for subject headings. This might increase search time.',
+        descShort: 'Include Usage',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Complex Lookup',
+        range: [true,false]
       },
 
       //general

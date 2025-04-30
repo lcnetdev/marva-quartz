@@ -90,10 +90,16 @@
                   <button @click="searchModeSwitch('CHILD')" :data-tooltip="'Shortcut: CTRL+ALT+2'" :class="['simptip-position-bottom',{'active':(searchMode==='CHILD')}]">Children's Subjects</button>
                   <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button>
                   <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
-                  <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+5'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
+                  <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
 
+                  <template v-if="preferenceStore.returnValue('--b-edit-complex-include-usage')">
+                    | Sort:
+                    <select v-model="selectedSortOrder" @change="applySort">
+                      <option value="alpha">Alpha</option>
+                      <option value="useageDesc">Highest Usage</option>
+                    </select>
+                  </template>
                 </div>
-
 
 
                 <div :style="`flex:1; align-self: flex-end; height: 95%; ${this.preferenceStore.styleModalBackgroundColor()}`" :class="{'scroll-all':  preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
@@ -113,7 +119,9 @@
                             </span>
                         </template>
                         <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
-                        <span v-if="subject.collections"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <span v-if="subject.collections">
+                          {{ this.buildAddtionalInfo(subject.collections) }}
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -126,7 +134,11 @@
                         <span v-if="name.suggestLabel && name.suggestLabel.length>41">{{name.suggestLabel.substring(0,41)}}...</span>
                           <span v-else>{{name.suggestLabel}}</span>
                           <span> [LCNAF]</span>
-                          <span v-if="name.collections"> {{ this.buildAddtionalInfo(name.collections) }}</span>
+                          <span v-if="name.collections">
+                            {{ this.buildAddtionalInfo(name.collections) }}
+                            <!-- :style="{'background-color': setBackgroundColor(name.count, searchResults.names)}" -->
+                            <span v-if="name.count && name.count > 0" class="usage-count" >{{ buildCount(name) }}</span>
+                          </span>
                           <div class="may-sub-container" style="display: inline;">
                             <AuthTypeIcon v-if="name.collections && name.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                           </div>
@@ -138,7 +150,11 @@
                       <span class="subject-results-heading">Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
-                        <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
+                        <span v-if="subjectC.collections">
+                          {{ this.buildAddtionalInfo(subjectC.collections) }}
+                          <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsComplex)}" -->
+                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count" >{{ buildCount(subjectC) }}</span>
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -147,13 +163,19 @@
 
                     <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
                       <span class="subject-results-heading">Simple</span>
-                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >
-                      {{subject.suggestLabel}}
+                      <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal), unusable: !checkUsable(subject)}]" >
+                        {{ subject.suggestLabel }}
                         <span  v-if="subject.literal">
                           {{subject.label}}
                         </span>
                         <span  v-if="subject.literal">[Literal]</span>
-                        <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <span v-if="!subject.literal">
+                          {{ this.buildAddtionalInfo(subject.collections) }}
+                          <span class="from-auth" v-if="checkFromAuth(subject)"> (Auth)</span>
+                          <span class="from-rda" v-if="checkFromRda(subject)"> [RDA]</span>
+                          <!-- :style="{'background-color': setBackgroundColor(subject.count, searchResults.subjectsSimple)}" -->
+                          <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject) }}</span>
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -166,7 +188,11 @@
                       <span class="subject-results-heading">CYAC Complex</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
-                        <span v-if="subjectC.collections"> {{ this.buildAddtionalInfo(subjectC.collections) }}</span>
+                        <span v-if="subjectC.collections">
+                          {{ this.buildAddtionalInfo(subjectC.collections) }}
+                          <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}" -->
+                          <span v-if="subjectC.count && subjectC.count > 0" class="usage-count">{{ buildCount(subjectC) }}</span>
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -177,7 +203,11 @@
                     <span class="subject-results-heading">CYAC Simple</span>
                       <div v-for="(subject,idx) in searchResults.subjectsChildren" @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)" :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsChildrenComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsChildrenComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option':(subject.literal)}]" >{{subject.suggestLabel}}<span  v-if="subject.literal">
                         {{subject.label}}</span> <span  v-if="subject.literal">[Literal]</span>
-                        <span v-if="!subject.literal"> {{ this.buildAddtionalInfo(subject.collections) }}</span>
+                        <span v-if="!subject.literal">
+                          {{ this.buildAddtionalInfo(subject.collections) }}
+                          <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}" -->
+                          <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject) }}</span>
+                        </span>
                         <div class="may-sub-container" style="display: inline;">
                           <AuthTypeIcon v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon>
                         </div>
@@ -208,7 +238,7 @@
                     </h3>
 
                     <div class="modal-context-data-title" v-if="contextData.rdftypes">{{contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]}}</div>
-                    <a style="color:#2c3e50" :href="contextData.uri" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
+                    <a style="color:#2c3e50" :href="rewriteURI(contextData.uri)" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
 
                     <br><br>
 
@@ -226,6 +256,9 @@
                           </template>
                           <template v-else-if="key == 'broaders' || key == 'sees'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                          </template>
+                          <template v-else-if="key == 'notes'">
+                            <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
                           </template>
                           <template v-else>
                             {{v}}
@@ -529,8 +562,9 @@
 
 
   .fake-option{
-    font-size: 1.25em;
+    font-size: 1em;
     cursor: pointer;
+    text-indent: 2em hanging;
   }
 
   .fake-option:hover{
@@ -755,6 +789,20 @@ li::before {
   color: #999999;
 }*/
 
+.usage-count {
+  /* color: white;
+  text-shadow: black 0px 0px 10px; */
+}
+
+.from-rda,
+.from-auth {
+  font-weight: bold;
+}
+
+.unusable {
+  color: red;
+}
+
 </style>
 
 <style>
@@ -815,6 +863,10 @@ watch: {
   searchValue: function(){
     this.subjectString = this.searchValue
     this.linkModeString = this.searchValue
+  },
+
+  watchSort: function(){
+    this.selectedSortOrder = this.applySort()
   }
 
 },
@@ -849,6 +901,7 @@ data: function() {
     typeLookup:{},
     okayToAdd: false,
     lowResMode: false,
+    searchStringPos: 0,
 
     searchMode: "LCSHNAF",
 
@@ -890,29 +943,91 @@ data: function() {
       "relateds": "Related",
       "contributors": "Contributors",
       "identifiers": "Identifiers",
-      "sees": "See Also"
+      "sees": "See Also",
+      "countSubj": "Subject ff",
+      "countName": "Contributor to",
     },
     panelDetailOrder: [
-      "notes","nonlatinLabels","variantLabels", "varianttitles", "sees", "contributors",
+      "countSubj", "countName", "notes","nonlatinLabels","variantLabels", "varianttitles", "sees", "contributors",
       "relateds","birthdates","birthplaces","locales","activityfields","occupations",
       "languages","lcclasss","identifiers","broaders","gacs","collections",
       "sources", "subjects", "marcKeys"
     ],
-
-
+    selectedSortOrder: ""
 
   }
 },
 
 computed: {
-
   ...mapStores(usePreferenceStore),
   ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
-
-
-
 },
 methods: {
+  checkUsable: function(data){
+    let notes = data.extra.notes || []
+    if (notes.includes("THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS RECORD HAS BEEN REVIEWED AND/OR UPDATED")){
+      return false
+    }
+    return true
+  },
+  checkFromRda: function(data){
+    let notes = data.extra.notes || []
+    let isRda = false
+
+    for (let note of notes){
+      if (note.includes("$erda")){
+        isRda = true
+      }
+    }
+
+    return isRda
+  },
+  checkFromAuth: function(data){
+    let notes = data.extra.notes || []
+    let identifiers = data.extra.identifiers || []
+
+    let looksLikeLccn = identifiers.filter((i) => i.startsWith("n")).length > 0 ? true : false
+
+    return looksLikeLccn
+  },
+  /**
+   * Set the background color for the usage numbers. Based on 5 color heat map
+   * https://stackoverflow.com/questions/12875486/what-is-the-algorithm-to-create-colors-for-a-heatmap
+   *
+   * @param value - the value of the term that will create the color
+   * @param records - a list of records to get the min/max
+   *
+   * @return the CSS value for the background color
+   */
+  setBackgroundColor: function(value, records){
+    let range =  records.map((r) => r.count).filter(n => n != undefined)
+    let min = Math.min(...range)
+    let max = Math.max(...range)
+
+    let normalizedValue = (value - min) / (max - min)
+
+    let h = (1.0 - normalizedValue) * 240
+    return "hsl(" + h + ", 100%, 50%)";
+  },
+  rewriteURI: function(uri){
+    if (!uri){ return false }
+    let returnUrls = useConfigStore().returnUrls
+
+    // use internal links for prodcution
+    if (returnUrls.dev || returnUrls.publicEndpoints){
+      uri = uri.replace('http://preprod.id.','https://id.')
+      uri = uri.replace('https://preprod-8230.id.loc.gov','https://id.loc.gov')
+      uri = uri.replace('https://test-8080.id.lctl.gov','https://id.loc.gov')
+      uri = uri.replace('https://preprod-8080.id.loc.gov','https://id.loc.gov')
+      uri = uri.replace('https://preprod-8288.id.loc.gov','https://id.loc.gov')
+    } else { // if it's not dev or public make sure we're using 8080
+      uri = uri.replace('https://id.loc.gov', 'https://preprod-8080.id.loc.gov')
+      uri = uri.replace('http://id.loc.gov', 'https://preprod-8080.id.loc.gov')
+    }
+
+
+    return uri
+  },
   hasOverFlow: function(element){
     let overflow = element.scrollHeight > element.clientHeight
     return overflow
@@ -1463,6 +1578,39 @@ methods: {
     this.$refs.subjectInput.focus()
   },
 
+  /**
+   * Build the pick lookup so we can adjust the sorting here.
+   *
+   * Without rebuilding the picklookup list, selectiong will be off.
+   * We do it here so that we can adjust the current search results without
+   * needing to do another search.
+   *
+   */
+  buildPickLookup: function(){
+    for (let x in this.searchResults.subjectsComplex){
+      this.pickLookup[x] = this.searchResults.subjectsComplex[x]
+    }
+
+    for (let x in this.searchResults.subjectsChildrenComplex){
+      this.pickLookup[x] = this.searchResults.subjectsChildrenComplex[x]
+    }
+
+    for (let x in this.searchResults.subjectsSimple){
+      this.pickLookup[parseInt(x)+parseInt(this.searchResults.subjectsComplex.length)] = this.searchResults.subjectsSimple[x]
+    }
+
+    for (let x in this.searchResults.subjectsChildren){
+      this.pickLookup[parseInt(x)+parseInt(this.searchResults.subjectsChildrenComplex.length)] = this.searchResults.subjectsChildren[x]
+    }
+
+    for (let x in this.searchResults.names){
+      this.pickLookup[(this.searchResults.names.length - x)*-1] = this.searchResults.names[x]
+    }
+
+    for (let x in this.searchResults.exact){
+      this.pickLookup[(this.searchResults.names.length - x)*-1-2] = this.searchResults.exact[x]
+    }
+  },
 
   // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
   searchApis: debounce(async (searchString, searchStringFull, that) => {
@@ -1485,11 +1633,35 @@ methods: {
 
     }, 10000)
 
+    let searchStringFullPieces = searchStringFull.split('--')
+    let currentPos = searchStringFullPieces.indexOf(searchString)
 
     searchString=searchString.replaceAll('‑','-')
     searchStringFull=searchStringFull.replaceAll('‑','-')
 
-    that.searchResults = await utilsNetwork.subjectSearch(searchString,searchStringFull,that.searchMode)
+    that.searchStringPos = currentPos
+
+    let complexSub = []
+
+    if (currentPos > 0){
+      let newTerm = searchStringFullPieces.slice(currentPos, currentPos+2).join("--")
+      if (newTerm.includes("--")){
+        complexSub.push(newTerm)
+      }
+    }
+    if (currentPos > 1){
+      let newTerm = searchStringFullPieces.slice(currentPos-1, currentPos+1).join("--")
+      if (newTerm.includes("--")){
+        complexSub.push(newTerm)
+      }
+    }
+
+    if (complexSub.length < 2){
+      complexSub.push('')
+    }
+
+    that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
+    // that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, that.searchMode)
 
     // if they clicked around while it was doing this lookup bail out
     // if (that.activeSearchInterrupted){
@@ -1536,12 +1708,12 @@ methods: {
     if (that.searchMode == 'WORKS' || that.searchMode == 'HUBS'){
       for (let s of that.searchResults.subjectsSimple){
         if (s.suggestLabel && s.suggestLabel.includes(' (USE ')){
-          s.suggestLabel = s.label
+          s.suggestLabel = s.label + " (USE FOR " + s.vlabel + ")"
         }
       }
       for (let s of that.searchResults.subjectsComplex){
         if (s.suggestLabel && s.suggestLabel.includes(' (USE ')){
-          s.suggestLabel = s.label
+          s.suggestLabel = s.label + " (USE FOR " + s.vlabel + ")"
         }
       }
     }
@@ -1560,29 +1732,7 @@ methods: {
 
     that.pickPostion = that.searchResults.subjectsSimple.length + that.searchResults.subjectsComplex.length -1
 
-    for (let x in that.searchResults.subjectsComplex){
-      that.pickLookup[x] = that.searchResults.subjectsComplex[x]
-    }
-
-    for (let x in that.searchResults.subjectsChildrenComplex){
-      that.pickLookup[x] = that.searchResults.subjectsChildrenComplex[x]
-    }
-
-    for (let x in that.searchResults.subjectsSimple){
-      that.pickLookup[parseInt(x)+parseInt(that.searchResults.subjectsComplex.length)] = that.searchResults.subjectsSimple[x]
-    }
-
-    for (let x in that.searchResults.subjectsChildren){
-      that.pickLookup[parseInt(x)+parseInt(that.searchResults.subjectsChildrenComplex.length)] = that.searchResults.subjectsChildren[x]
-    }
-
-    for (let x in that.searchResults.names){
-      that.pickLookup[(that.searchResults.names.length - x)*-1] = that.searchResults.names[x]
-    }
-
-    for (let x in that.searchResults.exact){
-      that.pickLookup[(that.searchResults.names.length - x)*-1-2] = that.searchResults.exact[x]
-    }
+    that.buildPickLookup()
 
     for (let k in that.pickLookup){
       that.pickLookup[k].picked = false
@@ -1641,21 +1791,28 @@ methods: {
           }
         }
         // alert(smallest_size)
-        for (let el of document.getElementsByClassName("fake-option")){
-          if (el.offsetHeight > smallest_size){
-            let startFontSize = 1.25
-            while (el.offsetHeight >smallest_size){
-              startFontSize=startFontSize-0.01
-              el.style.fontSize = startFontSize + 'em';
-              if (startFontSize<=0.01){
-                el.style.fontSize = "1.25em"
-                break
-              }
-            }
-          }
-        }
+        // for (let el of document.getElementsByClassName("fake-option")){
+        //   if (el.offsetHeight > smallest_size){
+        //     let startFontSize = 1.25
+        //     while (el.offsetHeight >smallest_size){
+        //       startFontSize=startFontSize-0.01
+        //       el.style.fontSize = startFontSize + 'em';
+        //       if (startFontSize<=0.01){
+        //         el.style.fontSize = "1.25em"
+        //         break
+        //       }
+        //     }
+        //   }
+        // }
       // },100)
     })
+
+    if (that.preferenceStore.returnValue('--b-edit-complex-include-usage')){
+      that.applySort()
+    } else {
+      that.selectedSortOrder = 'alpha'
+      that.applySort()
+    }
   }, 500),
 
   navStringClick: function(event){
@@ -1733,8 +1890,16 @@ methods: {
         this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
       }
       let types = this.pickLookup[this.pickPostion].extra['rdftypes']
+
       this.contextData.type = types.includes("Hub") ? "bf:Hub" :  types.includes("Work") ? "bf:Work" : "madsrdf:" +  types[0]
       this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
+
+      //Check if it's a Jurisdiction, and overwrite
+      if (this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")){
+        this.contextData.type = "bf:Jursidiction"
+      this.contextData.typeFull = "http://id.loc.gov/ontologies/bibframe/Jurisdiction"
+      }
+
       this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
 
     } else {
@@ -1791,6 +1956,58 @@ methods: {
   clearSelected: function(){
     this.pickLookup[this.pickCurrent].picked = false
     this.pickCurrent = null
+  },
+
+  applySort: function(){
+    let typeSort = this.selectedSortOrder
+
+    if (this.searchMode == 'WORKS' || this.searchMode == 'HUBS'){
+      typeSort = 'alpha'
+    }
+
+    for (let r in this.searchResults){
+      let records = this.searchResults[r]
+      if (typeSort == 'alpha'){
+        this.searchResults[r] = records.sort((a, b) => {
+          if (a.suggestLabel === undefined){
+            return 0 //1
+          } else if (b.suggestLabel === undefined){
+            return 0 //-1
+          } else if ( a.suggestLabel.toLowerCase().replace("--", " ") > b.suggestLabel.toLowerCase().replace("--", " ")){
+            return 1
+          } else {
+            return -1
+          }
+        })
+
+        this.buildPickLookup()
+
+      } else if (typeSort == 'useageDesc'){
+        this.searchResults[r] = records.sort((a,b) => {
+          if (a.count === undefined){
+            return 0 //1
+          } else if (b.count === undefined){
+            return 0 //-1
+          } else if ( a.count > b.count){
+            return -1
+          } else if (a.count == 0 && b.count == 0){
+            return 0
+          } else {
+            return 1
+          }
+        })
+
+        this.buildPickLookup()
+      }
+
+    }
+  },
+
+  buildCount: function(subject){
+    if (subject.count){
+      return "["  + subject.count + "]"
+    }
+
   },
 
   buildAddtionalInfo: function(collections){
@@ -2009,12 +2226,35 @@ methods: {
       let splitString = this.subjectString.split('--')
       let splitStringLower = this.subjectString.toLowerCase().split('--')
 
+      // if the selected heading is made of parts of the search string
+      let replacePos = []
+      if (this.searchStringPos > 0){ // we're looking at a subdivision and we've got a complex heading. Figure out if the pieces
+        replacePos = [this.searchStringPos]
+        let incomingPieces = this.pickLookup[this.pickPostion].label.toLowerCase().split("‑‑")
+        for (let termIdx in incomingPieces){
+
+          //check if the next piece is in the incoming
+          if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos+1])){
+            replacePos.push(this.searchStringPos+1)
+          }
+          //check if the prev piece is in the incoming
+          else if (incomingPieces[termIdx].includes(splitStringLower[this.searchStringPos-1])){
+            replacePos.unshift(this.searchStringPos-1)
+          }
+        }
+      }
+
+
       if (splitStringLower.includes(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())){
         let idx = splitStringLower.indexOf(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())
         if (idx == this.activeComponentIndex){
           splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
           this.subjectString = splitString.join('--')
         }
+      } if (replacePos.length > 0){
+        splitString.splice(replacePos[0], replacePos.length, this.pickLookup[this.pickPostion].label)
+        this.subjectString = splitString.join('--')
+        this.activeComponentIndex = replacePos[0]
       } else {
         // Replace the whole thing
         this.subjectString = this.pickLookup[this.pickPostion].label
@@ -2025,6 +2265,7 @@ methods: {
       this.componetLookup[this.activeComponentIndex] = {}
 
       this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
+
       for (let k in this.pickLookup){
         this.pickLookup[k].picked=false
       }
@@ -2112,14 +2353,10 @@ methods: {
       event.preventDefault()
       return false
     }else if (event.key == 'Enter'){
-
-
-
       if (event.shiftKey){
         this.add()
         return
       }
-
       this.selectContext()
 
     }else if (event.ctrlKey && event.key == "1"){
@@ -2128,11 +2365,15 @@ methods: {
 
     }else if (event.ctrlKey && event.key == "2"){
 
-      this.searchModeSwitch("GEO")
+    this.searchModeSwitch("CHILD")
 
     }else if (event.ctrlKey && event.key == "3"){
 
-      this.searchModeSwitch("WORKS")
+      this.searchModeSwitch("GEO")
+
+    }else if (event.ctrlKey && event.key == "4"){
+
+      this.searchModeSwitch("HUBS")
 
     }else if (this.searchMode == 'GEO' && event.key == "-"){
       if (this.components.length>0){
@@ -2739,6 +2980,7 @@ methods: {
     else {
 		// need to break up the complex heading into it's pieces so their URIs are availble
         let prevItems = 0
+        let allComplex = frozenComponents.every(c => c.complex)
         for (let component in frozenComponents){
           // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
           const target = frozenComponents[component]
@@ -2768,7 +3010,7 @@ methods: {
                 subfield = subfield[idx]
               }
 
-            subfield = this.getTypeFromSubfield(subfield)
+              subfield = this.getTypeFromSubfield(subfield)
 
               // Override the subfield of the first element based on the marc tag
               let tag = target.marcKey.slice(0,3)
@@ -2813,11 +3055,12 @@ methods: {
               }
               let marcKey = tag + "  " + sub + labels[idx]
 
-              let uriId = id
+              let uriId = idx
 
-              if (target.uri.includes("childrensSubjects/sj") && target.id > 0){
-                uriId = uriId - frozenComponents.filter((c) => !c.complex).length
-              }
+              // Adjust the ID to account for shifts as things are added/removed compared to the starting subjectHeading
+              // if (target.uri.includes("childrensSubjects/sj") && target.id > 0){
+              //   uriId = uriId - frozenComponents.filter((c) => !c.complex).length
+              // }
 
               newComponents.splice(id, 0, ({
               "complex": false,
@@ -3120,7 +3363,15 @@ created: function () {
 },
 
 before: function () {},
-mounted: function(){},
+mounted: function(){
+  if (this.preferenceStore.returnValue('--b-edit-complex-include-usage')){
+    this.selectedSortOrder = 'useageDesc'
+    this.applySort()
+  } else {
+    this.selectedSortOrder = 'alpha'
+    this.applySort()
+  }
+},
 
 
 updated: function() {

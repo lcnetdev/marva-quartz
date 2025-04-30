@@ -160,6 +160,37 @@
     },
 
     methods: {
+
+      checkUsable: function(data){
+        let notes = data.extra.notes || []
+        if (notes.includes("THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS RECORD HAS BEEN REVIEWED AND/OR UPDATED")){
+          return false
+        }
+        return true
+      },
+
+      checkFromRda: function(data){
+        let notes = data.extra.notes || []
+        let isRda = false
+
+        for (let note of notes){
+          if (note.includes("$erda")){
+            isRda = true
+          }
+        }
+
+        return isRda
+      },
+
+      checkFromAuth: function(data){
+        let notes = data.extra.notes || []
+        let identifiers = data.extra.identifiers || []
+
+        let looksLikeLccn = identifiers.filter((i) => i.startsWith("n")).length > 0 ? true : false
+
+        return looksLikeLccn
+      },
+
       generateLabel: function(data){
         let label = !data.literal ? data.suggestLabel : data.label + ((data.literal) ? ' [Literal]' : '')
 
@@ -279,7 +310,7 @@
             }
           })
 
-          // wrapping this in setTimeout might not be needed anymore
+        // wrapping this in setTimeout might not be needed anymore
         if (searchPayload.type == 'complex'){
           this.searchTimeout = window.setTimeout(async ()=>{
             this.activeComplexSearchInProgress = true
@@ -298,6 +329,15 @@
 
             this.activeComplexSearchInProgress = false
             this.initalSearchState =false
+
+            if (this.activeComplexSearch.length == 0 && offset > 0){
+              // reset offset, set the page back one
+              // this can happen because the "total" given from the suggest service reflects the number before deduping.
+              offset = 0
+              this.currentPage--
+              this.doSearch()
+              alert("You've reached last page with results. The other pages are empty.")
+            }
           }, 100)
         } else {
           let filter = function(obj, target){
@@ -324,7 +364,7 @@
             })
           }
           if (this.searchValueLocal && this.searchValueLocal.length > 1){
-            this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].includes(this.searchValueLocal))
+            this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].toLowerCase().includes(this.searchValueLocal.toLowerCase()))
           }
           // this.selectChange()
         }
@@ -333,7 +373,6 @@
 
 
       inputKeyup: function(event){
-
 
         // text macros
         let useTextMacros=this.preferenceStore.returnValue('--o-diacritics-text-macros')
@@ -758,9 +797,8 @@
       },
 
       displayProvisonalNAR(){
-        if (!this.preferenceStore.isNarTester()){
-          return false
-        }
+
+
         if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom.length>0 && this.structure.valueConstraint.useValuesFrom.join(' ').indexOf('id.loc.gov/authorities/names')>-1){
           return true
         }
@@ -768,7 +806,8 @@
       },
 
       loadNacoStubModal(){
-
+        // Set the current value for NAR creation
+        this.lastComplexLookupString = this.searchValueLocal
         // store the info needed to pass to the process
         this.activeNARStubComponent = {
           type: 'lookupComplex',
@@ -794,6 +833,7 @@
       },
 
       rewriteURI: function(uri){
+        let returnUrls = useConfigStore().returnUrls
 
         if (!uri){
           return false
@@ -804,9 +844,20 @@
         }
 
         if (uri.includes('/resources/hubs/') || uri.includes('/resources/works/') || uri.includes('/resources/instances/') || uri.includes('/resources/items/')){
-          let returnUrls = useConfigStore().returnUrls
           uri = uri.replace('https://id.loc.gov/', returnUrls.bfdb )
           uri = uri.replace('http://id.loc.gov/', returnUrls.bfdb )
+        }
+
+        // use internal links for prodcution
+        if (returnUrls.dev || returnUrls.publicEndpoints){
+          uri = uri.replace('http://preprod.id.','https://id.')
+          uri = uri.replace('https://preprod-8230.id.loc.gov','https://id.loc.gov')
+          uri = uri.replace('https://test-8080.id.lctl.gov','https://id.loc.gov')
+          uri = uri.replace('https://preprod-8080.id.loc.gov','https://id.loc.gov')
+          uri = uri.replace('https://preprod-8288.id.loc.gov','https://id.loc.gov')
+        } else { // if it's not dev or public make sure we're using 8080
+          uri = uri.replace('https://id.loc.gov', 'https://preprod-8080.id.loc.gov')
+          uri = uri.replace('http://id.loc.gov', 'https://preprod-8080.id.loc.gov')
         }
 
 
@@ -1009,7 +1060,7 @@
               <button @click="forceSearch()">Search</button>
 
               <!-- REMOVE v-if BEFORE PROD USAGE -->
-              <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create Provisional NAR</button>
+              <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create NAR</button>
 
               <hr style="margin-top: 5px;">
               <div>
@@ -1021,9 +1072,12 @@
                       Searching...
                     </option>
                     <template v-if="!isSimpleLookup()">
+                      <!-- .sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0)) -->
                       <option v-for="(r,idx) in activeComplexSearch.sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0))" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
-                        <div class="option-text">
+                        <div :class="['option-text', {unusable: !checkUsable(r)}]">
                           <span v-html="generateLabel(r)"></span>
+                          <span v-if="checkFromAuth(r)" class="from-auth"> (Auth)</span>
+                          <span v-if="checkFromRda(r)" class="from-rda"> [RDA]</span>
                         </div>
                       </option>
                     </template>
@@ -1082,11 +1136,13 @@
                           </template>
                           <template v-else-if="key == 'lcclasss'">
                             <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
-                            <!-- <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a> -->
                           </template>
                           <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
                           </template>
+                          <teamplate v-else-if="key == 'notes'">
+                            <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
+                          </teamplate>
                           <template v-else>
                             {{v}}
                           </template>
@@ -1241,11 +1297,15 @@
     overflow-y: auto;
     outline:none;
   }
+
+  .complex-lookup-result{
+    text-indent: 2em hanging;
+  }
+
   .complex-lookup-results{
     padding: 0 1em 0 1em;
     height: 73%;
     margin-top: 1.25em;
-
   }
 
   .lookup-input{
@@ -1435,6 +1495,15 @@
 
 :deep() .highlight-search-string{
   font-weight: bold;
+}
+
+.from-rda,
+.from-auth {
+  font-weight: bold;
+}
+
+.unusable {
+  color: red;
 }
 
 </style>

@@ -96,8 +96,13 @@
               <div v-for="(avl,idx) in complexLookupValues" :class="['selected-value-container']">
 
                 <div class="selected-value-container-auth">
+                  <!-- <br>
+                  !!{{ avl.type }}
+                  <br>
+                  {{ preferenceStore.returnValue('--b-edit-complex-use-value-icons') }} -->
                   <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')"  :type="avl.type"/>
                 </div>
+
                 <div class="selected-value-container-title">
                   <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
                   <span v-if="!avl.needsDereference && !avl.uneditable " style="padding-right: 0.3em; font-weight: bold">
