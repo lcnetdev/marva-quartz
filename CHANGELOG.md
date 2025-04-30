@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Prevent `Insert Default Values` from removing existing data
 
+### Fixed
+- Fix `bf:duration` causing Marva to crash
+
 
 ## [1.2.18] - 2025-04-28
 ### Added

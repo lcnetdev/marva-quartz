@@ -435,7 +435,6 @@ export default {
     * @return {object} profile
     */
     setComplexValue: function(contextValue){
-      console.info("setComplexValue: ", contextValue)
       if (contextValue.literal){
         this.profileStore.setValueComplex(
             this.guid,

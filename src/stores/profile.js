@@ -513,6 +513,7 @@ export const useProfileStore = defineStore('profile', {
       let order = usePreferenceStore().loadOrder()
 
       for (let profileName in order){
+        if (!Object.keys(this.activeProfile.rt).includes(profileName)){ continue }
         let currentOrder = this.activeProfile.rt[profileName].ptOrder
         let customOrder = order[profileName]
         let tempOrder = []
