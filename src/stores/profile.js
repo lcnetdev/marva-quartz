@@ -1499,13 +1499,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
-      console.info("\nsetValueSimple")
-      console.info("\tcomponentGuid: ",componentGuid)
-      console.info("\tfieldGuid: ",fieldGuid)
-      console.info("\tpropertyPath: ",propertyPath)
-      console.info("\tURI: ", URI)
-      console.info("\tlabel: ", label)
-
       console.log("componentGuid, fieldGuid, propertyPath, URI, label")
       console.log(componentGuid, fieldGuid, propertyPath, URI, label)
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
@@ -2555,13 +2548,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
-      console.info("\nsetValueComplex")
-      console.info("fieldGuid: ", fieldGuid)
-      console.info("propertyPath: ", propertyPath)
-      console.info("URI: ", URI)
-      console.info("label: ", label)
-      console.info("type: ", type)
-      console.info("nodeMap: ", nodeMap)
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -4169,6 +4155,7 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
+    console.info("\ninsertDefaultValuesComponent")
     // console.log(componentGuid)
     // console.log("structure",structure)
 
@@ -4186,12 +4173,16 @@ export const useProfileStore = defineStore('profile', {
 
     let isParentTop = false
 
+    console.info('pt: ', JSON.parse(JSON.stringify(pt)))
+
     if (pt !== false){
       let baseURI = pt.propertyURI
       if (!pt.userValue[baseURI]){
         pt.userValue[baseURI] = [{}]
       }
       let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
+
+      console.info('\tuserValue: ', JSON.parse(JSON.stringify(userValue)))
 
       // find the default values for this template if they exist
       if (structure){
@@ -4228,15 +4219,19 @@ export const useProfileStore = defineStore('profile', {
                             '@guid': short.generate(d.defaultLiteral, d.defaultURI)
                           }]
                           if (d.defaultLiteral && d.defaultLiteral != ''){
+                            console.info("1 insert into ")
                             value[defaultPropertyToUse][0][defaultPropertyToUse] = this.replaceDefaultPlaceHolder(d.defaultLiteral)
                           }
                           if (d.defaultURI && d.defaultURI != ''){
+                            console.info("1.5 insert into ")
                             value['@id'] = d.defaultURI
                           }
                         }else{
                           if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
+                            console.info("2 insert into ")
                             value[defaultPropertyToUse] = this.replaceDefaultPlaceHolder(d.defaultLiteral)
                           }else{
+                            console.info("2.5 insert into ")
                             value['@id'] = d.defaultURI
                           }
                         }
@@ -4260,20 +4255,24 @@ export const useProfileStore = defineStore('profile', {
                       }
                       // if it just has a literal value and not a URI then don't create a blank node, just insert it using that literal property
                       if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
+                        console.info("3 insert into ", value[p.propertyURI])
                         value[p.propertyURI] = this.replaceDefaultPlaceHolder(d.defaultLiteral)
                       }else{
                         // it is a blank node
                         if (d.defaultLiteral){
                           // console.log(newPt)
+                          console.info(">>>>", )
                           value['http://www.w3.org/2000/01/rdf-schema#label'] = [{
                               '@guid': short.generate(),
                               'http://www.w3.org/2000/01/rdf-schema#label': this.replaceDefaultPlaceHolder(d.defaultLiteral)
                           }]
                         }
                         if (d.defaultURI){
+                          // console.info("3.5 insert into ", JSON.parse(JSON.stringify(value)))
                           value['@id'] = d.defaultURI
                         }
                         if (blankNodeType){
+                          // console.info("3.75 insert into ", JSON.parse(JSON.stringify(value)))
                           value['@type'] = blankNodeType
                         }
                       }
@@ -4299,10 +4298,28 @@ export const useProfileStore = defineStore('profile', {
       }
 
       if (!isParentTop){
-        pt.userValue[baseURI][0] = JSON.parse(JSON.stringify(userValue))
+        const oldValues = Object.keys(pt.userValue[baseURI][0])
+        const newValues = Object.keys(JSON.parse(JSON.stringify(userValue)))
+
+        // don't overwrite existing values
+        let matches = newValues.filter((nV) => !oldValues.includes(nV))
+
+        Object.filter = (obj, predicate) =>
+          Object.keys(obj)
+                .filter( key => predicate(key) )
+                .reduce( (res, key) => Object.assign(res, { [key]: obj[key] }), {} );
+
+        let filtered = Object.filter(JSON.parse(JSON.stringify(userValue)), key => matches.includes(key))
+
+        Object.assign(pt.userValue[baseURI][0], JSON.parse(JSON.stringify(filtered)))
       } else {
         //We're not in a nested component, so we can just set the userValue
-        pt.userValue = JSON.parse(JSON.stringify(userValue))
+        //   But don't overwrite an existing value
+        for (let key in pt.userValue){
+          if (!key.startsWith('@') && typeof pt.userValue[key][0] == 'object' && Object.keys(pt.userValue[key][0]).length == 0){
+            pt.userValue = JSON.parse(JSON.stringify(userValue))
+          }
+        }
       }
       // they changed something
       this.dataChanged()
@@ -6399,7 +6416,7 @@ export const useProfileStore = defineStore('profile', {
      * @returns {boolean} - True if the string contains only Latin characters, false otherwise.
      */
     isLatin(inputString) {
-      // Regex to match common Latin characters, numbers, punctuation, and extended Latin ranges.      
+      // Regex to match common Latin characters, numbers, punctuation, and extended Latin ranges.
       return latinRegex.test(inputString);
     }
 
