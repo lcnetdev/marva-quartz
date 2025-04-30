@@ -3,10 +3,14 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.21] - 2025-04-30
+### Changed
+- Prevent `Insert Default Values` from removing existing data
+
+
 ## [1.2.18] - 2025-04-28
 ### Added
 - Manual override for RBMS to support dual LCGFT/RBMS lookup
-
 
 
 ## [1.2.16] - 2025-04-23

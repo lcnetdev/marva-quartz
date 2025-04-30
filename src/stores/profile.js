@@ -2784,7 +2784,6 @@ export const useProfileStore = defineStore('profile', {
 
           // add the source for Genre/Form
           if (propertyPath.map((obj) => obj.propertyURI).includes("http://id.loc.gov/ontologies/bibframe/genreForm")){
-            console.info("set source Genre/Form: ", blankNode)
             let objId = blankNode['@id']
             if (nodeMap.collections.includes('http://id.loc.gov/authorities/genreForms/collection_LCGFT_General')){
               blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
@@ -2848,15 +2847,8 @@ export const useProfileStore = defineStore('profile', {
     * @return {void} -
     */
     setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
-      console.info("\nsetValueSubject")
-      console.info("\tcomponentGuid: ", componentGuid)
-      console.info("\tsubjectComponents: ", subjectComponents)
-      console.info("\tpropertyPath: ", propertyPath)
         // we're just going to overwrite the whole userValue with the constructed headings
         let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
-
-        console.info("\tpt: ", JSON.parse(JSON.stringify(pt)))
 
         // console.log('-----')
         // console.log(pt)
@@ -2930,8 +2922,6 @@ export const useProfileStore = defineStore('profile', {
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"] &&
                 pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"][0]){
-
-                  console.info("!! source !!")
 
                 userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"] = JSON.parse(JSON.stringify(pt.userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]["http://id.loc.gov/ontologies/bibframe/source"]))
             }
@@ -3108,8 +3098,6 @@ export const useProfileStore = defineStore('profile', {
               if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/subjects') >-1){
                 if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
 
-                  console.info("add source 1")
-
                   currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source'] =  [
                     {
                             "@guid": short.generate(),
@@ -3126,8 +3114,6 @@ export const useProfileStore = defineStore('profile', {
                 }
                 break
               } else if (h['uri'] && h['uri'].indexOf('id.loc.gov/authorities/names') >-1){
-
-                console.info("add source 2")
 
                 if (!currentUserValuePos['http://id.loc.gov/ontologies/bibframe/source']){
 
@@ -3174,9 +3160,6 @@ export const useProfileStore = defineStore('profile', {
             // console.log("USERVALUE IS",userValue)
             pt.userValue = userValue
         }
-
-      console.info("\tpt after: ", JSON.parse(JSON.stringify(pt)))
-
     },
 
 
@@ -4155,7 +4138,6 @@ export const useProfileStore = defineStore('profile', {
       */
 
   insertDefaultValuesComponent: async function(componentGuid, structure){
-    console.info("\ninsertDefaultValuesComponent")
     // console.log(componentGuid)
     // console.log("structure",structure)
 
@@ -4173,16 +4155,12 @@ export const useProfileStore = defineStore('profile', {
 
     let isParentTop = false
 
-    console.info('pt: ', JSON.parse(JSON.stringify(pt)))
-
     if (pt !== false){
       let baseURI = pt.propertyURI
       if (!pt.userValue[baseURI]){
         pt.userValue[baseURI] = [{}]
       }
       let userValue = JSON.parse(JSON.stringify(pt.userValue[baseURI][0]))
-
-      console.info('\tuserValue: ', JSON.parse(JSON.stringify(userValue)))
 
       // find the default values for this template if they exist
       if (structure){
@@ -4219,19 +4197,15 @@ export const useProfileStore = defineStore('profile', {
                             '@guid': short.generate(d.defaultLiteral, d.defaultURI)
                           }]
                           if (d.defaultLiteral && d.defaultLiteral != ''){
-                            console.info("1 insert into ")
                             value[defaultPropertyToUse][0][defaultPropertyToUse] = this.replaceDefaultPlaceHolder(d.defaultLiteral)
                           }
                           if (d.defaultURI && d.defaultURI != ''){
-                            console.info("1.5 insert into ")
                             value['@id'] = d.defaultURI
                           }
                         }else{
                           if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
-                            console.info("2 insert into ")
                             value[defaultPropertyToUse] = this.replaceDefaultPlaceHolder(d.defaultLiteral)
                           }else{
-                            console.info("2.5 insert into ")
                             value['@id'] = d.defaultURI
                           }
                         }
@@ -4255,24 +4229,20 @@ export const useProfileStore = defineStore('profile', {
                       }
                       // if it just has a literal value and not a URI then don't create a blank node, just insert it using that literal property
                       if ((d.defaultLiteral && !d.defaultURI) || (d.defaultLiteral != '' && d.defaultURI == '') ){
-                        console.info("3 insert into ", value[p.propertyURI])
                         value[p.propertyURI] = this.replaceDefaultPlaceHolder(d.defaultLiteral)
                       }else{
                         // it is a blank node
                         if (d.defaultLiteral){
                           // console.log(newPt)
-                          console.info(">>>>", )
                           value['http://www.w3.org/2000/01/rdf-schema#label'] = [{
                               '@guid': short.generate(),
                               'http://www.w3.org/2000/01/rdf-schema#label': this.replaceDefaultPlaceHolder(d.defaultLiteral)
                           }]
                         }
                         if (d.defaultURI){
-                          // console.info("3.5 insert into ", JSON.parse(JSON.stringify(value)))
                           value['@id'] = d.defaultURI
                         }
                         if (blankNodeType){
-                          // console.info("3.75 insert into ", JSON.parse(JSON.stringify(value)))
                           value['@type'] = blankNodeType
                         }
                       }
