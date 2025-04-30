@@ -2918,6 +2918,8 @@ const utilsNetwork = {
 
     let url = baseUrl + "search/"
 
+    console.info("url: ", url)
+
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {
@@ -2933,6 +2935,8 @@ const utilsNetwork = {
         marc: marc
       })
     })
+
+    console.info("rawResponse: ", rawResponse)
 
     return rawResponse.json()
 

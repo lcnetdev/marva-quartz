@@ -55,7 +55,7 @@
           <template v-if="existingLCCN">
             <br>
             <Badge
-              text="A record with this LCCN exists. If you continue, the copy cat record will be merged with the existing record."
+              text="A record with this LCCN might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
             <h4>
               <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this LCCN</a>
@@ -468,6 +468,7 @@ export default {
 
       try {
         this.wcResults = await utilsNetwork.worldCatSearch(cleanQuery, this.wcIndex, this.wcType, this.wcOffset, this.wcLimit, marc)
+        console.info("this.wcResults", this.wcResults)
         if (!Object.keys(this.wcResults.results).includes("numberOfRecords")) {
           this.wcResults.results["numberOfRecords"] = 1
           this.wcResults.results["briefRecords"] = [this.wcResults.results]
@@ -885,11 +886,16 @@ p {
   text-indent: 4em hanging;
 }
 
-:deep() span.marc.subfield:hover {
+:deep() div.marc.field:hover{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-marc-hover')");
 }
+:deep() span.marc.subfield[class*="subfield-"]:hover,
+:deep() span.marc.subfield :not(.subfield-label, .subfield-value):hover {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-marc-hover')");
+  filter: saturate(3);
+}
 
-:deep() span.marc.subfield:hover>.subfield-label {
+:deep() span.marc.subfield:hover > .subfield-label {
   font-weight: bold;
   font-style: italic;
 }

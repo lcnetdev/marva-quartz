@@ -57,7 +57,8 @@ export const useConfigStore = defineStore('config', {
         // profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
 
 
-
+        worldCat: 'http://localhost:5200/worldcat/',
+        copyCatUpload: 'http://localhost:5200/copycat/upload',
 
         id: 'https://id.loc.gov/',
         env : 'production',
