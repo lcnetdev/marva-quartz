@@ -271,8 +271,11 @@ export default {
 
   },
 
+  watch: {},
+
   methods: {
     loadLccnFromRecord: function (record) {
+      if (!record) { return false }
       let marc010 = this.getMarcFieldAsString(record, "010")
       if (!marc010) { return false }
 
@@ -889,12 +892,11 @@ p {
 :deep() div.marc.field:hover{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-marc-hover')");
 }
-:deep() span.marc.subfield[class*="subfield-"]:hover,
-:deep() span.marc.subfield :not(.subfield-label, .subfield-value):hover {
+
+:deep() span.marc.subfield:has(> .subfield-label):hover {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-marc-hover')");
   filter: saturate(3);
 }
-
 :deep() span.marc.subfield:hover > .subfield-label {
   font-weight: bold;
   font-style: italic;

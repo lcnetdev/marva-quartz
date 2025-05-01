@@ -2318,7 +2318,7 @@ const utilsExport = {
 			field670SubfieldsValues.push(`$w (DLC)${mainTitleLccn}`)
 		}
 
-
+		console.info("field670SubfieldsValues: ", field670SubfieldsValues)
 		marcTxt =  marcTxt+ this.buildMarcTxtLine('670', ' ', ' ', field670SubfieldsValues)
 		rootEl.appendChild(field670)
 
