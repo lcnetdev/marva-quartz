@@ -225,14 +225,24 @@
 
         close(event){
 
-          if (this.postStatus=='posted'){
+
+          if (this.postStatus != 'posted'){
+            this.savedNARModalData.oneXX = this.oneXX
+            this.savedNARModalData.fourXX = this.fourXX
+            this.savedNARModalData.mainTitleNote = this.mainTitleNote
+          }else{
             this.savedNARModalData = {}
+            this.activeNARStubComponent = {}
+            
+            this.postStatus=='unposted'
+            this.showPreview = false
+
           }
 
-          this.activeNARStubComponent = {}
           this.showNacoStubCreateModal=false
-          this.postStatus=='unposted'
-          this.showPreview = false
+
+
+
 
         },
 
@@ -834,6 +844,12 @@
 
         async transliterateChange(event){
 
+          let reSetTimer = ()=>{
+            window.setTimeout(()=>{
+              event.target.value = 'home'
+            },1000)
+          }
+
           if (event.target.value == 'home'){return true}
 
           let lang = event.target.value.split("-")[0]
@@ -842,6 +858,10 @@
 
           if (dir == 's2r'){
             let fourXXATrans = JSON.parse(JSON.stringify(this.fourXXParts))
+
+            if (!fourXXATrans || !fourXXATrans.a){ reSetTimer(); return false }
+            if (fourXXATrans.a && fourXXATrans.a.trim().length==0){ reSetTimer();  return false}
+
             if (fourXXATrans.a){
               fourXXATrans.a = await utilsNetwork.scriptShifterRequestTrans(lang,fourXXATrans.a,null,dir)
               if (fourXXATrans.a && fourXXATrans.a.output){
@@ -866,6 +886,11 @@
           }else{
 
             let oneXXATrans = JSON.parse(JSON.stringify(this.oneXXParts))
+            if (oneXXATrans.a && oneXXATrans.a.trim().length==0){
+              // Don't do anything, there is nothing to transliterate
+              return false
+            }
+
             if (oneXXATrans.a){
               oneXXATrans.a = await utilsNetwork.scriptShifterRequestTrans(lang,oneXXATrans.a,null,dir)
               if (oneXXATrans.a && oneXXATrans.a.output){
@@ -899,12 +924,8 @@
 
 
           // console.log(event.target.value)
+          reSetTimer()
 
-          window.setTimeout(()=>{
-
-            event.target.value = 'home'
-
-          },1000)
 
 
         },

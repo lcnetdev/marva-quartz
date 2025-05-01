@@ -2348,8 +2348,9 @@ const utilsExport = {
 		field985.appendChild(field985d)
 
 		rootEl.appendChild(field985)
-
-		marcTxt =  marcTxt+ this.buildMarcTxtLine('985',' ',' ',[`$e MARVA-NAR`, `$d ${field985d.innerHTML}`])
+		
+		// they dont need to preview this
+		// marcTxt =  marcTxt+ this.buildMarcTxtLine('985',' ',' ',[`$e MARVA-NAR`, `$d ${field985d.innerHTML}`])
 
 
 
