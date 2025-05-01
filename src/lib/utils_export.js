@@ -1865,7 +1865,15 @@ const utilsExport = {
 		// let aapHash = await md5(aap)
 		// aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
 		// let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
-		let hubUri = await this.creatHubStubURI(hubCreatorObj,title)
+
+		let hubUri
+		if (langObj){
+			hubUri = await this.creatHubStubURI(hubCreatorObj, title + ". " + langObj.label)
+		} else {
+			hubUri = await this.creatHubStubURI(hubCreatorObj,title)
+		}
+
+		// let hubUri = await this.creatHubStubURI(hubCreatorObj,title)
 
 
 
