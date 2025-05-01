@@ -15,7 +15,7 @@
 
 
         <pane class="load" v-if="displayAllRecords">
-          <button style="float: right;" @click="displayAllRecords=false;displayDashboard=true">Close</button>
+          <button style="float: right; z-index: 100;" @click="displayAllRecords=false;displayDashboard=true">Close</button>
           <div v-if="dashBoard && dashBoard.totalDays">
             <h1>
               <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"  class="material-icons">edit_note</span>

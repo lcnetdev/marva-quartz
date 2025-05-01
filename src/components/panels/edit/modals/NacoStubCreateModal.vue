@@ -26,7 +26,7 @@
         top: 200,
         left: 0,
 
-        initalHeight: 560,
+        initalHeight: 650,
         initalLeft: 400,
 
 
@@ -76,6 +76,7 @@
         mainTitleNote: '',
         instanceURI: false,
         statementOfResponsibility: null,
+        statementOfResponsibilityOptions: [],
 
         zero46: null,
 
@@ -225,14 +226,24 @@
 
         close(event){
 
-          if (this.postStatus=='posted'){
+
+          if (this.postStatus != 'posted'){
+            this.savedNARModalData.oneXX = this.oneXX
+            this.savedNARModalData.fourXX = this.fourXX
+            this.savedNARModalData.mainTitleNote = this.mainTitleNote
+          }else{
             this.savedNARModalData = {}
+            this.activeNARStubComponent = {}
+            
+            this.postStatus=='unposted'
+            this.showPreview = false
+
           }
 
-          this.activeNARStubComponent = {}
           this.showNacoStubCreateModal=false
-          this.postStatus=='unposted'
-          this.showPreview = false
+
+
+
 
         },
 
@@ -834,6 +845,12 @@
 
         async transliterateChange(event){
 
+          let reSetTimer = ()=>{
+            window.setTimeout(()=>{
+              event.target.value = 'home'
+            },1000)
+          }
+
           if (event.target.value == 'home'){return true}
 
           let lang = event.target.value.split("-")[0]
@@ -842,6 +859,10 @@
 
           if (dir == 's2r'){
             let fourXXATrans = JSON.parse(JSON.stringify(this.fourXXParts))
+
+            if (!fourXXATrans || !fourXXATrans.a){ reSetTimer(); return false }
+            if (fourXXATrans.a && fourXXATrans.a.trim().length==0){ reSetTimer();  return false}
+
             if (fourXXATrans.a){
               fourXXATrans.a = await utilsNetwork.scriptShifterRequestTrans(lang,fourXXATrans.a,null,dir)
               if (fourXXATrans.a && fourXXATrans.a.output){
@@ -866,6 +887,11 @@
           }else{
 
             let oneXXATrans = JSON.parse(JSON.stringify(this.oneXXParts))
+            if (oneXXATrans.a && oneXXATrans.a.trim().length==0){
+              // Don't do anything, there is nothing to transliterate
+              return false
+            }
+
             if (oneXXATrans.a){
               oneXXATrans.a = await utilsNetwork.scriptShifterRequestTrans(lang,oneXXATrans.a,null,dir)
               if (oneXXATrans.a && oneXXATrans.a.output){
@@ -899,12 +925,8 @@
 
 
           // console.log(event.target.value)
+          reSetTimer()
 
-          window.setTimeout(()=>{
-
-            event.target.value = 'home'
-
-          },1000)
 
 
         },
@@ -981,10 +1003,16 @@
       this.mainTitleLccn = this.profileStore.nacoStubReturnLCCN()
       this.mainTitleDate = this.profileStore.nacoStubReturnDate()
       this.statementOfResponsibility = this.profileStore.nacoStubReturnSoR()
+      this.statementOfResponsibilityOptions = []
 
       if (this.statementOfResponsibility){
         this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
       }
+
+      if (this.statementOfResponsibility.split(",").length>1){
+        this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(",")
+      }
+
 
       if (this.savedNARModalData.oneXX){
         this.oneXX = this.savedNARModalData.oneXX
@@ -1287,20 +1315,30 @@
                     <span class="material-icons edit-icon">edit</span>
                     <label>670 $b: </label>
                     <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em"/>
+
+                    <template v-if="statementOfResponsibilityOptions.length>0">
+                      <div style="padding: 0.2em;">
+                        Multi SOR found: 
+                        <template v-for="(sor, index) in statementOfResponsibilityOptions">
+                          <button style="font-size: 0.75em;" @click="mainTitleNote = 'title page (' + sor.trim() + ')'">{{ sor }}</button>
+                        </template>
+                      </div>
+                      
+                    </template> 
                   </div>
 
                   <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
-                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
                   </template>
                   <template v-else>
-                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">Missing 670 Date Field! Can't build 670</div>
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">Missing 670 Date Field! Can't build 670</div>
                   </template>
 
                   <template v-if="zero46 && Object.keys(zero46).length>0">
-                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
                   </template>
                   
-                  <div class="selectable" style="font-family: monospace;"> 
+                  <div class="selectable" style="font-family: monospace; padding: 0.2em;"> 
 
                     <input type="checkbox" v-model="add667" id="add-667"/>
                     <label for="add-667" style="vertical-align: super; padding-left: 1em;">Add 667 Note</label>
