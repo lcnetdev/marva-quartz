@@ -87,7 +87,7 @@
         },
         panelDetailOrder: {
           biographical: [
-            "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","birthplaces", "deathdates", "locales",
+            "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees"
           ],
           important: [
@@ -1175,7 +1175,7 @@
                             <ul class="bio-list">
                               <template v-for="key in panelDetailOrder[group]">
                                 <template v-if="['birthdates', 'deathdates', 'birthplaces','locales','activityfields','occupations', 'languages'].includes(key) && activeContext.extra[key] && activeContext.extra[key].length>0">
-                                  <li class="bio-details" v-bind:key="'var' + idx">
+                                  <li class="bio-details">
                                     <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                                     {{ activeContext.extra[key].join(" ; ")}}
                                   </li>
@@ -1197,12 +1197,12 @@
                                 </template>
                                 <template v-else>
                                   <ul class="bio-list">
-                                    <li class="bio-details" v-bind:key="'var' + idx" v-if="key=='lcclasss'" v-for="v in activeContext.extra['lcclasss']">
+                                    <li class="bio-details" v-if="key=='lcclasss'" v-for="v in activeContext.extra['lcclasss']">
                                       <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                                       <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
                                       <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
                                     </li>
-                                    <li class="bio-details" v-bind:key="'var' + idx" v-if="key != 'lcclasss'">
+                                    <li class="bio-details" v-if="key != 'lcclasss'">
                                       <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                                       {{ activeContext.extra[key].join(" ; ") }}
                                     </li>
@@ -1236,9 +1236,9 @@
                                                 <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
                                                   <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
                                                 </template>
-                                                <teamplate v-else-if="key == 'notes'">
+                                                <template v-else-if="key == 'notes'">
                                                   <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
-                                                </teamplate>
+                                                </template>
                                                 <template v-else>
                                                   {{v}}
                                                 </template>
@@ -1251,34 +1251,6 @@
                               </AccordionList>
                           </div>
                           </template>
-                      <!-- </div> -->
-                    <!-- </template> -->
-                    <!-- modal-context-data-title-add-gap -->
-                    <!-- <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                      <br>
-                      <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
-                      <ul>
-                        <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
-                          <template v-if="v.startsWith('http')">
-                            <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
-                          </template>
-                          <template v-else-if="key == 'lcclasss'">
-                            <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
-                          </template>
-                          <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
-                            <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
-                          </template>
-                          <teamplate v-else-if="key == 'notes'">
-                            <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
-                          </teamplate>
-                          <template v-else>
-                            {{v}}
-                          </template>
-                        </li>
-                        <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
-                      </ul>
-
-                    </div> -->
                   </template>
               </template>
 

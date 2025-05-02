@@ -221,7 +221,6 @@
                 </div>
 
                 <!-- Results Panel -->
-                <!-- !!{{ contextData }} -->
                 <div :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()};`"  :class="['subject-editor-container-right', {'subject-editor-container-right-lowres':lowResMode}]">
                   <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
                   <div class="modal-context" :style="{ }" v-if="Object.keys(contextData).length>0">
@@ -242,7 +241,123 @@
 
                     <br><br>
 
-                    <template v-for="key in panelDetailOrder">
+                    <template v-for="(value, group) in panelDetailOrder">
+                    <!-- <template v-for="key in panelDetailOrder[group]"> -->
+                      <!-- <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0"> -->
+
+                          <template v-if="group == 'biographical'">
+                            <template v-for="key in panelDetailOrder[group]">
+                              <template v-if="contextData[key] && contextData[key].length>0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees'].includes(key)">
+                                <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                                <ul class="bio-list">
+                                  <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
+
+                                    <span v-if="key !='sees' && key !='relateds'">{{v}}</span>
+                                    <div v-else-if="key == 'relateds'">
+                                      {{v}}<button class="material-icons see-search" @click="newSearch(v)">search</button>
+                                    </div>
+                                    <div v-else>
+                                      <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                                      <button class="material-icons see-search" @click="newSearch(v)">search</button>
+                                    </div>
+                                  </li>
+                                </ul>
+                              </template>
+                            </template>
+                            <ul class="bio-list">
+                              <template v-for="key in panelDetailOrder[group]">
+                                <template v-if="['birthdates', 'deathdates', 'birthplaces','locales','activityfields','occupations', 'languages'].includes(key) && contextData[key] && contextData[key].length>0">
+                                  <li class="bio-details">
+                                    <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                                    {{ contextData[key].join(" ; ")}}
+                                  </li>
+                                </template>
+                              </template>
+                            </ul>
+
+                          </template>
+                          <template v-else-if="group == 'important'">
+                            <template v-for="key in panelDetailOrder[group]">
+                              <template v-if="contextData[key] && contextData[key].length>0">
+                                <template v-if="key == 'sources'">
+                                  <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                                  <ul>
+                                    <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
+                                      {{v}}
+                                    </li>
+                                  </ul>
+                                </template>
+                                <template v-else>
+
+                                  <template v-if="['lcclasss', 'broaders'].includes(key)">
+                                    <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                                    <ul  class="bio-list">
+                                      <template v-for="v in contextData[key]">
+                                        <li class="" v-if="key=='lcclasss'">
+                                          <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
+                                          <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
+                                        </li>
+                                        <li class="" v-else-if="key == 'broaders'">
+                                          <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                                          <button class="material-icons see-search" @click="newSearch(v)">search</button>
+                                        </li>
+                                      </template>
+                                    </ul>
+                                  </template>
+                                  <template v-else>
+                                    <ul class="bio-list">
+                                      <li class="bio-details">
+                                        <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                                        {{ contextData[key].join(" ; ") }}
+                                      </li>
+                                    </ul>
+                                  </template>
+                                </template>
+                              </template>
+                            </template>
+                          </template>
+                          <template v-else-if="group == 'administrative'">
+                            <div class="admin-fields">
+                              <br>
+                              <hr>
+                              <AccordionList  :open-multiple-items="true">
+                                <AccordionItem id="admin-fields" default-closed>
+                                  <template #summary>
+                                    <div>Extra Details</div>
+                                  </template>
+                                  <template v-for="key in panelDetailOrder[group]">
+                                    <template v-if="contextData[key] && contextData[key].length>0">
+
+                                            <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                                            <ul>
+                                              <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
+                                                <template v-if="v.startsWith('http')">
+                                                  <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                                                </template>
+                                                <template v-else-if="key == 'lcclasss'">
+                                                  <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                                                </template>
+                                                <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
+                                                  <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                                                </template>
+                                                <template v-else-if="key == 'notes'">
+                                                  <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
+                                                </template>
+                                                <template v-else>
+                                                  {{v}}
+                                                </template>
+                                              </li>
+                                              <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ contextData[key] }}</li>
+                                            </ul>
+                                    </template>
+                                  </template>
+                                </AccordionItem>
+                              </AccordionList>
+                          </div>
+                          </template>
+                  </template>
+
+                    <!-- <template v-for="key in panelDetailOrder">
                     <div v-if="contextData[key] && contextData[key].length>0">
                       <div class="modal-context-data-title modal-context-data-title-add-gap">{{ this.labelMap[key] }}:</div>
                       <ul>
@@ -252,7 +367,6 @@
                           </template>
                           <template v-else-if="key == 'lcclasss'">
                             <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
-                            <!-- <a :href="'https://id.loc.gov/authorities/classification/'+v" target="_blank">{{v}}</a> -->
                           </template>
                           <template v-else-if="key == 'broaders' || key == 'sees'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
@@ -267,7 +381,7 @@
                         <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ contextData[key] }}</li>
                       </ul>
                     </div>
-                  </template>
+                  </template> -->
 
 
                     <div v-if="this.pickCurrent != null">
@@ -803,6 +917,28 @@ li::before {
   color: red;
 }
 
+.bio-list {
+  columns: 3;
+  break-inside: avoid;
+}
+.bio-list:has(.bio-details){
+  margin-top: 10px;
+  padding-left: 0px;
+  columns: 2;
+  break-inside: avoid;
+}
+
+.bio-details {
+  list-style: none;
+}
+
+.see-search{
+  width: 25px;
+  height: 25px;
+  font-size: 14px;
+  border-radius: 50%;
+}
+
 </style>
 
 <style>
@@ -816,15 +952,16 @@ li::before {
 <script>
 
 import { usePreferenceStore } from '@/stores/preference'
+import { useProfileStore } from '@/stores/profile'
 import { useConfigStore } from '@/stores/config'
-import { mapStores, mapState } from 'pinia'
+import { mapStores, mapState, mapWritableState } from 'pinia'
 import { VueFinalModal } from 'vue-final-modal'
 
 import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
 
 import utilsNetwork from '@/lib/utils_network';
 
-
+import { AccordionList, AccordionItem } from "vue3-rich-accordion";
 
 const debounce = (callback, wait) => {
 let timeoutId = null;
@@ -845,7 +982,8 @@ name: "SubjectEditor",
 components: {
   VueFinalModal,
   AuthTypeIcon,
-
+  AccordionList,
+  AccordionItem
 },
 props: {
   structure: Object,
@@ -928,6 +1066,7 @@ data: function() {
       "variantLabels": "Variants",
       "varianttitles": "Varants Titles",
       "birthdates": "Date of Birth",
+      "deathdates": "Date of Death",
       "birthplaces": "Place of Birth",
       "locales": "Associated Locales",
       "activityfields": "Fields of Activity",
@@ -947,12 +1086,18 @@ data: function() {
       "countSubj": "Subject ff",
       "countName": "Contributor to",
     },
-    panelDetailOrder: [
-      "countSubj", "countName", "notes","nonlatinLabels","variantLabels", "varianttitles", "sees", "contributors",
-      "relateds","birthdates","birthplaces","locales","activityfields","occupations",
-      "languages","lcclasss","identifiers","broaders","gacs","collections",
-      "sources", "subjects", "marcKeys"
-    ],
+    panelDetailOrder: {
+      biographical: [
+        "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",  "locales",
+        "activityfields","occupations","languages", "sees"
+      ],
+      important: [
+        "sources", "lcclasss", "identifiers","gacs","broaders",
+      ],
+      administrative: [
+        "notes", "collections", "subjects", "marcKeys"
+      ]
+    },
     selectedSortOrder: ""
 
   }
@@ -961,8 +1106,32 @@ data: function() {
 computed: {
   ...mapStores(usePreferenceStore),
   ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
+  ...mapState(useProfileStore, ['returnComponentByPropertyLabel']),
+
+  ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral']),
 },
 methods: {
+  // Conduct a new search on "related" term
+  newSearch: function(v){
+    this.subjectString = v
+    this.subjectStringChanged()
+    this.searchApis(v, v, this)
+  },
+
+
+  // Add class number from details to Marva
+  addClassNumber: function(classNum){
+    let profile = this.activeProfile
+
+    let targetComponent = this.returnComponentByPropertyLabel('Classification numbers')
+
+    let propertyPath = [
+      { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
+      { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/classificationPortion" }
+    ]
+
+    this.setValueLiteral(targetComponent['@guid'], null, propertyPath, classNum, null, null)
+  },
   checkUsable: function(data){
     let notes = data.extra.notes || []
     if (notes.includes("THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS RECORD HAS BEEN REVIEWED AND/OR UPDATED")){
@@ -1335,6 +1504,7 @@ methods: {
   },
 
   focusInput: function(){
+    console.info("focus")
     this.$nextTick(() => {
 
       let timeoutFocus = window.setTimeout(()=>{
@@ -2624,6 +2794,7 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
+    console.info("subjectStringChanged")
     this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
@@ -2631,6 +2802,8 @@ methods: {
     if (this.initialLoad == true) {
       let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
       let lastPiece = pieces.at(-1)
+      console.info("lastPiece: ", lastPiece)
+      console.info("full: ", this.$refs.subjectInput.value.replace("—", "--"))
       this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
       this.initialLoad = false
     }
@@ -3380,6 +3553,7 @@ mounted: function(){
 
 
 updated: function() {
+  console.info("updated")
   // preselect the search type, if a children's subject
   if (this.searchType.includes("Childrens")){
     this.searchMode = "CHILD"
