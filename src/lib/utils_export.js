@@ -2315,13 +2315,13 @@ const utilsExport = {
 		field670.appendChild(field670u)
 		field670SubfieldsValues.push(`$u ${instanceUri}`)
 
-		if (mainTitleLccn){
-			let field670w = document.createElementNS(marcNamespace,"marcxml:subfield");
-			field670w.setAttribute( 'code', 'w')
-			field670w.innerHTML = '(DLC)' + mainTitleLccn
-			field670.appendChild(field670w)
-			field670SubfieldsValues.push(`$w (DLC)${mainTitleLccn}`)
-		}
+		// if (mainTitleLccn){
+		// 	let field670w = document.createElementNS(marcNamespace,"marcxml:subfield");
+		// 	field670w.setAttribute( 'code', 'w')
+		// 	field670w.innerHTML = '(DLC)' + mainTitleLccn
+		// 	field670.appendChild(field670w)
+		// 	field670SubfieldsValues.push(`$w (DLC)${mainTitleLccn}`)
+		// }
 
 
 		marcTxt =  marcTxt+ this.buildMarcTxtLine('670', ' ', ' ', field670SubfieldsValues)
@@ -2348,7 +2348,7 @@ const utilsExport = {
 		field985.appendChild(field985d)
 
 		rootEl.appendChild(field985)
-		
+
 		// they dont need to preview this
 		// marcTxt =  marcTxt+ this.buildMarcTxtLine('985',' ',' ',[`$e MARVA-NAR`, `$d ${field985d.innerHTML}`])
 
