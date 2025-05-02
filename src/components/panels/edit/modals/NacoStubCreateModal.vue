@@ -1009,7 +1009,7 @@
         this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
       }
 
-      if (this.statementOfResponsibility.split(",").length>1){
+      if (this.statementOfResponsibility && this.statementOfResponsibility.split(",").length>1){
         this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(",")
       }
 
@@ -1316,7 +1316,7 @@
                     <label>670 $b: </label>
                     <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em"/>
 
-                    <template v-if="statementOfResponsibilityOptions.length>0">
+                    <template v-if="statementOfResponsibilityOptions && statementOfResponsibilityOptions.length>0">
                       <div style="padding: 0.2em;">
                         Multi SOR found: 
                         <template v-for="(sor, index) in statementOfResponsibilityOptions">
