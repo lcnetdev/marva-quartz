@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.22] - 2025-05-02
+### Update
+- Hub URIs from hub creation
+
 
 ## [1.2.21] - 2025-04-30
 ### Changed
