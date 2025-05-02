@@ -11,12 +11,15 @@
 
   import utilsNetwork from '@/lib/utils_network';
 
+  import { AccordionList, AccordionItem } from "vue3-rich-accordion";
+
 
   export default {
     components: {
       VueFinalModal,
       AuthTypeIcon,
-
+      AccordionList,
+      AccordionItem
     },
     props: {
       // structure of the field that owns this modal
@@ -63,6 +66,7 @@
           "variantLabels": "Variants",
           "varianttitles": "Varants Titles",
           "birthdates": "Date of Birth",
+          "deathdates": "Date of Death",
           "birthplaces": "Place of Birth",
           "locales": "Associated Locales",
           "activityfields": "Fields of Activity",
@@ -81,11 +85,18 @@
           "sees": "See Also"
 
         },
-        panelDetailOrder: [
-          "notes","nonlatinLabels","variantLabels", "varianttitles", "sees", "contributors", "relateds","birthdates","birthplaces","locales",
-          "activityfields","occupations","languages","lcclasss", "identifiers", "broaders","gacs","collections",
-          "sources", "subjects", "marcKeys"
-        ],
+        panelDetailOrder: {
+          biographical: [
+            "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","birthplaces", "deathdates", "locales",
+            "activityfields","occupations","languages", "sees"
+          ],
+          important: [
+            "sources", "lcclasss", "identifiers","gacs","broaders",
+          ],
+          administrative: [
+            "notes", "collections", "subjects", "marcKeys"
+          ]
+        },
       }
     },
     computed: {
@@ -99,10 +110,11 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
-      ...mapWritableState(useProfileStore, ['lastComplexLookupString','showNacoStubCreateModal', 'activeNARStubComponent']),
+      ...mapWritableState(useProfileStore, ['lastComplexLookupString','showNacoStubCreateModal', 'activeNARStubComponent', 'activeProfile', 'setValueLiteral']),
 
 
 
@@ -160,7 +172,18 @@
     },
 
     methods: {
+      addClassNumber: function(classNum){
+        let profile = this.activeProfile
 
+        let targetComponent = this.returnComponentByPropertyLabel('Classification numbers')
+
+        let propertyPath = [
+          { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
+          { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/classificationPortion" }
+        ]
+
+        this.setValueLiteral(targetComponent['@guid'], null, propertyPath, classNum, null, null)
+      },
       checkUsable: function(data){
         let notes = data.extra.notes || []
         if (notes.includes("THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS RECORD HAS BEEN REVIEWED AND/OR UPDATED")){
@@ -1126,9 +1149,114 @@
 
                   </div>
 
-                  <template v-for="key in panelDetailOrder">
-                    <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                      <div class="modal-context-data-title modal-context-data-title-add-gap">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                  <template v-for="(value, group) in panelDetailOrder">
+                    <!-- <template v-for="key in panelDetailOrder[group]"> -->
+                      <!-- <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0"> -->
+
+                          <template v-if="group == 'biographical'">
+                            <template v-for="key in panelDetailOrder[group]">
+                              <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees'].includes(key)">
+                                <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                                <ul class="bio-list">
+                                  <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
+
+                                    <span v-if="key !='sees' && key !='relateds'">{{v}}</span>
+                                    <div v-else-if="key == 'relateds'">
+                                      {{v}}<button class="material-icons see-search" @click="searchValueLocal = v">search</button>
+                                    </div>
+                                    <div v-else>
+                                      <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                                      <button class="material-icons see-search" @click="searchValueLocal = v">search</button>
+                                    </div>
+                                  </li>
+                                </ul>
+                              </template>
+                            </template>
+                            <ul class="bio-list">
+                              <template v-for="key in panelDetailOrder[group]">
+                                <template v-if="['birthdates', 'deathdates', 'birthplaces','locales','activityfields','occupations', 'languages'].includes(key) && activeContext.extra[key] && activeContext.extra[key].length>0">
+                                  <li class="bio-details" v-bind:key="'var' + idx">
+                                    <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                                    {{ activeContext.extra[key].join(" ; ")}}
+                                  </li>
+                                </template>
+                              </template>
+                            </ul>
+
+                          </template>
+                          <template v-else-if="group == 'important'">
+                            <template v-for="key in panelDetailOrder[group]">
+                              <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
+                                <template v-if="key == 'sources'">
+                                  <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                                  <ul>
+                                    <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
+                                      {{v}}
+                                    </li>
+                                  </ul>
+                                </template>
+                                <template v-else>
+                                  <ul class="bio-list">
+                                    <li class="bio-details" v-bind:key="'var' + idx" v-if="key=='lcclasss'" v-for="v in activeContext.extra['lcclasss']">
+                                      <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                                      <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
+                                      <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
+                                    </li>
+                                    <li class="bio-details" v-bind:key="'var' + idx" v-if="key != 'lcclasss'">
+                                      <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                                      {{ activeContext.extra[key].join(" ; ") }}
+                                    </li>
+
+                                  </ul>
+                                </template>
+                              </template>
+                            </template>
+                          </template>
+                          <template v-else-if="group == 'administrative'">
+                            <div class="admin-fields">
+                              <br>
+                              <hr>
+                              <AccordionList  :open-multiple-items="true">
+                                <AccordionItem id="admin-fields" default-closed>
+                                  <template #summary>
+                                    <div>Extra Details</div>
+                                  </template>
+                                  <template v-for="key in panelDetailOrder[group]">
+                                    <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
+
+                                            <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                                            <ul>
+                                              <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
+                                                <template v-if="v.startsWith('http')">
+                                                  <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                                                </template>
+                                                <template v-else-if="key == 'lcclasss'">
+                                                  <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
+                                                </template>
+                                                <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
+                                                  <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                                                </template>
+                                                <teamplate v-else-if="key == 'notes'">
+                                                  <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
+                                                </teamplate>
+                                                <template v-else>
+                                                  {{v}}
+                                                </template>
+                                              </li>
+                                              <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
+                                            </ul>
+                                    </template>
+                                  </template>
+                                </AccordionItem>
+                              </AccordionList>
+                          </div>
+                          </template>
+                      <!-- </div> -->
+                    <!-- </template> -->
+                    <!-- modal-context-data-title-add-gap -->
+                    <!-- <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
+                      <br>
+                      <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                       <ul>
                         <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
                           <template v-if="v.startsWith('http')">
@@ -1149,7 +1277,8 @@
                         </li>
                         <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
                       </ul>
-                    </div>
+
+                    </div> -->
                   </template>
               </template>
 
@@ -1505,5 +1634,28 @@
 .unusable {
   color: red;
 }
+
+.bio-list {
+  columns: 3;
+  break-inside: avoid;
+}
+.bio-list:has(.bio-details){
+  margin-top: 10px;
+  padding-left: 0px;
+  columns: 2;
+  break-inside: avoid;
+}
+
+.bio-details {
+  list-style: none;
+}
+
+.see-search{
+  width: 25px;
+  height: 25px;
+  font-size: 14px;
+  border-radius: 50%;
+}
+
 
 </style>

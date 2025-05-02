@@ -1918,6 +1918,9 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
+      console.info("setValueLiteral")
+      console.info("fieldguid: ", fieldGuid)
+      console.info("propertyPath: ", propertyPath)
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
 
