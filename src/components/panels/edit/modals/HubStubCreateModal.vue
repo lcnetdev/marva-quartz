@@ -28,7 +28,7 @@
         top: 100,
         left: 0,
 
-        initalHeight: 600,
+        initalHeight: 700,
         initalLeft: 400,
 
 
