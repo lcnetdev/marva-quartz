@@ -1230,12 +1230,6 @@
                                                 <template v-if="v.startsWith('http')">
                                                   <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
                                                 </template>
-                                                <template v-else-if="key == 'lcclasss'">
-                                                  <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
-                                                </template>
-                                                <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
-                                                  <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
-                                                </template>
                                                 <template v-else-if="key == 'notes'">
                                                   <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
                                                 </template>
@@ -1375,8 +1369,9 @@
     margin-top: 0;
     margin-bottom: 0;
   }
-  .modal-context-data-li{
 
+  .modal-context-data-li{
+    /* list-style: none; */
   }
 
   h3{
@@ -1628,6 +1623,8 @@
   font-size: 14px;
   border-radius: 50%;
 }
+
+
 
 
 </style>

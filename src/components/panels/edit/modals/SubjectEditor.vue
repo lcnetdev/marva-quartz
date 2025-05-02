@@ -334,12 +334,6 @@
                                                 <template v-if="v.startsWith('http')">
                                                   <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
                                                 </template>
-                                                <template v-else-if="key == 'lcclasss'">
-                                                  <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{v}}</a>
-                                                </template>
-                                                <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
-                                                  <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
-                                                </template>
                                                 <template v-else-if="key == 'notes'">
                                                   <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
                                                 </template>
@@ -1504,7 +1498,6 @@ methods: {
   },
 
   focusInput: function(){
-    console.info("focus")
     this.$nextTick(() => {
 
       let timeoutFocus = window.setTimeout(()=>{
@@ -2794,7 +2787,6 @@ methods: {
   },
 
   subjectStringChanged: async function(event){
-    console.info("subjectStringChanged")
     this.subjectString=this.subjectString.replace("—", "--")
     this.validateOkayToAdd()
 
@@ -2802,8 +2794,6 @@ methods: {
     if (this.initialLoad == true) {
       let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
       let lastPiece = pieces.at(-1)
-      console.info("lastPiece: ", lastPiece)
-      console.info("full: ", this.$refs.subjectInput.value.replace("—", "--"))
       this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
       this.initialLoad = false
     }
@@ -3553,7 +3543,6 @@ mounted: function(){
 
 
 updated: function() {
-  console.info("updated")
   // preselect the search type, if a children's subject
   if (this.searchType.includes("Childrens")){
     this.searchMode = "CHILD"
