@@ -91,7 +91,7 @@
             "activityfields","occupations","languages", "sees"
           ],
           important: [
-            "sources", "lcclasss", "identifiers","gacs","broaders",
+            "gacs", "sources", "lcclasss", "identifiers","broaders",
           ],
           administrative: [
             "notes", "collections", "subjects", "marcKeys"

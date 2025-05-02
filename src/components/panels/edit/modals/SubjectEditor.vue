@@ -298,7 +298,7 @@
                                           <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
                                         </li>
                                         <li class="" v-else-if="key == 'broaders'">
-                                          <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                                          {{v}}
                                           <button class="material-icons see-search" @click="newSearch(v)">search</button>
                                         </li>
                                       </template>
