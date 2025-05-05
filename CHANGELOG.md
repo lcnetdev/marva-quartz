@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 ## [1.2.22] - 2025-05-02
 ### Update
 - Hub URIs from hub creation
+- Complex Search Details
+
+### Add
+- Ability to populate Class Numbers from Complex Search Details
+
+### Fix
+- Prompt to login when click ClassWeb link in Complex Search Details
 
 
 ## [1.2.21] - 2025-04-30
