@@ -46,7 +46,7 @@
   import ItemInstanceSelectionModal from "@/components/panels/nav/ItemInstanceSelectionModal.vue";
   import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
   import GenericSelectionModal from '../edit/modals/GenericSelectionModal.vue'
-  
+
   import TimeAgo from 'javascript-time-ago'
   import en from 'javascript-time-ago/locale/en'
   if (TimeAgo.getDefaultLocale() != 'en'){TimeAgo.addDefaultLocale(en)}
@@ -156,6 +156,20 @@
             }
             }, icon:"💾" }
         ]
+
+        const config = useConfigStore()
+        if (config.returnUrls.displayLCOnlyFeatures){
+          menuButtonSubMenu.push(
+            {
+              text: 'LC Marva Manual',
+              click: () => {
+                const routeData = window.open('https://libgov-my.sharepoint.com/personal/pfrank_lib_loc_gov/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fpfrank%5Flib%5Floc%5Fgov%2FDocuments%2FMarva%2DManual%2DShare%2FLibrary%2Dof%2DCongress%2DMarva%2DQuartz%2DUser%2DManual%2Epdf&parent=%2Fpersonal%2Fpfrank%5Flib%5Floc%5Fgov%2FDocuments%2FMarva%2DManual%2DShare')
+                window.open(routeData.href, '_blank');
+               },
+              icon:"📄"
+            }
+          )
+        }
 
 
         if (this.$route.path.startsWith('/edit/')){
@@ -519,7 +533,7 @@
                   }
                   this.$refs.postmodal.post();
                   this.profileStore.saveRecord()
-                  
+
                 })
               },
               class: (this.activeProfilePosted) ? "record-posted simptip-position-bottom" : "record-unposted simptip-position-bottom",
@@ -583,7 +597,7 @@
             {
               text: "Profile: " + this.activeProfile.id,
               class: "current-profile",
-              
+
             }
           )
           }
