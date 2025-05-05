@@ -85,18 +85,24 @@
           "sees": "See Also"
 
         },
-        panelDetailOrder: {
-          biographical: [
+        panelDetailOrder: [
             "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",  "locales",
-            "activityfields","occupations","languages", "sees"
-          ],
-          important: [
+            "activityfields","occupations","languages", "sees",
             "gacs", "sources", "lcclasss", "identifiers","broaders",
-          ],
-          administrative: [
             "notes", "collections", "subjects", "marcKeys"
-          ]
-        },
+        ],
+        // panelDetailOrder: {
+        //   primary: [
+        //     "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",  "locales",
+        //     "activityfields","occupations","languages", "sees"
+        //   ],
+        //   secondary: [
+        //     "gacs", "sources", "lcclasss", "identifiers","broaders",
+        //   ],
+        //   administrative: [
+        //     "notes", "collections", "subjects", "marcKeys"
+        //   ]
+        // },
       }
     },
     computed: {
@@ -1149,103 +1155,98 @@
 
                   </div>
 
-                  <template v-for="(value, group) in panelDetailOrder">
-                    <!-- <template v-for="key in panelDetailOrder[group]"> -->
-                      <!-- <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0"> -->
 
-                          <template v-if="group == 'biographical'">
-                            <template v-for="key in panelDetailOrder[group]">
-                              <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees'].includes(key)">
+                    <!-- Labels & Relationships -->
+                    <template v-for="key in panelDetailOrder">
+                      <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
+                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees'].includes(key)">
+                          <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                          <ul class="details-list">
+                            <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
+                              <span v-if="key !='sees' && key !='relateds'">{{v}}</span>
+                              <div v-else-if="key == 'relateds'">
+                                {{v}}<button class="material-icons see-search" @click="searchValueLocal = v">search</button>
+                              </div>
+                              <div v-else>
+                                <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                                <button class="material-icons see-search" @click="searchValueLocal = v">search</button>
+                              </div>
+                            </li>
+                          </ul>
+                        </template>
+                      </div>
+                    </template>
+
+                    <!-- Primary -->
+                    <ul class="details-list">
+                      <template v-for="key in panelDetailOrder">
+                        <template v-if="['birthdates', 'deathdates', 'birthplaces','locales','activityfields','occupations', 'languages'].includes(key) && activeContext.extra[key] && activeContext.extra[key].length>0">
+                          <li class="details-details">
+                            <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                            {{ activeContext.extra[key].join(" ; ")}}
+                          </li>
+                        </template>
+                      </template>
+                    </ul>
+
+                    <!-- Secondary -->
+                    <template v-for="key in panelDetailOrder">
+                      <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
+                        <template v-if="key == 'sources'">
+                          <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                          <ul>
+                            <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
+                              {{v}}
+                            </li>
+                          </ul>
+                        </template>
+                        <template v-else>
+                          <ul class="details-list">
+                            <li class="details-details" v-if="key=='lcclasss'" v-for="v in activeContext.extra['lcclasss']">
+                              <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                              <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
+                              <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
+                            </li>
+                            <li class="details-details" v-if='["gacs", "identifiers","broaders",].includes(key)'>
+                              <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                              {{ activeContext.extra[key].join(" ; ") }}
+                            </li>
+                          </ul>
+                        </template>
+                      </div>
+                    </template>
+
+                    <!-- Admin -->
+                    <div class="admin-fields">
+                        <br>
+                        <hr>
+                        <AccordionList  :open-multiple-items="true">
+                          <AccordionItem id="admin-fields" default-closed>
+                            <template #summary>
+                              <div>Extra Details</div>
+                            </template>
+                            <template v-for="key in panelDetailOrder">
+                              <template v-if='activeContext.extra[key] && activeContext.extra[key].length>0 && ["notes", "collections", "subjects", "marcKeys"].includes(key)'>
                                 <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
-                                <ul class="bio-list">
+                                <ul>
                                   <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
-
-                                    <span v-if="key !='sees' && key !='relateds'">{{v}}</span>
-                                    <div v-else-if="key == 'relateds'">
-                                      {{v}}<button class="material-icons see-search" @click="searchValueLocal = v">search</button>
-                                    </div>
-                                    <div v-else>
-                                      <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
-                                      <button class="material-icons see-search" @click="searchValueLocal = v">search</button>
-                                    </div>
+                                    <template v-if="v.startsWith('http')">
+                                      <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                                    </template>
+                                    <template v-else-if="key == 'notes'">
+                                      <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
+                                    </template>
+                                    <template v-else>
+                                      {{v}}
+                                    </template>
                                   </li>
+                                  <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
                                 </ul>
                               </template>
                             </template>
-                            <ul class="bio-list">
-                              <template v-for="key in panelDetailOrder[group]">
-                                <template v-if="['birthdates', 'deathdates', 'birthplaces','locales','activityfields','occupations', 'languages'].includes(key) && activeContext.extra[key] && activeContext.extra[key].length>0">
-                                  <li class="bio-details">
-                                    <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
-                                    {{ activeContext.extra[key].join(" ; ")}}
-                                  </li>
-                                </template>
-                              </template>
-                            </ul>
-
-                          </template>
-                          <template v-else-if="group == 'important'">
-                            <template v-for="key in panelDetailOrder[group]">
-                              <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                                <template v-if="key == 'sources'">
-                                  <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
-                                  <ul>
-                                    <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
-                                      {{v}}
-                                    </li>
-                                  </ul>
-                                </template>
-                                <template v-else>
-                                  <ul class="bio-list">
-                                    <li class="bio-details" v-if="key=='lcclasss'" v-for="v in activeContext.extra['lcclasss']">
-                                      <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
-                                      <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
-                                      <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
-                                    </li>
-                                    <li class="bio-details" v-if="key != 'lcclasss'">
-                                      <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
-                                      {{ activeContext.extra[key].join(" ; ") }}
-                                    </li>
-
-                                  </ul>
-                                </template>
-                              </template>
-                            </template>
-                          </template>
-                          <template v-else-if="group == 'administrative'">
-                            <div class="admin-fields">
-                              <br>
-                              <hr>
-                              <AccordionList  :open-multiple-items="true">
-                                <AccordionItem id="admin-fields" default-closed>
-                                  <template #summary>
-                                    <div>Extra Details</div>
-                                  </template>
-                                  <template v-for="key in panelDetailOrder[group]">
-                                    <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-
-                                            <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
-                                            <ul>
-                                              <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
-                                                <template v-if="v.startsWith('http')">
-                                                  <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
-                                                </template>
-                                                <template v-else-if="key == 'notes'">
-                                                  <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
-                                                </template>
-                                                <template v-else>
-                                                  {{v}}
-                                                </template>
-                                              </li>
-                                              <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ activeContext.extra[key] }}</li>
-                                            </ul>
-                                    </template>
-                                  </template>
-                                </AccordionItem>
-                              </AccordionList>
-                          </div>
-                          </template>
-                  </template>
+                          </AccordionItem>
+                        </AccordionList>
+                    </div>
               </template>
 
               <template v-else-if="activeContext !== null">
@@ -1602,18 +1603,18 @@
   color: red;
 }
 
-.bio-list {
+.details-list {
   columns: 3;
   break-inside: avoid;
 }
-.bio-list:has(.bio-details){
+.details-list:has(.details-details){
   margin-top: 10px;
   padding-left: 0px;
   columns: 2;
   break-inside: avoid;
 }
 
-.bio-details {
+.details-details {
   list-style: none;
 }
 
