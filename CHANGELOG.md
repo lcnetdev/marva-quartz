@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 - How `indirect geo` can be entered to account for more usecases
 
 ### Add
-- Local Marva validation to check that `type` is set
+- [BFP-391] Local Marva validation to check that `type` is set
 
 
 ## [1.2.22] - 2025-05-02
