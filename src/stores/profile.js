@@ -5647,7 +5647,6 @@ export const useProfileStore = defineStore('profile', {
      * @requires activeProfile - Profile must be loaded with valid RT structure
      */
     nacoStubReturnInstanceURI(){
-      console.info("active: ", this.activeProfile)
       for (let rt of this.activeProfile.rtOrder){
         if (rt.indexOf(":Instance")>-1){
           if (this.activeProfile.rt[rt].URI){
