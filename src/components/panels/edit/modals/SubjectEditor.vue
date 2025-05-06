@@ -147,7 +147,7 @@
 
                     <!-- LCSH -->
                     <div v-if="searchResults && searchResults.subjectsComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()>=3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
-                      <span class="subject-results-heading">Complex</span>
+                      <span class="subject-results-heading">{{searchMode=="HUBS" ? 'Keyword' : 'Complex' }}</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections">
@@ -162,7 +162,7 @@
                     </div>
 
                     <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
-                      <span class="subject-results-heading">Simple</span>
+                      <span class="subject-results-heading">{{searchMode=="HUBS" ? 'Left Anchored' : 'Simple' }}</span>
                       <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal), unusable: !checkUsable(subject)}]" >
                         {{ subject.suggestLabel }}
                         <span  v-if="subject.literal">
@@ -882,6 +882,7 @@ li::before {
 .details-list {
   columns: 3;
   break-inside: avoid;
+  padding-left: 20px;
 }
 .details-list:has(.details-details){
   margin-top: 10px;
@@ -892,6 +893,10 @@ li::before {
 
 .details-details {
   list-style: none;
+  break-inside: avoid;
+}
+
+.details-list > li {
   break-inside: avoid;
 }
 

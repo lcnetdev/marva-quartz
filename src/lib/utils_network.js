@@ -2707,7 +2707,7 @@ const utilsNetwork = {
       if (mode == "HUBS"){
         // over write the subjects if we are doing a work search
         resultsSubjectsSimple = resultsHubsAnchored
-        resultsSubjectsComplex = [] //resultsHubsKeyword
+        resultsSubjectsComplex = resultsHubsKeyword
       }
 
       //determine position of search and set results accordingly
