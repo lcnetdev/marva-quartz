@@ -147,7 +147,7 @@
 
                     <!-- LCSH -->
                     <div v-if="searchResults && searchResults.subjectsComplex.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()>=3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
-                      <span class="subject-results-heading">Complex</span>
+                      <span class="subject-results-heading">{{searchMode=="HUBS" ? 'Keyword' : 'Complex' }}</span>
                       <div v-for="(subjectC,idx) in searchResults.subjectsComplex" @click="selectContext(idx)" @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri" :class="['fake-option', {'unselected':(pickPostion != idx), 'selected':(pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked)}]">
                         {{subjectC.suggestLabel}}<span></span>
                         <span v-if="subjectC.collections">
@@ -162,7 +162,7 @@
                     </div>
 
                     <div v-if="searchResults && searchResults.subjectsSimple.length>0" class="subject-section" :class="{'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults()==3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults()==2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults()==1&&preferenceStore.returnValue('--b-edit-complex-scroll-independently')}">
-                      <span class="subject-results-heading">Simple</span>
+                      <span class="subject-results-heading">{{searchMode=="HUBS" ? 'Left Anchored' : 'Simple' }}</span>
                       <div v-for="(subject,idx) in searchResults.subjectsSimple" @click="selectContext(searchResults.subjectsComplex.length + idx)" @mouseover="loadContext(searchResults.subjectsComplex.length + idx)" :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri" :class="['fake-option', {'unselected':(pickPostion != searchResults.subjectsComplex.length + idx ), 'selected':(pickPostion == searchResults.subjectsComplex.length + idx ), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option':(subject.literal), unusable: !checkUsable(subject)}]" >
                         {{ subject.suggestLabel }}
                         <span  v-if="subject.literal">
@@ -882,6 +882,7 @@ li::before {
 .details-list {
   columns: 3;
   break-inside: avoid;
+  padding-left: 20px;
 }
 .details-list:has(.details-details){
   margin-top: 10px;
@@ -892,6 +893,10 @@ li::before {
 
 .details-details {
   list-style: none;
+  break-inside: avoid;
+}
+
+.details-list > li {
   break-inside: avoid;
 }
 
@@ -1410,6 +1415,11 @@ methods: {
         type = "bf:Hub"
       }
 
+      // console.info("\ntype: ", type)
+      // console.info("this.typeLookup: ", this.typeLookup)
+      // console.info("id: ", id)
+      // console.info("offset: ", offset)
+
       this.components.push({
         label: ss,
         uri: uri,
@@ -1528,6 +1538,25 @@ methods: {
      */
 
     if (mode == "GEO"){
+      // if the User selected the first part of an indirect geo from the LCSH/LCNAF
+      // search and then swaps to GEO to finish, replace the `--` between the two
+      // to ease the process
+      // if there is a component that is != literal and uri == null, get the index
+      let potentialGeoIdx = this.components.findIndex((i) => i.literal == null && i.uri == null)
+      let prevComponent
+      if (potentialGeoIdx > 1){
+        prevComponent = JSON.parse(JSON.stringify(this.components.at(potentialGeoIdx - 1 )))
+        // if the previous component is geographic, swap the -- for not `‑‑` between
+        if (prevComponent.type == 'madsrdf:Geographic'){
+          let posEnd = this.subjectString.indexOf(this.components[potentialGeoIdx].label)
+          let posStart = posEnd - 2
+          this.subjectString = this.subjectString.slice(0, posStart) + '‑‑' + this.subjectString.slice(posEnd)
+          this.subjectStringChanged()
+          this.navStringClick({})
+        }
+      }
+
+
       /**
        * When dealing with a switch to GEO, we need to combine the "loose" components
        * into 1 so the search will work.
@@ -2513,8 +2542,9 @@ methods: {
 
         // if the last component has a URI then it was just selected
         // so we are not in the middle of a indirect heading, we are about to type it
-        // so let them put in normal --
-        if (lastC.uri && this.activeComponentIndex == this.components.length-1){
+        // so let them put in normal --. Unless the last piece was geographic. Then they
+        // may have selected the first part from LCSH/LCNAF
+        if (lastC.uri && this.activeComponentIndex == this.components.length-1 && lastC.type != 'madsrdf:Geographic'){
           return true
         }
 
@@ -2874,7 +2904,7 @@ methods: {
       window.setTimeout(()=>{
         for (let x of this.components){
           if (this.localContextCache[x.uri]){
-            if (this.activeComponent.type){
+            if (this.activeComponent.type || this.localContextCache[x.uri].type){
               // don't do anything
             } else {
               if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')){
