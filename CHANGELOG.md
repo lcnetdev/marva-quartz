@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.23] - 2025-05-06
+### Update
+- How `indirect geo` can be entered to account for more usecases
+
+
 ## [1.2.22] - 2025-05-02
 ### Update
 - Hub URIs from hub creation
