@@ -174,10 +174,15 @@
               <span v-if="!Object.keys(validationResults).includes('error')" >
                 <span v-if="status === 'validated'">Validation found the following:</span>
                   <ul v-for="({level, message}) in validationMessage">
-                    <li :class="['level-' + level, {'action-jump': message[1]}]" @click="jumpToComponent(message)">
-                      <span v-if="message[1]" :class="['material-icons']">move_down</span>
-                      {{ level }}: {{ message[0] }}
-                    </li>
+                    <template v-if="level == 'SUCCESS' && validationMessage.length > 1">
+                      <!-- Don't show the success message when there's a message from Marvas -->
+                    </template>
+                    <template v-else>
+                      <li :class="['level-' + level, {'action-jump': message[1]}]" @click="jumpToComponent(message)">
+                        <span v-if="message[1]" :class="['material-icons']">move_down</span>
+                        {{ level }}: {{ message[0] }}
+                      </li>
+                    </template>
                   </ul>
               </span>
               <span v-else>

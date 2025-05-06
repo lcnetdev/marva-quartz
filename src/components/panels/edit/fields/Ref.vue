@@ -192,7 +192,9 @@ export default {
 
       // if this is true, a default value is being "used" because the incoming value
       // doesn't match an available option
-      if (userValue['@type'] && this.rtLookup[useId].resourceURI != userValue['@type']){
+      // ignore for subjects
+      if (userValue['@type'] && !userValue['@type'].includes("Subject") && this.rtLookup[useId].resourceURI != userValue['@type']){
+
         let elementId = this.structure['@guid'] + "-select"
         this.$nextTick(() => {
           window.setTimeout(()=> {
@@ -200,7 +202,7 @@ export default {
             target.className += " validation-error no-type"
           },10);
         });
-      } else if (userValue['@type'] && this.rtLookup[useId].resourceURI == userValue['@type']){
+      } else if (userValue['@type'] && !userValue['@type'].includes("Subject") && this.rtLookup[useId].resourceURI == userValue['@type']){
         // remove the class
         this.$nextTick(() => {
           window.setTimeout(()=> {
