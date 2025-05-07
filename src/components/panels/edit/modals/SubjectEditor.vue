@@ -260,6 +260,15 @@
                             </li>
                           </ul>
                         </template>
+                        <template v-if="key == 'notes' && !contextData.collections.includes('http://id.loc.gov/authorities/names/collection_LCNAF')">
+                          {{ contextData.collections }}
+                          <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                          <ul>
+                            <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
+                              {{v}}
+                            </li>
+                          </ul>
+                        </template>
                       </div>
                     </template>
 
@@ -1056,10 +1065,10 @@ data: function() {
     },
 
     panelDetailOrder: [
-            "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces", "gacs",
+            "notes", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces", "gacs",
             "locales", "activityfields","occupations","languages", "sees",
             "sources", "lcclasss", "identifiers","broaders",
-            "notes", "collections", "subjects", "marcKeys"
+            "collections", "subjects", "marcKeys"
         ],
     selectedSortOrder: ""
 

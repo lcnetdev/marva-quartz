@@ -505,6 +505,7 @@ export const useConfigStore = defineStore('config', {
 				{
 					'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience.html"},
 					'LCDGT':{"url": "https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+          'LCSH':{"url": "https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 				}
 			]
 		},
