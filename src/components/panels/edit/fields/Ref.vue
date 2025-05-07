@@ -111,8 +111,6 @@ export default {
         userValue = this.structure.userValue[this.structure.propertyURI][0]
       }
 
-      //TODO: for RBMS, where the URI is the same as Genre/Form, it'll always use G/F. Get it to not do this
-
       // do we have user data and a possible @type to use
       if (userValue['@type']){
         // loop thrugh all the refs and see if there is a URI that matches it better
