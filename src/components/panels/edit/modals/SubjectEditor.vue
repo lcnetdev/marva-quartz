@@ -261,7 +261,6 @@
                           </ul>
                         </template>
                         <template v-if="key == 'notes' && !contextData.collections.includes('http://id.loc.gov/authorities/names/collection_LCNAF')">
-                          {{ contextData.collections }}
                           <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                           <ul>
                             <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">

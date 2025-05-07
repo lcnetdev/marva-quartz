@@ -86,23 +86,11 @@
 
         },
         panelDetailOrder: [
-            "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",  "locales",
+            "notes","nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "gacs", "sources", "lcclasss", "identifiers","broaders",
-            "notes", "collections", "subjects", "marcKeys"
+            "collections", "subjects", "marcKeys"
         ],
-        // panelDetailOrder: {
-        //   primary: [
-        //     "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",  "locales",
-        //     "activityfields","occupations","languages", "sees"
-        //   ],
-        //   secondary: [
-        //     "gacs", "sources", "lcclasss", "identifiers","broaders",
-        //   ],
-        //   administrative: [
-        //     "notes", "collections", "subjects", "marcKeys"
-        //   ]
-        // },
       }
     },
     computed: {
@@ -1171,6 +1159,14 @@
                                 <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
                                 <button class="material-icons see-search" @click="searchValueLocal = v">search</button>
                               </div>
+                            </li>
+                          </ul>
+                        </template>
+                        <template v-else-if="key == 'notes' && !activeContext.extra.rdftypes.includes('Name')">
+                          <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                          <ul>
+                            <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
+                              <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
                             </li>
                           </ul>
                         </template>
