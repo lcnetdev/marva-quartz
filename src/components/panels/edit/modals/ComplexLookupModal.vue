@@ -872,10 +872,11 @@
           return false
         }
 
-        if (uri.includes('/resources/hubs/') || uri.includes('/resources/works/') || uri.includes('/resources/instances/') || uri.includes('/resources/items/')){
-          uri = uri.replace('https://id.loc.gov/', returnUrls.bfdb )
-          uri = uri.replace('http://id.loc.gov/', returnUrls.bfdb )
-        }
+        // Let's try 8080 for a bit.
+        //if (uri.includes('/resources/hubs/') || uri.includes('/resources/works/') || uri.includes('/resources/instances/') || uri.includes('/resources/items/')){
+        //  uri = uri.replace('https://id.loc.gov/', returnUrls.bfdb )
+        //  uri = uri.replace('http://id.loc.gov/', returnUrls.bfdb )
+        //}
 
         // use internal links for prodcution
         if (returnUrls.dev || returnUrls.publicEndpoints){
@@ -888,7 +889,6 @@
           uri = uri.replace('https://id.loc.gov', 'https://preprod-8080.id.loc.gov')
           uri = uri.replace('http://id.loc.gov', 'https://preprod-8080.id.loc.gov')
         }
-
 
         return uri
       },
@@ -1138,7 +1138,7 @@
                     <div>
                         <div class="modal-context-data-title">{{activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]}}</div>
                         <div v-if="activeContext.depreciated" style="background: pink;">
-                          DEPRECIATED AUTHORITY
+                          DEPRECATED AUTHORITY
                         </div>
                         <div v-if="activeContext.extra.collections && activeContext.extra.collections.includes('http://id.loc.gov/authorities/names/collection_NamesUndifferentiated')" style="background: pink;">
                           THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN <a href="https://www.loc.gov/aba/pcc/rda/PCC%20RDA%20guidelines/Z01%20008%2032%202014rfeb.pdf" target="_blank">DCM Z1 008/32</a>.
