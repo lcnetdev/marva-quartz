@@ -304,14 +304,11 @@ export const useProfileStore = defineStore('profile', {
                     }
                 }
               }
-              console.info("adding default: ", key, dKey, groups)
               results.push({type: "default", groups:groups, groupsOrder:groupsOrder, profileId: dKey, label: key.split(":").slice(-1)[0]})
             }
           }
         }
       }
-
-      console.info("results: ", results)
 
       // now go through and see if there are the the same group being used in multiple profiles if so
       // that means they have cross profile components (2 fields in Work 1 in instance for exmaple)
@@ -1628,16 +1625,7 @@ export const useProfileStore = defineStore('profile', {
               }
             }
             parent.push(toadd)
-
-
-
-
-
-
           }else{
-
-
-
             console.log("lastProperty",lastProperty)
             console.log('propertyPath',propertyPath)
 
@@ -5873,7 +5861,6 @@ export const useProfileStore = defineStore('profile', {
      *
      */
     addFromComponentLibrary(id){
-        console.info("adding: ", id)
       let defaultLibrary = null
       if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
         defaultLibrary = defaultComponents.DefaultComponentLibrary.profiles
@@ -5881,14 +5868,12 @@ export const useProfileStore = defineStore('profile', {
       }
       for (let key in this.componentLibrary.profiles){
         for (let group of this.componentLibrary.profiles[key].groups){
-            console.info("group.id: ", group.id)
           if (group.id == id){
 
             // we are adding a sigle one here so groups are individual (group of 1) in this case
             console.log("Adding thisone",group)
             let component = JSON.parse(JSON.stringify(group.structure))
 
-            console.info("component: ", component)
             // For item's the parent ID won't match anything in the RTs because we've stripped it down
             if (component.parentId.includes(":Item")){
                 for (let rt in this.activeProfile.rt){

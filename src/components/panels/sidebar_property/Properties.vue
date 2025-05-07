@@ -135,7 +135,6 @@
           }
         }
 
-        console.info("clId: ", clId)
         let newId = this.profileStore.addFromComponentLibrary(clId)
         this.activeComponent = this.activeProfile.rt[newId[0]].pt[newId[1]]
 
