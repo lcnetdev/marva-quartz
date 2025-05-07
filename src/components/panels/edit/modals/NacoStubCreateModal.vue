@@ -78,6 +78,9 @@
         statementOfResponsibility: null,
         statementOfResponsibilityOptions: [],
 
+        buildHyphenated4xx: false,
+        hyphenated4xx: null,
+
         zero46: null,
 
         tmpXML:false,
@@ -88,6 +91,7 @@
 
         showPreview: false,
 
+        extraMarcStatements: [],
 
         add667: false,
 
@@ -165,8 +169,12 @@
           if (this.mainTitleNote.trim().length > 0){
             note = this.mainTitleNote
           }
+          let additonalFields = []
+          if (this.hyphenated4xx && this.buildHyphenated4xx){
+           additonalFields.push(this.hyphenated4xx)
+          }
 
-          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667)
+          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields)
 
           this.MARCXml = results.xml
           this.MARCText = results.text
@@ -406,6 +414,32 @@
                if (dollarKey.a.split(',')[0]){
                 let hyphenated = dollarKey.a.split(',')[0].split('-')
                 console.log(hyphenated)
+                if (hyphenated.length == 2){
+                  let newDollarA = `${hyphenated[1]}, ${dollarKey.a.split(',')[1].trim()} ${hyphenated[0]}-`
+                  let hyphenated4xx = {}
+                  for (let partKey of Object.keys(dollarKey)){
+                    hyphenated4xx[partKey] = dollarKey[partKey]
+                  }
+                  hyphenated4xx.a = newDollarA          
+                  
+                  // turn it into a 4xx
+                  hyphenated4xx.fieldTag = hyphenated4xx.fieldTag.split('');
+                  hyphenated4xx.fieldTag[0] = '4';
+                  hyphenated4xx.fieldTag = hyphenated4xx.fieldTag.join('');
+                  let subfields = ""
+                  for (let key in hyphenated4xx){
+                    if (key.length==1){
+                      subfields = subfields + '$'+key+' '+hyphenated4xx[key] + ' '
+                    }
+                  }
+                  hyphenated4xx.preview = `${hyphenated4xx.fieldTag} ${hyphenated4xx.indicators.replace(/\s/g,'#')} ${subfields}`
+                  console.log("hyphenated4xx",hyphenated4xx)
+                  this.hyphenated4xx = hyphenated4xx
+                  this.buildHyphenated4xx = true
+                } 
+                
+
+
                }
                
 
@@ -1035,10 +1069,16 @@
       if (this.lastComplexLookupString.trim() != ''){
         this.oneXX = '1XX##$a'+this.lastComplexLookupString
         this.checkOneXX()
-
       }
 
 
+      this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
+
+      if (this.populatedValue && this.populatedValue.marcKey){        
+        this.oneXX = this.populatedValue.marcKey
+        this.checkOneXX()
+      }
+      
       let current = window.localStorage.getItem('marva-scriptShifterOptions')
 
       if (current){
@@ -1113,7 +1153,15 @@
                 <div style="flex-grow: 1; position: relative;">
                   <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
                   <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-">
+                  <div v-if="populatedValue && populatedValue.marcKey">
+                    (This value was found in the uncontrolled value of this component)
+                  </div>
                 </div>
+              </div>
+              <div v-if="hyphenated4xx" style="margin-bottom: 0.75em;">
+                <input type="checkbox" id="buildHyphenated4xx" name="buildHyphenated4xx" v-model="buildHyphenated4xx" style="margin-right: 1em;"/>
+                <label for="buildHyphenated4xx" style="vertical-align: super;">Add Hyphenated 4XX: <span style="background-color: whitesmoke; font-family: 'Courier New', Courier, monospace;">{{ hyphenated4xx.preview }}</span></label> 
+
               </div>
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1;">
@@ -1287,7 +1335,7 @@
                   <template v-if="mainTitleDate">
                         <div>
                           <span class="material-icons unique-icon">check</span>
-                          <span class="not-unique-text">670 $a Date: Found</span>
+                          <span class="not-unique-text">670 $a Date: <input v-model="mainTitleDate"/></span>
                         </div>
                   </template>
                   <template v-else>
@@ -1328,7 +1376,7 @@
                   </div>
 
                   <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
-                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}</div>
                   </template>
                   <template v-else>
                     <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">Missing 670 Date Field! Can't build 670</div>
@@ -1364,6 +1412,13 @@
             </template>
 
             <hr>
+
+            <div v-if="populatedValue && populatedValue.marcKey && !populatedValue.URI" style="text-align: center;">
+                    Adding this NAR will replace the uncontrolled value in this component.
+            </div>
+            <div v-if="populatedValue && populatedValue.marcKey && populatedValue.URI" style="text-align: center;">
+                    WARNING: Adding this NAR will overwrite the controlled value already in this component.
+            </div>
 
 
             <div style="display: flex; padding: 1.5em;" v-if="postStatus=='unposted' && showPreview == false">
