@@ -335,7 +335,11 @@ export default {
         this.manualOverride = null
       }
 
-      this.profileStore.changeRefTemplate(this.guid, this.propertyPath, nextRef, thisRef)
+      try{
+        this.profileStore.changeRefTemplate(this.guid, this.propertyPath, nextRef, thisRef)
+      } catch {
+        console.warn("Couldn't change the template. nextRef: ", nextRef)
+      }
     }
 
 
