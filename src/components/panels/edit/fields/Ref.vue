@@ -198,8 +198,17 @@ export default {
         let elementId = this.structure['@guid'] + "-select"
         this.$nextTick(() => {
           window.setTimeout(()=> {
-            let target = document.getElementById(elementId.trim() )
+            let target = document.getElementById(elementId.trim())
             target.className += " validation-error no-type"
+
+            for (let child of target.childNodes){
+              if (child.value && child.value == 'empty'){
+                child.selected = true
+              } else {
+                child.selected = false
+              }
+            }
+
           },10);
         });
       } else if (userValue['@type'] && !userValue['@type'].includes("Subject") && this.rtLookup[useId].resourceURI == userValue['@type']){
@@ -253,10 +262,15 @@ export default {
     },
 
     allRtTemplate(){
-      let templates = []
+      // Provide a default
+      let templates = [{
+        id: 'empty',
+        resourceLabel: 'Select Type'
+      }]
       for (let id of this.structure.valueConstraint.valueTemplateRefs){
         templates.push(JSON.parse(JSON.stringify(this.rtLookup[id])))
       }
+
       return templates
     },
 
