@@ -265,7 +265,7 @@ export const useProfileStore = defineStore('profile', {
                 key = key.slice(0, idx)
             }
         }
-        
+
         // ther are components saved for this profile
         if (state.componentLibrary.profiles[key]){
           let groups = {}
@@ -310,7 +310,7 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-      
+
       console.info("results: ", results)
 
       // now go through and see if there are the the same group being used in multiple profiles if so
@@ -4572,6 +4572,16 @@ export const useProfileStore = defineStore('profile', {
         // the checklabel will be the URI and the label of the component, beceause there are some components that use the same property URI
         let checkLabel = pt.propertyLabel + pt.propertyURI
 
+        //adjust for items
+        if (pt.parentId.includes(":Item")){
+          for (let rt in this.activeProfile.rt){
+              if (rt.includes(pt.parentId)){
+                  pt.parentId = rt
+                  break
+              }
+          }
+        }
+
         // first see how many these properties exist in the resource
         let propertyCount = 0
         for (let k in this.activeProfile.rt[pt.parentId].pt){
@@ -5877,7 +5887,7 @@ export const useProfileStore = defineStore('profile', {
             // we are adding a sigle one here so groups are individual (group of 1) in this case
             console.log("Adding thisone",group)
             let component = JSON.parse(JSON.stringify(group.structure))
-            
+
             console.info("component: ", component)
             // For item's the parent ID won't match anything in the RTs because we've stripped it down
             if (component.parentId.includes(":Item")){
