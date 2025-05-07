@@ -1554,7 +1554,7 @@
                 "groups": [
                 {
                         "id": "8QFr7yajoxkYotKCSpb4Gr",
-                        "groupId": "Biography",
+                        "groupId": "Includes Biographical Data",
                         "position": 0,
                         "structure": {
                             "mandatory": "false",
@@ -1631,7 +1631,7 @@
                     },
                     {
                         "id": "a1zKbUiMyckwrRraeYG9Gt",
-                        "groupId": "Biography",
+                        "groupId": "Includes Biographical Data",
                         "position": 1,
                         "structure": {
                             "mandatory": "false",
