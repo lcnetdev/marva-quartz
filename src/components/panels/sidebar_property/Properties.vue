@@ -7,7 +7,7 @@
 
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
-import { isReadonly } from 'vue';
+  import { isReadonly } from 'vue';
 
   export default {
     data() {

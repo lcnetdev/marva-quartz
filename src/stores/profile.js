@@ -254,6 +254,18 @@ export const useProfileStore = defineStore('profile', {
       // }
       let results = []
       for (let key in state.activeProfile.rt){
+        // Items have something added to the end of the key
+        if (key && key.includes(":Item")){
+            if (key.includes("-") || key.includes("_")){
+                let idx
+                idx = key.indexOf("_")
+                if (idx < 0){
+                    idx = key.indexOf("-")
+                }
+                key = key.slice(0, idx)
+            }
+        }
+
         // ther are components saved for this profile
         if (state.componentLibrary.profiles[key]){
           let groups = {}
@@ -1613,16 +1625,7 @@ export const useProfileStore = defineStore('profile', {
               }
             }
             parent.push(toadd)
-
-
-
-
-
-
           }else{
-
-
-
             console.log("lastProperty",lastProperty)
             console.log('propertyPath',propertyPath)
 
@@ -4557,6 +4560,16 @@ export const useProfileStore = defineStore('profile', {
         // the checklabel will be the URI and the label of the component, beceause there are some components that use the same property URI
         let checkLabel = pt.propertyLabel + pt.propertyURI
 
+        //adjust for items
+        if (pt.parentId.includes(":Item")){
+          for (let rt in this.activeProfile.rt){
+              if (rt.includes(pt.parentId)){
+                  pt.parentId = rt
+                  break
+              }
+          }
+        }
+
         // first see how many these properties exist in the resource
         let propertyCount = 0
         for (let k in this.activeProfile.rt[pt.parentId].pt){
@@ -5861,6 +5874,15 @@ export const useProfileStore = defineStore('profile', {
             console.log("Adding thisone",group)
             let component = JSON.parse(JSON.stringify(group.structure))
 
+            // For item's the parent ID won't match anything in the RTs because we've stripped it down
+            if (component.parentId.includes(":Item")){
+                for (let rt in this.activeProfile.rt){
+                    if (rt.includes(component.parentId)){
+                        component.parentId = rt
+                        break
+                    }
+                }
+            }
 
             // see if we can find its counter part in the acutal profile
             if (this.activeProfile.rt[component.parentId]){
