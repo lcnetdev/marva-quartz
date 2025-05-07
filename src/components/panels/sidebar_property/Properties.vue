@@ -7,7 +7,7 @@
 
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
-import { isReadonly } from 'vue';
+  import { isReadonly } from 'vue';
 
   export default {
     data() {
@@ -134,7 +134,8 @@ import { isReadonly } from 'vue';
             }
           }
         }
-
+        
+        console.info("clId: ", clId)
         let newId = this.profileStore.addFromComponentLibrary(clId)
         this.activeComponent = this.activeProfile.rt[newId[0]].pt[newId[1]]
 

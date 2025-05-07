@@ -254,6 +254,18 @@ export const useProfileStore = defineStore('profile', {
       // }
       let results = []
       for (let key in state.activeProfile.rt){
+        // Items have something added to the end of the key
+        if (key && key.includes(":Item")){
+            if (key.includes("-") || key.includes("_")){
+                let idx
+                idx = key.indexOf("_")
+                if (idx < 0){
+                    idx = key.indexOf("-")
+                }
+                key = key.slice(0, idx)
+            }
+        }
+        
         // ther are components saved for this profile
         if (state.componentLibrary.profiles[key]){
           let groups = {}
@@ -292,11 +304,14 @@ export const useProfileStore = defineStore('profile', {
                     }
                 }
               }
+              console.info("adding default: ", key, dKey, groups)
               results.push({type: "default", groups:groups, groupsOrder:groupsOrder, profileId: dKey, label: key.split(":").slice(-1)[0]})
             }
           }
         }
       }
+      
+      console.info("results: ", results)
 
       // now go through and see if there are the the same group being used in multiple profiles if so
       // that means they have cross profile components (2 fields in Work 1 in instance for exmaple)
@@ -5848,6 +5863,7 @@ export const useProfileStore = defineStore('profile', {
      *
      */
     addFromComponentLibrary(id){
+        console.info("adding: ", id)
       let defaultLibrary = null
       if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
         defaultLibrary = defaultComponents.DefaultComponentLibrary.profiles
@@ -5855,12 +5871,23 @@ export const useProfileStore = defineStore('profile', {
       }
       for (let key in this.componentLibrary.profiles){
         for (let group of this.componentLibrary.profiles[key].groups){
+            console.info("group.id: ", group.id)
           if (group.id == id){
 
             // we are adding a sigle one here so groups are individual (group of 1) in this case
             console.log("Adding thisone",group)
             let component = JSON.parse(JSON.stringify(group.structure))
-
+            
+            console.info("component: ", component)
+            // For item's the parent ID won't match anything in the RTs because we've stripped it down
+            if (component.parentId.includes(":Item")){
+                for (let rt in this.activeProfile.rt){
+                    if (rt.includes(component.parentId)){
+                        component.parentId = rt
+                        break
+                    }
+                }
+            }
 
             // see if we can find its counter part in the acutal profile
             if (this.activeProfile.rt[component.parentId]){

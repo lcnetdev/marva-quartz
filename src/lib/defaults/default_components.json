@@ -2882,6 +2882,73 @@
                         "label": "Color ill, color maps (inst note)"
                     }
                 ]
+            },
+            "lc:RT:bf2:Monograph:Item:Default": {
+                "groups": [
+                    {
+                        "id": "wQgwsvs4eDmmsrRTxSR9tK",
+                        "groupId": null,
+                        "position": 0,
+                        "structure": {
+                            "propertyLabel": "Notes about the Item",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": ["lc:RT:bf2:NoteLc"],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Itemdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Item",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "e35fWefN5Pq21om9n4AC8S",
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "7jGvvD55Ls2gSAbF8NramR",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "LC copy has inscription from author on title page."
+                                            }
+                                        ],
+                                        "http://id.loc.gov/ontologies/bflc/applicableInstitution": [
+                                            {
+                                                "@guid": "4161P9VfFfr76vpu17vVNM",
+                                                "@id": "http://id.loc.gov/vocabulary/organizations/dlc",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "jfEKTsi8NU1bCZP76XZDYr",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congress",
+                                                        "http://id.loc.gov/ontologies/bibframe/code": "DLC"
+                                                    }
+                                                ],
+                                                "@type": "http://id.loc.gov/ontologies/bibframe/Agent"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": false,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Item",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_item",
+                            "hashCode": 1478354038,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Item|http://id.loc.gov/ontologies/bibframe/note",
+                            "hasData": true,
+                            "deepHierarchy": false,
+                            "xmlSource": "<bf:note xmlns:bf=\"http://id.loc.gov/ontologies/bibframe/\"><bf:Note><rdfs:label xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\">LC retains current editions only.</rdfs:label><bflc:applicableInstitution xmlns:bflc=\"http://id.loc.gov/ontologies/bflc/\"><bf:Agent xmlns:madsrdf=\"http://www.loc.gov/mads/rdf/v1#\" rdf:about=\"http://id.loc.gov/vocabulary/organizations/dlc\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><rdfs:label xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\">United States, Library of Congress</rdfs:label><bf:code rdf:datatype=\"http://id.loc.gov/datatypes/orgs/code\">DLC</bf:code><bf:code rdf:datatype=\"http://id.loc.gov/datatypes/orgs/normalized\">dlc</bf:code><bf:code rdf:datatype=\"http://id.loc.gov/datatypes/orgs/iso15511\">US-dlc</bf:code></bf:Agent></bflc:applicableInstitution></bf:Note></bf:note>",
+                            "xmlHash": 1857979767,
+                            "dataLoaded": false,
+                            "userModified": true
+                        },
+                        "label": "Inscribed by author"
+                    }
+                ]
             }
         }
     }
