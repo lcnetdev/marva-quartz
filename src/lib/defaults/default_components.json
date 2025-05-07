@@ -1552,6 +1552,143 @@
             },
             "lc:RT:bf2:Monograph:Instance:Default": {
                 "groups": [
+                {
+                        "id": "8QFr7yajoxkYotKCSpb4Gr",
+                        "groupId": "Biography",
+                        "position": 0,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": ["lc:RT:bf2:Form"],
+                                "useValuesFrom": [],
+                                "valueDataType": {
+                                    "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/GenreForm",
+                                    "dataTypeLabel": "",
+                                    "remark": ""
+                                },
+                                "defaults": [],
+                                "editable": "true",
+                                "repeatable": "true"
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                            "propertyLabel": "Genre/Form",
+                            "remark": "",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                                "http://id.loc.gov/ontologies/bibframe/genreForm": [
+                                    {
+                                        "@guid": "5ej9ndiFWauWxB7ZDVGvEL",
+                                        "@type": "http://www.loc.gov/mads/rdf/v1#GenreForm",
+                                        "@id": "http://id.loc.gov/authorities/genreForms/gf2014026049",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "dQU4ea91hJmA3dTq7nYZ2J",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Biographies"
+                                            }
+                                        ],
+                                        "http://www.loc.gov/mads/rdf/v1#code": [],
+                                        "http://id.loc.gov/ontologies/bflc/marcKey": [
+                                            {
+                                                "@guid": "tNwnRWiitpVSGoQ8wWvAfX",
+                                                "http://id.loc.gov/ontologies/bflc/marcKey": "155  $aBiographies"
+                                            }
+                                        ],
+                                        "http://id.loc.gov/ontologies/bibframe/source": [
+                                            {
+                                                "@guid": "mC25W44wtJMdTuhp1D65rT",
+                                                "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                                                "@id": "http://id.loc.gov/authorities/genreForms/collection_LCGFT_General",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "n3BCNfKELnbVHvfJmN3y2A",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress genre/form terms for library and archival materials"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": false,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                            "hashCode": -848088407,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "hasData": true,
+                            "deepHierarchy": false,
+                            "xmlSource": "<bf:genreForm xmlns:bf=\"http://id.loc.gov/ontologies/bibframe/\"><bf:GenreForm rdf:about=\"http://id.loc.gov/vocabulary/rbmscv/cv01651\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><rdfs:label xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\">Offprints</rdfs:label><bf:source><bf:Source rdf:about=\"http://id.loc.gov/vocabulary/genreFormSchemes/rbmscv\"><rdfs:label xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\">RBMS Controlled Vocabularies</rdfs:label></bf:Source></bf:source></bf:GenreForm></bf:genreForm>",
+                            "xmlHash": 149377297,
+                            "dataLoaded": false,
+                            "userModified": true
+                        },
+                        "label": "Biography (g/f)"
+                    },
+                    {
+                        "id": "a1zKbUiMyckwrRraeYG9Gt",
+                        "groupId": "Biography",
+                        "position": 1,
+                        "structure": {
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "resourceTemplates": [],
+                            "valueConstraint": {
+                                "valueTemplateRefs": ["lc:RT:bf2:Note"],
+                                "useValuesFrom": [],
+                                "valueDataType": {},
+                                "defaults": []
+                            },
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "propertyLabel": "Notes about the Work",
+                            "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                            "parentId": "lc:RT:bf2:Monograph:Work",
+                            "userValue": {
+                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
+                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                    {
+                                        "@guid": "qHweetp5E2YiysM9gJhCAi",
+                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                            {
+                                                "@guid": "scc3juGodNaqSwQoB5oEx2",
+                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource",
+                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/biogdata",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                    {
+                                                        "@guid": "8KV5WX591XGRs1REiq8qhg",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "biographical data "
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
+                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                            {
+                                                "@guid": "7nLQrj4brZo7K9bJAKw7kj",
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Includes biographical data"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "@guid": null,
+                            "canBeHidden": true,
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Work",
+                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_work",
+                            "hashCode": 1203075139,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/note",
+                            "dataLoaded": false,
+                            "missingProfile": [],
+                            "hasData": true,
+                            "userModified": true
+                        },
+                        "label": "Biography (work note)"
+                    },
                     {
                         "id": "iFsVEK43aufuCjXubh5jSa",
                         "groupId": null,
