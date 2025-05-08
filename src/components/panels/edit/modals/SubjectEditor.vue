@@ -260,6 +260,14 @@
                             </li>
                           </ul>
                         </template>
+                        <template v-if="key == 'notes' && (!contextData.collections.includes('http://id.loc.gov/authorities/names/collection_LCNAF') && !contextData.rdftypes.includes('Hub'))">
+                          <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                          <ul>
+                            <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
+                              {{v}}
+                            </li>
+                          </ul>
+                        </template>
                       </div>
                     </template>
 
@@ -287,8 +295,8 @@
                           </ul>
                         </template>
                         <template v-else>
-                          <template v-if="['lcclasss', 'broaders'].includes(key)">
-                            <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                          <template v-if="['lcclasss', 'broaders', 'identifiers'].includes(key)">
+                            <div class="modal-context-data-title" v-if="key != 'identifiers'">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                             <ul  class="details-list">
                               <template v-for="v in contextData[key]">
                                 <li class="modal-context-data-li" v-if="key=='lcclasss'">
@@ -300,12 +308,8 @@
                                   <button class="material-icons see-search" @click="newSearch(v)">search</button>
                                 </li>
                               </template>
-                            </ul>
-                          </template>
-                          <template v-else-if='["identifiers"].includes(key)'>
-                            <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
-                            <ul class="details-list">
-                              <li class="details-details modal-context-data-li">
+                              <li class="details-details" v-if="key == 'identifiers'">
+                                <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                                 {{ contextData[key].join(" ; ") }}
                               </li>
                             </ul>
@@ -1056,10 +1060,10 @@ data: function() {
     },
 
     panelDetailOrder: [
-            "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces", "gacs",
+            "notes", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces", "gacs",
             "locales", "activityfields","occupations","languages", "sees",
             "sources", "lcclasss", "identifiers","broaders",
-            "notes", "collections", "subjects", "marcKeys"
+            "collections", "subjects", "marcKeys"
         ],
     selectedSortOrder: ""
 
