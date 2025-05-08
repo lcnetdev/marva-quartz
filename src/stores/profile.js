@@ -1518,11 +1518,10 @@ export const useProfileStore = defineStore('profile', {
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
       // if there's a code in the label, take it out
-      if (URI){
-        const code = URI.split("/").at(-1)  // is this reliable?
-        if (label.match("(" + code + ")")){
-          label = label.replace("(" + code + ")", "")
-        }
+      if (!URI){ URI = '' }
+      const code = URI.split("/").at(-1)  // is this reliable?
+      if (label.match("(" + code + ")")){
+        label = label.replace("(" + code + ")", "")
       }
 
       let lastProperty = propertyPath.at(-1).propertyURI
@@ -1656,8 +1655,6 @@ export const useProfileStore = defineStore('profile', {
       }else{
         console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
-
-
     },
 
 
