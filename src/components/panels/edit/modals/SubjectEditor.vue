@@ -295,8 +295,8 @@
                           </ul>
                         </template>
                         <template v-else>
-                          <template v-if="['lcclasss', 'broaders'].includes(key)">
-                            <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
+                          <template v-if="['lcclasss', 'broaders', 'identifiers'].includes(key)">
+                            <div class="modal-context-data-title" v-if="key != 'identifiers'">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                             <ul  class="details-list">
                               <template v-for="v in contextData[key]">
                                 <li class="modal-context-data-li" v-if="key=='lcclasss'">
@@ -308,12 +308,8 @@
                                   <button class="material-icons see-search" @click="newSearch(v)">search</button>
                                 </li>
                               </template>
-                            </ul>
-                          </template>
-                          <template v-else-if='["identifiers"].includes(key)'>
-                            <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
-                            <ul class="details-list">
-                              <li class="details-details modal-context-data-li">
+                              <li class="details-details" v-if="key == 'identifiers'">
+                                <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                                 {{ contextData[key].join(" ; ") }}
                               </li>
                             </ul>
