@@ -1402,7 +1402,16 @@ methods: {
       let nonLatinLabel = null
       let nonLatinMarcKey = null
 
-      if (this.componetLookup[id+offset] && this.componetLookup[id+offset][ss]){
+      let tempSs = ss.replace("‑", "-")
+
+
+      if (this.componetLookup[id+offset] && this.componetLookup[id+offset][tempSs]){
+        literal = this.componetLookup[id+offset][tempSs].literal
+        uri = this.componetLookup[id+offset][tempSs].uri
+        marcKey = this.componetLookup[id+offset][tempSs].marcKey
+        nonLatinLabel = this.componetLookup[id+offset][tempSs].nonLatinTitle
+        nonLatinMarcKey = this.componetLookup[id+offset][tempSs].nonLatinMarcKey
+      } else if (this.componetLookup[id+offset] && this.componetLookup[id+offset][ss]){
         literal = this.componetLookup[id+offset][ss].literal
         uri = this.componetLookup[id+offset][ss].uri
         marcKey = this.componetLookup[id+offset][ss].marcKey
@@ -1417,11 +1426,6 @@ methods: {
       if (uri && uri.includes("/hubs/")){
         type = "bf:Hub"
       }
-
-      // console.info("\ntype: ", type)
-      // console.info("this.typeLookup: ", this.typeLookup)
-      // console.info("id: ", id)
-      // console.info("offset: ", offset)
 
       this.components.push({
         label: ss,
@@ -1817,6 +1821,10 @@ methods: {
 
     if (complexSub.length < 2){
       complexSub.push('')
+    }
+
+    if (searchStringFull.includes("---")){
+      searchStringFull = searchStringFull.replace("---", "‑--")
     }
 
     that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
@@ -2846,7 +2854,7 @@ methods: {
       // quickly, it will end up searcing on the last letter to be deleted
       this.searchApis("", "", this)
     }
-    if (!this.subjectString.endsWith("-")){
+    if (!this.subjectString.endsWith("--")){
       this.buildComponents(this.subjectString)
     }
 
@@ -3573,9 +3581,13 @@ updated: function() {
   if (!searchValue){ return }
   searchValue = searchValue.replace("—", "--")
 
+  if (searchValue.includes("---")){
+    searchValue = searchValue.replace("---", "‑--")
+  }
+
   //When there is existing data, we need to make sure that the number of components matches
   // the number subjects in the searchValue
-  if (searchValue && this.components.length != searchValue.split("--").length && !searchValue.endsWith('-')){
+  if (searchValue && this.components.length != searchValue.split("--").length && !searchValue.endsWith('--')){
     this.buildLookupComponents(incomingSubjects)
     this.buildComponents(searchValue)
 
