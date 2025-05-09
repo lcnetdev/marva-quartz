@@ -191,9 +191,7 @@ export default {
       // if this is true, a default value is being "used" because the incoming value
       // doesn't match an available option
       // ignore for subjects
-      if (userValue['@type'] && (!userValue['@type'].includes("Subject") && !userValue['@type'].includes("Hub")) && this.rtLookup[useId].resourceURI != userValue['@type']){
-        console.info("checking type")
-        console.info("type: ", userValue['@type'])
+      if (userValue['@type'] && !this.checkType(userValue['@type']) && this.rtLookup[useId].resourceURI != userValue['@type']){
         let elementId = this.structure['@guid'] + "-select"
         this.$nextTick(() => {
           window.setTimeout(()=> {
@@ -210,7 +208,7 @@ export default {
 
           },10);
         });
-      } else if (userValue['@type'] && (!userValue['@type'].includes("Subject") && !userValue['@type'].includes("Hub")) && this.rtLookup[useId].resourceURI == userValue['@type']){
+      } else if (userValue['@type'] && !this.checkType(userValue['@type']) && this.rtLookup[useId].resourceURI == userValue['@type']){
         // remove the class
         this.$nextTick(() => {
           window.setTimeout(()=> {
@@ -320,6 +318,10 @@ export default {
   created: function () {
   },
   methods: {
+
+    checkType(type){
+      return type.includes("Subject") || type.includes("Hub") || type.includes("Topic")
+    },
 
     templateChange(event){
       let nextRef = this.allRtTemplate.filter((v)=>{ return (v.id === event.target.value) })[0]

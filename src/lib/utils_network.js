@@ -2391,10 +2391,6 @@ const utilsNetwork = {
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
       }
 
-      console.info("subjectUrlSimpleSubdivison: ", subjectUrlSimpleSubdivison)
-      console.info("namesUrlSubdivision: ", namesUrlSubdivision)
-      console.info("namesGeoUrl: ", namesGeoUrl)
-
       searchVal = decodeURIComponent(searchVal)
       complexVal = decodeURIComponent(complexVal)
 
@@ -2754,9 +2750,6 @@ const utilsNetwork = {
 
       let complexHeadings = resultsSubjectsComplex.concat(resultsSubjectsComplexSubdivision1).concat(resultsSubjectsComplexSubdivision2).concat(resultsSubjectsComplexSubdivision3)
 
-      console.info("resultsNamesGeo: ", resultsNamesGeo)
-      console.info("resultsNamesSubdivision: ", resultsNamesSubdivision)
-
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
@@ -2766,8 +2759,6 @@ const utilsNetwork = {
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
         'exact': exact
       }
-
-      console.info("results: ", results)
 
       this.subjectSearchActive = false
       return results

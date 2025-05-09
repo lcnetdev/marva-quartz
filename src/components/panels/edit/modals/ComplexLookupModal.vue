@@ -82,14 +82,15 @@
           "contributors": "Contributors",
           "identifiers": "Identifiers",
           "subjects": "Subjects",
-          "sees": "See Also"
+          "sees": "See Also",
+          "genres": "Genre/Form",
 
         },
         panelDetailOrder: [
             "notes","nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "gacs", "sources", "lcclasss", "identifiers","broaders",
-            "collections", "subjects", "marcKeys"
+            "collections", "genres", "subjects", "marcKeys", "rdftypes"
         ],
       }
     },
@@ -1147,7 +1148,7 @@
                     <!-- Labels & Relationships -->
                     <template v-for="key in panelDetailOrder">
                       <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees'].includes(key)">
+                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                           <ul class="details-list">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
@@ -1162,7 +1163,7 @@
                             </li>
                           </ul>
                         </template>
-                        <template v-else-if="key == 'notes' && !activeContext.extra.rdftypes.includes('Name')">
+                        <template v-else-if="key == 'notes' && !activeContext.extra.rdftypes.includes('Name') && !activeContext.extra.rdftypes.includes('Work')">
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                           <ul>
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
@@ -1176,7 +1177,7 @@
                     <!-- Primary -->
                     <ul class="details-list">
                       <template v-for="key in panelDetailOrder">
-                        <template v-if="['birthdates', 'deathdates', 'birthplaces','locales','activityfields','occupations', 'languages'].includes(key) && activeContext.extra[key] && activeContext.extra[key].length>0">
+                        <template v-if="['birthdates', 'deathdates', 'birthplaces','locales','activityfields','occupations', 'genres', 'languages'].includes(key) && activeContext.extra[key] && activeContext.extra[key].length>0">
                           <li class="details-details">
                             <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                             {{ activeContext.extra[key].join(" ; ")}}
@@ -1222,7 +1223,7 @@
                               <div>Extra Details</div>
                             </template>
                             <template v-for="key in panelDetailOrder">
-                              <template v-if='activeContext.extra[key] && activeContext.extra[key].length>0 && ["notes", "collections", "subjects", "marcKeys"].includes(key)'>
+                              <template v-if='activeContext.extra[key] && activeContext.extra[key].length>0 && ["notes", "collections", "marcKeys", "rdftypes"].includes(key)'>
                                 <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                                 <ul>
                                   <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
@@ -1612,6 +1613,7 @@
 
 .details-details {
   list-style: none;
+  break-inside: avoid;
 }
 
 .see-search{
