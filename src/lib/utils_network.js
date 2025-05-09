@@ -2718,6 +2718,7 @@ const utilsNetwork = {
         searchPieces.splice(firstMatch, valPieces.length, searchVal)
       }
 
+      searchPieces = searchPieces.map(sp => sp.replace("‑", "-"))
       let pos = searchPieces.indexOf(searchVal)
 
       if (resultsExactName && resultsExactName.length > 0){
