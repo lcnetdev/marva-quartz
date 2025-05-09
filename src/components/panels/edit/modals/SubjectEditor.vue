@@ -1967,6 +1967,7 @@ methods: {
     })
 
     if (that.preferenceStore.returnValue('--b-edit-complex-include-usage')){
+      that.selectedSortOrder = 'alpha'
       that.applySort()
     } else {
       that.selectedSortOrder = 'alpha'
@@ -3530,7 +3531,7 @@ created: function () {
 before: function () {},
 mounted: function(){
   if (this.preferenceStore.returnValue('--b-edit-complex-include-usage')){
-    this.selectedSortOrder = 'useageDesc'
+    this.selectedSortOrder = 'alpha'
     this.applySort()
   } else {
     this.selectedSortOrder = 'alpha'
