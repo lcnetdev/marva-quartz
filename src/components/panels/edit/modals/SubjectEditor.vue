@@ -227,9 +227,12 @@
                         <span class="modal-context-icon simptip-position-top" v-if="contextData.rdftypes" :data-tooltip="'Type: ' + contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]">
                             <AuthTypeIcon :type="contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]"></AuthTypeIcon>
                         </span>
-                        {{ Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}
+                        <span style="font-weight: bold !important;">{{ Array.isArray(contextData.title) ? contextData.title[0]["@value"] : contextData.title }}</span>
                         <!-- <AuthTypeIcon v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon> -->
-                        <sup style="font-size: .5em;" v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')">(may subd geog)</sup>
+                        <!-- <sup style="font-size: .5em;" v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')">(may subd geog)</sup> -->
+                        <span v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" style="font-weight: 200 !important;">
+                          &nbsp;&nbsp;&nbsp;[May Subd Geog]
+                        </span>
                     </h3>
                     <h3 v-if="contextData.literal">
                       {{ contextData.label }} [Literal]
