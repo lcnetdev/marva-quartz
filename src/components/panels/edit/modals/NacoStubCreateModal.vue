@@ -184,6 +184,7 @@
             additonalFields=[]
 
             for (let field of this.extraMarcStatements){
+              console.log(field)
               let fieldTag = field.fieldTag
               let indicators = field.indicators.replace(/[#]/g,' ')
               
@@ -224,9 +225,32 @@
           if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){            
             this.preferenceStore.setValue('--b-edit-complex-nar-advanced-mode',false)
           }else{
+
+            
             this.preferenceStore.setValue('--b-edit-complex-nar-advanced-mode',true)
+            if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
+
+            // we are going to add the 670 as an extrMarcStatements
+            let f670 = {
+              fieldTag: '670',
+              indicators: '##',
+              value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`          
+            }
+            if (this.mainTitleNote!=''){
+              f670.value = f670.value + ` $b ${this.mainTitleNote}`
+            }
+            if (this.instanceURI){
+              f670.u = this.instanceURI
+              f670.value = f670.value + ` $u ${this.instanceURI}`
+            }
+            this.extraMarcStatements.push(f670)
+
+            }
+
 
           }
+
+
 
         },  
 
@@ -1158,10 +1182,6 @@
           f670.value = f670.value + ` $u ${this.instanceURI}`
         }
         this.extraMarcStatements.push(f670)
-
-
-
-
 
       }
 
