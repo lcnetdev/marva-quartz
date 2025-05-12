@@ -5134,46 +5134,46 @@ export const useProfileStore = defineStore('profile', {
     },
 
     copySelected: async function(deleteSelected=false){
-        let components = []
-        let compontGuids = []
-        let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
+      let components = []
+      let compontGuids = []
+      let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
 
-        if  (copyTargets.length == 0){
-            console.warn("nothing to copy")
-            alert("Nothing selected to copy. Select the fields you would like to copy.")
+      if  (copyTargets.length == 0){
+          console.warn("nothing to copy")
+          alert("Nothing selected to copy. Select the fields you would like to copy.")
 
-            return false
-        }
+          return false
+      }
 
-        copyTargets.forEach((item) => compontGuids.push(item.id))
+      copyTargets.forEach((item) => compontGuids.push(item.id))
 
-        for (const guid of compontGuids){
-            let component = utilsProfile.returnPt(this.activeProfile, guid)
-            let componentString = JSON.stringify(component)
-            components.push(componentString)
-            if (deleteSelected){
-              this.deleteComponent(guid)
-            }
-        }
+      for (const guid of compontGuids){
+          let component = utilsProfile.returnPt(this.activeProfile, guid)
+          let componentString = JSON.stringify(component)
+          components.push(componentString)
+          if (deleteSelected){
+            this.deleteComponent(guid)
+          }
+      }
 
-        //copy it
-        let value = components.join(" ;;; ")
-        const type = "text/plain"
-        const blob = new Blob([value], {type})
-        const data = [new ClipboardItem({[type]: blob})]
+      //copy it
+      let value = components.join(" ;;; ")
+      const type = "text/plain"
+      const blob = new Blob([value], {type})
+      const data = [new ClipboardItem({[type]: blob})]
 
-        await navigator.clipboard.write(data)
+      await navigator.clipboard.write(data)
 
-        //Add checkmark
-        let button = document.getElementById("copy-selected-button")
-        button.children[0].innerHTML = "check"
+      //Add checkmark
+      let button = document.getElementById("copy-selected-button")
+      button.children[0].innerHTML = "check"
 
-        //wait a few seconds and remove the check mark
-        setTimeout(function(){
-            button.children[0].innerHTML = "content_copy"
-        }, 2000)
+      //wait a few seconds and remove the check mark
+      setTimeout(function(){
+          button.children[0].innerHTML = "content_copy"
+      }, 2000)
 
-        return true
+      return true
     },
 
     //loop through the copied data and change all the "@guid"s
@@ -5195,73 +5195,74 @@ export const useProfileStore = defineStore('profile', {
 
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent, sourceRt=null, incomingTargetRt=null){
-        this.changeGuid(newComponent)
-        let profile = this.activeProfile
+      this.changeGuid(newComponent)
+      let profile = this.activeProfile
 
-        // handle pasting into a profileRT that doesn't exist in the new profile
-        // This is for when the source is an additional Instance, that doesn't exist in
-        // in the title
-        let targetRt
-        if (!profile.rtOrder.includes(newComponent.parentId)){
-          if (newComponent.parentId.includes("_")){
-              targetRt = newComponent.parentId.split("_").at(0)
-          } else {
-              targetRt = newComponent.parentId
-          }
+      // handle pasting into a profileRT that doesn't exist in the new profile
+      // This is for when the source is an additional Instance, that doesn't exist in
+      // in the title
+      let targetRt
+      if (!profile.rtOrder.includes(newComponent.parentId)){
+        if (newComponent.parentId.includes("_")){
+            targetRt = newComponent.parentId.split("_").at(0)
         } else {
-          targetRt = newComponent.parentId
+            targetRt = newComponent.parentId
         }
+      } else {
+        targetRt = newComponent.parentId
+      }
 
-        if (incomingTargetRt){
-          targetRt = incomingTargetRt
-        }
+      if (incomingTargetRt){
+        targetRt = incomingTargetRt
+      }
 
-        for (let rt in profile["rt"]){
-            let frozenPts = profile["rt"][rt]["pt"]
-            let order = profile["rt"][rt]["ptOrder"]
+      for (let rt in profile["rt"]){
+          let frozenPts = profile["rt"][rt]["pt"]
+          let order = profile["rt"][rt]["ptOrder"]
 
-            for (let pt in frozenPts){
-                let current = profile["rt"][rt]["pt"][pt]
-                if (rt == targetRt){
-                    let targetURI = newComponent.propertyURI
-                    let targetLabel = newComponent.propertyLabel
+          for (let pt in frozenPts){
+              let current = profile["rt"][rt]["pt"][pt]
+              if (rt == targetRt){
+                  let targetURI = newComponent.propertyURI
+                  let targetLabel = newComponent.propertyLabel
 
-                    if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
-                        let currentPos = order.indexOf(current.id)
-                        let newPos = order.indexOf(newComponent.id)
+                  if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
+                      let currentPos = order.indexOf(current.id)
+                      let newPos = order.indexOf(newComponent.id)
 
-                        // if (Object.keys(current.userValue).length == 1){
-                        if (this.isEmptyComponent(current)){
-                            current.userValue = newComponent.userValue
-                            break
-                        } else {
-                            const guid = current["@guid"]
-                            let structure = this.returnStructureByComponentGuid(guid)
+                      // if (Object.keys(current.userValue).length == 1){
+                      if (this.isEmptyComponent(current)){
+                          current.userValue = newComponent.userValue
+                          break
+                      } else {
+                          const guid = current["@guid"]
+                          let structure = this.returnStructureByComponentGuid(guid)
 
-                            let newPt
-                            if ((sourceRt && sourceRt != targetRt) || (!sourceRt && !incomingTargetRt)){
-                              newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
+                          let newPt
+                          if ((sourceRt && sourceRt != targetRt) || (!sourceRt && !incomingTargetRt)){
+                            newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
+                          } else {
+                            if (newPos < 0){
+                              newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)
                             } else {
-                              if (newPos < 0){
-                                newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)
-                              } else {
-                                newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
-                              }
+                              newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
                             }
+                          }
 
-                            newPt = newPt[0]
+                          newPt = newPt[0]
 
-                            profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
-                            profile["rt"][rt]["pt"][newPt].userModified = true
-                            break
-                        }
-                    }
-                }
-            }
-        }
+                          profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
+                          profile["rt"][rt]["pt"][newPt].userModified = true
+                          break
+                      }
+                  }
+              }
+          }
+      }
     },
 
-    pasteSelected: async function(){
+    pasteSelected: async function(sourceRt=null){
+
       let data
       const clipboardContents = await navigator.clipboard.read();
 
@@ -5277,7 +5278,10 @@ export const useProfileStore = defineStore('profile', {
       }
       for (let item of data){
         const dataJson = JSON.parse(item)
-        this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
+        if (!sourceRt){
+          sourceRt = this.returnRtByGUID(dataJson['@guid'])
+        }
+        this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)), sourceRt)
       }
     },
 

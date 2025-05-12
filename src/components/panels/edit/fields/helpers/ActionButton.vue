@@ -459,7 +459,7 @@
         // if (this.isStaging() == false){ return false} // REMOVE BEFORE PROD USAGE
 
 
-        
+
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
 
@@ -766,10 +766,11 @@
       },
 
       repeatComponent: async function(){
-          await this.copyComponent()
-          await this.profileStore.pasteSelected()
+        let thisRt = this.profileStore.returnRtByGUID(this.guid)
+        await this.copyComponent()
+        await this.profileStore.pasteSelected(thisRt)
 
-          this.profileStore.dataChanged()
+        this.profileStore.dataChanged()
       },
 
       // /**
