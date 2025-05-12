@@ -4425,6 +4425,11 @@ export const useProfileStore = defineStore('profile', {
     * @return {array} the id and guid of the newPropertyId
     */
     duplicateComponentGetId: async function(componentGuid, structure, profileName, predecessor){
+      console.info("\n--------------------\nduplicateComponentGetId")
+      console.info("componentGuid: ", componentGuid)
+      console.info("structure: ", structure)
+      console.info("profileName: ", profileName)
+      console.info("predecessor: ", predecessor)
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
@@ -5195,73 +5200,77 @@ export const useProfileStore = defineStore('profile', {
 
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent, sourceRt=null, incomingTargetRt=null){
-        this.changeGuid(newComponent)
-        let profile = this.activeProfile
+      console.info("\nparseActiveInsert")
+      this.changeGuid(newComponent)
+      let profile = this.activeProfile
 
-        // handle pasting into a profileRT that doesn't exist in the new profile
-        // This is for when the source is an additional Instance, that doesn't exist in
-        // in the title
-        let targetRt
-        if (!profile.rtOrder.includes(newComponent.parentId)){
-          if (newComponent.parentId.includes("_")){
-              targetRt = newComponent.parentId.split("_").at(0)
-          } else {
-              targetRt = newComponent.parentId
-          }
+      // handle pasting into a profileRT that doesn't exist in the new profile
+      // This is for when the source is an additional Instance, that doesn't exist in
+      // in the title
+      let targetRt
+      if (!profile.rtOrder.includes(newComponent.parentId)){
+        if (newComponent.parentId.includes("_")){
+            targetRt = newComponent.parentId.split("_").at(0)
         } else {
-          targetRt = newComponent.parentId
+            targetRt = newComponent.parentId
         }
+      } else {
+        targetRt = newComponent.parentId
+      }
 
-        if (incomingTargetRt){
-          targetRt = incomingTargetRt
-        }
+      if (incomingTargetRt){
+        targetRt = incomingTargetRt
+      }
 
-        for (let rt in profile["rt"]){
-            let frozenPts = profile["rt"][rt]["pt"]
-            let order = profile["rt"][rt]["ptOrder"]
+      for (let rt in profile["rt"]){
+          let frozenPts = profile["rt"][rt]["pt"]
+          let order = profile["rt"][rt]["ptOrder"]
 
-            for (let pt in frozenPts){
-                let current = profile["rt"][rt]["pt"][pt]
-                if (rt == targetRt){
-                    let targetURI = newComponent.propertyURI
-                    let targetLabel = newComponent.propertyLabel
+          for (let pt in frozenPts){
+              let current = profile["rt"][rt]["pt"][pt]
+              if (rt == targetRt){
+                  let targetURI = newComponent.propertyURI
+                  let targetLabel = newComponent.propertyLabel
 
-                    if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
-                        let currentPos = order.indexOf(current.id)
-                        let newPos = order.indexOf(newComponent.id)
+                  if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
+                      let currentPos = order.indexOf(current.id)
+                      let newPos = order.indexOf(newComponent.id)
 
-                        // if (Object.keys(current.userValue).length == 1){
-                        if (this.isEmptyComponent(current)){
-                            current.userValue = newComponent.userValue
-                            break
-                        } else {
-                            const guid = current["@guid"]
-                            let structure = this.returnStructureByComponentGuid(guid)
+                      // if (Object.keys(current.userValue).length == 1){
+                      if (this.isEmptyComponent(current)){
+                          current.userValue = newComponent.userValue
+                          break
+                      } else {
+                          const guid = current["@guid"]
+                          let structure = this.returnStructureByComponentGuid(guid)
 
-                            let newPt
-                            if ((sourceRt && sourceRt != targetRt) || (!sourceRt && !incomingTargetRt)){
-                              newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
+                          let newPt
+                          console.info("sourceRt: ", sourceRt)
+                          console.info("targetRt: ", targetRt)
+                          console.info("incomingTargetRt: ", incomingTargetRt)
+                          if ((sourceRt && sourceRt != targetRt) || (!sourceRt && !incomingTargetRt)){
+                            newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
+                          } else {
+                            if (newPos < 0){
+                              newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)
                             } else {
-                              if (newPos < 0){
-                                newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)
-                              } else {
-                                newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
-                              }
+                              newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
                             }
+                          }
 
-                            newPt = newPt[0]
+                          newPt = newPt[0]
 
-                            profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
-                            profile["rt"][rt]["pt"][newPt].userModified = true
-                            break
-                        }
-                    }
-                }
-            }
-        }
+                          profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
+                          profile["rt"][rt]["pt"][newPt].userModified = true
+                          break
+                      }
+                  }
+              }
+          }
+      }
     },
 
-    pasteSelected: async function(){
+    pasteSelected: async function(sourceRt=null){
       let data
       const clipboardContents = await navigator.clipboard.read();
 
@@ -5277,7 +5286,7 @@ export const useProfileStore = defineStore('profile', {
       }
       for (let item of data){
         const dataJson = JSON.parse(item)
-        this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
+        this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)), sourceRt)
       }
     },
 
