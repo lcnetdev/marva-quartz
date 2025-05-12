@@ -4425,11 +4425,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {array} the id and guid of the newPropertyId
     */
     duplicateComponentGetId: async function(componentGuid, structure, profileName, predecessor){
-      console.info("\n--------------------\nduplicateComponentGetId")
-      console.info("componentGuid: ", componentGuid)
-      console.info("structure: ", structure)
-      console.info("profileName: ", profileName)
-      console.info("predecessor: ", predecessor)
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
@@ -5139,46 +5134,46 @@ export const useProfileStore = defineStore('profile', {
     },
 
     copySelected: async function(deleteSelected=false){
-        let components = []
-        let compontGuids = []
-        let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
+      let components = []
+      let compontGuids = []
+      let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
 
-        if  (copyTargets.length == 0){
-            console.warn("nothing to copy")
-            alert("Nothing selected to copy. Select the fields you would like to copy.")
+      if  (copyTargets.length == 0){
+          console.warn("nothing to copy")
+          alert("Nothing selected to copy. Select the fields you would like to copy.")
 
-            return false
-        }
+          return false
+      }
 
-        copyTargets.forEach((item) => compontGuids.push(item.id))
+      copyTargets.forEach((item) => compontGuids.push(item.id))
 
-        for (const guid of compontGuids){
-            let component = utilsProfile.returnPt(this.activeProfile, guid)
-            let componentString = JSON.stringify(component)
-            components.push(componentString)
-            if (deleteSelected){
-              this.deleteComponent(guid)
-            }
-        }
+      for (const guid of compontGuids){
+          let component = utilsProfile.returnPt(this.activeProfile, guid)
+          let componentString = JSON.stringify(component)
+          components.push(componentString)
+          if (deleteSelected){
+            this.deleteComponent(guid)
+          }
+      }
 
-        //copy it
-        let value = components.join(" ;;; ")
-        const type = "text/plain"
-        const blob = new Blob([value], {type})
-        const data = [new ClipboardItem({[type]: blob})]
+      //copy it
+      let value = components.join(" ;;; ")
+      const type = "text/plain"
+      const blob = new Blob([value], {type})
+      const data = [new ClipboardItem({[type]: blob})]
 
-        await navigator.clipboard.write(data)
+      await navigator.clipboard.write(data)
 
-        //Add checkmark
-        let button = document.getElementById("copy-selected-button")
-        button.children[0].innerHTML = "check"
+      //Add checkmark
+      let button = document.getElementById("copy-selected-button")
+      button.children[0].innerHTML = "check"
 
-        //wait a few seconds and remove the check mark
-        setTimeout(function(){
-            button.children[0].innerHTML = "content_copy"
-        }, 2000)
+      //wait a few seconds and remove the check mark
+      setTimeout(function(){
+          button.children[0].innerHTML = "content_copy"
+      }, 2000)
 
-        return true
+      return true
     },
 
     //loop through the copied data and change all the "@guid"s
@@ -5200,7 +5195,6 @@ export const useProfileStore = defineStore('profile', {
 
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent, sourceRt=null, incomingTargetRt=null){
-      console.info("\nparseActiveInsert")
       this.changeGuid(newComponent)
       let profile = this.activeProfile
 
@@ -5245,9 +5239,6 @@ export const useProfileStore = defineStore('profile', {
                           let structure = this.returnStructureByComponentGuid(guid)
 
                           let newPt
-                          console.info("sourceRt: ", sourceRt)
-                          console.info("targetRt: ", targetRt)
-                          console.info("incomingTargetRt: ", incomingTargetRt)
                           if ((sourceRt && sourceRt != targetRt) || (!sourceRt && !incomingTargetRt)){
                             newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
                           } else {
@@ -5271,6 +5262,7 @@ export const useProfileStore = defineStore('profile', {
     },
 
     pasteSelected: async function(sourceRt=null){
+
       let data
       const clipboardContents = await navigator.clipboard.read();
 
@@ -5286,6 +5278,9 @@ export const useProfileStore = defineStore('profile', {
       }
       for (let item of data){
         const dataJson = JSON.parse(item)
+        if (!sourceRt){
+          sourceRt = this.returnRtByGUID(dataJson['@guid'])
+        }
         this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)), sourceRt)
       }
     },
