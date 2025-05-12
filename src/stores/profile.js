@@ -4150,7 +4150,11 @@ export const useProfileStore = defineStore('profile', {
       delete cachePt[componentGuid]
     }
     for (let guid of Object.keys(cacheGuid)){
-      cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+      try {
+        cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+      } catch {
+        console.warn("Couldn't clear the CacheGuid")
+      }
     }
 
     let isParentTop = false
@@ -5465,7 +5469,7 @@ export const useProfileStore = defineStore('profile', {
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
                 ){
                 let sor = pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
-                
+
                 if (sor.endsWith(".")) {
                   sor = sor.slice(0, -1);
                 }
@@ -5681,8 +5685,8 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,guid)
       let URI = null
       let marcKey = null
-      if (pt && 
-          pt.userValue && 
+      if (pt &&
+          pt.userValue &&
           pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
           pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] &&
           pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] &&
@@ -5698,9 +5702,9 @@ export const useProfileStore = defineStore('profile', {
               ){
                 marcKey = agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
             }
-            
+
           }
-      
+
       return {
         URI: URI,
         marcKey: marcKey
