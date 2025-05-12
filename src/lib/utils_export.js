@@ -2064,7 +2064,7 @@ const utilsExport = {
 		return marcTxt
 	},
 
-	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,instanceUri, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements){
+	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,instanceUri, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode){
 		let marcTxt = ''
 		marcTxt = marcTxt + " 111111111122222222223333333333\n"
 		marcTxt = marcTxt + "       0123456789012345678901234567890123456789\n"
@@ -2277,7 +2277,7 @@ const utilsExport = {
 
 
 
-		if (pos29 === 'b'){
+		if (pos29 === 'b' && !useAdvancedMode){
 
 			let field667 = document.createElementNS(marcNamespace,"marcxml:datafield");
 			field667.setAttribute( 'tag', '667')
@@ -2336,10 +2336,10 @@ const utilsExport = {
 		// 	field670SubfieldsValues.push(`$w (DLC)${mainTitleLccn}`)
 		// }
 
-		marcTextArray.push({txt: this.buildMarcTxtLine('670', ' ', ' ', field670SubfieldsValues), field: '670', fieldInt: 670})
-
-
-		rootEl.appendChild(field670)
+		if (!useAdvancedMode){
+			marcTextArray.push({txt: this.buildMarcTxtLine('670', ' ', ' ', field670SubfieldsValues), field: '670', fieldInt: 670})
+			rootEl.appendChild(field670)
+		}
 
 
 
