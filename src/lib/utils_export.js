@@ -2368,25 +2368,26 @@ const utilsExport = {
 
 		if (extraMarcStatements && extraMarcStatements.length > 0){
 			for (let x of extraMarcStatements){
-				let field = document.createElementNS(marcNamespace,"marcxml:datafield");
-				field.setAttribute( 'tag', x.fieldTag)
-				field.setAttribute( 'ind1', x.indicators.charAt(0))
-				field.setAttribute( 'ind2', x.indicators.charAt(1))
+				if (x.fieldTag && x.fieldTag.trim() != ''){
+					let field = document.createElementNS(marcNamespace,"marcxml:datafield");
+					field.setAttribute( 'tag', x.fieldTag)
+					field.setAttribute( 'ind1', x.indicators.charAt(0))
+					field.setAttribute( 'ind2', x.indicators.charAt(1))
 
-				let useSubfieldsValues = []
-				for (let key of Object.keys(x)){
-					if (key.length == 1){
-						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
-						subfield.setAttribute( 'code', key)
-						subfield.innerHTML = x[key]
-						field.appendChild(subfield)
-						useSubfieldsValues.push(`$${key} ${x[key]}`)
+					let useSubfieldsValues = []
+					for (let key of Object.keys(x)){
+						if (key.length == 1){
+							let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+							subfield.setAttribute( 'code', key)
+							subfield.innerHTML = x[key]
+							field.appendChild(subfield)
+							useSubfieldsValues.push(`$${key} ${x[key]}`)
 
+						}
 					}
+					rootEl.appendChild(field)
+					marcTextArray.push({txt: this.buildMarcTxtLine(x.fieldTag, x.indicators.charAt(0), x.indicators.charAt(1), useSubfieldsValues), field: x.fieldTag, fieldInt: parseInt(x.fieldTag)})
 				}
-				rootEl.appendChild(field)
-				marcTextArray.push({txt: this.buildMarcTxtLine(x.fieldTag, ' ', ' ', useSubfieldsValues), field: x.fieldTag, fieldInt: parseInt(x.fieldTag)})
-
 			}
 		}
 
