@@ -10,7 +10,7 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
         if (!lcCall) return
 
         //this if for Px class, for GV uses 'GV Bio'
-        const autoDeweyGenres = ['fiction', 'poetry', 'drama']
+        const autoDeweyGenres = ['sports', 'fiction', 'poetry', 'drama']
         const autoDeweyGenre = genre
         const autoDeweyResult = null
 
@@ -1970,13 +1970,16 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
                     _convertClassPtDrama(letter + number)
                 }
             } else if (letter == 'GV') {
-                _convertClassGvSport(letter + number)
+                if (autoDeweyGenre == 'sports') {
+                    _convertClassGvSport(letter + number)
+                }
             }
-
+            console.info("autoDeweyGenre: ", autoDeweyGenre)
+            console.info("sDewey$: ", sDewey$)
             if (autoDeweyGenre && !sDewey$) return [
                 false,
                 {
-                    error: 'autoDewey mode cannot convert this LCC'
+                    error: 'autoDewey mode cannot convert this LCC. Check the `genre`.'
                 }
             ]
 

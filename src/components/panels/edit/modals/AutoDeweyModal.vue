@@ -123,7 +123,7 @@
 
     .dewey-toggle-btn-grp.cssonly{
         width: 100%;
-        height: 30px;
+        /* height: 30px; */
         line-height: 30px;
 
         display: flex;
@@ -219,8 +219,8 @@
 
     data: function() {
         return {
-            autoDeweyGenres: ['none', 'fiction', 'poetry', 'drama'],
-            autoDeweyGenre: 'none',
+            autoDeweyGenres: ['other', 'sports', 'fiction', 'poetry', 'drama'],
+            autoDeweyGenre: 'other',
             lcCall: null,
             deweyInfo: null,
             deweyPeriod: 0,
