@@ -5463,8 +5463,15 @@ export const useProfileStore = defineStore('profile', {
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
-                )
-                return pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
+                ){
+                let sor = pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
+                
+                if (sor.endsWith(".")) {
+                  sor = sor.slice(0, -1);
+                }
+
+                return sor
+              }
             }
           }
         }
@@ -5670,6 +5677,36 @@ export const useProfileStore = defineStore('profile', {
       return false
     },
 
+    nacoStubReturnPopulatedValue(guid){
+      let pt = utilsProfile.returnPt(this.activeProfile,guid)
+      let URI = null
+      let marcKey = null
+      if (pt && 
+          pt.userValue && 
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]){
+
+            let agent = pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
+            if (agent && agent['@id']){
+              URI = agent['@id']
+            }
+            if (agent && agent['http://id.loc.gov/ontologies/bflc/marcKey'] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][0] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+              ){
+                marcKey = agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+            }
+            
+          }
+      
+      return {
+        URI: URI,
+        marcKey: marcKey
+      }
+
+    },
 
 
 
@@ -5681,10 +5718,10 @@ export const useProfileStore = defineStore('profile', {
       * @param {string} langObj - {uri:"",label:""}
       * @return {String}
       */
-    async buildNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667){
+    async buildNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode){
       console.log(oneXX,fourXX,mainTitle,workURI,zero46)
       let lccn = await utilsNetwork.nacoLccn()
-      let NARData = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667)
+      let NARData = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode)
       NARData.lccn = lccn
       return NARData
     },

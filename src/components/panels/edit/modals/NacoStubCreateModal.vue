@@ -78,6 +78,9 @@
         statementOfResponsibility: null,
         statementOfResponsibilityOptions: [],
 
+        buildHyphenated4xx: false,
+        hyphenated4xx: null,
+
         zero46: null,
 
         tmpXML:false,
@@ -86,8 +89,13 @@
         MARCText:false,
         MARClccn:false,
 
+        populatedValue: null,
+
         showPreview: false,
 
+        showAdvanced: false,
+
+        extraMarcStatements: [],
 
         add667: false,
 
@@ -111,7 +119,7 @@
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
 
-
+      
 
 
     },
@@ -165,8 +173,41 @@
           if (this.mainTitleNote.trim().length > 0){
             note = this.mainTitleNote
           }
+          let additonalFields = []
+          if (this.hyphenated4xx && this.buildHyphenated4xx){
+           additonalFields.push(this.hyphenated4xx)
+           console.log("additonalFields",additonalFields)
+          }
 
-          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667)
+          // if we are in advanced mode buld the statmenents 
+          if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
+            additonalFields=[]
+
+            for (let field of this.extraMarcStatements){
+              let fieldTag = field.fieldTag
+              let indicators = field.indicators.replace(/[#]/g,' ')
+              
+
+              let newField = {
+                fieldTag: fieldTag,
+                indicators: indicators
+              }
+              let subfields = field.value.split(/[$‡|]/)
+
+              for (let subfield of subfields){
+                let subfieldKey = subfield.slice(0,1)
+                let value = subfield.slice(1)
+                if (value && value.trim().length > 0){
+                  newField[subfieldKey] = value.trim()
+                }
+              }
+
+              additonalFields.push(newField)
+            }
+          }
+
+          
+          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields,true)
 
           this.MARCXml = results.xml
           this.MARCText = results.text
@@ -178,6 +219,16 @@
 
         },
 
+        toggleAdvancedNARMode(){
+
+          if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){            
+            this.preferenceStore.setValue('--b-edit-complex-nar-advanced-mode',false)
+          }else{
+            this.preferenceStore.setValue('--b-edit-complex-nar-advanced-mode',true)
+
+          }
+
+        },  
 
         async postNacoStub(){
 
@@ -406,6 +457,52 @@
                if (dollarKey.a.split(',')[0]){
                 let hyphenated = dollarKey.a.split(',')[0].split('-')
                 console.log(hyphenated)
+                if (hyphenated.length == 2){
+                  let newDollarA = `${hyphenated[1]}, ${dollarKey.a.split(',')[1].trim()} ${hyphenated[0]}-`
+                  let hyphenated4xx = {}
+                  for (let partKey of Object.keys(dollarKey)){
+                    hyphenated4xx[partKey] = dollarKey[partKey]
+                  }
+                  hyphenated4xx.a = newDollarA          
+                  
+                  // turn it into a 4xx
+                  hyphenated4xx.fieldTag = hyphenated4xx.fieldTag.split('');
+                  hyphenated4xx.fieldTag[0] = '4';
+                  hyphenated4xx.fieldTag = hyphenated4xx.fieldTag.join('');
+                  let subfields = ""
+                  for (let key in hyphenated4xx){
+                    if (key.length==1){
+                      subfields = subfields + '$'+key+' '+hyphenated4xx[key] + ' '
+                    }
+                  }
+                  hyphenated4xx.preview = `${hyphenated4xx.fieldTag} ${hyphenated4xx.indicators.replace(/\s/g,'#')} ${subfields}`
+                  console.log("hyphenated4xx",hyphenated4xx)
+                  this.hyphenated4xx = hyphenated4xx
+                  this.buildHyphenated4xx = true
+
+                  if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
+                    // if there isn't a 4xx field already in advanced mode
+                    if (this.extraMarcStatements.length > 0){
+                      let found4xx = false
+                      for (let field of this.extraMarcStatements){
+                        if (field.fieldTag.startsWith("4")){
+                          found4xx = true
+                          break
+                        }
+                      }
+                      if (!found4xx){
+                        this.extraMarcStatements.push({
+                          fieldTag: hyphenated4xx.fieldTag,
+                          indicators: hyphenated4xx.indicators.replace(/\s/g,'#'),
+                          value: subfields
+                        })
+                      }
+                    }
+                  }
+                } 
+                
+
+
                }
                
 
@@ -521,6 +618,25 @@
             if (this.fourXXParts && this.fourXXParts.a){
               if (this.profileStore.isLatin(this.fourXXParts.a) === false){
                 this.add667 = true
+
+                // if there isn't a 667 field already in advenced mode
+                if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && this.extraMarcStatements.length > 0){
+                  let found667 = false
+                  for (let field of this.extraMarcStatements){
+                    if (field.fieldTag == '667'){
+                      found667 = true
+                      break
+                    }
+                  }
+                  if (!found667){
+                    this.extraMarcStatements.push({
+                      fieldTag: '667',
+                      indicators: '##',
+                      value: "$a Non-Latin script references not evaluated."
+                    })
+                  }
+                }
+
               }else if (this.profileStore.isLatin(this.fourXXParts.a) === true){
                 this.add667 = false
               }
@@ -546,6 +662,18 @@
           }
 
 
+
+
+        },
+
+        addRow(){
+
+          this.extraMarcStatements.push({
+            fieldTag: '',
+            indicators: '##',
+            subfields: {              
+            }
+          })
 
 
         },
@@ -1004,6 +1132,7 @@
       this.mainTitleDate = this.profileStore.nacoStubReturnDate()
       this.statementOfResponsibility = this.profileStore.nacoStubReturnSoR()
       this.statementOfResponsibilityOptions = []
+      this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
 
       if (this.statementOfResponsibility){
         this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
@@ -1013,6 +1142,28 @@
         this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(",")
       }
 
+      if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
+
+        // we are going to add the 670 as an extrMarcStatements
+        let f670 = {
+          fieldTag: '670',
+          indicators: '##',
+          value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`          
+        }
+        if (this.mainTitleNote!=''){
+          f670.value = f670.value + ` $b ${this.mainTitleNote}`
+        }
+        if (this.instanceURI){
+          f670.u = this.instanceURI
+          f670.value = f670.value + ` $u ${this.instanceURI}`
+        }
+        this.extraMarcStatements.push(f670)
+
+
+
+
+
+      }
 
       if (this.savedNARModalData.oneXX){
         this.oneXX = this.savedNARModalData.oneXX
@@ -1026,8 +1177,7 @@
         this.mainTitleNote = this.savedNARModalData.mainTitleNote
       }
 
-      this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
-      // console.log("this.instanceURIthis.instanceURIthis.instanceURI",this.instanceURI)
+
       if (!this.mainTitle){
         this.disableAddButton = true
         // this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
@@ -1035,10 +1185,16 @@
       if (this.lastComplexLookupString.trim() != ''){
         this.oneXX = '1XX##$a'+this.lastComplexLookupString
         this.checkOneXX()
-
       }
 
 
+      this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
+
+      if (this.populatedValue && this.populatedValue.marcKey){        
+        this.oneXX = this.populatedValue.marcKey
+        this.checkOneXX()
+      }
+      
       let current = window.localStorage.getItem('marva-scriptShifterOptions')
 
       if (current){
@@ -1113,7 +1269,15 @@
                 <div style="flex-grow: 1; position: relative;">
                   <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
                   <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-">
+                  <div v-if="populatedValue && populatedValue.marcKey">
+                    (This value was found in the uncontrolled value of this component)
+                  </div>
                 </div>
+              </div>
+              <div v-if="hyphenated4xx && !preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" style="margin-bottom: 0.75em;">
+                <input type="checkbox" id="buildHyphenated4xx" name="buildHyphenated4xx" v-model="buildHyphenated4xx" style="margin-right: 1em;"/>
+                <label for="buildHyphenated4xx" style="vertical-align: super;">Add Hyphenated 4XX: <span style="background-color: whitesmoke; font-family: 'Courier New', Courier, monospace;">{{ hyphenated4xx.preview }}</span></label> 
+
               </div>
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1;">
@@ -1266,7 +1430,9 @@
 
                   </div>
                 </div>
-                <div>
+
+
+                <div v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
                   <div class="error-info-title">Other Checks:</div>
 
 
@@ -1287,7 +1453,7 @@
                   <template v-if="mainTitleDate">
                         <div>
                           <span class="material-icons unique-icon">check</span>
-                          <span class="not-unique-text">670 $a Date: Found</span>
+                          <span class="not-unique-text">670 $a Date: <input v-model="mainTitleDate"/></span>
                         </div>
                   </template>
                   <template v-else>
@@ -1328,7 +1494,7 @@
                   </div>
 
                   <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
-                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}</div>
                   </template>
                   <template v-else>
                     <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">Missing 670 Date Field! Can't build 670</div>
@@ -1349,10 +1515,48 @@
                   
 
                 </div>
+                
+
+              </div>
+
+              <div v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
+                <hr/>
+                <!-- <details>
+                  <summary>Help</summary>
+                  Advanced mode allows you to add arbitrary MARC fields to the NAR. If you 
+                </details> -->
+                <div>
+                  <div v-for="(row, index) in this.extraMarcStatements" :key="index" class="advanced-row">
+                    <input 
+                      type="text" 
+                      v-model="row.fieldTag" 
+                      maxlength="3" 
+                      placeholder="TAG" 
+                      style="margin-right: 1em; width: 50px;"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="row.indicators" 
+                      maxlength="2" 
+                      placeholder="IND" 
+                      style="margin-right: 1em; width: 40px; font-family: 'Courier New', Courier, monospace;"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="row.value" 
+                      placeholder="$a xyz $b abc..." 
+                      style="margin-right: 1em; flex-grow: 1;"
+                    />
+
+                    <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
+                  </div>
+                </div>
+
 
               </div>
 
             </template>
+
 
             <template v-if="showPreview==true">
 
@@ -1363,7 +1567,19 @@
 
             </template>
 
+
+            <button @click="toggleAdvancedNARMode">
+              <span v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use advanced NAR mode</span>
+              <span v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use regular mode</span>
+            </button>
             <hr>
+            
+            <div v-if="populatedValue && populatedValue.marcKey && !populatedValue.URI" style="text-align: center;">
+                    Adding this NAR will replace the uncontrolled value in this component.
+            </div>
+            <div v-if="populatedValue && populatedValue.marcKey && populatedValue.URI" style="text-align: center;">
+                    WARNING: Adding this NAR will overwrite the controlled value already in this component.
+            </div>
 
 
             <div style="display: flex; padding: 1.5em;" v-if="postStatus=='unposted' && showPreview == false">
@@ -1406,6 +1622,7 @@
 </template>
 <style>
 
+
   .content-container{
 
     background-color: white;
@@ -1415,6 +1632,14 @@
 
 <style scoped>
 
+.advanced-row{
+  display: flex; align-items: center; margin-bottom: 0.5em;
+
+}
+.advanced-row input{
+  font-family: monospace;
+  font-size: 1.1em;
+}
 .post-nar-button{
   -webkit-box-shadow:0px 0px 53px 4px rgba(46,255,53,0.9);
   -moz-box-shadow: 0px 0px 53px 4px rgba(46,255,53,0.9);
