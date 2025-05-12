@@ -2013,22 +2013,26 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
 
             if (ruleMatches.length > 1) {
                 for (const rule of ruleMatches) {
+                    console.info("rule: ", rule)
                     let range = rule['LCC Range'].replace(rule.LCC, '').trim()
+                    console.info("\trange: ", range)
                     if (range.charAt(range.length - 1) == '+') {
                         range = range.replace('+', ' - 999999999')
                     }
-                    const [rangeStart, rangeEnd] = range.split(' - ')
-                    console.log('range', range, rangeStart, rangeEnd)
-                    console.log('number', number)
+                    const [rangeStart, rangeEnd] = range.split('-')
+                    console.info('range', range, rangeStart, rangeEnd)
+                    console.info('number', number)
                     if (number * 1 >= rangeStart * 1 && number * 1 <= rangeEnd * 1) {
-                        // console.log('number WITHIN range', number)
+                        console.info('number WITHIN range', number)
                         rule.mode = 'basic'
                         return [rule.dewey, rule]
                     }
                 }
 
                 //if no range found just use first (generic) one
-                return [ruleMatches[0].dewey, ruleMatches[0]]
+                console.info("ruleMatches: ", ruleMatches)
+                return [ruleMatches, ruleMatches]
+                // return [ruleMatches[0].dewey, ruleMatches[0]]
             }
 
             return [false, { error: 'Unable to convert this LCC' }]

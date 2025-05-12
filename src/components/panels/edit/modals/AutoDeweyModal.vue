@@ -8,7 +8,7 @@
         <VueDragResize
             :is-active="true"
             :w="850"
-            :h="400"
+            :h="500"
             :x="200"
             :y="50"
             :class="ddc-modal"
@@ -44,18 +44,27 @@
 
                             <div v-if="deweyInfo && deweyInfo.periods && deweyInfo.periods.length > 0" style="margin-top: 10px;" class="dewey-period-selection">
                                 Select a period to complete the DDC creation.
-                                <div class="dewey-toggle-btn-grp cssonly">
+                                <div class="dewey-toggle-btn-grp cssonly selection-options">
                                     <div v-for="(per, idx) in deweyInfo.periods">
                                         <input type="radio" :id="per" :value="per" class="period-type-radio" v-model="deweyPeriod" name="period-selection" @click="setPeriod($event, idx)" />
                                         <label onclick="" :for="per" class="dewey-toggle-btn">{{per}}</label>
                                     </div>
                                 </div>
                             </div>
+                            <div v-else-if="deweyInfo && deweyInfo.length > 1">
+                                Select a more specfic option.
+                                <div class="dewey-multi-selection cssonly selection-options">
+                                    <ul v-for="(item, idx) in deweyInfo" @click="deweyInfo = item">
+                                        <li>DDC: {{ item['DDC'] }}</li>
+                                        <li>Topic: {{ item['DDC Caption'] }}</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="auto-dewey-results">
                             <h2>Results</h2>
-                            <dl v-if="deweyInfo">
+                            <dl v-if="deweyInfo && !Array.isArray(deweyInfo)">
                                 <div v-for="(value, name, indx) in deweyInfo">
                                     <dt v-if="value">{{ name }}</dt>
                                     <dd v-if="value">{{ value }}</dd>
@@ -68,7 +77,10 @@
                                 <dt>LCC Caption</dt>
                                 <dd>{{ deweyInfo['LCC Caption'] }}</dd> -->
                             </dl>
-                            <button @click="add()" v-if="deweyInfo && deweyData.lcc && this.$route.path.includes('/edit/')">Add to record</button>
+                            <div v-else-if="deweyInfo && (Array.isArray(deweyInfo) && deweyInfo.length > 1)">
+                                Select an option to the left.
+                            </div>
+                            <button @click="add()" v-if="deweyInfo && deweyData.lcc && this.$route.path.includes('/edit/') && (!Array.isArray(deweyInfo))">Add to record</button>
                         </div>
                     </div>
                 </div>
@@ -102,7 +114,7 @@
     }
 
     .auto-dewey-modal-container{
-        height: 400px;
+        height: 500px;
     }
 
     .input-panel{
@@ -197,6 +209,33 @@
         border: solid 1px black;
         cursor: pointer;
         z-index: 100;
+    }
+
+    .dewey-multi-selection > ul {
+        margin-top: 5px;
+    }
+    .dewey-multi-selection > ul > li{
+        list-style: none;
+    }
+
+    .dewey-multi-selection.cssonly > ul{
+        cursor: pointer;
+        background-color: white;
+        border-radius: 5px;
+        border: solid 1px black;
+        padding: 10px;
+    }
+
+    .dewey-multi-selection.cssonly > ul:hover{
+        background-color: rgb(80, 76, 76);
+        border-radius: 5px;
+        border: solid 1px white;
+        color: white;
+    }
+
+    .selection-options {
+        overflow-y: scroll;
+        height: 300px;
     }
 
   </style>
