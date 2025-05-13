@@ -1,0 +1,1024 @@
+<rdf:RDF xmlns:bflc="http://id.loc.gov/ontologies/bflc/"
+    xmlns:bf="http://id.loc.gov/ontologies/bibframe/"
+    xmlns:bfsimple="http://id.loc.gov/ontologies/bfsimple/"
+    xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/"
+    xmlns:pmo="http://performedmusicontology.org/ontology/"
+    xmlns:datatypes="http://id.loc.gov/datatypes/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:mstatus="https://id.loc.gov/vocabulary/mstatus/"
+    xmlns:mnotetype="http://id.loc.gov/vocabulary/mnotetype/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:void="http://rdfs.org/ns/void#"
+    xmlns:lcc="http://id.loc.gov/ontologies/lcc#"
+    xmlns:vartitletype="http://id.loc.gov/vocabulary/vartitletype/">
+    <bf:Work xmlns:bf="http://id.loc.gov/ontologies/bibframe/" rdf:about="http://id.loc.gov/resources/works/24129198"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Text"/>
+        <bf:contribution>
+            <bf:PrimaryContribution>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2012013284">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Đurišić, Jelena</rdfs:label>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="zxx-Cyrl">Ђуришић, Јелена</rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aĐurišić, Jelena</bflc:marcKey>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xml:lang="zxx-Cyrl">4001 $aЂуришић, Јелена</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">author</rdfs:label>
+                        <bf:code>aut</bf:code>
+                    </bf:Role>
+                </bf:role>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/edt">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">editor</rdfs:label>
+                        <bf:code>edt</bf:code>
+                    </bf:Role>
+                </bf:role>
+            </bf:PrimaryContribution>
+        </bf:contribution>
+        <bf:title>
+            <bf:Title>
+                <bf:mainTitle>Srpski narod i jugoslovenska država</bf:mainTitle>
+                <bf:mainTitle xml:lang="sr-cyrl">Српски народ и југословенска држава</bf:mainTitle>
+            </bf:Title>
+        </bf:title>
+        <bf:title>
+            <bf:ParallelTitle>
+                <bf:mainTitle>Serbian people and the Yugoslav state</bf:mainTitle>
+                <bf:subtitle>foreign policy 1918-1990 : exhibition catalogue</bf:subtitle>
+            </bf:ParallelTitle>
+        </bf:title>
+        <bf:contribution>
+            <bf:Contribution>
+                <bf:agent>
+                    <bf:Agent>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Teodošić, Dragan, 1986-</rdfs:label>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="sr-cyrl">Теодосић, Драган, 1986-</rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">7001 $6880-04$aTeodošić, Dragan,$d1986-$eauthor,$eeditor.</bflc:marcKey>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xml:lang="sr-cyrl">8801 $6700-04/(N$aТеодосић, Драган,$d1986-$eauthor,$eeditor.</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">author</rdfs:label>
+                        <bf:code>aut</bf:code>
+                    </bf:Role>
+                </bf:role>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/edt">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">editor</rdfs:label>
+                        <bf:code>edt</bf:code>
+                    </bf:Role>
+                </bf:role>
+            </bf:Contribution>
+        </bf:contribution>
+        <bf:contribution>
+            <bf:Contribution>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n82026660">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Bogetić, Dragan</rdfs:label>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="zxx-cyrl">Богетић, Драган</rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aBogetić, Dragan</bflc:marcKey>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xml:lang="zxx-cyrl">4001 $aБогетић, Драган,</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">author</rdfs:label>
+                        <bf:code>aut</bf:code>
+                    </bf:Role>
+                </bf:role>
+            </bf:Contribution>
+        </bf:contribution>
+        <bf:contribution>
+            <bf:Contribution>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2011035412">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Mićić, Srđan</rdfs:label>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="zxx-cyrl">Мићић, Срђан</rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aMićić, Srđan</bflc:marcKey>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xml:lang="zxx-cyrl">4001 $aМићић, Срђан,</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">author</rdfs:label>
+                        <bf:code>aut</bf:code>
+                    </bf:Role>
+                </bf:role>
+            </bf:Contribution>
+        </bf:contribution>
+        <bf:contribution>
+            <bf:Contribution>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n81122923">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Arhiv Jugoslavije</rdfs:label>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="zxx-Cyrl">Архив Југославије</rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">1102 $aArhiv Jugoslavije</bflc:marcKey>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xml:lang="zxx-Cyrl">4102 $aАрхив Југославије</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/his">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">host institution</rdfs:label>
+                        <bf:code>his</bf:code>
+                    </bf:Role>
+                </bf:role>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/pbl">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">publisher</rdfs:label>
+                        <bf:code>pbl</bf:code>
+                    </bf:Role>
+                </bf:role>
+            </bf:Contribution>
+        </bf:contribution>
+        <bf:note>
+            <bf:Note>
+                <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/lang"/>
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Serbian (Cyrillic) and English.</rdfs:label>
+            </bf:Note>
+        </bf:note>
+        <bf:subject>
+            <madsrdf:Topic xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Diplomatic relations</rdfs:label>
+                <madsrdf:authoritativeLabel>Diplomatic relations</madsrdf:authoritativeLabel>
+                <bflc:aap-normalized xmlns:bflc="http://id.loc.gov/ontologies/bflc/">diplomaticrelations</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/fast">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Faceted application of subject terminology</rdfs:label>
+                        <bf:code>fast</bf:code>
+                    </bf:Source>
+                </bf:source>
+            </madsrdf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <madsrdf:Topic xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Politics and government</rdfs:label>
+                <madsrdf:authoritativeLabel>Politics and government</madsrdf:authoritativeLabel>
+                <bflc:aap-normalized xmlns:bflc="http://id.loc.gov/ontologies/bflc/">politicsandgovernment</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/fast">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Faceted application of subject terminology</rdfs:label>
+                        <bf:code>fast</bf:code>
+                    </bf:Source>
+                </bf:source>
+            </madsrdf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <madsrdf:ComplexSubject xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Yugoslavia--Foreign relations--Exhibitions</rdfs:label>
+                <madsrdf:authoritativeLabel>Yugoslavia--Foreign relations--Exhibitions</madsrdf:authoritativeLabel>
+                <madsrdf:isMemberOfMADSScheme>
+                    <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </madsrdf:MADSScheme>
+                </madsrdf:isMemberOfMADSScheme>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:Geographic rdf:about="http://id.loc.gov/rwo/agents/n79097346">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Yugoslavia</rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">151  $aYugoslavia</bflc:marcKey>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">e-yu---</bf:code>
+                    </madsrdf:Geographic>
+                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh00005791">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Foreign relations</rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">180  $xForeign relations</bflc:marcKey>
+                    </madsrdf:Topic>
+                    <madsrdf:GenreForm>
+                        <madsrdf:authoritativeLabel>Exhibitions</madsrdf:authoritativeLabel>
+                    </madsrdf:GenreForm>
+                </madsrdf:componentList>
+                <bflc:aap-normalized xmlns:bflc="http://id.loc.gov/ontologies/bflc/">yugoslaviaforeignrelationsexhibitions</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </madsrdf:ComplexSubject>
+        </bf:subject>
+        <bf:subject>
+            <madsrdf:ComplexSubject xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Yugoslavia--Politics and government--Exhibitions</rdfs:label>
+                <madsrdf:authoritativeLabel>Yugoslavia--Politics and government--Exhibitions</madsrdf:authoritativeLabel>
+                <madsrdf:isMemberOfMADSScheme>
+                    <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </madsrdf:MADSScheme>
+                </madsrdf:isMemberOfMADSScheme>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:Geographic rdf:about="http://id.loc.gov/rwo/agents/n79097346">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Yugoslavia</rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">151  $aYugoslavia</bflc:marcKey>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">e-yu---</bf:code>
+                    </madsrdf:Geographic>
+                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh2002011436">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Politics and government</rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">180  $xPolitics and government</bflc:marcKey>
+                    </madsrdf:Topic>
+                    <madsrdf:GenreForm>
+                        <madsrdf:authoritativeLabel>Exhibitions</madsrdf:authoritativeLabel>
+                    </madsrdf:GenreForm>
+                </madsrdf:componentList>
+                <bflc:aap-normalized xmlns:bflc="http://id.loc.gov/ontologies/bflc/">yugoslaviapoliticsandgovernmentexhibitions</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </madsrdf:ComplexSubject>
+        </bf:subject>
+        <bf:subject>
+            <madsrdf:ComplexSubject xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Yougoslavie--Relations extérieures--Expositions</rdfs:label>
+                <madsrdf:authoritativeLabel>Yougoslavie--Relations extérieures--Expositions</madsrdf:authoritativeLabel>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:Geographic>
+                        <madsrdf:authoritativeLabel>Yougoslavie</madsrdf:authoritativeLabel>
+                    </madsrdf:Geographic>
+                    <madsrdf:Topic>
+                        <madsrdf:authoritativeLabel>Relations extérieures</madsrdf:authoritativeLabel>
+                    </madsrdf:Topic>
+                    <madsrdf:GenreForm>
+                        <madsrdf:authoritativeLabel>Expositions</madsrdf:authoritativeLabel>
+                    </madsrdf:GenreForm>
+                </madsrdf:componentList>
+                <bflc:aap-normalized xmlns:bflc="http://id.loc.gov/ontologies/bflc/">yougoslavierelationsextérieuresexpositions</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/rvm">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Répertoire de vedettes-matière</rdfs:label>
+                        <bf:code>rvm</bf:code>
+                    </bf:Source>
+                </bf:source>
+            </madsrdf:ComplexSubject>
+        </bf:subject>
+        <bf:subject>
+            <madsrdf:ComplexSubject xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Yougoslavie--Politique et gouvernement--Expositions</rdfs:label>
+                <madsrdf:authoritativeLabel>Yougoslavie--Politique et gouvernement--Expositions</madsrdf:authoritativeLabel>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:Geographic>
+                        <madsrdf:authoritativeLabel>Yougoslavie</madsrdf:authoritativeLabel>
+                    </madsrdf:Geographic>
+                    <madsrdf:Topic>
+                        <madsrdf:authoritativeLabel>Politique et gouvernement</madsrdf:authoritativeLabel>
+                    </madsrdf:Topic>
+                    <madsrdf:GenreForm>
+                        <madsrdf:authoritativeLabel>Expositions</madsrdf:authoritativeLabel>
+                    </madsrdf:GenreForm>
+                </madsrdf:componentList>
+                <bflc:aap-normalized xmlns:bflc="http://id.loc.gov/ontologies/bflc/">yougoslaviepolitiqueetgouvernementexpositions</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/rvm">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Répertoire de vedettes-matière</rdfs:label>
+                        <bf:code>rvm</bf:code>
+                    </bf:Source>
+                </bf:source>
+            </madsrdf:ComplexSubject>
+        </bf:subject>
+        <bf:subject>
+            <bf:Place rdf:about="http://id.worldcat.org/fast/1279262">
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">151  $aYugoslavia</bflc:marcKey>
+                <madsrdf:authoritativeLabel xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">Yugoslavia</madsrdf:authoritativeLabel>
+            </bf:Place>
+        </bf:subject>
+        <bf:geographicCoverage>
+            <bf:GeographicCoverage rdf:about="http://id.loc.gov/vocabulary/geographicAreas/e-yu">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Yugoslavia</rdfs:label>
+                <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">e-yu---</bf:code>
+            </bf:GeographicCoverage>
+        </bf:geographicCoverage>
+        <bf:genreForm>
+            <bf:GenreForm rdf:about="http://id.loc.gov/authorities/genreForms/gf2014026057">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Catalogs</rdfs:label>
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">155  $aCatalogs</bflc:marcKey>
+            </bf:GenreForm>
+        </bf:genreForm>
+        <bf:genreForm>
+            <madsrdf:GenreForm xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">
+                <madsrdf:authoritativeLabel>exhibition catalogs</madsrdf:authoritativeLabel>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/vocabulary/genreFormSchemes/aat">
+                        <bf:code>aat</bf:code>
+                    </bf:Source>
+                </bf:source>
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">exhibition catalogs</rdfs:label>
+            </madsrdf:GenreForm>
+        </bf:genreForm>
+        <bf:genreForm>
+            <bf:GenreForm rdf:about="http://id.worldcat.org/fast/1424028">
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">155  $aExhibition catalogs</bflc:marcKey>
+                <madsrdf:authoritativeLabel xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">Exhibition catalogs</madsrdf:authoritativeLabel>
+            </bf:GenreForm>
+        </bf:genreForm>
+        <bf:genreForm>
+            <bf:GenreForm rdf:about="http://id.loc.gov/authorities/genreForms/gf2014026098">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Exhibition catalogs</rdfs:label>
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">155  $aExhibition catalogs</bflc:marcKey>
+            </bf:GenreForm>
+        </bf:genreForm>
+        <bf:genreForm>
+            <madsrdf:GenreForm xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">
+                <madsrdf:authoritativeLabel>Catalogues d'exposition</madsrdf:authoritativeLabel>
+                <bf:source>
+                    <madsrdf:Authority rdf:about="http://id.loc.gov/vocabulary/genreFormSchemes/rvmgf">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Thésaurus des descripteurs de genre/forme de l'Université Laval</rdfs:label>
+                        <bf:code>rvmgf</bf:code>
+                    </madsrdf:Authority>
+                </bf:source>
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Catalogues d'exposition</rdfs:label>
+            </madsrdf:GenreForm>
+        </bf:genreForm>
+        <bf:classification>
+            <bf:ClassificationLcc>
+                <bf:classificationPortion>DR1281</bf:classificationPortion>
+                <bf:itemPortion>.S777 2021</bf:itemPortion>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/nuba">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">not used by assigner</rdfs:label>
+                        <bf:code>nuba</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/p">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">prepublication</rdfs:label>
+                        <bf:code>p</bf:code>
+                    </bf:Status>
+                </bf:status>
+            </bf:ClassificationLcc>
+        </bf:classification>
+        <bf:content>
+            <bf:Content rdf:about="http://id.loc.gov/vocabulary/contentTypes/txt">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">text</rdfs:label>
+                <bf:code>txt</bf:code>
+            </bf:Content>
+        </bf:content>
+        <bf:content>
+            <bf:Content rdf:about="http://id.loc.gov/vocabulary/contentTypes/sti">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">still image</rdfs:label>
+                <bf:code>sti</bf:code>
+            </bf:Content>
+        </bf:content>
+        <bf:language>
+            <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/srp">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Serbian</rdfs:label>
+                <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">srp</bf:code>
+            </bf:Language>
+        </bf:language>
+        <bf:language>
+            <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">English</rdfs:label>
+                <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+            </bf:Language>
+        </bf:language>
+        <bf:language>
+            <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">English</rdfs:label>
+                <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+            </bf:Language>
+        </bf:language>
+        <bf:language>
+            <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/srp">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Serbian</rdfs:label>
+                <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">srp</bf:code>
+            </bf:Language>
+        </bf:language>
+        <bf:note>
+            <bf:Note>
+                <rdf:type rdf:resource="http://id.loc.gov/vocabulary/resourceComponents/otx"/>
+                <bf:language>
+                    <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/srp">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Serbian</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">srp</bf:code>
+                    </bf:Language>
+                </bf:language>
+            </bf:Note>
+        </bf:note>
+        <bf:illustrativeContent>
+            <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/ill">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">illustrations</rdfs:label>
+                <bf:code>ill</bf:code>
+            </bf:Illustration>
+        </bf:illustrativeContent>
+        <bf:illustrativeContent>
+            <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/fac">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">facsimiles</rdfs:label>
+                <bf:code>fac</bf:code>
+            </bf:Illustration>
+        </bf:illustrativeContent>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship>
+                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/part">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">part</rdfs:label>
+                        <bf:code>part</bf:code>
+                    </bf:Relationship>
+                </bf:relationship>
+                <bf:associatedResource>
+                    <bf:Hub rdf:about="http://id.loc.gov/resources/hubs/ad7c7803-3250-3917-a969-ae5a967b27da">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Đurišić, Jelena. Srpski narod i jugoslovenska država. English</rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aĐurišić, Jelena.$tSrpski narod i jugoslovenska država.$lEnglish.</bflc:marcKey>
+                        <bf:contribution>
+                            <bf:PrimaryContribution>
+                                <bf:contribution>
+                                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2012013284">
+                                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Đurišić, Jelena</rdfs:label>
+                                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="zxx-Cyrl">Ђуришић, Јелена</rdfs:label>
+                                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aĐurišić, Jelena</bflc:marcKey>
+                                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xml:lang="zxx-Cyrl">4001 $aЂуришић, Јелена</bflc:marcKey>
+                                    </bf:Agent>
+                                </bf:contribution>
+                                <bf:contribution>
+                                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
+                                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">contributor</rdfs:label>
+                                        <bf:code>ctb</bf:code>
+                                    </bf:Role>
+                                </bf:contribution>
+                            </bf:PrimaryContribution>
+                            <bf:Contribution>
+                                <bf:contribution>
+                                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n2012013284">
+                                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Đurišić, Jelena</rdfs:label>
+                                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="zxx-Cyrl">Ђуришић, Јелена</rdfs:label>
+                                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aĐurišić, Jelena</bflc:marcKey>
+                                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xml:lang="zxx-Cyrl">4001 $aЂуришић, Јелена</bflc:marcKey>
+                                    </bf:Agent>
+                                </bf:contribution>
+                                <bf:contribution>
+                                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
+                                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">contributor</rdfs:label>
+                                        <bf:code>ctb</bf:code>
+                                    </bf:Role>
+                                </bf:contribution>
+                            </bf:Contribution>
+                        </bf:contribution>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>Srpski narod i jugoslovenska država. English.</bf:mainTitle>
+                            </bf:Title>
+                        </bf:title>
+                    </bf:Hub>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">new</rdfs:label>
+                        <bf:code>n</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2025-03-27</bf:date>
+                <bf:agent>
+                    <bf:Agent>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Agent"/>
+                        <bf:code>CUY</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-27T15:13:17</bf:date>
+                <bf:descriptionModifier>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:descriptionModifier>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/tree/v2.10-dev"/>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-27T15:21:58.102369-04:00</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-5-0/"/>
+                <bflc:encodingLevel xmlns:bflc="http://id.loc.gov/ontologies/bflc/">
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/5">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">preliminary</rdfs:label>
+                        <bf:code>5</bf:code>
+                    </bflc:EncodingLevel>
+                </bflc:encodingLevel>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">ISBD: International standard bibliographic description</rdfs:label>
+                        <bf:code>isbd</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Resource description and access</rdfs:label>
+                        <bf:code>rda</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:identifiedBy>
+                    <bf:Local>
+                        <rdf:value>24129198</rdf:value>
+                        <bf:assigner>
+                            <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                            </bf:Organization>
+                        </bf:assigner>
+                    </bf:Local>
+                </bf:identifiedBy>
+                <bf:descriptionLanguage>
+                    <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">English</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+                    </bf:Language>
+                </bf:descriptionLanguage>
+                <bf:note>
+                    <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">040  $aCUY$beng$erda$cCUY$dOCLCO$dOCLCF$dPUL$dOCLCQ$dDLC</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+                <bf:descriptionAuthentication>
+                    <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/lccopycat">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">LC Copy Cataloging</rdfs:label>
+                        <bf:code>lccopycat</bf:code>
+                    </bf:DescriptionAuthentication>
+                </bf:descriptionAuthentication>
+                <lclocal:d906 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=906     $a 0 $b ibc $c copycat $d 3 $e ncip $f 20 $g y-nonroman</lclocal:d906>
+                <lclocal:d955 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=955     $b fg23 2025-03-27 z-processor JACKPHY</lclocal:d955>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bflc:aap xmlns:bflc="http://id.loc.gov/ontologies/bflc/">Đurišić, Jelena. Srpski narod i jugoslovenska država</bflc:aap>
+        <bflc:aap-normalized xmlns:bflc="http://id.loc.gov/ontologies/bflc/">đurišićjelenasrpskinarodijugoslovenskadržava</bflc:aap-normalized>
+        <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://id.loc.gov/ontologies/bibframe/Monograph"/>
+        <dcterms:isPartOf xmlns:dcterms="http://purl.org/dc/terms/" rdf:resource="http://id.loc.gov/resources/works"
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+        <bf:adminMetadata xmlns:bf="http://id.loc.gov/ontologies/bibframe/">
+            <bf:AdminMetadata>
+                <bf:date>2025-03-27T19:22:00.698Z</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c"
+                        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                    </bf:Status>
+                </bf:status>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+    </bf:Work>
+    <bf:Instance xmlns:bf="http://id.loc.gov/ontologies/bibframe/" rdf:about="http://id.loc.gov/resources/instances/24129198"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <bf:title>
+            <bf:Title>
+                <bf:mainTitle>Srpski narod i jugoslovenska država</bf:mainTitle>
+                <bf:mainTitle xml:lang="sr-cyrl">Српски народ и југословенска држава</bf:mainTitle>
+                <bf:subtitle>spoljna politika 1918-1990 : katalog izložbe</bf:subtitle>
+                <bf:subtitle xml:lang="sr-cyrl">спољна политика 1918-1990 : каталог изложбе</bf:subtitle>
+            </bf:Title>
+        </bf:title>
+        <bf:responsibilityStatement>autori izložbe i kataloga Jelena Đurišić, Dragan Teodosić = Serbian people and the Yugoslav state : foreign policy 1918-1990 : exhibition catalogue / exhibition and catalogue authors Jelena Đurišić, Dragan Teodosić</bf:responsibilityStatement>
+        <bf:responsibilityStatement xml:lang="sr-cyrl">аутори изложбе и каталога Јелена Ђуришић, Драган Теодосић = Serbian people and the Yugoslav state : foreign policy 1918-1990 : exhibition catalogue / exhibition and catalogue authors Jelena Đurišić, Dragan Teodosić</bf:responsibilityStatement>
+        <bf:provisionActivity>
+            <bf:Publication>
+                <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2021</bf:date>
+                <bf:place>
+                    <bf:Place rdf:about="http://id.loc.gov/vocabulary/countries/rb">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Serbia</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">rb</bf:code>
+                    </bf:Place>
+                </bf:place>
+                <bflc:simplePlace xmlns:bflc="http://id.loc.gov/ontologies/bflc/">Beograd</bflc:simplePlace>
+                <bflc:simplePlace xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xml:lang="sr-cyrl">Београд</bflc:simplePlace>
+                <bflc:simpleAgent xmlns:bflc="http://id.loc.gov/ontologies/bflc/">Arhiv Jugoslavije</bflc:simpleAgent>
+                <bflc:simpleAgent xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xml:lang="sr-cyrl">Архив Југославије</bflc:simpleAgent>
+                <bflc:simpleDate xmlns:bflc="http://id.loc.gov/ontologies/bflc/">2021</bflc:simpleDate>
+                <bflc:simpleDate xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xml:lang="sr-cyrl">2021</bflc:simpleDate>
+            </bf:Publication>
+        </bf:provisionActivity>
+        <bf:issuance>
+            <bf:Issuance rdf:about="http://id.loc.gov/vocabulary/issuance/mono">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">single unit</rdfs:label>
+                <bf:code>mono</bf:code>
+            </bf:Issuance>
+        </bf:issuance>
+        <bf:identifiedBy>
+            <bf:Lccn>
+                <rdf:value>  2026888777</rdf:value>
+            </bf:Lccn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Isbn>
+                <rdf:value>9788680099835</rdf:value>
+            </bf:Isbn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Isbn>
+                <rdf:value>868009983X</rdf:value>
+            </bf:Isbn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:OclcNumber>
+                <rdf:value>on1299236592</rdf:value>
+            </bf:OclcNumber>
+        </bf:identifiedBy>
+        <bf:note>
+            <bf:Note>
+                <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/physical"/>
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">illustrations (some color), facsimiles</rdfs:label>
+                <bflc:appliesTo xmlns:bflc="http://id.loc.gov/ontologies/bflc/">
+                    <bflc:AppliesTo>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">all</rdfs:label>
+                    </bflc:AppliesTo>
+                </bflc:appliesTo>
+            </bf:Note>
+        </bf:note>
+        <bf:note>
+            <bf:Note>
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Catalogue of an exhibition held at Arhiv Jugoslavije in 2021.</rdfs:label>
+            </bf:Note>
+        </bf:note>
+        <bf:note>
+            <bf:Note>
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Includes essays by Srđan Mićić and Dragan Bogetić.</rdfs:label>
+            </bf:Note>
+        </bf:note>
+        <bf:note>
+            <bf:Note>
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Also available as pdf file from the website of the Arhiv Jugoslavije.</rdfs:label>
+                <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/addphys"/>
+            </bf:Note>
+        </bf:note>
+        <bf:media>
+            <bf:Media rdf:about="http://id.loc.gov/vocabulary/mediaTypes/n">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">unmediated</rdfs:label>
+                <bf:code>n</bf:code>
+            </bf:Media>
+        </bf:media>
+        <bf:extent>
+            <bf:Extent>
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">171 pages</rdfs:label>
+            </bf:Extent>
+        </bf:extent>
+        <bf:dimensions>21 x 29 cm</bf:dimensions>
+        <bf:carrier>
+            <bf:Carrier rdf:about="http://id.loc.gov/vocabulary/carriers/nc">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">volume</rdfs:label>
+                <bf:code>nc</bf:code>
+            </bf:Carrier>
+        </bf:carrier>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-5-0/"/>
+                <bflc:encodingLevel xmlns:bflc="http://id.loc.gov/ontologies/bflc/">
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/5">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">preliminary</rdfs:label>
+                        <bf:code>5</bf:code>
+                    </bflc:EncodingLevel>
+                </bflc:encodingLevel>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">ISBD: International standard bibliographic description</rdfs:label>
+                        <bf:code>isbd</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Resource description and access</rdfs:label>
+                        <bf:code>rda</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:identifiedBy>
+                    <bf:Local>
+                        <rdf:value>24129198</rdf:value>
+                        <bf:assigner>
+                            <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                            </bf:Organization>
+                        </bf:assigner>
+                    </bf:Local>
+                </bf:identifiedBy>
+                <bf:descriptionLanguage>
+                    <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">English</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+                    </bf:Language>
+                </bf:descriptionLanguage>
+                <bf:note>
+                    <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">040  $aCUY$beng$erda$cCUY$dOCLCO$dOCLCF$dPUL$dOCLCQ$dDLC</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+                <bf:descriptionAuthentication>
+                    <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/lccopycat">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">LC Copy Cataloging</rdfs:label>
+                        <bf:code>lccopycat</bf:code>
+                    </bf:DescriptionAuthentication>
+                </bf:descriptionAuthentication>
+                <lclocal:d906 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=906     $a 0 $b ibc $c copycat $d 3 $e ncip $f 20 $g y-nonroman</lclocal:d906>
+                <lclocal:d955 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=955     $b fg23 2025-03-27 z-processor JACKPHY</lclocal:d955>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/tree/v2.10-dev"/>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-27T15:21:58.102369-04:00</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-27T15:13:17</bf:date>
+                <bf:descriptionModifier>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:descriptionModifier>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">new</rdfs:label>
+                        <bf:code>n</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2025-03-27</bf:date>
+                <bf:agent>
+                    <bf:Agent>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Agent"/>
+                        <bf:code>CUY</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:publicationStatement xmlns:bf="http://id.loc.gov/ontologies/bibframe/">Beograd: Arhiv Jugoslavije, 2021</bf:publicationStatement>
+        <bf:publicationStatement xmlns:bf="http://id.loc.gov/ontologies/bibframe/" xml:lang="sr-cyrl">Београд: Архив Југославије, 2021</bf:publicationStatement>
+        <dcterms:isPartOf xmlns:dcterms="http://purl.org/dc/terms/" rdf:resource="http://id.loc.gov/resources/instances"
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+        <bf:adminMetadata xmlns:bf="http://id.loc.gov/ontologies/bibframe/">
+            <bf:AdminMetadata>
+                <bf:date>2025-03-27T19:22:00.698Z</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c"
+                        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                    </bf:Status>
+                </bf:status>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/24129198"/>
+    </bf:Instance>
+    <bf:Instance xmlns:bf="http://id.loc.gov/ontologies/bibframe/" rdf:about="http://id.loc.gov/resources/instances/24129198-85X-1"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bflc/SecondaryInstance"/>
+        <bf:title>
+            <bf:Title>
+                <bf:mainTitle>[Electronic resource]</bf:mainTitle>
+            </bf:Title>
+        </bf:title>
+        <bf:issuance>
+            <bf:Issuance rdf:about="http://id.loc.gov/vocabulary/issuance/mono">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">single unit</rdfs:label>
+                <bf:code>mono</bf:code>
+            </bf:Issuance>
+        </bf:issuance>
+        <bf:media>
+            <bf:Media rdf:about="http://id.loc.gov/vocabulary/mediaTypes/c">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">computer</rdfs:label>
+                <bf:code>c</bf:code>
+            </bf:Media>
+        </bf:media>
+        <bf:carrier>
+            <bf:Carrier rdf:about="http://id.loc.gov/vocabulary/carriers/cr">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">online resource</rdfs:label>
+                <bf:code>cr</bf:code>
+            </bf:Carrier>
+        </bf:carrier>
+        <bf:electronicLocator rdf:resource="http://www.arhivyu.gov.rs/Data/Images/icon_pdf.gif"/>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:identifiedBy>
+                    <bf:Local>
+                        <rdf:value>24129198-85X-1</rdf:value>
+                        <bf:assigner>
+                            <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                            </bf:Organization>
+                        </bf:assigner>
+                    </bf:Local>
+                </bf:identifiedBy>
+                <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-5-0/"/>
+                <bflc:encodingLevel xmlns:bflc="http://id.loc.gov/ontologies/bflc/">
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/5">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">preliminary</rdfs:label>
+                        <bf:code>5</bf:code>
+                    </bflc:EncodingLevel>
+                </bflc:encodingLevel>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">ISBD: International standard bibliographic description</rdfs:label>
+                        <bf:code>isbd</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Resource description and access</rdfs:label>
+                        <bf:code>rda</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:descriptionLanguage>
+                    <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">English</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+                    </bf:Language>
+                </bf:descriptionLanguage>
+                <bf:note>
+                    <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">040  $aCUY$beng$erda$cCUY$dOCLCO$dOCLCF$dPUL$dOCLCQ$dDLC</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+                <bf:descriptionAuthentication>
+                    <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/lccopycat">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">LC Copy Cataloging</rdfs:label>
+                        <bf:code>lccopycat</bf:code>
+                    </bf:DescriptionAuthentication>
+                </bf:descriptionAuthentication>
+                <lclocal:d906 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=906     $a 0 $b ibc $c copycat $d 3 $e ncip $f 20 $g y-nonroman</lclocal:d906>
+                <lclocal:d955 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=955     $b fg23 2025-03-27 z-processor JACKPHY</lclocal:d955>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/tree/v2.10-dev"/>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-27T15:21:58.102369-04:00</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-27T15:13:17</bf:date>
+                <bf:descriptionModifier>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:descriptionModifier>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">new</rdfs:label>
+                        <bf:code>n</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2025-03-27</bf:date>
+                <bf:agent>
+                    <bf:Agent>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Agent"/>
+                        <bf:code>CUY</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <dcterms:isPartOf xmlns:dcterms="http://purl.org/dc/terms/" rdf:resource="http://id.loc.gov/resources/instances"
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+        <bf:adminMetadata xmlns:bf="http://id.loc.gov/ontologies/bibframe/">
+            <bf:AdminMetadata>
+                <bf:date>2025-03-27T19:22:00.698Z</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">kefo</bflc:catalogerId>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c"
+                        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                    </bf:Status>
+                </bf:status>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/24129198"/>
+    </bf:Instance>
+    <void:DatasetDescription xmlns:void="http://rdfs.org/ns/void#"
+        xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">
+        <lclocal:rtsused>lc:RT:bf2:Monograph:Work</lclocal:rtsused>
+        <lclocal:rtsused>lc:RT:bf2:Monograph:Instance</lclocal:rtsused>
+        <lclocal:rtsused>lc:RT:bf2:Monograph:Instance_1</lclocal:rtsused>
+        <lclocal:profiletypes>Work</lclocal:profiletypes>
+        <lclocal:profiletypes>Instance</lclocal:profiletypes>
+        <lclocal:title>Srpski narod i jugoslovenska država</lclocal:title>
+        <lclocal:contributor>Đurišić, Jelena</lclocal:contributor>
+        <lclocal:lccn>  2026888777</lclocal:lccn>
+        <lclocal:user>kefo (kefo)</lclocal:user>
+        <lclocal:status>unposted</lclocal:status>
+        <lclocal:eid>e2048189</lclocal:eid>
+        <lclocal:typeid>Monograph</lclocal:typeid>
+        <lclocal:procinfo>update instance</lclocal:procinfo>
+        <lclocal:externalid>http://id.loc.gov/resources/works/24129198</lclocal:externalid>
+        <lclocal:externalid>http://id.loc.gov/resources/instances/24129198</lclocal:externalid>
+        <lclocal:externalid>http://id.loc.gov/resources/instances/24129198-85X-1</lclocal:externalid>
+    </void:DatasetDescription>
+</rdf:RDF>

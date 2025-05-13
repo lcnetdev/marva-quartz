@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:bf="http://id.loc.gov/ontologies/bibframe/"
+    xmlns:bflc="http://id.loc.gov/ontologies/bflc/"
+    xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/"
+    xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:pmo="http://performedmusicontology.org/ontology/"
+    xmlns:streams="info:lc/streams#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/">
+    <bf:Work rdf:about="http://id.loc.gov/resources/works/15146892">
+        <bflc:aap>Johnson, Samuel, 1709-1784 A journey to the Western Islands of Scotland</bflc:aap>
+        <bflc:aap-normalized>johnsonsamuel17091784ajourneytothewesternislandsofscotland</bflc:aap-normalized>
+        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Text"/>
+        <bf:content>
+            <bf:Content rdf:about="http://id.loc.gov/vocabulary/contentTypes/txt">
+                <rdfs:label>text</rdfs:label>
+                <bf:code>txt</bf:code>
+            </bf:Content>
+        </bf:content>
+        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Monograph"/>
+        <bf:language>
+            <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                <rdfs:label xml:lang="en">English</rdfs:label>
+                <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+            </bf:Language>
+        </bf:language>
+        <bf:illustrativeContent>
+            <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/map">
+                <rdfs:label>maps</rdfs:label>
+                <bf:code>map</bf:code>
+            </bf:Illustration>
+        </bf:illustrativeContent>
+        <bf:geographicCoverage>
+            <bf:GeographicCoverage rdf:about="http://id.loc.gov/vocabulary/geographicAreas/e-uk-st">
+                <rdfs:label xml:lang="en">Scotland</rdfs:label>
+                <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">e-uk-st</bf:code>
+            </bf:GeographicCoverage>
+        </bf:geographicCoverage>
+        <bf:classification>
+            <bf:ClassificationLcc>
+                <bf:classificationPortion>DA880.H4</bf:classificationPortion>
+                <bf:itemPortion>J6 2008</bf:itemPortion>
+                <bf:assigner>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:assigner>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/uba">
+                        <rdfs:label>used by assigner</rdfs:label>
+                        <bf:code>uba</bf:code>
+                    </bf:Status>
+                </bf:status>
+            </bf:ClassificationLcc>
+        </bf:classification>
+        <bf:classification>
+            <bf:ClassificationDdc>
+                <bf:classificationPortion>914.110473</bf:classificationPortion>
+                <bf:source>
+                    <bf:Source>
+                        <bf:code>22</bf:code>
+                    </bf:Source>
+                </bf:source>
+                <bf:edition>full</bf:edition>
+            </bf:ClassificationDdc>
+        </bf:classification>
+        <bf:contribution>
+            <bf:Contribution>
+                <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n78095825">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                        <rdfs:label>Johnson, Samuel, 1709-1784</rdfs:label>
+                        <bflc:marcKey>1001 $aJohnson, Samuel,$d1709-1784</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
+                        <rdfs:label>contributor</rdfs:label>
+                        <bf:code>ctb</bf:code>
+                    </bf:Role>
+                </bf:role>
+            </bf:Contribution>
+        </bf:contribution>
+        <bf:title>
+            <bf:Title>
+                <bf:mainTitle>A journey to the Western Islands of Scotland</bf:mainTitle>
+                <bflc:nonSortNum>2</bflc:nonSortNum>
+            </bf:Title>
+        </bf:title>
+        <bf:tableOfContents>
+            <bf:TableOfContents>
+                <rdfs:label>A journey to the Western Islands of Scotland / Samuel Johnson -- The journal of a tour to the Hebrides / James Boswell.</rdfs:label>
+            </bf:TableOfContents>
+        </bf:tableOfContents>
+        <bf:subject>
+            <bf:Topic>
+                <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject"/>
+                <rdfs:label>Hebrides (Scotland)--Description and travel--Early works to 1800</rdfs:label>
+                <madsrdf:authoritativeLabel>Hebrides (Scotland)--Description and travel--Early works to 1800</madsrdf:authoritativeLabel>
+                <madsrdf:isMemberOfMADSScheme>
+                    <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </madsrdf:MADSScheme>
+                </madsrdf:isMemberOfMADSScheme>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:Geographic rdf:about="http://id.loc.gov/authorities/subjects/sh85059893">
+                        <rdfs:label xml:lang="en">Hebrides (Scotland)</rdfs:label>
+                        <bflc:marcKey>151  $aHebrides (Scotland)</bflc:marcKey>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">e-uk-st</bf:code>
+                    </madsrdf:Geographic>
+                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh99001278">
+                        <rdfs:label xml:lang="en">Description and travel</rdfs:label>
+                        <bflc:marcKey>180  $xDescription and travel</bflc:marcKey>
+                    </madsrdf:Topic>
+                    <madsrdf:GenreForm>
+                        <madsrdf:authoritativeLabel>Early works to 1800</madsrdf:authoritativeLabel>
+                    </madsrdf:GenreForm>
+                </madsrdf:componentList>
+                <bflc:aap-normalized>hebrides(scotland)descriptionandtravelearlyworksto1800</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh85118819">
+                <rdfs:label xml:lang="en">Scotland--Description and travel--Early works to 1800</rdfs:label>
+                <bflc:marcKey>151  $aScotland$xDescription and travel$vEarly works to 1800</bflc:marcKey>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:Geographic>
+                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
+                        <madsrdf:authoritativeLabel xml:lang="en">Scotland</madsrdf:authoritativeLabel>
+                        <madsrdf:elementList rdf:parseType="Collection">
+                            <madsrdf:GeographicElement>
+                                <madsrdf:elementValue xml:lang="en">Scotland</madsrdf:elementValue>
+                            </madsrdf:GeographicElement>
+                        </madsrdf:elementList>
+                    </madsrdf:Geographic>
+                    <madsrdf:Topic>
+                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
+                        <madsrdf:authoritativeLabel xml:lang="en">Description and travel</madsrdf:authoritativeLabel>
+                        <madsrdf:elementList rdf:parseType="Collection">
+                            <madsrdf:TopicElement>
+                                <madsrdf:elementValue xml:lang="en">Description and travel</madsrdf:elementValue>
+                            </madsrdf:TopicElement>
+                        </madsrdf:elementList>
+                    </madsrdf:Topic>
+                    <madsrdf:GenreForm>
+                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
+                        <madsrdf:authoritativeLabel xml:lang="en">Early works to 1800</madsrdf:authoritativeLabel>
+                        <madsrdf:elementList rdf:parseType="Collection">
+                            <madsrdf:GenreFormElement>
+                                <madsrdf:elementValue xml:lang="en">Early works to 1800</madsrdf:elementValue>
+                            </madsrdf:GenreFormElement>
+                        </madsrdf:elementList>
+                    </madsrdf:GenreForm>
+                </madsrdf:componentList>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic>
+                <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject"/>
+                <madsrdf:authoritativeLabel>Johnson, Samuel, 1709-1784--Travel--Scotland--Hebrides.</madsrdf:authoritativeLabel>
+                <madsrdf:isMemberOfMADSScheme>
+                    <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </madsrdf:MADSScheme>
+                </madsrdf:isMemberOfMADSScheme>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:PersonalName rdf:about="http://id.loc.gov/rwo/agents/n78095825">
+                        <rdfs:label>Johnson, Samuel, 1709-1784</rdfs:label>
+                        <bflc:marcKey>1001 $aJohnson, Samuel,$d1709-1784</bflc:marcKey>
+                    </madsrdf:PersonalName>
+                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh99005039">
+                        <rdfs:label xml:lang="en">Travel</rdfs:label>
+                        <bflc:marcKey>180  $xTravel</bflc:marcKey>
+                    </madsrdf:Topic>
+                    <madsrdf:Geographic rdf:about="http://id.loc.gov/rwo/agents/n79123936-781">
+                        <rdfs:label>Scotland</rdfs:label>
+                        <bflc:marcKey>181  $zScotland</bflc:marcKey>
+                    </madsrdf:Geographic>
+                    <madsrdf:Geographic>
+                        <madsrdf:authoritativeLabel>Hebrides</madsrdf:authoritativeLabel>
+                    </madsrdf:Geographic>
+                </madsrdf:componentList>
+                <bflc:aap-normalized>johnsonsamuel17091784travelscotlandhebrides</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic>
+                <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject"/>
+                <madsrdf:authoritativeLabel>Boswell, James, 1740-1795--Travel--Scotland--Hebrides.</madsrdf:authoritativeLabel>
+                <madsrdf:isMemberOfMADSScheme>
+                    <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </madsrdf:MADSScheme>
+                </madsrdf:isMemberOfMADSScheme>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:PersonalName rdf:about="http://id.loc.gov/rwo/agents/n79018795">
+                        <rdfs:label>Boswell, James, 1740-1795</rdfs:label>
+                        <bflc:marcKey>1001 $aBoswell, James,$d1740-1795</bflc:marcKey>
+                    </madsrdf:PersonalName>
+                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh99005039">
+                        <rdfs:label xml:lang="en">Travel</rdfs:label>
+                        <bflc:marcKey>180  $xTravel</bflc:marcKey>
+                    </madsrdf:Topic>
+                    <madsrdf:Geographic rdf:about="http://id.loc.gov/rwo/agents/n79123936-781">
+                        <rdfs:label>Scotland</rdfs:label>
+                        <bflc:marcKey>181  $zScotland</bflc:marcKey>
+                    </madsrdf:Geographic>
+                    <madsrdf:Geographic>
+                        <madsrdf:authoritativeLabel>Hebrides</madsrdf:authoritativeLabel>
+                    </madsrdf:Geographic>
+                </madsrdf:componentList>
+                <bflc:aap-normalized>boswelljames17401795travelscotlandhebrides</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </bf:Topic>
+        </bf:subject>
+        <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/works"/>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship>
+                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/part">
+                        <rdfs:label>part</rdfs:label>
+                        <bf:code>part</bf:code>
+                    </bf:Relationship>
+                </bf:relationship>
+                <bf:associatedResource>
+                    <bf:Hub rdf:about="http://id.loc.gov/resources/hubs/a0769755-240e-903b-17e6-9a127c46811e">
+                        <rdfs:label>Boswell, James, 1740-1795 Journal of a tour to the Hebrides with Samuel Johnson, LL.D</rdfs:label>
+                        <bf:contribution>
+                            <bf:Contribution>
+                                <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+                                <bf:agent>
+                                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/n79018795">
+                                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                                        <rdfs:label>Boswell, James, 1740-1795</rdfs:label>
+                                        <bflc:marcKey>1001 $aBoswell, James,$d1740-1795</bflc:marcKey>
+                                    </bf:Agent>
+                                </bf:agent>
+                                <bf:role>
+                                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
+                                        <rdfs:label>contributor</rdfs:label>
+                                        <bf:code>ctb</bf:code>
+                                    </bf:Role>
+                                </bf:role>
+                            </bf:Contribution>
+                        </bf:contribution>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>Journal of a tour to the Hebrides with Samuel Johnson, LL.D.</bf:mainTitle>
+                            </bf:Title>
+                        </bf:title>
+                        <bf:title>
+                            <bf:VariantTitle>
+                                <bf:mainTitle>Boswell's journal of a tour to the Hebrides with Samuel Johnson, LL.D.</bf:mainTitle>
+                            </bf:VariantTitle>
+                        </bf:title>
+                    </bf:Hub>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship>
+                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/part">
+                        <rdfs:label>part</rdfs:label>
+                        <bf:code>part</bf:code>
+                    </bf:Relationship>
+                </bf:relationship>
+                <bf:associatedResource>
+                    <bf:Work>
+                        <bflc:aap>Journal of a tour to the Hebrides with Samuel Johnson, LL.D</bflc:aap>
+                        <bflc:aap-normalized>journalofatourtothehebrideswithsamueljohnsonlld</bflc:aap-normalized>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bflc/Uncontrolled"/>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>Journal of a tour to the Hebrides with Samuel Johnson, LL.D.</bf:mainTitle>
+                                <bflc:nonSortNum>0</bflc:nonSortNum>
+                            </bf:Title>
+                        </bf:title>
+                    </bf:Work>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
+        <bf:hasInstance rdf:resource="http://id.loc.gov/resources/instances/15146892"/>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                        <rdfs:label>new</rdfs:label>
+                        <bf:code>n</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2008-01-18</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-01-15T14:17:42</bf:date>
+                <bf:descriptionModifier>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:descriptionModifier>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:25:56.444451-05:00</bf:date>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-4-0/"/>
+                <bflc:encodingLevel>
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/f">
+                        <rdfs:label>full</rdfs:label>
+                        <bf:code>f</bf:code>
+                    </bflc:EncodingLevel>
+                </bflc:encodingLevel>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/aacr">
+                        <rdfs:label>Anglo-American cataloguing rules</rdfs:label>
+                        <bf:code>aacr</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:identifiedBy>
+                    <bf:Local>
+                        <rdf:value>15146892</rdf:value>
+                        <bf:assigner>
+                            <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                <rdfs:label>United States, Library of Congress</rdfs:label>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                            </bf:Organization>
+                        </bf:assigner>
+                    </bf:Local>
+                </bf:identifiedBy>
+                <lclocal:d906>=906     $a 7 $b cbc $c orignew $d 1 $e ecip $f 20 $g y-gencatlg</lclocal:d906>
+                <lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x policy default</lclocal:d925>
+                <lclocal:d955>=955     $a lh38 2008-01-18 $c lh38 2008-01-18 (awaiting info) $d lh38 2008-01-23 $e lh38 2008-01-23 to CIP (Dewey completed) $a ps10 2008-08-07 1 copy rec'd., to CIP ver.; $f lg13 2008-08-20 to SL; $g lg13 2008-08-20 to BCCD</lclocal:d955>
+                <bf:note>
+                    <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+                        <rdfs:label>040  $aDLC$cDLC$dDLC</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+    </bf:Work>
+    <bf:Instance rdf:about="http://id.loc.gov/resources/instances/15146892">
+        <bf:issuance>
+            <bf:Issuance rdf:about="http://id.loc.gov/vocabulary/issuance/mono">
+                <rdfs:label>single unit</rdfs:label>
+                <bf:code>mono</bf:code>
+            </bf:Issuance>
+        </bf:issuance>
+        <bf:provisionActivity>
+            <bf:ProvisionActivity>
+                <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Publication"/>
+                <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2008</bf:date>
+                <bf:place>
+                    <bf:Place rdf:about="http://id.loc.gov/vocabulary/countries/nyu">
+                        <rdfs:label xml:lang="en">New York (State)</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nyu</bf:code>
+                    </bf:Place>
+                </bf:place>
+                <bflc:simplePlace>Mineola, N.Y.</bflc:simplePlace>
+                <bflc:simpleAgent>Dover Publications</bflc:simpleAgent>
+                <bflc:simpleDate>2008</bflc:simpleDate>
+            </bf:ProvisionActivity>
+        </bf:provisionActivity>
+        <bf:publicationStatement>Mineola, N.Y.: Dover Publications, 2008</bf:publicationStatement>
+        <bf:media>
+            <bf:Media rdf:about="http://id.loc.gov/vocabulary/mediaTypes/n">
+                <rdfs:label>unmediated</rdfs:label>
+                <bf:code>n</bf:code>
+            </bf:Media>
+        </bf:media>
+        <bf:identifiedBy>
+            <bf:Lccn>
+                <rdf:value>  2007052988</rdf:value>
+            </bf:Lccn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Isbn>
+                <rdf:value>9780486455549</rdf:value>
+            </bf:Isbn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Isbn>
+                <rdf:value>0486455548</rdf:value>
+            </bf:Isbn>
+        </bf:identifiedBy>
+        <bf:responsibilityStatement>Samuel Johnson and James Boswell</bf:responsibilityStatement>
+        <bf:title>
+            <bf:Title>
+                <bf:mainTitle>A journey to the Western Islands of Scotland</bf:mainTitle>
+                <bf:subtitle>and, The journal of a tour to the Hebrides</bf:subtitle>
+                <bflc:nonSortNum>2</bflc:nonSortNum>
+            </bf:Title>
+        </bf:title>
+        <bf:editionStatement>Dover ed.</bf:editionStatement>
+        <bf:extent>
+            <bf:Extent>
+                <rdfs:label>v, 406 p.</rdfs:label>
+            </bf:Extent>
+        </bf:extent>
+        <bf:note>
+            <bf:Note>
+                <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/physical"/>
+                <rdfs:label>map</rdfs:label>
+            </bf:Note>
+        </bf:note>
+        <bf:dimensions>21 cm</bf:dimensions>
+        <bf:note>
+            <bf:Note>
+                <rdfs:label>"This Dover edition, first published in 2008, is an unabridged republication of a standard text. The introductory note was specially prepared for this edition"--T.p. verso.</rdfs:label>
+            </bf:Note>
+        </bf:note>
+        <bf:note>
+            <bf:Note>
+                <rdfs:label>A journey to the Western Islands of Scotland originally published: London : Printed for W. Strachan, 1775 - The journal of a tour to the Hebrides originally published: London : Charles Dilly, 1785.</rdfs:label>
+            </bf:Note>
+        </bf:note>
+        <bf:supplementaryContent>
+            <bf:SupplementaryContent>
+                <bf:electronicLocator rdf:resource="http://www.loc.gov/catdir/enhancements/fy0809/2007052988-d.html"/>
+                <bf:note>
+                    <bf:Note>
+                        <rdfs:label>Publisher description</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+            </bf:SupplementaryContent>
+        </bf:supplementaryContent>
+        <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/instances"/>
+        <bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/15146892"/>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                        <rdfs:label>new</rdfs:label>
+                        <bf:code>n</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2008-01-18</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2010-01-15T14:17:42</bf:date>
+                <bf:descriptionModifier>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:descriptionModifier>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.8.0"/>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-11-08T08:25:56.444451-05:00</bf:date>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-4-0/"/>
+                <bflc:encodingLevel>
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/f">
+                        <rdfs:label>full</rdfs:label>
+                        <bf:code>f</bf:code>
+                    </bflc:EncodingLevel>
+                </bflc:encodingLevel>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/aacr">
+                        <rdfs:label>Anglo-American cataloguing rules</rdfs:label>
+                        <bf:code>aacr</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:identifiedBy>
+                    <bf:Local>
+                        <rdf:value>15146892</rdf:value>
+                        <bf:assigner>
+                            <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                <rdfs:label>United States, Library of Congress</rdfs:label>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                            </bf:Organization>
+                        </bf:assigner>
+                    </bf:Local>
+                </bf:identifiedBy>
+                <lclocal:d906>=906     $a 7 $b cbc $c orignew $d 1 $e ecip $f 20 $g y-gencatlg</lclocal:d906>
+                <lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x policy default</lclocal:d925>
+                <lclocal:d955>=955     $a lh38 2008-01-18 $c lh38 2008-01-18 (awaiting info) $d lh38 2008-01-23 $e lh38 2008-01-23 to CIP (Dewey completed) $a ps10 2008-08-07 1 copy rec'd., to CIP ver.; $f lg13 2008-08-20 to SL; $g lg13 2008-08-20 to BCCD</lclocal:d955>
+                <bf:note>
+                    <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+                        <rdfs:label>040  $aDLC$cDLC$dDLC</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+    </bf:Instance>
+</rdf:RDF>

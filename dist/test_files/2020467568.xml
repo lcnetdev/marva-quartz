@@ -1,0 +1,778 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:bf="http://id.loc.gov/ontologies/bibframe/"
+    xmlns:bflc="http://id.loc.gov/ontologies/bflc/"
+    xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/"
+    xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:pmo="http://performedmusicontology.org/ontology/"
+    xmlns:streams="info:lc/streams#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/">
+    <bf:Work rdf:about="http://id.loc.gov/resources/works/21657322">
+        <bflc:aap>Rivera-Páez, Samuel. Militares e identidad</bflc:aap>
+        <bflc:aap-normalized>riverapáezsamuelmilitareseidentidad</bflc:aap-normalized>
+        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Text"/>
+        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Monograph"/>
+        <bf:language>
+            <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/spa">
+                <rdfs:label xml:lang="en">Spanish</rdfs:label>
+                <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">spa</bf:code>
+            </bf:Language>
+        </bf:language>
+        <bf:illustrativeContent>
+            <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/ill">
+                <rdfs:label>illustrations</rdfs:label>
+                <bf:code>ill</bf:code>
+            </bf:Illustration>
+        </bf:illustrativeContent>
+        <bf:illustrativeContent>
+            <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/chr">
+                <rdfs:label>charts</rdfs:label>
+                <bf:code>chr</bf:code>
+            </bf:Illustration>
+        </bf:illustrativeContent>
+        <bf:geographicCoverage>
+            <bf:GeographicCoverage rdf:about="http://id.loc.gov/vocabulary/geographicAreas/s-ck">
+                <rdfs:label xml:lang="en">Colombia</rdfs:label>
+                <bf:code rdf:datatype="http://id.loc.gov/datatypes/codes/gac">s-ck---</bf:code>
+            </bf:GeographicCoverage>
+        </bf:geographicCoverage>
+        <bf:classification>
+            <bf:ClassificationLcc>
+                <bf:classificationPortion>UB415.C7</bf:classificationPortion>
+                <bf:itemPortion>R58 2019</bf:itemPortion>
+                <bf:assigner>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:assigner>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/uba">
+                        <rdfs:label>used by assigner</rdfs:label>
+                        <bf:code>uba</bf:code>
+                    </bf:Status>
+                </bf:status>
+            </bf:ClassificationLcc>
+        </bf:classification>
+        <bf:contribution>
+            <bf:Contribution>
+                <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/no2021003635">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                        <rdfs:label>Rivera-Páez, Samuel</rdfs:label>
+                        <bflc:marcKey>1001 $aRivera-Páez, Samuel</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                        <rdfs:label>author</rdfs:label>
+                        <bf:code>aut</bf:code>
+                    </bf:Role>
+                </bf:role>
+            </bf:Contribution>
+        </bf:contribution>
+        <bf:title>
+            <bf:Title>
+                <bf:mainTitle>Militares e identidad</bf:mainTitle>
+            </bf:Title>
+        </bf:title>
+        <bf:content>
+            <bf:Content rdf:about="http://id.loc.gov/vocabulary/contentTypes/txt">
+                <rdfs:label>text</rdfs:label>
+                <bf:code>txt</bf:code>
+            </bf:Content>
+        </bf:content>
+        <bf:illustrativeContent>
+            <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/ill">
+                <rdfs:label>illustrations</rdfs:label>
+                <bf:code>ill</bf:code>
+            </bf:Illustration>
+        </bf:illustrativeContent>
+        <bf:illustrativeContent>
+            <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/chr">
+                <rdfs:label>charts</rdfs:label>
+                <bf:code>chr</bf:code>
+            </bf:Illustration>
+        </bf:illustrativeContent>
+        <bf:supplementaryContent>
+            <bf:SupplementaryContent rdf:about="http://id.loc.gov/vocabulary/msupplcont/bibliography">
+                <rdfs:label>bibliography</rdfs:label>
+                <bf:code>bibliography</bf:code>
+            </bf:SupplementaryContent>
+        </bf:supplementaryContent>
+        <bf:tableOfContents>
+            <bf:TableOfContents>
+                <rdfs:label>¿Por qué investigar sobre la configuración identitaria de los militares? -- Composición del cuerpo de oficiales de las fuerzas militares en Colombia -- Identidades indviduales y colectivas en el cuerpo de oficiales -- Configuración identitaria en los oficiales de las fuerzas militares: contenidos y disputas -- Identidades, militares y construcción de paz en Colombia -- Reflexiones finales.</rdfs:label>
+            </bf:TableOfContents>
+        </bf:tableOfContents>
+        <bf:subject>
+            <bf:Topic>
+                <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject"/>
+                <madsrdf:authoritativeLabel>Colombia. Fuerzas Militares--Officers</madsrdf:authoritativeLabel>
+                <madsrdf:isMemberOfMADSScheme>
+                    <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </madsrdf:MADSScheme>
+                </madsrdf:isMemberOfMADSScheme>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:CorporateName rdf:about="http://id.loc.gov/rwo/agents/n84023106">
+                        <rdfs:label>Colombia. Fuerzas Militares</rdfs:label>
+                        <bflc:marcKey>1101 $aColombia.$bFuerzas Militares</bflc:marcKey>
+                    </madsrdf:CorporateName>
+                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh00002550">
+                        <rdfs:label xml:lang="en">Officers</rdfs:label>
+                        <bflc:marcKey>180  $xOfficers</bflc:marcKey>
+                    </madsrdf:Topic>
+                </madsrdf:componentList>
+                <bflc:aap-normalized>colombiafuerzasmilitaresofficers</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic>
+                <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject"/>
+                <madsrdf:authoritativeLabel>Colombia. Fuerzas Militares--Officers--Attitudes</madsrdf:authoritativeLabel>
+                <madsrdf:isMemberOfMADSScheme>
+                    <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </madsrdf:MADSScheme>
+                </madsrdf:isMemberOfMADSScheme>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:CorporateName rdf:about="http://id.loc.gov/rwo/agents/n84023106">
+                        <rdfs:label>Colombia. Fuerzas Militares</rdfs:label>
+                        <bflc:marcKey>1101 $aColombia.$bFuerzas Militares</bflc:marcKey>
+                    </madsrdf:CorporateName>
+                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh00002550">
+                        <rdfs:label xml:lang="en">Officers</rdfs:label>
+                        <bflc:marcKey>180  $xOfficers</bflc:marcKey>
+                    </madsrdf:Topic>
+                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh2002006216">
+                        <rdfs:label xml:lang="en">Attitudes</rdfs:label>
+                        <bflc:marcKey>180  $xAttitudes</bflc:marcKey>
+                    </madsrdf:Topic>
+                </madsrdf:componentList>
+                <bflc:aap-normalized>colombiafuerzasmilitaresofficersattitudes</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic>
+                <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject"/>
+                <rdfs:label>Group identity--Colombia</rdfs:label>
+                <madsrdf:authoritativeLabel>Group identity--Colombia</madsrdf:authoritativeLabel>
+                <madsrdf:isMemberOfMADSScheme>
+                    <madsrdf:MADSScheme rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </madsrdf:MADSScheme>
+                </madsrdf:isMemberOfMADSScheme>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh85057485">
+                        <rdfs:label xml:lang="en">Group identity</rdfs:label>
+                        <bflc:marcKey>150  $aGroup identity</bflc:marcKey>
+                    </madsrdf:Topic>
+                    <madsrdf:Geographic rdf:about="http://id.loc.gov/rwo/agents/n79084451-781">
+                        <rdfs:label>Colombia</rdfs:label>
+                        <bflc:marcKey>181  $zColombia</bflc:marcKey>
+                    </madsrdf:Geographic>
+                </madsrdf:componentList>
+                <bflc:aap-normalized>groupidentitycolombia</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/authorities/subjects">
+                        <rdfs:label xml:lang="en">Library of Congress Subject Headings</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh2010105064">
+                <rdfs:label xml:lang="en">Peace-building--Colombia</rdfs:label>
+                <bflc:marcKey>150  $aPeace-building$zColombia</bflc:marcKey>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:Topic>
+                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
+                        <madsrdf:authoritativeLabel xml:lang="en">Peace-building</madsrdf:authoritativeLabel>
+                        <madsrdf:elementList rdf:parseType="Collection">
+                            <madsrdf:TopicElement>
+                                <madsrdf:elementValue xml:lang="en">Peace-building</madsrdf:elementValue>
+                            </madsrdf:TopicElement>
+                        </madsrdf:elementList>
+                    </madsrdf:Topic>
+                    <madsrdf:Geographic>
+                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#Authority"/>
+                        <madsrdf:authoritativeLabel xml:lang="en">Colombia</madsrdf:authoritativeLabel>
+                        <madsrdf:elementList rdf:parseType="Collection">
+                            <madsrdf:GeographicElement>
+                                <madsrdf:elementValue xml:lang="en">Colombia</madsrdf:elementValue>
+                            </madsrdf:GeographicElement>
+                        </madsrdf:elementList>
+                    </madsrdf:Geographic>
+                </madsrdf:componentList>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic>
+                <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject"/>
+                <rdfs:label>Identité collective--Colombie</rdfs:label>
+                <madsrdf:authoritativeLabel>Identité collective--Colombie</madsrdf:authoritativeLabel>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:Topic>
+                        <madsrdf:authoritativeLabel>Identité collective</madsrdf:authoritativeLabel>
+                    </madsrdf:Topic>
+                    <madsrdf:Geographic>
+                        <madsrdf:authoritativeLabel>Colombie</madsrdf:authoritativeLabel>
+                    </madsrdf:Geographic>
+                </madsrdf:componentList>
+                <bflc:aap-normalized>identitécollectivecolombie</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/rvm">
+                        <rdfs:label>Répertoire de vedettes-matière</rdfs:label>
+                        <bf:code>rvm</bf:code>
+                    </bf:Source>
+                </bf:source>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic>
+                <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#ComplexSubject"/>
+                <rdfs:label>Consolidation de la paix--Colombie</rdfs:label>
+                <madsrdf:authoritativeLabel>Consolidation de la paix--Colombie</madsrdf:authoritativeLabel>
+                <madsrdf:componentList rdf:parseType="Collection">
+                    <madsrdf:Topic>
+                        <madsrdf:authoritativeLabel>Consolidation de la paix</madsrdf:authoritativeLabel>
+                    </madsrdf:Topic>
+                    <madsrdf:Geographic>
+                        <madsrdf:authoritativeLabel>Colombie</madsrdf:authoritativeLabel>
+                    </madsrdf:Geographic>
+                </madsrdf:componentList>
+                <bflc:aap-normalized>consolidationdelapaixcolombie</bflc:aap-normalized>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/rvm">
+                        <rdfs:label>Répertoire de vedettes-matière</rdfs:label>
+                        <bf:code>rvm</bf:code>
+                    </bf:Source>
+                </bf:source>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Organization rdf:about="http://id.worldcat.org/fast/590489">
+                <bflc:marcKey>1101 $aColombia.$bFuerzas Militares</bflc:marcKey>
+                <madsrdf:authoritativeLabel>Colombia Fuerzas Militares</madsrdf:authoritativeLabel>
+            </bf:Organization>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic rdf:about="http://id.worldcat.org/fast/814617">
+                <bflc:marcKey>150  $aArmed Forces$xOfficers</bflc:marcKey>
+                <madsrdf:authoritativeLabel>Armed Forces--Officers</madsrdf:authoritativeLabel>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic rdf:about="http://id.worldcat.org/fast/1351819">
+                <bflc:marcKey>150  $aArmed Forces$xOfficers$xAttitudes</bflc:marcKey>
+                <madsrdf:authoritativeLabel>Armed Forces--Officers--Attitudes</madsrdf:authoritativeLabel>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic rdf:about="http://id.worldcat.org/fast/948442">
+                <bflc:marcKey>150  $aGroup identity</bflc:marcKey>
+                <madsrdf:authoritativeLabel>Group identity</madsrdf:authoritativeLabel>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Topic rdf:about="http://id.worldcat.org/fast/1055902">
+                <bflc:marcKey>150  $aPeace-building</bflc:marcKey>
+                <madsrdf:authoritativeLabel>Peace-building</madsrdf:authoritativeLabel>
+            </bf:Topic>
+        </bf:subject>
+        <bf:subject>
+            <bf:Place rdf:about="http://id.worldcat.org/fast/1205916">
+                <bflc:marcKey>151  $aColombia</bflc:marcKey>
+                <madsrdf:authoritativeLabel>Colombia</madsrdf:authoritativeLabel>
+            </bf:Place>
+        </bf:subject>
+        <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/works"/>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship>
+                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/series">
+                        <rdfs:label>series</rdfs:label>
+                        <bf:code>series</bf:code>
+                    </bf:Relationship>
+                </bf:relationship>
+                <bf:associatedResource>
+                    <bf:Series>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bflc/Uncontrolled"/>
+                        <bf:status>
+                            <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/t">
+                                <rdfs:label>transcribed</rdfs:label>
+                                <bf:code>t</bf:code>
+                            </bf:Status>
+                        </bf:status>
+                        <bf:status>
+                            <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/tr">
+                                <rdfs:label>traced</rdfs:label>
+                                <bf:code>tr</bf:code>
+                            </bf:Status>
+                        </bf:status>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>Colección Encuentros</bf:mainTitle>
+                            </bf:Title>
+                        </bf:title>
+                    </bf:Series>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship rdf:resource="https://id.oclc.org/worldcat/ontology/hasWork"/>
+                <bf:associatedResource rdf:resource="https://id.oclc.org/worldcat/entity/E39PCFJtmVxhBtM3qB7HjpMhQC"/>
+            </bf:Relation>
+        </bf:relation>
+        <bf:relation>
+            <bf:Relation>
+                <bf:relationship>
+                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/series">
+                        <rdfs:label>series</rdfs:label>
+                        <bf:code>series</bf:code>
+                    </bf:Relationship>
+                </bf:relationship>
+                <bf:associatedResource>
+                    <bf:Hub rdf:about="http://id.loc.gov/resources/hubs/f486cc6d-45e8-100e-3033-06fa2cd9cee3">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Series"/>
+                        <rdfs:label>Colección Encuentros (Pontificia Universidad Javeriana. Doctorado en Ciencias Sociales y Humanas)</rdfs:label>
+                        <bflc:marcKey>1300 $aColección Encuentros (Pontificia Universidad Javeriana. Doctorado en Ciencias Sociales y Humanas)</bflc:marcKey>
+                        <bf:contribution>
+                            <bf:Contribution>
+                                <bf:agent>
+                                    <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/no2019121908">
+                                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                                        <rdfs:label>Pontificia Universidad Javeriana. Doctorado en Ciencias Sociales y Humanas</rdfs:label>
+                                        <bflc:marcKey>1102 $aPontificia Universidad Javeriana.$bDoctorado en Ciencias Sociales y Humanas</bflc:marcKey>
+                                    </bf:Agent>
+                                </bf:agent>
+                                <bf:role>
+                                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ctb">
+                                        <rdfs:label>contributor</rdfs:label>
+                                        <bf:code>ctb</bf:code>
+                                    </bf:Role>
+                                </bf:role>
+                            </bf:Contribution>
+                        </bf:contribution>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>Colección Encuentros (Pontificia Universidad Javeriana. Doctorado en Ciencias Sociales y Humanas)</bf:mainTitle>
+                            </bf:Title>
+                        </bf:title>
+                        <bf:title>
+                            <bf:VariantTitle>
+                                <bf:mainTitle>Encuentros (Pontificia Universidad Javeriana. Doctorado en Ciencias Sociales y Humanas)</bf:mainTitle>
+                            </bf:VariantTitle>
+                        </bf:title>
+                        <bf:title>
+                            <bf:VariantTitle>
+                                <bf:mainTitle>Colección Encuentros</bf:mainTitle>
+                            </bf:VariantTitle>
+                        </bf:title>
+                    </bf:Hub>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
+        <bf:hasInstance rdf:resource="http://id.loc.gov/resources/instances/21657322"/>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                        <rdfs:label>new</rdfs:label>
+                        <bf:code>n</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2020-07-07</bf:date>
+                <bf:agent>
+                    <bf:Agent>
+                        <bf:code>HUL</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-24T16:14:24</bf:date>
+                <bf:descriptionModifier>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:descriptionModifier>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-24T::</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/bibframe2marc/releases/tag/v2.10-dev"/>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/tree/v2.10-dev"/>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-25T13:48:54.603768-04:00</bf:date>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-5-0/"/>
+                <bflc:encodingLevel>
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/f">
+                        <rdfs:label>full</rdfs:label>
+                        <bf:code>f</bf:code>
+                    </bflc:EncodingLevel>
+                </bflc:encodingLevel>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+                        <rdfs:label>ISBD: International standard bibliographic description</rdfs:label>
+                        <bf:code>isbd</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:identifiedBy>
+                    <bf:Local>
+                        <rdf:value>21657322</rdf:value>
+                        <bf:assigner>
+                            <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                <rdfs:label>United States, Library of Congress</rdfs:label>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                            </bf:Organization>
+                        </bf:assigner>
+                    </bf:Local>
+                </bf:identifiedBy>
+                <lclocal:d906>=906     $a 7 $b cbc $c pccadap $d 2 $e ncip $f 20 $g y-gencatlg</lclocal:d906>
+                <lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x CG 2020-09-09</lclocal:d925>
+                <lclocal:d955>=955     $a ve32 2020-08-07 ; $b bg08 2020-09-09 to ALAWE/SA (overtime) $b bg25 2020-10-30 to ALAWE/SA $b bg10 2025-03-24 z-processor $i bg10 2025-03-24 to PresSrvs</lclocal:d955>
+                <bf:descriptionLanguage>
+                    <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                        <rdfs:label xml:lang="en">English</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+                    </bf:Language>
+                </bf:descriptionLanguage>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+                        <rdfs:label>Resource description and access</rdfs:label>
+                        <bf:code>rda</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:note>
+                    <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+                        <rdfs:label>040  $aHUL$beng$erda$cHUL$dSTF$dOCLCO$dHUL$dOCLCF$dUBY$dEMU$dOCLCO$dOCLCQ$dOCLCL$dDLC$dDLC-MRC$dDLC</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+                <bf:descriptionAuthentication>
+                    <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/pcc">
+                        <rdfs:label>Program for Cooperative Cataloging</rdfs:label>
+                        <bf:code>pcc</bf:code>
+                    </bf:DescriptionAuthentication>
+                </bf:descriptionAuthentication>
+                <lclocal:d985>=985     $e BIBFRAME Prod $d 2025-03-24T15:52:07</lclocal:d985>
+                <lclocal:d985>=985     $e VENDOR LOAD</lclocal:d985>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+    </bf:Work>
+    <bf:Instance rdf:about="http://id.loc.gov/resources/instances/21657322">
+        <bf:provisionActivity>
+            <bf:ProvisionActivity>
+                <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Publication"/>
+                <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2019-10</bf:date>
+                <bf:place>
+                    <bf:Place rdf:about="http://id.loc.gov/vocabulary/countries/ck">
+                        <rdfs:label xml:lang="en">Colombia</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ck</bf:code>
+                    </bf:Place>
+                </bf:place>
+                <bflc:simplePlace>Bogotá, D.C.</bflc:simplePlace>
+                <bflc:simpleAgent>Pontificia Universidad Javeriana</bflc:simpleAgent>
+                <bflc:simpleDate>octubre de 2019</bflc:simpleDate>
+            </bf:ProvisionActivity>
+        </bf:provisionActivity>
+        <bf:publicationStatement>Bogotá, D.C.: Pontificia Universidad Javeriana, octubre de 2019</bf:publicationStatement>
+        <bf:identifiedBy>
+            <bf:Lccn>
+                <rdf:value>  2020467568</rdf:value>
+            </bf:Lccn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Lccn>
+                <rdf:value>  2020467563</rdf:value>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/cancinv">
+                        <rdfs:label>canceled or invalid</rdfs:label>
+                        <bf:code>cancinv</bf:code>
+                    </bf:Status>
+                </bf:status>
+            </bf:Lccn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Isbn>
+                <rdf:value>9789587814026</rdf:value>
+                <bf:qualifier>pbk</bf:qualifier>
+            </bf:Isbn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Isbn>
+                <rdf:value>9587814029</rdf:value>
+                <bf:qualifier>pbk</bf:qualifier>
+            </bf:Isbn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:OclcNumber>
+                <rdf:value>on1193233314</rdf:value>
+            </bf:OclcNumber>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Local>
+                <rdf:value>21657322</rdf:value>
+                <bf:assigner>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:assigner>
+            </bf:Local>
+        </bf:identifiedBy>
+        <bf:responsibilityStatement>Samuel Rivera-Páez</bf:responsibilityStatement>
+        <bf:title>
+            <bf:Title>
+                <bf:mainTitle>Militares e identidad</bf:mainTitle>
+                <bf:subtitle>autorrepresentación y construcción de paz en el cuerpo de oficiales de las Fuerzas Militares colombianas</bf:subtitle>
+            </bf:Title>
+        </bf:title>
+        <bf:editionStatement>Primera edición</bf:editionStatement>
+        <bf:extent>
+            <bf:Extent>
+                <rdfs:label>296 pages</rdfs:label>
+            </bf:Extent>
+        </bf:extent>
+        <bf:note>
+            <bf:Note>
+                <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/physical"/>
+                <rdfs:label>color illustrations, charts</rdfs:label>
+            </bf:Note>
+        </bf:note>
+        <bf:dimensions>24 cm</bf:dimensions>
+        <bf:issuance>
+            <bf:Issuance rdf:about="http://id.loc.gov/vocabulary/issuance/mono">
+                <rdfs:label>single unit</rdfs:label>
+                <bf:code>mono</bf:code>
+            </bf:Issuance>
+        </bf:issuance>
+        <bf:media>
+            <bf:Media rdf:about="http://id.loc.gov/vocabulary/mediaTypes/n">
+                <rdfs:label>unmediated</rdfs:label>
+                <bf:code>n</bf:code>
+            </bf:Media>
+        </bf:media>
+        <bf:carrier>
+            <bf:Carrier rdf:about="http://id.loc.gov/vocabulary/carriers/nc">
+                <rdfs:label>volume</rdfs:label>
+                <bf:code>nc</bf:code>
+            </bf:Carrier>
+        </bf:carrier>
+        <bf:note>
+            <bf:Note>
+                <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/biblio"/>
+                <rdfs:label>Includes bibliographical references (pages 281-296)</rdfs:label>
+            </bf:Note>
+        </bf:note>
+        <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/instances"/>
+        <bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/21657322"/>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                        <rdfs:label>new</rdfs:label>
+                        <bf:code>n</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2020-07-07</bf:date>
+                <bf:agent>
+                    <bf:Agent>
+                        <bf:code>HUL</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-24T16:14:24</bf:date>
+                <bf:descriptionModifier>
+                    <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Organization>
+                </bf:descriptionModifier>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-24T::</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/bibframe2marc/releases/tag/v2.10-dev"/>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label>changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/tree/v2.10-dev"/>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-03-25T13:48:54.603768-04:00</bf:date>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-5-0/"/>
+                <bflc:encodingLevel>
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/f">
+                        <rdfs:label>full</rdfs:label>
+                        <bf:code>f</bf:code>
+                    </bflc:EncodingLevel>
+                </bflc:encodingLevel>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+                        <rdfs:label>ISBD: International standard bibliographic description</rdfs:label>
+                        <bf:code>isbd</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:identifiedBy>
+                    <bf:Local>
+                        <rdf:value>21657322</rdf:value>
+                        <bf:assigner>
+                            <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                <rdfs:label>United States, Library of Congress</rdfs:label>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                            </bf:Organization>
+                        </bf:assigner>
+                    </bf:Local>
+                </bf:identifiedBy>
+                <lclocal:d906>=906     $a 7 $b cbc $c pccadap $d 2 $e ncip $f 20 $g y-gencatlg</lclocal:d906>
+                <lclocal:d925>=925  0  $a acquire $b 1 shelf copy $x CG 2020-09-09</lclocal:d925>
+                <lclocal:d955>=955     $a ve32 2020-08-07 ; $b bg08 2020-09-09 to ALAWE/SA (overtime) $b bg25 2020-10-30 to ALAWE/SA $b bg10 2025-03-24 z-processor $i bg10 2025-03-24 to PresSrvs</lclocal:d955>
+                <bf:descriptionLanguage>
+                    <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                        <rdfs:label xml:lang="en">English</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+                    </bf:Language>
+                </bf:descriptionLanguage>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+                        <rdfs:label>Resource description and access</rdfs:label>
+                        <bf:code>rda</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:note>
+                    <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+                        <rdfs:label>040  $aHUL$beng$erda$cHUL$dSTF$dOCLCO$dHUL$dOCLCF$dUBY$dEMU$dOCLCO$dOCLCQ$dOCLCL$dDLC$dDLC-MRC$dDLC</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+                <bf:descriptionAuthentication>
+                    <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/pcc">
+                        <rdfs:label>Program for Cooperative Cataloging</rdfs:label>
+                        <bf:code>pcc</bf:code>
+                    </bf:DescriptionAuthentication>
+                </bf:descriptionAuthentication>
+                <lclocal:d985>=985     $e BIBFRAME Prod $d 2025-03-24T15:52:07</lclocal:d985>
+                <lclocal:d985>=985     $e VENDOR LOAD</lclocal:d985>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+    </bf:Instance>
+</rdf:RDF>
