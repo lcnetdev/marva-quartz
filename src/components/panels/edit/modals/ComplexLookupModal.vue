@@ -1187,14 +1187,14 @@
                             </li>
                           </ul>
                         </template>
-                        <template v-else-if="key == 'notes' && !activeContext.extra.rdftypes.includes('Name') && !activeContext.extra.rdftypes.includes('Work')">
+                        <!-- <template v-else-if="key == 'notes' && !activeContext.extra.rdftypes.includes('Name') && !activeContext.extra.rdftypes.includes('Work')">
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                           <ul>
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
                               <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
                             </li>
                           </ul>
-                        </template>
+                        </template> -->
                         <template v-else-if="key == 'sources'">
                           <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                           <ul>
