@@ -850,7 +850,7 @@
 
       },
 
-      rewriteURI: function(uri){
+      rewriteURI: function(uri, forBFDB=false){
         let returnUrls = useConfigStore().returnUrls
 
         if (!uri){
@@ -861,11 +861,19 @@
           return false
         }
 
-        // Let's try 8080 for a bit.
-        //if (uri.includes('/resources/hubs/') || uri.includes('/resources/works/') || uri.includes('/resources/instances/') || uri.includes('/resources/items/')){
-        //  uri = uri.replace('https://id.loc.gov/', returnUrls.bfdb )
-        //  uri = uri.replace('http://id.loc.gov/', returnUrls.bfdb )
-        //}
+        if (
+                forBFDB && 
+                (
+                    uri.includes('/resources/hubs/') || 
+                    uri.includes('/resources/works/') || 
+                    uri.includes('/resources/instances/') || 
+                    uri.includes('/resources/items/')
+                )
+            ) {
+            uri = uri.replace('https://id.loc.gov/', returnUrls.bfdb )
+            uri = uri.replace('http://id.loc.gov/', returnUrls.bfdb )
+        }
+        
 
         // use internal links for prodcution
         if (returnUrls.dev || returnUrls.publicEndpoints){
@@ -1132,8 +1140,9 @@
                         <div v-if="activeContext.extra.collections && activeContext.extra.collections.includes('http://id.loc.gov/authorities/names/collection_NamesUndifferentiated')" style="background: pink;">
                           THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN <a href="https://www.loc.gov/aba/pcc/rda/PCC%20RDA%20guidelines/Z01%20008%2032%202014rfeb.pdf" target="_blank">DCM Z1 008/32</a>.
                         </div>
-                        <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on id.loc.gov</a>
-
+                        <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri, true)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on BFDB</a>
+                        <br />
+                        <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on ID</a>
                     </div>
                     <div class="complex-lookup-modal-display-buttons">
                       <button @click="$emit('emitComplexValue', activeContext)">Add [Shift+Enter]</button>
