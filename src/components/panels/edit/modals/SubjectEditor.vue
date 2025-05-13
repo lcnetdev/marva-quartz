@@ -22,20 +22,6 @@
 				    <button @click="closeEditor()">Close</button>
 			    </div>
             <button @click="editorModeSwitch('build')" data-tooltip="Build LCSH headings using a lookup list" class="subjectEditorModeButtons simptip-position-left" style="margin-right: 1em; background-color: black; height: 2em; display: inline-flex;">
-      <!--         <svg fill="#F2F2F2" width="20px" height="20px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-               <g>
-                <path d="m30 86.664c0 1.8359-1.5 3.3359-3.332 3.3359h-13.332c-1.8359 0-3.3359-1.5-3.3359-3.3359v-13.332c0-1.832 1.5-3.332 3.3359-3.332h13.332c1.832 0 3.332 1.5 3.332 3.332z"/>
-                <path d="m56.664 86.664c0 1.832-1.5 3.3359-3.332 3.3359h-13.332c-1.832 0-3.3359-1.5-3.3359-3.3359v-13.332c0-1.832 1.5039-3.332 3.3359-3.332h13.332c1.832 0 3.332 1.5 3.332 3.332z"/>
-                <path d="m83.332 86.664c0 1.832-1.5 3.3359-3.332 3.3359h-13.336c-1.832 0-3.3359-1.5-3.3359-3.3359l0.003906-13.332c0-1.832 1.5-3.332 3.3359-3.332h13.332c1.832 0 3.332 1.5 3.332 3.332z"/>
-                <path d="m30 60c0 1.832-1.5 3.332-3.332 3.332h-13.332c-1.8359 0-3.3359-1.5-3.3359-3.332v-13.332c0-1.832 1.5-3.332 3.3359-3.332h13.332c1.832 0 3.332 1.5 3.332 3.332z"/>
-                <path d="m56.664 60c0 1.832-1.5 3.332-3.332 3.332h-13.332c-1.832 0-3.3359-1.5-3.3359-3.332v-13.332c0-1.832 1.5-3.332 3.3359-3.332h13.332c1.832 0 3.332 1.5 3.332 3.332z"/>
-                <path d="m74.336 65.125c-1.6953 0.69922-3.6562-0.10938-4.3555-1.8047l-5.1055-12.316c-0.69922-1.6914 0.10938-3.6523 1.8047-4.3555l12.32-5.1055c1.6914-0.70312 3.6523 0.10938 4.3516 1.8047l5.1055 12.32c0.69922 1.6914-0.10938 3.6523-1.8047 4.3516z"/>
-                <path d="m30 33.336c0 1.832-1.5 3.332-3.332 3.332h-13.332c-1.832 0-3.3359-1.5-3.3359-3.332v-13.336c0-1.832 1.5-3.332 3.3359-3.332h13.332c1.832 0 3.332 1.5 3.332 3.332z"/>
-                <path d="m53.352 36.652c-0.69922 1.6914-2.6641 2.5078-4.3555 1.8047l-12.316-5.1016c-1.6914-0.69922-2.5078-2.6641-1.8047-4.3555l5.1016-12.316c0.70313-1.6914 2.6641-2.5078 4.3555-1.8047l12.32 5.1055c1.6914 0.69922 2.5039 2.6641 1.8047 4.3555z"/>
-                <path d="m89.027 20.402c1.2969 1.2969 1.2969 3.418 0 4.7148l-9.4258 9.4297c-1.2969 1.2969-3.418 1.2969-4.7148 0l-9.4297-9.4297c-1.2969-1.2969-1.2969-3.418 0-4.7148l9.4297-9.4297c1.2969-1.2969 3.418-1.2969 4.7148 0z"/>
-               </g>
-              </svg> -->
-
               <svg fill="#F2F2F2" width="20px" height="20px" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                <g>
                 <path d="m45.898 79.102h-38c-0.80078 0-1.5 0.69922-1.5 1.5v15.398c0 0.80078 0.69922 1.5 1.5 1.5h38c0.80078 0 1.5-0.69922 1.5-1.5v-15.398c-0.097657-0.80078-0.69922-1.5-1.5-1.5z"/>
@@ -67,10 +53,7 @@
 
               <span :class="[{ 'subjectEditorModeTextEnabled': (subjectEditorMode==='link') }]">Link Mode</span>
 
-
             </button>
-
-
           </div>
 
 
@@ -241,13 +224,27 @@
                     <div class="modal-context-data-title" v-if="contextData.rdftypes">{{contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]}}</div>
                     <a style="color:#2c3e50" :href="rewriteURI(contextData.uri)" target="_blank" v-if="contextData.literal != true">view on id.loc.gov</a>
 
-                    <br><br>
-
+                    <!-- Dates -->
+                    <template v-if="(Object.keys(contextData).includes('birthdates') && contextData['birthdates'].length > 0)
+                    || (Object.keys(contextData).includes('deathdates') && contextData['deathdates'].length > 0)">
+                      <br>
+                      <span class="dates-container" style="padding-bottom: 10px;">
+                        <span v-if="contextData['birthdates'].length > 0 " style="margin-right: 15px;">
+                          <span class="modal-context-data-title">Date of Birth: </span>
+                          <span>{{ contextData['birthdates'][0] }}</span>
+                        </span>
+                        <span v-if="contextData['deathdates'].length > 0 ">
+                          <span class="modal-context-data-title">Date of Death: </span>
+                          <span>{{ contextData['deathdates'][0] }}</span>
+                        </span>
+                      </span>
+                    </template>
+                    <br>
 
                     <!-- Labels & Relationships -->
                     <template v-for="key in panelDetailOrder">
                       <div v-if="contextData[key] && contextData[key].length>0">
-                        <template v-if="contextData[key] && contextData[key].length>0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees'].includes(key)">
+                        <template v-if="contextData[key] && contextData[key].length>0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds'].includes(key)">
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                           <ul class="details-list">
                             <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
@@ -262,7 +259,7 @@
                             </li>
                           </ul>
                         </template>
-                        <template v-if="key == 'notes' && (!contextData.collections.includes('http://id.loc.gov/authorities/names/collection_LCNAF') && !contextData.rdftypes.includes('Hub'))">
+                        <template v-else-if="key == 'notes' && (!contextData.collections.includes('http://id.loc.gov/authorities/names/collection_LCNAF') && !contextData.rdftypes.includes('Hub'))">
                           <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                           <ul>
                             <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
@@ -270,13 +267,36 @@
                             </li>
                           </ul>
                         </template>
+                        <template v-else-if="key == 'sources'">
+                          <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                          <ul>
+                            <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
+                              {{v}}
+                            </li>
+                          </ul>
+                        </template>
+                        <template v-else-if="key == 'sees'">
+                          <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+
+
+                          <ul class="details-list">
+                            <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
+                                <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
+                                <button class="material-icons see-search" @click="newSearch(v)">search</button>
+                            </li>
+                          </ul>
+                        </template>
+                        <template v-else-if="key == 'gacs'">
+                          <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                          {{ contextData[key].join(" ; ") }}
+                        </template>
                       </div>
                     </template>
 
                     <!-- Primary -->
                     <ul class="details-list">
                       <template v-for="key in panelDetailOrder">
-                        <template v-if="['birthdates', 'deathdates', 'birthplaces','locales','activityfields','occupations', 'languages', 'gacs'].includes(key) && contextData[key] && contextData[key].length>0">
+                        <template v-if="['birthplaces','locales','activityfields','occupations', 'languages'].includes(key) && contextData[key] && contextData[key].length>0">
                           <li class="details-details">
                             <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                             {{ contextData[key].join(" ; ")}}
@@ -288,15 +308,7 @@
                     <!-- Secondary -->
                     <template v-for="key in panelDetailOrder">
                       <div v-if="contextData[key] && contextData[key].length>0">
-                        <template v-if="key == 'sources'">
-                          <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
-                          <ul>
-                            <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])" v-for="(v, idx) in contextData[key] " v-bind:key="'var' + idx">
-                              {{v}}
-                            </li>
-                          </ul>
-                        </template>
-                        <template v-else>
+                        <template v-if="key != 'sources'">
                           <template v-if="['lcclasss', 'broaders', 'identifiers'].includes(key)">
                             <div class="modal-context-data-title" v-if="key != 'identifiers'">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                             <ul  class="details-list">
@@ -351,18 +363,6 @@
                           </AccordionItem>
                         </AccordionList>
                     </div>
-
-                    <div v-if="this.pickCurrent != null">
-                      <div class="clear-selected">
-                        <button class="clear-selected-button" @click="clearSelected()" title="Clear selection & re-enable update on hover">Remove selected</button>
-                      </div>
-                    </div>
-
-
-
-
-
-
                   </div>
 
 
@@ -406,6 +406,11 @@
                       <button v-else-if="okayToAdd==false && subjectString.length==0" disabled style="float: right;margin: 0.6em; display: none;" :class="[{'add-button-lowres':lowResMode}]">Can't Add</button>
                       <button v-else-if="okayToAdd==false" disabled style="float: right;margin: 0.6em;" :class="[{'add-button-lowres':lowResMode}]">Can't Add</button>
 
+                      <div v-if="this.pickCurrent != null">
+                        <div class="clear-selected">
+                          <button class="clear-selected-button" @click="clearSelected()" title="Clear selection & re-enable update on hover">Remove selected</button>
+                        </div>
+                      </div>
 
 
                     </div>
@@ -527,7 +532,7 @@
     margin-left: auto;
     margin-right: auto;
     background-color: white;
-    width: 85vw;
+    width: 95vw;
     height: 95vh;
   }
 
@@ -580,6 +585,8 @@
     height: 100%;
     overflow-y: scroll;
     background: whitesmoke;
+
+    padding-top: 5px;
   }
 
   .subject-editor-container-right-lowres{
@@ -685,7 +692,7 @@
 
 
   .modal-context-data-title{
-    font-size: 1.2em;
+    font-size: 1em;
     font-weight: bold;
   }
 
@@ -907,10 +914,21 @@ li::before {
 }
 
 .see-search{
-  width: 25px;
-  height: 25px;
-  font-size: 14px;
+  width: 20px;
+  height: 20px;
+  font-size: x-small;
   border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+
+ul:has(.modal-context-data-li){
+  padding-left: 20px;
+}
+
+.see-also {
+  font-size: 12px;
+  margin-right: 10px;
 }
 
 </style>
@@ -1062,9 +1080,9 @@ data: function() {
     },
 
     panelDetailOrder: [
-            "notes", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces", "gacs",
-            "locales", "activityfields","occupations","languages", "sees",
-            "sources", "lcclasss", "identifiers","broaders",
+            "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",
+            "locales", "activityfields","occupations","languages",
+            "sources", "sees", "lcclasss", "identifiers","broaders",
             "collections", "subjects", "marcKeys"
         ],
     selectedSortOrder: ""
