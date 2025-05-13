@@ -301,30 +301,33 @@ const utilsParse = {
         // console.log('hasSeries',hasSeries)
         // console.log('hasAssociatedResource',hasAssociatedResource)
 
+      console.info("child: ", child.innerHTML)
       // old Logic
-      if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
+      if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && (child.innerHTML.indexOf("hasSeries")>-1 || child.innerHTML.indexOf("bf:Series")>-1)){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
       } else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bf/Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) && (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 )){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-      }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
+      }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 )){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1){
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) && (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 )){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
       } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
-      } else if ( (child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
+
+      } else if ( (child.innerHTML.indexOf("bf:Work")>-1) &&  (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 ) ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-      } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 ) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
-      } else if (child.innerHTML.indexOf("bf:Work")>-1){
+      // } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 ) &&  (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 )  ){
+      //   child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
+      } else if (child.innerHTML.indexOf("bf:Work")>-1 || child.innerHTML.indexOf("bf:Hub")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
       }else{
       // leave blank?
       }
+      console.info("child: ", child)
 
         // console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
         // console.log("-->", child)
@@ -377,7 +380,7 @@ const utilsParse = {
 
 
   specialTransforms: {
-    // not currently used
+    //not used currently
   },
 
   updateAdditionalInstanceParentValues: function(profile, instanceName, newRdId){
@@ -580,7 +583,6 @@ const utilsParse = {
       // at this point we have the main piece of the xml tree that has all our data
       // loop through properties we are looking for and build out the the profile
       for (let k in pt){
-
 
         let ptk = JSON.parse(JSON.stringify(pt[k]))
         // make sure each new one has a unique guid
@@ -799,7 +801,6 @@ const utilsParse = {
             // so populateData.userValue['http://id.loc.gov/bibframe/title'] becomes userValue
             populateData.userValue[populateData.propertyURI] = [{}]
             let userValue = populateData.userValue[populateData.propertyURI][0]
-
 
             // we have some special functions to deal with tricky elements
             if (this.specialTransforms[prefixURI]){

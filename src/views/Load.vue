@@ -39,7 +39,7 @@
                 <p>Worked Records: {{dashBoard.byTimePeriod.all.workedRecords}}</p>
                 <p>Posted Records: {{dashBoard.byTimePeriod.all.postedRecords}}</p>
               </div>
-              
+
 
             </div>
           </div>
@@ -368,21 +368,21 @@
         let dashBoard = {
           byTimePeriod:{
             'last24Hours':{
-              uniqueUsers: {},              
+              uniqueUsers: {},
               workedRecords: 0,
               postedRecords: 0,
             },
             'last7Days':{
-              uniqueUsers: {},              
+              uniqueUsers: {},
               workedRecords: 0,
               postedRecords: 0,
             },
             'all':{
-              uniqueUsers: {},              
+              uniqueUsers: {},
               workedRecords: 0,
               postedRecords: 0,
             }
-          },          
+          },
           totalDays:0,
 
         }
@@ -430,10 +430,10 @@
           }
           if (timestamp < oldestDate){
             oldestDate = timestamp
-          }         
+          }
           this.allRecords.push(obj)
         }
-        dashBoard.totalDays = Math.floor((new Date().getTime()/1000 - oldestDate)/86400)       
+        dashBoard.totalDays = Math.floor((new Date().getTime()/1000 - oldestDate)/86400)
         console.log(dashBoard)
         this.dashBoard = dashBoard
 
