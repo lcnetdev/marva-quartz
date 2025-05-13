@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from "node:url";
+import { configDefaults } from 'vitest/config'
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
@@ -23,7 +24,12 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     globalSetup: './src/lib/vitest_globalSetup.js',    
-    // setupFiles: './lib/vitest_globalSetup.js',    
+    // setupFiles: './lib/vitest_globalSetup.js',   
+    exclude:[
+      ...configDefaults.exclude,
+      'tests-playwright/*'
+    ]
+
 
     
   }
