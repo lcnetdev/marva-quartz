@@ -55,6 +55,11 @@
 
         },
 
+        validateForm: function(){
+          let elements = document.getElementsByClassName("validation-error")
+          return elements
+        },
+
         post: async function(){
           //console.log("** validating **")
           const config = useConfigStore()
@@ -67,6 +72,18 @@
             this.validationResults = await this.profileStore.validateRecord()
           } catch(err) {
             this.validationResults = {"error": err}
+          }
+
+          let internalErrors = this.validateForm()
+          for (let error of internalErrors){
+            let guid = error.id.replace("-select", "")
+            let classes = [...error.classList]
+            let issue = String(classes[classes.indexOf("validation-error") + 1])
+            let target = this.profileStore.returnStructureByGUID(guid)
+            this.validationResults.validation.push({
+              level: "WARNING",
+              message: target.propertyLabel + " has an issue '" + issue + "'<<" + guid + ">>"
+            })
           }
 
           this.validating = false
@@ -99,13 +116,20 @@
               }
               return [msg, matchComponent.at(-1), null]
             }
+          } else if (msg.includes("<<") && msg.includes(">>")){
+            let matchGuid = msg.match(/<<(.*)>>/)
+            msg = msg.replace(matchGuid[0],"")
+            return [msg, matchGuid[1], null]
           } else {
             return [msg, null, null]
           }
         },
 
         jumpToComponent:function(processedMessage){
-          const jumpTarget = this.profileStore.returnComponentByPropertyLabel(processedMessage[1], processedMessage[2])
+          let jumpTarget = this.profileStore.returnComponentByPropertyLabel(processedMessage[1], processedMessage[2])
+          if (!jumpTarget){
+            jumpTarget = this.profileStore.returnStructureByGUID(processedMessage[1])
+          }
           if (jumpTarget){
             this.done()
             this.activeComponent = jumpTarget
@@ -143,17 +167,22 @@
           :sticks="['br']"
           :stickSize="22"
         >
-          <div id="error-holder" ref="errorHolder" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
+          <div id="error-holder" ref="errorHolder">
             <h1 v-if="validating == true">Validating please wait...</h1>
 
             <div v-if="validating == false">
               <span v-if="!Object.keys(validationResults).includes('error')" >
                 <span v-if="status === 'validated'">Validation found the following:</span>
                   <ul v-for="({level, message}) in validationMessage">
-                    <li :class="['level-' + level, {'action-jump': message[1]}]" @click="jumpToComponent(message)">
-                      <span v-if="message[1]" :class="['material-icons']">move_down</span>
-                      {{ level }}: {{ message[0] }}
-                    </li>
+                    <template v-if="level == 'SUCCESS' && validationMessage.length > 1">
+                      <!-- Don't show the success message when there's a message from Marvas -->
+                    </template>
+                    <template v-else>
+                      <li :class="['level-' + level, {'action-jump': message[1]}]" @click="jumpToComponent(message)">
+                        <span v-if="message[1]" :class="['material-icons']">move_down</span>
+                        {{ level }}: {{ message[0] }}
+                      </li>
+                    </template>
                   </ul>
               </span>
               <span v-else>

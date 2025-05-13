@@ -7,7 +7,7 @@
 
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
-import { isReadonly } from 'vue';
+  import { isReadonly } from 'vue';
 
   export default {
     data() {
@@ -187,6 +187,7 @@ import { isReadonly } from 'vue';
           "http://id.loc.gov/ontologies/bibframe/geographicCoverage",
           "http://id.loc.gov/ontologies/bibframe/language",
           "http://id.loc.gov/ontologies/bibframe/identifiedBy",
+          "http://id.loc.gov/ontologies/bibframe/classification",
         ].includes(propertyURI)
       },
 
@@ -195,6 +196,7 @@ import { isReadonly } from 'vue';
         let prefix = null
         if (component){
           propertyURI = component.propertyURI
+
           switch (propertyURI){
             case 'http://id.loc.gov/ontologies/bibframe/subject':
               prefix = '[SH]: '
@@ -218,6 +220,22 @@ import { isReadonly } from 'vue';
                 prefix = '[Identifier]: '
                 break
               }
+              case 'http://id.loc.gov/ontologies/bibframe/classification':
+                if (component.userValue && component.userValue[propertyURI]){
+                  let type = component.userValue[propertyURI][0]["@type"]
+                  try{
+                    prefix = '[' + type.split("/").at(-1).replace('Classification', '').toUpperCase() + ']: '
+                    if (prefix == '[]: '){
+                      prefix = '[Other]: '
+                    }
+                  } catch(err){
+                    prefix = '[Classification]: '
+                  }
+                  break
+                } else {
+                  prefix = '[Classification]: '
+                  break
+                }
             default:
               prefix = ''
           }
@@ -277,6 +295,36 @@ import { isReadonly } from 'vue';
           ){
             returnString = returnString + " [" + component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/code'][0]['http://id.loc.gov/ontologies/bibframe/code'] + "]"
           }
+        }
+
+        //Classification has a different pattern
+        if (propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
+          let classPort = "No Value"
+          let itemPort = ""
+          if (component && component.userValue && component.userValue[propertyURI]
+              && component.userValue[propertyURI].length>0
+              && component.userValue[propertyURI][0]
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'].length>0
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+          ){
+            classPort = component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+          }
+
+          if (component && component.userValue && component.userValue[propertyURI]
+              && component.userValue[propertyURI].length>0
+              && component.userValue[propertyURI][0]
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/itemPortion'].length>0
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]
+              && component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
+          ){
+            itemPort = component.userValue[propertyURI][0]['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
+          }
+
+
+          returnString = prefix + classPort + " " + itemPort
         }
 
 
@@ -424,7 +472,7 @@ import { isReadonly } from 'vue';
                                     <template v-if="activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs.length>1">
                                         <ul class="sidebar-property-ul sidebar-property-ul-sub-ul">
                                             <li class="sidebar-property-li sidebar-property-li-sub-li" :key="t" v-for="t in returnTemplateTypes(activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs)">
-                                              <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}</a>
+                                              <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}!</a>
                                             </li>
                                         </ul>
                                     </template>
@@ -521,7 +569,7 @@ import { isReadonly } from 'vue';
                                   <template v-if="activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs.length>1">
                                       <ul class="sidebar-property-ul sidebar-property-ul-sub-ul">
                                           <li class="sidebar-property-li sidebar-property-li-sub-li" :key="t" v-for="t in returnTemplateTypes(activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs)">
-                                            <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}</a>
+                                            <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}?</a>
                                           </li>
                                       </ul>
                                   </template>

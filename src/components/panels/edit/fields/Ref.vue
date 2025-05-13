@@ -1,5 +1,4 @@
 <template>
-
   <template  v-if="structure.valueConstraint.valueTemplateRefs.length > 1">
     <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
       <select :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}" style="display: inline; width: 20px; border-color:whitesmoke; background-color: transparent;" @change="templateChange($event)">
@@ -102,6 +101,7 @@ export default {
 
       // // grab the first component from the struecture, but there might be mutluple ones
       let useId = this.structure.valueConstraint.valueTemplateRefs[0]
+
       let foundBetter = false
 
       let userValue = this.structure.userValue
@@ -117,6 +117,8 @@ export default {
         this.structure.valueConstraint.valueTemplateRefs.forEach((tmpid)=>{
           //if tmpid is 'lc:RT:bf2:Agents:Contribution', need to look somehwere else
           if (foundBetter) return false
+
+          let selection = this.structure['@guid']+'-select'
           if (tmpid == "lc:RT:bf2:Agents:Contribution"){
           } else if (this.structure.id != this.rtLookup[tmpid].id && this.rtLookup[tmpid].resourceURI === userValue['@type']){
             useId = tmpid
@@ -161,6 +163,7 @@ export default {
 
         for (let idx in this.structure.valueConstraint.valueTemplateRefs){
           let template = this.structure.valueConstraint.valueTemplateRefs[idx]
+
           if (parentUserValue && parentUserValue["@root"] == "http://id.loc.gov/ontologies/bibframe/contribution" && parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]){
             let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"]
             if (target){
@@ -171,7 +174,7 @@ export default {
                 useId = typeMap[type]
               }
             } else { //there's no user agent
-            let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]
+              let target = parentUserValue["http://id.loc.gov/ontologies/bibframe/contribution"]
               let type = target[0]["@type"]
               if (type && this.rtLookup[template].resourceURI === type){
                 useId = template
@@ -184,7 +187,43 @@ export default {
 
       // do not render recursivly if the thing we are trying to render recursivly is one the of the things thAT WER ARE RENDERING TO BEGIN WITHHHHH!!!1
       // if (this.parentStructure && this.parentStructure.indexOf(useId) ==-1){
-        if (this.rtLookup[useId]){
+
+      // if this is true, a default value is being "used" because the incoming value
+      // doesn't match an available option
+      // ignore for subjects
+        if (userValue['@type'] && !this.structure.id.includes("subject") && this.rtLookup[useId].resourceURI != userValue['@type']){
+        let elementId = this.structure['@guid'] + "-select"
+        this.$nextTick(() => {
+          window.setTimeout(()=> {
+            let target = document.getElementById(elementId.trim())
+            target.className += " validation-error no-type"
+
+            for (let child of target.childNodes){
+              if (child.value && child.value == 'empty'){
+                child.selected = true
+              } else {
+                child.selected = false
+              }
+            }
+
+          },10);
+        });
+      } else if (userValue['@type'] && !this.structure.id.includes("subject") && this.rtLookup[useId].resourceURI == userValue['@type']){
+        // remove the class
+        this.$nextTick(() => {
+          window.setTimeout(()=> {
+            let targets = document.getElementsByClassName("validation-error no-type")
+            for (let target of targets){
+              if (target.id.includes(this.structure['@guid'])){
+                target.classList.remove("validation-error")
+                target.classList.remove("no-type")
+              }
+            }
+          },10);
+        });
+      }
+
+      if (this.rtLookup[useId]){
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
 
           return use
@@ -220,10 +259,15 @@ export default {
     },
 
     allRtTemplate(){
-      let templates = []
+      // Provide a default
+      let templates = [{
+        id: 'empty',
+        resourceLabel: 'Select Type'
+      }]
       for (let id of this.structure.valueConstraint.valueTemplateRefs){
         templates.push(JSON.parse(JSON.stringify(this.rtLookup[id])))
       }
+
       return templates
     },
 
@@ -282,11 +326,17 @@ export default {
       //If the selection is for Children's Subjects, use manual override
       if(nextRef.id == "lc:RT:bf2:Topic:Childrens:Components"){
         this.manualOverride = "lc:RT:bf2:Topic:Childrens:Components"
+      } else if (nextRef.id == 'lc:RT:bf2:RareMat:RBMS'){
+        this.manualOverride = "lc:RT:bf2:RareMat:RBMS"
       } else {
         this.manualOverride = null
       }
 
-      this.profileStore.changeRefTemplate(this.guid, this.propertyPath, nextRef, thisRef)
+      try{
+        this.profileStore.changeRefTemplate(this.guid, this.propertyPath, nextRef, thisRef)
+      } catch {
+        console.warn("Couldn't change the template. nextRef: ", nextRef)
+      }
     }
 
 
@@ -446,6 +496,11 @@ select{
 }
 .label-bold{
   font-weight: bold;
+}
+
+.validation-error.no-type{
+  border: 2px solid red;
+  color: red;
 }
 
 </style>

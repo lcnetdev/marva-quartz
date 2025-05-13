@@ -288,9 +288,15 @@ const utilsProfile = {
           // first we test to see if the type is a literal (the type returned, not the property of the value), if so then we
           // don't need to set the type, as its not a blank node, just a nested property
           if (utilsRDF.isUriALiteral(type) === false){
+
+            // for duration set datatype
+            if(pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/duration'){
+              pointer[p][0]['@datatype'] = type
+            }
+
             // if it doesn't yet have a type then go ahead and set it
             // OR if the suggested type is PrimaryContribution, override the existing type
-            if (!pointer[p][0]['@type'] || type.includes("PrimaryContribution")){
+            else if (!pointer[p][0]['@type'] || type.includes("PrimaryContribution")){
               pointer[p][0]['@type'] = type
             }
           }else{

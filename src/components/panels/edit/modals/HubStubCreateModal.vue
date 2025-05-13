@@ -28,7 +28,7 @@
         top: 100,
         left: 0,
 
-        initalHeight: 600,
+        initalHeight: 700,
         initalLeft: 400,
 
 
@@ -699,6 +699,41 @@
 
       },
 
+      createPreview: function(){
+        let preview = ""
+        let creator = false
+        let title = false
+        let lang = false
+
+        if (this.hubCreator.label){
+          creator = this.hubCreator.label
+        }
+
+        if (this.hubTitle){
+          title = this.hubTitle
+        }
+
+        if (this.hubLang){
+          try{
+            lang = this.langsLookup.filter(ll => ll.uri == this.hubLang)[0].label.replace(/ \(.*\)/, "")
+          } catch {
+            lang = false
+          }
+        }
+
+        if (creator && title){
+          preview = creator + ". " + title
+        } else if (title){
+          preview = title
+        }
+        if (lang){
+          preview = preview + ". " + lang
+        }
+
+        return preview
+        // {{ hubCreator.label }}. {{ hubTitle }}. {{ langsLookup.filter(ll => ll.uri == hubLang)[0].label.replace(/ \(.*\)/, "") }}.
+      },
+
 
 
 
@@ -858,6 +893,12 @@
               Fill out the above information to create a Hub Stub. You would create a Hub for resources that you would not normally create a MARC Authority record for. Once you click create you will be provided a link to further edit the Hub if you wish.
             </div>
 
+            <hr>
+            <div class="hub-preview">
+              <span class="label">Preview:</span> {{ createPreview() }}
+            </div>
+            <hr>
+
             <div style="display: flex; padding: 1.5em;" v-if="postStatus=='unposted'">
               <div style="flex:1; text-align: center;"><button style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;" @click="buildHub">Create Hub</button></div>
               <div style="flex:1; text-align: center"><button @click="close" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Cancel</button></div>
@@ -987,7 +1028,12 @@ select{
     padding-right: 1em;
   }
 
-
+  .hub-preview {
+    font-size: 1.5em;
+  }
+  .hub-preview .label{
+    font-weight: bold;
+  }
 
 
 

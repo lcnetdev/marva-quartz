@@ -2,6 +2,79 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.23] - 2025-05-06
+### Update
+- How `indirect geo` can be entered to account for more usecases
+
+### Add
+- [BFP-391] Local Marva validation to check that `type` is set
+
+
+## [1.2.22] - 2025-05-02
+### Update
+- Hub URIs from hub creation
+- Complex Search Details
+
+### Add
+- Ability to populate Class Numbers from Complex Search Details
+
+### Fix
+- Prompt to login when click ClassWeb link in Complex Search Details
+
+
+## [1.2.21] - 2025-04-30
+### Changed
+- Prevent `Insert Default Values` from removing existing data
+
+### Fixed
+- Fix `bf:duration` causing Marva to crash
+
+
+## [1.2.18] - 2025-04-28
+### Added
+- Manual override for RBMS to support dual LCGFT/RBMS lookup
+
+
+## [1.2.16] - 2025-04-23
+### Changed
+- Final page message is less cryptic
+- Order of Hubs in subject search
+
+
+## [1.2.15] - 2025-04-22
+### Fix
+- Issue with usage sorting selecting the wrong entry
+
+### Changed
+- Move `Hub` left of `Works` in lookups
+- How pagination deals with getting no results
+
+### Added
+- Support for usage statistics from Suggest2
+
+
+## [1.2.14] - 2025-04-21
+### Fixed
+- Not being able to load resource without subjects
+
+
+## [1.2.12] - 2025-04-18
+### Fixed
+- Custom Order changing the order of fields when records are loaded in
+
+### Changed
+- Make sure that subjects are grouped by source with LCSH terms first
+- Show value of Classification components in property panel
+
+
+## [1.2.11] - 2025-04-17
+### Added
+- Ability to find and use complex subdivisions in the subject builder
+
+### Fixed
+- Fix `Jurisdictions` being of type `Organization`
+
+
 ## [1.2.10] - 2025-04-15
 ### Changed
 - NAR modal populates `670 $b` with statement of responsibilty when possible

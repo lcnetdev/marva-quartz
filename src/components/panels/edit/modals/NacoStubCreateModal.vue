@@ -26,7 +26,7 @@
         top: 200,
         left: 0,
 
-        initalHeight: 500,
+        initalHeight: 650,
         initalLeft: 400,
 
 
@@ -74,10 +74,31 @@
         mainTitleLccn: null,
         mainTitleDate: null,
         mainTitleNote: '',
-        workURI: false,
+        instanceURI: false,
         statementOfResponsibility: null,
+        statementOfResponsibilityOptions: [],
+
+        buildHyphenated4xx: false,
+        hyphenated4xx: null,
+
+        zero46: null,
 
         tmpXML:false,
+
+        MARCXml:false,
+        MARCText:false,
+        MARClccn:false,
+
+        populatedValue: null,
+
+        showPreview: false,
+
+        showAdvanced: false,
+
+        extraMarcStatements: [],
+
+        add667: false,
+
 
         scriptShifterOptions: {},
 
@@ -93,12 +114,12 @@
       ...mapStores(useConfigStore),
       ...mapStores(useProfileStore),
 
-      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeNARStubComponent','lastComplexLookupString']),
+      ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeNARStubComponent','lastComplexLookupString','savedNARModalData']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
 
-
+      
 
 
     },
@@ -121,7 +142,7 @@
           this.top = newRect.top
           this.left = newRect.left
 
-          this.$refs.nonLatinBulkContent.style.height = newRect.height + 'px'
+          this.$refs.narFieldsContent.style.height = newRect.height + 'px'
 
         },
 
@@ -134,115 +155,170 @@
           if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT' || tagName === 'SPAN'|| tagName === 'TD') {
             event.stopPropagation()
           }
+          if (event.target.classList.contains('selectable')) {
+            event.stopPropagation()
+          }
+
         },
 
         async buildNacoStub(){
 
-
-          this.postStatus='posting'
-
-          if (this.workURI.indexOf('id.loc.gov') > -1){
+        
+          if (this.instanceURI.indexOf('id.loc.gov') > -1){
             // lc thing, if we have preprod-XXXX server prfix in staging env.
-            this.workURI = 'http://id.loc.gov' + this.workURI.split('id.loc.gov')[1]
+            this.instanceURI = 'http://id.loc.gov' + this.instanceURI.split('id.loc.gov')[1]
           }
 
           let note = null
           if (this.mainTitleNote.trim().length > 0){
             note = this.mainTitleNote
           }
-
-
-          let results = await this.profileStore.buildPostNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.workURI, this.mainTitleDate, this.mainTitleLccn, note)
-
-
-
-
-          results.xml = results.xml.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
-
-          results.xml = results.xml.replace(/\<\/marcxml:controlfield>/g,"</marcxml:controlfield>\n")
-          results.xml = results.xml.replace(/\<\/marcxml:leader>/g,"</marcxml:leader>\n")
-          results.xml = results.xml.replace(/\<\/marcxml:datafield>/g,"</marcxml:datafield>\n")
-          results.xml = results.xml.replace(/\<\/marcxml:subfield>/g,"</marcxml:subfield>\n")
-
-
-          this.tmpXML=results.xml
-
-
-          if (results && results.pubResuts && results.pubResuts.msgObj && results.pubResuts.msgObj.errorMessage){
-
-            this.tmpErrorMessage = results.pubResuts.msgObj.errorMessage
-
+          let additonalFields = []
+          if (this.hyphenated4xx && this.buildHyphenated4xx){
+           additonalFields.push(this.hyphenated4xx)
+           console.log("additonalFields",additonalFields)
           }
 
+          // if we are in advanced mode buld the statmenents 
+          if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
+            additonalFields=[]
 
+            for (let field of this.extraMarcStatements){
+              console.log(field)
+              let fieldTag = field.fieldTag
+              let indicators = field.indicators.replace(/[#]/g,' ')
+              
 
-          if (results && results.pubResuts && results.pubResuts.status){
-
-            let type = "http://www.loc.gov/mads/rdf/v1#Name"
-
-            if (this.oneXXParts.fieldTag == "100"){
-              type = "http://www.loc.gov/mads/rdf/v1#PersonalName"
-            }else if (this.oneXXParts.fieldTag == "110"){
-              type = "http://www.loc.gov/mads/rdf/v1#CorporateName"
-            }else if (this.oneXXParts.fieldTag == "111"){
-              type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
-            }else if (this.oneXXParts.fieldTag == "130"){
-              typer = "http://www.loc.gov/mads/rdf/v1#NameTitle"
-            }else if (this.oneXXParts.fieldTag == "147"){
-              type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
-            }
-
-            let useName = ''
-            for (let key in this.oneXXParts){
-              if (key.length==1){
-                useName = useName + this.oneXXParts[key] + ' '
+              let newField = {
+                fieldTag: fieldTag,
+                indicators: indicators
               }
+              let subfields = field.value.split(/[$‡|]/)
+
+              for (let subfield of subfields){
+                let subfieldKey = subfield.slice(0,1)
+                let value = subfield.slice(1)
+                if (value && value.trim().length > 0){
+                  newField[subfieldKey] = value.trim()
+                }
+              }
+
+              additonalFields.push(newField)
             }
-            useName=useName.trim()
-            // console.log(this.oneXXParts)
-            // console.log(useName)
-
-
-            let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
-
-            this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
-            // componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null
-
-            this.newNarUri=results.pubResuts.postLocation
-            this.postStatus='posted'
-
           }
 
-          // console.log(results)
+          
+          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields,true)
 
-          // if (results && results.postLocation){
-          //   results.postLocation = results.postLocation.replace("http://",'https://')
-          //
+          this.MARCXml = results.xml
+          this.MARCText = results.text
+          this.MARClccn = results.lccn
 
-
-
-
-          // }else{
-          //   alert("Error posting!")
-          //   this.postStatus='error'
-          // }
-
-
-
-
-          // console.log(results)
-
-
-          // this.profileStore.setValueComplex(this.guid, null, this.propertyPath, contextValue.uri, contextValue.title, contextValue.typeFull, contextValue.nodeMap, contextValue.marcKey)
+          this.showPreview = true
 
 
 
         },
 
-        close(){
-          this.activeNARStubComponent = {}
+        toggleAdvancedNARMode(){
+
+          if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){            
+            this.preferenceStore.setValue('--b-edit-complex-nar-advanced-mode',false)
+          }else{
+
+            
+            this.preferenceStore.setValue('--b-edit-complex-nar-advanced-mode',true)
+            if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
+
+            // we are going to add the 670 as an extrMarcStatements
+            let f670 = {
+              fieldTag: '670',
+              indicators: '##',
+              value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`          
+            }
+            if (this.mainTitleNote!=''){
+              f670.value = f670.value + ` $b ${this.mainTitleNote}`
+            }
+            if (this.instanceURI){
+              f670.u = this.instanceURI
+              f670.value = f670.value + ` $u ${this.instanceURI}`
+            }
+            this.extraMarcStatements.push(f670)
+
+            }
+
+
+          }
+
+
+
+        },  
+
+        async postNacoStub(){
+
+            this.postStatus='posting'
+            let results = await this.profileStore.postNacoStub(this.MARCXml,this.MARClccn)
+
+            results.xml = results.xml.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
+            results.xml = results.xml.replace(/\<\/marcxml:controlfield>/g,"</marcxml:controlfield>\n")
+            results.xml = results.xml.replace(/\<\/marcxml:leader>/g,"</marcxml:leader>\n")
+            results.xml = results.xml.replace(/\<\/marcxml:datafield>/g,"</marcxml:datafield>\n")
+            results.xml = results.xml.replace(/\<\/marcxml:subfield>/g,"</marcxml:subfield>\n")
+            this.tmpXML=results.xml
+            if (results && results.pubResuts && results.pubResuts.msgObj && results.pubResuts.msgObj.errorMessage){
+              this.tmpErrorMessage = results.pubResuts.msgObj.errorMessage
+            }
+            if (results && results.pubResuts && results.pubResuts.status){
+              let type = "http://www.loc.gov/mads/rdf/v1#Name"
+              if (this.oneXXParts.fieldTag == "100"){
+                type = "http://www.loc.gov/mads/rdf/v1#PersonalName"
+              }else if (this.oneXXParts.fieldTag == "110"){
+                type = "http://www.loc.gov/mads/rdf/v1#CorporateName"
+              }else if (this.oneXXParts.fieldTag == "111"){
+                type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
+              }else if (this.oneXXParts.fieldTag == "130"){
+                typer = "http://www.loc.gov/mads/rdf/v1#NameTitle"
+              }else if (this.oneXXParts.fieldTag == "147"){
+                type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
+              }
+              let useName = ''
+              for (let key in this.oneXXParts){
+                if (key.length==1){
+                  useName = useName + this.oneXXParts[key] + ' '
+                }
+              }
+              useName=useName.trim()
+              // console.log(this.oneXXParts)
+              // console.log(useName)
+              let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
+              this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
+              // componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null
+              this.newNarUri=results.pubResuts.postLocation
+              this.postStatus='posted'
+            }
+
+        },
+
+        close(event){
+
+
+          if (this.postStatus != 'posted'){
+            this.savedNARModalData.oneXX = this.oneXX
+            this.savedNARModalData.fourXX = this.fourXX
+            this.savedNARModalData.mainTitleNote = this.mainTitleNote
+          }else{
+            this.savedNARModalData = {}
+            this.activeNARStubComponent = {}
+            
+            this.postStatus=='unposted'
+            this.showPreview = false
+
+          }
+
           this.showNacoStubCreateModal=false
-          this.postStatus=='unposted'
+
+
+
 
         },
 
@@ -306,8 +382,8 @@
           this.oneXXErrors = []
           this.disableAddButton = true
           if (this.oneXX.length<3){ return true}
-
-          if (/#|[^0-9 ]/.test(this.oneXX.slice(3,5))){
+          
+          if (/[^0-9 #]/.test(this.oneXX.slice(3,5))){
             this.oneXXErrors.push("There's an invalid indicator for 1XX")
           }
 
@@ -316,7 +392,7 @@
             return false
           }
 
-          let oneXXParts = this.oneXX.split("$")
+          let oneXXParts = this.oneXX.split(/[$‡|]/)
           if (oneXXParts.length>0){
 
             let fieldTag = oneXXParts[0].slice(0,3)
@@ -324,10 +400,10 @@
             let indicators = oneXXParts[0].slice(3,5)
 
 
-            if (indicators.charAt(0) != ' ' && indicators.charAt(0) != '/' && indicators.charAt(0) != '1' && indicators.charAt(0) != '2' && indicators.charAt(0) != '3' && indicators.charAt(0) != '0'){
+            if (indicators.charAt(0) != ' ' && indicators.charAt(0) != '/' && indicators.charAt(0) != '#' && indicators.charAt(0) != '1' && indicators.charAt(0) != '2' && indicators.charAt(0) != '3' && indicators.charAt(0) != '0'){
               this.oneXXErrors.push("Invalid indicator character(s)")
             }
-            if (indicators.charAt(1) != ' ' && indicators.charAt(1) != '/' && indicators.charAt(1) != '1' && indicators.charAt(1) != '2' && indicators.charAt(1) != '3' && indicators.charAt(1) != '0'){
+            if (indicators.charAt(1) != ' ' && indicators.charAt(1) != '/' && indicators.charAt(1) != '#' && indicators.charAt(1) != '1' && indicators.charAt(1) != '2' && indicators.charAt(1) != '3' && indicators.charAt(1) != '0'){
               if (this.oneXXErrors.indexOf("Invalid indicator character(s)") == -1){
                 this.oneXXErrors.push("Invalid indicator character(s)")
               }
@@ -341,12 +417,12 @@
 
               let subfield = dp.slice(0,1)
               let value = dp.slice(1)
-              dollarKey[subfield] = value
+              dollarKey[subfield] = value.trim()
 
               // console.log(dollarKey)
             }
             dollarKey.fieldTag = fieldTag
-            dollarKey.indicators = indicators
+            dollarKey.indicators = indicators.replace(/[#]/g,' ')
 
             this.oneXXParts = dollarKey
             let authLabel = ""
@@ -369,6 +445,7 @@
               authLabel = authLabel + ' ' + dollarKey.g
             }
 
+            
 
 
             if (dollarKey.a){
@@ -378,6 +455,88 @@
               },500)
               this.disableAddButton=false
             }
+
+            if (dollarKey.d){
+              let lifeDates  = dollarKey.d.split('-')
+              if (lifeDates.length>1){
+                this.zero46 = {}
+                this.zero46.f = lifeDates[0]
+                if (lifeDates[1].trim().length>0){
+                  this.zero46.g = lifeDates[1]
+                }
+                
+              }
+              if (lifeDates.length==1){
+                this.zero46 = {}
+                this.zero46.f = lifeDates[0]
+              }
+                
+
+              
+            }
+
+            if (dollarKey.a){
+              if (/[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)){
+               console.log("found a hyphenated name")
+               if (dollarKey.a.split(',')[0]){
+                let hyphenated = dollarKey.a.split(',')[0].split('-')
+                console.log(hyphenated)
+                if (hyphenated.length == 2){
+                  let newDollarA = `${hyphenated[1]}, ${dollarKey.a.split(',')[1].trim()} ${hyphenated[0]}-`
+                  let hyphenated4xx = {}
+                  for (let partKey of Object.keys(dollarKey)){
+                    hyphenated4xx[partKey] = dollarKey[partKey]
+                  }
+                  hyphenated4xx.a = newDollarA          
+                  
+                  // turn it into a 4xx
+                  hyphenated4xx.fieldTag = hyphenated4xx.fieldTag.split('');
+                  hyphenated4xx.fieldTag[0] = '4';
+                  hyphenated4xx.fieldTag = hyphenated4xx.fieldTag.join('');
+                  let subfields = ""
+                  for (let key in hyphenated4xx){
+                    if (key.length==1){
+                      subfields = subfields + '$'+key+' '+hyphenated4xx[key] + ' '
+                    }
+                  }
+                  hyphenated4xx.preview = `${hyphenated4xx.fieldTag} ${hyphenated4xx.indicators.replace(/\s/g,'#')} ${subfields}`
+                  console.log("hyphenated4xx",hyphenated4xx)
+                  this.hyphenated4xx = hyphenated4xx
+                  this.buildHyphenated4xx = true
+
+                  if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
+                    // if there isn't a 4xx field already in advanced mode
+                    if (this.extraMarcStatements.length > 0){
+                      let found4xx = false
+                      for (let field of this.extraMarcStatements){
+                        if (field.fieldTag.startsWith("4")){
+                          found4xx = true
+                          break
+                        }
+                      }
+                      if (!found4xx){
+                        this.extraMarcStatements.push({
+                          fieldTag: hyphenated4xx.fieldTag,
+                          indicators: hyphenated4xx.indicators.replace(/\s/g,'#'),
+                          value: subfields
+                        })
+                      }
+                    }
+                  }
+                } 
+                
+
+
+               }
+               
+
+               
+              }
+          
+
+            }
+
+
 
 
 
@@ -409,8 +568,8 @@
           this.disableAddButton = true
           if (this.fourXX.length<3){ return true}
 
-          if (/#|[^0-9 ]/.test(this.fourXX.slice(3,5))){
-            this.fourXXErrors.push("There's an invalid indicator for 1XX")
+          if (/[^0-9 #]/.test(this.fourXX.slice(3,5))){
+            this.fourXXErrors.push("There's an invalid indicator for 4XX")
           }
 
           if (!/4[0-9]{2}/.test(this.fourXX.slice(0,3))){
@@ -418,17 +577,17 @@
             return false
           }
 
-          let fourXXParts = this.fourXX.split("$")
+          let fourXXParts = this.fourXX.split(/[$‡|]/)
           if (fourXXParts.length>0){
 
             let fieldTag = fourXXParts[0].slice(0,3)
 
             let indicators = fourXXParts[0].slice(3,5)
 
-            if (indicators.charAt(0) != ' ' && indicators.charAt(0) != '/' && indicators.charAt(0) != '1' && indicators.charAt(0) != '2' && indicators.charAt(0) != '3' && indicators.charAt(0) != '0'){
+            if (indicators.charAt(0) != ' ' && indicators.charAt(0) != '/' && indicators.charAt(0) != '#' && indicators.charAt(0) != '1' && indicators.charAt(0) != '2' && indicators.charAt(0) != '3' && indicators.charAt(0) != '0'){
               this.fourXXErrors.push("Invalid indicator character(s)")
             }
-            if (indicators.charAt(1) != ' ' && indicators.charAt(1) != '/' && indicators.charAt(1) != '1' && indicators.charAt(1) != '2' && indicators.charAt(1) != '3' && indicators.charAt(1) != '0'){
+            if (indicators.charAt(1) != ' ' && indicators.charAt(1) != '/' && indicators.charAt(1) != '#' && indicators.charAt(1) != '1' && indicators.charAt(1) != '2' && indicators.charAt(1) != '3' && indicators.charAt(1) != '0'){
               if (this.fourXXErrors.indexOf("Invalid indicator character(s)") == -1){
                 this.fourXXErrors.push("Invalid indicator character(s)")
               }
@@ -442,11 +601,11 @@
 
               let subfield = dp.slice(0,1)
               let value = dp.slice(1)
-              dollarKey[subfield] = value
+              dollarKey[subfield] = value.trim()
 
             }
             dollarKey.fieldTag = fieldTag
-            dollarKey.indicators = indicators
+            dollarKey.indicators = indicators.replace(/[#]/g,' ')
 
             this.fourXXParts = dollarKey
             let authLabel = ""
@@ -480,6 +639,35 @@
             }
 
 
+            if (this.fourXXParts && this.fourXXParts.a){
+              if (this.profileStore.isLatin(this.fourXXParts.a) === false){
+                this.add667 = true
+
+                // if there isn't a 667 field already in advenced mode
+                if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && this.extraMarcStatements.length > 0){
+                  let found667 = false
+                  for (let field of this.extraMarcStatements){
+                    if (field.fieldTag == '667'){
+                      found667 = true
+                      break
+                    }
+                  }
+                  if (!found667){
+                    this.extraMarcStatements.push({
+                      fieldTag: '667',
+                      indicators: '##',
+                      value: "$a Non-Latin script references not evaluated."
+                    })
+                  }
+                }
+
+              }else if (this.profileStore.isLatin(this.fourXXParts.a) === true){
+                this.add667 = false
+              }
+
+            }
+            
+
 
           }else{
 
@@ -498,6 +686,18 @@
           }
 
 
+
+
+        },
+
+        addRow(){
+
+          this.extraMarcStatements.push({
+            fieldTag: '',
+            indicators: '##',
+            subfields: {              
+            }
+          })
 
 
         },
@@ -751,7 +951,57 @@
 
         },
 
+        
+        async presetChange(event){
+          if (event.target.value == 'home'){return true}
+          let OnexxPart = null
+          let FourxxPart = null
+          if (event.target.value.indexOf("and")>-1){
+            OnexxPart = event.target.value.split("and ")[0]
+            FourxxPart = event.target.value.split("and ")[1]
+          }else{
+            OnexxPart = event.target.value
+          }
+
+          if (OnexxPart){
+            if (this.oneXX.indexOf("$a")>-1){
+              this.oneXX = OnexxPart + "$a"+ this.oneXX.split("$a")[1]
+            }else if (this.oneXX.indexOf("‡a")>-1){
+              this.oneXX = OnexxPart + "‡a"+ this.oneXX.split("‡a")[1]
+            }else{
+              this.oneXX = OnexxPart + "$a"
+            }
+            this.checkOneXX()
+          }
+
+          if (FourxxPart){
+            if (this.fourXX.indexOf("$a")>-1){
+              this.fourXX = FourxxPart + "$a"+ this.fourXX.split("$a")[1]
+            }else if (this.fourXX.indexOf("‡a")>-1){
+              this.fourXX = FourxxPart + "‡a"+ this.fourXX.split("‡a")[1]
+            }else{
+              this.fourXX = FourxxPart + "$a"
+            }
+            this.checkFourXX()
+          }
+
+
+
+          
+
+          window.setTimeout(()=>{
+            event.target.value = 'home'
+          },500)
+
+        },
+
         async transliterateChange(event){
+
+          let reSetTimer = ()=>{
+            window.setTimeout(()=>{
+              event.target.value = 'home'
+            },1000)
+          }
 
           if (event.target.value == 'home'){return true}
 
@@ -761,6 +1011,10 @@
 
           if (dir == 's2r'){
             let fourXXATrans = JSON.parse(JSON.stringify(this.fourXXParts))
+
+            if (!fourXXATrans || !fourXXATrans.a){ reSetTimer(); return false }
+            if (fourXXATrans.a && fourXXATrans.a.trim().length==0){ reSetTimer();  return false}
+
             if (fourXXATrans.a){
               fourXXATrans.a = await utilsNetwork.scriptShifterRequestTrans(lang,fourXXATrans.a,null,dir)
               if (fourXXATrans.a && fourXXATrans.a.output){
@@ -773,7 +1027,7 @@
               oneXXString = "1" + fourXXATrans.fieldTag.charAt(1)+ fourXXATrans.fieldTag.charAt(2)
             }
             if (fourXXATrans.indicators){
-              oneXXString = oneXXString + fourXXATrans.indicators
+              oneXXString = oneXXString + fourXXATrans.indicators.replace(/[\s]/g,'#')
             }
 
             let subfields = Object.keys(fourXXATrans).filter((v)=>{ return (v.length==1)}).sort()
@@ -785,6 +1039,11 @@
           }else{
 
             let oneXXATrans = JSON.parse(JSON.stringify(this.oneXXParts))
+            if (oneXXATrans.a && oneXXATrans.a.trim().length==0){
+              // Don't do anything, there is nothing to transliterate
+              return false
+            }
+
             if (oneXXATrans.a){
               oneXXATrans.a = await utilsNetwork.scriptShifterRequestTrans(lang,oneXXATrans.a,null,dir)
               if (oneXXATrans.a && oneXXATrans.a.output){
@@ -797,7 +1056,7 @@
               fourXXString = "4" + oneXXATrans.fieldTag.charAt(1)+ oneXXATrans.fieldTag.charAt(2)
             }
             if (oneXXATrans.indicators){
-              fourXXString = fourXXString + oneXXATrans.indicators
+              fourXXString = fourXXString + oneXXATrans.indicators.replace(/[\s]/g,'#')
             }
 
             let subfields = Object.keys(oneXXATrans).filter((v)=>{ return (v.length==1)}).sort()
@@ -818,12 +1077,8 @@
 
 
           // console.log(event.target.value)
+          reSetTimer()
 
-          window.setTimeout(()=>{
-
-            event.target.value = 'home'
-
-          },1000)
 
 
         },
@@ -865,6 +1120,16 @@
         },
 
 
+        storeBeforeClosing(){
+          // put the onexx and four xx into a var for next time if they havent posted it yet
+          if (this.postStatus != 'posted'){
+            this.savedNARModalData.oneXX = this.oneXX
+            this.savedNARModalData.fourXX = this.fourXX
+            this.savedNARModalData.mainTitleNote = this.mainTitleNote
+          }else{
+            this.savedNARModalData = {}
+          }
+        }
 
 
 
@@ -890,13 +1155,49 @@
       this.mainTitleLccn = this.profileStore.nacoStubReturnLCCN()
       this.mainTitleDate = this.profileStore.nacoStubReturnDate()
       this.statementOfResponsibility = this.profileStore.nacoStubReturnSoR()
+      this.statementOfResponsibilityOptions = []
+      this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
 
       if (this.statementOfResponsibility){
         this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
       }
 
-      this.workURI =  this.profileStore.nacoStubReturnWorkURI()
-      // console.log("this.workURIthis.workURIthis.workURI",this.workURI)
+      if (this.statementOfResponsibility && this.statementOfResponsibility.split(",").length>1){
+        this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(",")
+      }
+
+      if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
+
+        // we are going to add the 670 as an extrMarcStatements
+        let f670 = {
+          fieldTag: '670',
+          indicators: '##',
+          value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`          
+        }
+        if (this.mainTitleNote!=''){
+          f670.value = f670.value + ` $b ${this.mainTitleNote}`
+        }
+        if (this.instanceURI){
+          f670.u = this.instanceURI
+          f670.value = f670.value + ` $u ${this.instanceURI}`
+        }
+        this.extraMarcStatements.push(f670)
+
+      }
+
+      if (this.savedNARModalData.oneXX){
+        this.oneXX = this.savedNARModalData.oneXX
+        this.checkOneXX()
+      }
+      if (this.savedNARModalData.fourXX){
+        this.fourXX = this.savedNARModalData.fourXX
+        this.checkFourXX()
+      }
+      if (this.savedNARModalData.mainTitleNote){
+        this.mainTitleNote = this.savedNARModalData.mainTitleNote
+      }
+
+
       if (!this.mainTitle){
         this.disableAddButton = true
         // this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
@@ -904,10 +1205,16 @@
       if (this.lastComplexLookupString.trim() != ''){
         this.oneXX = '1XX##$a'+this.lastComplexLookupString
         this.checkOneXX()
-
       }
 
 
+      this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
+
+      if (this.populatedValue && this.populatedValue.marcKey){        
+        this.oneXX = this.populatedValue.marcKey
+        this.checkOneXX()
+      }
+      
       let current = window.localStorage.getItem('marva-scriptShifterOptions')
 
       if (current){
@@ -954,6 +1261,7 @@
       :hide-overlay="false"
       :overlay-transition="'vfm-fade'"
 
+      @beforeClose="storeBeforeClosing"
 
     >
         <VueDragResize
@@ -968,280 +1276,352 @@
           :sticks="['br']"
           :stickSize="22"
         >
-          <div id="non-latin-bulk-content" ref="nonLatinBulkContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
+          <div id="nar-fields-content" ref="narFieldsContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
 
             <div class="menu-buttons">
               <button class="close-button" @pointerup="close">X</button>
             </div>
 
-            <h3 style="margin-bottom: 1em;">Create Provisional NAR</h3>
-            <div style="display: flex; margin-bottom: 1em;">
-              <div style="flex-grow: 1; position: relative;">
-                <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
-                <input type="text" ref="hub-title" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-">
+            <template v-if="showPreview == false">
+
+              <h3 style="margin-bottom: 1em;">Create Name Authority Record</h3>
+              <div style="display: flex; margin-bottom: 1em;">
+                <div style="flex-grow: 1; position: relative;">
+                  <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
+                  <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-">
+                  <div v-if="populatedValue && populatedValue.marcKey">
+                    (This value was found in the uncontrolled value of this component)
+                  </div>
+                </div>
               </div>
-            </div>
-            <div style="display: flex; margin-bottom: 1em;">
-              <div style="flex-grow: 1;">
-                <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
+              <div v-if="hyphenated4xx && !preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" style="margin-bottom: 0.75em;">
+                <input type="checkbox" id="buildHyphenated4xx" name="buildHyphenated4xx" v-model="buildHyphenated4xx" style="margin-right: 1em;"/>
+                <label for="buildHyphenated4xx" style="vertical-align: super;">Add Hyphenated 4XX: <span style="background-color: whitesmoke; font-family: 'Courier New', Courier, monospace;">{{ hyphenated4xx.preview }}</span></label> 
 
-                <input type="text" ref="hub-title" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d....">
               </div>
-            </div>
-            <div style="float: right;">
+              <div style="display: flex; margin-bottom: 1em;">
+                <div style="flex-grow: 1;">
+                  <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
+
+                  <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d....">
+                </div>
+              </div>
+
+              <div style="display: flex; margin-bottom: 1em;">
+                <div style="flex: 1;">
+                  <select @change="presetChange" class="preset-select">
+                    <option class="preset-option" value="home">Presets</option>
+                    <option class="preset-option" value="1001#">"1001 "</option>
+                    <option class="preset-option" value="1001#and 4001#">"1001 " &amp; "4001 "</option>
+                    <option class="preset-option" value="1102#">"1102 "</option>
+                    <option class="preset-option" value="1102#and 4102#">"1102 " &amp; "4102 "</option>
+                    <option class="preset-option" value="1112#">"1112 "</option>
+                    <option class="preset-option" value="1112#and 4112#">"1112 " &amp; "4112 "</option>
+
+                    
+
+                  </select>
+                </div>
+                <div style="flex: 1;">
+                  <select @change="transliterateChange">
+                  <option value="home">Transliterate</option>
+                  <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
 
 
-              <select @change="transliterateChange">
-                <option value="home">Transliterate</option>
-                <option value="home2" v-if="transliterateOptions().length == 0">You have no Scriptshifter languages set. Use Preferences->Scriptshifter</option>
+                  <template v-for="ss in transliterateOptions()">
 
-
-                <template v-for="ss in transliterateOptions()">
-
-                  <option :value="ss.key+'-'+ss.dir">{{ ss.label }}</option>
-                </template>
+                    <option :value="ss.key+'-'+ss.dir">{{ ss.label }}</option>
+                  </template>
 
 
 
-              </select>
-            </div>
+                </select>
+
+
+                </div>
+
+
+              </div>
+  
 
 
 
 
 
-            <div id="error-info">
+              <div id="error-info">
 
-              <div>
-                <div class="error-info-title">Heading Uniqueness Check:</div>
-                <div class="error-info-display">
+                <div>
+                  <div class="error-info-title">Heading Uniqueness Check:</div>
+                  <div class="error-info-display">
 
-                  <template v-if="searching">
+                    <template v-if="searching">
 
 
-                    <div>
-                      <span class="material-icons search-in-progress-icon">search</span>
-                      <span class="search-in-progress-text">Searching...</span>
-                    </div>
+                      <div>
+                        <span class="material-icons search-in-progress-icon">search</span>
+                        <span class="search-in-progress-text">Searching...</span>
+                      </div>
 
+                    </template>
+                    <template v-else>
+
+                      <div v-if="oneXX.trim().length == 0">
+                        <span class="error-info-display-field">Enter 1XX value to search</span>
+                      </div>
+
+                      <template v-if="oneXXResults.length>0">
+                        <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">1XX Heading FOUND in LCNAF file:</span>
+                        </div>
+                      </template>
+
+
+                      <template v-if="oneXXResults.length==0 && oneXXParts && oneXXParts.a && searching==false">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">1XX: Heading NOT found in LCNAF file:</span>
+                        </div>
+                      </template>
+
+                      <template v-if="oneXXResults.length>0 && oneXXResults.length<=5">
+                        <div v-for="r in oneXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                        </div>
+                      </template>
+                      <template v-else-if="oneXXResults.length>0 && oneXXResults.length>5">
+                      <details style="margin-bottom: 1em; padding-left: 2em;">
+                        <summary>There are {{ oneXXResults.length }} hits on that name.</summary>
+                        <div v-for="r in oneXXResults">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                        </div>
+                      </details>
+                      </template>
+
+
+                      <template v-if="fourXXResults.length>0">
+                        <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">4XX Heading FOUND in LCNAF file:</span>
+                        </div>
+                      </template>
+
+
+                      <template v-if="fourXXResults.length==0 && fourXXParts && fourXXParts.a && searching==false">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">4XX: Heading NOT found in LCNAF file:</span>
+                        </div>
+                      </template>
+
+                      <template v-if="fourXXResults.length>0 && fourXXResults.length<=5">
+                        <div v-for="r in fourXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                        </div>
+                      </template>
+                      <template v-else-if="fourXXResults.length>0 && fourXXResults.length>5">
+                      <details style="margin-bottom: 1em; padding-left: 2em;">
+                        <summary>There are {{ fourXXResults.length }} hits on that name.</summary>
+                        <div v-for="r in fourXXResults">
+                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                        </div>
+                      </details>
+                      </template>
+
+
+
+
+
+
+
+                    </template>
+
+                    <template v-if="oneXXErrors.length>0">
+                      <div v-for="e in oneXXErrors">
+                        <div><span class="material-icons warning">warning</span><span class="warning-text">{{ e }}</span></div>
+                      </div>
+                    </template>
+                    <template v-if="fourXXErrors.length>0">
+                      <div v-for="e in fourXXErrors">
+                        <div><span class="material-icons warning">warning</span><span class="warning-text">{{ e }}</span></div>
+                      </div>
+                    </template>
+
+
+                  </div>
+                </div>
+
+
+                <div v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
+                  <div class="error-info-title">Other Checks:</div>
+
+
+                  <template v-if="mainTitle">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">670 $a: Found</span>
+                        </div>
                   </template>
                   <template v-else>
-
-                    <div v-if="oneXX.trim().length == 0">
-                      <span class="error-info-display-field">Enter 1XX value to search</span>
-                    </div>
-
-                    <template v-if="oneXXResults.length>0">
-                      <div>
-                        <span class="material-icons not-unique-icon">cancel</span>
-                        <span class="not-unique-text">1XX Heading FOUND in LCNAF file:</span>
-                      </div>
-                    </template>
-
-
-                    <template v-if="oneXXResults.length==0 && oneXXParts && oneXXParts.a && searching==false">
-                      <div>
-                        <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">1XX: Heading NOT found in LCNAF file:</span>
-                      </div>
-                    </template>
-
-                    <template v-if="oneXXResults.length>0 && oneXXResults.length<=5">
-                      <div v-for="r in oneXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
-                        <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                      </div>
-                    </template>
-                    <template v-else-if="oneXXResults.length>0 && oneXXResults.length>5">
-                    <details style="margin-bottom: 1em; padding-left: 2em;">
-                      <summary>There are {{ oneXXResults.length }} hits on that name.</summary>
-                      <div v-for="r in oneXXResults">
-                        <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                      </div>
-                    </details>
-                    </template>
-
-
-                    <template v-if="fourXXResults.length>0">
-                      <div>
-                        <span class="material-icons not-unique-icon">cancel</span>
-                        <span class="not-unique-text">4XX Heading FOUND in LCNAF file:</span>
-                      </div>
-                    </template>
-
-
-                    <template v-if="fourXXResults.length==0 && fourXXParts && fourXXParts.a && searching==false">
-                      <div>
-                        <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">4XX: Heading NOT found in LCNAF file:</span>
-                      </div>
-                    </template>
-
-                    <template v-if="fourXXResults.length>0 && fourXXResults.length<=5">
-                      <div v-for="r in fourXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
-                        <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                      </div>
-                    </template>
-                    <template v-else-if="fourXXResults.length>0 && fourXXResults.length>5">
-                    <details style="margin-bottom: 1em; padding-left: 2em;">
-                      <summary>There are {{ fourXXResults.length }} hits on that name.</summary>
-                      <div v-for="r in fourXXResults">
-                        <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                      </div>
-                    </details>
-                    </template>
-
-
-
-
-
-
-
+                    <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">670 $a: NOT Found</span><span data-tooltip="Add main title to Work" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        </div>
                   </template>
 
-                  <template v-if="oneXXErrors.length>0">
-                    <div v-for="e in oneXXErrors">
-                      <div><span class="material-icons warning">warning</span><span class="warning-text">{{ e }}</span></div>
-                    </div>
+
+                  <template v-if="mainTitleDate">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">670 $a Date: <input v-model="mainTitleDate"/></span>
+                        </div>
                   </template>
-                  <template v-if="fourXXErrors.length>0">
-                    <div v-for="e in fourXXErrors">
-                      <div><span class="material-icons warning">warning</span><span class="warning-text">{{ e }}</span></div>
+                  <template v-else>
+                    <div>
+                      <span class="material-icons not-unique-icon">cancel</span>
+                      <span class="not-unique-text">670 $a Date: NOT Found</span><span data-tooltip="Add date to Instance Provision Activity" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
                     </div>
                   </template>
 
 
-                </div>
-              </div>
-              <div>
-                <div class="error-info-title">Other Checks:</div>
+                  <template v-if="mainTitleLccn">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">670 $w: Found</span>
+                        </div>
+                  </template>
+                  <template v-else>
+                    <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">670 $w: NOT Found</span> <span data-tooltip="Add LCCN to Instance" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        </div>
+                  </template>
 
+                  <div style="white-space: nowrap; display: inline-block; width: 80%">
+                    <span class="material-icons edit-icon">edit</span>
+                    <label>670 $b: </label>
+                    <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em"/>
 
-                <template v-if="mainTitle">
-                      <div>
-                        <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">670 $a: Found</span>
+                    <template v-if="statementOfResponsibilityOptions && statementOfResponsibilityOptions.length>0">
+                      <div style="padding: 0.2em;">
+                        Multi SOR found: 
+                        <template v-for="(sor, index) in statementOfResponsibilityOptions">
+                          <button style="font-size: 0.75em;" @click="mainTitleNote = 'title page (' + sor.trim() + ')'">{{ sor }}</button>
+                        </template>
                       </div>
-                </template>
-                <template v-else>
-                  <div>
-                        <span class="material-icons not-unique-icon">cancel</span>
-                        <span class="not-unique-text">670 $a: NOT Found</span><span data-tooltip="Add main title to Work" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
-                      </div>
-                </template>
-
-
-                <template v-if="mainTitleDate">
-                      <div>
-                        <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">670 $a Date: Found</span>
-                      </div>
-                </template>
-                <template v-else>
-                  <div>
-                    <span class="material-icons not-unique-icon">cancel</span>
-                    <span class="not-unique-text">670 $a Date: NOT Found</span><span data-tooltip="Add date to Instance Provision Activity" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                      
+                    </template> 
                   </div>
-                </template>
+
+                  <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}</div>
+                  </template>
+                  <template v-else>
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">Missing 670 Date Field! Can't build 670</div>
+                  </template>
+
+                  <template v-if="zero46 && Object.keys(zero46).length>0">
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
+                  </template>
+                  
+                  <div class="selectable" style="font-family: monospace; padding: 0.2em;"> 
+
+                    <input type="checkbox" v-model="add667" id="add-667"/>
+                    <label for="add-667" style="vertical-align: super; padding-left: 1em;">Add 667 Note</label>
+
+                  </div>
 
 
-                <template v-if="mainTitleLccn">
-                      <div>
-                        <span class="material-icons unique-icon">check</span>
-                        <span class="not-unique-text">670 $w: Found</span>
-                      </div>
-                </template>
-                <template v-else>
-                  <div>
-                        <span class="material-icons not-unique-icon">cancel</span>
-                        <span class="not-unique-text">670 $w: NOT Found</span> <span data-tooltip="Add LCCN to Instance" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
-                      </div>
-                </template>
+                  
 
-                <div style="white-space: nowrap; display: inline-block; width: 80%">
-                  <span class="material-icons edit-icon">edit</span>
-                  <label>670 $b: </label>
-                  <input placeholder="(optional)" v-model="mainTitleNote" style="width:100%; margin-bottom:0.25em"/>
                 </div>
-
-                <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
-                  <div style="font-family: monospace; background-color: whitesmoke;">670 $a{{ mainTitle }},{{ mainTitleDate }}{{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}$w(DLC){{ mainTitleLccn }}</div>
-                </template>
-                <template v-else>
-                  <div style="font-family: monospace; background-color: whitesmoke;">Missing 670 Date Field! Can't build 670</div>
-                </template>
+                
 
               </div>
 
+              <div v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
+                <hr/>
+                <!-- <details>
+                  <summary>Help</summary>
+                  Advanced mode allows you to add arbitrary MARC fields to the NAR. If you 
+                </details> -->
+                <div>
+                  <div v-for="(row, index) in this.extraMarcStatements" :key="index" class="advanced-row">
+                    <input 
+                      type="text" 
+                      v-model="row.fieldTag" 
+                      maxlength="3" 
+                      placeholder="TAG" 
+                      style="margin-right: 1em; width: 50px;"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="row.indicators" 
+                      maxlength="2" 
+                      placeholder="IND" 
+                      style="margin-right: 1em; width: 40px; font-family: 'Courier New', Courier, monospace;"
+                    />
+                    <input 
+                      type="text" 
+                      v-model="row.value" 
+                      placeholder="$a xyz $b abc..." 
+                      style="margin-right: 1em; flex-grow: 1;"
+                    />
 
-              <!-- <div v-for="e in oneXXErrors"><span class="material-icons warning">warning</span>{{ e }}</div>
-              <div v-for="e in fourXXErrors"><span class="material-icons warning">warning</span>{{ e }}</div>
-
-
-              <template v-if="oneXXResults.length>0 && oneXXResults.length<=5">
-                <div v-for="r in oneXXResults" style="margin-bottom: 1em;">
-                  <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                    <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
+                  </div>
                 </div>
-              </template>
-              <template v-else-if="oneXXResults.length>0 && oneXXResults.length>5">
-               <details style="margin-bottom: 1em;">
-                <summary>1XX: There are {{ oneXXResults.length }} hits on that name.</summary>
-                <div v-for="r in oneXXResults">
-                  <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                </div>
-               </details>
-              </template>
 
 
-              <template v-if="fourXXResults.length>0 && fourXXResults.length<=5">
-                <div v-for="r in fourXXResults" style="margin-bottom: 1em;">
-                  <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                </div>
-              </template>
-              <template v-else-if="fourXXResults.length>0 && fourXXResults.length>5">
-               <details style="margin-bottom: 1em;">
-                <summary>4XX: There are {{ fourXXResults.length }} hits on that name.</summary>
-                <div v-for="r in fourXXResults">
-                  <a :href="r.uri" target="_blank">4ccc{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                </div>
-               </details>
-              </template> -->
+              </div>
 
+            </template>
+
+
+            <template v-if="showPreview==true">
+
+              <textarea class="preview" disabled>
+                {{ MARCText }}
+              </textarea>
+
+
+            </template>
+
+
+            <button @click="toggleAdvancedNARMode">
+              <span v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use advanced NAR mode</span>
+              <span v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use regular mode</span>
+            </button>
+            <hr>
+            
+            <div v-if="populatedValue && populatedValue.marcKey && !populatedValue.URI" style="text-align: center;">
+                    Adding this NAR will replace the uncontrolled value in this component.
+            </div>
+            <div v-if="populatedValue && populatedValue.marcKey && populatedValue.URI" style="text-align: center;">
+                    WARNING: Adding this NAR will overwrite the controlled value already in this component.
             </div>
 
 
-            <!-- <div v-if="mainTitle">
-              <span>Using title for 670:</span> <span style="font-family: monospace; background-color: aliceblue;">{{ mainTitle }}</span>
-              <span>{{ mainTitleLccn }}</span>
-              <span> {{ mainTitleDate }} </span>
-            </div> -->
-
-
-            <hr>
-            <!-- <div v-if="postStatus!='posted'">
-              Fill out the 1XX and optional 4XX field using MARC field notation.
-            </div> -->
-
-            <div style="display: flex; padding: 1.5em;" v-if="postStatus=='unposted'">
-              <div style="flex:1; text-align: center;"><button style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;" @click="buildNacoStub" :disabled="disableAddButton">Generate Stub</button></div>
+            <div style="display: flex; padding: 1.5em;" v-if="postStatus=='unposted' && showPreview == false">
+              <div style="flex:1; text-align: center;"><button style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;" @click="buildNacoStub" :disabled="disableAddButton">Preview NAR</button></div>
               <div style="flex:1; text-align: center"><button @click="close" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Cancel</button></div>
             </div>
 
-<!--
-            <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpXML">{{ tmpXML }}</textarea>
- -->
+            <div style="display: flex; padding: 1.5em;" v-if="postStatus=='unposted' && showPreview == true">
+              <div style="flex:1; text-align: center;"><button class="post-nar-button" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;" @click="postNacoStub" :disabled="disableAddButton">Post NAR</button></div>
+              <div style="flex:1; text-align: center"><button @click="showPreview=false" style="line-height: 1.75em;font-weight: bold;font-size: 1.05em;">Go Back</button></div>
+            </div>
+
 
             <div style="display: flex; padding: 1.5em; font-size: 1.5em;" v-if="postStatus=='posting'">
               <div >Posting... Please wait...</div>
-
-
-
             </div>
 
             <textarea spellcheck="false" style="width: 100%; min-height: 200px;" v-if="tmpErrorMessage">{{ tmpErrorMessage }}</textarea>
 
 
-            <div style="display: flex; padding: 1.5em;" v-if="postStatus=='posted'">
-              <div >The Provisional NAR was created! If you would like to see it please click the link, it will open in new tab:</div>
+            <div style="display: flex; padding: 0 1.5em 1.5em 1.5em;" v-if="postStatus=='posted'">
+              <div >The NAR was created! If you would like to see it please click the link, it will open in new tab:</div>
               <div><a :href="newNarUri" target="_blank">{{ newNarUri }}</a></div>
             </div>
             <div v-if="postStatus=='posted'" style="text-align: center;">
@@ -1262,6 +1642,7 @@
 </template>
 <style>
 
+
   .content-container{
 
     background-color: white;
@@ -1270,6 +1651,32 @@
 </style>
 
 <style scoped>
+
+.advanced-row{
+  display: flex; align-items: center; margin-bottom: 0.5em;
+
+}
+.advanced-row input{
+  font-family: monospace;
+  font-size: 1.1em;
+}
+.post-nar-button{
+  -webkit-box-shadow:0px 0px 53px 4px rgba(46,255,53,0.9);
+  -moz-box-shadow: 0px 0px 53px 4px rgba(46,255,53,0.9);
+  box-shadow: 0px 0px 53px 4px rgba(46,255,53,0.9);
+
+}
+.preview{
+  background-color: whitesmoke;
+  min-height: 350px;
+  width: 100% !important;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.1em;
+}
+
+.preset-select, .preset-option{
+ font-family: monospace;
+}
 
 .paste-from-search{
   position: absolute;
@@ -1332,6 +1739,7 @@ select{
 
   .title{
     font-size: 1.35em;
+    font-family: monospace;
     width:100%;
   }
   .title-button{
@@ -1372,7 +1780,7 @@ select{
     font-size: 0.8em;
     color:gray;
   }
-  #non-latin-bulk-content{
+  #nar-fields-content{
     padding: 1em;
 
     overflow-y: scroll;

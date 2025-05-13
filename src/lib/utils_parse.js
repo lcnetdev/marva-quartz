@@ -1786,6 +1786,7 @@ const utilsParse = {
       // we are going to go looking for literals inside bnodes that have two literals with one at least of them with a @language tag
 
       profile = this.reorderAllNonLatinLiterals(profile)
+      profile = this.groupSubjects(profile)
       this.buildPairedLiteralsIndicators(profile)
 
       let adminMedtataPrimary = null
@@ -2265,6 +2266,64 @@ const utilsParse = {
 
     return  userValue
 
+  },
+
+  /**
+   * Groups subjects by source, and have LCSH terms first
+   *
+   * @param {Object} profile  - The BibFrame profile object containing resource templates
+   * @return {Object} - The profile with reordered subjects
+   */
+  groupSubjects: function(profile){
+    // return profile
+    // Find the subjects
+    let subjects = []
+    let subjectOrder = []
+    let subjectSources = {}
+    let rtTarget = ''
+    for (let rt of profile.rtOrder){
+      for (let pt of profile.rt[rt].ptOrder){
+        if (pt.includes("id_loc_gov_ontologies_bibframe_subject__subjects")){
+          rtTarget = rt
+          let subjUserValue = profile.rt[rt].pt[pt].userValue
+          subjects.push(subjUserValue)
+          subjectOrder.push(pt)
+          let source
+
+          try {
+            if (subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://id.loc.gov/ontologies/bibframe/source']){
+              source = subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://id.loc.gov/ontologies/bibframe/source'][0]['@id']
+              if (source == 'http://id.loc.gov/authorities/subjects'){
+                source = 'lcsh'
+              }
+            } else if (subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'] && subjUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['@id'].includes("id.loc.gov")){
+              source = "lcsh"
+            } else {
+              source = "unknown"
+            }
+          } catch{
+            source = "unknown"
+          }
+
+          if (Object.keys(subjectSources).includes(source)){
+            subjectSources[source].push({value: subjUserValue, id: pt})
+          } else {
+            subjectSources[source] = [{value: subjUserValue, id: pt}]
+          }
+        }
+      }
+    }
+
+    // always have LCSH first and maintain the first subject
+    let pos = 0
+    for (let t of Object.keys(subjectSources).sort((a,b) => a == 'lcsh' ? -1 : a < b ? 1 : 0)){
+      for (let sub of subjectSources[t]){
+        profile.rt[rtTarget].pt[subjectOrder.at(pos)].userValue = sub.value
+        pos++
+      }
+    }
+
+    return profile
   },
 
   /**
