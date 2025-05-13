@@ -4,7 +4,7 @@ node_modules/*
 .DS_Store
 coverage/
 old/
-
+dist/
 # Playwright
 /test-results/
 /playwright-report/
