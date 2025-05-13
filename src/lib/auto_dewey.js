@@ -1974,8 +1974,6 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
                     _convertClassGvSport(letter + number)
                 }
             }
-            console.info("autoDeweyGenre: ", autoDeweyGenre)
-            console.info("sDewey$: ", sDewey$)
             if (autoDeweyGenre && !sDewey$) return [
                 false,
                 {
@@ -2013,24 +2011,18 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
 
             if (ruleMatches.length > 1) {
                 for (const rule of ruleMatches) {
-                    console.info("rule: ", rule)
                     let range = rule['LCC Range'].replace(rule.LCC, '').trim()
-                    console.info("\trange: ", range)
                     if (range.charAt(range.length - 1) == '+') {
                         range = range.replace('+', ' - 999999999')
                     }
                     const [rangeStart, rangeEnd] = range.split('-')
-                    console.info('range', range, rangeStart, rangeEnd)
-                    console.info('number', number)
                     if (number * 1 >= rangeStart * 1 && number * 1 <= rangeEnd * 1) {
-                        console.info('number WITHIN range', number)
                         rule.mode = 'basic'
                         return [rule.dewey, rule]
                     }
                 }
 
                 //if no range found just use first (generic) one
-                console.info("ruleMatches: ", ruleMatches)
                 return [ruleMatches, ruleMatches]
                 // return [ruleMatches[0].dewey, ruleMatches[0]]
             }
