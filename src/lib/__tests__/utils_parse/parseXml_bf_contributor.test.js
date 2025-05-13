@@ -52,8 +52,6 @@ let profileTransformed = await utils_parse.transformRts(useProfileStore().profil
 let data = profileTransformed.rt['lc:RT:bf2:Monograph:Work'].pt.id_loc_gov_ontologies_bibframe_contribution__contributors.userValue
 
 
-
-// generated with gemini 2.5 pro
 // --- Constants for Keys (improves readability) ---
 const ROOT_KEY = "@root";
 const CONTRIBUTION_KEY = "http://id.loc.gov/ontologies/bibframe/contribution";
@@ -319,44 +317,3 @@ describe('Contribution -- Person', () => {
 
 });
 
-
-// reset
-useProfileStore().prepareForNewRecord()
-
-
-
-// Make it a Family and make sure the type is changed
-// Test contributor
-xml = `
-    <rdf:RDF xmlns:bf="http://id.loc.gov/ontologies/bibframe/" xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/" xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#" xmlns:pmo="http://performedmusicontology.org/ontology/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:streams="info:lc/streams#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <bf:Work rdf:about="http://id.loc.gov/resources/works/1111111">
-            <bf:contribution>
-                <bf:Contribution>
-                    <bf:agent>
-                        <bf:Agent rdf:about="http://id.loc.gov/rwo/agents/nr93029417">
-                            <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
-                            <rdfs:label>Kim, Kyŏng-il, 1956-</rdfs:label>
-                            <bflc:marcKey>1001 $aKim, Kyŏng-il,$d1956-</bflc:marcKey>
-                            <rdfs:label xml:lang="zxx-kore">김 경일, 1956-</rdfs:label>
-                            <bflc:marcKey xml:lang="zxx-kore">4001 $a김 경일,$d1956-</bflc:marcKey>
-                        </bf:Agent>
-                    </bf:agent>
-                    <bf:role>
-                        <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
-                            <rdfs:label>author</rdfs:label>
-                            <bf:code>aut</bf:code>
-                        </bf:Role>
-                    </bf:role>
-                </bf:Contribution>
-            </bf:contribution>
-        </bf:Work>
-    </rdf:RDF>
-`
-// parse the above
-utils_parse.parseXml(xml)
-// transform, passing the monograph profile
-profileTransformed = await utils_parse.transformRts(useProfileStore().profiles['lc:profile:bf2:Monograph'])
-// pull out of the userValue from the expected location
-data = profileTransformed.rt['lc:RT:bf2:Monograph:Work'].pt.id_loc_gov_ontologies_bibframe_contribution__contributors.userValue
-
-console.log(data)
