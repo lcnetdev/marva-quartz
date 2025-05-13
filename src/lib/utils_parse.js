@@ -198,7 +198,7 @@ const utilsParse = {
 
     this.xmlSource = xml
     // use the browser if we can, should be faster, fall back to the library if not running in the browser
-    if (window.DOMParser){
+    // if (window.DOMParser){
       let parser = new DOMParser();
 
 
@@ -225,15 +225,16 @@ const utilsParse = {
 
 
       // xml = xml.replace(/(<\/?.*?>)/g, '$1\n');
-
+      console.log("THE XML IS",xml)
       this.activeDom = parser.parseFromString(xml, 'application/xml');
       this.testDom = parser.parseFromString(xml, 'application/xml');
-
+      console.log(this.activeDom.children)
 
       let root = this.activeDom.getElementsByTagName('rdf:RDF')
+      console.log("------",root.length)
       if (root.length > 0){ root = root[0]}
 
-
+      
       this.hasInstance = 0
       for (let rdfChild of root.children){
         if (rdfChild.tagName == 'bf:Instance'){
@@ -252,7 +253,7 @@ const utilsParse = {
     //    storageQuota: 10000000
     //  })
     //  this.activeDom = this.dom.window.document
-    }
+    // }
   },
 
   /**
@@ -409,14 +410,15 @@ const utilsParse = {
       }
     }
 
+    if (this.hasInstance - totalInstanceRts>0){
+      [...Array(this.hasInstance - totalInstanceRts)].forEach((_, i) => {
+        let key = useInstanceRtName + '_'+(i+1)
+        let updatedProfile = this.updateAdditionalInstanceParentValues(JSON.parse(JSON.stringify(useInstanceRt)), useInstanceRtName, key)
 
-    [...Array(this.hasInstance - totalInstanceRts)].forEach((_, i) => {
-      let key = useInstanceRtName + '_'+(i+1)
-      let updatedProfile = this.updateAdditionalInstanceParentValues(JSON.parse(JSON.stringify(useInstanceRt)), useInstanceRtName, key)
-
-      profile.rt[key] = JSON.parse(JSON.stringify(updatedProfile))
-      profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
-    });
+        profile.rt[key] = JSON.parse(JSON.stringify(updatedProfile))
+        profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
+      });
+    }
 
     let rtsToRemove = []
 

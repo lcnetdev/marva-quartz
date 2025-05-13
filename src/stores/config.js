@@ -34,6 +34,7 @@ export const useConfigStore = defineStore('config', {
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
 
+
         // localhost server stage profiles
         // profiles : 'http://localhost:9401/util/profiles/profile/stage',
         // starting: 'http://localhost:9401/util/profiles/starting/stage',
@@ -57,7 +58,6 @@ export const useConfigStore = defineStore('config', {
         // offical prod profiles inside the firewall
         starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
         profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
-
 
 
 

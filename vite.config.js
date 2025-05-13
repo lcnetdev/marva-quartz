@@ -19,4 +19,12 @@ export default defineConfig({
 
     },
   },
+  test:{
+    globals: true,
+    environment: "jsdom",
+    globalSetup: './src/lib/vitest_globalSetup.js',    
+    // setupFiles: './lib/vitest_globalSetup.js',    
+
+    
+  }
 });
