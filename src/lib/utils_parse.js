@@ -300,6 +300,7 @@ const utilsParse = {
         // console.log('hasSeries',hasSeries)
         // console.log('hasAssociatedResource',hasAssociatedResource)
 
+      console.info("child: ", child.innerHTML)
       // old Logic
       if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && (child.innerHTML.indexOf("hasSeries")>-1 || child.innerHTML.indexOf("bf:Series")>-1)){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
@@ -318,13 +319,14 @@ const utilsParse = {
 
       } else if ( (child.innerHTML.indexOf("bf:Work")>-1) &&  (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 ) ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-      } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 ) &&  (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 )  ){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
+      // } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 ) &&  (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 )  ){
+      //   child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
       } else if (child.innerHTML.indexOf("bf:Work")>-1 || child.innerHTML.indexOf("bf:Hub")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
       }else{
       // leave blank?
       }
+      console.info("child: ", child)
 
         // console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
         // console.log("-->", child)
