@@ -87,9 +87,10 @@
 
         },
         panelDetailOrder: [
-            "notes","nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",  "locales",
+            "birthdates","deathdates", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds",
+            "sources", "lcclasss", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
-            "gacs", "sources", "lcclasss", "identifiers","broaders",
+            "identifiers","broaders",
             "collections", "genres", "subjects", "marcKeys", "rdftypes"
         ],
       }
@@ -167,6 +168,11 @@
     },
 
     methods: {
+      checkLcOnly: function(){
+        let config = useConfigStore()
+
+        return config.returnUrls.displayLCOnlyFeatures
+      },
       addClassNumber: function(classNum){
         let profile = this.activeProfile
 
@@ -862,18 +868,18 @@
         }
 
         if (
-                forBFDB && 
+                forBFDB &&
                 (
-                    uri.includes('/resources/hubs/') || 
-                    uri.includes('/resources/works/') || 
-                    uri.includes('/resources/instances/') || 
+                    uri.includes('/resources/hubs/') ||
+                    uri.includes('/resources/works/') ||
+                    uri.includes('/resources/instances/') ||
                     uri.includes('/resources/items/')
                 )
             ) {
             uri = uri.replace('https://id.loc.gov/', returnUrls.bfdb )
             uri = uri.replace('http://id.loc.gov/', returnUrls.bfdb )
         }
-        
+
 
         // use internal links for prodcution
         if (returnUrls.dev || returnUrls.publicEndpoints){
@@ -1129,7 +1135,8 @@
                       <AuthTypeIcon v-if="activeContext.extra.rdftypes" :type="activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]">
                       </AuthTypeIcon>
                     </span>
-                    {{ activeContext.title }}
+                    {{ activeContext.title }}<br>
+                    <span style="margin-left: 2em;">{{ activeContext.uri.split("/").at(-1) }}</span>
                   </h3>
                   <div class="complex-lookup-modal-display-type-buttons">
                     <div>
@@ -1149,15 +1156,29 @@
                       <button @click=" reset(); $emit('hideComplexModal')">Cancel [ESC]</button>
 
                     </div>
-
-
                   </div>
 
+                    <!-- Dates -->
+                    <template v-if="(Object.keys(activeContext.extra).includes('birthdates') && activeContext.extra['birthdates'].length > 0)
+                    || (Object.keys(activeContext.extra).includes('deathdates') && activeContext.extra['deathdates'].length > 0)">
+
+                      <span class="dates-container" style="padding-bottom: 10px;">
+                        <span v-if="activeContext.extra['birthdates'].length > 0 " style="margin-right: 15px;">
+                          <span class="modal-context-data-title">Date of Birth: </span>
+                          <span>{{ activeContext.extra['birthdates'][0] }}</span>
+                        </span>
+                        <span v-if="activeContext.extra['deathdates'].length > 0 ">
+                          <span class="modal-context-data-title">Date of Death: </span>
+                          <span>{{ activeContext.extra['deathdates'][0] }}</span>
+                        </span>
+                      </span>
+                      <br>
+                    </template>
 
                     <!-- Labels & Relationships -->
                     <template v-for="key in panelDetailOrder">
                       <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
+                        <template v-if="activeContext.extra[key] && activeContext.extra[key].length>0 && ['gacs', 'nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds', 'sees', 'subjects'].includes(key)">
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                           <ul class="details-list">
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
@@ -1172,11 +1193,19 @@
                             </li>
                           </ul>
                         </template>
-                        <template v-else-if="key == 'notes' && !activeContext.extra.rdftypes.includes('Name') && !activeContext.extra.rdftypes.includes('Work')">
+                        <!-- <template v-else-if="key == 'notes' && !activeContext.extra.rdftypes.includes('Name') && !activeContext.extra.rdftypes.includes('Work')">
                           <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                           <ul>
                             <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
                               <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
+                            </li>
+                          </ul>
+                        </template> -->
+                        <template v-else-if="key == 'sources'">
+                          <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                          <ul>
+                            <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
+                              {{v}}
                             </li>
                           </ul>
                         </template>
@@ -1186,7 +1215,7 @@
                     <!-- Primary -->
                     <ul class="details-list">
                       <template v-for="key in panelDetailOrder">
-                        <template v-if="['birthdates', 'deathdates', 'birthplaces','locales','activityfields','occupations', 'genres', 'languages'].includes(key) && activeContext.extra[key] && activeContext.extra[key].length>0">
+                        <template v-if="['birthplaces','locales','activityfields','occupations', 'genres', 'languages'].includes(key) && activeContext.extra[key] && activeContext.extra[key].length>0">
                           <li class="details-details">
                             <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                             {{ activeContext.extra[key].join(" ; ")}}
@@ -1198,22 +1227,15 @@
                     <!-- Secondary -->
                     <template v-for="key in panelDetailOrder">
                       <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-                        <template v-if="key == 'sources'">
-                          <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
-                          <ul>
-                            <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
-                              {{v}}
-                            </li>
-                          </ul>
-                        </template>
-                        <template v-else>
+
+                        <template v-if="key != 'sources'">
                           <ul class="details-list">
                             <li class="details-details" v-if="key=='lcclasss'" v-for="v in activeContext.extra['lcclasss']">
                               <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                               <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
                               <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
                             </li>
-                            <li class="details-details" v-if='["gacs", "identifiers","broaders",].includes(key)'>
+                            <li class="details-details" v-if='["identifiers","broaders",].includes(key)'>
                               <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                               {{ activeContext.extra[key].join(" ; ") }}
                             </li>
@@ -1321,10 +1343,7 @@
   margin-left: auto;
   margin-right: auto;
 
-
-
-
-  width: 85vw;
+  width: 95vw;
   height: 95vh;
 }
 
@@ -1382,7 +1401,7 @@
   }
 
   h3{
-    margin-bottom:1em;
+    margin-bottom:.5em;
   }
 
   .modal-context  h3{
@@ -1626,10 +1645,12 @@
 }
 
 .see-search{
-  width: 25px;
-  height: 25px;
-  font-size: 14px;
+  width: 20px;
+  height: 20px;
+  font-size: x-small;
   border-radius: 50%;
+  border: none;
+  cursor: pointer;
 }
 
 
