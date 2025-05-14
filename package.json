@@ -11,7 +11,8 @@
     "test:unit": "vitest --environment jsdom  --no-isolate --root src/",
     "test:unit_debug": "vitest --environment jsdom --silent=false --no-isolate --root src/",
     "coverage": "vitest --coverage.enabled ",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
+    "test:temp": "vitest parseXml_sniff --environment jsdom  --disableConsoleIntercept --root src/"
   },
   "dependencies": {
     "@jobinsjp/vue3-datatable": "^1.0.15",

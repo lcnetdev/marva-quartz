@@ -1685,7 +1685,7 @@ const utilsExport = {
 	}
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
-	// console.info("strXmlBasic: ", strXmlBasic)
+	console.info("strXmlBasic: ", strXmlBasic)
 
 	return {
 		xmlDom: rdf,
@@ -2126,7 +2126,7 @@ const utilsExport = {
 		let field001 = document.createElementNS(marcNamespace,"marcxml:controlfield");
 		field001.setAttribute( 'tag', '001')
 		field001.innerHTML = "n"+lccn
-		
+
 
 		marcTextArray.push({txt: this.buildMarcTxtLine('001',' ',' ',["n"+lccn]), field: '001', fieldInt: 1})
 
@@ -2147,7 +2147,7 @@ const utilsExport = {
 		field005.setAttribute( 'tag', '005')
 		field005.innerHTML = dateValue
 		rootEl.appendChild(field005)
-		
+
 		marcTextArray.push({txt: this.buildMarcTxtLine('005',' ',' ',[dateValue]), field: '005', fieldInt: 5})
 
 
@@ -2280,7 +2280,7 @@ const utilsExport = {
 
 			rootEl.appendChild(fieldName4xx)
 			marcTextArray.push({txt: this.buildMarcTxtLine(fourXXParts.fieldTag, fourXXParts.indicators.charAt(0).replace(" ","#"), fourXXParts.indicators.charAt(1).replace(" ","#"), fourXXSubfieldsValues), field: fourXXParts.fieldTag, fieldInt: parseInt(fourXXParts.fieldTag)})
-		
+
 		}
 
 
@@ -2409,7 +2409,7 @@ const utilsExport = {
 			  return 1;
 			}
 			return 0;
-		  });		
+		  });
 		  console.log(marcTextArray)
 		  marcTextArray.map((x) => {
 			marcTxt = marcTxt + x.txt
