@@ -5857,13 +5857,6 @@ export const useProfileStore = defineStore('profile', {
         return false
       }
 
-
-      if (!this.componentLibrary.profiles[structure['parentId']]){
-        this.componentLibrary.profiles[structure['parentId']] = {
-          groups:[]
-        }
-      }
-
       if (structure['parentId'].includes(":Item")){
         let key = structure['parentId']
         if (key && key.includes(":Item")){
@@ -5879,6 +5872,15 @@ export const useProfileStore = defineStore('profile', {
         structure['parentId'] = key
       }
 
+
+      if (!this.componentLibrary.profiles[structure['parentId']]){
+        this.componentLibrary.profiles[structure['parentId']] = {
+          groups:[]
+        }
+      }
+
+      console.info("structure['parentId']: ", structure['parentId'])
+      console.info("this.componentLibrary.profiles: ", this.componentLibrary.profiles)
       this.componentLibrary.profiles[structure['parentId']].groups.push({
         id: short.generate(),
         groupId: null,
