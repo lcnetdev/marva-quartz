@@ -198,7 +198,7 @@ const utilsParse = {
 
     this.xmlSource = xml
     // use the browser if we can, should be faster, fall back to the library if not running in the browser
-    if (window.DOMParser){
+    // if (window.DOMParser){
       let parser = new DOMParser();
 
 
@@ -225,15 +225,16 @@ const utilsParse = {
 
 
       // xml = xml.replace(/(<\/?.*?>)/g, '$1\n');
-
+      console.log("THE XML IS",xml)
       this.activeDom = parser.parseFromString(xml, 'application/xml');
       this.testDom = parser.parseFromString(xml, 'application/xml');
-
+      console.log(this.activeDom.children)
 
       let root = this.activeDom.getElementsByTagName('rdf:RDF')
+      console.log("------",root.length)
       if (root.length > 0){ root = root[0]}
 
-
+      
       this.hasInstance = 0
       for (let rdfChild of root.children){
         if (rdfChild.tagName == 'bf:Instance'){
@@ -252,7 +253,7 @@ const utilsParse = {
     //    storageQuota: 10000000
     //  })
     //  this.activeDom = this.dom.window.document
-    }
+    // }
   },
 
   /**
@@ -300,30 +301,33 @@ const utilsParse = {
         // console.log('hasSeries',hasSeries)
         // console.log('hasAssociatedResource',hasAssociatedResource)
 
+      console.info("child: ", child.innerHTML)
       // old Logic
-      if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
+      if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && (child.innerHTML.indexOf("hasSeries")>-1 || child.innerHTML.indexOf("bf:Series")>-1)){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
       } else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
       } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bf/Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) && (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 )){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-      }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
+      }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 )){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1){
+      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) && (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 )){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
       } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
-      } else if ( (child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
+
+      } else if ( (child.innerHTML.indexOf("bf:Work")>-1) &&  (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 ) ){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-      } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 ) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
-      } else if (child.innerHTML.indexOf("bf:Work")>-1){
+      // } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 ) &&  (child.innerHTML.indexOf("hasSeries")==-1 && child.innerHTML.indexOf("bf:Series")==-1 )  ){
+      //   child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
+      } else if (child.innerHTML.indexOf("bf:Work")>-1 || child.innerHTML.indexOf("bf:Hub")>-1){
         child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
       }else{
       // leave blank?
       }
+      console.info("child: ", child)
 
         // console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
         // console.log("-->", child)
@@ -376,7 +380,7 @@ const utilsParse = {
 
 
   specialTransforms: {
-    // not currently used
+    //not used currently
   },
 
   updateAdditionalInstanceParentValues: function(profile, instanceName, newRdId){
@@ -409,14 +413,15 @@ const utilsParse = {
       }
     }
 
+    if (this.hasInstance - totalInstanceRts>0){
+      [...Array(this.hasInstance - totalInstanceRts)].forEach((_, i) => {
+        let key = useInstanceRtName + '_'+(i+1)
+        let updatedProfile = this.updateAdditionalInstanceParentValues(JSON.parse(JSON.stringify(useInstanceRt)), useInstanceRtName, key)
 
-    [...Array(this.hasInstance - totalInstanceRts)].forEach((_, i) => {
-      let key = useInstanceRtName + '_'+(i+1)
-      let updatedProfile = this.updateAdditionalInstanceParentValues(JSON.parse(JSON.stringify(useInstanceRt)), useInstanceRtName, key)
-
-      profile.rt[key] = JSON.parse(JSON.stringify(updatedProfile))
-      profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
-    });
+        profile.rt[key] = JSON.parse(JSON.stringify(updatedProfile))
+        profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
+      });
+    }
 
     let rtsToRemove = []
 
@@ -578,7 +583,6 @@ const utilsParse = {
       // at this point we have the main piece of the xml tree that has all our data
       // loop through properties we are looking for and build out the the profile
       for (let k in pt){
-
 
         let ptk = JSON.parse(JSON.stringify(pt[k]))
         // make sure each new one has a unique guid
@@ -797,7 +801,6 @@ const utilsParse = {
             // so populateData.userValue['http://id.loc.gov/bibframe/title'] becomes userValue
             populateData.userValue[populateData.propertyURI] = [{}]
             let userValue = populateData.userValue[populateData.propertyURI][0]
-
 
             // we have some special functions to deal with tricky elements
             if (this.specialTransforms[prefixURI]){

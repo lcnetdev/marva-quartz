@@ -34,6 +34,7 @@ export const useConfigStore = defineStore('config', {
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
 
+
         // localhost server stage profiles
         // profiles : 'http://localhost:9401/util/profiles/profile/stage',
         // starting: 'http://localhost:9401/util/profiles/starting/stage',
@@ -51,13 +52,12 @@ export const useConfigStore = defineStore('config', {
         // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
         // offical stage profiles inside the firewall
-        // starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
-        // profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
+        starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
+        profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
         // offical prod profiles inside the firewall
-        starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
-        profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
-
+        // starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
+        // profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
 
 
 
@@ -369,7 +369,7 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2023548475',label:"Create NAR test", idUrl:'https://id.loc.gov/resources/instances/2023548475.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
-    
+
 
   ],
 

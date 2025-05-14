@@ -11,7 +11,11 @@ const returnDOMParser = function(){
     // const jsdom = require("jsdom");
     // const { JSDOM } = jsdom;
     // const { window } = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
-    p = new window.DOMParser();
+    const jsdom = require("jsdom")
+    const { JSDOM } = jsdom
+    p = new JSDOM().window.DOMParser
+    // p = new window.DOMParser();
+
   }
   return p
 }

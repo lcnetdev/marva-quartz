@@ -84,6 +84,23 @@
                 </bf:role>
             </bf:Contribution>
         </bf:contribution>
+
+        <bf:contribution>
+            <bf:Family>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/authorities/names/no2021062575">
+                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#FamilyName" />
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+Miller (Family : New Bern, N.C.)
+                        </rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">
+1003 $aMiller (Family :$cNew Bern, N.C.)
+                        </bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+            </bf:Family>
+        </bf:contribution>
+        
         <bf:title>
             <bf:Title>
                 <bf:mainTitle>White-tailed deer</bf:mainTitle>

@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:5555",
+      "localStorage": [
+        {
+          "name": "marva-catInitals",
+          "value": "TestUser"
+        },
+        {
+          "name": "marva-catCode",
+          "value": "TestCode"
+        }
+      ]
+    }
+  ]
+}
