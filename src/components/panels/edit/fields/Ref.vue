@@ -191,7 +191,7 @@ export default {
       // if this is true, a default value is being "used" because the incoming value
       // doesn't match an available option
       // ignore for subjects
-        if (userValue['@type'] && !this.structure.id.includes("subject") && this.rtLookup[useId].resourceURI != userValue['@type']){
+        if (userValue['@type'] && !(this.structure.id.includes("subject") || this.structure.id.includes("genreform")) && this.rtLookup[useId].resourceURI != userValue['@type']){
         let elementId = this.structure['@guid'] + "-select"
         this.$nextTick(() => {
           window.setTimeout(()=> {
@@ -208,7 +208,7 @@ export default {
 
           },10);
         });
-      } else if (userValue['@type'] && !this.structure.id.includes("subject") && this.rtLookup[useId].resourceURI == userValue['@type']){
+      } else if (userValue['@type'] && !(this.structure.id.includes("subject") || this.structure.id.includes("genreform")) && this.rtLookup[useId].resourceURI == userValue['@type']){
         // remove the class
         this.$nextTick(() => {
           window.setTimeout(()=> {

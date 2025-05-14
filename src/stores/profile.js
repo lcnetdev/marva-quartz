@@ -265,7 +265,6 @@ export const useProfileStore = defineStore('profile', {
                 key = key.slice(0, idx)
             }
         }
-
         // ther are components saved for this profile
         if (state.componentLibrary.profiles[key]){
           let groups = {}
@@ -5839,7 +5838,6 @@ export const useProfileStore = defineStore('profile', {
      * @param {string} guid - The GUID of the component
      */
     addToComponentLibrary: async function(guid){
-
       let structure = JSON.parse(JSON.stringify(this.returnStructureByComponentGuid(guid)))
 
       // clean up component property values for storage
@@ -5866,6 +5864,20 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      if (structure['parentId'].includes(":Item")){
+        let key = structure['parentId']
+        if (key && key.includes(":Item")){
+          if (key.includes("-") || key.includes("_")){
+              let idx
+              idx = key.indexOf("_")
+              if (idx < 0){
+                  idx = key.indexOf("-")
+              }
+              key = key.slice(0, idx)
+          }
+        }
+        structure['parentId'] = key
+      }
 
       this.componentLibrary.profiles[structure['parentId']].groups.push({
         id: short.generate(),
