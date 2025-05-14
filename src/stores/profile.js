@@ -245,6 +245,7 @@ export const useProfileStore = defineStore('profile', {
      * @return {array}
      */
      returnComponentLibrary: (state) => {
+      console.info("returnComponentLibrary")
       // limit to the current profiles being used
       // console.log(state.activeProfile)
       // console.log(state.componentLibrary)
@@ -254,6 +255,7 @@ export const useProfileStore = defineStore('profile', {
       // }
       let results = []
       for (let key in state.activeProfile.rt){
+        console.info("key: ", key)
         // Items have something added to the end of the key
         if (key && key.includes(":Item")){
             if (key.includes("-") || key.includes("_")){
@@ -265,7 +267,8 @@ export const useProfileStore = defineStore('profile', {
                 key = key.slice(0, idx)
             }
         }
-
+        console.info("key2: ", key)
+        console.info("state.componentLibrary.profiles: ", state.componentLibrary.profiles)
         // ther are components saved for this profile
         if (state.componentLibrary.profiles[key]){
           let groups = {}
@@ -5839,7 +5842,7 @@ export const useProfileStore = defineStore('profile', {
      * @param {string} guid - The GUID of the component
      */
     addToComponentLibrary: async function(guid){
-
+      console.info("addToComponentLibrary")
       let structure = JSON.parse(JSON.stringify(this.returnStructureByComponentGuid(guid)))
 
       // clean up component property values for storage
@@ -5866,6 +5869,23 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      console.info("label: ", label)
+      console.info("structure: ", structure)
+
+      if (structure['parentId'].includes(":Item")){
+        let key = structure['parentId']
+        if (key && key.includes(":Item")){
+          if (key.includes("-") || key.includes("_")){
+              let idx
+              idx = key.indexOf("_")
+              if (idx < 0){
+                  idx = key.indexOf("-")
+              }
+              key = key.slice(0, idx)
+          }
+        }
+        structure['parentId'] = key
+      }
 
       this.componentLibrary.profiles[structure['parentId']].groups.push({
         id: short.generate(),
