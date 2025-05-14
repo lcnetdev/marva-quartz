@@ -216,6 +216,8 @@
                         <span v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" style="font-weight: 200 !important;">
                           &nbsp;&nbsp;&nbsp;[May Subd Geog]
                         </span>
+                        <br>
+                        <span>{{ contextData.uri.split("/").at(-1) }}</span>
                     </h3>
                     <h3 v-if="contextData.literal">
                       {{ contextData.label }} [Literal]

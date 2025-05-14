@@ -1126,7 +1126,8 @@
                       <AuthTypeIcon v-if="activeContext.extra.rdftypes" :type="activeContext.extra.rdftypes.includes('Hub') ? 'Hub' : activeContext.extra.rdftypes[0]">
                       </AuthTypeIcon>
                     </span>
-                    {{ activeContext.title }}
+                    {{ activeContext.title }}<br>
+                    <span style="margin-left: 2em;">{{ activeContext.uri.split("/").at(-1) }}</span>
                   </h3>
                   <div class="complex-lookup-modal-display-type-buttons">
                     <div>
@@ -1395,7 +1396,7 @@
   }
 
   h3{
-    margin-bottom:1em;
+    margin-bottom:.5em;
   }
 
   .modal-context  h3{
