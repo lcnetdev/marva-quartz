@@ -525,7 +525,6 @@ const utilsParse = {
       // some more optional xml enrichment here to help the process
       // first try to give hints to which PT to use based on some rules we are using at LC
       if (tle == "bf:Work"){
-        console.info("sniffing: ", xml)
         xml = this.sniffWorkRelationType(xml)
         xml = this.sniffNoteType(xml)
       }
