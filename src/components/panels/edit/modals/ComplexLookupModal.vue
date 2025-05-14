@@ -12,6 +12,7 @@
   import utilsNetwork from '@/lib/utils_network';
 
   import { AccordionList, AccordionItem } from "vue3-rich-accordion";
+  import short from 'short-uuid'
 
 
   export default {
@@ -183,7 +184,13 @@
           { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/classificationPortion" }
         ]
 
-        this.setValueLiteral(targetComponent['@guid'], null, propertyPath, classNum, null, null)
+        let fieldGuid = null
+        try {
+          fieldGuid = targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["@guid"]
+        } catch(err){
+          fieldGuid = short.generate()
+        }
+        this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
       },
       checkUsable: function(data){
         let notes = data.extra.notes || []

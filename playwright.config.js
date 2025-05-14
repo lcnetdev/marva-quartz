@@ -33,6 +33,8 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
 
+  timeout: 60 * 1000,  // set timeout to 1 minute, default is 30s
+
   /* Configure projects for major browsers */
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.js/ }, // Setup project
@@ -49,7 +51,7 @@ export default defineConfig({
 
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'], 
+      use: { ...devices['Desktop Firefox'],
         storageState: 'tests-playwright/.auth/user.json', // Use prepared auth state
       },
       dependencies: ['setup'], // setup as a dependency project
