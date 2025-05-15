@@ -21,7 +21,7 @@ export const useConfigStore = defineStore('config', {
 
         // util  : 'http://localhost:5200/',
         // util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
-        // util  :  'https://editor.id.loc.gov/bfe2/util/',
+        util  :  'https://editor.id.loc.gov/bfe2/util/',
 
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
@@ -52,12 +52,12 @@ export const useConfigStore = defineStore('config', {
         // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
         // offical stage profiles inside the firewall
-        starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
-        profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
+        // starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
+        // profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
         // offical prod profiles inside the firewall
-        // starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
-        // profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
+        starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
+        profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
 
 
 

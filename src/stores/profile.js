@@ -5879,8 +5879,6 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-      console.info("structure['parentId']: ", structure['parentId'])
-      console.info("this.componentLibrary.profiles: ", this.componentLibrary.profiles)
       this.componentLibrary.profiles[structure['parentId']].groups.push({
         id: short.generate(),
         groupId: null,
