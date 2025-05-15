@@ -224,6 +224,7 @@
 
           if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){            
             this.preferenceStore.setValue('--b-edit-complex-nar-advanced-mode',false)
+            this.extraMarcStatements = []
           }else{
 
             
@@ -702,6 +703,11 @@
 
         },
 
+        removeRow(event,row){
+          this.extraMarcStatements.splice(row, 1);         
+        },
+
+        
 
         runMacroExpressMacro(event){
 
@@ -1566,8 +1572,9 @@
                       v-model="row.value" 
                       placeholder="$a xyz $b abc..." 
                       style="margin-right: 1em; flex-grow: 1;"
+                      @keydown="keydown" @keyup="keyup"
                     />
-
+                    <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>
                     <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
                   </div>
                 </div>

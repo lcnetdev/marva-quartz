@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.26] - 2025-05-15
+### Update
+- Added remove row buttons to advanced NAR mode.
+- Added sorting to XML so the MARC XML produced from NAR creation will sort correctly in voyager display
+
+### Add 
+- Added diacritic support to advanced NAR mode.
+
+
 ## [1.2.23] - 2025-05-06
 ### Update
 - How `indirect geo` can be entered to account for more usecases
@@ -25,6 +34,7 @@ All notable changes to this project will be documented in this file.
 ## [1.2.21] - 2025-04-30
 ### Changed
 - Prevent `Insert Default Values` from removing existing data
+- Added Advanced NAR mode to NAR modal.
 
 ### Fixed
 - Fix `bf:duration` causing Marva to crash
