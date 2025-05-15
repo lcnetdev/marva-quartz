@@ -3264,7 +3264,10 @@ export const useProfileStore = defineStore('profile', {
     */
     saveRecord: async function(){
       let xml = await utilsExport.buildXML(this.activeProfile)
-      utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
+      if (!window.location.href.includes("localhost:5555")){  //Don't try to save if in test env
+        utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
+      }
+
       this.activeProfileSaved = true
     },
 

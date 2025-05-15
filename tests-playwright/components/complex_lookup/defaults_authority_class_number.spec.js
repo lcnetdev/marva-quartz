@@ -6,10 +6,7 @@ test('Load a class number from a NAR', async ({ page }) => {
   await page.goto('http://localhost:5555/bfe2/quartz/');
 
   await page.getByText('Click Here').click();
-  page.once('dialog', dialog => {
-    console.log(`Dialog message: ${dialog.message()}`);
-    dialog.dismiss().catch(() => {});
-  });
+
   await page.getByRole('group').getByRole('button', { name: 'Monograph', exact: true }).click();
   await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
   await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
