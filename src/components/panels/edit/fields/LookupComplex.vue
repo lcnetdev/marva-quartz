@@ -562,6 +562,7 @@ export default {
               } catch {}
 
               this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue, this.searchType)
+              console.info("marcDeliminatedLCSHModeResults: ", this.marcDeliminatedLCSHModeResults)
               this.marcDeliminatedLCSHModeSearching = false
               let sendResults = []
               if (this.marcDeliminatedLCSHModeResults.resultType != 'ERROR'){
@@ -573,13 +574,14 @@ export default {
                     literal: false,
                     posEnd: 0,
                     posStart: 0,
-                    marcKey: this.marcDeliminatedLCSHModeResults.hit.marcKey,
+                    marcKey: this.marcDeliminatedLCSHModeResults.hit.extra.marcKeys[0],
                     type:  "madsrdf:Topic",
                     uri: this.marcDeliminatedLCSHModeResults.hit.uri
                   })
 
                 }else{
                   for (const [i, v] of this.marcDeliminatedLCSHModeResults.hit.entries()) {
+                    console.info("v: ", v)
                     sendResults.push({
                       complex: false,
                       id: i,
@@ -587,7 +589,7 @@ export default {
                       literal: v.literal,
                       posEnd: 0,
                       posStart: 0,
-                      marcKey: v.marcKey,
+                      marcKey: v.extra.marcKeys ? v.extra.marcKeys[0] : "",
                       type: v.heading.rdfType.replace('http://www.loc.gov/mads/rdf/v1#','madsrdf:'),
                       uri: v.uri
                     })
