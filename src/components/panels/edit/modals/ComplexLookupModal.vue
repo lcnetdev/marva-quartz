@@ -1170,11 +1170,11 @@
                     || (Object.keys(activeContext.extra).includes('deathdates') && activeContext.extra['deathdates'].length > 0)">
 
                       <span class="dates-container" style="padding-bottom: 10px;">
-                        <span v-if="activeContext.extra['birthdates'].length > 0 " style="margin-right: 15px;">
+                        <span v-if="activeContext.extra['birthdates'] && activeContext.extra['birthdates'].length > 0 " style="margin-right: 15px;">
                           <span class="modal-context-data-title">Date of Birth: </span>
                           <span>{{ activeContext.extra['birthdates'][0] }}</span>
                         </span>
-                        <span v-if="activeContext.extra['deathdates'].length > 0 ">
+                        <span v-if="activeContext.extra['deathdates'] && activeContext.extra['deathdates'].length > 0 ">
                           <span class="modal-context-data-title">Date of Death: </span>
                           <span>{{ activeContext.extra['deathdates'][0] }}</span>
                         </span>
