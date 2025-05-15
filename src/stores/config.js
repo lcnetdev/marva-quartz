@@ -130,7 +130,25 @@ export const useConfigStore = defineStore('config', {
         publicEndpoints:true,
         displayLCOnlyFeatures: false,
         simpleLookupLang: 'en',
-      }
+      },
+
+      playwrightTestConfig:{
+
+        ldpjs : 'https://bibframe.org/marva/api-production/',
+        util  :  'https://bibframe.org/marva/util/',
+        utilLang  :  'https://bibframe.org/marva/util-lang/',
+        scriptshifter  :  'https://bibframe.org/scriptshifter/',
+        publish: 'https://bibframe.org/marva/util/publish/production',
+        validate: 'https://bibframe.org/marva/util/validate',
+        bfdb : 'https://id.loc.gov/',
+        profiles : 'https://bibframe.org/marva/util/profiles/profile/prod',
+        starting : 'https://bibframe.org/marva/util/profiles/starting/prod',
+        id: 'https://id.loc.gov/',
+        env : 'production',
+        publicEndpoints:true,
+        displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
+      },
 
     },
 
@@ -1058,6 +1076,8 @@ export const useConfigStore = defineStore('config', {
           return state.regionUrls.production
         }else if (window && window.location.href.includes('bibframe.org')){
           return state.regionUrls.bibframeDotOrg
+        }else if (window && window.location.href.includes('localhost:5555')){
+          return state.regionUrls.playwrightTestConfig
         }else{
           return state.regionUrls.dev
         }
