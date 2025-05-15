@@ -562,7 +562,6 @@ export default {
               } catch {}
 
               this.marcDeliminatedLCSHModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.searchValue, this.searchType)
-              console.info("marcDeliminatedLCSHModeResults: ", this.marcDeliminatedLCSHModeResults)
               this.marcDeliminatedLCSHModeSearching = false
               let sendResults = []
               if (this.marcDeliminatedLCSHModeResults.resultType != 'ERROR'){
@@ -581,7 +580,6 @@ export default {
 
                 }else{
                   for (const [i, v] of this.marcDeliminatedLCSHModeResults.hit.entries()) {
-                    console.info("v: ", v)
                     sendResults.push({
                       complex: false,
                       id: i,

@@ -2790,7 +2790,6 @@ methods: {
   },
 
   validateOkayToAdd: function(){
-    console.info("ok to add?")
     this.okayToAdd = false
     let allHaveURI = true
     let allHaveType = true
@@ -2804,10 +2803,6 @@ methods: {
       }
 
     }
-
-    console.info("components: ", this.components)
-    console.info("allHaveURI: ", allHaveURI)
-    console.info("allHaveType: ", allHaveType)
 
     if (allHaveURI && allHaveType){
       this.okayToAdd = true
@@ -3105,7 +3100,6 @@ methods: {
   },
 
   add: async function(){
-    console.info("add")
     //remove any existing thesaurus label, so it has the most current
     //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
