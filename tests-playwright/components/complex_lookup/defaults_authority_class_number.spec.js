@@ -7,7 +7,7 @@ test('Load a class number from a NAR', async ({ page }) => {
 
   await page.getByText('Click Here').click();
 
-  await page.getByRole('group').getByRole('button', { name: 'Monograph', exact: true }).click();
+  await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
   await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
   await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
   await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');

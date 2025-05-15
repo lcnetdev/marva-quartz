@@ -6,7 +6,7 @@ test('Load a class number from a NAR', async ({ page }) => {
   await page.goto('http://localhost:5555/bfe2/quartz/');
 
   await page.getByText('Click Here').click();
-  await page.getByRole('group').getByRole('button', { name: 'Monograph', exact: true }).click();
+  await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
 
   await page.locator('[id="edit_lc\\:RT\\:bf2\\:Monograph\\:Work_id_loc_gov_ontologies_bibframe_contribution__creator_of_work"] form').filter({ hasText: 'Search LCNAF' }).getByRole('textbox').click();
   await page.locator('form').filter({ hasText: 'Search LCNAFbolt' }).getByRole('textbox').fill('t');
