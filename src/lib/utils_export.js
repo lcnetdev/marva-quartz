@@ -2110,6 +2110,13 @@ const utilsExport = {
 			pos29 = 'a'
 		}
 
+		// if there is a 667 in the extraMarcStatements then set it 
+		for (let x of extraMarcStatements){
+			if (x.tag == '667'){
+				pos29 = 'b'
+			}
+		}
+
 		let pos32 = "a"
 		// did they make a 4xx
 		if (oneXXParts.fieldTag == '110' || oneXXParts.fieldTag == '111' || oneXXParts.fieldTag == '130'){
@@ -2413,7 +2420,20 @@ const utilsExport = {
 		  console.log(marcTextArray)
 		  marcTextArray.map((x) => {
 			marcTxt = marcTxt + x.txt
-		  })
+		})
+		
+
+		// sort the children of the rootEl by tag so it looks nice in the editor
+		let sortedChildren = Array.from(rootEl.children).sort((a, b) => {
+			let tagA = a.getAttribute('tag');
+			let tagB = b.getAttribute('tag');
+			if (tagA < tagB) return -1;
+			if (tagA > tagB) return 1;
+			return 0;
+		});
+
+		rootEl.innerHTML = ''; // Clear existing children
+		sortedChildren.forEach(child => rootEl.appendChild(child)); // Append sorted children
 
 
 		console.log(marcTxt)

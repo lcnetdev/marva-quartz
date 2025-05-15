@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 2,
-    versionPatch: 25,
+    versionPatch: 26,
 
 
 
@@ -48,8 +48,8 @@ export const useConfigStore = defineStore('config', {
         // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
 
         // offical prod profiles that work outside firewall
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
         // offical stage profiles inside the firewall
         // starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
@@ -67,6 +67,7 @@ export const useConfigStore = defineStore('config', {
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
       },
+      
 
       staging:{
 
