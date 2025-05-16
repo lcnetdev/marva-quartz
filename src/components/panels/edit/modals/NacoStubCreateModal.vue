@@ -1248,7 +1248,17 @@
 
           this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
 
-          if (this.populatedValue && this.populatedValue.marcKey && !resetMode){        
+          if (this.populatedValue && this.populatedValue.marcKey && !resetMode){   
+            
+            // we never want 7xx so replace it 
+            if (this.populatedValue.marcKey.startsWith("7")){
+              this.populatedValue.marcKey = this.populatedValue.marcKey.replace("7","1")
+            }
+
+            // strip out the $e or $4
+            this.populatedValue.marcKey = this.populatedValue.marcKey.split("$e")[0]
+            this.populatedValue.marcKey = this.populatedValue.marcKey.split("$4")[0]
+            console.log('this.populatedValue.marcKey.split("$4")', this.populatedValue.marcKey.split("$4"))
             this.oneXX = this.populatedValue.marcKey
             this.checkOneXX()
           }
