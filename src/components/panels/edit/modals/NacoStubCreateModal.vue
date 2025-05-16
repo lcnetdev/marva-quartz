@@ -248,6 +248,16 @@
 
             }
 
+            if (this.add667){
+              let f667 = {
+                fieldTag: '667',
+                indicators: '##',
+                value: `$a Non-Latin script references not evaluated.`
+              }
+              this.extraMarcStatements.push(f667)
+
+            }
+
 
           }
 
@@ -1132,6 +1142,7 @@
             this.savedNARModalData.oneXX = this.oneXX
             this.savedNARModalData.fourXX = this.fourXX
             this.savedNARModalData.mainTitleNote = this.mainTitleNote
+            this.savedNARModalData.extraMarcStatements = this.extraMarcStatements
           }else{
             this.savedNARModalData = {}
           }
@@ -1164,6 +1175,8 @@
       this.statementOfResponsibilityOptions = []
       this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
 
+
+      
       if (this.statementOfResponsibility){
         this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
       }
@@ -1174,20 +1187,24 @@
 
       if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
 
-        // we are going to add the 670 as an extrMarcStatements
-        let f670 = {
-          fieldTag: '670',
-          indicators: '##',
-          value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`          
+        if (!this.savedNARModalData.extraMarcStatements){
+          // we are going to add the 670 as an extrMarcStatements
+          let f670 = {
+            fieldTag: '670',
+            indicators: '##',
+            value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`          
+          }
+          if (this.mainTitleNote!=''){
+            f670.value = f670.value + ` $b ${this.mainTitleNote}`
+          }
+          if (this.instanceURI){
+            f670.u = this.instanceURI
+            f670.value = f670.value + ` $u ${this.instanceURI}`
+          }
+          this.extraMarcStatements.push(f670)
+        }else{
+          this.extraMarcStatements = this.savedNARModalData.extraMarcStatements
         }
-        if (this.mainTitleNote!=''){
-          f670.value = f670.value + ` $b ${this.mainTitleNote}`
-        }
-        if (this.instanceURI){
-          f670.u = this.instanceURI
-          f670.value = f670.value + ` $u ${this.instanceURI}`
-        }
-        this.extraMarcStatements.push(f670)
 
       }
 
