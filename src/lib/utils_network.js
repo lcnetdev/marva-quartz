@@ -2833,6 +2833,8 @@ const utilsNetwork = {
       let utilUrl = useConfigStore().returnUrls.util
       let utilPath = useConfigStore().returnUrls.env
 
+
+
       let url
       if (user && !search){
         url = `${utilUrl}myrecords/${utilPath}/${user}`

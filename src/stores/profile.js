@@ -3264,7 +3264,10 @@ export const useProfileStore = defineStore('profile', {
     */
     saveRecord: async function(){
       let xml = await utilsExport.buildXML(this.activeProfile)
-      utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
+      if (!this.isTestEnv()){  //Don't try to save if in test env
+        utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
+      }
+
       this.activeProfileSaved = true
     },
 
@@ -6470,6 +6473,10 @@ export const useProfileStore = defineStore('profile', {
     isLatin(inputString) {
       // Regex to match common Latin characters, numbers, punctuation, and extended Latin ranges.
       return latinRegex.test(inputString);
+    },
+
+    isTestEnv(){
+      return window.location.href.includes("localhost:5555")
     }
 
 

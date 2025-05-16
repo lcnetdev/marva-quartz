@@ -131,7 +131,25 @@ export const useConfigStore = defineStore('config', {
         publicEndpoints:true,
         displayLCOnlyFeatures: false,
         simpleLookupLang: 'en',
-      }
+      },
+
+      playwrightTestConfig:{
+
+        ldpjs : 'https://bibframe.org/marva/api-production/',
+        util  :  'https://bibframe.org/marva/util/',
+        utilLang  :  'https://bibframe.org/marva/util-lang/',
+        scriptshifter  :  'https://bibframe.org/scriptshifter/',
+        publish: 'https://bibframe.org/marva/util/publish/production',
+        validate: 'https://bibframe.org/marva/util/validate',
+        bfdb : 'https://id.loc.gov/',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        id: 'https://id.loc.gov/',
+        env : 'production',
+        publicEndpoints:true,
+        displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
+      },
 
     },
 
@@ -1051,7 +1069,8 @@ export const useConfigStore = defineStore('config', {
     returnUrls: (state) => {
       // testing for window here because of running unit tests in node
       if (typeof window !== 'undefined'){
-        if (window && (window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1'))){
+        console.log("window: ", window.location.href)
+        if (window && (!window.location.href.includes('localhost:5555') && window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1') )){
           return state.regionUrls.dev
         }else if (window && window.location.href.startsWith('https://preprod-3001')){
           return state.regionUrls.staging
@@ -1059,6 +1078,9 @@ export const useConfigStore = defineStore('config', {
           return state.regionUrls.production
         }else if (window && window.location.href.includes('bibframe.org')){
           return state.regionUrls.bibframeDotOrg
+        }else if (window && window.location.href.includes('localhost:5555')){
+          console.log(">>>>>>>playwrightTestConfig<<<<<<<<<")
+          return state.regionUrls.playwrightTestConfig
         }else{
           return state.regionUrls.dev
         }
