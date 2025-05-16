@@ -1258,7 +1258,6 @@
             // strip out the $e or $4
             this.populatedValue.marcKey = this.populatedValue.marcKey.split("$e")[0]
             this.populatedValue.marcKey = this.populatedValue.marcKey.split("$4")[0]
-            console.log('this.populatedValue.marcKey.split("$4")', this.populatedValue.marcKey.split("$4"))
             this.oneXX = this.populatedValue.marcKey
             this.checkOneXX()
           }
@@ -1367,7 +1366,7 @@
                   <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
                   <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-">
                   <div v-if="populatedValue && populatedValue.marcKey">
-                    (This value was found in the uncontrolled value of this component)
+                    (This value was found in the uncontrolled value of this component<span v-if="lastComplexLookupString"> Use your search value: <a href="#" @click.stop.prevent="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX()">{{ lastComplexLookupString }}</a> instead?</span>)
                   </div>
                 </div>
               </div>
