@@ -534,6 +534,10 @@ export default {
 
       if (this.existingLCCN) {
         this.createSubField("e", "overlay bib", dummy999)
+        if (this.existingRecordUrl != ""){
+          let bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
+          this.createSubField("f", bibId, dummy999)
+        }
       }
 
       xml.documentElement.appendChild(dummy999)
