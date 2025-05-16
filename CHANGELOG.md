@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [1.2.27] - 2025-05-16
+### Fix
+- Closing the NAR modal without posting would lose the Advanced NAR rows. It now saves them.
+### Update
+- Create NAR cleans up the MARC Key to flip 7xx and truncate $e or $4
+- Adds reset button to create NAR
+- Adds ability to overwrite MARCKey with search value from complex search modal
+
+
 ## [1.2.26] - 2025-05-15
 ### Update
 - Added remove row buttons to advanced NAR mode.

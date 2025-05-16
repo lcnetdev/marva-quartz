@@ -30,16 +30,6 @@
         initalLeft: 400,
 
 
-        hubTitle:"",
-        hubCreator:{
-          label: null,
-          marcKey: null,
-          uri: null
-        },
-        hubLang: null,
-
-        langsLookup:[],
-        selectedLang: 'na',
 
         searching: false,
 
@@ -248,12 +238,62 @@
 
             }
 
+            if (this.add667){
+              let f667 = {
+                fieldTag: '667',
+                indicators: '##',
+                value: `$a Non-Latin script references not evaluated.`
+              }
+              this.extraMarcStatements.push(f667)
+
+            }
+
 
           }
 
 
 
         },  
+
+        resetButton(){
+
+
+
+          this.disableAddButton= true
+          this.oneXX = ''
+          this.oneXXParts = {}
+          this.oneXXErrors = []
+          this.oneXXResults = []
+          this.oneXXResultsTimeout = null
+          this.fourXX = ''
+          this.fourXXParts = {}
+          this.fourXXErrors = []
+          this.fourXXResults = []
+          this.fourXXResultsTimeout = null
+          this.mainTitle = null
+          this.mainTitleLccn = null
+          this.mainTitleDate = null
+          this.mainTitleNote = ''
+          this.instanceURI = false
+          this.statementOfResponsibility = null
+          this.statementOfResponsibilityOptions = []
+          this.buildHyphenated4xx = false
+          this.hyphenated4xx = null
+          this.zero46 = null
+          this.tmpXML =false
+          this.MARCXml =false
+          this.MARCText =false
+          this.MARClccn =false
+          this.populatedValue = null
+          this.showPreview = false
+          this.extraMarcStatements = []
+          this.add667 = false
+          this.savedNARModalData = {}
+          this.init(true)
+
+          
+
+        },
 
         async postNacoStub(){
 
@@ -1132,12 +1172,125 @@
             this.savedNARModalData.oneXX = this.oneXX
             this.savedNARModalData.fourXX = this.fourXX
             this.savedNARModalData.mainTitleNote = this.mainTitleNote
+            this.savedNARModalData.extraMarcStatements = this.extraMarcStatements
           }else{
             this.savedNARModalData = {}
           }
+        },
+
+
+        init(resetMode){
+
+          this.tmpXML=false
+          this.tmpErrorMessage=false
+          this.mainTitle = this.profileStore.nacoStubReturnMainTitle()
+          this.mainTitleLccn = this.profileStore.nacoStubReturnLCCN()
+          this.mainTitleDate = this.profileStore.nacoStubReturnDate()
+          this.statementOfResponsibility = this.profileStore.nacoStubReturnSoR()
+          this.statementOfResponsibilityOptions = []
+          this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
+
+
+          
+          if (this.statementOfResponsibility){
+            this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
+          }
+
+          if (this.statementOfResponsibility && this.statementOfResponsibility.split(",").length>1){
+            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(",")
+          }
+
+          if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
+
+            if (!this.savedNARModalData.extraMarcStatements){
+              // we are going to add the 670 as an extrMarcStatements
+              let f670 = {
+                fieldTag: '670',
+                indicators: '##',
+                value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`          
+              }
+              if (this.mainTitleNote!=''){
+                f670.value = f670.value + ` $b ${this.mainTitleNote}`
+              }
+              if (this.instanceURI){
+                f670.u = this.instanceURI
+                f670.value = f670.value + ` $u ${this.instanceURI}`
+              }
+              this.extraMarcStatements.push(f670)
+            }else{
+              this.extraMarcStatements = this.savedNARModalData.extraMarcStatements
+            }
+
+          }
+
+          if (this.savedNARModalData.oneXX){
+            this.oneXX = this.savedNARModalData.oneXX
+            this.checkOneXX()
+          }
+          if (this.savedNARModalData.fourXX){
+            this.fourXX = this.savedNARModalData.fourXX
+            this.checkFourXX()
+          }
+          if (this.savedNARModalData.mainTitleNote){
+            this.mainTitleNote = this.savedNARModalData.mainTitleNote
+          }
+
+
+          if (!this.mainTitle){
+            this.disableAddButton = true
+            // this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
+          }
+          if (this.lastComplexLookupString.trim() != ''){
+            this.oneXX = '1XX##$a'+this.lastComplexLookupString
+            this.checkOneXX()
+          }
+
+
+          this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
+
+          if (this.populatedValue && this.populatedValue.marcKey && !resetMode){   
+            
+            // we never want 7xx so replace it 
+            if (this.populatedValue.marcKey.startsWith("7")){
+              this.populatedValue.marcKey = this.populatedValue.marcKey.replace("7","1")
+            }
+
+            // strip out the $e or $4
+            this.populatedValue.marcKey = this.populatedValue.marcKey.split("$e")[0]
+            this.populatedValue.marcKey = this.populatedValue.marcKey.split("$4")[0]
+            this.oneXX = this.populatedValue.marcKey
+            this.checkOneXX()
+          }
+          
+          let current = window.localStorage.getItem('marva-scriptShifterOptions')
+
+          if (current){
+            current = JSON.parse(current)
+          }else{
+            current = {}
+          }
+
+          // for (let x in this.scriptshifterLanguages){
+          //   if (this.scriptshifterLanguages[x].s2r || this.scriptshifterLanguages[x].r2s ){
+          //     current[x] = this.scriptshifterLanguages[x]
+          //     current[x].name = this.scriptshifterLanguages[x].label
+          //     current[x].label = this.scriptshifterLanguages[x].label
+          //   }else{
+          //     if (current[x]){
+          //       delete current[x]
+          //     }
+          //   }
+          // }
+
+          // window.localStorage.setItem('marva-scriptShifterOptions',JSON.stringify(current))
+          this.scriptShifterOptions = JSON.parse(JSON.stringify(current))
+
+          // console.log(this.scriptShifterOptions)
+
+
         }
 
-
+        
 
     },
 
@@ -1155,98 +1308,7 @@
 
     async mounted() {
 
-      this.tmpXML=false
-      this.tmpErrorMessage=false
-      this.mainTitle = this.profileStore.nacoStubReturnMainTitle()
-      this.mainTitleLccn = this.profileStore.nacoStubReturnLCCN()
-      this.mainTitleDate = this.profileStore.nacoStubReturnDate()
-      this.statementOfResponsibility = this.profileStore.nacoStubReturnSoR()
-      this.statementOfResponsibilityOptions = []
-      this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
-
-      if (this.statementOfResponsibility){
-        this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
-      }
-
-      if (this.statementOfResponsibility && this.statementOfResponsibility.split(",").length>1){
-        this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(",")
-      }
-
-      if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
-
-        // we are going to add the 670 as an extrMarcStatements
-        let f670 = {
-          fieldTag: '670',
-          indicators: '##',
-          value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`          
-        }
-        if (this.mainTitleNote!=''){
-          f670.value = f670.value + ` $b ${this.mainTitleNote}`
-        }
-        if (this.instanceURI){
-          f670.u = this.instanceURI
-          f670.value = f670.value + ` $u ${this.instanceURI}`
-        }
-        this.extraMarcStatements.push(f670)
-
-      }
-
-      if (this.savedNARModalData.oneXX){
-        this.oneXX = this.savedNARModalData.oneXX
-        this.checkOneXX()
-      }
-      if (this.savedNARModalData.fourXX){
-        this.fourXX = this.savedNARModalData.fourXX
-        this.checkFourXX()
-      }
-      if (this.savedNARModalData.mainTitleNote){
-        this.mainTitleNote = this.savedNARModalData.mainTitleNote
-      }
-
-
-      if (!this.mainTitle){
-        this.disableAddButton = true
-        // this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
-      }
-      if (this.lastComplexLookupString.trim() != ''){
-        this.oneXX = '1XX##$a'+this.lastComplexLookupString
-        this.checkOneXX()
-      }
-
-
-      this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
-
-      if (this.populatedValue && this.populatedValue.marcKey){        
-        this.oneXX = this.populatedValue.marcKey
-        this.checkOneXX()
-      }
-      
-      let current = window.localStorage.getItem('marva-scriptShifterOptions')
-
-      if (current){
-        current = JSON.parse(current)
-      }else{
-        current = {}
-      }
-
-      // for (let x in this.scriptshifterLanguages){
-      //   if (this.scriptshifterLanguages[x].s2r || this.scriptshifterLanguages[x].r2s ){
-      //     current[x] = this.scriptshifterLanguages[x]
-      //     current[x].name = this.scriptshifterLanguages[x].label
-      //     current[x].label = this.scriptshifterLanguages[x].label
-      //   }else{
-      //     if (current[x]){
-      //       delete current[x]
-      //     }
-      //   }
-      // }
-
-      // window.localStorage.setItem('marva-scriptShifterOptions',JSON.stringify(current))
-      this.scriptShifterOptions = JSON.parse(JSON.stringify(current))
-
-      // console.log(this.scriptShifterOptions)
-
-
+      this.init()
 
 
 
@@ -1290,13 +1352,21 @@
 
             <template v-if="showPreview == false">
 
-              <h3 style="margin-bottom: 1em;">Create Name Authority Record</h3>
+              <div style="display: flex; padding-top: 0.5em;">
+                <div style="flex: 1;">
+                  <h3 style="margin-bottom: 0.5em;">Create Name Authority Record</h3>
+                </div>
+                <div style="flex: 1; text-align: right;">
+                  <button class="reset-button" @click="resetButton">Reset Form</button>
+                </div>
+              </div>
+
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1; position: relative;">
                   <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
                   <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-">
                   <div v-if="populatedValue && populatedValue.marcKey">
-                    (This value was found in the uncontrolled value of this component)
+                    (This value was found in the uncontrolled value of this component<span v-if="lastComplexLookupString"> Use your search value: <a href="#" @click.stop.prevent="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX()">{{ lastComplexLookupString }}</a> instead?</span>)
                   </div>
                 </div>
               </div>

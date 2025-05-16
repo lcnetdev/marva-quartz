@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 2,
-    versionPatch: 26,
+    versionPatch: 27,
 
 
 
@@ -56,8 +56,8 @@ export const useConfigStore = defineStore('config', {
         // profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
         // offical prod profiles inside the firewall
-        starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
-        profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
+        // starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
+        // profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
 
 
 
