@@ -3,9 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
-## [1.2.27] - 2025-05-16
+## [1.2.27] - 2025-05-19
 ### Fix
 - Closing the NAR modal without posting would lose the Advanced NAR rows. It now saves them.
+- Voyager diacritic entry mode not being seen as a change.
+
 ### Update
 - Create NAR cleans up the MARC Key to flip 7xx and truncate $e or $4
 - Adds reset button to create NAR
@@ -17,7 +19,7 @@ All notable changes to this project will be documented in this file.
 - Added remove row buttons to advanced NAR mode.
 - Added sorting to XML so the MARC XML produced from NAR creation will sort correctly in voyager display
 
-### Add 
+### Add
 - Added diacritic support to advanced NAR mode.
 
 

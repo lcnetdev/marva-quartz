@@ -67,7 +67,7 @@ export const useConfigStore = defineStore('config', {
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
       },
-      
+
 
       staging:{
 
