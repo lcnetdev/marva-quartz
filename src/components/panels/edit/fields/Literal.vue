@@ -713,7 +713,7 @@ export default {
 
         // turn off mode
         this.nextInputIsVoyagerModeDiacritics  =false
-
+        this.valueChanged(event)
         event.target.style.removeProperty('background-color')
         event.preventDefault()
         return false
