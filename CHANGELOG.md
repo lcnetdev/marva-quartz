@@ -2,12 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.27] - 2025-05-19
+### Fixed
+- Voyager diacritic entry mode not being seen as a change
+
+
 ## [1.2.26] - 2025-05-15
 ### Update
 - Added remove row buttons to advanced NAR mode.
 - Added sorting to XML so the MARC XML produced from NAR creation will sort correctly in voyager display
 
-### Add 
+### Add
 - Added diacritic support to advanced NAR mode.
 
 
