@@ -2310,7 +2310,6 @@ const utilsExport = {
 		}
 
 
-
 		let field670SubfieldsValues = []
 
 		let field670 = document.createElementNS(marcNamespace,"marcxml:datafield");
@@ -2351,13 +2350,11 @@ const utilsExport = {
 		// 	field670SubfieldsValues.push(`$w (DLC)${mainTitleLccn}`)
 		// }
 
+
 		if (!useAdvancedMode){
 			marcTextArray.push({txt: this.buildMarcTxtLine('670', ' ', ' ', field670SubfieldsValues), field: '670', fieldInt: 670})
 			rootEl.appendChild(field670)
 		}
-
-
-
 
 		// ---- 985
 		let field985 = document.createElementNS(marcNamespace,"marcxml:datafield");
@@ -2434,7 +2431,6 @@ const utilsExport = {
 
 		rootEl.innerHTML = ''; // Clear existing children
 		sortedChildren.forEach(child => rootEl.appendChild(child)); // Append sorted children
-
 
 		console.log(marcTxt)
 		let xml = (new XMLSerializer()).serializeToString(rootEl)
