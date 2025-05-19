@@ -2110,7 +2110,7 @@ const utilsExport = {
 			pos29 = 'a'
 		}
 
-		// if there is a 667 in the extraMarcStatements then set it 
+		// if there is a 667 in the extraMarcStatements then set it
 		for (let x of extraMarcStatements){
 			if (x.tag == '667'){
 				pos29 = 'b'
@@ -2393,10 +2393,10 @@ const utilsExport = {
 					for (let key of Object.keys(x)){
 						if (key.length == 1){
 							let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
-							subfield.setAttribute( 'code', key)
-							subfield.innerHTML = x[key]
+							subfield.setAttribute( 'code', x[key][0])
+							subfield.innerHTML = x[key][1]
 							field.appendChild(subfield)
-							useSubfieldsValues.push(`$${key} ${x[key]}`)
+							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1]}`)
 
 						}
 					}
@@ -2421,7 +2421,7 @@ const utilsExport = {
 		  marcTextArray.map((x) => {
 			marcTxt = marcTxt + x.txt
 		})
-		
+
 
 		// sort the children of the rootEl by tag so it looks nice in the editor
 		let sortedChildren = Array.from(rootEl.children).sort((a, b) => {

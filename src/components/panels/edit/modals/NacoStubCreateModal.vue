@@ -152,7 +152,7 @@
         },
 
         async buildNacoStub(){
-
+          console.info("BuildNacoStub")
 
           if (this.instanceURI.indexOf('id.loc.gov') > -1){
             // lc thing, if we have preprod-XXXX server prfix in staging env.
@@ -185,11 +185,12 @@
               }
               let subfields = field.value.split(/[$‡|]/)
 
-              for (let subfield of subfields){
+              for (let [idx, subfield] of subfields.entries()){
                 let subfieldKey = subfield.slice(0,1)
                 let value = subfield.slice(1)
                 if (value && value.trim().length > 0){
-                  newField[subfieldKey] = value.trim()
+                  // newField[subfieldKey] = value.trim()
+                  newField[idx] = [subfieldKey, value.trim()] // use the index to maintain subfield order
                 }
               }
 
