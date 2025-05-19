@@ -109,7 +109,7 @@
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
 
-      
+
 
 
     },
@@ -152,8 +152,6 @@
         },
 
         async buildNacoStub(){
-
-        
           if (this.instanceURI.indexOf('id.loc.gov') > -1){
             // lc thing, if we have preprod-XXXX server prfix in staging env.
             this.instanceURI = 'http://id.loc.gov' + this.instanceURI.split('id.loc.gov')[1]
@@ -169,7 +167,7 @@
            console.log("additonalFields",additonalFields)
           }
 
-          // if we are in advanced mode buld the statmenents 
+          // if we are in advanced mode buld the statmenents
           if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
             additonalFields=[]
 
@@ -177,7 +175,7 @@
               console.log(field)
               let fieldTag = field.fieldTag
               let indicators = field.indicators.replace(/[#]/g,' ')
-              
+
 
               let newField = {
                 fieldTag: fieldTag,
@@ -185,11 +183,12 @@
               }
               let subfields = field.value.split(/[$‡|]/)
 
-              for (let subfield of subfields){
+              for (let [idx, subfield] of subfields.entries()){
                 let subfieldKey = subfield.slice(0,1)
                 let value = subfield.slice(1)
                 if (value && value.trim().length > 0){
-                  newField[subfieldKey] = value.trim()
+                  // newField[subfieldKey] = value.trim()
+                  newField[idx] = [subfieldKey, value.trim()] // use the index to maintain subfield order
                 }
               }
 
@@ -197,8 +196,9 @@
             }
           }
 
-          
-          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields,true)
+
+          let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
+          let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields, advMode)
 
           this.MARCXml = results.xml
           this.MARCText = results.text
@@ -211,31 +211,26 @@
         },
 
         toggleAdvancedNARMode(){
-
-          if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){            
+          if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
             this.preferenceStore.setValue('--b-edit-complex-nar-advanced-mode',false)
             this.extraMarcStatements = []
           }else{
-
-            
             this.preferenceStore.setValue('--b-edit-complex-nar-advanced-mode',true)
             if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
-
-            // we are going to add the 670 as an extrMarcStatements
-            let f670 = {
-              fieldTag: '670',
-              indicators: '##',
-              value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`          
-            }
-            if (this.mainTitleNote!=''){
-              f670.value = f670.value + ` $b ${this.mainTitleNote}`
-            }
-            if (this.instanceURI){
-              f670.u = this.instanceURI
-              f670.value = f670.value + ` $u ${this.instanceURI}`
-            }
-            this.extraMarcStatements.push(f670)
-
+              // we are going to add the 670 as an extrMarcStatements
+              let f670 = {
+                fieldTag: '670',
+                indicators: '##',
+                value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`
+              }
+              if (this.mainTitleNote!=''){
+                f670.value = f670.value + ` $b ${this.mainTitleNote}`
+              }
+              if (this.instanceURI){
+                f670.u = this.instanceURI
+                f670.value = f670.value + ` $u ${this.instanceURI}`
+              }
+              this.extraMarcStatements.push(f670)
             }
 
             if (this.add667){
@@ -245,15 +240,9 @@
                 value: `$a Non-Latin script references not evaluated.`
               }
               this.extraMarcStatements.push(f667)
-
             }
-
-
           }
-
-
-
-        },  
+        },
 
         resetButton(){
 
@@ -291,7 +280,7 @@
           this.savedNARModalData = {}
           this.init(true)
 
-          
+
 
         },
 
@@ -350,7 +339,7 @@
           }else{
             this.savedNARModalData = {}
             this.activeNARStubComponent = {}
-            
+
             this.postStatus=='unposted'
             this.showPreview = false
 
@@ -423,7 +412,7 @@
           this.oneXXErrors = []
           this.disableAddButton = true
           if (this.oneXX.length<3){ return true}
-          
+
           if (/[^0-9 #]/.test(this.oneXX.slice(3,5))){
             this.oneXXErrors.push("There's an invalid indicator for 1XX")
           }
@@ -486,7 +475,7 @@
               authLabel = authLabel + ' ' + dollarKey.g
             }
 
-            
+
 
 
             if (dollarKey.a){
@@ -505,15 +494,15 @@
                 if (lifeDates[1].trim().length>0){
                   this.zero46.g = lifeDates[1]
                 }
-                
+
               }
               if (lifeDates.length==1){
                 this.zero46 = {}
                 this.zero46.f = lifeDates[0]
               }
-                
 
-              
+
+
             }
 
             if (dollarKey.a){
@@ -528,8 +517,8 @@
                   for (let partKey of Object.keys(dollarKey)){
                     hyphenated4xx[partKey] = dollarKey[partKey]
                   }
-                  hyphenated4xx.a = newDollarA          
-                  
+                  hyphenated4xx.a = newDollarA
+
                   // turn it into a 4xx
                   hyphenated4xx.fieldTag = hyphenated4xx.fieldTag.split('');
                   hyphenated4xx.fieldTag[0] = '4';
@@ -564,16 +553,16 @@
                       }
                     }
                   }
-                } 
-                
+                }
+
 
 
                }
-               
 
-               
+
+
               }
-          
+
 
             }
 
@@ -707,7 +696,7 @@
               }
 
             }
-            
+
 
 
           }else{
@@ -736,7 +725,7 @@
           this.extraMarcStatements.push({
             fieldTag: '',
             indicators: '##',
-            subfields: {              
+            subfields: {
             }
           })
 
@@ -744,10 +733,10 @@
         },
 
         removeRow(event,row){
-          this.extraMarcStatements.splice(row, 1);         
+          this.extraMarcStatements.splice(row, 1);
         },
 
-        
+
 
         runMacroExpressMacro(event){
 
@@ -997,7 +986,7 @@
 
         },
 
-        
+
         async presetChange(event){
           if (event.target.value == 'home'){return true}
           let OnexxPart = null
@@ -1033,7 +1022,7 @@
 
 
 
-          
+
 
           window.setTimeout(()=>{
             event.target.value = 'home'
@@ -1191,7 +1180,7 @@
           this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
 
 
-          
+
           if (this.statementOfResponsibility){
             this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
           }
@@ -1207,7 +1196,7 @@
               let f670 = {
                 fieldTag: '670',
                 indicators: '##',
-                value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`          
+                value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`
               }
               if (this.mainTitleNote!=''){
                 f670.value = f670.value + ` $b ${this.mainTitleNote}`
@@ -1248,9 +1237,9 @@
 
           this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
 
-          if (this.populatedValue && this.populatedValue.marcKey && !resetMode){   
-            
-            // we never want 7xx so replace it 
+          if (this.populatedValue && this.populatedValue.marcKey && !resetMode){
+
+            // we never want 7xx so replace it
             if (this.populatedValue.marcKey.startsWith("7")){
               this.populatedValue.marcKey = this.populatedValue.marcKey.replace("7","1")
             }
@@ -1258,10 +1247,15 @@
             // strip out the $e or $4
             this.populatedValue.marcKey = this.populatedValue.marcKey.split("$e")[0]
             this.populatedValue.marcKey = this.populatedValue.marcKey.split("$4")[0]
+
+            // Make sure the string doesn't end with a comma
+            if (this.populatedValue.marcKey.at(-1) == ','){
+              this.populatedValue.marcKey = this.populatedValue.marcKey.slice(0, -1)
+            }
             this.oneXX = this.populatedValue.marcKey
             this.checkOneXX()
           }
-          
+
           let current = window.localStorage.getItem('marva-scriptShifterOptions')
 
           if (current){
@@ -1290,7 +1284,7 @@
 
         }
 
-        
+
 
     },
 
@@ -1372,7 +1366,7 @@
               </div>
               <div v-if="hyphenated4xx && !preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" style="margin-bottom: 0.75em;">
                 <input type="checkbox" id="buildHyphenated4xx" name="buildHyphenated4xx" v-model="buildHyphenated4xx" style="margin-right: 1em;"/>
-                <label for="buildHyphenated4xx" style="vertical-align: super;">Add Hyphenated 4XX: <span style="background-color: whitesmoke; font-family: 'Courier New', Courier, monospace;">{{ hyphenated4xx.preview }}</span></label> 
+                <label for="buildHyphenated4xx" style="vertical-align: super;">Add Hyphenated 4XX: <span style="background-color: whitesmoke; font-family: 'Courier New', Courier, monospace;">{{ hyphenated4xx.preview }}</span></label>
 
               </div>
               <div style="display: flex; margin-bottom: 1em;">
@@ -1394,7 +1388,7 @@
                     <option class="preset-option" value="1112#">"1112 "</option>
                     <option class="preset-option" value="1112#and 4112#">"1112 " &amp; "4112 "</option>
 
-                    
+
 
                   </select>
                 </div>
@@ -1418,7 +1412,7 @@
 
 
               </div>
-  
+
 
 
 
@@ -1580,13 +1574,13 @@
 
                     <template v-if="statementOfResponsibilityOptions && statementOfResponsibilityOptions.length>0">
                       <div style="padding: 0.2em;">
-                        Multi SOR found: 
+                        Multi SOR found:
                         <template v-for="(sor, index) in statementOfResponsibilityOptions">
                           <button style="font-size: 0.75em;" @click="mainTitleNote = 'title page (' + sor.trim() + ')'">{{ sor }}</button>
                         </template>
                       </div>
-                      
-                    </template> 
+
+                    </template>
                   </div>
 
                   <template v-if="mainTitle && mainTitleDate && mainTitleLccn">
@@ -1599,8 +1593,8 @@
                   <template v-if="zero46 && Object.keys(zero46).length>0">
                     <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
                   </template>
-                  
-                  <div class="selectable" style="font-family: monospace; padding: 0.2em;"> 
+
+                  <div class="selectable" style="font-family: monospace; padding: 0.2em;">
 
                     <input type="checkbox" v-model="add667" id="add-667"/>
                     <label for="add-667" style="vertical-align: super; padding-left: 1em;">Add 667 Note</label>
@@ -1608,10 +1602,10 @@
                   </div>
 
 
-                  
+
 
                 </div>
-                
+
 
               </div>
 
@@ -1619,28 +1613,28 @@
                 <hr/>
                 <!-- <details>
                   <summary>Help</summary>
-                  Advanced mode allows you to add arbitrary MARC fields to the NAR. If you 
+                  Advanced mode allows you to add arbitrary MARC fields to the NAR. If you
                 </details> -->
                 <div>
                   <div v-for="(row, index) in this.extraMarcStatements" :key="index" class="advanced-row">
-                    <input 
-                      type="text" 
-                      v-model="row.fieldTag" 
-                      maxlength="3" 
-                      placeholder="TAG" 
+                    <input
+                      type="text"
+                      v-model="row.fieldTag"
+                      maxlength="3"
+                      placeholder="TAG"
                       style="margin-right: 1em; width: 50px;"
                     />
-                    <input 
-                      type="text" 
-                      v-model="row.indicators" 
-                      maxlength="2" 
-                      placeholder="IND" 
+                    <input
+                      type="text"
+                      v-model="row.indicators"
+                      maxlength="2"
+                      placeholder="IND"
                       style="margin-right: 1em; width: 40px; font-family: 'Courier New', Courier, monospace;"
                     />
-                    <input 
-                      type="text" 
-                      v-model="row.value" 
-                      placeholder="$a xyz $b abc..." 
+                    <input
+                      type="text"
+                      v-model="row.value"
+                      placeholder="$a xyz $b abc..."
                       style="margin-right: 1em; flex-grow: 1;"
                       @keydown="keydown" @keyup="keyup"
                     />
@@ -1670,7 +1664,7 @@
               <span v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use regular mode</span>
             </button>
             <hr>
-            
+
             <div v-if="populatedValue && populatedValue.marcKey && !populatedValue.URI" style="text-align: center;">
                     Adding this NAR will replace the uncontrolled value in this component.
             </div>
