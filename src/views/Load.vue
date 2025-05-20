@@ -514,7 +514,7 @@ export default {
 
       // find the right profile to use from the instance profile name used
       let useProfile = null
-      console.log("this.profiles", this.profiles)
+      console.log("this.profiles", JSON.parse(JSON.stringify(this.profiles)))
       console.log("useInstanceProfile", useInstanceProfile)
       for (let key in this.profiles) {
         if (this.profiles[key].rtOrder.indexOf(useInstanceProfile) > -1) {
@@ -559,7 +559,6 @@ export default {
                   for (let ptk in useItem.pt) {
                     useItem.pt[ptk]['@guid'] = short.generate()
                   }
-
 
                   // console.log('using',this.profiles[pkey].rt[rtkey])
                   foundCorrectItemProfile = true
@@ -613,7 +612,6 @@ export default {
       } else {
         // if there is not url they are making it from scratch, so we need to link the instances and work together
         useProfile = utilsParse.linkInstancesWorks(useProfile)
-
         this.activeProfile = useProfile
 
         // prime this for ad hoc mode

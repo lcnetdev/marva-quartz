@@ -1140,9 +1140,9 @@
                           <template v-else-if="key == 'broaders' || key == 'relateds' || key == 'sees'">
                             <a target="_blank" :href="'https://id.loc.gov/authorities/label/'+v">{{v}}</a>
                           </template>
-                          <teamplate v-else-if="key == 'notes'">
+                          <template v-else-if="key == 'notes'">
                             <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
-                          </teamplate>
+                          </template>
                           <template v-else>
                             {{v}}
                           </template>

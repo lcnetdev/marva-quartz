@@ -548,20 +548,28 @@ export default {
 
       this.posting = true
       this.postResults = {}
-      // this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
+      this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
       this.posting = false
 
-      // this.responseURL = this.postResults.postLocation
-      // let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
+      console.info("this.postResults: ", this.postResults)
+
+      this.responseURL = this.postResults.postLocation
+
+      console.info("this.responseURL: ", this.responseURL)
+
+      let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
+
+      console.info("recordId: ", recordId)
+
       // this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
-      // this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
+      this.urlToLoad = "https://preprod-8287.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
 
       // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
       // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
       // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
 
       try {
-        // this.loadUrl(profile)
+        this.loadUrl(profile)
       } catch (err) {
         alert("Couldn't ")
       }

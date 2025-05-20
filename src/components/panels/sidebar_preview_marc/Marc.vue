@@ -6,7 +6,6 @@
 
   export default {
     components: {
-
     },
 
     data() {
@@ -14,7 +13,7 @@
         previewData : {default:null, versions:[]},
         timeout: null,
         firstLoad: true,
-        selected: null
+        selected: null,
       }
     },
     computed: {
@@ -91,7 +90,6 @@
         <button @click="selected = ver.version">{{ ver.version }} <span v-if="ver.error">(err)</span></button>
       </li>
     </ul>
-
 
     <template v-if="!selected">
       <template v-for="ver in previewData.versions">
