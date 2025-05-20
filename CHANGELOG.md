@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 - Create NAR cleans up the MARC Key to flip 7xx and truncate $e or $4
 - Adds reset button to create NAR
 - Adds ability to overwrite MARCKey with search value from complex search modal
-
+- Paired literal improvements: Draws lines when there are +2 literals, tries to sort literals into pairs better.
 
 ## [1.2.26] - 2025-05-15
 ### Update
