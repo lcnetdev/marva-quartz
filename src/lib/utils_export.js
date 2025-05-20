@@ -1310,13 +1310,13 @@ const utilsExport = {
 		let bf_AdminMetadtat = this.createElByBestNS("bf:AdminMetadata")
 		let bf_status = this.createElByBestNS("bf:status")
 		let bf_Status = this.createElByBestNS("bf:Status")
-
-		bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/c')
 		let bf_StatusLabel = this.createElByBestNS("rdfs:label")
 
 		if (profile.newResource){
+			bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/n')
 			bf_StatusLabel.innerHTML="new"
 		} else {
+			bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/c')
 			bf_StatusLabel.innerHTML="changed"
 		}
 

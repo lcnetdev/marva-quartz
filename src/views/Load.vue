@@ -509,8 +509,6 @@
           }
         }
 
-        console.info("initial useProfile:", JSON.parse(JSON.stringify(useProfile)))
-
         this.activeProfilePosted = false
         this.activeProfilePostedTimestamp = false
 
@@ -603,8 +601,6 @@
           // if there is not url they are making it from scratch, so we need to link the instances and work together
           useProfile = utilsParse.linkInstancesWorks(useProfile)
 
-          console.info("useProfile:", JSON.parse(JSON.stringify(useProfile)))
-
           useProfile.newResource = true
           this.activeProfile = useProfile
 
@@ -652,8 +648,6 @@
                   "valueTemplateRefs": ['lc:RT:bf2:AdminMetadata:BFDB']
                 }
               }
-
-              console.info("profile:", this.activeProfile.rt[rt])
 
               this.activeProfile.rt[rt].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
             }
