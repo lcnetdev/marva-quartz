@@ -484,29 +484,19 @@
 
       loadUrl: async function(useInstanceProfile,multiTestFlag){
         if (this.lccnLoadSelected){
-
           this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
-
         }
 
 
-
         if (this.urlToLoad.trim() !== ''){
-
           let xml = await utilsNetwork.fetchBfdbXML(this.urlToLoad)
           if (!xml){
             alert("There was an error retrieving that URL. Are you sure it is correct: " + this.urlToLoad)
             return false
           }
           // if (xml.indexOf('<rdf:RDF'))
-
-
           // check for XML problems here ?
-
           utilsParse.parseXml(xml)
-
-
-
         }
 
         // find the right profile to use from the instance profile name used
@@ -518,6 +508,8 @@
             useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
           }
         }
+
+        console.info("initial useProfile:", JSON.parse(JSON.stringify(useProfile)))
 
         this.activeProfilePosted = false
         this.activeProfilePostedTimestamp = false
@@ -611,6 +603,9 @@
           // if there is not url they are making it from scratch, so we need to link the instances and work together
           useProfile = utilsParse.linkInstancesWorks(useProfile)
 
+          console.info("useProfile:", JSON.parse(JSON.stringify(useProfile)))
+
+          useProfile.newResource = true
           this.activeProfile = useProfile
 
           // prime this for ad hoc mode
@@ -622,6 +617,45 @@
               //   this.emptyComponents[rt].push(element)
               // }
               this.profileStore.addToAdHocMode(rt, element)
+            }
+          }
+
+          //For IBCs add the admin metadata
+          for (let rt in this.activeProfile.rt) {
+            if (rt.includes(":Ibc:Instance")){
+              let pt = this.activeProfile.rt[rt].pt
+              let parent
+              let parentId
+              for (let k of Object.keys(pt)){
+                if (pt[k].parent){
+                  parent = pt[k].parent
+                  parentId = pt[k].parentId
+                  break
+                }
+              }
+              pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
+                "mandatory": false,
+                "parent": parent,
+                "parentId": parentId,
+                "id": 'id_loc_gov_ontologies_bibframe_adminmetadata',
+                "propertyLabel": "Admin Metadata",
+                "propertyURI": "http://id.loc.gov/ontologies/bibframe/adminMetadata",
+                "repeatable": true,
+                "resourceTemplates": [],
+                '@guid': short.generate(),
+                "type": "resource",
+                "userValue": {"@root":"http://id.loc.gov/ontologies/bibframe/adminMetadata"},
+                "valueConstraint": {
+                  "defaults": [],
+                  "useValuesFrom": [],
+                  "valueDataType": {},
+                  "valueTemplateRefs": ['lc:RT:bf2:AdminMetadata:BFDB']
+                }
+              }
+
+              console.info("profile:", this.activeProfile.rt[rt])
+
+              this.activeProfile.rt[rt].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
             }
           }
         }

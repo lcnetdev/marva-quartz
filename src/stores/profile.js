@@ -593,7 +593,7 @@ export const useProfileStore = defineStore('profile', {
         console.error(err);
       }
 
-
+      console.info("startingPointData: ", startingPointData)
 
       // FLAG: NEEDS_PROFILE_ALIGNMENT
       // TEMP HACK ADD IN HUBS
@@ -850,7 +850,7 @@ export const useProfileStore = defineStore('profile', {
           }
       }
 
-
+      console.info("\tprofileData: ", profileData)
       // -------- end HACKKCKCKCKCK
       profileData.forEach((p)=>{
 

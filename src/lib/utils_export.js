@@ -1313,7 +1313,12 @@ const utilsExport = {
 
 		bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/c')
 		let bf_StatusLabel = this.createElByBestNS("rdfs:label")
-		bf_StatusLabel.innerHTML="changed"
+
+		if (profile.newResource){
+			bf_StatusLabel.innerHTML="new"
+		} else {
+			bf_StatusLabel.innerHTML="changed"
+		}
 
 		let bf_catalogerId = this.createElByBestNS("bflc:catalogerId")
 		bf_catalogerId.innerHTML = escapeHTML(catCode)
