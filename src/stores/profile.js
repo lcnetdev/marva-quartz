@@ -572,11 +572,12 @@ export const useProfileStore = defineStore('profile', {
       const config = useConfigStore()
 
       let profileData;
-
       try{
         let response = await fetch(config.returnUrls.profiles);
         profileData =  await response.json()
       }catch(err){
+        console.log("Error Downloading profiles from:", config.returnUrls.profiles)
+
         alert('Could not download the profiles, unable to continue.')
         console.error(err);
       }
@@ -589,6 +590,7 @@ export const useProfileStore = defineStore('profile', {
         let response = await fetch(config.returnUrls.starting);
         startingPointData =  await response.json()
       }catch(err){
+        console.log("Error Downloading Starting Points from:", config.returnUrls.starting)
         alert('Could not download the starting points, unable to continue.')
         console.error(err);
       }
