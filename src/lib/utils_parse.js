@@ -2088,9 +2088,9 @@ const utilsParse = {
             // only array > 1 make it here
             if (value.filter((v)=>{ return (v['@language'])}).length >= 1){
               // only arrays with @language in them make it here and only if they do nt all have it
-
               value.forEach((v, index)=>{
-                if (index == 0){
+                // if (index == 0){
+                if (index % 2 === 0){
                   useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = value.length
                 }else if (index == value.length-1){
                   useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1
