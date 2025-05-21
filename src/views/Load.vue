@@ -380,6 +380,7 @@
 
         let postedByAgo= {}
         this.allRecords = []
+        console.log("allRecordsRaw",allRecordsRaw)
         for (let r of allRecordsRaw){
 
           let obj = {
@@ -396,6 +397,8 @@
 
           let date = new Date(r.time);
           let timestamp = date.getTime()/1000;
+          console.log("timestamp",timestamp)
+
 
           dashBoard.byTimePeriod.all.uniqueUsers[r.user]=true
           dashBoard.byTimePeriod.all.workedRecords++
@@ -421,6 +424,7 @@
           }
           this.allRecords.push(obj)
         }
+        console.log("oldestDate",oldestDate)
         dashBoard.totalDays = Math.floor((new Date().getTime()/1000 - oldestDate)/86400)
         console.log(dashBoard)
         this.dashBoard = dashBoard
