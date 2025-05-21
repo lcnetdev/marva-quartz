@@ -149,6 +149,9 @@
           { text: "Load Resource", click: () => {
             try{
               this.$nextTick(()=>{
+                if (this.profileStore.copyCatMode){
+                  this.profileStore.copyCatMode = false
+                }
                 this.$router.push('/load')
               })
             }catch{
