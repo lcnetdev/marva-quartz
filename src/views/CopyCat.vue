@@ -561,6 +561,11 @@ export default {
 
       console.info("recordId: ", recordId)
 
+      if (!this.responseURL){
+        alert("There was an issue sending the record.")
+        console.error("Failed to send copy cat record: ", this.postResults)
+      }
+
       // this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
       this.urlToLoad = "https://preprod-8287.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
 
@@ -571,7 +576,8 @@ export default {
       try {
         this.loadUrl(profile)
       } catch (err) {
-        alert("Couldn't ")
+        alert("Couldn't load the record with the selected profile.")
+        console.error("Failed to load CopyCat record: ", err)
       }
     },
 
