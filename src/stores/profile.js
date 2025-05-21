@@ -572,11 +572,12 @@ export const useProfileStore = defineStore('profile', {
       const config = useConfigStore()
 
       let profileData;
-
       try{
         let response = await fetch(config.returnUrls.profiles);
         profileData =  await response.json()
       }catch(err){
+        console.log("Error Downloading profiles from:", config.returnUrls.profiles)
+
         alert('Could not download the profiles, unable to continue.')
         console.error(err);
       }
@@ -589,6 +590,7 @@ export const useProfileStore = defineStore('profile', {
         let response = await fetch(config.returnUrls.starting);
         startingPointData =  await response.json()
       }catch(err){
+        console.log("Error Downloading Starting Points from:", config.returnUrls.starting)
         alert('Could not download the starting points, unable to continue.')
         console.error(err);
       }
@@ -6327,12 +6329,14 @@ export const useProfileStore = defineStore('profile', {
      */
     sortObjectsByLatinMatch(arr, key) {
 
+      // let toSort = JSON.parse(JSON.stringify(arr))
       // if they have language tags in them then we know how to sort
       // console.log(JSON.stringify(arr,null,2))
       // console.log(arr.filter((v)=>{ return (v['@language'])}).length)
+      // let sortedArry = []
       if (arr.filter((v)=>{ return (v['@language'])}).length >= 1){
       //   // sort by language tags
-        return arr.sort((a, b) => {
+        arr.sort((a, b) => {
           let aLang = a['@language'] || '';
           let bLang = b['@language'] || '';
 
@@ -6369,12 +6373,10 @@ export const useProfileStore = defineStore('profile', {
       }else{
 
         // no tags, try the regex
-        return arr.sort((a, b) => {
+        arr.sort((a, b) => {
           // Handle cases where key doesn't exist
           const aValue = a[key] || '';
           const bValue = b[key] || '';
-          console.log(aValue, 'latinregex:',latinRegex.test(aValue))
-          console.log(bValue, 'latinregex:',latinRegex.test(bValue))
           const aIsLatin = latinRegex.test(aValue);
           const bIsLatin = latinRegex.test(bValue);
 
@@ -6385,7 +6387,44 @@ export const useProfileStore = defineStore('profile', {
 
       }
 
+      // if the array is larger than 2, we need to interleave the results
+      if (arr.length == 6){
+        arr.splice(1, 0, arr.splice(3, 1)[0]);
+        arr.splice(3, 0, arr.splice(4, 1)[0]);
+      }
+      if (arr.length == 4){
+        arr.splice(1, 0, arr.splice(2, 1)[0]);
+      }      
+      //   let fiftyPercent = Math.floor(sortedArry.length / 2)
+      //   let largeAryOrder = []
+      //   console.log("sortedArry",sortedArry)
+      //   console.log("fiftyPercent",fiftyPercent)
+      //   for (let i = 0; i < fiftyPercent; i++) {
+      //     console.log("i",i)
+      //     console.log("i + fiftyPercent",i + fiftyPercent)
 
+      //     largeAryOrder.push(JSON.parse(JSON.stringify(sortedArry[i])));
+      //     largeAryOrder.push(JSON.parse(JSON.stringify(sortedArry[i + fiftyPercent])));
+      //     console.log("largeAryOrder ->",JSON.parse(JSON.stringify(largeAryOrder)))
+      //   }
+
+        
+      //   console.log("sortedArry!!!",sortedArry)
+
+      //   console.log("Returning largeAryOrder:", largeAryOrder)
+      //   return largeAryOrder
+
+      // }else{
+      //   console.log("Returning sortedArry",sortedArry)
+      //   return sortedArry
+
+      // }
+
+
+
+
+      return arr
+      
 
     },
 
