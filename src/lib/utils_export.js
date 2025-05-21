@@ -1313,6 +1313,7 @@ const utilsExport = {
 		let bf_StatusLabel = this.createElByBestNS("rdfs:label")
 
 		if (profile.newResource){
+			// For `new` should this even be added? Or is this replaced by the big admin block?
 			bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/n')
 			bf_StatusLabel.innerHTML="new"
 		} else {

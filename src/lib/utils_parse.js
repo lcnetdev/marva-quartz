@@ -497,7 +497,6 @@ const utilsParse = {
           }
         }
 
-
         // adminMetadataCount
         pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
           "mandatory": false,

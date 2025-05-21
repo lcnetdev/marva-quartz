@@ -629,6 +629,27 @@
                   break
                 }
               }
+
+              // Look up the profile's admin metadata
+              const config = useConfigStore()
+              let profileData;
+              try{
+                let response = await fetch(config.returnUrls.profiles);
+                profileData =  await response.json()
+              }catch(err){
+                console.error('Could not download the profiles, unable to continue.')
+                console.error(err);
+              }
+
+              let targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+              try {
+                targetTemplate = profileData.filter((obj) => obj.json.Profile.resourceTemplates.some((l) => l.id == useInstanceProfile))[0]
+                targetTemplate = targetTemplate.json.Profile.resourceTemplates.filter((obj) => obj.id == useInstanceProfile)[0]
+                targetTemplate = targetTemplate.propertyTemplates.filter((obj) => obj.propertyLabel == 'Admin Metadata')[0].valueConstraint.valueTemplateRefs[0]
+              } catch(err) {
+                console.warn("Using default template for admin metadata: ", err)
+              }
+
               pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
                 "mandatory": false,
                 "parent": parent,
@@ -645,7 +666,7 @@
                   "defaults": [],
                   "useValuesFrom": [],
                   "valueDataType": {},
-                  "valueTemplateRefs": ['lc:RT:bf2:AdminMetadata:BFDB']
+                  "valueTemplateRefs": [targetTemplate]
                 }
               }
 
