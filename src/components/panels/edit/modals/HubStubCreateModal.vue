@@ -34,12 +34,15 @@
 
         hubTitle:"",
         hubTitleVariant:"",
+        hubTitleVariantLang:null,
+
         hubCreator:{
           label: null,
           marcKey: null,
           uri: null
         },
         hubLang: "",
+
 
         langsLookup:[],
         selectedLang: 'na',
@@ -52,7 +55,6 @@
 
         showLitLangModal: false,
         useLang: null,
-        hubTitleVariantLang:null,
 
         scriptShifterOptions: {}
 
@@ -67,7 +69,7 @@
       ...mapStores(useProfileStore),
       ...mapState(useConfigStore, ['scriptShifterLangCodes', 'lccFeatureProperties']),
 
-      ...mapWritableState(useProfileStore, ['activeProfile','showHubStubCreateModal','activeHubStubData','activeHubStubComponent','literalLangInfo']),
+      ...mapWritableState(useProfileStore, ['activeProfile','showHubStubCreateModal','activeHubStubData','activeHubStubComponent','literalLangInfo', 'savedHubModalData']),
 
       ...mapWritableState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
@@ -99,6 +101,19 @@
 
         },
 
+        resetButton(){
+          
+          this.hubTitle = ""
+          this.hubTitleVariant = ""
+          this.hubTitleVariantLang = null
+          this.hubLang = ""
+          this.hubCreator = {
+            label: null,
+            marcKey: null,
+            uri: null
+          }
+
+        },
 
         transliterateOptions(){
 
@@ -440,10 +455,31 @@
 
         close(){
 
+          if (this.postStatus == 'posted'){
+            this.postStatus=='unposed'
+            this.savedHubModalData={}
+          }else{
+
+            // save the data
+            this.savedHubModalData = {
+              hubTitle: this.hubTitle,
+              hubTitleVariant: this.hubTitleVariant,
+              hubTitleVariantLang: this.hubTitleVariantLang,
+              hubCreator: this.hubCreator,
+              hubLang: this.hubLang
+            }
+
+          }
+
           this.activeHubStubComponent = {}
           this.activeHubStubData = {}
           this.showHubStubCreateModal=false
-          this.postStatus=='unposed'
+
+
+          
+        
+
+
 
         },
 
@@ -584,13 +620,8 @@
         },
 
         checkBeforeClosing(event){
-          if (this.hubTitle && this.hubTitle.trim().length > 0){
-              if (confirm("Are you sure you want to close? You will lose any Hub info you have entered.")){
-                return true
-              }else{
-                event.stop()
-              }
-            }
+          
+          this.close()
         },
 
         keyup(event){
@@ -768,6 +799,24 @@
 
       this.langsLookup.sort((a,b) => (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0))
 
+      if (this.savedHubModalData && this.savedHubModalData.hubTitle){
+        this.hubTitle = this.savedHubModalData.hubTitle
+      }
+      if (this.savedHubModalData && this.savedHubModalData.hubTitleVariant){
+        this.hubTitleVariant = this.savedHubModalData.hubTitleVariant
+      } 
+      if (this.savedHubModalData && this.savedHubModalData.hubTitleVariantLang){
+        this.hubTitleVariantLang = this.savedHubModalData.hubTitleVariantLang
+      }
+      if (this.savedHubModalData && this.savedHubModalData.hubLang){
+        this.hubLang = this.savedHubModalData.hubLang
+      } 
+      if (this.savedHubModalData && this.savedHubModalData.hubCreator){
+        this.hubCreator = this.savedHubModalData.hubCreator
+      }
+
+
+      
 
       this.$nextTick(()=>{
 
@@ -823,7 +872,15 @@
             <div class="menu-buttons">
               <button class="close-button" @pointerup="close">X</button>
             </div>
-            <h3 style="margin-bottom: 1em;">Create Quick Hub</h3>
+
+            <div style="display: flex; padding-top: 0.5em; padding-bottom: 0.5em;">
+              <div style="flex: 1;">
+                <h3 style="margin-bottom: 0.5em;">Create Quick Hub</h3>
+              </div>
+              <div style="flex: 1; text-align: right;">
+                <button class="reset-button" @click="resetButton">Reset Form</button>
+              </div>
+            </div>            
 
             <div style="margin-bottom: 1em;">
               <span class="creator-label" v-if="!hubCreator.label">[No Hub Creator]</span>

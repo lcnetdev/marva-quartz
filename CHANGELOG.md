@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file.
 ## [1.2.28] - 2025-05-21
 ### Changed
 - How admin metadata is added to records to support IBC records
-
+### Add
+- Create Quick Hub modal now has a reset button
+- Create Quick Hub modal will save inputed data when closed ( x button, cancel button, click outside modal) and repopulate that data when opened again. It clears saved data when Hub is posted.
 
 ## [1.2.27] - 2025-05-19
 ### Fix
