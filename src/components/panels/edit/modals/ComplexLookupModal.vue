@@ -1143,7 +1143,7 @@
                       </AuthTypeIcon>
                     </span>
                     {{ activeContext.title }}<br>
-                    <span style="margin-left: 2em;">{{ activeContext.uri.split("/").at(-1) }}</span>
+                    <span v-if="!activeContext.uri.includes('hubs')" style="margin-left: 2em;">{{ activeContext.uri.split("/").at(-1) }}</span>
                   </h3>
                   <div class="complex-lookup-modal-display-type-buttons">
                     <div>
@@ -1154,8 +1154,10 @@
                         <div v-if="activeContext.extra.collections && activeContext.extra.collections.includes('http://id.loc.gov/authorities/names/collection_NamesUndifferentiated')" style="background: pink;">
                           THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN <a href="https://www.loc.gov/aba/pcc/rda/PCC%20RDA%20guidelines/Z01%20008%2032%202014rfeb.pdf" target="_blank">DCM Z1 008/32</a>.
                         </div>
-                        <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri, true)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on BFDB</a>
-                        <br />
+                        <template v-if="activeContext.uri.includes('/resources/')">
+                          <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri, true)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on BFDB</a>
+                          <br />
+                        </template>
                         <a style="color:#2c3e50; float: none;    border: none;border-radius: 0;background-color: transparent;font-size: 1em;padding: 0;" v-if="activeContext.type!='Literal Value'" :href="rewriteURI(activeContext.uri)" target="_blank" :style="`${this.preferenceStore.styleModalTextColor()}`">view on ID</a>
                     </div>
                     <div class="complex-lookup-modal-display-buttons">
