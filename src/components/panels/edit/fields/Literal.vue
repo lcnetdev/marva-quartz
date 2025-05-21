@@ -59,7 +59,7 @@
 
 
         <!-- <div>Literal ({{propertyPath.map((x)=>{return x.propertyURI}).join('>')}})</div> -->
-        <div :class="['literal-field', {'read-only': structure.propertyLabel=='Local identifier' && Object.keys(structure.userValue) != '@root'}]">
+        <div :class="['literal-field', {'read-only': structure.propertyLabel=='Local identifier'}]">
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels')"  class="lookup-fake-input-label" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">{{structure.propertyLabel}}</div>
