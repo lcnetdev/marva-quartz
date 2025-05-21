@@ -265,7 +265,6 @@ const utilsParse = {
   sniffWorkRelationType(xml){
     for (let child of xml.children){
       if (child.tagName == 'bf:relation'){
-        // console.info("innner: ", child.innerHTML)
         let hasUncontrolled = false
         if (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1){ hasUncontrolled = true }
         if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){ hasUncontrolled = true }
@@ -497,6 +496,13 @@ const utilsParse = {
           }
         }
 
+        let targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+        try {
+          targetTemplate = pt.filter((obj) => obj.propertyLabel == 'Admin Metadata')[0].valueConstraint.valueTemplateRefs[0]
+        } catch(err) {
+          console.warn("Using default template for admin metadata: ", err)
+          targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+        }
 
         // adminMetadataCount
         pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
@@ -515,7 +521,7 @@ const utilsParse = {
               "defaults": [],
               "useValuesFrom": [],
               "valueDataType": {},
-            "valueTemplateRefs": ['lc:RT:bf2:AdminMetadata:BFDB']
+            "valueTemplateRefs": [targetTemplate]
             }
         }
 

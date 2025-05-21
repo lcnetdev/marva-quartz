@@ -595,8 +595,6 @@ export const useProfileStore = defineStore('profile', {
         console.error(err);
       }
 
-
-
       // FLAG: NEEDS_PROFILE_ALIGNMENT
       // TEMP HACK ADD IN HUBS
 
@@ -851,7 +849,6 @@ export const useProfileStore = defineStore('profile', {
               }
           }
       }
-
 
       // -------- end HACKKCKCKCKCK
       profileData.forEach((p)=>{

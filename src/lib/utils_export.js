@@ -1310,10 +1310,16 @@ const utilsExport = {
 		let bf_AdminMetadtat = this.createElByBestNS("bf:AdminMetadata")
 		let bf_status = this.createElByBestNS("bf:status")
 		let bf_Status = this.createElByBestNS("bf:Status")
-
-		bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/c')
 		let bf_StatusLabel = this.createElByBestNS("rdfs:label")
-		bf_StatusLabel.innerHTML="changed"
+
+		if (profile.newResource){
+			// For `new` should this even be added? Or is this replaced by the big admin block?
+			bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/n')
+			bf_StatusLabel.innerHTML="new"
+		} else {
+			bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/c')
+			bf_StatusLabel.innerHTML="changed"
+		}
 
 		let bf_catalogerId = this.createElByBestNS("bflc:catalogerId")
 		bf_catalogerId.innerHTML = escapeHTML(catCode)
@@ -1329,18 +1335,15 @@ const utilsExport = {
 		bf_AdminMetadtat.appendChild(bf_status)
 		bf_adminMetadata.appendChild(bf_AdminMetadtat)
 
+		if (!profile.newResource){ // don't show the `new` small admin field. Status=new should be in the big block
+			let adminMetadataText = (new XMLSerializer()).serializeToString(bf_adminMetadata)
 
-		let adminMetadataText = (new XMLSerializer()).serializeToString(bf_adminMetadata)
-
-
-
-
-
-		for (let URI in tleLookup['Work']){
-			tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
-		}
-		for (let URI in tleLookup['Instance']){
-			tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+			for (let URI in tleLookup['Work']){
+				tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+			}
+			for (let URI in tleLookup['Instance']){
+				tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+			}
 		}
 
 

@@ -484,29 +484,19 @@
 
       loadUrl: async function(useInstanceProfile,multiTestFlag){
         if (this.lccnLoadSelected){
-
           this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
-
         }
 
 
-
         if (this.urlToLoad.trim() !== ''){
-
           let xml = await utilsNetwork.fetchBfdbXML(this.urlToLoad)
           if (!xml){
             alert("There was an error retrieving that URL. Are you sure it is correct: " + this.urlToLoad)
             return false
           }
           // if (xml.indexOf('<rdf:RDF'))
-
-
           // check for XML problems here ?
-
           utilsParse.parseXml(xml)
-
-
-
         }
 
         // find the right profile to use from the instance profile name used
@@ -611,6 +601,7 @@
           // if there is not url they are making it from scratch, so we need to link the instances and work together
           useProfile = utilsParse.linkInstancesWorks(useProfile)
 
+          useProfile.newResource = true
           this.activeProfile = useProfile
 
           // prime this for ad hoc mode
@@ -622,6 +613,65 @@
               //   this.emptyComponents[rt].push(element)
               // }
               this.profileStore.addToAdHocMode(rt, element)
+            }
+          }
+
+          //For IBCs add the admin metadata
+          for (let rt in this.activeProfile.rt) {
+            if (rt.includes(":Ibc:Instance")){
+              let pt = this.activeProfile.rt[rt].pt
+              let parent
+              let parentId
+              for (let k of Object.keys(pt)){
+                if (pt[k].parent){
+                  parent = pt[k].parent
+                  parentId = pt[k].parentId
+                  break
+                }
+              }
+
+              // Look up the profile's admin metadata
+              const config = useConfigStore()
+              let profileData;
+              try{
+                let response = await fetch(config.returnUrls.profiles);
+                profileData =  await response.json()
+              }catch(err){
+                console.error('Could not download the profiles, unable to continue.')
+                console.error(err);
+              }
+
+              let targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+              try {
+                targetTemplate = profileData.filter((obj) => obj.json.Profile.resourceTemplates.some((l) => l.id == useInstanceProfile))[0]
+                targetTemplate = targetTemplate.json.Profile.resourceTemplates.filter((obj) => obj.id == useInstanceProfile)[0]
+                targetTemplate = targetTemplate.propertyTemplates.filter((obj) => obj.propertyLabel == 'Admin Metadata')[0].valueConstraint.valueTemplateRefs[0]
+              } catch(err) {
+                console.warn("Using default template for admin metadata: ", err)
+                targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+              }
+
+              pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
+                "mandatory": false,
+                "parent": parent,
+                "parentId": parentId,
+                "id": 'id_loc_gov_ontologies_bibframe_adminmetadata',
+                "propertyLabel": "Admin Metadata",
+                "propertyURI": "http://id.loc.gov/ontologies/bibframe/adminMetadata",
+                "repeatable": true,
+                "resourceTemplates": [],
+                '@guid': short.generate(),
+                "type": "resource",
+                "userValue": {"@root":"http://id.loc.gov/ontologies/bibframe/adminMetadata"},
+                "valueConstraint": {
+                  "defaults": [],
+                  "useValuesFrom": [],
+                  "valueDataType": {},
+                  "valueTemplateRefs": [targetTemplate]
+                }
+              }
+
+              this.activeProfile.rt[rt].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
             }
           }
         }
