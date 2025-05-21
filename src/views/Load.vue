@@ -648,6 +648,7 @@
                 targetTemplate = targetTemplate.propertyTemplates.filter((obj) => obj.propertyLabel == 'Admin Metadata')[0].valueConstraint.valueTemplateRefs[0]
               } catch(err) {
                 console.warn("Using default template for admin metadata: ", err)
+                targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
               }
 
               pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
