@@ -380,9 +380,9 @@
 
         let postedByAgo= {}
         this.allRecords = []
-        console.log("allRecordsRaw",allRecordsRaw)
-        for (let r of allRecordsRaw){
 
+        for (let r of allRecordsRaw){
+          console.log("r",r)
           let obj = {
             'Id': r.eid,
 
@@ -395,10 +395,14 @@
             'User': r.user,
           }
 
-          let date = new Date(r.time);
+          let date = new Date(r.time);      
+          // firefox doesn't like this format, add a space instead of a colon    
+          if (isNaN(date.getTime())) {
+            r.time = r.time.replace(":", " ")      
+            date = new Date(r.time);      
+          }
+          
           let timestamp = date.getTime()/1000;
-          console.log("timestamp",timestamp)
-
 
           dashBoard.byTimePeriod.all.uniqueUsers[r.user]=true
           dashBoard.byTimePeriod.all.workedRecords++
@@ -424,7 +428,7 @@
           }
           this.allRecords.push(obj)
         }
-        console.log("oldestDate",oldestDate)
+
         dashBoard.totalDays = Math.floor((new Date().getTime()/1000 - oldestDate)/86400)
         console.log(dashBoard)
         this.dashBoard = dashBoard
