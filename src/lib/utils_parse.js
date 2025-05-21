@@ -265,7 +265,6 @@ const utilsParse = {
   sniffWorkRelationType(xml){
     for (let child of xml.children){
       if (child.tagName == 'bf:relation'){
-        // console.info("innner: ", child.innerHTML)
         let hasUncontrolled = false
         if (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1){ hasUncontrolled = true }
         if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){ hasUncontrolled = true }
