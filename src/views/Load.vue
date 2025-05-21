@@ -45,7 +45,10 @@
           </div>
 
           <div id="all-records-table">
-            <DataTable  :loading="isLoadingAllRecords" :rows="allRecords" striped hoverable>
+            <div style="text-align: right;" v-if="dataTableRecords.length == dataTableInitalLimit">
+              <button @click="dataTableRecords=allRecords">Only showing the latest {{ dataTableInitalLimit }} records. Show all {{ allRecords.length }}?</button>
+            </div>
+            <DataTable  :loading="isLoadingAllRecords" :rows="dataTableRecords" striped hoverable>
 
               <!-- { "Id": "e1078432", "RTs": [ "lc:RT:bf2:Monograph:Work" ], "Type": "Monograph", "Status": "unposted", "Urls": [ "http://id.loc.gov/resources/works/e1078432", "http://id.loc.gov/resources/instances/e1078432" ], "Time": "2024-07-10:17:11:53", "User": "asdf (asdf)" } -->
 
@@ -278,6 +281,8 @@
 
         lccnLoadSelected:false,
 
+        dataTableInitalLimit: 1000,
+
 
         displayDashboard:true,
         displayAllRecords: false,
@@ -286,6 +291,7 @@
         dashBoard: {},
 
         allRecords: [],
+        dataTableRecords: [],
         hideOptions: true,
 
       }
@@ -433,8 +439,12 @@
         console.log(dashBoard)
         this.dashBoard = dashBoard
 
+        this.dataTableRecords = this.allRecords.slice(0, this.dataTableInitalLimit)
+
 
         this.isLoadingAllRecords=false
+
+        
       },
 
       returnTimeAgo: function(timestamp){
