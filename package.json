@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev-external": "vite --port 4444",
     "dev-e2e": "vite --port 5555",
     "test:e2e": "npx playwright test --headed",
     "build": "vite build",
