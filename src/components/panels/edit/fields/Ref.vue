@@ -1,5 +1,4 @@
 <template>
-
   <template  v-if="structure.valueConstraint.valueTemplateRefs.length > 1">
     <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
       <select :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}" style="display: inline; width: 20px; border-color:whitesmoke; background-color: transparent;" @change="templateChange($event)">
@@ -112,8 +111,6 @@ export default {
         userValue = this.structure.userValue[this.structure.propertyURI][0]
       }
 
-      //TODO: for RBMS, where the URI is the same as Genre/Form, it'll always use G/F. Get it to not do this
-
       // do we have user data and a possible @type to use
       if (userValue['@type']){
         // loop thrugh all the refs and see if there is a URI that matches it better
@@ -190,7 +187,43 @@ export default {
 
       // do not render recursivly if the thing we are trying to render recursivly is one the of the things thAT WER ARE RENDERING TO BEGIN WITHHHHH!!!1
       // if (this.parentStructure && this.parentStructure.indexOf(useId) ==-1){
-        if (this.rtLookup[useId]){
+
+      // if this is true, a default value is being "used" because the incoming value
+      // doesn't match an available option
+      // ignore for subjects
+        if (userValue['@type'] && !(this.structure.id.includes("subject") || this.structure.id.includes("genreform")) && this.rtLookup[useId].resourceURI != userValue['@type']){
+        let elementId = this.structure['@guid'] + "-select"
+        this.$nextTick(() => {
+          window.setTimeout(()=> {
+            let target = document.getElementById(elementId.trim())
+            target.className += " validation-error no-type"
+
+            for (let child of target.childNodes){
+              if (child.value && child.value == 'empty'){
+                child.selected = true
+              } else {
+                child.selected = false
+              }
+            }
+
+          },10);
+        });
+      } else if (userValue['@type'] && !(this.structure.id.includes("subject") || this.structure.id.includes("genreform")) && this.rtLookup[useId].resourceURI == userValue['@type']){
+        // remove the class
+        this.$nextTick(() => {
+          window.setTimeout(()=> {
+            let targets = document.getElementsByClassName("validation-error no-type")
+            for (let target of targets){
+              if (target.id.includes(this.structure['@guid'])){
+                target.classList.remove("validation-error")
+                target.classList.remove("no-type")
+              }
+            }
+          },10);
+        });
+      }
+
+      if (this.rtLookup[useId]){
           let use = JSON.parse(JSON.stringify(this.rtLookup[useId]))
 
           return use
@@ -226,10 +259,15 @@ export default {
     },
 
     allRtTemplate(){
-      let templates = []
+      // Provide a default
+      let templates = [{
+        id: 'empty',
+        resourceLabel: 'Select Type'
+      }]
       for (let id of this.structure.valueConstraint.valueTemplateRefs){
         templates.push(JSON.parse(JSON.stringify(this.rtLookup[id])))
       }
+
       return templates
     },
 
@@ -294,7 +332,11 @@ export default {
         this.manualOverride = null
       }
 
-      this.profileStore.changeRefTemplate(this.guid, this.propertyPath, nextRef, thisRef)
+      try{
+        this.profileStore.changeRefTemplate(this.guid, this.propertyPath, nextRef, thisRef)
+      } catch {
+        console.warn("Couldn't change the template. nextRef: ", nextRef)
+      }
     }
 
 
@@ -454,6 +496,11 @@ select{
 }
 .label-bold{
   font-weight: bold;
+}
+
+.validation-error.no-type{
+  border: 2px solid red;
+  color: red;
 }
 
 </style>

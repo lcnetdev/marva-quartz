@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 2,
-    versionPatch: 21,
+    versionPatch: 28,
 
 
 
@@ -25,12 +25,15 @@ export const useConfigStore = defineStore('config', {
 
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
-        // publish : 'http://localhost:9401/util/publish/staging',
-        publish : 'http://localhost:5200/util/publish/staging',
+        publish : 'http://localhost:9401/util/publish/staging',
+
         validate: 'http://localhost:5200/validate',
+        // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
+
         publishNar: 'http://localhost:9401/util/nacostub/staging',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
+
 
         // localhost server stage profiles
         // profiles : 'http://localhost:9401/util/profiles/profile/stage',
@@ -57,8 +60,11 @@ export const useConfigStore = defineStore('config', {
         // profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
 
 
+<<<<<<< HEAD
         worldCat: 'http://localhost:5200/worldcat/',
         copyCatUpload: 'http://localhost:5200/copycat/upload',
+=======
+>>>>>>> main
 
         id: 'https://id.loc.gov/',
         env : 'production',
@@ -66,6 +72,7 @@ export const useConfigStore = defineStore('config', {
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
       },
+
 
       staging:{
 
@@ -135,7 +142,25 @@ export const useConfigStore = defineStore('config', {
         publicEndpoints:true,
         displayLCOnlyFeatures: false,
         simpleLookupLang: 'en',
-      }
+      },
+
+      playwrightTestConfig:{
+
+        ldpjs : 'https://bibframe.org/marva/api-production/',
+        util  :  'https://bibframe.org/marva/util/',
+        utilLang  :  'https://bibframe.org/marva/util-lang/',
+        scriptshifter  :  'https://bibframe.org/scriptshifter/',
+        publish: 'https://bibframe.org/marva/util/publish/production',
+        validate: 'https://bibframe.org/marva/util/validate',
+        bfdb : 'https://id.loc.gov/',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        id: 'https://id.loc.gov/',
+        env : 'production',
+        publicEndpoints:true,
+        displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
+      },
 
     },
 
@@ -372,6 +397,7 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2026888777',label:"Secondary Instance Test", idUrl:'https://id.loc.gov/resources/instances/2026888777.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+    {lccn:'2023548475',label:"Create NAR test", idUrl:'https://id.loc.gov/resources/instances/2023548475.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
 
 
@@ -432,13 +458,12 @@ export const useConfigStore = defineStore('config', {
       "processor" : 'lcAuthorities',
       "modes":[
         {
-          'NAF All':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
-          'NAF Personal Names':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=PersonalName&count=25&offset=<OFFSET>"},
-          'NAF Corporate Name':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=CorporateName&count=25&offset=<OFFSET>"},
-          'NAF Name/Title':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=NameTitle&count=25&offset=<OFFSET>"},
-          'NAF Title':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Title&count=25&offset=<OFFSET>"},
-          'NAF Geographic':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>"},
-          'NAF Conference Name':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=25&offset=<OFFSET>"}
+          'NAF Auth Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Name&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Personal Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=PersonalName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Corporate Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=CorporateName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Conference Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Geographic&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF All':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
         }
       ]
     },
@@ -449,20 +474,14 @@ export const useConfigStore = defineStore('config', {
       "processor" : 'lcAuthorities',
       "modes":[
         {
-          'NAF All':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype=<TYPE>", "all":true},
+          'NAF Auth Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Name&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
           'NAF Personal Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=PersonalName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
           'NAF Corporate Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=CorporateName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
-          'NAF Name/Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=NameTitle&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
-          'NAF Title':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Title&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
-          'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
           'NAF Conference Name':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&rdftype=ConferenceName&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
-
-          'NAF Auth Names':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
-          'NAF Geo SubDiv':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions&count=25&offset=<OFFSET>&searchtype=<TYPE>"}
+          'NAF Geographic':{"url":"http://preprod.id.loc.gov/authorities/names/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Geographic&count=25&offset=<OFFSET>&searchtype=<TYPE>"},
+          'NAF All':{"url":"https://id.loc.gov/authorities/names/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
         }
       ]
-
-
     },
 
 
@@ -519,6 +538,7 @@ export const useConfigStore = defineStore('config', {
 				{
 					'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience.html"},
 					'LCDGT':{"url": "https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+          // 'LCSH':{"url": "https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 				}
 			]
 		},
@@ -1060,7 +1080,8 @@ export const useConfigStore = defineStore('config', {
     returnUrls: (state) => {
       // testing for window here because of running unit tests in node
       if (typeof window !== 'undefined'){
-        if (window && (window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1'))){
+        console.log("window: ", window.location.href)
+        if (window && (!window.location.href.includes('localhost:5555') && window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1') )){
           return state.regionUrls.dev
         }else if (window && window.location.href.startsWith('https://preprod-3001')){
           return state.regionUrls.staging
@@ -1068,11 +1089,17 @@ export const useConfigStore = defineStore('config', {
           return state.regionUrls.production
         }else if (window && window.location.href.includes('bibframe.org')){
           return state.regionUrls.bibframeDotOrg
+        }else if (window && window.location.href.includes('localhost:5555')){
+          console.log(">>>>>>>playwrightTestConfig<<<<<<<<<")
+          return state.regionUrls.playwrightTestConfig
         }else{
           return state.regionUrls.dev
         }
       }else{
-        return state.regionUrls.dev
+
+        // if it gets here it means it is running uint tests probably,
+        // so return the playwrightTestConfig since it has the urls setup for external testing
+        return state.regionUrls.playwrightTestConfig
       }
     }
 

@@ -3,9 +3,55 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.28] - 2025-05-21
+### Changed
+- How admin metadata is added to records to support IBC records
+
+
+## [1.2.27] - 2025-05-19
+### Fix
+- Closing the NAR modal without posting would lose the Advanced NAR rows. It now saves them.
+- Voyager diacritic entry mode not being seen as a change.
+
+### Update
+- Create NAR cleans up the MARC Key to flip 7xx and truncate $e or $4
+- Adds reset button to create NAR
+- Adds ability to overwrite MARCKey with search value from complex search modal
+- Paired literal improvements: Draws lines when there are +2 literals, tries to sort literals into pairs better.
+
+## [1.2.26] - 2025-05-15
+### Update
+- Added remove row buttons to advanced NAR mode.
+- Added sorting to XML so the MARC XML produced from NAR creation will sort correctly in voyager display
+
+### Add
+- Added diacritic support to advanced NAR mode.
+
+
+## [1.2.23] - 2025-05-06
+### Update
+- How `indirect geo` can be entered to account for more usecases
+
+### Add
+- [BFP-391] Local Marva validation to check that `type` is set
+
+
+## [1.2.22] - 2025-05-02
+### Update
+- Hub URIs from hub creation
+- Complex Search Details
+
+### Add
+- Ability to populate Class Numbers from Complex Search Details
+
+### Fix
+- Prompt to login when click ClassWeb link in Complex Search Details
+
+
 ## [1.2.21] - 2025-04-30
 ### Changed
 - Prevent `Insert Default Values` from removing existing data
+- Added Advanced NAR mode to NAR modal.
 
 ### Fixed
 - Fix `bf:duration` causing Marva to crash

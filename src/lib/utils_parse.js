@@ -198,7 +198,7 @@ const utilsParse = {
 
     this.xmlSource = xml
     // use the browser if we can, should be faster, fall back to the library if not running in the browser
-    if (window.DOMParser){
+    // if (window.DOMParser){
       let parser = new DOMParser();
 
 
@@ -225,14 +225,15 @@ const utilsParse = {
 
 
       // xml = xml.replace(/(<\/?.*?>)/g, '$1\n');
-
+      console.log("THE XML IS",xml)
       this.activeDom = parser.parseFromString(xml, 'application/xml');
       this.testDom = parser.parseFromString(xml, 'application/xml');
-
+      console.log(this.activeDom.children)
 
       let root = this.activeDom.getElementsByTagName('rdf:RDF')
+      console.log("------",root.length)
       if (root.length > 0){ root = root[0]}
-
+      console.log("root: ", root)
 
       this.hasInstance = 0
       for (let rdfChild of root.children){
@@ -252,7 +253,7 @@ const utilsParse = {
     //    storageQuota: 10000000
     //  })
     //  this.activeDom = this.dom.window.document
-    }
+    // }
   },
 
   /**
@@ -264,70 +265,30 @@ const utilsParse = {
   sniffWorkRelationType(xml){
     for (let child of xml.children){
       if (child.tagName == 'bf:relation'){
+        let hasUncontrolled = false
+        if (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1){ hasUncontrolled = true }
+        if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){ hasUncontrolled = true }
 
-        // let hasUncontrolled = false
-        // if (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1){ hasUncontrolled = true }
-        // if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){ hasUncontrolled = true }
+        let hasSeriesProperty = false
+        if (child.innerHTML.indexOf("bf:hasSeries")>-1){ hasSeriesProperty = true }
 
-        // let hasSeriesProperty = false
-        // if (child.innerHTML.indexOf("bf:hasSeries")>-1){ hasSeriesProperty = true }
+        let hasWork = false
+        if (child.innerHTML.indexOf("bf:Work")>-1) { hasWork = true}
 
-        // let hasWork = false
-        // if (child.innerHTML.indexOf("bf:Work")>-1) { hasWork = true}
+        let hasHub = false
+        if (child.innerHTML.indexOf("bf:Hub")>-1) { hasHub = true}
 
-        // let hasHub = false
-        // if (child.innerHTML.indexOf("bf:Hub")>-1) { hasHub = true}
+        let hasSeries = false
+        if (child.innerHTML.indexOf("bf:Series")>-1){ hasSeries = true }
 
-        // let hasSeries = false
-        // if (child.innerHTML.indexOf("bf:Series")>-1){ hasSeries = true }
+        let hasAssociatedResource = false
+        if (child.innerHTML.indexOf("bf:associatedResource")>-1) { hasAssociatedResource = true}
 
-        // let hasAssociatedResource = false
-        // if (child.innerHTML.indexOf("bf:associatedResource")>-1) { hasAssociatedResource = true}
-
-        // if (hasSeriesProperty && hasAssociatedResource && hasSeries){
-        //   child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-        // }else if (hasAssociatedResource && (hasWork || hasHub) && hasSeriesProperty ){
-        //   child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
-        // }else if (hasUncontrolled && hasAssociatedResource && hasWork){
-        //   child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-        // }
-
-        // console.log(child)
-        // console.log('hasUncontrolled',hasUncontrolled)
-        // console.log('hasSeriesProperty',hasSeriesProperty)
-        // console.log('hasWork',hasWork)
-        // console.log('hasHub',hasHub)
-        // console.log('hasSeries',hasSeries)
-        // console.log('hasAssociatedResource',hasAssociatedResource)
-
-      // old Logic
-      if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")>-1){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-      } else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bf/Uncontrolled")>-1) &&  child.innerHTML.indexOf("vocabulary/relationship/series")>-1 && child.innerHTML.indexOf("vocabulary/mstatus/t")>-1){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
-      }else if ( (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1) && child.innerHTML.indexOf("hasSeries")==-1){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-      } else if ( (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-      } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 || child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")>-1   ){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
-      } else if ( (child.innerHTML.indexOf("bf:Work")>-1) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-      } else if ( (child.innerHTML.indexOf("bf:Hub")>-1 ) &&  child.innerHTML.indexOf("hasSeries")==-1   ){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHubLookup')
-      } else if (child.innerHTML.indexOf("bf:Work")>-1){
-        child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
-      }else{
-      // leave blank?
-      }
-
-        // console.log("SETTING SNIFF TEST: ", child.getAttribute('local:pthint'))
-        // console.log("-->", child)
-        // console.log(child.innerHTML)
+        if ((hasSeriesProperty || hasSeries) && hasAssociatedResource){
+          child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
+        }else if (hasAssociatedResource && (hasWork || hasHub)){
+          child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+        }
 
       }
     }
@@ -376,7 +337,7 @@ const utilsParse = {
 
 
   specialTransforms: {
-    // not currently used
+    //not used currently
   },
 
   updateAdditionalInstanceParentValues: function(profile, instanceName, newRdId){
@@ -409,13 +370,15 @@ const utilsParse = {
       }
     }
 
-    [...Array(this.hasInstance - totalInstanceRts)].forEach((_, i) => {
-      let key = useInstanceRtName + '_'+(i+1)
-      let updatedProfile = this.updateAdditionalInstanceParentValues(JSON.parse(JSON.stringify(useInstanceRt)), useInstanceRtName, key)
+    if (this.hasInstance - totalInstanceRts>0){
+      [...Array(this.hasInstance - totalInstanceRts)].forEach((_, i) => {
+        let key = useInstanceRtName + '_'+(i+1)
+        let updatedProfile = this.updateAdditionalInstanceParentValues(JSON.parse(JSON.stringify(useInstanceRt)), useInstanceRtName, key)
 
-      profile.rt[key] = JSON.parse(JSON.stringify(updatedProfile))
-      profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
-    });
+        profile.rt[key] = JSON.parse(JSON.stringify(updatedProfile))
+        profile.rtOrder.push(useInstanceRtName + '_'+(i+1))
+      });
+    }
 
     let rtsToRemove = []
 
@@ -533,6 +496,13 @@ const utilsParse = {
           }
         }
 
+        let targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+        try {
+          targetTemplate = pt.filter((obj) => obj.propertyLabel == 'Admin Metadata')[0].valueConstraint.valueTemplateRefs[0]
+        } catch(err) {
+          console.warn("Using default template for admin metadata: ", err)
+          targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+        }
 
         // adminMetadataCount
         pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
@@ -551,7 +521,7 @@ const utilsParse = {
               "defaults": [],
               "useValuesFrom": [],
               "valueDataType": {},
-            "valueTemplateRefs": ['lc:RT:bf2:AdminMetadata:BFDB']
+            "valueTemplateRefs": [targetTemplate]
             }
         }
 
@@ -577,7 +547,6 @@ const utilsParse = {
       // at this point we have the main piece of the xml tree that has all our data
       // loop through properties we are looking for and build out the the profile
       for (let k in pt){
-
 
         let ptk = JSON.parse(JSON.stringify(pt[k]))
         // make sure each new one has a unique guid
@@ -796,7 +765,6 @@ const utilsParse = {
             // so populateData.userValue['http://id.loc.gov/bibframe/title'] becomes userValue
             populateData.userValue[populateData.propertyURI] = [{}]
             let userValue = populateData.userValue[populateData.propertyURI][0]
-
 
             // we have some special functions to deal with tricky elements
             if (this.specialTransforms[prefixURI]){
@@ -2126,9 +2094,9 @@ const utilsParse = {
             // only array > 1 make it here
             if (value.filter((v)=>{ return (v['@language'])}).length >= 1){
               // only arrays with @language in them make it here and only if they do nt all have it
-
               value.forEach((v, index)=>{
-                if (index == 0){
+                // if (index == 0){
+                if (index % 2 === 0){
                   useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = value.length
                 }else if (index == value.length-1){
                   useProfileStore().pairedLitearlIndicatorLookup[v['@guid']] = -1

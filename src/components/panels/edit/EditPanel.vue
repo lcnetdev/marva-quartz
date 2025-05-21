@@ -261,7 +261,6 @@
         },
 
         isReadOnly: function(component){
-
           if (component.adminMetadataType && component.adminMetadataType == 'secondary'){
             return true
           }

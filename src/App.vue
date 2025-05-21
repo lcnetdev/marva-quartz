@@ -62,7 +62,7 @@ export default {
     // gives access to this.counterStore and this.userStore
     ...mapStores(useConfigStore, useProfileStore, usePreferenceStore),
     // // gives read access to this.count and this.double
-    ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal', 'showItemInstanceSelection']),
+    ...mapState(useProfileStore, ['profilesLoaded', 'showValidateModal','profilesLoaded', 'showPostModal', 'showItemInstanceSelection', 'isTestEnv']),
     ...mapWritableState(useProfileStore, ['showShelfListingModal','showHubStubCreateModal', 'showAutoDeweyModal', 'showNacoStubCreateModal']),
 
     ...mapState(usePreferenceStore, ['showPrefModal','catCode']),
@@ -148,7 +148,7 @@ export default {
   <template v-if="showShelfListingModal==true">
     <ShelfListingModal v-model="showShelfListingModal"  />
   </template>
-  <template v-if="showUpdateAvailableModal==true">
+  <template v-if="showUpdateAvailableModal==true && !isTestEnv()"> <!-- Ignore for testing-->
     <UpdateAvailableModal v-model="showUpdateAvailableModal"  />
   </template>
   <template v-if="showTextMacroModal==true">

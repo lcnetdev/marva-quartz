@@ -255,6 +255,17 @@ export const useProfileStore = defineStore('profile', {
       // }
       let results = []
       for (let key in state.activeProfile.rt){
+        // Items have something added to the end of the key
+        if (key && key.includes(":Item")){
+            if (key.includes("-") || key.includes("_")){
+                let idx
+                idx = key.indexOf("_")
+                if (idx < 0){
+                    idx = key.indexOf("-")
+                }
+                key = key.slice(0, idx)
+            }
+        }
         // ther are components saved for this profile
         if (state.componentLibrary.profiles[key]){
           let groups = {}
@@ -562,11 +573,12 @@ export const useProfileStore = defineStore('profile', {
       const config = useConfigStore()
 
       let profileData;
-
       try{
         let response = await fetch(config.returnUrls.profiles);
         profileData =  await response.json()
       }catch(err){
+        console.log("Error Downloading profiles from:", config.returnUrls.profiles)
+
         alert('Could not download the profiles, unable to continue.')
         console.error(err);
       }
@@ -579,11 +591,10 @@ export const useProfileStore = defineStore('profile', {
         let response = await fetch(config.returnUrls.starting);
         startingPointData =  await response.json()
       }catch(err){
+        console.log("Error Downloading Starting Points from:", config.returnUrls.starting)
         alert('Could not download the starting points, unable to continue.')
         console.error(err);
       }
-
-
 
       // FLAG: NEEDS_PROFILE_ALIGNMENT
       // TEMP HACK ADD IN HUBS
@@ -839,7 +850,6 @@ export const useProfileStore = defineStore('profile', {
               }
           }
       }
-
 
       // -------- end HACKKCKCKCKCK
       profileData.forEach((p)=>{
@@ -1507,13 +1517,11 @@ export const useProfileStore = defineStore('profile', {
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
 
       // if there's a code in the label, take it out
+      if (!URI){ URI = '' }
       const code = URI.split("/").at(-1)  // is this reliable?
       if (label.match("(" + code + ")")){
         label = label.replace("(" + code + ")", "")
       }
-      // if (label.match(/\(.*\)/g)){
-      //   label = label.replace(/\(.*\)/g, "")
-      // }
 
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
@@ -1614,16 +1622,7 @@ export const useProfileStore = defineStore('profile', {
               }
             }
             parent.push(toadd)
-
-
-
-
-
-
           }else{
-
-
-
             console.log("lastProperty",lastProperty)
             console.log('propertyPath',propertyPath)
 
@@ -1655,8 +1654,6 @@ export const useProfileStore = defineStore('profile', {
       }else{
         console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
-
-
     },
 
 
@@ -1919,6 +1916,12 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueLiteral: function(componentGuid, fieldGuid, propertyPath, value, lang, repeatedLiteral){
+      //Save
+      //  componentGuid:  aiPuH4YsetZ9xmcv7rqisJ
+      //  fieldGuid:  pdtUXGpNDJ9mz33JM3uxje
+
+      // from NAR, fieldGuid is null
+
       // make a copy of the property path, dont modify the linked one passed
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
 
@@ -3261,7 +3264,10 @@ export const useProfileStore = defineStore('profile', {
     */
     saveRecord: async function(){
       let xml = await utilsExport.buildXML(this.activeProfile)
-      utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
+      if (!this.isTestEnv()){  //Don't try to save if in test env
+        utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
+      }
+
       this.activeProfileSaved = true
     },
 
@@ -4153,7 +4159,11 @@ export const useProfileStore = defineStore('profile', {
       delete cachePt[componentGuid]
     }
     for (let guid of Object.keys(cacheGuid)){
-      cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+      try {
+        cleanCacheGuid(cacheGuid,  JSON.parse(JSON.stringify(pt.userValue)), guid)
+      } catch {
+        console.warn("Couldn't clear the CacheGuid")
+      }
     }
 
     let isParentTop = false
@@ -4558,6 +4568,16 @@ export const useProfileStore = defineStore('profile', {
 
         // the checklabel will be the URI and the label of the component, beceause there are some components that use the same property URI
         let checkLabel = pt.propertyLabel + pt.propertyURI
+
+        //adjust for items
+        if (pt.parentId.includes(":Item")){
+          for (let rt in this.activeProfile.rt){
+              if (rt.includes(pt.parentId)){
+                  pt.parentId = rt
+                  break
+              }
+          }
+        }
 
         // first see how many these properties exist in the resource
         let propertyCount = 0
@@ -5127,46 +5147,46 @@ export const useProfileStore = defineStore('profile', {
     },
 
     copySelected: async function(deleteSelected=false){
-        let components = []
-        let compontGuids = []
-        let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
+      let components = []
+      let compontGuids = []
+      let copyTargets = document.querySelectorAll('input[class=copy-selection]:checked')
 
-        if  (copyTargets.length == 0){
-            console.warn("nothing to copy")
-            alert("Nothing selected to copy. Select the fields you would like to copy.")
+      if  (copyTargets.length == 0){
+          console.warn("nothing to copy")
+          alert("Nothing selected to copy. Select the fields you would like to copy.")
 
-            return false
-        }
+          return false
+      }
 
-        copyTargets.forEach((item) => compontGuids.push(item.id))
+      copyTargets.forEach((item) => compontGuids.push(item.id))
 
-        for (const guid of compontGuids){
-            let component = utilsProfile.returnPt(this.activeProfile, guid)
-            let componentString = JSON.stringify(component)
-            components.push(componentString)
-            if (deleteSelected){
-              this.deleteComponent(guid)
-            }
-        }
+      for (const guid of compontGuids){
+          let component = utilsProfile.returnPt(this.activeProfile, guid)
+          let componentString = JSON.stringify(component)
+          components.push(componentString)
+          if (deleteSelected){
+            this.deleteComponent(guid)
+          }
+      }
 
-        //copy it
-        let value = components.join(" ;;; ")
-        const type = "text/plain"
-        const blob = new Blob([value], {type})
-        const data = [new ClipboardItem({[type]: blob})]
+      //copy it
+      let value = components.join(" ;;; ")
+      const type = "text/plain"
+      const blob = new Blob([value], {type})
+      const data = [new ClipboardItem({[type]: blob})]
 
-        await navigator.clipboard.write(data)
+      await navigator.clipboard.write(data)
 
-        //Add checkmark
-        let button = document.getElementById("copy-selected-button")
-        button.children[0].innerHTML = "check"
+      //Add checkmark
+      let button = document.getElementById("copy-selected-button")
+      button.children[0].innerHTML = "check"
 
-        //wait a few seconds and remove the check mark
-        setTimeout(function(){
-            button.children[0].innerHTML = "content_copy"
-        }, 2000)
+      //wait a few seconds and remove the check mark
+      setTimeout(function(){
+          button.children[0].innerHTML = "content_copy"
+      }, 2000)
 
-        return true
+      return true
     },
 
     //loop through the copied data and change all the "@guid"s
@@ -5188,73 +5208,74 @@ export const useProfileStore = defineStore('profile', {
 
     //parse the activeProfile and insert the copied data where appropriate
     parseActiveInsert: async function(newComponent, sourceRt=null, incomingTargetRt=null){
-        this.changeGuid(newComponent)
-        let profile = this.activeProfile
+      this.changeGuid(newComponent)
+      let profile = this.activeProfile
 
-        // handle pasting into a profileRT that doesn't exist in the new profile
-        // This is for when the source is an additional Instance, that doesn't exist in
-        // in the title
-        let targetRt
-        if (!profile.rtOrder.includes(newComponent.parentId)){
-          if (newComponent.parentId.includes("_")){
-              targetRt = newComponent.parentId.split("_").at(0)
-          } else {
-              targetRt = newComponent.parentId
-          }
+      // handle pasting into a profileRT that doesn't exist in the new profile
+      // This is for when the source is an additional Instance, that doesn't exist in
+      // in the title
+      let targetRt
+      if (!profile.rtOrder.includes(newComponent.parentId)){
+        if (newComponent.parentId.includes("_")){
+            targetRt = newComponent.parentId.split("_").at(0)
         } else {
-          targetRt = newComponent.parentId
+            targetRt = newComponent.parentId
         }
+      } else {
+        targetRt = newComponent.parentId
+      }
 
-        if (incomingTargetRt){
-          targetRt = incomingTargetRt
-        }
+      if (incomingTargetRt){
+        targetRt = incomingTargetRt
+      }
 
-        for (let rt in profile["rt"]){
-            let frozenPts = profile["rt"][rt]["pt"]
-            let order = profile["rt"][rt]["ptOrder"]
+      for (let rt in profile["rt"]){
+          let frozenPts = profile["rt"][rt]["pt"]
+          let order = profile["rt"][rt]["ptOrder"]
 
-            for (let pt in frozenPts){
-                let current = profile["rt"][rt]["pt"][pt]
-                if (rt == targetRt){
-                    let targetURI = newComponent.propertyURI
-                    let targetLabel = newComponent.propertyLabel
+          for (let pt in frozenPts){
+              let current = profile["rt"][rt]["pt"][pt]
+              if (rt == targetRt){
+                  let targetURI = newComponent.propertyURI
+                  let targetLabel = newComponent.propertyLabel
 
-                    if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
-                        let currentPos = order.indexOf(current.id)
-                        let newPos = order.indexOf(newComponent.id)
+                  if (!current.deleted && current.propertyURI.trim() == targetURI.trim() && current.propertyLabel.trim() == targetLabel.trim()){
+                      let currentPos = order.indexOf(current.id)
+                      let newPos = order.indexOf(newComponent.id)
 
-                        // if (Object.keys(current.userValue).length == 1){
-                        if (this.isEmptyComponent(current)){
-                            current.userValue = newComponent.userValue
-                            break
-                        } else {
-                            const guid = current["@guid"]
-                            let structure = this.returnStructureByComponentGuid(guid)
+                      // if (Object.keys(current.userValue).length == 1){
+                      if (this.isEmptyComponent(current)){
+                          current.userValue = newComponent.userValue
+                          break
+                      } else {
+                          const guid = current["@guid"]
+                          let structure = this.returnStructureByComponentGuid(guid)
 
-                            let newPt
-                            if ((sourceRt && sourceRt != targetRt) || (!sourceRt && !incomingTargetRt)){
-                              newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
+                          let newPt
+                          if ((sourceRt && sourceRt != targetRt) || (!sourceRt && !incomingTargetRt)){
+                            newPt = await this.duplicateComponentGetId(guid, structure, rt, "last")
+                          } else {
+                            if (newPos < 0){
+                              newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)
                             } else {
-                              if (newPos < 0){
-                                newPt = await this.duplicateComponentGetId(guid, structure, rt, current.id)
-                              } else {
-                                newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
-                              }
+                              newPt = await this.duplicateComponentGetId(guid, structure, rt, newComponent.id)
                             }
+                          }
 
-                            newPt = newPt[0]
+                          newPt = newPt[0]
 
-                            profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
-                            profile["rt"][rt]["pt"][newPt].userModified = true
-                            break
-                        }
-                    }
-                }
-            }
-        }
+                          profile["rt"][rt]["pt"][newPt].userValue = newComponent.userValue
+                          profile["rt"][rt]["pt"][newPt].userModified = true
+                          break
+                      }
+                  }
+              }
+          }
+      }
     },
 
-    pasteSelected: async function(){
+    pasteSelected: async function(sourceRt=null){
+
       let data
       const clipboardContents = await navigator.clipboard.read();
 
@@ -5270,7 +5291,10 @@ export const useProfileStore = defineStore('profile', {
       }
       for (let item of data){
         const dataJson = JSON.parse(item)
-        this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)))
+        if (!sourceRt){
+          sourceRt = this.returnRtByGUID(dataJson['@guid'])
+        }
+        this.parseActiveInsert(JSON.parse(JSON.stringify(dataJson)), sourceRt)
       }
     },
 
@@ -5452,8 +5476,15 @@ export const useProfileStore = defineStore('profile', {
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]
                   && pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
-                )
-                return pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
+                ){
+                let sor = pt.userValue['http://id.loc.gov/ontologies/bibframe/responsibilityStatement'][0]['http://id.loc.gov/ontologies/bibframe/responsibilityStatement']
+
+                if (sor.endsWith(".")) {
+                  sor = sor.slice(0, -1);
+                }
+
+                return sor
+              }
             }
           }
         }
@@ -5659,6 +5690,36 @@ export const useProfileStore = defineStore('profile', {
       return false
     },
 
+    nacoStubReturnPopulatedValue(guid){
+      let pt = utilsProfile.returnPt(this.activeProfile,guid)
+      let URI = null
+      let marcKey = null
+      if (pt &&
+          pt.userValue &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]){
+
+            let agent = pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
+            if (agent && agent['@id']){
+              URI = agent['@id']
+            }
+            if (agent && agent['http://id.loc.gov/ontologies/bflc/marcKey'] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][0] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+              ){
+                marcKey = agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+            }
+
+          }
+
+      return {
+        URI: URI,
+        marcKey: marcKey
+      }
+
+    },
 
 
 
@@ -5670,10 +5731,10 @@ export const useProfileStore = defineStore('profile', {
       * @param {string} langObj - {uri:"",label:""}
       * @return {String}
       */
-    async buildNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667){
+    async buildNacoStub(oneXX,fourXX,mainTitle,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode){
       console.log(oneXX,fourXX,mainTitle,workURI,zero46)
       let lccn = await utilsNetwork.nacoLccn()
-      let NARData = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667)
+      let NARData = await utilsExport.createNacoStubXML(oneXX,fourXX,mainTitle,lccn,workURI, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode)
       NARData.lccn = lccn
       return NARData
     },
@@ -5781,7 +5842,6 @@ export const useProfileStore = defineStore('profile', {
      * @param {string} guid - The GUID of the component
      */
     addToComponentLibrary: async function(guid){
-
       let structure = JSON.parse(JSON.stringify(this.returnStructureByComponentGuid(guid)))
 
       // clean up component property values for storage
@@ -5801,13 +5861,27 @@ export const useProfileStore = defineStore('profile', {
         return false
       }
 
+      if (structure['parentId'].includes(":Item")){
+        let key = structure['parentId']
+        if (key && key.includes(":Item")){
+          if (key.includes("-") || key.includes("_")){
+              let idx
+              idx = key.indexOf("_")
+              if (idx < 0){
+                  idx = key.indexOf("-")
+              }
+              key = key.slice(0, idx)
+          }
+        }
+        structure['parentId'] = key
+      }
+
 
       if (!this.componentLibrary.profiles[structure['parentId']]){
         this.componentLibrary.profiles[structure['parentId']] = {
           groups:[]
         }
       }
-
 
       this.componentLibrary.profiles[structure['parentId']].groups.push({
         id: short.generate(),
@@ -5863,6 +5937,15 @@ export const useProfileStore = defineStore('profile', {
             console.log("Adding thisone",group)
             let component = JSON.parse(JSON.stringify(group.structure))
 
+            // For item's the parent ID won't match anything in the RTs because we've stripped it down
+            if (component.parentId.includes(":Item")){
+                for (let rt in this.activeProfile.rt){
+                    if (rt.includes(component.parentId)){
+                        component.parentId = rt
+                        break
+                    }
+                }
+            }
 
             // see if we can find its counter part in the acutal profile
             if (this.activeProfile.rt[component.parentId]){
@@ -6248,12 +6331,14 @@ export const useProfileStore = defineStore('profile', {
      */
     sortObjectsByLatinMatch(arr, key) {
 
+      // let toSort = JSON.parse(JSON.stringify(arr))
       // if they have language tags in them then we know how to sort
       // console.log(JSON.stringify(arr,null,2))
       // console.log(arr.filter((v)=>{ return (v['@language'])}).length)
+      // let sortedArry = []
       if (arr.filter((v)=>{ return (v['@language'])}).length >= 1){
       //   // sort by language tags
-        return arr.sort((a, b) => {
+        arr.sort((a, b) => {
           let aLang = a['@language'] || '';
           let bLang = b['@language'] || '';
 
@@ -6290,12 +6375,10 @@ export const useProfileStore = defineStore('profile', {
       }else{
 
         // no tags, try the regex
-        return arr.sort((a, b) => {
+        arr.sort((a, b) => {
           // Handle cases where key doesn't exist
           const aValue = a[key] || '';
           const bValue = b[key] || '';
-          console.log(aValue, 'latinregex:',latinRegex.test(aValue))
-          console.log(bValue, 'latinregex:',latinRegex.test(bValue))
           const aIsLatin = latinRegex.test(aValue);
           const bIsLatin = latinRegex.test(bValue);
 
@@ -6306,7 +6389,44 @@ export const useProfileStore = defineStore('profile', {
 
       }
 
+      // if the array is larger than 2, we need to interleave the results
+      if (arr.length == 6){
+        arr.splice(1, 0, arr.splice(3, 1)[0]);
+        arr.splice(3, 0, arr.splice(4, 1)[0]);
+      }
+      if (arr.length == 4){
+        arr.splice(1, 0, arr.splice(2, 1)[0]);
+      }      
+      //   let fiftyPercent = Math.floor(sortedArry.length / 2)
+      //   let largeAryOrder = []
+      //   console.log("sortedArry",sortedArry)
+      //   console.log("fiftyPercent",fiftyPercent)
+      //   for (let i = 0; i < fiftyPercent; i++) {
+      //     console.log("i",i)
+      //     console.log("i + fiftyPercent",i + fiftyPercent)
 
+      //     largeAryOrder.push(JSON.parse(JSON.stringify(sortedArry[i])));
+      //     largeAryOrder.push(JSON.parse(JSON.stringify(sortedArry[i + fiftyPercent])));
+      //     console.log("largeAryOrder ->",JSON.parse(JSON.stringify(largeAryOrder)))
+      //   }
+
+        
+      //   console.log("sortedArry!!!",sortedArry)
+
+      //   console.log("Returning largeAryOrder:", largeAryOrder)
+      //   return largeAryOrder
+
+      // }else{
+      //   console.log("Returning sortedArry",sortedArry)
+      //   return sortedArry
+
+      // }
+
+
+
+
+      return arr
+      
 
     },
 
@@ -6391,6 +6511,10 @@ export const useProfileStore = defineStore('profile', {
     isLatin(inputString) {
       // Regex to match common Latin characters, numbers, punctuation, and extended Latin ranges.
       return latinRegex.test(inputString);
+    },
+
+    isTestEnv(){
+      return window.location.href.includes("localhost:5555")
     }
 
 

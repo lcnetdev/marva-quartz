@@ -10,7 +10,7 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
         if (!lcCall) return
 
         //this if for Px class, for GV uses 'GV Bio'
-        const autoDeweyGenres = ['fiction', 'poetry', 'drama']
+        const autoDeweyGenres = ['sports', 'fiction', 'poetry', 'drama']
         const autoDeweyGenre = genre
         const autoDeweyResult = null
 
@@ -1970,13 +1970,14 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
                     _convertClassPtDrama(letter + number)
                 }
             } else if (letter == 'GV') {
-                _convertClassGvSport(letter + number)
+                if (autoDeweyGenre == 'sports') {
+                    _convertClassGvSport(letter + number)
+                }
             }
-
             if (autoDeweyGenre && !sDewey$) return [
                 false,
                 {
-                    error: 'autoDewey mode cannot convert this LCC'
+                    error: 'autoDewey mode cannot convert this LCC. Check the `genre`.'
                 }
             ]
 
@@ -2014,18 +2015,16 @@ import lccDeweyMap from "@/lib/LCCtoDewey.json"
                     if (range.charAt(range.length - 1) == '+') {
                         range = range.replace('+', ' - 999999999')
                     }
-                    const [rangeStart, rangeEnd] = range.split(' - ')
-                    console.log('range', range, rangeStart, rangeEnd)
-                    console.log('number', number)
+                    const [rangeStart, rangeEnd] = range.split('-')
                     if (number * 1 >= rangeStart * 1 && number * 1 <= rangeEnd * 1) {
-                        // console.log('number WITHIN range', number)
                         rule.mode = 'basic'
                         return [rule.dewey, rule]
                     }
                 }
 
                 //if no range found just use first (generic) one
-                return [ruleMatches[0].dewey, ruleMatches[0]]
+                return [ruleMatches, ruleMatches]
+                // return [ruleMatches[0].dewey, ruleMatches[0]]
             }
 
             return [false, { error: 'Unable to convert this LCC' }]

@@ -2,5 +2,12 @@ node_modules/
 node_modules/*
 
 .DS_Store
-
+coverage/
 old/
+dist/
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/tests-playwright/.auth/

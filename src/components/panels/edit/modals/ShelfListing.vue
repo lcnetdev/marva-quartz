@@ -5,7 +5,7 @@
   import { usePreferenceStore } from '@/stores/preference'
 
 
-  
+
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import { VueFinalModal } from 'vue-final-modal'
   import VueDragResize from 'vue3-drag-resize'
@@ -28,7 +28,7 @@
         height: 0,
         top: 100,
         left: 0,
-        
+
 
         initalHeight: 550,
         changedHeight: 550,
@@ -72,7 +72,7 @@
       ...mapStores(usePreferenceStore),
 
 
-      
+
 
 
       // ...mapWritableState(usePreferenceStore, ['literalLangGuid']),
@@ -112,7 +112,7 @@
           this.$refs.shelfListingContent.style.height = newRect.height + 'px'
           this.$refs.shelfListingDisplay.style.height = newRect.height - 44 + 'px'
 
-          
+
 
         },
 
@@ -136,7 +136,7 @@
           window.clearTimeout(this.searchDebounce)
           this.searchDebounce = window.setTimeout(async () =>{
             this.searching=true
-            this.results = []            
+            this.results = []
             if (!this.classNumber){this.classNumber=''}
             if (!this.cutterNumber){this.cutterNumber=''}
 
@@ -145,8 +145,8 @@
             let subj = this.subj ? "&sp-subject="+this.subj  : ""
             let date = this.date ? "&sp-date="+this.date : ""
             let countParam = "&count=201"
-           
-            
+
+
             let initalResult =  await utilsNetwork.searchShelfList(
               this.classNumber.trim() + '' + this.cutterNumber.trim(),
               contributor + title + subj + date + countParam
@@ -156,15 +156,15 @@
 
             let initalIds = initalResult.map((v) => {return v.bibid})
 
-            
+
             // PS3603.R
             // browse-order=ascending&browse=class&count=200&mime=json
             const initalFirstClassPromise = utilsNetwork.searchShelfList(initalFirstClass, "&count=201&browse-order=descending&browse=class&mime=json")
             const initalLastClassPromise = utilsNetwork.searchShelfList(initalLastClass, "&count=201&browse-order=ascending&browse=class&mime=json")
 
-            
+
             let firstExpand = await Promise.all([initalFirstClassPromise, initalLastClassPromise]);
-            
+
             // const initalFirstClassPos = firstExpand[0].map(e => e.selected).indexOf('selected');
             // const initalLastClassPos = firstExpand[1].map(e => e.selected).indexOf('selected');
 
@@ -178,22 +178,22 @@
                 initalResult.push(toAdd)
               }
             }
-            
 
 
-            
-            
+
+
+
             this.results=initalResult
             this.searching=false
             // this.dragResize()
-            
+
             this.$refs.shelfListingContent.style.height = this.changedHeight + 'px'
             this.$refs.shelfListingDisplay.style.height = this.changedHeight - 44 + 'px'
 
-            
+
 
             this.$nextTick(async () => {
-              this.$refs.selected[0].scrollIntoView({ 
+              this.$refs.selected[0].scrollIntoView({
                 behavior: 'auto',
                 block: 'center',
                 inline: 'center'
@@ -214,8 +214,6 @@
 
 
         async save(){
-
-
           // using the
 
           if (this.classNumber && this.classNumber.trim() != ''){
@@ -226,7 +224,7 @@
             // the open button lives in the item portion of the number so we don't have the class portion, but they will always be siblings so just modify the path
             // so it matches to where the class property path is
             let classPropertyPath = JSON.parse(JSON.stringify(this.activeShelfListData.componentPropertyPath))
-            
+
             classPropertyPath = classPropertyPath.map((v) => {
               v.propertyURI = v.propertyURI.replace("itemPortion",'classificationPortion')
               return v
@@ -308,7 +306,7 @@
           if (!this.results){return false}
           if (!this.results[this.results.length-1]){ return false}
           this.loadingMore = true
-          
+
           let lastTerm = this.results[this.results.length-1].term
           let ids = this.results.map((v) => {return v.bibid})
 
@@ -321,7 +319,7 @@
 
           this.loadingMore = false
 
-        },  
+        },
         async searchLoadMoreDescending(){
 
         if (this.loadingMore){ return false}
@@ -344,14 +342,14 @@
 
         this.loadingMore = false
 
-        },  
+        },
 
         async watchScroll(event){
 
           let element = event.target
 
           let percentScrolled = (element.scrollTop + element.offsetHeight) / element.scrollHeight
-          
+
 
           if (percentScrolled>=0.8){
             this.searchLoadMore()
@@ -367,7 +365,7 @@
 
             let el = document.querySelector(`[data-bibid="${firstBibid}"]`)
 
-            el.scrollIntoView({ 
+            el.scrollIntoView({
               behavior: 'smooth',
               block: 'center',
               inline: 'center'
@@ -377,8 +375,8 @@
             window.setTimeout(()=>{
               el.style.removeProperty('background-color')
             },5000)
-            
-            
+
+
 
             this.loadingMoreDescending=false
             // element.scrollTop = 100
@@ -397,8 +395,8 @@
       this.initalWidth=window.innerWidth/1.25
     },
 
-    async mounted() {      
-      // If they launched the shefllist from the tools menu then it does not have the 
+    async mounted() {
+      // If they launched the shefllist from the tools menu then it does not have the
       // context of launching from the component, so fake it via the profile
       if (Object.keys(this.activeShelfListData)==0){
         this.profileStore.buildActiveShelfListDataFromProfile()
@@ -457,7 +455,7 @@
 
               </div>
               <div id="listing-display" ref="shelfListingDisplay" @scroll="watchScroll">
-                
+
                 <div class="loader" v-if="searching"></div>
                 <h3 v-if="searching==false && results.length==0">No Results</h3>
 
@@ -538,7 +536,7 @@
     background-color: white;
     z-index: 100;
     border-bottom: solid 1px whitesmoke;
-    
+
   }
 
   #listing-display{
@@ -606,7 +604,7 @@
   #shelf-listing-content{
     padding: 0.2em;
     background-color: white;
-    
+
   }
 
   .checkbox-option{
@@ -667,7 +665,7 @@
 }
 .loader::after,
 .loader::before {
-  content: '';  
+  content: '';
   box-sizing: border-box;
   width: 100px;
   height: 100px;
@@ -692,6 +690,6 @@
     opacity: 0;
   }
 }
-    
-  
+
+
 </style>

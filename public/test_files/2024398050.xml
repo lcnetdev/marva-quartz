@@ -388,8 +388,12 @@
                 </bf:place>
                 <bflc:simplePlace>Sŏul-si</bflc:simplePlace>
                 <bflc:simplePlace xml:lang="ko-kore">서울시</bflc:simplePlace>
-                <bflc:simpleAgent>Maum Sanch'aek</bflc:simpleAgent>
-                <bflc:simpleAgent xml:lang="ko-kore">마음 산책</bflc:simpleAgent>
+
+                <bflc:simpleAgent>Maum Sanch'aek 1</bflc:simpleAgent>
+                <bflc:simpleAgent xml:lang="ko-kore">마음 마음 산책2</bflc:simpleAgent>
+                <bflc:simpleAgent>Maum Maum Sanch'aek3</bflc:simpleAgent>
+                <bflc:simpleAgent xml:lang="ko-kore">마음 산책4</bflc:simpleAgent>    
+
                 <bflc:simpleDate>2024</bflc:simpleDate>
                 <bflc:simpleDate xml:lang="ko-kore">2024</bflc:simpleDate>
             </bf:ProvisionActivity>

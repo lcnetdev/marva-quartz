@@ -175,6 +175,20 @@
           }
         }
 
+        const config = useConfigStore()
+        if (config.returnUrls.displayLCOnlyFeatures){
+          menuButtonSubMenu.push(
+            {
+              text: 'LC Marva Manual',
+              click: () => {
+                const routeData = window.open('https://libgov-my.sharepoint.com/personal/pfrank_lib_loc_gov/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fpfrank%5Flib%5Floc%5Fgov%2FDocuments%2FMarva%2DManual%2DShare%2FLibrary%2Dof%2DCongress%2DMarva%2DQuartz%2DUser%2DManual%2Epdf&parent=%2Fpersonal%2Fpfrank%5Flib%5Floc%5Fgov%2FDocuments%2FMarva%2DManual%2DShare')
+                window.open(routeData.href, '_blank');
+               },
+              icon:"📄"
+            }
+          )
+        }
+
 
         if (this.$route.path.startsWith('/edit/')){
           menuButtonSubMenu.push({ is: 'separator'})
@@ -283,13 +297,15 @@
 
         if (!this.disable.includes('View')){
           menu.push(
-            { text: "View",  menu: [
+            { text: "View",
+              class: "nav-view",
+            menu: [
 
               { text: 'Properties', click: () => this.preferenceStore.togglePanel('properties'), icon: this.panelTitleProperties },
               { text: 'Dual Edit', click: () => this.preferenceStore.togglePanel('dualEdit'), icon: this.panelTitleDualEdit },
               { text: 'Preview OPAC', click: () => this.preferenceStore.togglePanel('opac'), icon: this.panelTitleOpacEdit },
 
-              { text: 'Preview XML', click: () => this.preferenceStore.togglePanel('xml'), icon: this.panelTitleXMLEdit },
+              { text: 'Preview XML', click: () => this.preferenceStore.togglePanel('xml'), icon: this.panelTitleXMLEdit, class:"nav-view-xml" },
               { text: 'Preview MARC', click: () => this.preferenceStore.togglePanel('marc'), icon: this.panelTitleMARCEdit },
 
 

@@ -9,7 +9,7 @@ import utilsMisc from './utils_misc';
 import utilsNetwork from './utils_network';
 import utilsProfile from './utils_profile';
 
-import { parse as parseEDTF } from 'edtf'
+import { parse, parse as parseEDTF } from 'edtf'
 
 import { md5 } from "hash-wasm";
 
@@ -1310,10 +1310,16 @@ const utilsExport = {
 		let bf_AdminMetadtat = this.createElByBestNS("bf:AdminMetadata")
 		let bf_status = this.createElByBestNS("bf:status")
 		let bf_Status = this.createElByBestNS("bf:Status")
-
-		bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/c')
 		let bf_StatusLabel = this.createElByBestNS("rdfs:label")
-		bf_StatusLabel.innerHTML="changed"
+
+		if (profile.newResource){
+			// For `new` should this even be added? Or is this replaced by the big admin block?
+			bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/n')
+			bf_StatusLabel.innerHTML="new"
+		} else {
+			bf_Status.setAttributeNS(this.namespace.rdf, 'rdf:about','http://id.loc.gov/vocabulary/mstatus/c')
+			bf_StatusLabel.innerHTML="changed"
+		}
 
 		let bf_catalogerId = this.createElByBestNS("bflc:catalogerId")
 		bf_catalogerId.innerHTML = escapeHTML(catCode)
@@ -1329,14 +1335,15 @@ const utilsExport = {
 		bf_AdminMetadtat.appendChild(bf_status)
 		bf_adminMetadata.appendChild(bf_AdminMetadtat)
 
+		if (!profile.newResource){ // don't show the `new` small admin field. Status=new should be in the big block
+			let adminMetadataText = (new XMLSerializer()).serializeToString(bf_adminMetadata)
 
-		let adminMetadataText = (new XMLSerializer()).serializeToString(bf_adminMetadata)
-
-		for (let URI in tleLookup['Work']){
-			tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
-		}
-		for (let URI in tleLookup['Instance']){
-			tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+			for (let URI in tleLookup['Work']){
+				tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+			}
+			for (let URI in tleLookup['Instance']){
+				tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+			}
 		}
 
 
@@ -1860,7 +1867,15 @@ const utilsExport = {
 		// let aapHash = await md5(aap)
 		// aapHash = `${aapHash.slice(0, 8)}-${aapHash.slice(8, 12)}-${aapHash.slice(12, 16)}-${aapHash.slice(16, 20)}-${aapHash.slice(20, 32)}`
 		// let hubUri = `http://id.loc.gov/resources/hubs/${aapHash}`
-		let hubUri = await this.creatHubStubURI(hubCreatorObj,title)
+
+		let hubUri
+		if (langObj){
+			hubUri = await this.creatHubStubURI(hubCreatorObj, title + ". " + langObj.label)
+		} else {
+			hubUri = await this.creatHubStubURI(hubCreatorObj,title)
+		}
+
+		// let hubUri = await this.creatHubStubURI(hubCreatorObj,title)
 
 
 
@@ -2059,10 +2074,13 @@ const utilsExport = {
 		return marcTxt
 	},
 
-	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,instanceUri, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667){
+	createNacoStubXML(oneXXParts,fourXXParts,mainTitle,lccn,instanceUri, mainTitleDate, mainTitleLccn, mainTitleNote,zero46,add667,extraMarcStatements,useAdvancedMode){
 		let marcTxt = ''
-		marcTxt = marcTxt + "111111111122222222223333333333\n"
-		marcTxt = marcTxt + "       123456789012345678901234567890123456789\n"
+		marcTxt = marcTxt + " 111111111122222222223333333333\n"
+		marcTxt = marcTxt + "       0123456789012345678901234567890123456789\n"
+
+		let marcTextArray = []
+
 
 		let marcNamespace = "http://www.loc.gov/MARC21/slim"
 
@@ -2090,6 +2108,15 @@ const utilsExport = {
 		// did they make a 4xx
 		if (fourXXParts && fourXXParts.a && add667){
 			pos29 = 'b'
+		}else if (fourXXParts && fourXXParts.a && !add667){
+			pos29 = 'a'
+		}
+
+		// if there is a 667 in the extraMarcStatements then set it
+		for (let x of extraMarcStatements){
+			if (x.tag == '667'){
+				pos29 = 'b'
+			}
 		}
 
 		let pos32 = "a"
@@ -2108,15 +2135,19 @@ const utilsExport = {
 		let field001 = document.createElementNS(marcNamespace,"marcxml:controlfield");
 		field001.setAttribute( 'tag', '001')
 		field001.innerHTML = "n"+lccn
-		marcTxt =  marcTxt+ this.buildMarcTxtLine('001',' ',' ',["n"+lccn])
+
+
+		marcTextArray.push({txt: this.buildMarcTxtLine('001',' ',' ',["n"+lccn]), field: '001', fieldInt: 1})
+
+
 		rootEl.appendChild(field001)
 
 		let field003 = document.createElementNS(marcNamespace,"marcxml:controlfield");
 		field003.setAttribute( 'tag', '003')
 		field003.innerHTML = "DLC"
 		rootEl.appendChild(field003)
-		marcTxt =  marcTxt+ this.buildMarcTxtLine('003',' ',' ',["DLC"])
 
+		marcTextArray.push({txt: this.buildMarcTxtLine('003',' ',' ',["DLC"]), field: '003', fieldInt: 3})
 
 
 
@@ -2125,7 +2156,8 @@ const utilsExport = {
 		field005.setAttribute( 'tag', '005')
 		field005.innerHTML = dateValue
 		rootEl.appendChild(field005)
-		marcTxt =  marcTxt+ this.buildMarcTxtLine('005',' ',' ',[dateValue])
+
+		marcTextArray.push({txt: this.buildMarcTxtLine('005',' ',' ',[dateValue]), field: '005', fieldInt: 5})
 
 
 
@@ -2140,7 +2172,8 @@ const utilsExport = {
 		field010.appendChild(field010a)
 		rootEl.appendChild(field010)
 
-		marcTxt =  marcTxt+ this.buildMarcTxtLine('010',' ',' ',[`$a n ${lccn}`])
+
+		marcTextArray.push({txt: this.buildMarcTxtLine('010',' ',' ',[`$a n ${lccn}`]), field: '010', fieldInt: 10})
 
 
 		let field040 = document.createElementNS(marcNamespace,"marcxml:datafield");
@@ -2167,7 +2200,7 @@ const utilsExport = {
 		field040c.innerHTML = 'DLC'
 		field040.appendChild(field040c)
 
-		marcTxt =  marcTxt+ this.buildMarcTxtLine('040',' ',' ',[`$a DLC`, `$b eng`, `$e rda`, `$c DLC`])
+		marcTextArray.push({txt: this.buildMarcTxtLine('040',' ',' ',[`$a DLC`, `$b eng`, `$e rda`, `$c DLC`]), field: '040', fieldInt: 40})
 
 
 		rootEl.appendChild(field040)
@@ -2203,7 +2236,8 @@ const utilsExport = {
 			field046.appendChild(field0462)
 			rootEl.appendChild(field046)
 
-			marcTxt =  marcTxt+ this.buildMarcTxtLine('046',' ',' ',subfieldsValues)
+
+			marcTextArray.push({txt: this.buildMarcTxtLine('046',' ',' ',subfieldsValues), field: '046', fieldInt: 46})
 
 
 		}
@@ -2231,7 +2265,7 @@ const utilsExport = {
 		}
 		// 110//$aMiller, Sam$d1933
 		rootEl.appendChild(fieldName)
-		marcTxt =  marcTxt+ this.buildMarcTxtLine(oneXXParts.fieldTag, oneXXParts.indicators.charAt(0).replace(" ","#"), oneXXParts.indicators.charAt(1).replace(" ","#"), oneXXSubfieldsValues)
+		marcTextArray.push({txt: this.buildMarcTxtLine(oneXXParts.fieldTag, oneXXParts.indicators.charAt(0).replace(" ","#"), oneXXParts.indicators.charAt(1).replace(" ","#"), oneXXSubfieldsValues), field: oneXXParts.fieldTag, fieldInt: parseInt(oneXXParts.fieldTag)})
 
 
 		// did they make a 4xx
@@ -2254,12 +2288,13 @@ const utilsExport = {
 			}
 
 			rootEl.appendChild(fieldName4xx)
-			marcTxt =  marcTxt+ this.buildMarcTxtLine(fourXXParts.fieldTag, fourXXParts.indicators.charAt(0).replace(" ","#"), fourXXParts.indicators.charAt(1).replace(" ","#"), fourXXSubfieldsValues)
+			marcTextArray.push({txt: this.buildMarcTxtLine(fourXXParts.fieldTag, fourXXParts.indicators.charAt(0).replace(" ","#"), fourXXParts.indicators.charAt(1).replace(" ","#"), fourXXSubfieldsValues), field: fourXXParts.fieldTag, fieldInt: parseInt(fourXXParts.fieldTag)})
+
 		}
 
 
 
-		if (pos29 === 'b'){
+		if (pos29 === 'b' && !useAdvancedMode){
 
 			let field667 = document.createElementNS(marcNamespace,"marcxml:datafield");
 			field667.setAttribute( 'tag', '667')
@@ -2271,11 +2306,10 @@ const utilsExport = {
 			field667.appendChild(field667a)
 
 			rootEl.appendChild(field667)
-			marcTxt =  marcTxt+ this.buildMarcTxtLine('667', ' ', ' ', ['$a Non-Latin script references not evaluated.'])
+			marcTextArray.push({txt: this.buildMarcTxtLine('667', ' ', ' ', ['$a Non-Latin script references not evaluated.']), field: '667', fieldInt: 667})
 
 
 		}
-
 
 
 		let field670SubfieldsValues = []
@@ -2310,20 +2344,19 @@ const utilsExport = {
 		field670.appendChild(field670u)
 		field670SubfieldsValues.push(`$u ${instanceUri}`)
 
-		if (mainTitleLccn){
-			let field670w = document.createElementNS(marcNamespace,"marcxml:subfield");
-			field670w.setAttribute( 'code', 'w')
-			field670w.innerHTML = '(DLC)' + mainTitleLccn
-			field670.appendChild(field670w)
-			field670SubfieldsValues.push(`$w (DLC)${mainTitleLccn}`)
+		// if (mainTitleLccn){
+		// 	let field670w = document.createElementNS(marcNamespace,"marcxml:subfield");
+		// 	field670w.setAttribute( 'code', 'w')
+		// 	field670w.innerHTML = '(DLC)' + mainTitleLccn
+		// 	field670.appendChild(field670w)
+		// 	field670SubfieldsValues.push(`$w (DLC)${mainTitleLccn}`)
+		// }
+
+
+		if (!useAdvancedMode){
+			marcTextArray.push({txt: this.buildMarcTxtLine('670', ' ', ' ', field670SubfieldsValues), field: '670', fieldInt: 670})
+			rootEl.appendChild(field670)
 		}
-
-		console.info("field670SubfieldsValues: ", field670SubfieldsValues)
-		marcTxt =  marcTxt+ this.buildMarcTxtLine('670', ' ', ' ', field670SubfieldsValues)
-		rootEl.appendChild(field670)
-
-
-
 
 		// ---- 985
 		let field985 = document.createElementNS(marcNamespace,"marcxml:datafield");
@@ -2344,13 +2377,62 @@ const utilsExport = {
 
 		rootEl.appendChild(field985)
 
-		marcTxt =  marcTxt+ this.buildMarcTxtLine('985',' ',' ',[`$e MARVA-NAR`, `$d ${field985d.innerHTML}`])
+		// they dont need to preview this
+		// marcTxt =  marcTxt+ this.buildMarcTxtLine('985',' ',' ',[`$e MARVA-NAR`, `$d ${field985d.innerHTML}`])
+
+		if (extraMarcStatements && extraMarcStatements.length > 0){
+			for (let x of extraMarcStatements){
+				if (x.fieldTag && x.fieldTag.trim() != ''){
+					let field = document.createElementNS(marcNamespace,"marcxml:datafield");
+					field.setAttribute( 'tag', x.fieldTag)
+					field.setAttribute( 'ind1', x.indicators.charAt(0))
+					field.setAttribute( 'ind2', x.indicators.charAt(1))
+
+					let useSubfieldsValues = []
+					for (let key of Object.keys(x)){
+						if (key.length == 1){
+							let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+							subfield.setAttribute( 'code', x[key][0])
+							subfield.innerHTML = x[key][1]
+							field.appendChild(subfield)
+							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1]}`)
+
+						}
+					}
+					rootEl.appendChild(field)
+					marcTextArray.push({txt: this.buildMarcTxtLine(x.fieldTag, x.indicators.charAt(0), x.indicators.charAt(1), useSubfieldsValues), field: x.fieldTag, fieldInt: parseInt(x.fieldTag)})
+				}
+			}
+		}
 
 
+		// sort what we have
+		marcTextArray = marcTextArray.sort((a, b) => {
+			if (a.fieldInt < b.fieldInt) {
+			  return -1;
+			}
+			if (a.fieldInt > b.fieldInt) {
+			  return 1;
+			}
+			return 0;
+		  });
+		  console.log(marcTextArray)
+		  marcTextArray.map((x) => {
+			marcTxt = marcTxt + x.txt
+		})
 
 
+		// sort the children of the rootEl by tag so it looks nice in the editor
+		let sortedChildren = Array.from(rootEl.children).sort((a, b) => {
+			let tagA = a.getAttribute('tag');
+			let tagB = b.getAttribute('tag');
+			if (tagA < tagB) return -1;
+			if (tagA > tagB) return 1;
+			return 0;
+		});
 
-
+		rootEl.innerHTML = ''; // Clear existing children
+		sortedChildren.forEach(child => rootEl.appendChild(child)); // Append sorted children
 
 		console.log(marcTxt)
 		let xml = (new XMLSerializer()).serializeToString(rootEl)
