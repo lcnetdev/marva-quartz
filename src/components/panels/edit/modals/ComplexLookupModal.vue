@@ -1080,6 +1080,9 @@
                       </a>
                     </span>
                   </div>
+                  <div v-else style="min-height: 27px;"></div>
+
+                  
 
 				  <div id="container" v-if="modalSelectOptions.length == 10 && modalSelectOptions[8].label == 'NAF Geo SubDiv'">
 					<input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword" @click="changeSearchType($event)" ref="toggle">
