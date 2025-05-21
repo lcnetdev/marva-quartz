@@ -650,8 +650,6 @@
                 console.warn("Using default template for admin metadata: ", err)
               }
 
-              console.info("targetTemplate: ", targetTemplate)
-
               pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
                 "mandatory": false,
                 "parent": parent,
