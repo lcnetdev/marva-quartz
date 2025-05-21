@@ -1335,18 +1335,15 @@ const utilsExport = {
 		bf_AdminMetadtat.appendChild(bf_status)
 		bf_adminMetadata.appendChild(bf_AdminMetadtat)
 
+		if (!profile.newResource){ // don't show the `new` small admin field. Status=new should be in the big block
+			let adminMetadataText = (new XMLSerializer()).serializeToString(bf_adminMetadata)
 
-		let adminMetadataText = (new XMLSerializer()).serializeToString(bf_adminMetadata)
-
-
-
-
-
-		for (let URI in tleLookup['Work']){
-			tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
-		}
-		for (let URI in tleLookup['Instance']){
-			tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+			for (let URI in tleLookup['Work']){
+				tleLookup['Work'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+			}
+			for (let URI in tleLookup['Instance']){
+				tleLookup['Instance'][URI].appendChild(xmlParser.parseFromString(adminMetadataText, "text/xml").children[0])
+			}
 		}
 
 
