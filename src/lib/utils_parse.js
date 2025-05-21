@@ -497,6 +497,14 @@ const utilsParse = {
           }
         }
 
+        let targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+        try {
+          targetTemplate = pt.filter((obj) => obj.propertyLabel == 'Admin Metadata')[0].valueConstraint.valueTemplateRefs[0]
+        } catch(err) {
+          console.warn("Using default template for admin metadata: ", err)
+          targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+        }
+
         // adminMetadataCount
         pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
           "mandatory": false,
@@ -514,7 +522,7 @@ const utilsParse = {
               "defaults": [],
               "useValuesFrom": [],
               "valueDataType": {},
-            "valueTemplateRefs": ['lc:RT:bf2:AdminMetadata:BFDB']
+            "valueTemplateRefs": [targetTemplate]
             }
         }
 
