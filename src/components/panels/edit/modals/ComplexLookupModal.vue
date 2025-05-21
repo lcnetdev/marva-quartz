@@ -1143,7 +1143,7 @@
                       </AuthTypeIcon>
                     </span>
                     {{ activeContext.title }}<br>
-                    <span style="margin-left: 2em;">{{ activeContext.uri.split("/").at(-1) }}</span>
+                    <span v-if="!activeContext.uri.includes('hubs')" style="margin-left: 2em;">{{ activeContext.uri.split("/").at(-1) }}</span>
                   </h3>
                   <div class="complex-lookup-modal-display-type-buttons">
                     <div>
