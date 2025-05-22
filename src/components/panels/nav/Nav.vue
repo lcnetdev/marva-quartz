@@ -161,7 +161,7 @@
           },
         ]
 
-        if (this.isStaging && this.preferenceStore.isNarTester()){ //remove/change for production
+        if (this.preferenceStore.isNarTester()){ //remove/change for production
           if (!this.$route.path.includes('edit')){
             menuButtonSubMenu.push(
               {
