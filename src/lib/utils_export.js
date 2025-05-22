@@ -823,8 +823,9 @@ const utilsExport = {
 									// yes
 									let bnodeLvl2 = this.createBnode(value1,key1)
 
-									//carve out an expection for associated resource is a series
+									//carve out an exception for associated resource is a series
 									if (bnodeLvl1.tagName == 'bf:Relation' && bnodeLvl2.tagName == 'bf:Series' && pLvl2.tagName == 'bf:associatedResource'){
+										console.info("exception?")
 										let rdftype = this.createElByBestNS('rdf:type')
 										rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', 'http://id.loc.gov/ontologies/bflc/Uncontrolled')
 										bnodeLvl2.appendChild(rdftype)

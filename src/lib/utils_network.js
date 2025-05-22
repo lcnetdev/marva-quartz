@@ -3015,6 +3015,8 @@ const utilsNetwork = {
   addCopyCat: async function(xml){
     let url = useConfigStore().returnUrls.copyCatUpload
 
+    console.info("posting to ", url)
+
     const rawResponse = await fetch(url, {
       method: 'POST',
       headers: {

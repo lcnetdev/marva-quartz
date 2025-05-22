@@ -555,16 +555,15 @@ export default {
 
       this.responseURL = this.postResults.postLocation
 
-      console.info("this.responseURL: ", this.responseURL)
+      if (!this.responseURL){
+        alert("There was an issue sending the record.")
+        console.error("Failed to send copy cat record: ", this.postResults)
+        return
+      }
 
       let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
 
       console.info("recordId: ", recordId)
-
-      if (!this.responseURL){
-        alert("There was an issue sending the record.")
-        console.error("Failed to send copy cat record: ", this.postResults)
-      }
 
       // this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
       this.urlToLoad = "https://preprod-8287.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
@@ -578,6 +577,7 @@ export default {
       } catch (err) {
         alert("Couldn't load the record with the selected profile.")
         console.error("Failed to load CopyCat record: ", err)
+        return
       }
     },
 

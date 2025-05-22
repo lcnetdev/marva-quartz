@@ -52,18 +52,18 @@ export const useConfigStore = defineStore('config', {
         // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
         // offical stage profiles inside the firewall
-        starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
-        profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
+        // starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
+        // profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
         // offical prod profiles inside the firewall
-        // starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
-        // profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
+        starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
+        profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
 
 
         worldCat: 'http://localhost:5200/worldcat/',
-        copyCatUpload: 'http://localhost:5200/copycat/upload',
+        copyCatUpload: 'http://localhost:5200/copycat/upload/stag',
 
-        id: 'https://id.loc.gov/',
+        id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',
         dev: false,
         displayLCOnlyFeatures: true,
@@ -89,7 +89,7 @@ export const useConfigStore = defineStore('config', {
         starting : '/bfe2/util/profiles/starting/stage',
 
         worldCat: 'https://preprod-3001.id.loc.gov/bfe2/util/worldcat/',
-        copyCatUpload: 'https://preprod-3001.id.loc.gov/bfe2/util/copycat/upload', // change ports for production
+        copyCatUpload: 'https://preprod-3001.id.loc.gov/bfe2/util/copycat/upload/stag', // change ports for production
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
@@ -115,7 +115,7 @@ export const useConfigStore = defineStore('config', {
         starting : '/bfe2/util/profiles/starting/prod',
 
         worldCat: 'https://editor.id.loc.gov/bfe2/util/worldcat/',
-        copyCatUpload: 'https://editor.id.loc.gov/bfe2/util/copycat/upload',
+        copyCatUpload: 'https://editor.id.loc.gov/bfe2/util/copycat/upload/prod',
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',

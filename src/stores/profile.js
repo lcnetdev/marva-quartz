@@ -6396,7 +6396,7 @@ export const useProfileStore = defineStore('profile', {
       }
       if (arr.length == 4){
         arr.splice(1, 0, arr.splice(2, 1)[0]);
-      }      
+      }
       //   let fiftyPercent = Math.floor(sortedArry.length / 2)
       //   let largeAryOrder = []
       //   console.log("sortedArry",sortedArry)
@@ -6410,7 +6410,7 @@ export const useProfileStore = defineStore('profile', {
       //     console.log("largeAryOrder ->",JSON.parse(JSON.stringify(largeAryOrder)))
       //   }
 
-        
+
       //   console.log("sortedArry!!!",sortedArry)
 
       //   console.log("Returning largeAryOrder:", largeAryOrder)
@@ -6426,7 +6426,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       return arr
-      
+
 
     },
 
