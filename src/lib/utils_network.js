@@ -3002,6 +3002,7 @@ const utilsNetwork = {
       }
     )
 
+    console.info("lccn check: ", resp)
     return resp
   },
 
