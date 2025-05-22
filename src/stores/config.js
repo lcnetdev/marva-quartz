@@ -6,8 +6,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 1,
-    versionMinor: 2,
-    versionPatch: 28,
+    versionMinor: 3,
+    versionPatch: 0,
 
 
 
@@ -44,8 +44,8 @@ export const useConfigStore = defineStore('config', {
         // starting: 'http://localhost:9401/util/profiles/starting/prod',
 
         // offical stage profiles that work outside firewall
-        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
-        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
 
         // offical prod profiles that work outside firewall
         // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
@@ -70,6 +70,24 @@ export const useConfigStore = defineStore('config', {
         simpleLookupLang: 'en',
       },
 
+      externalDev:{
+
+        ldpjs : 'http://localhost:9401/api-staging/',
+        util  : 'http://localhost:9401/util/',
+        utilLang: 'http://localhost:9401/util-lang/',
+        scriptshifter: 'http://localhost:9401/scriptshifter/',
+        publish : 'http://localhost:9401/util/publish/staging',
+        validate: 'http://localhost:5200/validate',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
+        id: 'https://id.loc.gov/',
+        env : 'staging',
+        dev: true,
+        displayLCOnlyFeatures: true,
+        simpleLookupLang: 'en',
+        publicEndpoints:true,
+
+      },
 
       staging:{
 
@@ -1078,7 +1096,7 @@ export const useConfigStore = defineStore('config', {
       // testing for window here because of running unit tests in node
       if (typeof window !== 'undefined'){
         console.log("window: ", window.location.href)
-        if (window && (!window.location.href.includes('localhost:5555') && window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1') )){
+        if (window && (!window.location.href.includes('localhost:5555') && !window.location.href.includes('localhost:4444') && window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1') )){
           return state.regionUrls.dev
         }else if (window && window.location.href.startsWith('https://preprod-3001')){
           return state.regionUrls.staging
@@ -1086,6 +1104,8 @@ export const useConfigStore = defineStore('config', {
           return state.regionUrls.production
         }else if (window && window.location.href.includes('bibframe.org')){
           return state.regionUrls.bibframeDotOrg
+        }else if (window && window.location.href.includes('localhost:4444')){
+          return state.regionUrls.externalDev
         }else if (window && window.location.href.includes('localhost:5555')){
           console.log(">>>>>>>playwrightTestConfig<<<<<<<<<")
           return state.regionUrls.playwrightTestConfig

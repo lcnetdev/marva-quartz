@@ -43,14 +43,18 @@
             </div>
 
             <div id="all-records-table">
-              <DataTable :loading="isLoadingAllRecords" :rows="allRecords" striped hoverable>
+              <div style="text-align: right;" v-if="dataTableRecords.length == dataTableInitalLimit">
+                <button @click="dataTableRecords = allRecords">Only showing the latest {{ dataTableInitalLimit }} records.
+                  Show all {{ allRecords.length }}?</button>
+              </div>
+              <DataTable :loading="isLoadingAllRecords" :rows="dataTableRecords" striped hoverable>
 
                 <!-- { "Id": "e1078432", "RTs": [ "lc:RT:bf2:Monograph:Work" ], "Type": "Monograph", "Status": "unposted", "Urls": [ "http://id.loc.gov/resources/works/e1078432", "http://id.loc.gov/resources/instances/e1078432" ], "Time": "2024-07-10:17:11:53", "User": "asdf (asdf)" } -->
 
                 <template #tbody="{ row }">
 
                   <td>
-                    <a :href="'/bfe2/quartz/edit/' + row.Id" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id}}</a>
+                    <a :href="'/bfe2/quartz/edit/' + row.Id" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
                   </td>
 
                   <td v-text="(row.RTs) ? row.RTs.join(', ') : row.RTs" />
@@ -220,7 +224,7 @@
                     <div class="load-buttons">
                       <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{
                         s.name
-                        }}</button>
+                      }}</button>
                     </div>
                   </div>
                 </div>
@@ -271,7 +275,7 @@ const decimalTranslator = short("0123456789");
 
 
 export default {
-  components: { Splitpanes, Pane, Nav, DataTable, CopyCat},
+  components: { Splitpanes, Pane, Nav, DataTable, CopyCat },
   data() {
     return {
 
@@ -286,6 +290,8 @@ export default {
 
       lccnLoadSelected: false,
 
+      dataTableInitalLimit: 1000,
+
 
       displayDashboard: true,
       displayAllRecords: false,
@@ -294,6 +300,7 @@ export default {
       dashBoard: {},
 
       allRecords: [],
+      dataTableRecords: [],
       hideOptions: true,
 
     }
@@ -388,7 +395,9 @@ export default {
 
       let postedByAgo = {}
       this.allRecords = []
+
       for (let r of allRecordsRaw) {
+        console.log("r", r)
         let obj = {
           'Id': r.eid,
 
@@ -401,9 +410,14 @@ export default {
           'User': r.user,
         }
 
-        let date = new Date(r.time)
-        let timestamp = date.getTime() / 1000;
+        let date = new Date(r.time);
+        // firefox doesn't like this format, add a space instead of a colon
+        if (isNaN(date.getTime())) {
+          r.time = r.time.replace(":", " ")
+          date = new Date(r.time);
+        }
 
+        let timestamp = date.getTime() / 1000;
 
         dashBoard.byTimePeriod.all.uniqueUsers[r.user] = true
         dashBoard.byTimePeriod.all.workedRecords++
@@ -429,12 +443,17 @@ export default {
         }
         this.allRecords.push(obj)
       }
+
       dashBoard.totalDays = Math.floor((new Date().getTime() / 1000 - oldestDate) / 86400)
       console.log(dashBoard)
       this.dashBoard = dashBoard
 
+      this.dataTableRecords = this.allRecords.slice(0, this.dataTableInitalLimit)
+
 
       this.isLoadingAllRecords = false
+
+
     },
 
     returnTimeAgo: function (timestamp) {
