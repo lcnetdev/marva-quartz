@@ -18,6 +18,9 @@ export const usePreferenceStore = defineStore('preference', {
     showDebugModal: false,
     debugModalData: {},
 
+    showPanelSizeModal: false,
+
+
     showScriptshifterConfigModal: false,
     scriptShifterOptions: {},
 
@@ -55,6 +58,7 @@ export const usePreferenceStore = defineStore('preference', {
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},
+    
 
     copyMode: false,
 

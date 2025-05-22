@@ -26,6 +26,10 @@
       <template v-if="showSelectionModal==true">
         <GenericSelectionModal @emitSelection="getImportSelection" @closeModal="closeImportSelection" :title="importTitle" :options="importOptions" :modalSettings="modalSettings" :multiple="true" v-model="showSelectionModal" />
       </template>
+      <template v-if="showPanelSizeModal==true">
+        <PanelSizeModal  v-model="showPanelSizeModal" />
+      </template>
+
 
     </Teleport>
 
@@ -47,6 +51,9 @@
   import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
   import GenericSelectionModal from '../edit/modals/GenericSelectionModal.vue'
 
+  import PanelSizeModal from '../edit/modals/PanelSizeModal.vue'
+
+
   import TimeAgo from 'javascript-time-ago'
   import en from 'javascript-time-ago/locale/en'
   if (TimeAgo.getDefaultLocale() != 'en'){TimeAgo.addDefaultLocale(en)}
@@ -56,7 +63,7 @@
 
 
   export default {
-    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal, PanelSizeModal },
     data() {
       return {
         allSelected: false,
@@ -83,7 +90,7 @@
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode']),
       ...mapState(useConfigStore, ['layouts']),
-      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode']),
+      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode','showPanelSizeModal']),
       ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted','activeProfilePostedTimestamp', 'copyCatMode']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
@@ -622,16 +629,36 @@
           )
           }
 
-        menu.push(
+        // anything after this point will  be on the right of nav menu  
+        menu.push({ is: "spacer" })
 
+        if (this.activeProfile.id && this.$route.name == 'Edit'){
+
+          menu.push(
+            {
+              text: "",
+              id:"post-button",
+              ref:"",
+              icon: "width_normal",
+              click: () => {
+                this.showPanelSizeModal = true;
+               
+              },
+              class: "",
+            }
+          )
+        }
+
+
+        menu.push(
         {
             text: this.userName,
             // active: this.happy,
-            icon: "account_circle",
-            class: "login-menu",
+            icon: "account_circle",            
             click: () => { this.showLoginModal = true }
         }
         )
+
 
 
 
@@ -1120,11 +1147,8 @@
 
       margin-left: 100px;
     }
-    .login-menu{
 
-      position: absolute !important;
-      right: 0;
-    }
+    
     .record-posted .icon{
       color: green !important;
     }
