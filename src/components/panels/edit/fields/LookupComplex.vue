@@ -57,7 +57,7 @@
 
 
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == true">
-            <div class="lookup-fake-input-text">!!
+            <div class="lookup-fake-input-text">
                 <div class="bfcode-display-mode-holder">
                   <div class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}</div>
                   <div class="bfcode-display-mode-holder-value">
@@ -92,9 +92,7 @@
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
 
 
-              $${{ complexLookupValues }}
               <div v-for="(avl,idx) in complexLookupValues" :class="['selected-value-container']">
-                ##
                 <div class="selected-value-container-auth">
                   <!-- <br>
                   !!{{ avl.type }}
@@ -125,7 +123,6 @@
             </div>
 
             <div class="lookup-fake-input-text">
-              ??
                 <input   v-on:keydown.enter.prevent="submitField" @keyup="navKey" class="can-select" :data-guid="structure['@guid']" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
                 <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
             </div>
