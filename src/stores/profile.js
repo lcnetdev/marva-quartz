@@ -4417,7 +4417,8 @@ export const useProfileStore = defineStore('profile', {
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
         this.activeProfile.rt[profile].ptOrder.splice(propertyPosition+1, 0, newPropertyId);
 
-
+        // reset this, otherwise it can cause unwanted behavior in the XML
+        this.activeProfile.rt[profile].pt[newPropertyId].deepHierarchy = false
         if (structure){
           this.insertDefaultValuesComponent(newPt['@guid'], structure)
         }
