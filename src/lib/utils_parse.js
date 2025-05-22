@@ -265,6 +265,7 @@ const utilsParse = {
   sniffWorkRelationType(xml){
     for (let child of xml.children){
       if (child.tagName == 'bf:relation'){
+
         let hasUncontrolled = false
         if (child.innerHTML.indexOf("bflc:Uncontrolled")>-1||child.innerHTML.indexOf("bf:Uncontrolled")>-1){ hasUncontrolled = true }
         if (child.innerHTML.indexOf("bflc/Uncontrolled")>-1||child.innerHTML.indexOf("bibframe/Uncontrolled")>-1){ hasUncontrolled = true }
@@ -291,6 +292,7 @@ const utilsParse = {
         }
 
       }
+
     }
     return xml
   },
@@ -584,7 +586,6 @@ const utilsParse = {
                 // make sure to remove the hint attribute
                 // console.log("Putting into ptk:",ptk)
                 // console.log("This:", e)
-
                 e.removeAttribute('local:pthint')
                 el.push(e)
               }else{

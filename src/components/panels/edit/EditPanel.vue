@@ -276,7 +276,6 @@
         //We only want the editable admin field under instances to show up
         // Don't show READONLY ADMIN fields in the instance, Don't show any admin fields in the work
         hideAdminField: function(component, profileName){
-
           let readOnly = this.isReadOnly(component)
           let isWork = profileName.includes(':Work')
           let isAdminField = component.propertyURI.includes('adminMetadata')

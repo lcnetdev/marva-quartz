@@ -88,10 +88,7 @@ const utilsNetwork = {
     */
 
     simpleLookupProcess: function(data,parentURI){
-
         let dataProcessed = {
-
-
             // all the URIs will live here but also the metadata obj about the uris
             metadata : {
                 uri: parentURI,
@@ -414,6 +411,30 @@ const utilsNetwork = {
       let data = await r.json()
       return data.id
 
+    },
+
+    searchLccn: async function name(lccn) {
+      let url = "https://id.loc.gov/resources/instances/identifier/"
+      if (useConfigStore().returnUrls.displayLCOnlyFeatures){
+        url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/"
+      }
+
+      url = url + lccn
+
+      let result = await fetch(
+        url,
+        {
+          method: 'HEAD',
+          redirect: 'manual',
+          // mode: 'cors',
+          headers: {
+            'Access-Control-Expose-Headers': 'x-preflabel',
+            'access-control-allow-headers': 'x-preflabel'
+          }
+        }
+      )
+
+      return result
     },
 
     /**
@@ -2884,6 +2905,43 @@ const utilsNetwork = {
     const content = await rawResponse.json();
 
     return content
+  },
+
+  worldCatSearch: async function(query, index, type, offset, limit, marc=false){
+    console.info("worldCatSearch")
+    console.info("     query: ", query)
+    console.info("     index: ", index)
+    console.info("     type: ", type)
+    console.info("     offset: ", offset)
+    console.info("     limit: ", limit)
+    console.info("     marc: ", marc)
+
+    // consonsole.info("useConfigStore().returnUrls >>", useConfigStore().returnUrls)
+    let baseUrl = useConfigStore().returnUrls.worldCat
+
+    let url = baseUrl + "search/"
+
+    console.info("url: ", url)
+
+    const rawResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        query: query,
+        index: index,
+        type: type,
+        offset: offset,
+        limit: limit,
+        marc: marc
+      })
+    })
+
+    console.info("rawResponse: ", rawResponse)
+
+    return rawResponse.json()
 
   },
 
@@ -2929,7 +2987,50 @@ const utilsNetwork = {
     }
   },
 
+  /**
+   * Check if the given LCCN belongs to a record in ID
+   *
+   * @param {string} lccn - LCCN to check against ID
+   * @returns
+   */
+  checkLccn: async function(lccn){
+    let url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/" + lccn  //TODO: update this URL for production
+    let resp = await fetch(
+      url,
+      {
+        method: 'HEAD',
+      }
+    )
 
+    return resp
+  },
+
+  /**
+   * Send copy cat record to ID
+   *
+   * @param {obj} xml - the MARC/XML for the record to be added
+   *
+   * @return {obj} - {status: "", data: ""}
+   */
+  addCopyCat: async function(xml){
+    let url = useConfigStore().returnUrls.copyCatUpload
+
+    console.info("posting to ", url)
+
+    const rawResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({marcxml:xml})
+    });
+
+    const content = await rawResponse.json();
+
+    return content
+
+  },
 
   /**
   * Send the record
@@ -2941,7 +3042,6 @@ const utilsNetwork = {
   */
 
   publish: async function(xml,eid,activeProfile){
-
     // console.log("activeProfile",activeProfile)
     let postingHub = false
 

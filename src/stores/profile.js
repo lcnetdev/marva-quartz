@@ -76,6 +76,7 @@ export const useProfileStore = defineStore('profile', {
 
     // the starting points that display on the create new page
     startingPoints: {},
+    copyCatMode: false,
 
     // the current active profile
     activeProfile: {},
@@ -3291,10 +3292,12 @@ export const useProfileStore = defineStore('profile', {
   validateRecord: async function(eid, profile){
     //console.log("Profile store: Validating?")
     let xml = await utilsExport.buildXML(this.activeProfile)
+
     let response = await utilsNetwork.validate(xml.xlmStringBasic)
 
     return response
   },
+
 
     /**
     * Publish record to backend
@@ -3314,7 +3317,6 @@ export const useProfileStore = defineStore('profile', {
       }
 
       let xml = await utilsExport.buildXML(this.activeProfile)
-
 
       let pubResuts
 
@@ -5785,6 +5787,7 @@ export const useProfileStore = defineStore('profile', {
             lastClassifiction = pt
             //type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc" &&
             if (!Object.keys(classification).includes("http://id.loc.gov/ontologies/bibframe/classificationPortion")){
+            // if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"){
               hasEmptyDDC = true
               ddcComponent = classification
               newDDC = [target.id]
@@ -5813,7 +5816,6 @@ export const useProfileStore = defineStore('profile', {
       } else {
         dewey = deweyInfo.dewey
       }
-
       const newGuid = short.generate()
       userValue["@type"] = "http://id.loc.gov/ontologies/bibframe/ClassificationDdc"
       userValue["http://id.loc.gov/ontologies/bibframe/classificationPortion"] = [{ "@guid": newGuid, "http://id.loc.gov/ontologies/bibframe/classificationPortion": String(dewey) }]
@@ -6395,7 +6397,7 @@ export const useProfileStore = defineStore('profile', {
       }
       if (arr.length == 4){
         arr.splice(1, 0, arr.splice(2, 1)[0]);
-      }      
+      }
       //   let fiftyPercent = Math.floor(sortedArry.length / 2)
       //   let largeAryOrder = []
       //   console.log("sortedArry",sortedArry)
@@ -6409,7 +6411,7 @@ export const useProfileStore = defineStore('profile', {
       //     console.log("largeAryOrder ->",JSON.parse(JSON.stringify(largeAryOrder)))
       //   }
 
-        
+
       //   console.log("sortedArry!!!",sortedArry)
 
       //   console.log("Returning largeAryOrder:", largeAryOrder)
@@ -6425,7 +6427,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       return arr
-      
+
 
     },
 

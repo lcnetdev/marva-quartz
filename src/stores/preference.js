@@ -232,7 +232,14 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'Sidebars - Property',
         range: [true,false]
-    },
+      },
+      '--l-custom-order' : {
+        desc: '',
+        descShort: '',
+        value: {},
+        type: 'object',
+        group: 'preferenes',
+      },
 
 
 
@@ -1306,13 +1313,58 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'layouts',
       },
 
-      '--l-custom-order' : {
-        desc: '',
-        descShort: '',
-        value: {},
-        type: 'object',
-        group: 'preferenes',
+      // CopyCat
+      '--c-edit-copy-cat-components' : {
+          value:'#d7d7d7',
+          desc: 'The background color of Copy Cat components.',
+          descShort: 'Copy Cat color',
+          type: 'color',
+          group: 'Copy Cat',
+          range: null
+       },
+       '--c-edit-copy-cat-font-color' : {
+          value:'black',
+          desc: 'The font color of the text searching for a Copy Cat record.',
+          descShort: 'Text Color',
+          type: 'color',
+          group: 'Copy Cat',
+          range: null
       },
+      '--c-edit-copy-cat-card-color' : {
+          value:'white',
+          desc: 'The color search results.',
+          descShort: 'Results Color',
+          type: 'color',
+          group: 'Copy Cat',
+          range: null
+      },
+      '--c-edit-copy-cat-card-color-selected' : {
+          value:'antiquewhite',
+          desc: 'The color selected result.',
+          descShort: 'Selected Color',
+          type: 'color',
+          group: 'Copy Cat',
+          range: null
+      },
+      '--c-edit-copy-cat-card-marc-hover' : {
+          value:'transparent',
+          desc: 'The color of the subfield when hovering over the MARC.',
+          descShort: 'Marc Hover',
+          type: 'color',
+          group: 'Copy Cat',
+          range: null
+      },
+      '--n-edit-copy-cat-font-size' : {
+          desc: 'The fontsize of the text in the Copy Cat search.',
+          descShort: 'Font Size',
+          value: 1,
+          step: 0.01,
+          type: 'number',
+          unit: 'em',
+          group: 'Copy Cat',
+          range: [1,2]
+      },
+
 
 
     }
@@ -1741,7 +1793,10 @@ export const usePreferenceStore = defineStore('preference', {
 
     isNarTester(){
 
-      let canTest = ["kevinford","pfrank","eram","ctur","trod","jowill","ntra","ddavis","nalf","fd07","cyea","fc80","smcc","tsod","fo","hhuh","yshi","cc33","amors","cd01","mnaz","cgir","pkho","cf31","stellier","test",'matt']
+      // pioneers
+      // let canTest = ["kevinford","pfrank","eram","ctur","trod","jowill","ntra","ddavis","nalf","fd07","cyea","fc80","smcc","tsod","fo","hhuh","yshi","cc33","amors","cd01","mnaz","cgir","pkho","cf31","stellier","test",'matt']
+      // Dev
+      let canTest = ["dev", "matt", "fo", "pfrank", "kevinford", "n123"]
 
       // Convert initials and code to lowercase if they exist
       const initials = this.catInitals ? this.catInitals.toLowerCase() : '';

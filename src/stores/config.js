@@ -6,8 +6,8 @@ export const useConfigStore = defineStore('config', {
   state: () => ({
 
     versionMajor: 1,
-    versionMinor: 2,
-    versionPatch: 28,
+    versionMinor: 3,
+    versionPatch: 0,
 
 
 
@@ -19,9 +19,9 @@ export const useConfigStore = defineStore('config', {
         ldpjs : 'http://localhost:9401/api-staging/',
         util  : 'http://localhost:9401/util/',
 
-        // util  : 'http://localhost:5200/',
+        util  : 'http://localhost:5200/',
         // util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
-        // util  :  'https://editor.id.loc.gov/bfe2/util/',
+        util  :  'https://editor.id.loc.gov/bfe2/util/',
 
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
@@ -56,13 +56,15 @@ export const useConfigStore = defineStore('config', {
         // profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
         // offical prod profiles inside the firewall
-        // starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
-        // profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
+        starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
+        profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
 
 
+        worldCat: 'http://localhost:5200/worldcat/',
+        copyCatUpload: 'http://localhost:5200/copycat/upload/stag',
 
-        id: 'https://id.loc.gov/',
-        env : 'staging',
+        id: 'https://preprod-8080.id.loc.gov/',
+        env : 'production',
         dev: false,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
@@ -103,7 +105,10 @@ export const useConfigStore = defineStore('config', {
         // profiles : '/bfe2/util/profiles/profile/prod',
         // profiles: 'https://preprod-3001.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
         starting : '/bfe2/util/profiles/starting/stage',
-        // id: 'https://preprod-8288.id.loc.gov/',
+
+        worldCat: 'https://preprod-3001.id.loc.gov/bfe2/util/worldcat/',
+        copyCatUpload: 'https://preprod-3001.id.loc.gov/bfe2/util/copycat/upload/stag', // change ports for production
+
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
         displayLCOnlyFeatures: true,
@@ -126,6 +131,9 @@ export const useConfigStore = defineStore('config', {
         // starting : 'https://editor.id.loc.gov/api/listconfigs?where=index.resourceType:startingPoints&where=index.label:config',
         profiles : '/bfe2/util/profiles/profile/prod',
         starting : '/bfe2/util/profiles/starting/prod',
+
+        worldCat: 'https://editor.id.loc.gov/bfe2/util/worldcat/',
+        copyCatUpload: 'https://editor.id.loc.gov/bfe2/util/copycat/upload/prod',
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',
@@ -1096,7 +1104,7 @@ export const useConfigStore = defineStore('config', {
           return state.regionUrls.production
         }else if (window && window.location.href.includes('bibframe.org')){
           return state.regionUrls.bibframeDotOrg
-        }else if (window && window.location.href.includes('localhost:4444')){          
+        }else if (window && window.location.href.includes('localhost:4444')){
           return state.regionUrls.externalDev
         }else if (window && window.location.href.includes('localhost:5555')){
           console.log(">>>>>>>playwrightTestConfig<<<<<<<<<")

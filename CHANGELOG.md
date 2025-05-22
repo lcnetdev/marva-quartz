@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.3.0] - 2025-05-21
+### Added
+- CopyCat UI to Marva
+
 ## [1.2.28] - 2025-05-21
 ### Changed
 - How admin metadata is added to records to support IBC records

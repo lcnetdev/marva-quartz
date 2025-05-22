@@ -84,7 +84,7 @@
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode']),
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted','activeProfilePostedTimestamp']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted','activeProfilePostedTimestamp', 'copyCatMode']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
@@ -149,13 +149,31 @@
           { text: "Load Resource", click: () => {
             try{
               this.$nextTick(()=>{
+                if (this.profileStore.copyCatMode){
+                  this.profileStore.copyCatMode = false
+                }
                 this.$router.push('/load')
               })
             }catch{
               // expected error :(
             }
-            }, icon:"💾" }
+            }, icon:"💾"
+          },
         ]
+
+        if (this.isStaging && this.preferenceStore.isNarTester()){ //remove/change for production
+          if (!this.$route.path.includes('edit')){
+            menuButtonSubMenu.push(
+              {
+                text: "Copy Cat.",
+                click: () => {
+                  this.profileStore.copyCatMode = !this.profileStore.copyCatMode
+                },
+                emoji: this.profileStore.copyCatMode ? "heavy_check_mark" : "smile_cat"
+              }
+            )
+          }
+        }
 
         const config = useConfigStore()
         if (config.returnUrls.displayLCOnlyFeatures){
@@ -279,7 +297,7 @@
 
         if (!this.disable.includes('View')){
           menu.push(
-            { text: "View",  
+            { text: "View",
               class: "nav-view",
             menu: [
 
@@ -639,6 +657,14 @@
     // },
 
     methods: {
+
+      isStaging: function(){
+        if (useConfigStore().returnUrls.env == "staging" || useConfigStore().returnUrls.dev == true){
+          return true
+        }else{
+          return false
+        }
+      },
 
       returnPixleAsPercent: function(pixles){
         return pixles/window.innerHeight*100
