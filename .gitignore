@@ -7,7 +7,10 @@ old/
 dist/
 # Playwright
 /test-results/
+test-results/
 /playwright-report/
+playwright-report/
+coverage/
 /blob-report/
 /playwright/.cache/
 /tests-playwright/.auth/
