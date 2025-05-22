@@ -2994,7 +2994,7 @@ const utilsNetwork = {
    * @returns
    */
   checkLccn: async function(lccn){
-    let url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/" + lccn  //TODO: update this URL for production
+    let url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/" + lccn + "&blastdacache=" + Date.now()
     let resp = await fetch(
       url,
       {
