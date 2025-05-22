@@ -92,9 +92,7 @@
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
 
 
-
               <div v-for="(avl,idx) in complexLookupValues" :class="['selected-value-container']">
-
                 <div class="selected-value-container-auth">
                   <!-- <br>
                   !!{{ avl.type }}
@@ -295,6 +293,7 @@ export default {
       } catch(err) {
           // this can run into an error when populating an empty complexValue field
           // It mostly doesn't seem to matter, but might as well catch
+          console.error("Error getting complex lookup value from profile: ", err)
           return []
       }
 

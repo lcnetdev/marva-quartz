@@ -2412,6 +2412,7 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
       let valueLocation = utilsProfile.returnValueFromPropertyPath(pt,propertyPath)
       let deepestLevelURI = propertyPath[propertyPath.length-1].propertyURI
+
       // console.log(pt.propertyURI)
       // console.log("propertyPath=",propertyPath)
 
@@ -2458,7 +2459,7 @@ export const useProfileStore = defineStore('profile', {
               if (!label){
                 for (let lP1 of LABEL_PREDICATES){
                   for (let lP2 of LABEL_PREDICATES){
-                    if (v[lP1][0][lP2] && v[lP1][0][lP2][0][lP2]){
+                    if (v[lP1] && v[lP1][0][lP2] && v[lP1][0][lP2][0][lP2]){
                       label = v[lP1][0][lP2][0][lP2]
                       break
                     }
