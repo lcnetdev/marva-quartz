@@ -487,6 +487,10 @@ const utilsNetwork = {
 
             url = url + "&blastdacache=" + Date.now()
 
+            url = url + "&sortfield=label"
+
+            console.info("url: ", url)
+
             // don't allow a ? in the keyword if it is already marked as keyword search
             if (url.includes('searchtype=keyword') && url.includes('q=?')){
               url = url.replace('q=?','q=')
