@@ -1074,7 +1074,6 @@ const utilsParse = {
                         //   </bf:GenreForm>
                         // </bf:genreForm>
 
-
                         gChildData['@type'] = this.UriNamespace(ggChild.tagName)
 
                         // check for URI
@@ -1093,6 +1092,11 @@ const utilsParse = {
 
                           // not a bnode, just a one liner property of the bnode
                           if (this.UriNamespace(gggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
+
+                            // expception for bf:Hubs, so it sticks
+                            if (gChildData['@type'] == 'http://id.loc.gov/ontologies/bibframe/Hub'){
+                              continue
+                            }
 
                             if (gggChild.attributes && gggChild.attributes['rdf:about']){
                               gChildData['@type'] = gggChild.attributes['rdf:about'].value
@@ -1242,7 +1246,6 @@ const utilsParse = {
 
 
                                   }else if (gggggChild.children.length ==0){
-
                                       let gggggChildProperty = this.UriNamespace(gggggChild.tagName)
 
                                       if (!gggData[gggggChildProperty]){
@@ -1281,7 +1284,6 @@ const utilsParse = {
 
 
                                   }else{
-
                                     let g5ChildProperty = this.UriNamespace(gggggChild.tagName)
                                     // console.log("g5ChildProperty",g5ChildProperty)
 
@@ -1317,7 +1319,6 @@ const utilsParse = {
                                         for (let g7Child of g6Child.children){
 
                                           if (this.UriNamespace(g7Child.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
-
 
                                             if (g7Child.attributes && g7Child.attributes['rdf:about']){
                                               g5ChildData['@type'] = g7Child.attributes['rdf:about'].value
