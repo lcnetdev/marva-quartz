@@ -487,7 +487,7 @@ const utilsNetwork = {
 
             url = url + "&blastdacache=" + Date.now()
 
-            url = url + "&sortfield=label" // enforce sorting on the label
+            // url = url + "&sortfield=label"
 
             console.info("url: ", url)
 
