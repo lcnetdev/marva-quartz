@@ -142,6 +142,7 @@ const utilsExport = {
   * @return {boolean}
   */
 	createBnode: function(userValue,property){
+		console
 		// some special cases here
 		if (property == 'http://id.loc.gov/ontologies/bibframe/agent'){
 			// if it is an agent create the Agent bnode and just add the type to it as rdf:type
@@ -861,11 +862,13 @@ const utilsExport = {
 
 
                                                 for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
-                                                    let pLvl4 = this.createElByBestNS(key2)
+                                                    let pLvl4 = this.createElByBestNS(key3) // this was key2, was that a typo or is this going to break stuff?
+
                                                     for (let value3 of value2[key3]){
                                                         if (this.isBnode(value3)){
                                                             // one more level
                                                             let bnodeLvl4 = this.createBnode(value3,key3)
+
                                                             pLvl4.appendChild(bnodeLvl4)
                                                             bnodeLvl3.appendChild(pLvl4)
                                                             xmlLog.push(`Creating lvl 4 bnode: ${bnodeLvl4.tagName} for ${key3}`)
