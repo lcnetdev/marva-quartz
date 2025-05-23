@@ -316,8 +316,10 @@
                             <ul  class="details-list">
                               <template v-for="v in contextData[key]">
                                 <li class="modal-context-data-li" v-if="key=='lcclasss'">
-                                  <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
-                                  <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
+                                  <template v-if="typeof v === 'string'">
+                                    <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
+                                    <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
+                                  </template>
                                 </li>
                                 <li class="modal-context-data-li" v-else-if="key == 'broaders'">
                                   {{v}}

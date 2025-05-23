@@ -1243,9 +1243,11 @@
                         <template v-if="key != 'sources'">
                           <ul class="details-list">
                             <li class="details-details" v-if="key=='lcclasss'" v-for="v in activeContext.extra['lcclasss']">
-                              <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
-                              <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
-                              <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
+                              <template v-if="typeof v === 'string'">
+                                <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                                <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
+                                <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
+                              </template>
                             </li>
                             <li class="details-details" v-if='["identifiers","broaders",].includes(key)'>
                               <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
