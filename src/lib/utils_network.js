@@ -2615,10 +2615,12 @@ const utilsNetwork = {
       let resultsExactName = []
       let resultsExactSubject = []
 
-
+      // this.searchExact(exactPayloadName),
+      // this.searchExact(exactPayloadSubject),
+      // resultsExactName, resultsExactSubject,
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsExactName, resultsExactSubject, resultsSubjectsComplexSearchVal, resultsSubjectsComplexSubdivision1, resultsSubjectsComplexSubdivision2, resultsSubjectsComplexSubdivision3] = await Promise.all([
+        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsSubjectsComplexSearchVal, resultsSubjectsComplexSubdivision1, resultsSubjectsComplexSubdivision2, resultsSubjectsComplexSubdivision3] = await Promise.all([
             this.searchComplex(searchPayloadNames),
             this.searchComplex( searchPayloadNamesGeo),
             this.searchComplex(searchPayloadNamesSubdivision),
@@ -2626,8 +2628,6 @@ const utilsNetwork = {
             this.searchComplex(searchPayloadSubjectsSimpleSubdivision),
             this.searchComplex(searchPayloadSubjectsComplex),
             this.searchComplex(searchPayloadHierarchicalGeographic),
-            this.searchExact(exactPayloadName),
-            this.searchExact(exactPayloadSubject),
             this.searchComplex(searchPayloadSubjectsComplexSearchVal),
             this.searchComplex(searchPayloadSubjectsComplexSubdivision1),
             this.searchComplex(searchPayloadSubjectsComplexSubdivision2),
