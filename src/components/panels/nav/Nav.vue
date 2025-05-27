@@ -26,6 +26,10 @@
       <template v-if="showSelectionModal==true">
         <GenericSelectionModal @emitSelection="getImportSelection" @closeModal="closeImportSelection" :title="importTitle" :options="importOptions" :modalSettings="modalSettings" :multiple="true" v-model="showSelectionModal" />
       </template>
+      <template v-if="showPanelSizeModal==true">
+        <PanelSizeModal  v-model="showPanelSizeModal" />
+      </template>
+
 
     </Teleport>
 
@@ -47,6 +51,9 @@
   import AdHocModal from "@/components/panels/nav/AdHocModal.vue";
   import GenericSelectionModal from '../edit/modals/GenericSelectionModal.vue'
 
+  import PanelSizeModal from '../edit/modals/PanelSizeModal.vue'
+
+
   import TimeAgo from 'javascript-time-ago'
   import en from 'javascript-time-ago/locale/en'
   if (TimeAgo.getDefaultLocale() != 'en'){TimeAgo.addDefaultLocale(en)}
@@ -56,7 +63,7 @@
 
 
   export default {
-    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal },
+    components: { VueFileToolbarMenu, PostModal, ValidateModal,RecoveryModal, ItemInstanceSelectionModal, AdHocModal, GenericSelectionModal, PanelSizeModal },
     data() {
       return {
         allSelected: false,
@@ -81,12 +88,14 @@
       ...mapStores(useProfileStore,usePreferenceStore),
 
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent']),
-      ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode']),
+      ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode','panelSizePresets']),
       ...mapState(useConfigStore, ['layouts']),
-      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode']),
+      ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode','showPanelSizeModal']),
       ...mapWritableState(useProfileStore, ['showPostModal', 'showShelfListingModal', 'activeShelfListData','showValidateModal', 'showRecoveryModal', 'showAutoDeweyModal', 'showItemInstanceSelection', 'showAdHocModal', 'emptyComponents', 'activeProfilePosted','activeProfilePostedTimestamp', 'copyCatMode']),
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
+
+      
 
       panelTitleProperties(){
         return (this.panelDisplay.properties) ? 'done' : ''
@@ -312,10 +321,45 @@
 
               { is: 'separator'},
 
+              { text: 'Quick Views', click: () => {
+                this.showPanelSizeModal = true;
+               
+              } , icon: 'width_normal' },
+
+
 
             ] }
           )
         }
+
+        if (this.panelSizePresets.length>0 && this.$route.name == 'Edit'){
+
+          menu.push({ is: 'separator'})
+          for (let aPresetButton of this.panelSizePresets){            
+            menu.push(
+              {
+                // style: `color: ${aPresetButton.color};`, // this doesn't work
+                id:"panel-size-preset-button-" + aPresetButton.id,
+                class: "panel-size-preset-button",
+                click: () => {
+                  this.preferenceStore.setPanelData(aPresetButton)
+                },
+                icon: aPresetButton.icon
+              }
+            )
+            // this is how we gotta set the color I guess
+            this.$nextTick(()=>{              
+              document.querySelector(`#panel-size-preset-button-${aPresetButton.id} span`).style.color = aPresetButton.color
+            })
+          }
+          menu.push({ is: 'separator'})
+
+
+
+
+          
+        }
+
 
         if (!this.disable.includes('Preferences')){
           menu.push(
@@ -547,7 +591,6 @@
                   // only do this the first time
                   if (!this.activeProfilePosted){
                     document.getElementById('post-button').addEventListener('mouseenter',()=>{
-                      console.log(timeAgo.format(this.activeProfilePostedTimestamp) )
                       document.getElementById('post-button').dataset.tooltip = "Posted: " + timeAgo.format(this.activeProfilePostedTimestamp) + "."
                     })
                   }
@@ -622,16 +665,20 @@
           )
           }
 
-        menu.push(
+        // anything after this point will  be on the right of nav menu  
+        menu.push({ is: "spacer" })
 
+        
+
+        menu.push(
         {
             text: this.userName,
             // active: this.happy,
-            icon: "account_circle",
-            class: "login-menu",
+            icon: "account_circle",            
             click: () => { this.showLoginModal = true }
         }
         )
+
 
 
 
@@ -1033,7 +1080,7 @@
       }
     },
 
-    created() {}
+    mounted() {}
   }
 
 
@@ -1113,6 +1160,10 @@
       fill: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
     }
 
+    .panel-size-preset-button .icon{
+      font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-font-size')") !important;
+    }
+
     .current-profile {
       /* background: var(--bar-button-hover-bkg, #f1f3f4); */
 
@@ -1120,11 +1171,8 @@
 
       margin-left: 100px;
     }
-    .login-menu{
 
-      position: absolute !important;
-      right: 0;
-    }
+    
     .record-posted .icon{
       color: green !important;
     }

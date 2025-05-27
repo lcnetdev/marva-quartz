@@ -5,6 +5,10 @@ import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyage
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
 import utilsProfile from '../lib/utils_profile'
 import utilsParse from '../lib/utils_parse'
+import short from 'short-uuid'
+
+const translator = short();
+const decimalTranslator = short("0123456789");
 
 export const usePreferenceStore = defineStore('preference', {
   state: () => ({
@@ -17,6 +21,9 @@ export const usePreferenceStore = defineStore('preference', {
 
     showDebugModal: false,
     debugModalData: {},
+
+    showPanelSizeModal: false,
+    panelSizePresets: [],
 
     showScriptshifterConfigModal: false,
     scriptShifterOptions: {},
@@ -55,6 +62,7 @@ export const usePreferenceStore = defineStore('preference', {
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},
+    
 
     copyMode: false,
 
@@ -544,6 +552,18 @@ export const usePreferenceStore = defineStore('preference', {
       type: 'color',
       group: 'Edit Panel',
       range: null
+    },
+
+      '--o-edit-main-splitpane-edit-panel-size-presets' : {
+        desc: 'Panel Size Presets',
+        descShort: 'Panel Size Presets',
+        value: [],
+        step: null,
+        type: 'array',
+        unit: null,
+        group: 'Edit Panel',
+        hide: true,
+        range: null
     },
 
 
@@ -1423,6 +1443,7 @@ export const usePreferenceStore = defineStore('preference', {
       //set copyMode from preferences
       this.copyMode = this.styleDefault['--c-general-copy-mode'].value
 
+      this.panelSizePresets = this.styleDefault['--o-edit-main-splitpane-edit-panel-size-presets'].value
         // fetch(this.configStore.returnUrls.scriptshifter + 'languages', {
         //   method: 'GET'
         // })
@@ -1813,6 +1834,41 @@ export const usePreferenceStore = defineStore('preference', {
 
 
     },
+
+
+
+    getPanelData(){
+      let data = {}
+      data.view = JSON.parse(JSON.stringify(this.panelDisplay))
+      data.percents = {}
+      data.default = false
+      data.icon = null
+      data.color = null
+      data.id = short.generate()
+      let panels = ['edit-main-splitpane-opac','edit-main-splitpane-marc','edit-main-splitpane-xml','edit-main-splitpane-edit-combined','edit-main-splitpane-edit-work','edit-main-splitpane-edit-instance','edit-main-splitpane-properties']
+      for (let p of panels){
+        if (document.querySelector(`.${p}`)===null){
+          data.percents[p] = null
+        }else{          
+          data.percents[p] = document.querySelector(`.${p}`).style.width
+        }
+      }      
+      return data
+    },
+
+    setPanelData(data){
+
+      for (let key of Object.keys(data.view)){
+        this.panelDisplay[key] = data.view[key]
+      }
+      for (let key of Object.keys(data.percents)){
+        if (document.querySelector(`.${key}`)!==null){
+         document.querySelector(`.${key}`).style.width  =  data.percents[key];
+        }        
+      }
+      
+
+    }
 
 
 

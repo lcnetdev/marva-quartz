@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2025-05-27
+### Added
+- "Quick View" feature added to Marva
+
 
 ## [1.3.0] - 2025-05-21
 ### Added
