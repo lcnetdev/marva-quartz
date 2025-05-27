@@ -19,13 +19,13 @@
 
         <template v-if="panelDisplay.dualEdit">
           <pane
-            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar'), 'edit-layout-main':  createLayoutMode}"
+            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-work': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar'), 'edit-layout-main':  createLayoutMode}"
             :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
             <EditPanel :instanceMode="false" :dualEdit="true" />
           </pane>
 
           <pane
-            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar'), 'edit-layout-main':  createLayoutMode}"
+            :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-instance': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar'), 'edit-layout-main':  createLayoutMode}"
             :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
             <EditPanel :instanceMode="true" :dualEdit="true"/>
           </pane>
@@ -37,7 +37,7 @@
         <template v-else>
 
             <pane
-              :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar'), 'edit-layout-main':  createLayoutMode}"
+              :class="{'edit-main-splitpane-edit': true, 'edit-main-splitpane-edit-combined': true, 'edit-main-splitpane-edit-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-edit-no-scrollbar'), 'edit-layout-main':  createLayoutMode}"
               :size="preferenceStore.returnValue('--n-edit-main-splitpane-edit-width')">
 
               <EditPanel :key="test" :instanceMode="false" :dualEdit="false"/>
@@ -137,7 +137,7 @@
       ...mapState(useProfileStore, ['profilesLoaded','activeProfileSaved']),
 
 
-      ...mapWritableState(usePreferenceStore, ['showDebugModal', 'createLayoutMode']),
+      ...mapWritableState(usePreferenceStore, ['showDebugModal', 'createLayoutMode','panelSizePresets']),
 
       ...mapWritableState(useProfileStore, ['literalLangGuid','literalLangShow','activeProfile']),
 
@@ -195,8 +195,18 @@
         }
       }
 
+      // check if they have quick view presets and if one of them has a default, set it if so
 
-
+      this.$nextTick(()=>{
+        for (const preset of this.panelSizePresets){
+          if (preset.default && preset.default == true){
+            // this.preferenceStore.setPanelSizePreset(preset.name)
+            // break
+            console.log("Setting default panel size preset", preset)
+            this.preferenceStore.setPanelData(preset)
+          }
+        }
+      })
 
 
 
