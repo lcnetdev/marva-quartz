@@ -4597,9 +4597,9 @@ export const useProfileStore = defineStore('profile', {
           this.activeProfile.rt[pt.parentId].pt[pt.id].deleted = true
         }else{
           for (let key in this.activeProfile.rt[pt.parentId].pt[pt.id].userValue){
-            if (!key.startsWith('@')){
-               delete this.activeProfile.rt[pt.parentId].pt[pt.id].userValue[key]
-                }
+              if (!key.startsWith('@')){
+                delete this.activeProfile.rt[pt.parentId].pt[pt.id].userValue[key]
+              }
             }
         }
 
