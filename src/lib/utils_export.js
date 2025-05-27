@@ -142,7 +142,6 @@ const utilsExport = {
   * @return {boolean}
   */
 	createBnode: function(userValue,property){
-		console
 		// some special cases here
 		if (property == 'http://id.loc.gov/ontologies/bibframe/agent'){
 			// if it is an agent create the Agent bnode and just add the type to it as rdf:type
