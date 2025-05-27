@@ -1861,11 +1861,17 @@ export const usePreferenceStore = defineStore('preference', {
       for (let key of Object.keys(data.view)){
         this.panelDisplay[key] = data.view[key]
       }
-      for (let key of Object.keys(data.percents)){
-        if (document.querySelector(`.${key}`)!==null){
-         document.querySelector(`.${key}`).style.width  =  data.percents[key];
-        }        
-      }
+      window.setTimeout(() => {
+
+        for (let key of Object.keys(data.percents)){
+          if (document.querySelector(`.${key}`)!==null){
+          document.querySelector(`.${key}`).style.width  =  data.percents[key];
+          document.querySelector(`.${key}`).style.width  =  data.percents[key];
+          }        
+        }
+        
+
+      },50);
       
 
     }
