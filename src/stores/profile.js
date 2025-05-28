@@ -5927,7 +5927,6 @@ export const useProfileStore = defineStore('profile', {
      *
      */
     addFromComponentLibrary(id){
-        console.info("\n\nadd component: ", id)
       let defaultLibrary = null
       if (usePreferenceStore().returnValue('--b-edit-main-splitpane-properties-show-defaults')){
         defaultLibrary = defaultComponents.DefaultComponentLibrary.profiles
@@ -5939,7 +5938,6 @@ export const useProfileStore = defineStore('profile', {
 
             // we are adding a sigle one here so groups are individual (group of 1) in this case
             console.log("Adding thisone",group)
-            console.info("Adding this one: ",group)
             let component = JSON.parse(JSON.stringify(group.structure))
 
             // For item's the parent ID won't match anything in the RTs because we've stripped it down
@@ -6048,7 +6046,6 @@ export const useProfileStore = defineStore('profile', {
 
 
               }else{
-                console.info("active: ", this.activeProfile)
                 // loop till we find the first one
                 for (let pt in this.activeProfile.rt[component.parentId].pt){
                   if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
@@ -6062,8 +6059,6 @@ export const useProfileStore = defineStore('profile', {
 
               if (ptObjFound != false){
                 console.log("Found orignal here:",ptObjFound)
-                console.info("Found orignal here:",ptObjFound)
-
                 if (ptObjFound.hashCode == component.hashCode){
 
                   // if the component we found in the system already has data in it then we are going to add a new component
@@ -6074,10 +6069,8 @@ export const useProfileStore = defineStore('profile', {
 
                   // we also need to create new @guid valuse inside the userValue in case they add multiple versions of the same
                   component = this.componentLibraryUpdateUserValueGuid(component)
-                  console.info("component: ", component)
 
                   if (Object.keys(ptObjFound.userValue).length <= 1 || ptObjFound.id.includes("id_loc_gov_ontologies_bibframe_adminmetadata")){
-                    console.info("admin?")
                     // if this is 1 or 0 then the userdata is empty, with just a @root property
                     // there is no user data added yet
                     // we can just overwrite whats there with our component
@@ -6086,17 +6079,14 @@ export const useProfileStore = defineStore('profile', {
 
                     // Admin metadata should overwrite the existing values, otherwise we create a new Admin field, which we shouldn't do
                     if (!ptObjFound.id.includes("id_loc_gov_ontologies_bibframe_adminmetadata")){
-                      console.info("ptObjFound.id: ", ptObjFound.id)
                       for (let pt in this.activeProfile.rt[component.parentId].pt){
                         if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
-                          console.info("match: ", JSON.parse(JSON.stringify(component)))
                           this.activeProfile.rt[component.parentId].pt[pt] = JSON.parse(JSON.stringify(component))
                           this.dataChanged()
                           return [component.parentId,pt]
                         }
                       }
                     } else {
-                      console.info("this is the one?")
                       // Need an exception for Admin to ensure we're not making changes to a different admin field
                       for (let pt in this.activeProfile.rt[component.parentId].pt){
                         if (this.activeProfile.rt[component.parentId].pt[pt].id == ptObjFound.id){
@@ -6110,7 +6100,6 @@ export const useProfileStore = defineStore('profile', {
 
 
                   }else{
-                    console.info("not admin")
                     // we can't replace the one that is there, already has data, so construct a new place for it
 
                     // first find out how many of these components there are
@@ -6120,20 +6109,11 @@ export const useProfileStore = defineStore('profile', {
                         total_components++
                       }
                     }
-
-                    console.info("total_components: ", total_components)
-
                     let newId = component.id + "_" + (total_components+1)
-
-                    console.info("newId: ", newId)
-
                     let oldId = JSON.parse(JSON.stringify(component.id))
 
                     // rename it
                     component.id = newId
-
-                    console.info("adding to ", this.activeProfile.rt[component.parentId].pt)
-
                     // add it to the pt
                     this.activeProfile.rt[component.parentId].pt[newId] = JSON.parse(JSON.stringify(component))
                     // add it to the order

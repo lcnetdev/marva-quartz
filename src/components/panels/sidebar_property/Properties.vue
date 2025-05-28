@@ -112,10 +112,8 @@
 
 
       },
-      
+
       makeDefaultComponent: function(obj){
-          console.info("make", obj, "default")
-          
           //set default, obj.default = !obj.default
           this.profileStore.makeComponentDefault(obj[0].id)
       },

@@ -216,9 +216,7 @@
             let target = groups.groups[group]
             if (target[0].useDefault){
               for (let component of target){
-                //  console.info("component: ", component)
                 let r = this.profileStore.addFromComponentLibrary(component.id)
-                //  console.info("r: ", r)
               }
             }
           }
