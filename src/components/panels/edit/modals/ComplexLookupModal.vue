@@ -189,9 +189,7 @@
           fieldGuid = targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["@guid"]
         } catch(err){
           fieldGuid = short.generate()
-          console.info("err: ", err)
         }
-        console.info("fieldGuid: ", fieldGuid)
         this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
       },
       checkUsable: function(data){
