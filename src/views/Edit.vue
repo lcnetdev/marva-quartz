@@ -134,7 +134,7 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(usePreferenceStore,useProfileStore),
       ...mapState(usePreferenceStore, ['styleDefault','panelDisplay', 'createLayoutMode']),
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfileSaved']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfileSaved', 'returnComponentLibrary']),
 
 
       ...mapWritableState(usePreferenceStore, ['showDebugModal', 'createLayoutMode','panelSizePresets']),
@@ -207,6 +207,24 @@
           }
         }
       })
+
+
+      // if there are default component, switch'em on. This might not be the right place
+      this.$nextTick(()=>{
+        for (let groups of this.returnComponentLibrary){
+          for (let group of groups.groupsOrder){
+            let target = groups.groups[group]
+            if (target[0].useDefault){
+              for (let component of target){
+                //  console.info("component: ", component)
+                let r = this.profileStore.addFromComponentLibrary(component.id)
+                //  console.info("r: ", r)
+              }
+            }
+          }
+        }
+    })
+
 
 
 

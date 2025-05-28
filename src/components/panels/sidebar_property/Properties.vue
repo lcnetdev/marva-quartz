@@ -112,8 +112,13 @@
 
 
       },
-
-
+      
+      makeDefaultComponent: function(obj){
+          console.info("make", obj, "default")
+          
+          //set default, obj.default = !obj.default
+          this.profileStore.makeComponentDefault(obj[0].id)
+      },
 
       addComponentLibrary(event,clId,supressPropmpt){
         if (event){
@@ -156,17 +161,11 @@
         let sentFirstComponentOfGroup = false
         let supressPrompt = false
         for (let groups of this.returnComponentLibrary){
-
-
           if (groups.groups[group]){
             for (let component of groups.groups[group]){
-
-
               let r = this.addComponentLibrary(null,component.id,supressPrompt)
               // if the first one returns canceled then stop, otherwise supress the prompt from here on
               if (r == 'canceled'){ return false}else{supressPrompt=true}
-
-
             }
           }
 
@@ -680,7 +679,10 @@
                 </template>
 
                 <template v-if="clProfile.groups[group].length>1">
-                  <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
+                  <span>
+                      <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
+                      <input class="default-component" type="checkbox" @click="makeDefaultComponent(clProfile.groups[group])" :checked="clProfile.groups[group][0].useDefault" />
+                  </span>
                 </template>
               </div>
             </template>
