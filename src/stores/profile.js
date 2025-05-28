@@ -6202,6 +6202,7 @@ export const useProfileStore = defineStore('profile', {
     * Set or unset the default nature of the component
     */
     makeComponentDefault(id){
+      console.info("makeComponentDefault: ", id)
         for (let key in this.componentLibrary.profiles){
             for (let group of this.componentLibrary.profiles[key].groups){
               if (group.id == id){

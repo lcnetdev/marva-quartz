@@ -114,8 +114,13 @@
       },
 
       makeDefaultComponent: function(obj){
-          //set default, obj.default = !obj.default
+        //set default, obj.default = !obj.default
+        console.info("makeDefaultComponent: ", obj)
+        if (Array.isArray(obj)){
           this.profileStore.makeComponentDefault(obj[0].id)
+        } else {
+          this.profileStore.makeComponentDefault(obj.id)
+        }
       },
 
       addComponentLibrary(event,clId,supressPropmpt){
@@ -640,6 +645,7 @@
 
                           <button class="material-icons simptip-position-right" data-tooltip="DELETE" @click="delComponentLibrary($event,component.id)">delete_forever</button>
                           <button class="material-icons simptip-position-right" data-tooltip="RENAME" @click="renameComponentLibrary($event,component.id,component.label)">new_label</button>
+                          <button v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" :class="['material-icons', 'simptip-position-right', {'default-component': component.useDefault}]" data-tooltip="DEFAULT" @click="makeDefaultComponent(component)">add_box</button>
                           <select @change="configComponentLibraryAssignGroup($event,component.id)">
                             <option value="" :selected="(component.groupId===null)">No Group</option>
                             <option value="A" :selected="(component.groupId==='A')">Group A</option>
@@ -817,9 +823,7 @@
 }
 .default-component {
   margin-left: 5px;
-}
-.default-component .hide-default-box{
-  visibility: hidden;
+  background-color: rgb(6, 204, 6);
 }
 
 .sidebar-property-li-cl{
