@@ -952,6 +952,7 @@ import { useProfileStore } from '@/stores/profile'
 import { useConfigStore } from '@/stores/config'
 import { mapStores, mapState, mapWritableState } from 'pinia'
 import { VueFinalModal } from 'vue-final-modal'
+import short from 'short-uuid'
 
 import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
 
@@ -1120,8 +1121,14 @@ methods: {
       { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
       { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/classificationPortion" }
     ]
-
-    this.setValueLiteral(targetComponent['@guid'], null, propertyPath, classNum, null, null)
+    
+    let fieldGuid = null
+    try {
+      fieldGuid = targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["@guid"]
+    } catch(err){
+      fieldGuid = short.generate()
+    }
+    this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
   },
   checkUsable: function(data){
     let notes = data.extra.notes || []
