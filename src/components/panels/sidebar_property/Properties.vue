@@ -679,7 +679,9 @@
                 <template v-if="clProfile.groups[group].length>1">
                   <span>
                       <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
-                      <input class="default-component" type="checkbox" @click="makeDefaultComponent(clProfile.groups[group])" :checked="clProfile.groups[group][0].useDefault" />
+                      <span data-tooltip="Set Default" class="simptip-position-left">
+                        <input v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="default-component" type="checkbox" @click="makeDefaultComponent(clProfile.groups[group])" :checked="clProfile.groups[group][0].useDefault" />
+                      </span>
                   </span>
                 </template>
               </div>
@@ -777,7 +779,6 @@
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-properties-font-size')");
 }
 
-
 .container-type-icon{
   color: #ffffff;
   width: inherit;
@@ -805,7 +806,7 @@
   height: 1px;
 }
 .component-librart-group-button{
-  width: 100%;
+  width: calc(100% - 25px);
   height: 16px;
   font-size: 12px;
 
@@ -813,6 +814,12 @@
 }
 .component-librart-group-button span{
   font-size: 12px;
+}
+.default-component {
+  margin-left: 5px;
+}
+.default-component .hide-default-box{
+  visibility: hidden;
 }
 
 .sidebar-property-li-cl{

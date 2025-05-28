@@ -62,7 +62,7 @@ export const usePreferenceStore = defineStore('preference', {
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},
-    
+
 
     copyMode: false,
 
@@ -247,6 +247,15 @@ export const usePreferenceStore = defineStore('preference', {
         value: {},
         type: 'object',
         group: 'preferenes',
+      },
+      '--b-edit-main-splitpane-properties-component-library-defaults' : {
+        desc: 'Show default component default status.',
+        descShort: 'Component Library Defaults',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Property',
+        range: [true,false]
       },
 
 
@@ -1849,10 +1858,10 @@ export const usePreferenceStore = defineStore('preference', {
       for (let p of panels){
         if (document.querySelector(`.${p}`)===null){
           data.percents[p] = null
-        }else{          
+        }else{
           data.percents[p] = document.querySelector(`.${p}`).style.width
         }
-      }      
+      }
       return data
     },
 
@@ -1867,12 +1876,12 @@ export const usePreferenceStore = defineStore('preference', {
           if (document.querySelector(`.${key}`)!==null){
           document.querySelector(`.${key}`).style.width  =  data.percents[key];
           document.querySelector(`.${key}`).style.width  =  data.percents[key];
-          }        
+          }
         }
-        
+
 
       },50);
-      
+
 
     }
 
