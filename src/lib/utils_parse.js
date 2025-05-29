@@ -2039,6 +2039,8 @@ const utilsParse = {
       }
     }
 
+    profile = this.extractISBN(profile)
+
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
 
     return profile
@@ -2047,6 +2049,35 @@ const utilsParse = {
 
 
   },
+
+
+  extractISBN: function(profile){
+    for (let rt of profile.rtOrder){
+      for (let pt of profile.rt[rt].ptOrder){
+        let ptObj = profile.rt[rt].pt[pt]
+        if (ptObj.propertyURI == 'http://id.loc.gov/ontologies/bibframe/identifiedBy'){
+          if (ptObj.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'] && ptObj.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]){
+            let bnode = ptObj.userValue['http://id.loc.gov/ontologies/bibframe/identifiedBy'][0]
+            if (bnode['@type'] && bnode['@type'] == 'http://id.loc.gov/ontologies/bibframe/Isbn'){
+              if (bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'] && bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]){
+                if (bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value']){
+                  if (!profile.linkedData){
+                    profile.linkedData = {}
+                  }
+                  if (!profile.linkedData.isbn){
+                    profile.linkedData.isbn = []
+                  }
+                  profile.linkedData.isbn.push(bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'].trim())
+                }
+              }            
+            }
+          }
+        }
+      }
+    }
+    return profile
+  },
+
 
   /**
    * Sets up indicators for paired literals in a profile to manage UI presentation.

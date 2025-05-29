@@ -72,7 +72,8 @@ export const usePreferenceStore = defineStore('preference', {
       dualEdit: false,
       opac: true,
       xml:false,
-      marc: false
+      marc: false,
+      linkedData: false,
 
 
     },
@@ -1861,6 +1862,14 @@ export const usePreferenceStore = defineStore('preference', {
       for (let key of Object.keys(data.view)){
         this.panelDisplay[key] = data.view[key]
       }
+
+      // anything not stored turn off
+      for (let key of Object.keys(this.panelDisplay)){
+        if (!data.view[key]){
+          this.panelDisplay[key] = false
+        }
+      }
+
       window.setTimeout(() => {
 
         for (let key of Object.keys(data.percents)){

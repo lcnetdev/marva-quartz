@@ -112,6 +112,10 @@
       panelTitleMARCEdit(){
         return (this.panelDisplay.marc) ? 'done' : ''
       },
+      panelTitleLinkedData(){
+        return (this.panelDisplay.linkedData) ? 'done' : ''
+      },
+      
 
       userName(){
         if (this.preferenceStore.catInitals && this.preferenceStore.catCode){
@@ -316,6 +320,7 @@
 
               { text: 'Preview XML', click: () => this.preferenceStore.togglePanel('xml'), icon: this.panelTitleXMLEdit, class:"nav-view-xml" },
               { text: 'Preview MARC', click: () => this.preferenceStore.togglePanel('marc'), icon: this.panelTitleMARCEdit },
+              { text: 'Linked Data', click: () => this.preferenceStore.togglePanel('linkedData'), icon: this.panelTitleLinkedData },
 
 
 

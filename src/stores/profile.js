@@ -124,6 +124,7 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+    linkedData: {},
 
     componentLibrary : {
       profiles:{
@@ -6518,9 +6519,188 @@ export const useProfileStore = defineStore('profile', {
 
     isTestEnv(){
       return window.location.href.includes("localhost:5555")
-    }
+    },
 
 
+    async buildLinkedData(){
+
+
+      let linkedData = {
+        subtitle: [],
+        noteContent: [],
+        noteTOC: [],
+        thumbnail: [],
+        lcsh: [],
+      }
+
+      for (let isbn of this.activeProfile.linkedData.isbn){
+       
+        let baseData = await utilsNetwork.linkedDataBaseRelated(isbn)
+        console.log("baseData",baseData)      
+
+        let oclcMarcData = utilsNetwork.linkedDataExtractOclcMarc(baseData.results)
+
+        linkedData.subtitle = linkedData.subtitle.concat(oclcMarcData.filter((v) => (v.dataType == 'subtitle')));
+        linkedData.noteContent = linkedData.noteContent.concat(oclcMarcData.filter((v) => (v.dataType == 'description')));
+        linkedData.noteTOC = linkedData.noteTOC.concat(oclcMarcData.filter((v) => (v.dataType == 'toc')));
+        linkedData.thumbnail = linkedData.thumbnail.concat(oclcMarcData.filter((v) => (v.dataType == 'thumbnail')));
+        linkedData.lcsh = linkedData.lcsh.concat(oclcMarcData.filter((v) => (v.dataType == '6xx')));
+
+        console.log("linkedDatalinkedDatalinkedDatalinkedData,linkedData",oclcMarcData.filter((v) => (v.dataType == 'subtitle')))
+
+        console.log("oclcMarcData",oclcMarcData)
+        if (baseData.results.isbns && baseData.results.isbns.length > 0){          
+          let googleBookData = await utilsNetwork.linkedDataAllGoogleBooksByIsbns(baseData.results.isbns)
+          googleBookData = utilsNetwork.linkedDataExtractGoogleBooks(googleBookData)
+          console.log("googleBookData",googleBookData)
+
+          googleBookData.filter((v) => (v.dataType == 'toc'))
+
+          linkedData.subtitle = linkedData.subtitle.concat(googleBookData.filter((v) => (v.dataType == 'subtitle')));
+          linkedData.noteContent = linkedData.noteContent.concat(googleBookData.filter((v) => (v.dataType == 'description')));
+          linkedData.noteTOC = linkedData.noteTOC.concat(googleBookData.filter((v) => (v.dataType == 'toc')));
+          linkedData.thumbnail = linkedData.thumbnail.concat(googleBookData.filter((v) => (v.dataType == 'thumbnail')));
+          linkedData.lcsh = linkedData.lcsh.concat(googleBookData.filter((v) => (v.dataType == 'subject')));
+
+
+        }
+
+        // if we got a hit on one of the isbns we can stop
+        if (baseData.results.records.length > 0){
+          break
+        }
+
+
+      }
+
+      for (let key in linkedData) {
+        if (Array.isArray(linkedData[key])) {
+          const uniqueValues = new Set();
+          linkedData[key] = linkedData[key].filter(item => {
+        if (item && typeof item.value !== 'undefined') {
+          if (!uniqueValues.has(item.value)) {
+            uniqueValues.add(item.value);
+            return true;
+          }
+          return false;
+        }
+        // Keep items that don't have a 'value' property or are not objects
+        return true;
+          });
+        }
+      }
+
+
+      console.log("linkedData",linkedData)
+      this.linkedData = linkedData
+
+    },
+
+
+    addLinkedData(toAdd){
+
+      if (toAdd.dataType == 'subtitle'){ 
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/subtitle"] 
+        toAdd.addNew = false
+        toAdd.resourceType = "instance"
+      }
+      if (toAdd.dataType == 'description' || toAdd.dataType == 'toc' || toAdd.dataType == 'note'){ 
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/summary", "http://www.w3.org/2000/01/rdf-schema#label"] 
+        toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/Summary"
+        toAdd.addNew = true
+        toAdd.resourceType = "work"
+      }
+
+      for (let rt of Object.keys(this.activeProfile.rt)){
+        if (rt.toLowerCase().includes(toAdd.resourceType)){
+          for (let pt of Object.keys(this.activeProfile.rt[rt].pt)){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == toAdd.PropertyPath[0]){
+
+              if (toAdd.addNew){
+
+                // find the matching property to copy from
+                let copyFrom = null
+                for (let ptLookingFor of Object.keys(this.activeProfile.rt[rt].pt)){
+                  if (this.activeProfile.rt[rt].pt[ptLookingFor].propertyURI == toAdd.PropertyPath[0]){
+                    copyFrom = this.activeProfile.rt[rt].pt[ptLookingFor]
+                    copyFrom = JSON.parse(JSON.stringify(copyFrom))
+                    copyFrom['@guid'] = short.generate()
+                    copyFrom.id = copyFrom.id + "_" + short.generate()
+                    copyFrom.userValue = {'@root': toAdd.PropertyPath[0]}
+
+                    copyFrom.userValue[toAdd.PropertyPath[0]] = [{
+                      '@guid': short.generate(),
+                      '@type': toAdd.typeOf,
+                      [toAdd.PropertyPath[1]]: [{
+                        '@guid': short.generate(),
+                        [toAdd.PropertyPath[1]]: toAdd.value
+                      }]
+                    }]
+
+                    let newIndex = this.activeProfile.rt[rt].ptOrder.indexOf(this.activeProfile.rt[rt].pt[ptLookingFor].id)
+                    if (newIndex){
+                        newIndex++
+                        this.activeProfile.rt[rt].ptOrder.splice(newIndex, 0, copyFrom.id);
+                        this.activeProfile.rt[rt].pt[copyFrom.id] = copyFrom;
+                        this.dataChanged()
+                        this.activeComponent = this.activeProfile.rt[rt].pt[copyFrom.id]
+                    }
+                    break
+                  }
+                }
+
+                console.log("Found copyFrom",copyFrom)
+
+
+
+              }else{
+
+
+                
+                // does it already have the property
+                if (pt.userValue 
+                  && pt.userValue[toAdd.PropertyPath[0]] 
+                  && pt.userValue[toAdd.PropertyPath[0]][0]
+                  && !pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]]                 
+                  ){
+                    console.log("it does not has the property",pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]])
+                    // doesn't have the prperty so create it wholelly
+
+                    let uv = {
+                      '@guid': short.generate()
+                    }
+                    uv[toAdd.PropertyPath[1]] = toAdd.value
+                    pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]] = [uv]
+
+                  }else if (pt.userValue 
+                  && pt.userValue[toAdd.PropertyPath[0]] 
+                  && pt.userValue[toAdd.PropertyPath[0]][0]
+                  && pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]]                 
+                  ){
+
+                    let uv = {
+                      '@guid': short.generate(),
+                      'http://id.loc.gov/ontologies/bibframe/subtitle': toAdd.value
+                    }
+                    pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]].push(uv)
+                  }
+                  this.dataChanged()
+              }
+              break
+            }
+          }
+        }
+        // for (let pt in state.activeProfile.rt[rt].pt){
+        //   if (state.activeProfile.rt[rt].pt[pt]['@guid'] === guid){
+        //     return state.activeProfile.rt[rt].pt[pt]
+        //   }
+        // }
+      }
+
+
+
+    },
 
 
 

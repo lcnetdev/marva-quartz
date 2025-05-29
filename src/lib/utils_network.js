@@ -3398,9 +3398,242 @@ const utilsNetwork = {
       }
 
 
+    },
+
+    async linkedDataBaseRelated(isbn){
+      let returnUrls = useConfigStore().returnUrls
+      let r = await fetch(returnUrls.util + 'worldcat/relatedmeta/:' + isbn)
+      let data = await r.json()
+      console.log("linkedDataBaseRelated data:",data)
+      return data
+    },
+
+
+    async linkedDataAllGoogleBooksByIsbns(isbns){
+
+      let promises = isbns.map(isbn => {
+        let url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
+        return fetch(url).then(response => response.json());
+      });
+
+      try {
+        let results = await Promise.all(promises);
+        return results;
+      } catch (error) {
+        console.error("Error fetching from Google Books API:", error);
+        return [];
+      }
+
+    },
+
+    linkedDataExtractGoogleBooks(data) {
+      const extractedData = [];
+
+      if (!Array.isArray(data)) {
+          console.warn("Input is not an array.");
+          return extractedData;
+      }
+
+      data.forEach(topLevelEntry => {
+          // Check if topLevelEntry is an object and has an 'items' array
+          if (topLevelEntry && typeof topLevelEntry === 'object' && Array.isArray(topLevelEntry.items)) {
+              topLevelEntry.items.forEach(item => {
+                  // Check if item is an object and has an 'id'
+                  if (item && typeof item === 'object' && item.id) {
+                      const itemId = item.id;
+
+                      // Check for volumeInfo
+                      if (item.volumeInfo && typeof item.volumeInfo === 'object') {
+                          const volumeInfo = item.volumeInfo;
+
+                          // Extract description
+                          if (typeof volumeInfo.description === 'string') {
+                              const newDescription = {
+                                  id: itemId,
+                                  type: 'googleBooks',
+                                  dataType: 'description',
+                                  value: volumeInfo.description
+                              };
+                              if (!extractedData.some(entry =>
+                                  entry.type === newDescription.type &&
+                                  entry.value === newDescription.value
+                              )) {
+                                  extractedData.push(newDescription);
+                              }
+                          }
+
+                          // Extract subtitle
+                          if (typeof volumeInfo.subtitle === 'string') {
+                              const newSubtitle = {
+                                  id: itemId,
+                                  type: 'googleBooks',
+                                  dataType: 'subtitle',
+                                  value: volumeInfo.subtitle
+                              };
+                              if (!extractedData.some(entry =>
+                                  entry.type === newSubtitle.type &&
+                                  entry.value === newSubtitle.value
+                              )) {
+                                  extractedData.push(newSubtitle);
+                              }
+                          }
+
+                          // Extract thumbnail
+                          if (volumeInfo.imageLinks && typeof volumeInfo.imageLinks === 'object') {
+                              let thumbnailUrl = null;
+                              if (typeof volumeInfo.imageLinks.thumbnail === 'string') {
+                                  thumbnailUrl = volumeInfo.imageLinks.thumbnail;
+                              } else if (typeof volumeInfo.imageLinks.smallThumbnail === 'string') {
+                                  // Fallback to smallThumbnail if thumbnail is not available
+                                  thumbnailUrl = volumeInfo.imageLinks.smallThumbnail;
+                              }
+
+                              if (thumbnailUrl !== null) {
+                                  const newThumbnail = {
+                                      id: itemId,
+                                      type: 'googleBooks',
+                                      dataType: 'thumbnail', // Still categorized as 'thumbnail'
+                                      value: thumbnailUrl
+                                  };
+                                  if (!extractedData.some(entry =>
+                                      entry.type === newThumbnail.type &&
+                                      entry.value === newThumbnail.value
+                                  )) {
+                                      extractedData.push(newThumbnail);
+                                  }
+                              }
+                          }
+                      }
+                  } else {
+                      // console.warn("Item is malformed or missing ID:", item);
+                  }
+              });
+          } else {
+              // console.warn("Top-level entry is malformed or missing 'items' array:", topLevelEntry);
+          }
+      });
+
+      return extractedData;
+    },
+
+    linkedDataExtractOclcMarc(dataInput) {
+      const extractedResults = [];
+
+      // Check if the overall dataInput is an object and has the 'records' key
+      if (!dataInput || typeof dataInput !== 'object' || !Array.isArray(dataInput.records)) {
+          // console.warn("Input data is not in the expected format or 'records' array is missing.");
+          return extractedResults;
+      }
+
+      dataInput.records.forEach(record => {
+          // Ensure record is an object
+          if (!record || typeof record !== 'object') {
+              // console.warn("Skipping invalid record (not an object).");
+              return; // Skip this record
+          }
+
+          const oclcNumber = record.oclcNumber;
+          // Ensure oclcNumber is present
+          if (!oclcNumber) {
+              // console.warn("Skipping record due to missing oclcNumber.");
+              return; // Skip this record
+          }
+
+          const marcJSON = record.marcJSON;
+          // Ensure marcJSON is an object
+          if (!marcJSON || typeof marcJSON !== 'object') {
+              // console.warn(`Skipping record ${oclcNumber} due to missing or invalid marcJSON.`);
+              return; // Skip this record
+          }
+
+          const marcFields = marcJSON.fields;
+          // Ensure marcFields is an array
+          if (!Array.isArray(marcFields)) {
+              // console.warn(`Skipping record ${oclcNumber} due to missing or invalid marcJSON.fields.`);
+              return; // Skip this record
+          }
+
+          marcFields.forEach(fieldObj => {
+              // Ensure fieldObj is a non-empty object
+              if (!fieldObj || typeof fieldObj !== 'object' || Object.keys(fieldObj).length === 0) {
+                  // console.warn(`Skipping invalid field object in record ${oclcNumber}.`);
+                  return; // Skip this field object
+              }
+
+              const marcTag = Object.keys(fieldObj)[0];
+              const fieldData = fieldObj[marcTag];
+
+              // Process only if fieldData is an object (which variable fields should be)
+              // and has a subfields array. This check is crucial.
+              if (typeof fieldData !== 'object' || fieldData === null || !Array.isArray(fieldData.subfields)) {
+                  // This will correctly skip control fields (like 001 which have string values, not objects with subfields)
+                  // and variable fields that might be malformed without a subfields array.
+                  return; // Skip this field
+              }
+
+              const subfieldsList = fieldData.subfields;
+
+              // Rule 1: 505 subfield a, tag it toc
+              if (marcTag === "505") {
+                  subfieldsList.forEach(sfDict => {
+                      if (sfDict && typeof sfDict === 'object' && sfDict.hasOwnProperty('a')) {
+                          extractedResults.push({
+                              id: oclcNumber,
+                              type: "oclc",
+                              dataType: "toc",
+                              value: sfDict.a
+                          });
+                      }
+                  });
+              }
+              // Rule 2: 520 subfield a, tag it description
+              else if (marcTag === "520") {
+                  subfieldsList.forEach(sfDict => {
+                      if (sfDict && typeof sfDict === 'object' && sfDict.hasOwnProperty('a')) {
+                          extractedResults.push({
+                              id: oclcNumber,
+                              type: "oclc",
+                              dataType: "description",
+                              value: sfDict.a
+                          });
+                      }
+                  });
+              }
+              // Rule 3: 245 subfield b, tag it subtitle
+              else if (marcTag === "245") {
+                  subfieldsList.forEach(sfDict => {
+                      if (sfDict && typeof sfDict === 'object' && sfDict.hasOwnProperty('b')) {
+                          extractedResults.push({
+                              id: oclcNumber,
+                              type: "oclc",
+                              dataType: "subtitle",
+                              value: sfDict.b
+                          });
+                      }
+                  });
+              }
+              // Rule 4: Any 6XX field when indicator 2 is '0'
+              // Keep all subfields for this 6XX field occurrence together.
+              else if (marcTag.length === 3 && marcTag.startsWith('6') && !isNaN(parseInt(marcTag.substring(1)))) {
+                  const indicator2 = fieldData.ind2;
+                  if (indicator2 === "0") { // Indicator 2 must be the string "0"
+                      // Only add an entry if there are actual subfields in this 6XX field.
+                      if (subfieldsList.length > 0) {
+                          extractedResults.push({
+                              id: oclcNumber,
+                              type: "oclc",
+                              dataType: "6xx",
+                              original_tag: marcTag,
+                              value: subfieldsList // Store the array of subfield objects
+                          });
+                      }
+                  }
+              }
+          });
+      });
+
+      return extractedResults;
     }
-
-
 
 
 
