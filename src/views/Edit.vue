@@ -68,7 +68,13 @@
           <Marc/>
 
         </pane>
+        <pane v-if="panelDisplay.linkedData"
+          :class="{'edit-main-splitpane-marc': true, 'edit-main-splitpane-no-scrollbar': preferenceStore.returnValue('--b-edit-main-splitpane-opac-no-scrollbar'), 'edit-layout-linked-data':  createLayoutMode}"
+          :size="preferenceStore.returnValue('--n-edit-main-splitpane-opac-width')"
+        >
+          <LinkedData/>
 
+        </pane>
 
 
 
@@ -112,12 +118,14 @@
   import Debug from "@/components/panels/edit/modals/DebugModal.vue";
   import Xml from "@/components/panels/sidebar_preview_xml/Xml.vue";
   import Marc from "@/components/panels/sidebar_preview_marc/Marc.vue";
+
+   import LinkedData from "@/components/panels/sidebar_linked_data/LinkedData.vue";
   import LiteralLang from "@/components/panels/edit/modals/LiteralLang.vue";
 
 
 
   export default {
-    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc, LiteralLang },
+    components: { Splitpanes, Pane, Properties, EditPanel, Nav, Opac, Debug, Xml, Marc, LiteralLang, LinkedData },
 
 
     data() {
