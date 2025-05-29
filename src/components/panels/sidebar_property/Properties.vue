@@ -4,7 +4,7 @@
   import { AccordionList, AccordionItem } from "vue3-rich-accordion";
   // import "vue3-rich-accordion/accordion-library-styles.css";
   import draggable from 'vuedraggable'
-
+  import short from 'short-uuid'
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import { isReadonly } from 'vue';
@@ -37,11 +37,11 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent', 'emptyComponents','returnComponentLibrary']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent', 'emptyComponents','returnComponentLibrary', 'componentLibrary']),
       ...mapState(usePreferenceStore, ['styleDefault', 'isEmptyComponent', 'layoutActive', 'layoutActiveFilter', 'createLayoutMode']),
 
 
-      ...mapWritableState(useProfileStore, ['activeComponent', 'emptyComponents']),
+      ...mapWritableState(useProfileStore, ['activeComponent', 'emptyComponents', 'saveComponentLibrary']),
     },
 
 
@@ -111,6 +111,50 @@
         let newId = this.profileStore.renameComponentLibrary(clId,newName)
 
 
+      },
+
+      addToMyLibrary: function(obj){
+        console.info("addToMyLibrary: ", obj)
+
+        for (let component of obj){
+          let structure = component.structure
+
+          if (structure['parentId'].includes(":Item")){
+            let key = structure['parentId']
+            if (key && key.includes(":Item")){
+              if (key.includes("-") || key.includes("_")){
+                  let idx
+                  idx = key.indexOf("_")
+                  if (idx < 0){
+                      idx = key.indexOf("-")
+                  }
+                  key = key.slice(0, idx)
+              }
+            }
+            structure['parentId'] = key
+          }
+
+          if (!this.componentLibrary.profiles[structure['parentId']]){
+            this.componentLibrary.profiles[structure['parentId']] = {
+              groups:[]
+            }
+          }
+
+          let label = prompt("What to call this component?", component.label + "[D]")
+          if (!label){
+            return false
+          }
+
+          this.componentLibrary.profiles[structure['parentId']].groups.push({
+            id: short.generate(),
+            groupId: component.groupId + "(default)",
+            position: this.componentLibrary.profiles[structure['parentId']].groups.length,
+            structure: structure,
+            label: label
+          })
+
+          this.saveComponentLibrary()
+        }
       },
 
       makeDefaultComponent: function(obj){
@@ -635,9 +679,9 @@
 
                   <button v-if="clProfile.type != 'default'" :class="{'material-icons' : true, 'component-library-settings-button': true, 'component-library-settings-button-invert': (activeComponentLibrary == component.id)  }" @click="configComponentLibrary(component.id)">settings_applications</button>
 
-
                   <div class="component-library-item-container sidebar-property-li-empty" @click="addComponentLibrary($event,component.id)" >
                     <a href="#" @click="addComponentLibrary($event,component.id)">{{ component.label }}</a>
+                    <button v-if="component.groupId == null && clProfile.type == 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="add-default-component material-icons" @click='addToMyLibrary(clProfile.groups[group])'>add</button>
                   </div>
                     <template v-if="activeComponentLibrary == component.id && clProfile.type != 'default'">
                       <div class="component-library-settings">
@@ -686,13 +730,14 @@
                       <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
                       <span data-tooltip="Set Default" class="simptip-position-left">
                         <input v-if="clProfile.type != 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="default-component" type="checkbox" @click="makeDefaultComponent(clProfile.groups[group])" :checked="clProfile.groups[group][0].useDefault" />
+                        <button v-if="clProfile.type == 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="add-default-component material-icons" @click='addToMyLibrary(clProfile.groups[group])'>add</button>
                       </span>
                       <!--
                         TODO:
-                          * Button for individual components is getting stuck
-                          * add checkbox to individual default components
-                          * More testing how things work
-                          * Should behavior change for defaults? If someone has 3 subjects in a default component and a record comes in with 2 subjects,
+                          [] Button for individual components is getting stuck
+                          [/] add checkbox to individual default components [won't work with default components because there's no way to save changes]
+                          [] More testing how things work
+                          [] Should behavior change for defaults? If someone has 3 subjects in a default component and a record comes in with 2 subjects,
                               should 3 subjects get added or only 1? What are the implications here? another preference? gross
                           * There was something else...
                       -->
@@ -1001,6 +1046,11 @@ li.not-populated-hide:before{
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-background-color')") !important;
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-font-color')") !important;
   cursor: pointer;
+}
+
+.add-default-component{
+  font-size: 12px;
+  padding: unset;
 }
 
 </style>
