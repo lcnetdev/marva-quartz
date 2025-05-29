@@ -293,8 +293,6 @@ export const useProfileStore = defineStore('profile', {
           let groupsOrder = []
           for (let dKey in defaultComponents.DefaultComponentLibrary.profiles){
             if (dKey.includes(key)){
-              console.info("dKey: ", dKey)
-              console.info("key: ", key)
               for (let group of defaultComponents.DefaultComponentLibrary.profiles[dKey].groups.sort(({position:a}, {position:b}) => a-b)){
                 if (group.groupId === null){
                   groups[group.id] = [group]
@@ -6204,7 +6202,6 @@ export const useProfileStore = defineStore('profile', {
     * Set or unset the default nature of the component
     */
     makeComponentDefault(id){
-      console.info("makeComponentDefault: ", id)
       for (let key in this.componentLibrary.profiles){
         for (let group of this.componentLibrary.profiles[key].groups){
           if (group.id == id){
