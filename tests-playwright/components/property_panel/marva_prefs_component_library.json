@@ -1,0 +1,1478 @@
+{
+    "styleDefault": {
+        "--c-edit-main-splitpane-properties-background-color": {
+            "value": "#2a2a2a",
+            "desc": "The background color of the properties side bar on the edit screen.",
+            "descShort": "Background Color",
+            "type": "color",
+            "group": "Sidebars - Property",
+            "range": null
+        },
+        "--c-edit-main-splitpane-properties-highlight-background-color": {
+            "value": "#ebd300ff",
+            "desc": "The background color of the field when selected or hovered.",
+            "descShort": "Highlight Color",
+            "type": "color",
+            "group": "Sidebars - Property",
+            "range": null
+        },
+        "--n-edit-main-splitpane-properties-width": {
+            "desc": "The width of the property side bar on the edit screen.",
+            "descShort": "Sidebar width",
+            "value": 5,
+            "type": "number",
+            "step": 1,
+            "group": "Sidebars - Property",
+            "range": [
+                5,
+                100
+            ]
+        },
+        "--n-edit-main-splitpane-properties-font-size": {
+            "desc": "The fontsize of the text in the property list side bar.",
+            "descShort": "Font Size",
+            "value": 1,
+            "step": 0.01,
+            "type": "number",
+            "unit": "em",
+            "group": "Sidebars - Property",
+            "range": [
+                1,
+                2
+            ]
+        },
+        "--c-edit-main-splitpane-properties-font-family": {
+            "value": "Avenir, Helvetica, Arial, sans-serif",
+            "desc": "The font of the text in the property list.",
+            "descShort": "Font",
+            "type": "font",
+            "group": "Sidebars - Property",
+            "range": null
+        },
+        "--c-edit-main-splitpane-properties-font-color": {
+            "value": "#fff",
+            "desc": "The font color of the text in the property list.",
+            "descShort": "Text Color",
+            "type": "color",
+            "group": "Sidebars - Property",
+            "range": null
+        },
+        "--c-edit-main-splitpane-properties-empty-indicator-color": {
+            "value": "#6f6f6f",
+            "desc": "Color of the dot indicating the field is empty.",
+            "descShort": "Empty indicator color",
+            "type": "color",
+            "group": "Sidebars - Property",
+            "range": null
+        },
+        "--c-edit-main-splitpane-properties-populated-indicator-color": {
+            "value": "green",
+            "desc": "Color of the checkmark indicating the field is populated.",
+            "descShort": "Populated indicator color",
+            "type": "color",
+            "group": "Sidebars - Property",
+            "range": null
+        },
+        "--b-edit-main-splitpane-properties-no-scrollbar": {
+            "desc": "Do not display a scroll bar in the property side panel.",
+            "descShort": "No Scrollbar",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Property",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-splitpane-properties-show-types": {
+            "desc": "Show all type labels, such as Variant Title under Title.",
+            "descShort": "Type Labels",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Property",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-splitpane-properties-number-labels": {
+            "desc": "Add a number to the labels of the properties",
+            "descShort": "Number Labels",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Property",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-splitpane-properties-accordion": {
+            "desc": "The property list expands and contracts.",
+            "descShort": "Accordion List",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Property",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--c-edit-main-splitpane-opac-background-color": {
+            "value": "#fbdae1ff",
+            "desc": "The background color of the opac side bar on the edit screen.",
+            "descShort": "Background Color",
+            "type": "color",
+            "group": "Sidebars - Previews",
+            "range": null
+        },
+        "--c-edit-main-splitpane-opac-highlight-background-color": {
+            "value": "#fcc02eff",
+            "desc": "The background color of the field when selected or hovered.",
+            "descShort": "Highlight Color",
+            "type": "color",
+            "group": "Sidebars - Previews",
+            "range": null
+        },
+        "--n-edit-main-splitpane-opac-width": {
+            "desc": "The width of the property side bar on the edit screen.",
+            "descShort": "Sidebar width",
+            "value": 5,
+            "type": "number",
+            "step": 1,
+            "group": "Sidebars - Previews",
+            "range": [
+                5,
+                100
+            ]
+        },
+        "--n-edit-main-splitpane-opac-font-size": {
+            "desc": "The fontsize of the text in the property list side bar.",
+            "descShort": "Font Size",
+            "value": 1,
+            "step": 0.01,
+            "type": "number",
+            "unit": "em",
+            "group": "Sidebars - Previews",
+            "range": [
+                1,
+                2
+            ]
+        },
+        "--c-edit-main-splitpane-opac-font-family": {
+            "value": "monospace",
+            "desc": "The font of the text in the property list.",
+            "descShort": "Font",
+            "type": "font",
+            "group": "Sidebars - Previews",
+            "range": null
+        },
+        "--c-edit-main-splitpane-opac-font-color": {
+            "value": "#202124",
+            "desc": "The font color of the text in the property list.",
+            "descShort": "Text Color",
+            "type": "color",
+            "group": "Sidebars - Previews",
+            "range": null
+        },
+        "--b-edit-main-splitpane-opac-no-scrollbar": {
+            "desc": "Do not display a scroll bar in the opac preview side panel.",
+            "descShort": "No Scrollbar",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Previews",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--n-edit-main-splitpane-edit-width": {
+            "desc": "The width of the edit screen panel.",
+            "descShort": "Edit panel width",
+            "value": 50,
+            "step": 1,
+            "type": "number",
+            "group": "Edit Panel",
+            "range": [
+                5,
+                100
+            ]
+        },
+        "--b-edit-main-splitpane-edit-no-scrollbar": {
+            "desc": "Do not display a scroll bar in the edit panel.",
+            "descShort": "No Scrollbar",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Edit Panel",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--c-edit-main-splitpane-edit-background-color-work": {
+            "value": "#90caf8ff",
+            "desc": "The background color of the work on edit screen panel.",
+            "descShort": "Work Background Color",
+            "type": "color",
+            "group": "Edit Panel",
+            "range": null
+        },
+        "--c-edit-main-splitpane-edit-background-color-instance": {
+            "value": "#fff59cff",
+            "desc": "The background color of the instance on edit screen panel.",
+            "descShort": "Instance Background Color",
+            "type": "color",
+            "group": "Edit Panel",
+            "range": null
+        },
+        "--c-edit-main-splitpane-edit-focused-field-color": {
+            "value": "#f0f0f0ff",
+            "desc": "The background color of the field when it has the focus.",
+            "descShort": "Field Focus Background Color",
+            "type": "color",
+            "group": "Edit Panel",
+            "range": null
+        },
+        "--b-edit-main-splitpane-edit-show-field-labels": {
+            "desc": "Display  labels in the field.",
+            "descShort": "Display field labels",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Edit Panel",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--n-edit-main-splitpane-edit-show-field-labels-size": {
+            "desc": "Field Label font size.",
+            "descShort": "Field Label font size",
+            "value": 0.65,
+            "step": 0.01,
+            "type": "number",
+            "unit": "em",
+            "group": "Edit Panel",
+            "range": [
+                0,
+                1
+            ]
+        },
+        "--b-edit-main-splitpane-edit-shortcode-display-mode": {
+            "desc": "Display abbrivated BF tags instead of natural language labels.",
+            "descShort": "BF display tags",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Edit Panel",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-splitpane-edit-inline-mode": {
+            "desc": "Compact Advanced Modular Mode.",
+            "descShort": "Use CAMM Mode",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "CAMM Mode",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-splitpane-edit-adhoc-mode": {
+            "desc": "Add properties as needed using a drop down list.",
+            "descShort": "Properties adhoc",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Edit Panel",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-splitpane-edit-switch-between-resource-button": {
+            "desc": "Lets you switch displaying work and instances in the edit panel.",
+            "descShort": "Resource switch button",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Edit Panel",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-splitpane-edit-scroll-x": {
+            "desc": "The edit fields display does not wrap, a scroll bar appears at the bottom",
+            "descShort": "Horizontal Edit Panel scroll",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Edit Panel",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--n-edit-main-splitpane-nav-height": {
+            "desc": "The default height of the nav menu",
+            "descShort": "Height",
+            "value": 35,
+            "type": "number",
+            "unit": "px",
+            "group": "Nav Bar",
+            "range": [
+                5,
+                50
+            ]
+        },
+        "--n-edit-main-splitpane-nav-font-size": {
+            "desc": "The fontsize of the text in the nav menu",
+            "descShort": "Font Size",
+            "value": 1,
+            "step": 0.1,
+            "type": "number",
+            "unit": "em",
+            "group": "Nav Bar",
+            "range": [
+                1,
+                2
+            ]
+        },
+        "--c-edit-main-splitpane-nav-background-color": {
+            "desc": "The background color of the nav menu",
+            "descShort": "Background Color",
+            "value": "white",
+            "type": "color",
+            "unit": null,
+            "group": "Nav Bar",
+            "range": null
+        },
+        "--c-edit-main-splitpane-nav-font-color": {
+            "value": "#202124",
+            "desc": "The font color of the text in the nav bar",
+            "descShort": "Text Color",
+            "type": "color",
+            "group": "Nav Bar",
+            "range": null
+        },
+        "--n-edit-main-literal-font-size": {
+            "desc": "The fontsize of the text in the literal field",
+            "descShort": "Font Size",
+            "value": 1,
+            "step": 0.1,
+            "type": "number",
+            "unit": "em",
+            "group": "Literal Field",
+            "range": [
+                1,
+                2
+            ]
+        },
+        "--s-edit-general-action-button-icon": {
+            "desc": "What icon to use on the field action button, such as 'bolt' look up the Material Icon name (https://marella.me/material-icons/demo/)",
+            "descShort": "Action button icon",
+            "value": "bolt",
+            "type": "string",
+            "unit": null,
+            "group": "Action Button",
+            "range": [
+                1,
+                2
+            ]
+        },
+        "--c-edit-general-action-button-color": {
+            "value": "#202124",
+            "desc": "The color of the icon on the action button.",
+            "descShort": "Action button color",
+            "type": "color",
+            "group": "Action Button",
+            "range": null
+        },
+        "--c-edit-general-action-button-background-color": {
+            "value": "#fff",
+            "desc": "The color of background on the action button.",
+            "descShort": "Action Button background color",
+            "type": "color",
+            "group": "Action Button",
+            "range": null
+        },
+        "--n-edit-general-action-button-size": {
+            "desc": "The size of the icon on the action button",
+            "descShort": "Button Icon Size",
+            "value": 1.25,
+            "step": 0.1,
+            "type": "number",
+            "unit": "em",
+            "group": "Action Button",
+            "range": [
+                1,
+                2
+            ]
+        },
+        "--n-edit-general-action-button-border-width": {
+            "desc": "The width of the button border",
+            "descShort": "Button Border width",
+            "value": 1,
+            "step": 0.1,
+            "type": "number",
+            "unit": "px",
+            "group": "Action Button",
+            "range": [
+                0,
+                10
+            ]
+        },
+        "--c-edit-general-action-button-border-color": {
+            "value": "#202124",
+            "desc": "The color of background on the action button.",
+            "descShort": "Action background color",
+            "type": "color",
+            "group": "Action Button",
+            "range": null
+        },
+        "--n-edit-general-action-button-border-radius": {
+            "desc": "The radius of the button border",
+            "descShort": "Button Border radius",
+            "value": 5,
+            "step": 0.1,
+            "type": "number",
+            "unit": "px",
+            "group": "Action Button",
+            "range": [
+                0,
+                10
+            ]
+        },
+        "--n-edit-general-action-button-continer-background-color": {
+            "value": "#fff",
+            "desc": "Background color of the action button menu.",
+            "descShort": "Action btn menu color",
+            "type": "color",
+            "group": "Action Button",
+            "range": null
+        },
+        "--n-edit-general-action-button-continer-font-size": {
+            "desc": "The size of the text in the action button menu",
+            "descShort": "Icon Size",
+            "value": 1.25,
+            "step": 0.1,
+            "type": "number",
+            "unit": "em",
+            "group": "Action Button",
+            "range": [
+                1,
+                2
+            ]
+        },
+        "--n-edit-general-action-button-continer-border-width": {
+            "desc": "The width of the action button menu border",
+            "descShort": "Action btn menu Border width",
+            "value": 1,
+            "type": "number",
+            "step": 0.1,
+            "unit": "px",
+            "group": "Action Button",
+            "range": [
+                0,
+                10
+            ]
+        },
+        "--c-edit-general-action-button-continer-border-color": {
+            "value": "#202124",
+            "desc": "The color of background on the action button.",
+            "descShort": "Action btn menu border color",
+            "type": "color",
+            "group": "Action Button",
+            "range": null
+        },
+        "--n-edit-general-action-button-continer-border-radius": {
+            "desc": "The radius of the button menu border",
+            "descShort": "Action btn menu Border radius",
+            "value": 5,
+            "step": 0.1,
+            "type": "number",
+            "unit": "px",
+            "group": "Action Button",
+            "range": [
+                0,
+                10
+            ]
+        },
+        "--c-edit-general-action-button-continer-color": {
+            "value": "#202124",
+            "desc": "The color of the text in the action button menu.",
+            "descShort": "Action btn menu font color",
+            "type": "color",
+            "group": "Action Button",
+            "range": null
+        },
+        "--n-edit-general-action-button-continer-background-highlight-color": {
+            "value": "whitesmoke",
+            "desc": "Background color of the action button menu item when selected.",
+            "descShort": "Action btn menu highlight color",
+            "type": "color",
+            "group": "Action Button",
+            "range": null
+        },
+        "--b-edit-general-action-button-display": {
+            "desc": "Display action button.",
+            "descShort": "Display Button",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Action Button",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-complex-use-select-dropdown": {
+            "desc": "Use dropdown select instead of buttons.",
+            "descShort": "Use lookup dropdown",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Complex Lookup",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--c-general-icon-instance-color": {
+            "desc": "The color of the instance icon.",
+            "descShort": "Instance icon color",
+            "value": "#fff59cff",
+            "type": "color",
+            "unit": null,
+            "group": "General",
+            "range": null
+        },
+        "--c-general-icon-work-color": {
+            "desc": "The color of the instance icon.",
+            "descShort": "Instance icon color",
+            "value": "#90caf8ff",
+            "type": "color",
+            "unit": null,
+            "group": "General",
+            "range": null
+        },
+        "--c-general-icon-item-color": {
+            "desc": "The color of the item icon.",
+            "descShort": "Item icon color",
+            "value": "#eaeaea",
+            "type": "color",
+            "unit": null,
+            "group": "General",
+            "range": null
+        },
+        "--b-diacritics-disable-voyager-mode": {
+            "desc": "Do not use Voyager Mode (crtl+e).",
+            "descShort": "Do not use Voyager Mode (crtl+e)",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Diacritics",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--c-diacritics-enabled-macros": {
+            "value": [],
+            "desc": "",
+            "descShort": "List of diacritic macros to use",
+            "type": "other",
+            "group": "Diacritics",
+            "range": null
+        },
+        "--o-diacritics-text-macros": {
+            "value": [
+                {
+                    "lookFor": "@1",
+                    "replaceWith": "!"
+                }
+            ],
+            "desc": "",
+            "descShort": "Text macros to use",
+            "type": "other",
+            "group": "Diacritics",
+            "range": null
+        },
+        "--b-edit-main-splitpane-opac-marc-html": {
+            "desc": "Display the MARC preview as HTML instead of plain text",
+            "descShort": "MARC HTML",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Previews",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--c-edit-main-splitpane-edit-background-color-instance-secondary": {
+            "value": "#f671f696",
+            "desc": "The background color of the secondary instance on edit screen panel.",
+            "descShort": "Secondary Instance Background Color",
+            "type": "color",
+            "group": "Edit Panel",
+            "range": null
+        },
+        "--b-shelflist-link-1-label": {
+            "desc": "Label for link 1.",
+            "descShort": "Link 1 Label",
+            "value": "Cutter Table",
+            "type": "string",
+            "group": "Shelflisting",
+            "index": 0
+        },
+        "--b-shelflist-link-1": {
+            "desc": "Link to an outside resource to help with shelf listing.",
+            "descShort": "Link 1 URL",
+            "value": "http://www.loc.gov/aba/pcc/053/table",
+            "type": "string",
+            "group": "Shelflisting",
+            "index": 0
+        },
+        "--b-shelflist-link-2-label": {
+            "desc": "Label for link 2.",
+            "descShort": "Link 2 Label",
+            "value": "Biography Table",
+            "type": "string",
+            "group": "Shelflisting",
+            "index": 1
+        },
+        "--b-shelflist-link-2": {
+            "desc": "Link to an outside resource to help with shelf listing.",
+            "descShort": "Link 2 URL",
+            "value": "https://www.loc.gov/aba/publications/FreeCSM/G320.pdf",
+            "type": "string",
+            "group": "Shelflisting",
+            "index": 1
+        },
+        "--b-shelflist-link-3-label": {
+            "desc": "Label for link 3.",
+            "descShort": "Link 3 Label",
+            "value": "Translation Table",
+            "type": "string",
+            "group": "Shelflisting",
+            "index": 2
+        },
+        "--b-shelflist-link-3": {
+            "desc": "Link to an outside resource to help with shelf listing.",
+            "descShort": "Link 3 URL",
+            "value": "https://www.loc.gov/aba/publications/FreeCSM/G150.pdf",
+            "type": "string",
+            "group": "Shelflisting",
+            "index": 2
+        },
+        "--b-shelflist-link-4-label": {
+            "desc": "Label for link 4.",
+            "descShort": "Link 4 Label",
+            "value": "test",
+            "type": "string",
+            "group": "Shelflisting",
+            "index": 3
+        },
+        "--b-shelflist-link-4": {
+            "desc": "Link to an outside resource to help with shelf listing.",
+            "descShort": "Link 4 URL",
+            "value": "www.google.com",
+            "type": "string",
+            "group": "Shelflisting",
+            "index": 3
+        },
+        "--b-shelflist-link-5-label": {
+            "desc": "Label for link 5.",
+            "descShort": "Link 5 Label",
+            "value": "",
+            "type": "string",
+            "group": "Shelflisting",
+            "index": 4
+        },
+        "--b-shelflist-link-5": {
+            "desc": "Link to an outside resource to help with shelf listing.",
+            "descShort": "Link 5 URL",
+            "value": "",
+            "type": "string",
+            "group": "Shelflisting",
+            "index": 4
+        },
+        "--b-shelflist-show-cutter-helpers": {
+            "desc": "Display cutter tools like author cutter and links",
+            "descShort": "Display cutter tools.",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Shelflisting",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-scriptshifter-capitalize-first-letter": {
+            "desc": "Capitalize the first letter of the transliterated string.",
+            "descShort": "Capitalize the first letter",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Scriptshifter",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--o-edit-general-field-colors": {
+            "desc": "Field Color Object",
+            "descShort": "Field Color Object",
+            "value": {
+                "http://id.loc.gov/ontologies/bibframe/title|lc:RT:bf2:WorkTitle": {
+                    "default": "#fff59cff"
+                },
+                "http://id.loc.gov/ontologies/bibframe/title|lc:RT:bf2:InstanceTitle": {
+                    "default": "#b2dfdcff"
+                },
+                "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/PrimaryContribution": {
+                    "default": "#cf93d9ff"
+                },
+                "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/Contribution": {
+                    "default": "#9ea8dbff"
+                },
+                "http://id.loc.gov/ontologies/bibframe/subject|lc:RT:bf2:Components": {
+                    "default": "#6ab0f6ff"
+                }
+            },
+            "step": null,
+            "type": "object",
+            "unit": null,
+            "group": "Edit Panel",
+            "hide": true,
+            "range": null
+        },
+        "--b-edit-complex-use-value-icons": {
+            "desc": "Show icons in the value.",
+            "descShort": "Show icons in value",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Complex Lookup",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--c-general-copy-mode": {
+            "desc": "Set if copy mode should be on or off by default.",
+            "descShort": "Copy mode default",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "General",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--o-literal-lang-bulk-options": {
+            "value": [],
+            "desc": "",
+            "descShort": "The lang-script options to use in the bulk tool",
+            "type": "other",
+            "group": "Diacritics",
+            "range": null
+        },
+        "--b-edit-main-splitpane-properties-component-library": {
+            "desc": "Display the Component Library in the Property Panel.",
+            "descShort": "Component Library",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Property",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-splitpane-properties-component-library-prompt-to-add": {
+            "desc": "Ask before adding a component from the library.",
+            "descShort": "Prompt to add Library Component",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Property",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--c-edit-main-splitpane-edit-background-color-item": {
+            "value": "#ffcc80ff",
+            "desc": "The background color of the item on edit screen panel.",
+            "descShort": "Item Background Color",
+            "type": "color",
+            "group": "Edit Panel",
+            "range": null
+        },
+        "--b-edit-complex-scroll-all": {
+            "desc": "Scroll all the results at the same time.",
+            "descShort": "Scroll All Results",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Complex Lookup",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-complex-scroll-independently": {
+            "desc": "Scroll the results of each section independently (LCNAF, CYAC, Complex headings...).",
+            "descShort": "Scroll by Section",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Complex Lookup",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-complex-number-names": {
+            "desc": "Set the number of names that will appear in the subject builder. More results might be slower.",
+            "descShort": "Number of Names",
+            "value": 5,
+            "type": "number",
+            "group": "Complex Lookup",
+            "range": [
+                5,
+                100
+            ],
+            "step": 5
+        },
+        "--b-edit-complex-number-complex": {
+            "desc": "Set the number of complex headings that will appear in the subject builder. More results might be slower.",
+            "descShort": "Number of Complex Headings",
+            "value": 5,
+            "type": "number",
+            "group": "Complex Lookup",
+            "range": [
+                5,
+                100
+            ],
+            "step": 5
+        },
+        "--b-edit-complex-number-simple": {
+            "desc": "Set the number of simple headings that will appear in the subject builder. More results might be slower.",
+            "descShort": "Number of Simple Headings",
+            "value": 5,
+            "type": "number",
+            "group": "Complex Lookup",
+            "range": [
+                5,
+                100
+            ],
+            "step": 5
+        },
+        "--b-edit-complex-number-cyac": {
+            "desc": "Set the number of Children's headings that will appear in the subject builder. More results might be slower.",
+            "descShort": "Number of CYAC Headings",
+            "value": 5,
+            "type": "number",
+            "group": "Complex Lookup",
+            "range": [
+                5,
+                100
+            ],
+            "step": 5
+        },
+        "--c-general-ad-hoc": {
+            "desc": "Turn on Ad Hoc Mode. Ad Hoc mode will only display populated and mandatory fields in Marva, other fields can be added as needed.",
+            "descShort": "Ad Hoc Mode",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "General",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--l-custom-layouts": {
+            "desc": "",
+            "descShort": "",
+            "value": {
+                "588780486": {
+                    "profileId": "Monograph",
+                    "label": "Creator of Work",
+                    "properties": {
+                        "lc:RT:bf2:Monograph:Work": [
+                            "id_loc_gov_ontologies_bibframe_contribution__creator_of_work"
+                        ]
+                    }
+                },
+                "-703928290": {
+                    "profileId": "Monograph",
+                    "label": "My Layout",
+                    "properties": {
+                        "lc:RT:bf2:Monograph:Work": [
+                            "id_loc_gov_ontologies_bibframe_expressionOf__expression_of_[search_for_a_hub]",
+                            "id_loc_gov_ontologies_bibframe_contribution__creator_of_work",
+                            "id_loc_gov_ontologies_bibframe_title__title_information",
+                            "id_loc_gov_ontologies_bibframe_tableOfContents__contents",
+                            "id_loc_gov_ontologies_bibframe_summary__summary"
+                        ]
+                    }
+                }
+            },
+            "type": "object",
+            "group": "layouts"
+        },
+        "--c-edit-main-splitpane-slider-color": {
+            "value": "#ffffff",
+            "desc": "Color of the dividing line / resize line.",
+            "descShort": "Resize Line Color",
+            "type": "color",
+            "group": "Sidebars - Property",
+            "range": null
+        },
+        "--c-edit-main-splitpane-slider-border-color": {
+            "value": "#eee",
+            "desc": "Color of the dividing line / resize line Border.",
+            "descShort": "Resize Line Border Color",
+            "type": "color",
+            "group": "Sidebars - Property",
+            "range": null
+        },
+        "--c-edit-main-splitpane-edit-component-label-color": {
+            "value": "black",
+            "desc": "The of the text describing the component.",
+            "descShort": "Component Label Color",
+            "type": "color",
+            "group": "Edit Panel",
+            "range": null
+        },
+        "--c-edit-main-splitpane-edit-field-color": {
+            "value": "transparent",
+            "desc": "The background color of the field when no focus.",
+            "descShort": "Field Background Color",
+            "type": "color",
+            "group": "Edit Panel",
+            "range": null
+        },
+        "--c-edit-main-splitpane-edit-field-border-color": {
+            "value": "rgba(133, 133, 133,0.2)",
+            "desc": "The color of the border between fields.",
+            "descShort": "Field Border Color",
+            "type": "color",
+            "group": "Edit Panel",
+            "range": null
+        },
+        "--c-edit-main-splitpane-edit-show-field-labels-color": {
+            "value": "gray",
+            "desc": "The color of the field labels that sit above the value.",
+            "descShort": "Field Label color",
+            "type": "color",
+            "group": "Edit Panel",
+            "range": null
+        },
+        "--c-edit-main-splitpane-edit-scroll-bar-track-color": {
+            "value": "#fafafa",
+            "desc": "The color of the scroll bar track (background).",
+            "descShort": "Scrollbard Track Color",
+            "type": "color",
+            "group": "Edit Panel",
+            "range": null
+        },
+        "--c-edit-main-splitpane-edit-scroll-bar-thumb-color": {
+            "value": "#c7c7c7",
+            "desc": "The color of the scroll bar thumb (the part you grab).",
+            "descShort": "Scrollbard Thumb Color",
+            "type": "color",
+            "group": "Edit Panel",
+            "range": null
+        },
+        "--c-edit-main-literal-font-color": {
+            "desc": "The color of the text",
+            "descShort": "Font Color",
+            "value": "black",
+            "type": "color",
+            "group": "Literal Field",
+            "range": null
+        },
+        "--c-edit-main-literal-lang-label-background-color": {
+            "desc": "The background color of the language indicator",
+            "descShort": "Lang Label Background Color",
+            "value": "aliceblue",
+            "type": "color",
+            "group": "Literal Field",
+            "range": null
+        },
+        "--c-edit-main-literal-lang-label-font-color": {
+            "desc": "The font color of the language indicator",
+            "descShort": "Lang Label Font Color",
+            "value": "#090909",
+            "type": "color",
+            "group": "Literal Field",
+            "range": null
+        },
+        "--n-edit-main-literal-lang-label-font-size": {
+            "desc": "The fontsize of the language indicator",
+            "descShort": "Lang Label Font Size",
+            "value": 1,
+            "step": 0.1,
+            "type": "number",
+            "unit": "em",
+            "group": "Literal Field",
+            "range": [
+                1,
+                2
+            ]
+        },
+        "--n-edit-main-lookup-background-color": {
+            "desc": "The background color of the entity badge",
+            "descShort": "Lookup value background color",
+            "value": 1,
+            "step": 0.1,
+            "type": "number",
+            "unit": "em",
+            "group": "Lookup Field",
+            "range": [
+                1,
+                2
+            ]
+        },
+        "--c-edit-main-lookup-background-color": {
+            "desc": "The background color of the entity badge",
+            "descShort": "Lookup value background color",
+            "value": "whitesmoke",
+            "type": "color",
+            "group": "Lookup Field",
+            "range": null
+        },
+        "--c-edit-main-lookup-border-color": {
+            "desc": "The border color of the entity badge",
+            "descShort": "Lookup value border color",
+            "value": "#dedede",
+            "type": "color",
+            "group": "Lookup Field",
+            "range": null
+        },
+        "--c-edit-main-lookup-text-color": {
+            "desc": "The text color of the entity badge",
+            "descShort": "Lookup value text color",
+            "value": "black",
+            "type": "color",
+            "group": "Lookup Field",
+            "range": null
+        },
+        "--c-edit-main-lookup-icon-linked-color": {
+            "desc": "Linked icon color",
+            "descShort": "Linked Icon Color",
+            "value": "green",
+            "type": "color",
+            "group": "Lookup Field",
+            "range": null
+        },
+        "--c-edit-main-lookup-simple-lookup-autocomplete-background-color": {
+            "desc": "The lookup popup list background color",
+            "descShort": "Simple Lookup Popup Background Color",
+            "value": "white",
+            "type": "color",
+            "group": "Lookup Field",
+            "range": null
+        },
+        "--c-edit-main-lookup-simple-lookup-autocomplete-text-color": {
+            "desc": "The lookup popup list text color",
+            "descShort": "Simple Lookup Popup Text Color",
+            "value": "black",
+            "type": "color",
+            "group": "Lookup Field",
+            "range": null
+        },
+        "--c-edit-general-action-button-menu-background-color": {
+            "value": "white",
+            "desc": "Color of the Menu background",
+            "descShort": "Menu background color",
+            "type": "color",
+            "group": "Action Button",
+            "range": null
+        },
+        "--c-edit-general-action-button-menu-button-background-color": {
+            "value": "rgb(239, 239, 239)",
+            "desc": "Menu Button background color",
+            "descShort": "Menu Button Color",
+            "type": "color",
+            "group": "Action Button",
+            "range": null
+        },
+        "--c-edit-general-action-button-menu-button-border-color": {
+            "value": "black",
+            "desc": "Menu Button Border color",
+            "descShort": "Menu Border Color",
+            "type": "color",
+            "group": "Action Button",
+            "range": null
+        },
+        "--c-edit-general-action-button-menu-button-text-color": {
+            "value": "black",
+            "desc": "Menu Button text color",
+            "descShort": "Menu Text Color",
+            "type": "color",
+            "group": "Action Button",
+            "range": null
+        },
+        "--n-edit-general-action-button-menu-button-text-size": {
+            "desc": "Button text size",
+            "descShort": "Button text size",
+            "value": 1,
+            "step": 0.1,
+            "type": "number",
+            "unit": "em",
+            "group": "Action Button",
+            "range": [
+                1,
+                2
+            ]
+        },
+        "--c-edit-modals-background-color": {
+            "value": "#f5f5f5ff",
+            "desc": "Background color of the popup modals",
+            "descShort": "Background Color",
+            "type": "color",
+            "group": "Modals",
+            "range": null
+        },
+        "--c-edit-modals-background-color-accent": {
+            "value": "#dededeff",
+            "desc": "Used for off background color accents",
+            "descShort": "Background Accent Color",
+            "type": "color",
+            "group": "Modals",
+            "range": null
+        },
+        "--c-edit-modals-text-color": {
+            "value": "black",
+            "desc": "Text color of popup modals",
+            "descShort": "Text Color",
+            "type": "color",
+            "group": "Modals",
+            "range": null
+        },
+        "--b-edit-main-splitpane-camm-hide-action-button": {
+            "desc": "Hide action button in CAMM mode, only keyboard shortcut (Ctrl+\\\\).",
+            "descShort": "Hide Action Button",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "CAMM Mode",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-splitpane-properties-show-defaults": {
+            "desc": "Display the default Component Library in the Property Panel.",
+            "descShort": "Default Component Library",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Property",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-splitpane-properties-library-hide-group-parts": {
+            "desc": "Display individual components used in a group.",
+            "descShort": "Default Component Pieces",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Property",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--c-edit-main-splitpane-opac-marc-html-highlight-color": {
+            "value": "#cf93d9ff",
+            "desc": "The background color of the subfield in the marc preview when hovering over it.",
+            "descShort": "Subfield Highlight Color",
+            "type": "color",
+            "group": "Sidebars - Previews",
+            "range": null
+        },
+        "--b-edit-main-splitpane-edit-show-field-labels-bold": {
+            "desc": "Make the field labels bold.",
+            "descShort": "Bold Field Labels.",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Edit Panel",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-literal-bold-font": {
+            "desc": "Literal Text Bold.",
+            "descShort": "Make literals bold.",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Literal Field",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--n-edit-main-lookup-font-size": {
+            "desc": "The font size for the text in a lookup element.",
+            "descShort": "Lookup font size",
+            "value": 0.75,
+            "step": 0.05,
+            "type": "number",
+            "unit": "em",
+            "group": "Lookup Field",
+            "range": [
+                0.75,
+                2
+            ]
+        },
+        "--b-edit-main-splitpane-properties-library-display-group-parts": {
+            "desc": "Display individual components used in a group.",
+            "descShort": "Default Component Pieces",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Property",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-general-auto-save": {
+            "desc": "When On the record will be saved to the backend on every change.",
+            "descShort": "Auto Save Mode",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "General",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--c-edit-copy-cat-components": {
+            "value": "#787878ff",
+            "desc": "The background color of Copy Cat components.",
+            "descShort": "Copy Cat color",
+            "type": "color",
+            "group": "Copy Cat",
+            "range": null
+        },
+        "--c-edit-copy-cat-font-color": {
+            "value": "#ffffffff",
+            "desc": "The font color of the text searching for a Copy Cat record.",
+            "descShort": "Text Color",
+            "type": "color",
+            "group": "Copy Cat",
+            "range": null
+        },
+        "--c-edit-copy-cat-card-color": {
+            "value": "#e6e6e6ff",
+            "desc": "The color search results.",
+            "descShort": "Results Color",
+            "type": "color",
+            "group": "Copy Cat",
+            "range": null
+        },
+        "--c-edit-copy-cat-card-color-selected": {
+            "value": "#b7d9faff",
+            "desc": "The color search results.",
+            "descShort": "Results Color",
+            "type": "color",
+            "group": "Copy Cat",
+            "range": null
+        },
+        "--c-edit-copy-cat-card-marc-hover": {
+            "value": "#ffa78aff",
+            "desc": "The color of the subfield when hovering over the MARC.",
+            "descShort": "Marc Hover",
+            "type": "color",
+            "group": "Copy Cat",
+            "range": null
+        },
+        "--n-edit-copy-cat-font-size": {
+            "desc": "The fontsize of the text in the Copy Cat search.",
+            "descShort": "Font Size",
+            "value": 1,
+            "step": 0.01,
+            "type": "number",
+            "unit": "em",
+            "group": "Copy Cat",
+            "range": [
+                1,
+                2
+            ]
+        },
+        "--l-custom-order": {
+            "desc": "",
+            "descShort": "",
+            "value": {
+                "lc:RT:bf2:Monograph:Work": [
+                    "id_loc_gov_ontologies_bibframe_expressionOf__expression_of_[search_for_a_hub]",
+                    "id_loc_gov_ontologies_bibframe_contribution__creator_of_work",
+                    "id_loc_gov_ontologies_bibframe_title__title_information",
+                    "id_loc_gov_ontologies_bibframe_contribution__contributors",
+                    null,
+                    "id_loc_gov_ontologies_bibframe_note__notes_about_the_work",
+                    "id_loc_gov_ontologies_bibframe_tableOfContents__contents",
+                    "id_loc_gov_ontologies_bibframe_summary__summary",
+                    "id_loc_gov_ontologies_bibframe_subject__subjects",
+                    "id_loc_gov_ontologies_bibframe_geographicCoverage__geographic_coverage",
+                    "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                    "id_loc_gov_ontologies_bibframe_classification__classification_numbers",
+                    "id_loc_gov_ontologies_bibframe_intendedAudience__intended_audience",
+                    "id_loc_gov_ontologies_bibframe_content__content_type",
+                    "id_loc_gov_ontologies_bibframe_language__language_008_[1st]_041_a_[others]",
+                    "id_loc_gov_ontologies_bibframe_accompaniedBy__language_resource_041_bdefgt",
+                    "id_loc_gov_ontologies_bibframe_note__language_note_041_hijkmnpqr_or_041_1",
+                    "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
+                    "id_loc_gov_ontologies_bibframe_colorContent__color_content",
+                    "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content",
+                    "id_loc_gov_ontologies_bflc_governmentPubType__government_publication",
+                    "id_loc_gov_ontologies_bibframe_relation__input_transcribed_series",
+                    "id_loc_gov_ontologies_bibframe_relation__search_series_hub_optional",
+                    "id_loc_gov_ontologies_bibframe_relation__search_related_work",
+                    "id_loc_gov_ontologies_bibframe_notation__script",
+                    "id_loc_gov_ontologies_bibframe_originDate__date_of_work",
+                    "id_loc_gov_ontologies_bibframe_originPlace__country_of_origin_of_the_work",
+                    "id_loc_gov_ontologies_bibframe_temporalCoverage__time_coverage_of_the_content",
+                    "id_loc_gov_ontologies_bibframe_dissertation__dissertation",
+                    "id_loc_gov_ontologies_bibframe_hasInstance__add_bibframe_instance"
+                ],
+                "lc:RT:bf2:Monograph:Instance": [
+                    "id_loc_gov_ontologies_bibframe_instanceOf__instance_of",
+                    "id_loc_gov_ontologies_bibframe_title__title_information",
+                    "id_loc_gov_ontologies_bibframe_responsibilityStatement__statement_of_responsibility",
+                    "id_loc_gov_ontologies_bibframe_editionStatement__edition_statement",
+                    "id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity",
+                    "id_loc_gov_ontologies_bibframe_copyrightDate__copyright_date",
+                    "id_loc_gov_ontologies_bibframe_issuance__mode_of_issuance",
+                    "id_loc_gov_ontologies_bibframe_identifiedBy__identifiers",
+                    null,
+                    "id_loc_gov_ontologies_bibframe_acquisitionSource__acquisitions_identifiers",
+                    "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                    "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content_url",
+                    "id_loc_gov_ontologies_bibframe_immediateAcquisition__immediate_source_of_acquisition_note",
+                    "id_loc_gov_ontologies_bibframe_media__media_type",
+                    "id_loc_gov_ontologies_bibframe_extent__extent",
+                    "id_loc_gov_ontologies_bibframe_dimensions__dimensions",
+                    "id_loc_gov_ontologies_bibframe_carrier__carrier_type",
+                    "id_loc_gov_ontologies_bibframe_electronicLocator__url_of_instance",
+                    "id_loc_gov_ontologies_bflc_projectedProvisionDate__projected_publication_date_yymm",
+                    "id_loc_gov_ontologies_bibframe_hasItem__has_item"
+                ]
+            },
+            "type": "object",
+            "group": "preferenes"
+        },
+        "--b-edit-main-literal-non-latin-first": {
+            "desc": "With paired literals values (transliteration) always show the non-Latin value first (otherwise the Latin value will be first)",
+            "descShort": "Paired literals, show non-Latin First.",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Literal Field",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-literal-display-paired-literal-line": {
+            "desc": "Display a line between the two paired literals. Indicates that the two values are related.",
+            "descShort": "Display a line between the two paired literals.",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Literal Field",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--c-edit-main-literal-paired-literal-line-color": {
+            "desc": "Line color of the paired literal line",
+            "descShort": "Paired literal line color",
+            "value": "#4b4b4b",
+            "type": "color",
+            "group": "Literal Field",
+            "range": null
+        },
+        "--b-edit-complex-include-usage": {
+            "desc": "Include the usage numbers for subject headings.",
+            "descShort": "Include Usage",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Complex Lookup",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-complex-nar-advanced-mode": {
+            "desc": "Default to the advanced mode display when creating NARs.",
+            "descShort": "Use NAR Advanced Mode by default",
+            "value": false,
+            "type": "boolean",
+            "unit": null,
+            "group": "Complex Lookup",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--b-edit-main-splitpane-properties-component-library-defaults": {
+            "desc": "Setting defaults to load with the record and moving default components to my components.",
+            "descShort": "Edit Component Library Defaults",
+            "value": true,
+            "type": "boolean",
+            "unit": null,
+            "group": "Sidebars - Property",
+            "range": [
+                true,
+                false
+            ]
+        },
+        "--o-edit-main-splitpane-edit-panel-size-presets": {
+            "desc": "Panel Size Presets",
+            "descShort": "Panel Size Presets",
+            "value": [],
+            "step": null,
+            "type": "array",
+            "unit": null,
+            "group": "Edit Panel",
+            "hide": true,
+            "range": null
+        }
+    },
+    "panelDisplay": {
+        "properties": true,
+        "dualEdit": false,
+        "opac": false,
+        "xml": true,
+        "marc": true
+    }
+}
