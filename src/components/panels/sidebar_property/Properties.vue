@@ -140,14 +140,20 @@
             }
           }
 
-          let label = prompt("What to call this component?", component.label + "[D]")
+          let label = prompt("What to call this component?", component.label + " [D]")
           if (!label){
             return false
           }
 
+          //component.groupId + "(default)"
+          let gId = null
+          if (obj.length > 1){
+            gId = component.groupId + " (default)"
+          }
+
           this.componentLibrary.profiles[structure['parentId']].groups.push({
             id: short.generate(),
-            groupId: component.groupId + "(default)",
+            groupId: gId,
             position: this.componentLibrary.profiles[structure['parentId']].groups.length,
             structure: structure,
             label: label
@@ -679,10 +685,13 @@
 
                   <button v-if="clProfile.type != 'default'" :class="{'material-icons' : true, 'component-library-settings-button': true, 'component-library-settings-button-invert': (activeComponentLibrary == component.id)  }" @click="configComponentLibrary(component.id)">settings_applications</button>
 
-                  <div class="component-library-item-container sidebar-property-li-empty" @click="addComponentLibrary($event,component.id)" >
-                    <a href="#" @click="addComponentLibrary($event,component.id)">{{ component.label }}</a>
-                    <button v-if="component.groupId == null && clProfile.type == 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="add-default-component material-icons" @click='addToMyLibrary(clProfile.groups[group])'>add</button>
-                  </div>
+                  <span>
+                    <div class="component-library-item-container sidebar-property-li-empty" @click="addComponentLibrary($event,component.id)" >
+                      <a href="#" @click="addComponentLibrary($event,component.id)">{{ component.label }}</a>
+                      <button v-if="component.groupId == null && clProfile.type == 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="add-default-component material-icons" @click='addToMyLibrary(clProfile.groups[group])'>add</button>
+                    </div>
+
+                  </span>
                     <template v-if="activeComponentLibrary == component.id && clProfile.type != 'default'">
                       <div class="component-library-settings">
 
@@ -728,19 +737,10 @@
                 <template v-if="clProfile.groups[group].length>1">
                   <span>
                       <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
-                      <span data-tooltip="Set Default" class="simptip-position-left">
+                      <span data-tooltip="Set Default" class="simptip-position-left default-check">
                         <input v-if="clProfile.type != 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="default-component" type="checkbox" @click="makeDefaultComponent(clProfile.groups[group])" :checked="clProfile.groups[group][0].useDefault" />
-                        <button v-if="clProfile.type == 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="add-default-component material-icons" @click='addToMyLibrary(clProfile.groups[group])'>add</button>
+                        <button v-if="clProfile.type == 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" data-tooltip="ADD TO MYBRARY" class="add-default-component simptip-position-left material-icons" @click='addToMyLibrary(clProfile.groups[group])'>add</button>
                       </span>
-                      <!--
-                        TODO:
-                          [] Button for individual components is getting stuck
-                          [/] add checkbox to individual default components [won't work with default components because there's no way to save changes]
-                          [] More testing how things work
-                          [] Should behavior change for defaults? If someone has 3 subjects in a default component and a record comes in with 2 subjects,
-                              should 3 subjects get added or only 1? What are the implications here? another preference? gross
-                          * There was something else...
-                      -->
                   </span>
                 </template>
               </div>
