@@ -62,7 +62,7 @@ export const usePreferenceStore = defineStore('preference', {
     // keeps a copy of the orginal values to be able to reset
     styleDefaultOrginal: {},
     panelDisplayOrginal: {},
-    
+
 
     copyMode: false,
 
@@ -1816,9 +1816,9 @@ export const usePreferenceStore = defineStore('preference', {
     isNarTester(){
 
       // pioneers
-      // let canTest = ["kevinford","pfrank","eram","ctur","trod","jowill","ntra","ddavis","nalf","fd07","cyea","fc80","smcc","tsod","fo","hhuh","yshi","cc33","amors","cd01","mnaz","cgir","pkho","cf31","stellier","test",'matt']
+      let canTest = ["kevinford","pfrank","eram","ctur","trod","jowill","ntra","ddavis","nalf","fd07","cyea","fc80","smcc","tsod","fo","hhuh","yshi","cc33","amors","cd01","mnaz","cgir","pkho","cf31","stellier","test",'matt']
       // Dev
-      let canTest = ["dev", "matt", "fo", "pfrank", "kevinford", "n123"]
+      // let canTest = ["dev", "matt", "fo", "pfrank", "kevinford", "n123"]
 
       // Convert initials and code to lowercase if they exist
       const initials = this.catInitals ? this.catInitals.toLowerCase() : '';
@@ -1850,10 +1850,10 @@ export const usePreferenceStore = defineStore('preference', {
       for (let p of panels){
         if (document.querySelector(`.${p}`)===null){
           data.percents[p] = null
-        }else{          
+        }else{
           data.percents[p] = document.querySelector(`.${p}`).style.width
         }
-      }      
+      }
       return data
     },
 
@@ -1876,12 +1876,12 @@ export const usePreferenceStore = defineStore('preference', {
           if (document.querySelector(`.${key}`)!==null){
           document.querySelector(`.${key}`).style.width  =  data.percents[key];
           document.querySelector(`.${key}`).style.width  =  data.percents[key];
-          }        
+          }
         }
-        
+
 
       },50);
-      
+
 
     }
 
