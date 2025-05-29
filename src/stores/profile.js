@@ -6203,20 +6203,20 @@ export const useProfileStore = defineStore('profile', {
     */
     makeComponentDefault(id){
       console.info("makeComponentDefault: ", id)
-        for (let key in this.componentLibrary.profiles){
-            for (let group of this.componentLibrary.profiles[key].groups){
-              if (group.id == id){
-                if (Object.keys(group).includes("useDefault")){
-                    group.useDefault = !group.useDefault
-                } else {
-                    group["useDefault"] = true
-                }
-
-                this.saveComponentLibrary()
-                return true
-              }
+      for (let key in this.componentLibrary.profiles){
+        for (let group of this.componentLibrary.profiles[key].groups){
+          if (group.id == id){
+            if (Object.keys(group).includes("useDefault")){
+              group.useDefault = !group.useDefault
+            } else {
+              group["useDefault"] = true
             }
+
+            this.saveComponentLibrary()
+            return true
           }
+        }
+      }
     },
 
     /**

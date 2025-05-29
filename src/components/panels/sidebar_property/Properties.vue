@@ -636,7 +636,6 @@
                   <button v-if="clProfile.type != 'default'" :class="{'material-icons' : true, 'component-library-settings-button': true, 'component-library-settings-button-invert': (activeComponentLibrary == component.id)  }" @click="configComponentLibrary(component.id)">settings_applications</button>
 
 
-
                   <div class="component-library-item-container sidebar-property-li-empty" @click="addComponentLibrary($event,component.id)" >
                     <a href="#" @click="addComponentLibrary($event,component.id)">{{ component.label }}</a>
                   </div>
@@ -686,8 +685,17 @@
                   <span>
                       <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
                       <span data-tooltip="Set Default" class="simptip-position-left">
-                        <input v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="default-component" type="checkbox" @click="makeDefaultComponent(clProfile.groups[group])" :checked="clProfile.groups[group][0].useDefault" />
+                        <input v-if="clProfile.type != 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="default-component" type="checkbox" @click="makeDefaultComponent(clProfile.groups[group])" :checked="clProfile.groups[group][0].useDefault" />
                       </span>
+                      <!--
+                        TODO:
+                          * Button for individual components is getting stuck
+                          * add checkbox to individual default components
+                          * More testing how things work
+                          * Should behavior change for defaults? If someone has 3 subjects in a default component and a record comes in with 2 subjects,
+                              should 3 subjects get added or only 1? What are the implications here? another preference? gross
+                          * There was something else...
+                      -->
                   </span>
                 </template>
               </div>
@@ -824,6 +832,7 @@
 .default-component {
   margin-left: 5px;
   background-color: rgb(6, 204, 6);
+  z-index: 999;
 }
 
 .sidebar-property-li-cl{
