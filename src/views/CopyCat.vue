@@ -52,13 +52,16 @@
           <Badge v-if="loadLccnFromRecord(selectedWcRecord)" text="This LCCN is from the selected record."
             noHover="true" badgeType="primary" />
           <br>
-          <template v-if="existingLCCN">
+          <template v-if="existingLCCN || existingISBN">
             <br>
-            <Badge
+            <Badge v-if="existingLCCN"
               text="A record with this LCCN might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
+            <Badge v-if="existingISBN"
+              text="A record with this ISBN might exist. If you continue, the copy cat record will be merged with the existing record."
+              badgeType="warning" :noHover="true" />
             <h4>
-              <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this LCCN</a>
+              <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{ existingLCCN ? 'LCCN' : 'ISBN' }}</a>
             </h4>
             <br>
           </template>
@@ -233,6 +236,7 @@ export default {
       ibcCheck: false,
       responseURL: null,
       existingLCCN: null,
+      existingISBN: null,
       existingRecordUrl: "",
       hasLccn: false,
       checkingLCCN: false,
@@ -323,23 +327,47 @@ export default {
       if (!this.urlToLoad) {
         this.existingRecordUrl = ""
         this.existingLCCN = false
+        this.existingISBN = false
         return false
       }
 
-      this.checkingLCCN = true
-      let resp = await utilsNetwork.checkLccn(this.urlToLoad)
-      console.info("     >>>>> ", resp)
-      this.checkingLCCN = false
-      try {
-        this.existingLCCN = resp.status != 404
-        if (this.existingLCCN) {
-          this.existingRecordUrl = resp.url
-        } else {
+      console.info("urlToLoad: ", this.urlToLoad)
+
+      // this.checkingLCCN = true
+      // let resp = await utilsNetwork.checkLccn(this.urlToLoad)
+      // console.info("     >>>>> ", resp)
+      // this.checkingLCCN = false
+      // try {
+      //   this.existingLCCN = resp.status != 404
+      //   if (this.existingLCCN) {
+      //     this.existingRecordUrl = resp.url
+      //   } else {
+      //     this.existingRecordUrl = ""
+      //   }
+      // } catch {
+      //   this.existingLCCN = null
+      //   this.existingRecordUrl = ""
+      // }
+
+      // check the ISBN
+      if (!this.existingLCCN && this.wcIndex == "sn"){
+        this.checkingLCCN = true
+        let potentialISBN = this.wcQuery
+        console.info("isbn", potentialISBN)
+        let resp = await utilsNetwork.checkLccn(potentialISBN)
+        this.checkingLCCN = false
+        console.info("resp: ", resp)
+        try {
+          this.existingISBN = resp.status != 404
+          if (this.existingISBN) {
+            this.existingRecordUrl = resp.url
+          } else {
+            this.existingRecordUrl = ""
+          }
+        } catch {
+          this.existingISBN = null
           this.existingRecordUrl = ""
         }
-      } catch {
-        this.existingLCCN = null
-        this.existingRecordUrl = ""
       }
 
     },
@@ -496,13 +524,15 @@ export default {
 
     loadCopyCat: async function (profile) {
       let continueWithLoad = true
-      if (this.existingLCCN) {
+      if (this.existingLCCN ) {
         continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
+      }
+      if (this.existingISBN){
+        continueWithLoad = confirm("There is a record that matches this ISBN. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
       }
       if (!continueWithLoad) { return }
 
       let xml = this.selectedWcRecord.marcXML.replace(/\n/g, '').replace(/>\s*</g, '><')
-      this.existingLccn = false
 
       xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
       let continueWithLccn = true
@@ -532,7 +562,8 @@ export default {
       this.createSubField("c", this.jackphyCheck, dummy999)
       this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummy999)
 
-      if (this.existingLCCN) {
+      console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
+      if (this.existingLCCN || this.existingISBN) {
         this.createSubField("e", "overlay bib", dummy999)
         if (this.existingRecordUrl != ""){
           let bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
@@ -546,9 +577,13 @@ export default {
 
       console.info("strXmlBasic: ", strXmlBasic)
 
+      this.existingLCCN = false
+      this.existingISBN = false
+
+      return
       this.posting = true
       this.postResults = {}
-      this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
+      // this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
       this.posting = false
 
       console.info("this.postResults: ", this.postResults)
