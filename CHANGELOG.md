@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.3.1] - 2025-05-27
+
+## [1.3.2   ] - 2025-05-30
+### Updated
+- Updated the NAR interface advanced mode to have textarea resizable subfield text fields and start off the field with a "$"
+
+## [1.3.1   ] - 2025-05-27
 ### Added
 - "Quick View" feature added to Marva
 

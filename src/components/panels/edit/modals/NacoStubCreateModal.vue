@@ -725,7 +725,9 @@
           this.extraMarcStatements.push({
             fieldTag: '',
             indicators: '##',
+            value: '$',
             subfields: {
+              
             }
           })
 
@@ -882,6 +884,10 @@
               }
             }
           }
+
+          // also resize the field if needed
+          event.target.style.height =  event.target.scrollHeight + 2 + "px"
+
 
 
         },
@@ -1631,13 +1637,16 @@
                       placeholder="IND"
                       style="margin-right: 1em; width: 40px; font-family: 'Courier New', Courier, monospace;"
                     />
-                    <input
-                      type="text"
-                      v-model="row.value"
+
+                    <textarea
+                     v-model="row.value"
                       placeholder="$a xyz $b abc..."
                       style="margin-right: 1em; flex-grow: 1;"
                       @keydown="keydown" @keyup="keyup"
-                    />
+                    ></textarea>
+                    
+
+
                     <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>
                     <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
                   </div>
