@@ -333,21 +333,21 @@ export default {
 
       console.info("urlToLoad: ", this.urlToLoad)
 
-      // this.checkingLCCN = true
-      // let resp = await utilsNetwork.checkLccn(this.urlToLoad)
-      // console.info("     >>>>> ", resp)
-      // this.checkingLCCN = false
-      // try {
-      //   this.existingLCCN = resp.status != 404
-      //   if (this.existingLCCN) {
-      //     this.existingRecordUrl = resp.url
-      //   } else {
-      //     this.existingRecordUrl = ""
-      //   }
-      // } catch {
-      //   this.existingLCCN = null
-      //   this.existingRecordUrl = ""
-      // }
+      this.checkingLCCN = true
+      let resp = await utilsNetwork.checkLccn(this.urlToLoad)
+      console.info("     >>>>> ", resp)
+      this.checkingLCCN = false
+      try {
+        this.existingLCCN = resp.status != 404
+        if (this.existingLCCN) {
+          this.existingRecordUrl = resp.url
+        } else {
+          this.existingRecordUrl = ""
+        }
+      } catch {
+        this.existingLCCN = null
+        this.existingRecordUrl = ""
+      }
 
       // check the ISBN
       if (!this.existingLCCN && this.wcIndex == "sn"){
@@ -602,17 +602,17 @@ export default {
 
       console.info("recordId: ", recordId)
 
-      this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
-      // this.urlToLoad = "https://preprod-8287.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
+      this.urlToLoad = "https://preprod-8080.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
 
       // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
       // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
       // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
 
-        this.existingLCCN = false
+      this.existingLCCN = false
       this.existingISBN = false
 
       try {
+        console.info("loading URL to Marva: ", this.urlToLoad )
         this.loadUrl(profile)
       } catch (err) {
         alert("Couldn't load the record with the selected profile.")
