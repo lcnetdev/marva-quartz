@@ -885,10 +885,13 @@
             }
           }
 
-          // also resize the field if needed
-          event.target.style.height =  event.target.scrollHeight + 2 + "px"
 
-
+          if (event.target.tagName.toLowerCase() === 'textarea') {
+            // Reset height to 'auto' to ensure scrollHeight is calculated correctly,
+            // allowing the textarea to shrink if content is removed.
+            event.target.style.height = 'auto';
+            event.target.style.height = (event.target.scrollHeight + 2) + 'px';
+          }
 
         },
 
