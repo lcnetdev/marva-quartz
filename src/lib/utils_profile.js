@@ -759,7 +759,15 @@ const utilsProfile = {
   */
 
   pickBestNonLatinScriptOption: function(scriptWanted, scriptOptions){
-
+    // if there is no scriptWanted that means it could not determine what default script was
+    if (!scriptWanted){
+      // but if there is anything in the scriptOptions, just use that then
+      if (scriptOptions.length > 0){
+        scriptWanted = scriptOptions[0]
+      }else{
+        return false
+      }
+    }
     // if we have that script then tell them to use it
     for (let sO of scriptOptions){
       if (scriptWanted.toLowerCase().trim() == sO.toLowerCase().trim()){

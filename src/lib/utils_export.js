@@ -609,6 +609,18 @@ const utilsExport = {
 
 				let mostCommonScript = useProfileStore().setMostCommonNonLatinScript()
 
+				if (!mostCommonScript){
+					// if there is no most common script which comes from the literals then we need to check based 
+					// on the if agent manually overrode the non-latin script to use
+					if (profile.nonLatinScriptAgents){
+						if (profile.nonLatinScriptAgents[ptObj['@guid']]){
+							// if there is an override then use that for the most common script so it can get through the checks below
+							mostCommonScript = profile.nonLatinScriptAgents[ptObj['@guid']]
+						}
+					}
+				}
+
+
 				// in bf->marc conversion it builds 880s and 600s based off of the presenece of
 				// multiple auth labels one with no @lang tag and ones that do have it
 				// check specific properties for now? (10/2024)
@@ -653,8 +665,10 @@ const utilsExport = {
 							}
 							// if we have a language then great, also check the manual setting
 							if (profile.nonLatinScriptAgents){
+								
 								if (profile.nonLatinScriptAgents[ptObj['@guid']]){
 									keepLang = [profile.nonLatinScriptAgents[ptObj['@guid']]]
+									console.log("keeping keepLang",keepLang)
 								}
 							}
 							if (keepLang.length==0){

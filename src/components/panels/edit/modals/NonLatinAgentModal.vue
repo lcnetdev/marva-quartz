@@ -114,6 +114,16 @@
 
           if (this.defaultScript){
             return utilsProfile.pickBestNonLatinScriptOption(this.defaultScript, options)  
+          }else if (!this.defaultScript){
+            // there is no default script for some reason, but do we have options? if so then try the first one
+            if (this.nonLatinAgents && Object.keys(this.nonLatinAgents).length > 0){
+              
+              // this.nonLatinScriptAgents[Object.keys(this.nonLatinAgents)[0]] = this.localMap[Object.keys(this.nonLatinAgents)[0]]
+              // this.profileStore.dataChanged()
+
+              return Object.keys(this.nonLatinAgents)[0]
+            }
+          
           }else{
             return null
           }
@@ -125,6 +135,7 @@
         scriptChange(event){
           //when they change update the profile storage of it
           this.nonLatinScriptAgents[event.target.dataset.key] = this.localMap[event.target.dataset.key]
+          console.log("this.nonLatinScriptAgents,",this.nonLatinScriptAgents)
           this.profileStore.dataChanged()
         }
 
@@ -150,13 +161,19 @@
         
         this.nonLatinAgents = this.profileStore.returnAllNonLatinAgentOptions()
         
+        // console.log("defaultScript",this.defaultScript)
 
         for (let key in this.nonLatinAgents){
         
           if (this.nonLatinScriptAgents[key]){
             this.localMap[key] = this.nonLatinScriptAgents[key]
           }else{
-            this.localMap[key] = utilsProfile.pickBestNonLatinScriptOption(this.defaultScript, this.nonLatinAgents[key].scripts)   
+            if (this.defaultScript){
+              this.localMap[key] = utilsProfile.pickBestNonLatinScriptOption(this.defaultScript, this.nonLatinAgents[key].scripts)   
+            }else{
+              this.localMap[key] = null // if no default script then just use the first one
+            }
+            
           }
 
         }
@@ -212,9 +229,16 @@
             <div v-for="nlA in nonLatinAgents" class="non-latin-access-point">
               <div style="color: #636363;">{{ nlA.propertyURI.replace("http://id.loc.gov/ontologies/bibframe/",'bf:') }}</div>
               <div>{{ nlA.nonLatin }}</div>
-              Use script to build access points:<select @change="scriptChange" :data-key="nlA['@guid']" v-model="localMap[nlA['@guid']]">
+              Use script to build access points:
+              <select @change="scriptChange" :data-key="nlA['@guid']" v-model="localMap[nlA['@guid']]">
+                <option v-if="!defaultScript">No literals found</option>
                 <option v-for="s in nlA.scripts">{{s}}</option>
               </select>
+              <!-- <template v-if="!defaultScript">
+                <div>No default script was able to be established from the record literals.</div>
+                <div>Click the button to force it to build 880s using: <button>{{ nonLatinAgents[Object.keys(nonLatinAgents)[0]].scripts[0] }}</button>
+</div>
+              </template> -->
               <div v-if="!bestScript(nlA.scripts)" style="color:red">Could not find the correct script to use for this access point!</div>
             </div>
 
