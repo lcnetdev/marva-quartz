@@ -2,16 +2,23 @@
 // Tests that we are able to add a default component to my library
 import { test, expect } from '@playwright/test';
 
-import * as jsonData from "@/../../tests-playwright/components/property_panel/marva_prefs_component_library.json"
+// import jsonData from "@/../../tests-playwright/components/property_panel/marva_prefs_component_library.json"
+import { preferences } from './marva_prefs_component_library.json'
 
 //https://medium.com/@semihkasimoglu/leveraging-localstorage-and-sessionstorage-in-playwright-tests-with-typescript-949a4d0dee68
+//https://adequatica.medium.com/simple-examples-of-using-playwright-evaluate-method-9b00d01cadc1
 
 test('Can add a default component to my component library.', async ({ page }) => {
     await page.goto('http://localhost:5555/bfe2/quartz/');
 
-    let storage = await page.evaluate(() => window.localStorage);
-    // console.log("storage: ", storage)
-    await page.evaluate(setPreference)
+    let prefs = JSON.stringify(preferences)
+    // Update the preferences for this test
+    console.log("preferences: ", prefs)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+
+    await page.reload();
+
+    await page.evaluate('window.localStorage');
 
     await page.getByText('Click Here').click();
     await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
@@ -23,7 +30,3 @@ test('Can add a default component to my component library.', async ({ page }) =>
 
 });
 
-function setPreference(){
-    console.log("data: ", jsonData)
-    localStorage.setItem("marva-preferences", JSON.stringify(jsonData))
-}
