@@ -563,10 +563,11 @@ export default {
       this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummy999)
 
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
+      let bibId = ""
       if (this.existingLCCN || this.existingISBN) {
         this.createSubField("e", "overlay bib", dummy999)
         if (this.existingRecordUrl != ""){
-          let bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
+          bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
           this.createSubField("f", bibId, dummy999)
         }
       }
@@ -577,13 +578,9 @@ export default {
 
       console.info("strXmlBasic: ", strXmlBasic)
 
-      this.existingLCCN = false
-      this.existingISBN = false
-
-      return
       this.posting = true
       this.postResults = {}
-      // this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
+      this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
       this.posting = false
 
       console.info("this.postResults: ", this.postResults)
@@ -596,16 +593,24 @@ export default {
         return
       }
 
-      let recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
+      let recordId = ''
+      if (this.existingLCCN || this.existingISBN){
+        recordId = bibId
+      } else {
+        recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
+      }
 
       console.info("recordId: ", recordId)
 
-      // this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
-      this.urlToLoad = "https://preprod-8287.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
+      this.urlToLoad = "https://preprod-8230.id.loc.gov/resources/instances/"+ recordId +".convertedit-pkg.xml"           // production
+      // this.urlToLoad = "https://preprod-8287.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"                     // dev
 
       // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
       // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
       // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
+
+        this.existingLCCN = false
+      this.existingISBN = false
 
       try {
         this.loadUrl(profile)
