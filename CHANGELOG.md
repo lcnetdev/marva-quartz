@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.4   ] - 2025-05-30
+### Updated
+- When there is a non-latin agent with no non-latin literals in the file it will not build the non-latin labels and marcKeys this update lets you force it to from the non-latin agent tool modal
+
 
 ## [1.3.2   ] - 2025-05-30
 ### Updated

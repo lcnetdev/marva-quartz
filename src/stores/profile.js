@@ -4633,7 +4633,7 @@ export const useProfileStore = defineStore('profile', {
         // console.log("this.activeProfilethis.activeProfilethis.activeProfile",this.activeProfile)
         // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
-
+        // console.log("Data changed, this.activeProfile", this.activeProfile)
         // if they have auto save on then save it also
         if (usePreferenceStore().returnValue('--b-general-auto-save')){
 
@@ -4966,7 +4966,9 @@ export const useProfileStore = defineStore('profile', {
 
           process(ptObj, function (obj,key,value) {
               // e.g.
-              // console.log(obj,key);
+
+             
+
               if (!latinRegex.test(value)){
                 nonLatinNodes.push({
                   ptObj:ptObj,
@@ -4991,7 +4993,7 @@ export const useProfileStore = defineStore('profile', {
 
       let nonLatin = this.returnAllNonLatinLiterals(true)
       let nonLatinMap = {}
-
+      // console.log("nonLatin",nonLatin)
       for (let nl of nonLatin){
         let ptFound = null
         for (let rt of this.activeProfile.rtOrder){
@@ -5024,7 +5026,7 @@ export const useProfileStore = defineStore('profile', {
         nonLatinMap[ptFound['@guid']].scripts = [...new Set(nonLatinMap[ptFound['@guid']].scripts)];
 
       }
-
+      // console.log("nonLatinMap",nonLatinMap)
 
       return nonLatinMap
 
@@ -5084,8 +5086,6 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
         if (blankNode){
-
-          console.log(blankNode)
           if (lang){
             blankNode['@language'] = lang
           }else{
@@ -5347,6 +5347,11 @@ export const useProfileStore = defineStore('profile', {
     setMostCommonNonLatinScript(){
 
       let literals = this.returnAllNonLatinLiterals()
+
+      // if (literals.length == 0){
+      //   literals = this.returnAllNonLatinLiterals(true)
+      // }
+
       let allScriptsFound = []
       for (let l of literals){
         if (l.node && l.node['@language'] && l.node['@language'].indexOf('-')>-1){
@@ -5356,7 +5361,7 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-
+      
       if (allScriptsFound.length>0){
         // get mode
         let mostCommong = allScriptsFound.sort((a,b) => allScriptsFound.filter(v => v===a).length - allScriptsFound.filter(v => v===b).length).pop();
@@ -6593,6 +6598,7 @@ export const useProfileStore = defineStore('profile', {
 
       console.log("linkedData",linkedData)
       this.linkedData = linkedData
+      this.linkedData.done = true
 
     },
 
