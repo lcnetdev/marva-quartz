@@ -1816,7 +1816,7 @@ export const usePreferenceStore = defineStore('preference', {
     isNarTester(){
 
       // pioneers
-      let canTest = ["kevinford","pfrank","eram","ctur","trod","jowill","ntra","ddavis","nalf","fd07","cyea","fc80","smcc","tsod","fo","hhuh","yshi","cc33","amors","cd01","mnaz","cgir","pkho","cf31","stellier","test",'matt']
+      let canTest = ["kevinford","pfrank","eram","ctur","trod","jowill","ntra","ddavis","nalf","fd07","cyea","fc80","smcc","tsod","fo","hhuh","yshi","cc33","amors","cd01","mnaz","cgir","pkho","cf31","stellier","test",'matt', 'n123']
       // Dev
       // let canTest = ["dev", "matt", "fo", "pfrank", "kevinford", "n123"]
 
