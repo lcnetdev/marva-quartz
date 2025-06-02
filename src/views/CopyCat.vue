@@ -362,6 +362,7 @@ export default {
           this.existingISBN = resp.status != 404
           if (this.existingISBN) {
             this.existingRecordUrl = resp.url
+            this.existingLCCN = false
           } else {
             this.existingRecordUrl = ""
           }
