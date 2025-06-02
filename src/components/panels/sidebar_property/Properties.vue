@@ -46,6 +46,11 @@
 
 
     methods: {
+      toggleComponentLibraryEdit: function(){
+        let v = this.preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')
+
+        this.preferenceStore.setValue('--b-edit-main-splitpane-properties-component-library-defaults', !v)
+      },
       isPrimaryComponent: function(profileName, activeProfile, target){
         if (!this.profileStore.profiles[activeProfile.id].rt[profileName]){
           return false
@@ -461,10 +466,8 @@
   <template  v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-accordion') == true">
     <AccordionList  :open-multiple-items="false">
 
-      <span class="order-actions-span">
-        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">list_alt</span></div>
-        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="USE ORDER" @click="useOrder">sync</span></div>
-        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span></div>
+      <span class="edit-component-library">
+        <div class="icon-container"><span :class="['material-icons', 'order-icon', 'simptip-position-left', {'edit-on': preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')}]" data-tooltip="EDIT LIBRARY" @click="toggleComponentLibraryEdit">settings</span></div>
       </span>
 
       <template v-for="profileName in activeProfile.rtOrder" :key="profileName">
@@ -571,8 +574,13 @@
     </AccordionList>
 
 
-
-
+    <hr>
+    <span class="order-actions-span">
+      <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">list_alt</span></div>
+      <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="USE ORDER" @click="useOrder">sync</span></div>
+      <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span></div>
+    </span>
+    <hr>
 
 
   </template>
@@ -1050,6 +1058,15 @@ li.not-populated-hide:before{
 .add-default-component{
   font-size: 12px;
   padding: unset;
+}
+
+.edit-component-library{
+    margin-left: 80%;
+}
+.edit-on {
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-background-color')") !important;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-font-color')") !important;
+  border-radius: 25%
 }
 
 </style>
