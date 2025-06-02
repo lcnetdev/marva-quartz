@@ -489,7 +489,7 @@ const utilsNetwork = {
 
             // url = url + "&sortfield=label"
 
-            console.info("url: ", url)
+            // console.info("url: ", url)
 
             // don't allow a ? in the keyword if it is already marked as keyword search
             if (url.includes('searchtype=keyword') && url.includes('q=?')){

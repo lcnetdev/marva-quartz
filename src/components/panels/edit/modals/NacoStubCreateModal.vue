@@ -40,8 +40,8 @@
         nextInputIsVoyagerModeDiacritics: false,
 
 
-        disableAddButton: true,
 
+        
         oneXX: '',
         oneXXParts: {},
         oneXXErrors: [],
@@ -109,7 +109,18 @@
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
 
+      disableAddButton() {
 
+        if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
+          return true
+        }
+        
+        if (this.oneXX.trim() == ''){
+          return true
+        }
+
+        return false
+      }
 
 
     },
@@ -248,7 +259,7 @@
 
 
 
-          this.disableAddButton= true
+          
           this.oneXX = ''
           this.oneXXParts = {}
           this.oneXXErrors = []
@@ -410,7 +421,7 @@
 
         checkOneXX(){
           this.oneXXErrors = []
-          this.disableAddButton = true
+          
           if (this.oneXX.length<3){ return true}
 
           if (/[^0-9 #]/.test(this.oneXX.slice(3,5))){
@@ -483,7 +494,7 @@
               this.oneXXResultsTimeout = window.setTimeout(()=>{
                 this.searchAuthLabel(authLabel,'1xx')
               },500)
-              this.disableAddButton=false
+              
             }
 
             if (dollarKey.d){
@@ -580,13 +591,6 @@
             this.oneXXErrors.push("No Subfield $a entered for 1XX")
           }
 
-          if (!this.mainTitle || !this.mainTitleDate || !this.mainTitleLccn){
-            this.disableAddButton = true
-
-          }
-          if (this.oneXXErrors.length>0){
-            this.disableAddButton = true
-          }
 
 
 
@@ -594,9 +598,11 @@
         },
 
         checkFourXX(){
+
+          
+
           this.fourXXErrors = []
-          this.disableAddButton = true
-          if (this.fourXX.length<3){ return true}
+          if (this.fourXX.length<3){ return true}          
 
           if (/[^0-9 #]/.test(this.fourXX.slice(3,5))){
             this.fourXXErrors.push("There's an invalid indicator for 4XX")
@@ -665,7 +671,7 @@
               this.fourXXResultsTimeout = window.setTimeout(()=>{
                 this.searchAuthLabel(authLabel,'4xx')
               },500)
-              this.disableAddButton=false
+              
             }
 
 
@@ -710,10 +716,6 @@
           }
 
 
-          if (!this.mainTitle){
-            this.disableAddButton = true
-            // this.fourXXErrors.push("You need to add a bf:mainTitle to the work first")
-          }
 
 
 
@@ -1234,10 +1236,6 @@
           }
 
 
-          if (!this.mainTitle){
-            this.disableAddButton = true
-            // this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
-          }
           if (this.lastComplexLookupString.trim() != ''){
             this.oneXX = '1XX##$a'+this.lastComplexLookupString
             this.checkOneXX()
