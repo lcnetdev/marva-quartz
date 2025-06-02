@@ -235,8 +235,8 @@ export default {
       jackphyCheck: false,
       ibcCheck: false,
       responseURL: null,
-      existingLCCN: null,
-      existingISBN: null,
+      existingLCCN: false,
+      existingISBN: false,
       existingRecordUrl: "",
       hasLccn: false,
       checkingLCCN: false,
@@ -341,6 +341,7 @@ export default {
         this.existingLCCN = resp.status != 404
         if (this.existingLCCN) {
           this.existingRecordUrl = resp.url
+          this.existingISBN = false
         } else {
           this.existingRecordUrl = ""
         }
@@ -361,14 +362,19 @@ export default {
           this.existingISBN = resp.status != 404
           if (this.existingISBN) {
             this.existingRecordUrl = resp.url
+            this.existingLCCN = false
           } else {
             this.existingRecordUrl = ""
           }
         } catch {
-          this.existingISBN = null
+          this.existingISBN = false
           this.existingRecordUrl = ""
         }
       }
+      
+      console.info("ending with")
+      console.info("this.existingLCCN :", this.existingLCCN )
+      console.info("this.existingISBN:", this.existingISBN)
 
     },
 
