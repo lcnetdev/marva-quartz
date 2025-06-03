@@ -579,7 +579,13 @@ export default {
       }
 
       // cataloger code
-      let catCode = this.preferenceStore.catCode
+      let catCode = "??"
+      try{
+        catCode = this.preferenceStore.catCode
+      } catch(err) {
+        console.error("Couldn't get cataloger code")
+      }
+
       this.createSubField("z", catCode, dummy999)
 
       xml.documentElement.appendChild(dummy999)
