@@ -6536,6 +6536,7 @@ export const useProfileStore = defineStore('profile', {
         noteTOC: [],
         thumbnail: [],
         lcsh: [],
+        isbn:this.activeProfile.linkedData.isbn
       }
 
       for (let isbn of this.activeProfile.linkedData.isbn){
@@ -6550,6 +6551,14 @@ export const useProfileStore = defineStore('profile', {
         linkedData.noteTOC = linkedData.noteTOC.concat(oclcMarcData.filter((v) => (v.dataType == 'toc')));
         linkedData.thumbnail = linkedData.thumbnail.concat(oclcMarcData.filter((v) => (v.dataType == 'thumbnail')));
         linkedData.lcsh = linkedData.lcsh.concat(oclcMarcData.filter((v) => (v.dataType == '6xx')));
+        linkedData.isbn = linkedData.isbn.concat(baseData.results.isbns);
+
+        linkedData.isbn.map((v)=>{
+          if (v.length > 10){
+            linkedData.isbn.push(utilsProfile.isbn13to10(v))
+          }
+        })
+        linkedData.isbn = [...new Set(linkedData.isbn)];
 
         console.log("linkedDatalinkedDatalinkedDatalinkedData,linkedData",oclcMarcData.filter((v) => (v.dataType == 'subtitle')))
 
@@ -6577,6 +6586,19 @@ export const useProfileStore = defineStore('profile', {
 
 
       }
+
+      // unique the lcsh
+      let addedLCSH = []
+      let keepLCSH = []
+      for (let lcsh of linkedData.lcsh){
+        let v = JSON.stringify(lcsh.value)
+        if (addedLCSH.indexOf(v) == -1){
+          addedLCSH.push(v)
+          keepLCSH.push(lcsh)
+        }
+      }
+
+      linkedData.lcsh=keepLCSH
 
       for (let key in linkedData) {
         if (Array.isArray(linkedData[key])) {
@@ -6616,7 +6638,13 @@ export const useProfileStore = defineStore('profile', {
         toAdd.addNew = true
         toAdd.resourceType = "work"
       }
-
+      console.log("toAdd",toAdd)
+      if (toAdd.dataType == '6xx' ){ 
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/subject", "http://www.w3.org/2000/01/rdf-schema#label"] 
+        toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/Subject"
+        toAdd.addNew = true
+        toAdd.resourceType = "work"
+      }
       for (let rt of Object.keys(this.activeProfile.rt)){
         if (rt.toLowerCase().includes(toAdd.resourceType)){
           for (let pt of Object.keys(this.activeProfile.rt[rt].pt)){
@@ -6633,31 +6661,82 @@ export const useProfileStore = defineStore('profile', {
                     copyFrom = JSON.parse(JSON.stringify(copyFrom))
                     copyFrom['@guid'] = short.generate()
                     copyFrom.id = copyFrom.id + "_" + short.generate()
-                    copyFrom.userValue = {'@root': toAdd.PropertyPath[0]}
 
-                    copyFrom.userValue[toAdd.PropertyPath[0]] = [{
-                      '@guid': short.generate(),
-                      '@type': toAdd.typeOf,
-                      [toAdd.PropertyPath[1]]: [{
+
+                    if (toAdd.PropertyPath[0] != "http://id.loc.gov/ontologies/bibframe/subject"){
+                      copyFrom.userValue = {'@root': toAdd.PropertyPath[0]}
+                      copyFrom.userValue[toAdd.PropertyPath[0]] = [{
                         '@guid': short.generate(),
-                        [toAdd.PropertyPath[1]]: toAdd.value
+                        '@type': toAdd.typeOf,
+                        [toAdd.PropertyPath[1]]: [{
+                          '@guid': short.generate(),
+                          [toAdd.PropertyPath[1]]: toAdd.value
+                        }]
                       }]
-                    }]
 
-                    let newIndex = this.activeProfile.rt[rt].ptOrder.indexOf(this.activeProfile.rt[rt].pt[ptLookingFor].id)
-                    if (newIndex){
-                        newIndex++
-                        this.activeProfile.rt[rt].ptOrder.splice(newIndex, 0, copyFrom.id);
-                        this.activeProfile.rt[rt].pt[copyFrom.id] = copyFrom;
-                        this.dataChanged()
-                        this.activeComponent = this.activeProfile.rt[rt].pt[copyFrom.id]
+                      let newIndex = this.activeProfile.rt[rt].ptOrder.indexOf(this.activeProfile.rt[rt].pt[ptLookingFor].id)
+                      if (newIndex){
+                          newIndex++
+                          this.activeProfile.rt[rt].ptOrder.splice(newIndex, 0, copyFrom.id);
+                          this.activeProfile.rt[rt].pt[copyFrom.id] = copyFrom;
+                          this.dataChanged()
+                          this.activeComponent = this.activeProfile.rt[rt].pt[copyFrom.id]
+                      }
+                      break
+                    }else{
+
+                      // do something special for subjects
+                      console.log("copyFrom",copyFrom)
+                      copyFrom.userValue = {'@root': toAdd.PropertyPath[0], '@guid': short.generate()}
+
+                      // insert the new one and then look for it
+                      let newIndex = this.activeProfile.rt[rt].ptOrder.indexOf(this.activeProfile.rt[rt].pt[ptLookingFor].id)
+                      if (newIndex){
+                          newIndex++
+                          this.activeProfile.rt[rt].ptOrder.splice(newIndex, 0, copyFrom.id);
+                          this.activeProfile.rt[rt].pt[copyFrom.id] = copyFrom;
+                          this.dataChanged()
+                          this.activeComponent = this.activeProfile.rt[rt].pt[copyFrom.id]
+
+                            setTimeout(()=>{
+
+                              let foundEl = document.querySelector(`[data-field-guid="${copyFrom['@guid']}"]`)
+                              foundEl.focus()     
+                              console.log("toAdd.value",toAdd.value) 
+                              let lcshString = toAdd.value.map((v)=>{ return v[Object.keys(v)[0]] }).join("--")
+                                      
+                              setTimeout(()=>{
+
+                                  // const eventA = new Event('input', {
+                                  //     data:'helloo',
+                                  //     bubbles: true,
+
+                                  // });
+                                  // console.log("Sending eventA",eventA)
+                                  // foundEl.dispatchEvent(eventA);
+                                  // foundEl.value="Hellooo"
+                                  const event = new Event('input', { bubbles: true });
+                                  foundEl.value = lcshString;
+                                  foundEl.dispatchEvent(event);
+
+
+                              },500)
+
+
+                              
+                              console.log("foundEl",foundEl)
+
+                            },250)
+                          
+                      }
+
+                      break
                     }
-                    break
                   }
                 }
 
-                console.log("Found copyFrom",copyFrom)
 
+                
 
 
               }else{
