@@ -147,6 +147,7 @@
 
           let label = prompt("What to call this component?", component.label + " [D]")
           if (!label){
+            console.info("no label")
             return false
           }
 
@@ -578,7 +579,7 @@
     <span class="order-actions-span">
       <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">list_alt</span></div>
       <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="USE ORDER" @click="useOrder">sync</span></div>
-      <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span></div>
+      <div class="icon-container"><span class="material-icons order-icon simptip-position-left" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span></div>
     </span>
     <hr>
 
