@@ -92,11 +92,15 @@ export default {
   <div class="marc-preview-content">
     <input @click="open = !open" type="checkbox" />
 
-    <WindowPortal :open="open" :content="previewData">
-      <MarcDisplay :previewData="content" :selected="selected" />
+    <WindowPortal :open="open" :content="previewData" :type="marc">
+      <!-- <MarcDisplay :previewData="previewData" :selected="selected" /> this doesn't work? -->
     </WindowPortal>
     Popout this Panel?
     {{ open }}
+
+    <!-- TODO: -->
+    <!-- resize the panel when the window opens/closes -->
+    <!-- when the window is "x"ed to close, make sure the source knows and add -->
 
     <ul>
       <li v-for="ver in previewData.versions">

@@ -116,7 +116,6 @@
 
 <template>
   <div>
-    <span>???</span>
     <XmlViewer ref="xmlviewer" :xml="xml" />
 
 

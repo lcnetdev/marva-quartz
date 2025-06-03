@@ -1,9 +1,7 @@
 <!-- https://stackoverflow.com/questions/49657462/open-a-vuejs-component-on-a-new-window -->
 <template>
     <template v-if="open">
-        <!-- <MarcDisplay :previewData="content" /> -->
-         hello?
-         <slot></slot>
+         <MarcDisplay :previewData="content" selected="2.10.0" v-if="type == 'marc'"/>
     </template>
 </template>
 
@@ -26,6 +24,10 @@ export default {
         content: {
             type: Object,
             default: {}
+        },
+        type: {
+            type: String,
+            default: ''
         }
     },
     data() {
