@@ -565,6 +565,10 @@ export default {
         if (this.defaultProfile && this.defaultProfile != '') {
           useInstanceProfile = this.defaultProfile
         } 
+        // don't keep going if there was no search result
+        if (this.searchByLccnResults && this.searchByLccnResults.length === 0){
+          return false
+        }
       }
 
       for (let key in this.profiles) {
