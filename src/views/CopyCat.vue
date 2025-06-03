@@ -371,7 +371,7 @@ export default {
           this.existingRecordUrl = ""
         }
       }
-      
+
       console.info("ending with")
       console.info("this.existingLCCN :", this.existingLCCN )
       console.info("this.existingISBN:", this.existingISBN)
@@ -577,6 +577,10 @@ export default {
           this.createSubField("f", bibId, dummy999)
         }
       }
+
+      // cataloger code
+      let catCode = this.preferenceStore.catCode
+      this.createSubField("z", catCode, dummy999)
 
       xml.documentElement.appendChild(dummy999)
 
