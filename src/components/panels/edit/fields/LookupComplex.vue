@@ -730,6 +730,7 @@ export default {
   margin: 1px;
   border-radius: 1em;
   border: dashed lightgray 1px;
+  font-family: Helvetica, Arial, sans-serif;
 }
 .marc-deliminated-lcsh-mode-container a{
   color: inherit !important;
