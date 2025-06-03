@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.5   ] - 2025-06-03
+### Updated
+- Changes behavior of the load screen LCCN search input box. You only will see the LCCN number there no URL, also adds default profile that can be changed so you can just press enter to load using that profile.
 
 ## [1.3.4   ] - 2025-06-02
 ### Fixes

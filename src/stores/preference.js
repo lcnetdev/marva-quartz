@@ -1138,7 +1138,15 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'General',
         range: [true,false]
     },
-
+      '--s-general-default-profile' : {
+        desc: 'Default profile to use when pressing [ENTER].',
+        descShort: 'Default profile',
+        value: 'lc:RT:bf2:Monograph:Instance',
+        type: 'string',
+        hide: true,
+        unit: null,
+        group: 'General'
+    },
 
       // diacritics
 
