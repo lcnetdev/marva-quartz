@@ -5,6 +5,7 @@
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
+  import utilsParse from '@/lib/utils_parse';
 
 
   export default {
@@ -15,6 +16,8 @@
     data() {
       return {
 
+        currentThumbnailIndex: 0,
+
       }
     },
     computed: {
@@ -23,10 +26,10 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeComponent','linkedData']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeComponent']),
       ...mapState(usePreferenceStore, ['styleDefault']),
 
-      ...mapWritableState(useProfileStore, ['activeComponent']),
+      ...mapWritableState(useProfileStore, ['activeComponent','linkedData']),
 
     },
 
@@ -51,34 +54,73 @@
         }else if (item.type == 'oclc') {
           return `https://www.worldcat.org/oclc/${item.id}`
         }
+      },
+
+      requestLinkedDataBuild(){
+        // this.linkedData = {
+        //   done: false,
+        //   isbn:  []
+        // }
+        if (this.activeProfile.linkedData && this.activeProfile.linkedData.isbn){ this.linkedData.isbn = this.activeProfile.linkedData.isbn }
+        
+        if (this.activeProfile && this.activeProfile.linkedData && this.activeProfile.linkedData.isbn && this.activeProfile.linkedData.isbn.length > 0 && !this.activeProfile.linkedData.done ) {
+          this.profileStore.buildLinkedData()
+          let interval = window.setInterval(() => {
+            console.log("Checking if linked data is done", this.linkedData)
+            if (this.linkedData.done){                     
+              console.log("Linked Data Done", this.linkedData)  
+              clearInterval(interval)              
+            }
+          }, 100)
+
+        }else{
+          // no isbn to work with just set done to true
+          this.linkedData.done = true
+          console.log("No ISBNs found, we should check from time tot totomfmemefmejmf")
+
+
+        }
+      },
+
+      tryAgain() {
+        let profile = utilsParse.extractISBN(JSON.parse(JSON.stringify(this.activeProfile)))
+        if (profile.linkedData && profile.linkedData.isbn && profile.linkedData.isbn.length > 0) {
+          this.activeProfile.linkedData = {
+            done: false,
+            isbn: profile.linkedData.isbn
+          }
+          this.requestLinkedDataBuild()
+        }
+
+          
+      },
+
+      prevThumbnail() {
+        if (this.currentThumbnailIndex > 0) {
+          this.currentThumbnailIndex--;
+        }
+      },
+      nextThumbnail() {
+        if (this.currentThumbnailIndex < this.linkedData.thumbnail.length - 1) {
+          this.currentThumbnailIndex++;
+        }
       }
+
 
 
     },
     watch: {
-      // whenever question changes, this function will run
+      // if the page loads directly to the /edit/e#### route this will wait for the profile to be ready to kick of the api requests
+      // it doesn't fire on deep changes so really only the first time the profile is built
       activeProfile(newVal, oldVal) {
-        // console.log('activeProfile changed from', oldVal, 'to', newVal)
-        
-        if (newVal && newVal.linkedData && newVal.linkedData.isbn && newVal.linkedData.isbn.length > 0 && !newVal.linkedData.done ) {
-          
-          console.log("BUILD LINBKED DATA ASDFASDFDSAF")
-          this.profileStore.buildLinkedData()
-        }
-
-
-
+        this.requestLinkedDataBuild()
       }
     },
 
     mounted() {
 
+        this.requestLinkedDataBuild()
 
-        if (this.activeProfile && this.activeProfile.linkedData && this.activeProfile.linkedData.isbn && this.activeProfile.linkedData.isbn.length > 0 && !this.activeProfile.linkedData.done ) {
-          
-          console.log("BUILD LINBKED DATA ASDFASDFDSAF mounted")
-          this.profileStore.buildLinkedData()
-        }
 
 
     }
@@ -91,45 +133,194 @@
 <template>
 
 
-<template v-if="linkedData && linkedData.thumbnail && linkedData.thumbnail.length > 0">
-  
-  <img :src="linkedData.thumbnail[0].value" alt="Thumbnail" style="width:25%; height: auto; margin-left: auto; margin-right: auto; display: block; max-width: 400px;"/>
-</template>
+    <template v-if="linkedData && linkedData.done && linkedData.isbn">
+      <template v-if="linkedData && linkedData.thumbnail && linkedData.thumbnail.length > 0">        
+      
+        <div style="text-align: center; margin-bottom: 1em;">
+          <img :src="linkedData.thumbnail[currentThumbnailIndex].value" alt="Thumbnail" style="width:25%; height: auto; margin-left: auto; margin-right: auto; display: block; max-width: 400px;"/>
+          <div v-if="linkedData.thumbnail.length > 1" style="margin-top: 0.5em;">
+            <button @click="prevThumbnail" :disabled="currentThumbnailIndex === 0" class="thumbnails-arrows">
+              <span data-v-f813a490="" class="material-icons-outlined">arrow_circle_left</span>
 
-  
-  <AccordionList  :open-multiple-items="false">
+            </button>
+            <span>{{ currentThumbnailIndex + 1 }} / {{ linkedData.thumbnail.length }}</span>
+            <button @click="nextThumbnail" :disabled="currentThumbnailIndex === linkedData.thumbnail.length - 1" class="thumbnails-arrows">
+              <span data-v-f813a490="" class="material-icons-outlined">arrow_circle_right</span>
 
-    <template v-for="(value, index) in linkedData">
-
-      <AccordionItem style="height: auto"    :default-closed="true" v-if="index != 'thumbnail'">
-        <template #summary>
-          <div >{{ index }}</div>
-        </template>
-
-        <template v-for="(item, itemIndex) in linkedData[index]">
-          <div class="accordion-item" >
-            <div style="background-color: whitesmoke;">{{ item.value }}</div>
-            <div>From <a target="_blank" :href="buildLink(item)">{{ item.type }}</a></div>
-
-            <div><button v-if="item.dataType != '6xx'" @click="add(item)">Add</button></div>
+            </button>
           </div>
+        </div>
+      
+      </template>
+
+        
+        <AccordionList  :open-multiple-items="false">
+
+          <template v-for="(value, index) in linkedData">
+            
+            <AccordionItem style="height: auto" :default-closed="true" v-if="index != 'thumbnail' && index != 'done' && index != 'isbn' && linkedData[index].length>0">
+              <template #summary>
+                <div class="title" >
+                  <template v-if="index=='subtitle'">Subtitle</template>
+                  <template v-if="index=='noteContent'">Summary Note</template>
+                  <template v-if="index=='noteTOC'">Table of Contents</template>
+                  <template v-if="index=='lcsh'">Subject Heading</template>
+
+                </div>
+              </template>
+
+              <template v-for="(item, itemIndex) in linkedData[index]">
+                <div class="accordion-item" >
+
+                  <div class="value" v-if="item.dataType != '6xx'" >{{ item.value }}</div>
+                  <div class="value" v-else >
+                    <span v-for="x in item.value">${{ Object.keys(x)[0] }}{{ x[Object.keys(x)[0]] }}</span>
+                  </div>
+
+                  <div class="controls">
+                    <button  @click="add(item)">Add</button>
+
+                    <a target="_blank" class="external-link" :href="buildLink(item)">{{ item.type }}</a>
+                  
+                  </div>
+
+                  
+                </div>
+              </template>
+
+            </AccordionItem>
+          </template>
+
+        </AccordionList>
+
+      <div v-if="linkedData.isbn && linkedData.isbn.length > 0">
+        <div>Amazon Links</div>
+        <template v-for="(isbn, index) in linkedData.isbn">
+          <div class="value" v-if="isbn.length==10">
+            <a :href="'https://www.amazon.com/dp/' + isbn +'/'" target="_blank">{{ isbn }}</a>
+          </div>
+
         </template>
 
-      </AccordionItem>
+      </div>
+
     </template>
+    <template v-else-if ="linkedData && !linkedData.done">
+      <div style="text-align: center; padding: 1em; font-size: 1.2em;">
+        <span class="loader"></span>  
+      </div>
+    </template>
+    <template v-else-if ="linkedData && linkedData.done && !linkedData.isbn">
+      <div style="text-align: center; padding: 1em; font-size: 1.2em;">
+        <span>No linked data found for this record.</span><br/>
+        <button @click="tryAgain">Try Again</button>
 
-  </AccordionList>
-
+      </div>
+    </template>
+    <template v-else>
+      <div style="text-align: center; padding: 1em; font-size: 1.2em;">
+        <span>No linked data found for this record.</span><br/>
+        <button @click="tryAgain">Try Again</button>
+      </div>
+    </template>
 
 </template>
 
 <style scoped>
+.external-link{
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
+  text-decoration: none;
+  background-color:v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')") !important;
+  border-radius: 10px;
+  border: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
+  padding-left: 4px;
+  padding-right: 4px;
+  float: right;
+
+
+}
+.value{
+  padding: 10px;
+  background-color:v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-focused-field-color')") !important;
+
+  
+}
+.controls{
+  /* border-top: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important; */
+  border-bottom: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')") !important;
+  padding: 2px;
+  margin-top: 5px;
+}
+.thumbnails-arrows{
+  background-color: transparent;
+  border: none;
+  vertical-align: middle;
+}
+.thumbnails-arrows span{
+  font-size: 2em;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
+
+}
+.thumbnails-arrows:disabled span{
+  color: rgba(0,0,0,0.2) !important;
+}
+
+/* https://cssloaders.github.io/ */
+.loader {
+  width: 48px;
+  height: 48px;
+  display: inline-block;
+  position: relative;
+}
+.loader::after,
+.loader::before {
+  content: '';  
+  box-sizing: border-box;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #7dbeff;
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: animloader 2s linear infinite;
+}
+.loader::after {
+  animation-delay: 1s;
+}
+
+@keyframes animloader {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+    
+
+details{
+  border: solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')") !important;
+  margin:0.2em;
+  padding:0.2em;
+  border-radius: 0.2em;
+}
 
 .accordion-item:hover {
-  background-color: antiquewhite;
+
 }
 .accordion-item{
   height: auto;
+}
+
+.accordion-list{
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-literal-font-color')") !important;
+
+}
+
+.title{
 }
 
 </style>

@@ -832,7 +832,38 @@ const utilsProfile = {
     return aap
 },
 
+  isbn13to10(isbn) {
+    // 1 - Remove the first three digits
+    isbn = isbn.substring(3);
 
+    // 2 - Remove the last digit
+    isbn = isbn.slice(0, -1);
+
+    // 3 - Calculate the weights for the check digit
+    let multipliers = [10, 9, 8, 7, 6, 5, 4, 3, 2];
+    let weights = [];
+
+    for (let i = 0; i < isbn.length; i++) {
+      weights.push(parseInt(isbn[i]) * multipliers[i]);
+    }
+
+    // 4 - Add weights from step 3
+    const sum = weights.reduce((prev, curr) => prev + curr);
+
+    // 5 - Perfom a modulo 11 on the accumulated weight form step 4
+    const remainder = sum % 11;
+
+    // 6 - Generate check digit
+    let check = remainder === 0 ? 0 : 11 - remainder;
+
+    // 7 - Verify if the check digit is valid
+    check = check === 10 ? "X" : check;
+
+    // 8 - Append check digit
+    isbn += check;
+
+    return isbn;
+  },
 
 
 }
