@@ -527,7 +527,12 @@ export default {
       let useLoadUrl = ''
       if (this.lccnLoadSelected) {
         useLoadUrl = this.lccnLoadSelected.bfdbPackageURL
+      }else if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://") || this.urlToLoad.startsWith("/")) {
+        useLoadUrl = this.urlToLoad
+      }else{
+        alert("Please enter a valid URL or identifier to load.")
       }
+
 
       // did they just hit enter and the record is loading, and not ready to go yet
       if (useLoadUrl.trim() === '' && this.searchByLccnResults && typeof this.searchByLccnResults === 'string') {
