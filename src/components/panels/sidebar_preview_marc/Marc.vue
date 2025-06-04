@@ -20,6 +20,7 @@ export default {
       selected: null,
       open: false,
       content: {},
+      sourceDoc: {},
     }
   },
   computed: {
@@ -43,7 +44,10 @@ export default {
   },
 
   methods: {
-
+    closeWindow: function () {
+      console.info("close the thing")
+      this.open = false
+    },
     async refreshMarc() {
       this.previewData = await this.profileStore.marcPreview()
     },
@@ -78,6 +82,8 @@ export default {
 
       }, 1000)
     })
+
+    this.sourceDoc = window.document
   },
 
   updated() { }
@@ -90,13 +96,12 @@ export default {
 <template>
 
   <div class="marc-preview-content">
-    <input @click="open = !open" type="checkbox" />
+    <input @click="open = !open" type="checkbox" :checked="open" />
 
-    <WindowPortal :open="open" :content="previewData" :type="marc">
+    <WindowPortal @close="closeWindow" :open="open" :content="previewData" type="marc" :sourceDoc="sourceDoc">
       <!-- <MarcDisplay :previewData="previewData" :selected="selected" /> this doesn't work? -->
     </WindowPortal>
     Popout this Panel?
-    {{ open }}
 
     <!-- TODO: -->
     <!-- resize the panel when the window opens/closes -->
