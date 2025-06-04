@@ -572,24 +572,24 @@ export default {
       let parser = new DOMParser()
       xml = parser.parseFromString(xml, "text/xml")
 
-      // Create a dummy 999 to pass user values to processor
-      let dummy999 = document.createElementNS("http://www.loc.gov/MARC21/slim", "datafield")
-      dummy999.setAttribute("tag", "999")
-      dummy999.setAttribute("ind1", " ")
-      dummy999.setAttribute("ind2", " ")
+      // Create a dummy field to pass user values to processor
+      let dummyField = document.createElementNS("http://www.loc.gov/MARC21/slim", "datafield")
+      dummyField.setAttribute("tag", "998")
+      dummyField.setAttribute("ind1", " ")
+      dummyField.setAttribute("ind2", " ")
 
-      this.createSubField("a", this.urlToLoad, dummy999)
-      this.createSubField("b", this.recordPriority, dummy999)
-      this.createSubField("c", this.jackphyCheck, dummy999)
-      this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummy999)
+      this.createSubField("a", this.urlToLoad, dummyField)
+      this.createSubField("b", this.recordPriority, dummyField)
+      this.createSubField("c", this.jackphyCheck, dummyField)
+      this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummyField)
 
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
       if (this.existingLCCN || this.existingISBN) {
-        this.createSubField("e", "overlay bib", dummy999)
+        this.createSubField("e", "overlay bib", dummyField)
         if (this.existingRecordUrl != ""){
           bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
-          this.createSubField("f", bibId, dummy999)
+          this.createSubField("f", bibId, dummyField)
         }
       }
 
@@ -601,9 +601,9 @@ export default {
         console.error("Couldn't get cataloger code")
       }
 
-      this.createSubField("z", catCode, dummy999)
+      this.createSubField("z", catCode, dummyField)
 
-      xml.documentElement.appendChild(dummy999)
+      xml.documentElement.appendChild(dummyField)
 
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
