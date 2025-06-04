@@ -2999,14 +2999,15 @@ const utilsNetwork = {
    */
   checkLccn: async function(lccn){
     let url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/" + lccn + "&blastdacache=" + Date.now()
-    let resp = await fetch(
+    let resp = null
+
+    resp = await fetch(
       url,
       {
         method: 'HEAD',
       }
     )
 
-    console.info("lccn check: ", resp)
     return resp
   },
 
