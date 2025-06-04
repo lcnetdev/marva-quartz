@@ -496,10 +496,29 @@ export default {
 
     loadSearch: function () {
       this.lccnLoadSelected = null
-
+      console.log("this.urlToLoad", this.urlToLoad)
+      console.log("this.urlToLoad.indexOf('BFDB URI')",this.urlToLoad.indexOf('BFDB URI'))
+      console.log("this.urlToLoad.indexOf('Status')",this.urlToLoad.indexOf('Status'))
       if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")) {
         this.urlToLoadIsHttp = true
         return false
+      }else if(this.urlToLoad.indexOf('BFDB URI') > -1 && this.urlToLoad.indexOf('Status') > -1  ){
+
+        let urlMatch = this.urlToLoad.match(/:\/\/[^\s\/]+\/.*?\/instances\/[^\s]+/g);
+        if (urlMatch && urlMatch.length > 0) {
+          urlMatch = urlMatch[0].split(' ')
+          urlMatch = urlMatch[urlMatch.length - 1]
+          urlMatch = urlMatch + '.convertedit-pkg.xml'
+          this.urlToLoad = urlMatch
+          this.urlToLoadIsHttp = true
+          // this will tigger using the default profile
+          this.loadUrl(new Event('click'), null)
+          
+          return false;
+        }else{
+          this.urlToLoadIsHttp = false
+        }
+        
       } else {
         this.urlToLoadIsHttp = false
 
@@ -524,6 +543,7 @@ export default {
     },
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
+      console.log("useInstanceProfile",useInstanceProfile)
       let useLoadUrl = ''
       if (this.lccnLoadSelected) {
         useLoadUrl = this.lccnLoadSelected.bfdbPackageURL

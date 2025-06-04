@@ -187,6 +187,10 @@
               let fieldTag = field.fieldTag
               let indicators = field.indicators.replace(/[#]/g,' ')
 
+              // if they are adding a 046 dont add it automatically
+              if (fieldTag == '046'){
+                this.zero46 = {}
+              }
 
               let newField = {
                 fieldTag: fieldTag,
@@ -512,8 +516,6 @@
                 this.zero46.f = lifeDates[0]
               }
 
-
-
             }
 
             if (dollarKey.a){
@@ -521,7 +523,7 @@
                console.log("found a hyphenated name")
                if (dollarKey.a.split(',')[0]){
                 let hyphenated = dollarKey.a.split(',')[0].split('-')
-                console.log(hyphenated)
+                // console.log(hyphenated)
                 if (hyphenated.length == 2){
                   let newDollarA = `${hyphenated[1]}, ${dollarKey.a.split(',')[1].trim()} ${hyphenated[0]}-`
                   let hyphenated4xx = {}
@@ -1390,6 +1392,8 @@
                     <option class="preset-option" value="home">Presets</option>
                     <option class="preset-option" value="1001#">"1001 "</option>
                     <option class="preset-option" value="1001#and 4001#">"1001 " &amp; "4001 "</option>
+                    <option class="preset-option" value="1101#">"1101 "</option>
+                    <option class="preset-option" value="1101#and 4101#">"1101 " &amp; "4101 "</option>                    
                     <option class="preset-option" value="1102#">"1102 "</option>
                     <option class="preset-option" value="1102#and 4102#">"1102 " &amp; "4102 "</option>
                     <option class="preset-option" value="1112#">"1112 "</option>
