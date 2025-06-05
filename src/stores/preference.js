@@ -1866,7 +1866,6 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
     setPanelData(data){
-
       for (let key of Object.keys(data.view)){
         this.panelDisplay[key] = data.view[key]
       }
