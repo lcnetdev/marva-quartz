@@ -45,7 +45,6 @@ export default {
 
   methods: {
     closeWindow: function () {
-      console.info("close the thing")
       this.open = false
     },
     async refreshMarc() {
@@ -96,16 +95,14 @@ export default {
 <template>
 
   <div class="marc-preview-content">
-    <input @click="open = !open" type="checkbox" :checked="open" />
+    <!-- <input @click="open = !open" type="checkbox" :checked="open" /> -->
+     <button class="popout-button">
+      <span class="material-icons" @click="open = !open" style="font-size: 14px;">open_in_new</span>
+    </button>
 
     <WindowPortal @close="closeWindow" :open="open" :content="previewData" type="marc" :sourceDoc="sourceDoc">
-      <!-- <MarcDisplay :previewData="previewData" :selected="selected" /> this doesn't work? -->
+      <!-- <MarcDisplay :previewData="previewData" :selected="selected" /> why this doesn't work? -->
     </WindowPortal>
-    Popout this Panel?
-
-    <!-- TODO: -->
-    <!-- resize the panel when the window opens/closes -->
-    <!-- when the window is "x"ed to close, make sure the source knows and add -->
 
     <ul>
       <li v-for="ver in previewData.versions">
@@ -130,6 +127,7 @@ li {
   padding: 0.25em;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size')");
+  font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')");
 }
 
 .version-number {
@@ -188,5 +186,10 @@ li {
 
 :deep() span.marc.subfield:hover {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
+}
+
+.popout-button{
+  float: right;
+  z-index: 999;
 }
 </style>

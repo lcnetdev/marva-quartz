@@ -7,7 +7,7 @@
 
 <script>
 import { usePreferenceStore } from '@/stores/preference'
-import { mapStores, mapState } from 'pinia'
+import { mapStores, mapState, mapWritableState } from 'pinia'
 
 import MarcDisplay from './MarcDisplay.vue'
 
@@ -42,11 +42,11 @@ export default {
     },
     computed: {
         ...mapStores(usePreferenceStore),
-        ...mapState(usePreferenceStore, ['styleDefault', 'panelSizePresets']),
+        ...mapState(usePreferenceStore, ['styleDefault']),
+        ...mapWritableState(usePreferenceStore, ['panelSizePresets']),
     },
     watch: {
         open(newOpen) {
-            console.info("???")
             if (newOpen) {
                 this.openPortal();
             } else {
@@ -86,7 +86,6 @@ export default {
             })
         },
         openPortal() {
-            console.info("open portal: ", this.content)
             this.windowRef = window.open("", "", "width=700,height=600,left=200,top=200");
             this.windowRef.addEventListener('beforeunload', this.closePortal);
             // magic!
@@ -138,7 +137,6 @@ export default {
             this.preferenceStore.setPanelData(newPanels)
         },
         closePortal() {
-            console.info("closing")
             this.preferenceStore.setPanelData(this.currentPanels)
             if (this.windowRef) {
                 this.windowRef.close();
@@ -164,9 +162,12 @@ export default {
 
 <!--  -->
 
-<style scoped>
-body {
-    background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')") !important;
-    color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
+<style>
+
+div:has(div.marc.record) {
+    background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')");
+    color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')");
+    font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size')");
+    font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')");
 }
 </style>
