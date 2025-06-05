@@ -52,15 +52,17 @@
           <Badge v-if="loadLccnFromRecord(selectedWcRecord)" text="This LCCN is from the selected record."
             noHover="true" badgeType="primary" />
           <br>
-          Check for existing record using:
-          <div id="container">
-            <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
-              @click="changeSearchType($event)" ref="toggle">
-            <label for="search-type" class="toggle-container">
-              <div>LCCN</div>
-              <div>ISBN</div>
-            </label>
-          </div>
+          <template v-if="wcIndex == 'sn'">
+            Check for existing record using:
+            <div id="container">
+              <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
+                @click="changeSearchType($event)" ref="toggle">
+              <label for="search-type" class="toggle-container">
+                <div>LCCN</div>
+                <div>ISBN</div>
+              </label>
+            </div>
+          </template>
 
           <template v-if="existingLCCN || existingISBN">
             <br>
@@ -374,7 +376,7 @@ export default {
 
       if (this.searchType == 'lccn') {
         this.checkingLCCN = true
-        let resp = await utilsNetwork.checkLccn(this.urlToLoad)
+        let resp = await utilsNetwork.searchLccn(this.urlToLoad)
         console.info("     >>>>> ", resp)
         this.checkingLCCN = false
         try {
@@ -388,6 +390,7 @@ export default {
           console.info("     headers ", Object.keys(resp.headers))
           console.info("     x-uri ", resp.headers.get('x-uri'))
           console.info("     x-preflabel ", resp.headers.get('x-preflabel'))
+          console.info("headers: ", ...resp.headers)
 
           if (this.existingLCCN) {
             this.existingRecordUrl = resp.url
@@ -407,7 +410,7 @@ export default {
         this.checkingLCCN = true
         let potentialISBN = this.wcQuery
         console.info("isbn", potentialISBN)
-        let resp = await utilsNetwork.checkLccn(potentialISBN)
+        let resp = await utilsNetwork.searchLccn(potentialISBN)
         this.checkingLCCN = false
         console.info("resp: ", resp)
         try {
@@ -424,9 +427,6 @@ export default {
         }
       }
 
-      console.info("ending with")
-      console.info("this.existingLCCN :", this.existingLCCN)
-      console.info("this.existingISBN:", this.existingISBN)
 
     },
 
@@ -493,9 +493,9 @@ export default {
 
       if (rdaRecord) {
         return true
-      } else if (marc260 == "") {
-        return true
       } else if (!aacr2 && marc260 == "") {
+        return true
+      } else if (marc260 == "") {
         return true
       }
       return false

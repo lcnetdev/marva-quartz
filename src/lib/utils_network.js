@@ -419,18 +419,18 @@ const utilsNetwork = {
         url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/"
       }
 
-      url = url + lccn
+      url = url + lccn + "&blastdacache=" + Date.now()
 
       let result = await fetch(
         url,
         {
           method: 'HEAD',
-          redirect: 'manual',
+          // redirect: 'manual',
           // mode: 'cors',
-          headers: {
-            'Access-Control-Expose-Headers': 'x-preflabel',
-            'access-control-allow-headers': 'x-preflabel'
-          }
+          // headers: {
+          //   'Access-Control-Expose-Headers': 'x-preflabel',
+          //   'access-control-allow-headers': 'x-preflabel'
+          // }
         }
       )
 
@@ -2989,26 +2989,6 @@ const utilsNetwork = {
 
       return {status:false, postLocation: (content.postLocation) ? content.postLocation : null, msg: JSON.stringify(content.publish,null,2), msgObj: content.publish}
     }
-  },
-
-  /**
-   * Check if the given LCCN belongs to a record in ID
-   *
-   * @param {string} lccn - LCCN to check against ID
-   * @returns
-   */
-  checkLccn: async function(lccn){
-    let url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/" + lccn + "&blastdacache=" + Date.now()
-    let resp = null
-
-    resp = await fetch(
-      url,
-      {
-        method: 'HEAD',
-      }
-    )
-
-    return resp
   },
 
   /**
