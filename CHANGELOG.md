@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [1.3.7   ] - 2025-06-05
+### Added
+- Ability to open Marc preview in a separate window
+
 ## [1.3.7   ] - 2025-06-04
 ### Updated
 - Advanced NAR: Don't build auto-046 if 046 is present in advanced mode statements. And add more presets.
