@@ -16,6 +16,7 @@ export default {
       MarcDisplay
     },
     name: 'window-portal',
+    emits: ['close'],
     props: {
         open: {
             type: Boolean,
@@ -56,11 +57,6 @@ export default {
     },
     methods: {
         copyStyles(targetDoc) {
-            console.info('source: ', this.sourceDoc)
-            console.info('styleSheets: ', this.sourceDoc.styleSheets)
-            console.info("targetDoc: ", targetDoc)
-            console.info("this: ", window.document)
-
             // Copy the style from the component we are duplicating
             Array.from(this.sourceDoc.styleSheets).forEach(styleSheet => {
                 if (styleSheet.cssRules){
@@ -86,7 +82,7 @@ export default {
             })
         },
         openPortal() {
-            this.windowRef = window.open("", "", "width=700,height=600,left=200,top=200");
+            this.windowRef = window.open("", "", "width=700,height=900,left=200,top=200");
             this.windowRef.addEventListener('beforeunload', this.closePortal);
             // magic!
             this.windowRef.document.body.appendChild(this.$el);

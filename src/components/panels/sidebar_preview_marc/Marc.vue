@@ -95,7 +95,6 @@ export default {
 <template>
 
   <div class="marc-preview-content">
-    <!-- <input @click="open = !open" type="checkbox" :checked="open" /> -->
      <button class="popout-button">
       <span class="material-icons" @click="open = !open" style="font-size: 14px;">open_in_new</span>
     </button>
