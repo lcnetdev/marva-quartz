@@ -52,6 +52,18 @@
           <Badge v-if="loadLccnFromRecord(selectedWcRecord)" text="This LCCN is from the selected record."
             noHover="true" badgeType="primary" />
           <br>
+          <template v-if="wcIndex == 'sn'">
+            Check for existing record using:
+            <div id="container">
+              <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
+                @click="changeSearchType($event)" ref="toggle">
+              <label for="search-type" class="toggle-container">
+                <div>LCCN</div>
+                <div>ISBN</div>
+              </label>
+            </div>
+          </template>
+
           <template v-if="existingLCCN || existingISBN">
             <br>
             <Badge v-if="existingLCCN"
@@ -61,7 +73,8 @@
               text="A record with this ISBN might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
             <h4>
-              <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{ existingLCCN ? 'LCCN' : 'ISBN' }}</a>
+              <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{
+                existingLCCN ? 'LCCN' : 'ISBN' }}</a>
             </h4>
             <br>
           </template>
@@ -69,6 +82,11 @@
             <br>
             <Badge text="LCCNs should be 10 characters long." badgeType="warning" :noHover="true" />
             <br>
+          </template>
+          <template v-else>
+            <Badge v-if="!checkingLCCN && !existingLCCN && searchType == 'lccn' && wcIndex == 'sn'"
+              text="No results for this LCCN, try searching for the ISBN."
+              badgeType="warning" :noHover="true" />
           </template>
           <br>
           <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority"
@@ -244,8 +262,7 @@ export default {
       existingRecordUrl: "",
       hasLccn: false,
       checkingLCCN: false,
-
-
+      searchType: 'lccn',
     }
   },
   computed: {
@@ -282,7 +299,16 @@ export default {
   watch: {},
 
   methods: {
-    printMarc: function(){
+    changeSearchType: function (event) {
+      if (event.target.checked) {
+        this.searchType = "isbn"
+      } else {
+        this.searchType = "lccn"
+      }
+      this.checkLccn()
+    },
+
+    printMarc: function () {
       var printContents = document.getElementById('printArea').innerHTML
 
       // load the printable content into a new window and print that.
@@ -339,38 +365,52 @@ export default {
 
     checkLccn: async function () {
       console.info("checkLCCN")
+      this.existingLCCN = false
+      this.existingISBN = false
       if (!this.urlToLoad) {
         this.existingRecordUrl = ""
-        this.existingLCCN = false
-        this.existingISBN = false
         return false
       }
 
       console.info("urlToLoad: ", this.urlToLoad)
 
-      this.checkingLCCN = true
-      let resp = await utilsNetwork.checkLccn(this.urlToLoad)
-      console.info("     >>>>> ", resp)
-      this.checkingLCCN = false
-      try {
-        this.existingLCCN = resp.status != 404
-        if (this.existingLCCN) {
-          this.existingRecordUrl = resp.url
-          this.existingISBN = false
-        } else {
+      if (this.searchType == 'lccn') {
+        this.checkingLCCN = true
+        let resp = await utilsNetwork.searchLccn(this.urlToLoad)
+        console.info("     >>>>> ", resp)
+        this.checkingLCCN = false
+        try {
+          this.existingLCCN = resp.status != 404
+
+          //9789975865623
+          //2024387549
+          console.info("     >>>>> ", typeof resp)
+          console.info("     status ", resp.status)
+          console.info("     headers ", resp.headers)
+          console.info("     headers ", Object.keys(resp.headers))
+          console.info("     x-uri ", resp.headers.get('x-uri'))
+          console.info("     x-preflabel ", resp.headers.get('x-preflabel'))
+          console.info("headers: ", ...resp.headers)
+
+          if (this.existingLCCN) {
+            this.existingRecordUrl = resp.url
+            this.existingISBN = false
+          } else {
+            this.existingRecordUrl = ""
+          }
+        } catch {
+          this.existingLCCN = null
           this.existingRecordUrl = ""
         }
-      } catch {
-        this.existingLCCN = null
-        this.existingRecordUrl = ""
       }
 
       // check the ISBN
-      if (!this.existingLCCN && this.wcIndex == "sn"){
+      // else if (!this.existingLCCN && this.wcIndex == "sn"){
+      else if (this.searchType == 'isbn') {
         this.checkingLCCN = true
         let potentialISBN = this.wcQuery
         console.info("isbn", potentialISBN)
-        let resp = await utilsNetwork.checkLccn(potentialISBN)
+        let resp = await utilsNetwork.searchLccn(potentialISBN)
         this.checkingLCCN = false
         console.info("resp: ", resp)
         try {
@@ -387,9 +427,6 @@ export default {
         }
       }
 
-      console.info("ending with")
-      console.info("this.existingLCCN :", this.existingLCCN )
-      console.info("this.existingISBN:", this.existingISBN)
 
     },
 
@@ -456,9 +493,9 @@ export default {
 
       if (rdaRecord) {
         return true
-      } else if (marc260 == "") {
-        return true
       } else if (!aacr2 && marc260 == "") {
+        return true
+      } else if (marc260 == "") {
         return true
       }
       return false
@@ -545,10 +582,10 @@ export default {
 
     loadCopyCat: async function (profile) {
       let continueWithLoad = true
-      if (this.existingLCCN ) {
+      if (this.existingLCCN) {
         continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
       }
-      if (this.existingISBN){
+      if (this.existingISBN) {
         continueWithLoad = confirm("There is a record that matches this ISBN. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
       }
       if (!continueWithLoad) { return }
@@ -572,38 +609,38 @@ export default {
       let parser = new DOMParser()
       xml = parser.parseFromString(xml, "text/xml")
 
-      // Create a dummy 999 to pass user values to processor
-      let dummy999 = document.createElementNS("http://www.loc.gov/MARC21/slim", "datafield")
-      dummy999.setAttribute("tag", "999")
-      dummy999.setAttribute("ind1", " ")
-      dummy999.setAttribute("ind2", " ")
+      // Create a dummy field to pass user values to processor
+      let dummyField = document.createElementNS("http://www.loc.gov/MARC21/slim", "datafield")
+      dummyField.setAttribute("tag", "998")
+      dummyField.setAttribute("ind1", " ")
+      dummyField.setAttribute("ind2", " ")
 
-      this.createSubField("a", this.urlToLoad, dummy999)
-      this.createSubField("b", this.recordPriority, dummy999)
-      this.createSubField("c", this.jackphyCheck, dummy999)
-      this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummy999)
+      this.createSubField("a", this.urlToLoad, dummyField)
+      this.createSubField("b", this.recordPriority, dummyField)
+      this.createSubField("c", this.jackphyCheck, dummyField)
+      this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummyField)
 
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
       if (this.existingLCCN || this.existingISBN) {
-        this.createSubField("e", "overlay bib", dummy999)
-        if (this.existingRecordUrl != ""){
+        this.createSubField("e", "overlay bib", dummyField)
+        if (this.existingRecordUrl != "") {
           bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
-          this.createSubField("f", bibId, dummy999)
+          this.createSubField("f", bibId, dummyField)
         }
       }
 
       // cataloger code
       let catCode = "??"
-      try{
+      try {
         catCode = this.preferenceStore.catCode
-      } catch(err) {
+      } catch (err) {
         console.error("Couldn't get cataloger code")
       }
 
-      this.createSubField("z", catCode, dummy999)
+      this.createSubField("z", catCode, dummyField)
 
-      xml.documentElement.appendChild(dummy999)
+      xml.documentElement.appendChild(dummyField)
 
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
@@ -618,14 +655,14 @@ export default {
 
       this.responseURL = this.postResults.postLocation
 
-      if (!this.responseURL){
+      if (!this.responseURL) {
         alert("There was an issue sending the record.")
         console.error("Failed to send copy cat record: ", this.postResults)
         return
       }
 
       let recordId = ''
-      if (this.existingLCCN || this.existingISBN){
+      if (this.existingLCCN || this.existingISBN) {
         recordId = bibId
       } else {
         recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
@@ -643,7 +680,7 @@ export default {
       this.existingISBN = false
 
       try {
-        console.info("loading URL to Marva: ", this.urlToLoad )
+        console.info("loading URL to Marva: ", this.urlToLoad)
         this.loadUrl(profile)
       } catch (err) {
         alert("Couldn't load the record with the selected profile.")
@@ -789,7 +826,7 @@ label {
   cursor: pointer;
 }
 
-.search-box{
+.search-box {
   display: flex;
   flex-direction: row;
   border: 1px solid grey;
@@ -797,8 +834,8 @@ label {
   background-color: #fff;
 }
 
-.search-box:focus-within{
-  outline: 2px solid v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')") ;
+.search-box:focus-within {
+  outline: 2px solid v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
 }
 
 .url-to-load {
@@ -807,21 +844,21 @@ label {
   border: none;
 }
 
-.url-to-load:focus{
+.url-to-load:focus {
   outline: none;
 }
 
-.search-button{
+.search-button {
   display: block;
   height: 30px !important;
   width: 30px !important;
   padding: 0;
   border-radius: 50%;
   border: none;
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')") ;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
 }
 
-.search-button:hover{
+.search-button:hover {
   filter: saturate(3);
 }
 
@@ -978,7 +1015,7 @@ p {
   text-indent: 4em hanging;
 }
 
-:deep() div.marc.field:hover{
+:deep() div.marc.field:hover {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-marc-hover')");
 }
 
@@ -986,7 +1023,8 @@ p {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-marc-hover')");
   filter: saturate(3);
 }
-:deep() span.marc.subfield:hover > .subfield-label {
+
+:deep() span.marc.subfield:hover>.subfield-label {
   font-weight: bold;
   font-style: italic;
 }
@@ -1010,7 +1048,7 @@ p {
   border: 2px solid red;
 }
 
-#button-print-marc{
+#button-print-marc {
   float: right;
   z-index: 999;
 }
@@ -1023,4 +1061,67 @@ p {
   }
 }
 
+/* toggle */
+/* https://hudecz.medium.com/how-to-create-a-pure-css-toggle-button-2fcc955a8984 */
+#container {
+  margin-left: 5px;
+}
+
+.toggle {
+  display: none;
+}
+
+.toggle-container {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: fit-content;
+  border: 3px solid v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
+  border-radius: 20px;
+  background: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
+  font-weight: bold;
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
+  cursor: pointer;
+}
+
+.toggle-container::before {
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  left: 0%;
+  border-radius: 20px;
+  background: black;
+  transition: all 0.3s;
+}
+
+.toggle-container div {
+  padding: 6px;
+  text-align: center;
+  z-index: 1;
+}
+
+.toggle:checked+.toggle-container::before {
+  left: 50%;
+}
+
+.toggle:checked+.toggle-container div:first-child {
+  color: black;
+  transition: color 0.3s;
+}
+
+.toggle:checked+.toggle-container div:last-child {
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
+  transition: color 0.3s;
+}
+
+.toggle+.toggle-container div:first-child {
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
+  transition: color 0.3s;
+}
+
+.toggle+.toggle-container div:last-child {
+  color: black;
+  transition: color 0.3s;
+}
 </style>

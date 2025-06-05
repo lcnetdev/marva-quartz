@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 ## [1.3.7   ] - 2025-06-04
 ### Updated
 - Advanced NAR: Don't build auto-046 if 046 is present in advanced mode statements. And add more presets.
-
+- Marva CopyCat uses `998` for user info
 
 
 ## [1.3.5   ] - 2025-06-03
