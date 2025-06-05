@@ -13,7 +13,7 @@
       <div v-if="!copyCatMode">
         <splitpanes>
           <pane class="load" v-if="displayAllRecords">
-            <button style="float: right;" @click="displayAllRecords = false; displayDashboard = true">Close</button>
+            <button style="float: right; z-index: 1000;" @click="displayAllRecords = false; displayDashboard = true">Close</button>
             <div v-if="dashBoard && dashBoard.totalDays">
               <h1>
                 <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"
@@ -99,10 +99,12 @@
                 <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
                   <input placeholder="URL to resource or identifier to search" class="url-to-load" type="text"
                     @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
+  
+                    <div v-if="loadingRecord" class="loading-record">L<span class="infinite-spin">O</span>ADING REC<span class="infinite-spin">O</span>RD...</div>
+
                   <p>Need to search title or author? Use <a href="https://preprod-8230.id.loc.gov/lds/index.xqy"
                       target="_blank">BFDB</a>.</p>
                 </form>
-
 
                 <ol>
 
@@ -157,6 +159,14 @@
                     v-for="s in startingPointsFiltered">{{ s.name
                     }}</button>
                 </div>
+
+                <div class="default-profile-container">
+                  <span>Default profile to use on [Enter] key</span>
+                  <select v-model="defaultProfile" @change="preferenceStore.setValue('--s-general-default-profile', defaultProfile)">
+                    <option v-for="s in startingPointsFiltered" :value="s.instance" :key="s.instance">{{ s.name }}</option>
+                  </select>
+                </div>
+
                 <hr>
 
                 <h2>Test Data:</h2>
@@ -280,6 +290,7 @@ export default {
     return {
 
       urlToLoad: '',
+      urlToLoadTimer: null,
 
       continueRecords: [],
 
@@ -292,6 +303,7 @@ export default {
 
       dataTableInitalLimit: 1000,
 
+      defaultProfile: '',
 
       displayDashboard: true,
       displayAllRecords: false,
@@ -302,6 +314,8 @@ export default {
       allRecords: [],
       dataTableRecords: [],
       hideOptions: true,
+
+      loadingRecord: false,
 
     }
   },
@@ -330,7 +344,7 @@ export default {
 
       points.push({ "name": "HUB", "work": null, "instance": "lc:RT:bf2:HubBasic:Hub", "item": null },)
 
-      console.log(points)
+      // console.log(points)
       return points
     }
 
@@ -397,7 +411,7 @@ export default {
       this.allRecords = []
 
       for (let r of allRecordsRaw) {
-        console.log("r", r)
+        // console.log("r", r)
         let obj = {
           'Id': r.eid,
 
@@ -445,7 +459,7 @@ export default {
       }
 
       dashBoard.totalDays = Math.floor((new Date().getTime() / 1000 - oldestDate) / 86400)
-      console.log(dashBoard)
+      // console.log(dashBoard)
       this.dashBoard = dashBoard
 
       this.dataTableRecords = this.allRecords.slice(0, this.dataTableInitalLimit)
@@ -482,10 +496,29 @@ export default {
 
     loadSearch: function () {
       this.lccnLoadSelected = null
-
+      console.log("this.urlToLoad", this.urlToLoad)
+      console.log("this.urlToLoad.indexOf('BFDB URI')",this.urlToLoad.indexOf('BFDB URI'))
+      console.log("this.urlToLoad.indexOf('Status')",this.urlToLoad.indexOf('Status'))
       if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")) {
         this.urlToLoadIsHttp = true
         return false
+      }else if(this.urlToLoad.indexOf('BFDB URI') > -1 && this.urlToLoad.indexOf('Status') > -1  ){
+
+        let urlMatch = this.urlToLoad.match(/:\/\/[^\s\/]+\/.*?\/instances\/[^\s]+/g);
+        if (urlMatch && urlMatch.length > 0) {
+          urlMatch = urlMatch[0].split(' ')
+          urlMatch = urlMatch[urlMatch.length - 1]
+          urlMatch = urlMatch + '.convertedit-pkg.xml'
+          this.urlToLoad = urlMatch
+          this.urlToLoadIsHttp = true
+          // this will tigger using the default profile
+          this.loadUrl(new Event('click'), null)
+          
+          return false;
+        }else{
+          this.urlToLoadIsHttp = false
+        }
+        
       } else {
         this.urlToLoadIsHttp = false
 
@@ -510,15 +543,35 @@ export default {
     },
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
+      console.log("useInstanceProfile",useInstanceProfile)
+      let useLoadUrl = ''
       if (this.lccnLoadSelected) {
-        this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
+        useLoadUrl = this.lccnLoadSelected.bfdbPackageURL
+      }else if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://") || this.urlToLoad.startsWith("/")) {
+        useLoadUrl = this.urlToLoad
+      }else{
+        alert("Please enter a valid URL or identifier to load.")
       }
 
 
-      if (this.urlToLoad.trim() !== '') {
-        let xml = await utilsNetwork.fetchBfdbXML(this.urlToLoad)
+      // did they just hit enter and the record is loading, and not ready to go yet
+      if (useLoadUrl.trim() === '' && this.searchByLccnResults && typeof this.searchByLccnResults === 'string') {
+        if (this.urlToLoadTimer){
+          return false
+        }
+        this.urlToLoadTimer = window.setTimeout(() => {          
+          this.urlToLoadTimer = null
+          this.loadUrl(useInstanceProfile, multiTestFlag)
+        }, 250)
+        return false
+      }
+
+      if (useLoadUrl.trim() !== '') {
+        this.loadingRecord=true
+        let xml = await utilsNetwork.fetchBfdbXML(useLoadUrl)
         if (!xml) {
           alert("There was an error retrieving that URL. Are you sure it is correct: " + this.urlToLoad)
+          this.loadingRecord=false
           return false
         }
         // if (xml.indexOf('<rdf:RDF'))
@@ -528,8 +581,21 @@ export default {
 
       // find the right profile to use from the instance profile name used
       let useProfile = null
-      console.log("this.profiles", this.profiles)
-      console.log("useInstanceProfile", useInstanceProfile)
+      // console.log("this.profiles", this.profiles)
+      // console.log("useInstanceProfile", useInstanceProfile)
+
+      // if it is an event it means they did not click the profile button but pressed ENTER
+      if (useInstanceProfile instanceof Event){
+        // check to see if there is a default profile set
+        if (this.defaultProfile && this.defaultProfile != '') {
+          useInstanceProfile = this.defaultProfile
+        } 
+        // don't keep going if there was no search result
+        if (this.searchByLccnResults && this.searchByLccnResults.length === 0){
+          return false
+        }
+      }
+
       for (let key in this.profiles) {
         if (this.profiles[key].rtOrder.indexOf(useInstanceProfile) > -1) {
           useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
@@ -540,17 +606,19 @@ export default {
       this.activeProfilePostedTimestamp = false
 
       // check if the input field is empty
-      if (this.urlToLoad == "" && useProfile === null) {
+      if (useLoadUrl == "" && useProfile === null) {
+        this.loadingRecord=false
         alert("Please enter the URL or Identifier of the record you want to load.")
         return false
       }
 
       if (useProfile === null) {
+        this.loadingRecord=false
         alert('No profile selected. Select a profile under "Load with profile."')
         return false
       }
 
-      if (this.urlToLoad.trim() !== '') {
+      if (useLoadUrl.trim() !== '') {
 
 
 
@@ -598,7 +666,7 @@ export default {
       }
 
       // setup the log and set the procinfo so the post process knows what to do with this record
-      useProfile.log.push({ action: 'loadInstance', from: this.urlToLoad })
+      useProfile.log.push({ action: 'loadInstance', from: useLoadUrl })
       useProfile.procInfo = "update instance"
 
       // also give it an ID for storage
@@ -621,7 +689,7 @@ export default {
 
 
 
-      if (this.urlToLoad.trim() !== '') {
+      if (useLoadUrl.trim() !== '') {
         let profileDataMerge = await utilsParse.transformRts(useProfile)
         this.activeProfile = profileDataMerge
       } else {
@@ -702,7 +770,7 @@ export default {
           }
         }
       }
-
+      this.loadingRecord=false
       if (multiTestFlag) {
         this.$router.push(`/multiedit/`)
         return true
@@ -752,13 +820,17 @@ export default {
   },
 
   mounted: async function () {
+    this.loadingRecord=false
     this.refreshSavedRecords()
     if (window.location.hash && window.location.hash == '#stats') {
-      console.log("showing stats")
+      // console.log("showing stats")
       this.loadAllRecords()
     }
     //reset the title
     document.title = `Marva`;
+
+    // this.defaultProfile = 'lc:RT:bf2:Monograph:Instance'
+    this.defaultProfile = this.preferenceStore.returnValue('--s-general-default-profile')
 
   },
 
@@ -782,7 +854,7 @@ export default {
 
     let intervalLoadProfile = window.setInterval(() => {
       if (this.$route && this.$route.query && this.$route.query.profile && this.startingPointsFiltered && this.startingPointsFiltered.length > 0) {
-        console.log("Weerrr looookiinnn at the profile!", this.$route.query.profile)
+        // console.log("Weerrr looookiinnn at the profile!", this.$route.query.profile)
         let possibleInstanceProfiles = this.startingPointsFiltered.map((v) => v.instance)
         if (possibleInstanceProfiles.indexOf(this.$route.query.profile) > -1) {
           this.loadUrl(this.$route.query.profile)
@@ -800,6 +872,12 @@ export default {
 </script>
 
 <style>
+
+.loading-record{
+  text-align: center;
+  font-size: 1.5em;
+  margin-bottom: 1em;
+}
 .dt-bg-gray-50 {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')") !important;
   color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')") !important;
@@ -988,5 +1066,24 @@ summary {
 .header {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-background-color')") !important;
 
+}
+
+.default-profile-container{
+  padding:0.25em;
+  margin-top:1em
+}
+.default-profile-container select{
+  margin-left: 1em;
+  font-size: 1em;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.infinite-spin {
+  display: inline-block;
+  /* don't do it :( */
+  /* animation: spin 2s linear infinite; */
 }
 </style>

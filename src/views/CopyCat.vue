@@ -11,10 +11,10 @@
 
       <!-- source: https://gridbyexample.com/patterns/header-twocol-footer/ -->
       <div class="copy-cat-wrapper">
-        <header class="copy-cat-header">
+        <header class="copy-cat-header no-print">
           Copy Cat Search
         </header>
-        <div class="copy-cat-search">
+        <div class="copy-cat-search no-print">
           <h1>Search OCLC</h1>
           <form ref="urlToLoadForm" v-on:submit.prevent="">
             <div class="search-box" style="display: flex; flex-direction: row;">
@@ -90,7 +90,7 @@
           </div>
 
         </div>
-        <div class="copy-cat-results">
+        <div class="copy-cat-results no-print">
           <h1>Results</h1>
           <div>
             <h2 v-if="wcResults?.results && Number(wcResults?.results?.numberOfRecords) === 0">
@@ -123,13 +123,17 @@
               @emitCurrentPage="setSearchPage" />
           </div>
         </div>
+
         <div class="copy-cat-marc">
           <div v-if="Object.keys(selectedWcRecord).length > 0">
-            Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }}
-            <br>
-            MARC Preview<br>
-            <hr class="marc-divider">
-            <div v-html="selectedWcRecord['marcHTML']"></div>
+            <button @click="printMarc" id="button-print-marc">Print</button>
+            <div id="printArea">
+              Selected OCLC Number: {{ selectedWcRecord['oclcNumber'] }}
+              <br>
+              MARC Preview<br>
+              <hr class="marc-divider">
+              <div v-html="selectedWcRecord['marcHTML']"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -278,6 +282,17 @@ export default {
   watch: {},
 
   methods: {
+    printMarc: function(){
+      var printContents = document.getElementById('printArea').innerHTML
+
+      // load the printable content into a new window and print that.
+      this.windowRef = window.open("", "", "width=600,height=400,left=200,top=200");
+      this.windowRef.addEventListener('beforeunload', this.closePortal);
+      this.windowRef.document.body.innerHTML = printContents
+      this.windowRef.print()
+      this.windowRef.close()
+
+    },
     loadLccnFromRecord: function (record) {
       if (!record) { return false }
       let marc010 = this.getMarcFieldAsString(record, "010")
@@ -995,6 +1010,11 @@ p {
   border: 2px solid red;
 }
 
+#button-print-marc{
+  float: right;
+  z-index: 999;
+}
+
 /* We need to set the widths used on floated items back to auto, and remove the bottom margin as when we have grid we have gaps. */
 @supports (display: grid) {
   .copy-cat-wrapper>* {
@@ -1002,4 +1022,5 @@ p {
     margin: 0;
   }
 }
+
 </style>
