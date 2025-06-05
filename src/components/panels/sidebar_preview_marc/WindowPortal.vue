@@ -153,10 +153,8 @@ export default {
         }
 
         this.panelSizePresets = this.preferenceStore.returnValue('--o-edit-main-splitpane-edit-panel-size-presets')
-        console.info("panelSizePresets: ", this.panelSizePresets)
     },
     beforeDestroy() {
-        console.info("destroy")
         if (this.windowRef) {
             this.closePortal();
         }
