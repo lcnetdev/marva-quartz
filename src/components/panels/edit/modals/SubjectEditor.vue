@@ -311,17 +311,30 @@
                     <template v-for="key in panelDetailOrder">
                       <div v-if="contextData[key] && contextData[key].length>0">
                         <template v-if="key != 'sources'">
-                          <template v-if="['lcclasss', 'broaders', 'identifiers'].includes(key)">
+
+                          <template v-if="key=='lcclasses'">
+                            <span  class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                            <ul class="">
+                              <li class="" v-if="key=='lcclasses'" v-for="v in contextData['lcclasses']">
+                                <template v-if="typeof v != 'string'">
+                                  <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
+                                  <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
+                                </template>
+                                <tempalte v-else>
+                                  {{ v }}
+                                </tempalte>
+                                <template v-if="v.label">
+                                --{{ getClassLabel(v.label) }}
+                                </template>
+                              </li>
+                            </ul>
+                          </template>
+
+                          <template v-else-if="['broaders', 'identifiers'].includes(key)">
                             <div class="modal-context-data-title" v-if="key != 'identifiers'">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                             <ul  class="details-list">
                               <template v-for="v in contextData[key]">
-                                <li class="modal-context-data-li" v-if="key=='lcclasss'">
-                                  <template v-if="typeof v === 'string'">
-                                    <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
-                                    <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
-                                  </template>
-                                </li>
-                                <li class="modal-context-data-li" v-else-if="key == 'broaders'">
+                                <li class="modal-context-data-li" v-if="key == 'broaders'">
                                   {{v}}
                                   <button class="material-icons see-search" @click="newSearch(v)">search</button>
                                 </li>
@@ -1070,6 +1083,7 @@ data: function() {
       "occupations": "Occupations",
       "languages": "Associated Languages",
       "lcclasss": "LC Classification",
+      "lcclasses": "LC Classification",
       "broaders": "Has Broader Authority",
       "gacs": "GAC(s)",
       "collections": "MADS Collections",
@@ -1087,7 +1101,7 @@ data: function() {
     panelDetailOrder: [
             "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",
             "locales", "activityfields","occupations","languages",
-            "sources", "sees", "lcclasss", "identifiers","broaders",
+            "sources", "sees", "lcclasses", "lcclasss", "identifiers","broaders",
             "collections", "subjects", "marcKeys"
         ],
     selectedSortOrder: ""
@@ -1103,6 +1117,20 @@ computed: {
   ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral']),
 },
 methods: {
+  getClassLabel: function(label){
+    let pieces = label.split("--")
+
+    if (pieces.length == 1){
+      return label
+    }
+
+    let posSpecialTopic = pieces.indexOf('Special topics, A-Z')
+    if (posSpecialTopic != -1){
+      return pieces.at(posSpecialTopic - 1)
+    }
+
+    return pieces.at(-1)
+  },
   // Conduct a new search on "related" term
   newSearch: function(v){
     this.subjectString = v
@@ -1121,7 +1149,7 @@ methods: {
       { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
       { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/classificationPortion" }
     ]
-    
+
     let fieldGuid = null
     try {
       fieldGuid = targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["@guid"]

@@ -74,6 +74,7 @@
           "occupations": "Occupations",
           "languages": "Associated Languages",
           "lcclasss": "LC Classification",
+          "lcclasses": "LC Classification",
           "broaders": "Has Broader Authority",
           "gacs": "GAC(s)",
           "collections": "MADS Collections",
@@ -89,7 +90,7 @@
         },
         panelDetailOrder: [
             "birthdates","deathdates", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds",
-            "sources", "lcclasss", "birthplaces",  "locales",
+            "sources", "lcclasses", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "identifiers","broaders",
             "collections", "genres", "subjects", "marcKeys", "rdftypes"
@@ -1239,21 +1240,27 @@
                     <!-- Secondary -->
                     <template v-for="key in panelDetailOrder">
                       <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-
                         <template v-if="key != 'sources'">
-                          <ul class="details-list">
-                            <li class="details-details" v-if="key=='lcclasss'" v-for="v in activeContext.extra['lcclasss']">
-                              <template v-if="typeof v === 'string'">
-                                <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
-                                <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
-                                <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
-                              </template>
-                            </li>
+                          <template v-if="key=='lcclasses'">
+                            <span  class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                            <ul class="">
+                              <li class="" v-if="key=='lcclasses'" v-for="v in activeContext.extra['lcclasses']">
+                                  <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
+                                <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
+                                <template v-if="v.label">
+                                --{{ v.label.split("--").at(-1) }}
+                                </template>
+                              </li>
+                            </ul>
+                          </template>
+                          <template v-else>
+                            <ul>
                             <li class="details-details" v-if='["identifiers","broaders",].includes(key)'>
                               <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                               {{ activeContext.extra[key].join(" ; ") }}
                             </li>
                           </ul>
+                          </template>
                         </template>
                       </div>
                     </template>

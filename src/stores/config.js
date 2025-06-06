@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 3,
-    versionPatch: 8,
+    versionPatch: 9,
 
 
 
@@ -172,7 +172,6 @@ export const useConfigStore = defineStore('config', {
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
         id: 'https://id.loc.gov/',
         env : 'production',
-        publicEndpoints:true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
       },
