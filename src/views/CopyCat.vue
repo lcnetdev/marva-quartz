@@ -92,8 +92,13 @@
           <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority"
             :class="{ 'needs-input': !recordPriority }" /><br>
           <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
-          <label for="jackphy">Does this record contain non-Latin script that should be retained? </label><input
-            name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
+          <label for="jackphy">Does this record contain non-Latin script that should be retained? </label>
+            <input
+              name="jackphy"
+              id="jackphy"
+              type="checkbox"
+              v-model="jackphyCheck"
+              /><br>
           <br>
           <h3>Load with profile:</h3>
           <template v-if="posting">
@@ -814,6 +819,8 @@ export default {
   mounted: async function () {
     //reset the title
     document.title = `Marva`;
+
+    this.jackphyCheck = this.preferenceStore.returnValue("--b-edit-copy-cat-non-latin")
   },
   created: async function () { }
 }
