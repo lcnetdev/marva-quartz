@@ -320,9 +320,9 @@
                                   <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
                                   <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
                                 </template>
-                                <tempalte v-else>
+                                <template v-else>
                                   {{ v }}
-                                </tempalte>
+                                </template>
                                 <template v-if="v.label">
                                 --{{ getClassLabel(v.label) }}
                                 </template>
