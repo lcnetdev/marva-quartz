@@ -443,7 +443,7 @@ const utilsNetwork = {
     * @param {allowAbort} --
     * @return {array} - An array of {@link searchComplexResult} results
     */
-    searchComplex: async function(searchPayload){
+    searchComplex: async function(searchPayload, blast=true){
       // console.log("searchPayload",searchPayload)
         let returnUrls = useConfigStore().returnUrls
 
@@ -485,7 +485,9 @@ const utilsNetwork = {
               url = url + "&usage=true"
             }
 
-            url = url + "&blastdacache=" + Date.now()
+            if (blast){
+              url = url + "&blastdacache=" + Date.now()
+            }
 
             // url = url + "&sortfield=label"
 
@@ -2600,15 +2602,19 @@ const utilsNetwork = {
       // resultsExactName, resultsExactSubject,
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsSubjectsComplexSearchVal] = await Promise.all([
+        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsHierarchicalGeographic] = await Promise.all([
             this.searchComplex(searchPayloadNames),
-            this.searchComplex( searchPayloadNamesGeo),
+            this.searchComplex(searchPayloadNamesGeo),
             this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadSubjectsSimple),
             this.searchComplex(searchPayloadSubjectsSimpleSubdivision),
-            this.searchComplex(searchPayloadSubjectsComplex),
             this.searchComplex(searchPayloadHierarchicalGeographic),
-            this.searchComplex(searchPayloadSubjectsComplexSearchVal),
+        ]);
+
+        // break out the complex searches because they can take a while and slow down all results
+        [resultsSubjectsComplex, resultsSubjectsComplexSearchVal] = await Promise.all([
+            this.searchComplex(searchPayloadSubjectsComplex, false),
+            this.searchComplex(searchPayloadSubjectsComplexSearchVal, false),
         ]);
 
         if (complexSub[0]){

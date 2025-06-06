@@ -74,14 +74,6 @@
                   <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button>
                   <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
                   <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
-
-                  <template v-if="preferenceStore.returnValue('--b-edit-complex-include-usage')">
-                    | Sort:
-                    <select v-model="selectedSortOrder" @change="applySort">
-                      <option value="alpha">Alpha</option>
-                      <option value="useageDesc">Highest Usage</option>
-                    </select>
-                  </template>
                 </div>
 
 
@@ -1013,9 +1005,7 @@ watch: {
     this.linkModeString = this.searchValue
   },
 
-  watchSort: function(){
-    this.selectedSortOrder = this.applySort()
-  }
+  watchSort: function(){},
 
 },
 
@@ -2033,13 +2023,6 @@ methods: {
       // },100)
     })
 
-    if (that.preferenceStore.returnValue('--b-edit-complex-include-usage')){
-      that.selectedSortOrder = 'alpha'
-      that.applySort()
-    } else {
-      that.selectedSortOrder = 'alpha'
-      that.applySort()
-    }
   }, 500),
 
   navStringClick: function(event){
@@ -2184,51 +2167,6 @@ methods: {
   clearSelected: function(){
     this.pickLookup[this.pickCurrent].picked = false
     this.pickCurrent = null
-  },
-
-  applySort: function(){
-    let typeSort = this.selectedSortOrder
-
-    if (this.searchMode == 'WORKS' || this.searchMode == 'HUBS'){
-      typeSort = 'alpha'
-    }
-
-    for (let r in this.searchResults){
-      let records = this.searchResults[r]
-      if (typeSort == 'alpha'){
-        this.searchResults[r] = records.sort((a, b) => {
-          if (a.suggestLabel === undefined){
-            return 0 //1
-          } else if (b.suggestLabel === undefined){
-            return 0 //-1
-          } else if ( a.suggestLabel.toLowerCase().replace("--", " ") > b.suggestLabel.toLowerCase().replace("--", " ")){
-            return 1
-          } else {
-            return -1
-          }
-        })
-
-        this.buildPickLookup()
-
-      } else if (typeSort == 'useageDesc'){
-        this.searchResults[r] = records.sort((a,b) => {
-          if (a.count === undefined){
-            return 0 //1
-          } else if (b.count === undefined){
-            return 0 //-1
-          } else if ( a.count > b.count){
-            return -1
-          } else if (a.count == 0 && b.count == 0){
-            return 0
-          } else {
-            return 1
-          }
-        })
-
-        this.buildPickLookup()
-      }
-
-    }
   },
 
   buildCount: function(subject){
@@ -3641,15 +3579,7 @@ created: function () {
 },
 
 before: function () {},
-mounted: function(){
-  if (this.preferenceStore.returnValue('--b-edit-complex-include-usage')){
-    this.selectedSortOrder = 'alpha'
-    this.applySort()
-  } else {
-    this.selectedSortOrder = 'alpha'
-    this.applySort()
-  }
-},
+mounted: function(){},
 
 
 updated: function() {
