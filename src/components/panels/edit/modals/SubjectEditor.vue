@@ -2083,7 +2083,6 @@ methods: {
   },
 
   getContext: async function(){
-    console.info("getContext")
     if (this.pickLookup[this.pickPostion].literal){
       this.contextData = this.pickLookup[this.pickPostion]
       return false
@@ -2380,7 +2379,6 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
-    console.info("selectContext")
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
@@ -2397,14 +2395,9 @@ methods: {
       // if the selected heading is made of parts of the search string
       let replacePos = []
 
-      console.info("this.searchStringPos: ", this.searchStringPos)
       if (this.searchStringPos > 0){ // we're looking at a subdivision and we've got a complex heading. Figure out if the pieces
-        console.info("start setting up the replacement")
         replacePos = [this.searchStringPos]
         let incomingPieces = this.pickLookup[this.pickPostion].label.toLowerCase().split("‑‑")
-
-        console.info("incomingPieces: ", incomingPieces)
-        console.info("splitStringLower: ", splitStringLower)
 
         let looksLikeMatch = (set1, set2) => {
           let matches = []
@@ -2424,7 +2417,6 @@ methods: {
 
         // Figure out how the select term fits into the existing term.
         if (splitStringLower.length != incomingPieces.length){
-          console.info("!!!")
           for (let termIdx in incomingPieces){
 
             //check if the next piece is in the incoming
@@ -2437,12 +2429,8 @@ methods: {
             }
           }
         }else if (splitStringLower.length == incomingPieces.length){
-          console.info("here?")
-          console.info("1: ", splitStringLower.at(-1))
-          console.info("2: ", incomingPieces.at(0))
           if (splitStringLower.at(-1) == incomingPieces.at(0)){
             // we're appending, so we just want to replace the last piece of the current string
-            console.info("shouldn't be here")
             replacePos.push(splitStringLower.length - 1)
           } else if (looksLikeMatch(splitStringLower, incomingPieces)) {
             replacePos = []
@@ -2455,23 +2443,18 @@ methods: {
         }
       }
 
-      console.info("replacePos: ", replacePos)
-
       if (splitStringLower.includes(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())){
         let idx = splitStringLower.indexOf(this.pickLookup[this.pickPostion].label.replaceAll('-','‑').toLowerCase())
         if (idx == this.activeComponentIndex){
-          console.info("doing some replacing1")
           splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
           this.subjectString = splitString.join('--')
         }
       } if (replacePos.length > 0){
-        console.info("doing some replacing2")
         splitString.splice(replacePos[0], replacePos.length, this.pickLookup[this.pickPostion].label)
         this.subjectString = splitString.join('--')
         this.activeComponentIndex = replacePos[0]
       } else {
         // Replace the whole thing
-        console.info("doing some replacing3")
         this.subjectString = this.pickLookup[this.pickPostion].label
         this.componetLookup = {}
         this.activeComponentIndex = 0
