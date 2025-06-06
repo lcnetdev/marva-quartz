@@ -170,6 +170,17 @@
     },
 
     methods: {
+      sortResults: function(a,b){
+         if (a.label.includes('Literal')){
+          return -1
+         } else if (a.label > b.label){
+          return 1
+         } else if(a.label < b.label){
+          return -1
+         } else {
+          return 0
+         }
+      },
       checkLcOnly: function(){
         let config = useConfigStore()
 
@@ -1116,7 +1127,7 @@
                     </option>
                     <template v-if="!isSimpleLookup()">
                       <!-- .sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0)) -->
-                      <option v-for="(r,idx) in activeComplexSearch.sort((a,b) => (a.label.includes('Literal') ? -1 : a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0))" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
+                      <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
                         <div :class="['option-text', {unusable: !checkUsable(r)}]">
                           <span v-html="generateLabel(r)"></span>
                           <span v-if="checkFromAuth(r)" class="from-auth"> (Auth)</span>

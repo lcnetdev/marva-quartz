@@ -443,7 +443,7 @@ const utilsNetwork = {
     * @param {allowAbort} --
     * @return {array} - An array of {@link searchComplexResult} results
     */
-    searchComplex: async function(searchPayload){
+    searchComplex: async function(searchPayload, blast=true){
       // console.log("searchPayload",searchPayload)
         let returnUrls = useConfigStore().returnUrls
 
@@ -485,7 +485,9 @@ const utilsNetwork = {
               url = url + "&usage=true"
             }
 
-            url = url + "&blastdacache=" + Date.now()
+            if (blast){
+              url = url + "&blastdacache=" + Date.now()
+            }
 
             // url = url + "&sortfield=label"
 
@@ -2378,9 +2380,9 @@ const utilsNetwork = {
 
 
       this.subjectSearchActive = true
-      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF Auth Names'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsNames).replace("<OFFSET>", "1")+'&rdftype=Name&keepdiacritics=true'
-      let namesGeoUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF Geographic'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsNames).replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Geographic&keepdiacritics=true'
-      let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&keepdiacritics=true'
+      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF Auth Names'].url.replace('<QUERY>',searchVal).replace('&count=30','&count='+numResultsNames).replace("<OFFSET>", "1")+'&rdftype=Name&keepdiacritics=true'
+      let namesGeoUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF Geographic'].url.replace('<QUERY>',searchVal).replace('&count=30','&count='+numResultsNames).replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Geographic&keepdiacritics=true'
+      let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=30','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&keepdiacritics=true'
 
       let subjectUrlComplexSearchVal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
@@ -2389,9 +2391,7 @@ const utilsNetwork = {
       let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
       let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
 
-      let subjectUrlComplexSubdivison1 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[0])).replace('&count=25','&count='+Math.ceil(numResultsComplex/3)).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
-      let subjectUrlComplexSubdivison2 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[1])).replace('&count=25','&count='+Math.ceil(numResultsComplex/3)).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
-      let subjectUrlComplexSubdivison3 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>', searchVal).replace('&count=25','&count='+numResultsComplex/3).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let subjectUrlComplexSubdivison1 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[0])).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       // let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
       // let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
@@ -2477,22 +2477,6 @@ const utilsNetwork = {
         processor: 'lcAuthorities',
         url: [subjectUrlComplexSubdivison1],
         searchValue: complexSub[0],
-        subjectSearch: true,
-        subdivision: true,
-        signal: this.controllers.controllerPayloadSubjectsComplexSubdivision.signal,
-      }
-      let searchPayloadSubjectsComplexSubdivision2 = {
-        processor: 'lcAuthorities',
-        url: [subjectUrlComplexSubdivison2],
-        searchValue: complexSub[1],
-        subjectSearch: true,
-        subdivision: true,
-        signal: this.controllers.controllerPayloadSubjectsComplexSubdivision.signal,
-      }
-      let searchPayloadSubjectsComplexSubdivision3 = {
-        processor: 'lcAuthorities',
-        url: [subjectUrlComplexSubdivison3],
-        searchValue: searchVal,
         subjectSearch: true,
         subdivision: true,
         signal: this.controllers.controllerPayloadSubjectsComplexSubdivision.signal,
@@ -2597,8 +2581,6 @@ const utilsNetwork = {
       let resultsSubjectsSimple=[]
       let resultsPayloadSubjectsSimpleSubdivision=[]
       let resultsSubjectsComplexSubdivision1=[]
-      let resultsSubjectsComplexSubdivision2=[]
-      let resultsSubjectsComplexSubdivision3=[]
       let resultsSubjectsComplex=[]
       let resultsSubjectsComplexSearchVal=[]
       let resultsSubjectsComplexPart=[]
@@ -2620,19 +2602,26 @@ const utilsNetwork = {
       // resultsExactName, resultsExactSubject,
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsSubjectsComplexSearchVal, resultsSubjectsComplexSubdivision1, resultsSubjectsComplexSubdivision2, resultsSubjectsComplexSubdivision3] = await Promise.all([
+        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsHierarchicalGeographic] = await Promise.all([
             this.searchComplex(searchPayloadNames),
-            this.searchComplex( searchPayloadNamesGeo),
+            this.searchComplex(searchPayloadNamesGeo),
             this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadSubjectsSimple),
             this.searchComplex(searchPayloadSubjectsSimpleSubdivision),
-            this.searchComplex(searchPayloadSubjectsComplex),
             this.searchComplex(searchPayloadHierarchicalGeographic),
-            this.searchComplex(searchPayloadSubjectsComplexSearchVal),
-            this.searchComplex(searchPayloadSubjectsComplexSubdivision1),
-            this.searchComplex(searchPayloadSubjectsComplexSubdivision2),
-            this.searchComplex(searchPayloadSubjectsComplexSubdivision3),
         ]);
+
+        // break out the complex searches because they can take a while and slow down all results
+        [resultsSubjectsComplex, resultsSubjectsComplexSearchVal] = await Promise.all([
+            this.searchComplex(searchPayloadSubjectsComplex, false),
+            this.searchComplex(searchPayloadSubjectsComplexSearchVal, false),
+        ]);
+
+        if (complexSub[0]){
+          [resultsSubjectsComplexSubdivision1] = await Promise.all([
+              this.searchComplex(searchPayloadSubjectsComplexSubdivision1),
+          ]);
+        }
 
       } else if (mode == "CHILD"){
         [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
@@ -2686,14 +2675,8 @@ const utilsNetwork = {
       if (resultsChildrenSubjectsComplex.length>0){
         resultsChildrenSubjectsComplex.pop()
       }
-      if (resultsSubjectsComplexSubdivision1.length>0){
+      if (resultsSubjectsComplexSubdivision1 && resultsSubjectsComplexSubdivision1.length>0){
         resultsSubjectsComplexSubdivision1.pop()
-      }
-      if (resultsSubjectsComplexSubdivision2.length>0){
-        resultsSubjectsComplexSubdivision2.pop()
-      }
-      if (resultsSubjectsComplexSubdivision3.length>0){
-        resultsSubjectsComplexSubdivision3.pop()
       }
 
       if (resultsSubjectsSimple.length>0){
@@ -2774,7 +2757,11 @@ const utilsNetwork = {
         resultsSubjectsComplex = resultsSubjectsComplex.concat(resultsSubjectsComplexSearchVal.filter((item) => !resultsSubjectsComplex.some((o) => o.label == item.label))) //dedupe
       }
 
-      let complexHeadings = resultsSubjectsComplex.concat(resultsSubjectsComplexSubdivision1).concat(resultsSubjectsComplexSubdivision2).concat(resultsSubjectsComplexSubdivision3)
+
+      let complexHeadings = resultsSubjectsComplex
+      if (pos > 0){
+        complexHeadings = resultsSubjectsComplex.concat(resultsSubjectsComplexSubdivision1)
+      }
 
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
@@ -2787,6 +2774,7 @@ const utilsNetwork = {
       }
 
       this.subjectSearchActive = false
+
       return results
 
     },
