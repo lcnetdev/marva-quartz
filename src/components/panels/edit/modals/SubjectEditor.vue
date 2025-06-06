@@ -1866,21 +1866,14 @@ methods: {
 
     let complexSub = []
 
-    if (currentPos > 0){
-      let newTerm = searchStringFullPieces.slice(currentPos, currentPos+2).join("--")
-      if (newTerm.includes("--")){
-        complexSub.push(newTerm)
-      }
-    }
+    // to search for complex subdivisions, we'll look that come after the first term
+
     if (currentPos > 1){
+      //this will search `s1--s2`
       let newTerm = searchStringFullPieces.slice(currentPos-1, currentPos+1).join("--")
       if (newTerm.includes("--")){
         complexSub.push(newTerm)
       }
-    }
-
-    if (complexSub.length < 2){
-      complexSub.push('')
     }
 
     if (searchStringFull.includes("---")){
