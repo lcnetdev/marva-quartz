@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 ## [1.3.9] - 2025-06-06
 ### Updated
 - Details display to account for changes to suggest2
+- CopyCat logic for when to display message that there are no results for an LCCN.
+
+### Added
+- CopyCat: preference to have non-latin checkbox default
 
 
 ## [1.3.8] - 2025-06-05

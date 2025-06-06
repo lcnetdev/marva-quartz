@@ -1393,6 +1393,15 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Copy Cat',
           range: [1,2]
       },
+      '--b-edit-copy-cat-non-latin' : {
+        desc: 'Select NonLatin by default in CopyCat.',
+        descShort: 'NonLatin Default',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Copy Cat',
+        range: [true,false]
+      },
 
 
 
