@@ -84,7 +84,7 @@
             <br>
           </template>
           <template v-else>
-            <Badge v-if="!checkingLCCN && !existingLCCN && searchType == 'lccn' && wcIndex == 'sn'"
+            <Badge v-if="urlToLoad != '' && !checkingLCCN && !existingLCCN && searchType == 'lccn' && wcIndex == 'sn'"
               text="No results for this LCCN, try searching for the ISBN."
               badgeType="warning" :noHover="true" />
           </template>
