@@ -1256,6 +1256,7 @@
                             <span  class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                             <ul class="">
                               <li class="" v-if="key=='lcclasses'" v-for="v in activeContext.extra['lcclasses']">
+                                  <template v-if="v.assigner">({{ v.assigner }}) </template>
                                   <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
                                 <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
                                 <template v-if="v.label">
