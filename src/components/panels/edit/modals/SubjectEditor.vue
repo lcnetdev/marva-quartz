@@ -74,14 +74,6 @@
                   <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button>
                   <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
                   <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
-
-                  <template v-if="preferenceStore.returnValue('--b-edit-complex-include-usage')">
-                    | Sort:
-                    <select v-model="selectedSortOrder" @change="applySort">
-                      <option value="alpha">Alpha</option>
-                      <option value="useageDesc">Highest Usage</option>
-                    </select>
-                  </template>
                 </div>
 
 
@@ -320,9 +312,9 @@
                                   <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
                                   <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
                                 </template>
-                                <tempalte v-else>
+                                <template v-else>
                                   {{ v }}
-                                </tempalte>
+                                </template>
                                 <template v-if="v.label">
                                 --{{ getClassLabel(v.label) }}
                                 </template>
@@ -1013,9 +1005,7 @@ watch: {
     this.linkModeString = this.searchValue
   },
 
-  watchSort: function(){
-    this.selectedSortOrder = this.applySort()
-  }
+  watchSort: function(){},
 
 },
 
@@ -1866,21 +1856,20 @@ methods: {
 
     let complexSub = []
 
-    if (currentPos > 0){
-      let newTerm = searchStringFullPieces.slice(currentPos, currentPos+2).join("--")
-      if (newTerm.includes("--")){
-        complexSub.push(newTerm)
-      }
-    }
+    // to search for complex subdivisions, we'll look that come after the first term
+
     if (currentPos > 1){
+      //this will search `s1--s2`
       let newTerm = searchStringFullPieces.slice(currentPos-1, currentPos+1).join("--")
       if (newTerm.includes("--")){
         complexSub.push(newTerm)
       }
     }
 
-    if (complexSub.length < 2){
-      complexSub.push('')
+    if (currentPos == 1){
+      //this will search `s1--s2`
+      let newTerm = searchStringFullPieces[1]
+      complexSub.push(newTerm)
     }
 
     if (searchStringFull.includes("---")){
@@ -2034,13 +2023,6 @@ methods: {
       // },100)
     })
 
-    if (that.preferenceStore.returnValue('--b-edit-complex-include-usage')){
-      that.selectedSortOrder = 'alpha'
-      that.applySort()
-    } else {
-      that.selectedSortOrder = 'alpha'
-      that.applySort()
-    }
   }, 500),
 
   navStringClick: function(event){
@@ -2184,51 +2166,6 @@ methods: {
   clearSelected: function(){
     this.pickLookup[this.pickCurrent].picked = false
     this.pickCurrent = null
-  },
-
-  applySort: function(){
-    let typeSort = this.selectedSortOrder
-
-    if (this.searchMode == 'WORKS' || this.searchMode == 'HUBS'){
-      typeSort = 'alpha'
-    }
-
-    for (let r in this.searchResults){
-      let records = this.searchResults[r]
-      if (typeSort == 'alpha'){
-        this.searchResults[r] = records.sort((a, b) => {
-          if (a.suggestLabel === undefined){
-            return 0 //1
-          } else if (b.suggestLabel === undefined){
-            return 0 //-1
-          } else if ( a.suggestLabel.toLowerCase().replace("--", " ") > b.suggestLabel.toLowerCase().replace("--", " ")){
-            return 1
-          } else {
-            return -1
-          }
-        })
-
-        this.buildPickLookup()
-
-      } else if (typeSort == 'useageDesc'){
-        this.searchResults[r] = records.sort((a,b) => {
-          if (a.count === undefined){
-            return 0 //1
-          } else if (b.count === undefined){
-            return 0 //-1
-          } else if ( a.count > b.count){
-            return -1
-          } else if (a.count == 0 && b.count == 0){
-            return 0
-          } else {
-            return 1
-          }
-        })
-
-        this.buildPickLookup()
-      }
-
-    }
   },
 
   buildCount: function(subject){
@@ -2457,10 +2394,28 @@ methods: {
 
       // if the selected heading is made of parts of the search string
       let replacePos = []
+
       if (this.searchStringPos > 0){ // we're looking at a subdivision and we've got a complex heading. Figure out if the pieces
         replacePos = [this.searchStringPos]
         let incomingPieces = this.pickLookup[this.pickPostion].label.toLowerCase().split("‑‑")
 
+        let looksLikeMatch = (set1, set2) => {
+          let matches = []
+          if (set1.length != set2.length){
+            return false
+          } else {
+            for (let idx in set1){
+              if (set2[idx].includes(set1[idx])){
+                matches.push(true)
+              }
+            }
+          }
+
+          return matches.every(v => v === true)
+
+        }
+
+        // Figure out how the select term fits into the existing term.
         if (splitStringLower.length != incomingPieces.length){
           for (let termIdx in incomingPieces){
 
@@ -2473,6 +2428,16 @@ methods: {
               replacePos.unshift(this.searchStringPos-1)
             }
           }
+        }else if (splitStringLower.length == incomingPieces.length){
+          if (splitStringLower.at(-1) == incomingPieces.at(0)){
+            // we're appending, so we just want to replace the last piece of the current string
+            replacePos.push(splitStringLower.length - 1)
+          } else if (looksLikeMatch(splitStringLower, incomingPieces)) {
+            replacePos = []
+          } else { // same length, first and last don't match, and the arrays don't last.
+            //should something happen?
+          }
+
         } else {
           replacePos = []
         }
@@ -3597,15 +3562,7 @@ created: function () {
 },
 
 before: function () {},
-mounted: function(){
-  if (this.preferenceStore.returnValue('--b-edit-complex-include-usage')){
-    this.selectedSortOrder = 'alpha'
-    this.applySort()
-  } else {
-    this.selectedSortOrder = 'alpha'
-    this.applySort()
-  }
-},
+mounted: function(){},
 
 
 updated: function() {
