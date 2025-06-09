@@ -1737,8 +1737,6 @@ methods: {
         }
       }
     } else {
-      console.info("switch")
-
       // Above we took loose components and combined them,
       // here we undo that incase someone made a mistake and the geo
       // term has a subject in it that needs to be split out.
@@ -1753,8 +1751,6 @@ methods: {
           approved.push(this.components[c])
         }
       }
-
-      console.info("unApprovedIdx: ", unApprovedIdx)
 
       //remove the terms that have been exploded
       for (let i in unApprovedIdx){
@@ -1810,7 +1806,6 @@ methods: {
     }
 
     if (this.activeComponent && this.activeComponent.label){
-      console.info("searching")
       this.searchApis(this.activeComponent.label,this.subjectString,this)
     }
     this.$refs.subjectInput.focus()
@@ -1852,9 +1847,6 @@ methods: {
 
   // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
   searchApis: debounce(async (searchString, searchStringFull, that) => {
-    console.info("searchString: ", searchString)
-    console.info("searchStringFull: ", searchStringFull)
-    console.info("that: ", that)
     that.pickCurrent = null //reset the current selection when the search changes
 
     that.searchResults=null
@@ -1972,18 +1964,13 @@ methods: {
       that.searchResults.subjectsComplex = that.searchResults.hierarchicalGeographic
     }
 
-    console.info("results: ", that.searchResults)
-    console.info("subjectString: ", that.subjectString)
-
     that.pickLookup = {}
 
     that.pickPostion = that.searchResults.subjectsSimple.length + that.searchResults.subjectsComplex.length -1
 
     that.buildPickLookup()
-    console.info("subjectString???: ", that.subjectString)
 
     for (let k in that.pickLookup){
-      console.info("k: ", that.pickLookup[k].label)
       that.pickLookup[k].picked = false
       if (searchString.toLowerCase() == that.pickLookup[k].label.toLowerCase() && !that.pickLookup[k].literal ){
         // if the labels are the same for the current one selected don't overide it
@@ -1991,7 +1978,6 @@ methods: {
           if (that.activeComponent.uri == that.pickLookup[k].uri){
             that.pickPostion=k
             that.pickLookup[k].picked=true
-            console.info("about to select context", that.subjectString)
             that.selectContext()
           }
         }else{
@@ -2413,7 +2399,6 @@ methods: {
   },
 
   selectContext: async function(pickPostion, update=true){
-    console.info("selectContext")
     if (pickPostion != null){
       this.pickPostion=pickPostion
       this.pickCurrent=pickPostion
@@ -2519,12 +2504,9 @@ methods: {
       }
 
     }else{
-      console.info("else")
       // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
       // take the subject string and split
       let splitString = this.subjectString.split('--')
-
-      console.info("splitString: ", splitString)
 
       // replace the string with what we selected
       splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-','‑')
