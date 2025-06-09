@@ -1259,7 +1259,7 @@
                                   <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
                                 <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
                                 <template v-if="v.label">
-                                --{{ v.label.split("--").at(-1) }}
+                                    --{{ v.label.split("--").at(-1) }}
                                 </template>
                               </li>
                             </ul>

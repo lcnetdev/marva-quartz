@@ -316,7 +316,12 @@
                                   {{ v }}
                                 </template>
                                 <template v-if="v.label">
-                                --{{ getClassLabel(v.label) }}
+                                  <span v-if="v.label.split('--').length == 1">
+                                    --{{ getClassLabel(v.label) }}
+                                  </span>
+                                  <span v-else :data-tooltip="v.label" class="expandable-class-label simptip-position-bottom">
+                                    --{{ getClassLabel(v.label) }}<span class="expand material-icons">help</span>
+                                  </span>
                                 </template>
                               </li>
                             </ul>
@@ -939,6 +944,15 @@ ul:has(.modal-context-data-li){
   font-size: 12px;
   margin-right: 10px;
 }
+
+.expandable-class-label{
+  cursor: help;
+}
+
+.expand {
+  font-size: 14px;
+}
+
 
 </style>
 
