@@ -3,13 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 
-## [1.3.9] - 2025-06-06
+## [1.3.9] - 2025-06-09
 ### Updated
 - Details display to account for changes to suggest2
 - CopyCat logic for when to display message that there are no results for an LCCN.
 - Use `suggest2` order for complext lookup results
 - Improve subjectBuilder selection when choosing a complex subdivision
 - Improve subjectBuilder complex subdivision search
+- Classification information incldes assigner
+- Classification label can be expaned when possible
 
 ## Fixed
 - ComplexLookup preference for number for results not always being reflected in the results
