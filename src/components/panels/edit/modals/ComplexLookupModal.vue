@@ -1259,7 +1259,12 @@
                                   <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
                                 <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
                                 <template v-if="v.label">
+                                  <span v-if="v.label.split('--').length == 1">
                                     --{{ v.label.split("--").at(-1) }}
+                                  </span>
+                                  <span v-else :data-tooltip="v.label" class="expandable-class-label simptip-position-bottom">
+                                    --{{ v.label.split("--").at(-1) }}<span class="expand material-icons">help</span>
+                                  </span>
                                 </template>
                               </li>
                             </ul>
@@ -1685,7 +1690,17 @@
   cursor: pointer;
 }
 
+.expandable-class-label{
+  cursor: help;
+}
 
+.expand {
+  font-size: 14px;
+}
 
+.simptip-position-bottom::before,
+.simptip-position-bottom::after{
+  left: -30% !important;
+}
 
 </style>

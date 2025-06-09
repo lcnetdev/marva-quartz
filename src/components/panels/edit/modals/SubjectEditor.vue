@@ -953,6 +953,11 @@ ul:has(.modal-context-data-li){
   font-size: 14px;
 }
 
+.simptip-position-bottom::before,
+.simptip-position-bottom::after{
+  left: -30% !important;
+}
+
 
 </style>
 
