@@ -69,7 +69,7 @@ export default {
                 }
             })
 
-            //Copy the style from there
+            //Copy the style from here
             Array.from(window.document.styleSheets).forEach(styleSheet => {
                 if (styleSheet.cssRules){
                     const newStyleEl = window.document.createElement('style')
@@ -82,8 +82,7 @@ export default {
             })
         },
         openPortal() {
-            console.info("open")
-            this.windowRef = window.open("", "", "width=700,height=900,left=200,top=200");
+            this.windowRef = window.open("", "", "width=800,height=700,left=100,top=100");
             this.windowRef.addEventListener('beforeunload', this.closePortal);
             // magic!
             this.windowRef.document.body.appendChild(this.$el);
@@ -119,7 +118,7 @@ export default {
 
             for (let key in newPanels.percents){
                 if (key.includes(this.type)){
-                    newPanels.percents[key] = "1%" // shrink the panel we are duping in a new window
+                    newPanels.percents[key] = "0%" // shrink the panel we are duping in a new window
                 } else if (adjustedPanels.includes(key)){ // add the space to the form panels
                     let size = Number(newPanels.percents[key].slice(0,2))
                     if (adjustedPanels.length == 1){
@@ -156,16 +155,3 @@ export default {
     }
 }
 </script>
-
-<!--  -->
-
-<style>
-
-div:has(div.version-number),
-div:has(div.marc.record) {
-    background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')");
-    color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')");
-    font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size')");
-    font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')");
-}
-</style>

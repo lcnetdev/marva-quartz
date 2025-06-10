@@ -114,6 +114,10 @@ export default {
 </template>
 
 <style scoped>
+body{
+  --bg-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')");
+}
+
 ul {
   padding: 0;
 }
@@ -125,6 +129,7 @@ li {
 .marc-preview-content {
   padding: 0.25em;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')");
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size')");
   font-family: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-family')");
 }
@@ -184,7 +189,7 @@ li {
 }
 
 :deep() span.marc.subfield:hover {
-  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
+  /* background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')"); */
 }
 
 .popout-button{
