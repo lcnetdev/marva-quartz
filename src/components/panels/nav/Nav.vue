@@ -95,7 +95,7 @@
       ...mapWritableState(useConfigStore, ['showNonLatinBulkModal','showNonLatinAgentModal']),
 
 
-      
+
 
       panelTitleProperties(){
         return (this.panelDisplay.properties) ? 'done' : ''
@@ -115,7 +115,7 @@
       panelTitleLinkedData(){
         return (this.panelDisplay.linkedData) ? 'done' : ''
       },
-      
+
 
       userName(){
         if (this.preferenceStore.catInitals && this.preferenceStore.catCode){
@@ -174,19 +174,19 @@
           },
         ]
 
-        if (this.preferenceStore.isNarTester()){ //remove/change for production
-          if (!this.$route.path.includes('edit')){
-            menuButtonSubMenu.push(
-              {
-                text: "Copy Cat.",
-                click: () => {
-                  this.profileStore.copyCatMode = !this.profileStore.copyCatMode
-                },
-                emoji: this.profileStore.copyCatMode ? "heavy_check_mark" : "smile_cat"
-              }
-            )
-          }
+
+        if (!this.$route.path.includes('edit')){
+          menuButtonSubMenu.push(
+            {
+              text: "Copy Cat.",
+              click: () => {
+                this.profileStore.copyCatMode = !this.profileStore.copyCatMode
+              },
+              emoji: this.profileStore.copyCatMode ? "heavy_check_mark" : "smile_cat"
+            }
+          )
         }
+
 
         const config = useConfigStore()
         if (config.returnUrls.displayLCOnlyFeatures){
@@ -328,7 +328,7 @@
 
               { text: 'Quick Views', click: () => {
                 this.showPanelSizeModal = true;
-               
+
               } , icon: 'width_normal' },
 
 
@@ -340,7 +340,7 @@
         if (this.panelSizePresets.length>0 && this.$route.name == 'Edit'){
 
           menu.push({ is: 'separator'})
-          for (let aPresetButton of this.panelSizePresets){            
+          for (let aPresetButton of this.panelSizePresets){
             menu.push(
               {
                 // style: `color: ${aPresetButton.color};`, // this doesn't work
@@ -353,7 +353,7 @@
               }
             )
             // this is how we gotta set the color I guess
-            this.$nextTick(()=>{              
+            this.$nextTick(()=>{
               document.querySelector(`#panel-size-preset-button-${aPresetButton.id} span`).style.color = aPresetButton.color
             })
           }
@@ -362,7 +362,7 @@
 
 
 
-          
+
         }
 
 
@@ -670,16 +670,16 @@
           )
           }
 
-        // anything after this point will  be on the right of nav menu  
+        // anything after this point will  be on the right of nav menu
         menu.push({ is: "spacer" })
 
-        
+
 
         menu.push(
         {
             text: this.userName,
             // active: this.happy,
-            icon: "account_circle",            
+            icon: "account_circle",
             click: () => { this.showLoginModal = true }
         }
         )
@@ -1177,7 +1177,7 @@
       margin-left: 100px;
     }
 
-    
+
     .record-posted .icon{
       color: green !important;
     }
