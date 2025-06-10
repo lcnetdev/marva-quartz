@@ -6536,21 +6536,26 @@ export const useProfileStore = defineStore('profile', {
         noteTOC: [],
         thumbnail: [],
         lcsh: [],
-        isbn:this.activeProfile.linkedData.isbn
+        genre: [],
+        contributors: utilsProfile.returnContributorUris(this.activeProfile),
+        isbn: (this.activeProfile.linkedData && this.activeProfile.linkedData.isbn) ? this.activeProfile.linkedData.isbn : [],
       }
+      console.log(":linkedDatalinkedData",linkedData)
 
-      for (let isbn of this.activeProfile.linkedData.isbn){
+      for (let isbn of linkedData.isbn){
        
         let baseData = await utilsNetwork.linkedDataBaseRelated(isbn)
         console.log("baseData",baseData)      
 
         let oclcMarcData = utilsNetwork.linkedDataExtractOclcMarc(baseData.results)
-
+        console.log("oclcMarcData",oclcMarcData)
         linkedData.subtitle = linkedData.subtitle.concat(oclcMarcData.filter((v) => (v.dataType == 'subtitle')));
         linkedData.noteContent = linkedData.noteContent.concat(oclcMarcData.filter((v) => (v.dataType == 'description')));
         linkedData.noteTOC = linkedData.noteTOC.concat(oclcMarcData.filter((v) => (v.dataType == 'toc')));
         linkedData.thumbnail = linkedData.thumbnail.concat(oclcMarcData.filter((v) => (v.dataType == 'thumbnail')));
         linkedData.lcsh = linkedData.lcsh.concat(oclcMarcData.filter((v) => (v.dataType == '6xx')));
+        linkedData.genre = linkedData.genre.concat(oclcMarcData.filter((v) => (v.dataType == 'genre')));
+
         linkedData.isbn = linkedData.isbn.concat(baseData.results.isbns);
 
         linkedData.isbn.map((v)=>{
@@ -6560,9 +6565,9 @@ export const useProfileStore = defineStore('profile', {
         })
         linkedData.isbn = [...new Set(linkedData.isbn)];
 
-        console.log("linkedDatalinkedDatalinkedDatalinkedData,linkedData",oclcMarcData.filter((v) => (v.dataType == 'subtitle')))
 
-        console.log("oclcMarcData",oclcMarcData)
+        
+
         if (baseData.results.isbns && baseData.results.isbns.length > 0){          
           let googleBookData = await utilsNetwork.linkedDataAllGoogleBooksByIsbns(baseData.results.isbns)
           googleBookData = utilsNetwork.linkedDataExtractGoogleBooks(googleBookData)
@@ -6586,6 +6591,17 @@ export const useProfileStore = defineStore('profile', {
 
 
       }
+      // remove the $1 or $0
+      for (let lcsh of linkedData.lcsh){
+        lcsh.value = lcsh.value.filter((v) => (Object.keys(v)[0] != '1' && Object.keys(v)[0] != '0') )
+      }
+
+      // remove trailing punctuation from genreForm
+      for (let genre of linkedData.genre){
+        if (genre.value && genre.value.length > 0){
+          genre.value = genre.value.replace(/[\.]$/, '')
+        }
+      }      
 
       // unique the lcsh
       let addedLCSH = []
@@ -6617,6 +6633,16 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      // ask for contributor LCSH possbilbities
+      if (linkedData.contributors && linkedData.contributors.length > 0){
+        let lcshContributors = await utilsNetwork.linkedDataLCSHContributors(linkedData.contributors)
+        // console.log("lcshContributors",lcshContributors)
+        // kick this off but don't wait for it to finish
+        utilsNetwork.linkedDataLCSHContributorsExtract(lcshContributors).then((colabResults)=>{
+          console.log("colabResults",colabResults)
+        })
+        // if (lcshContributors && lcshContributors.length > 0){
+      }
 
       console.log("linkedData",linkedData)
       this.linkedData = linkedData
@@ -6632,19 +6658,33 @@ export const useProfileStore = defineStore('profile', {
         toAdd.addNew = false
         toAdd.resourceType = "instance"
       }
-      if (toAdd.dataType == 'description' || toAdd.dataType == 'toc' || toAdd.dataType == 'note'){ 
+      if (toAdd.dataType == 'description' || toAdd.dataType == 'note'){ 
         toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/summary", "http://www.w3.org/2000/01/rdf-schema#label"] 
         toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/Summary"
         toAdd.addNew = true
         toAdd.resourceType = "work"
       }
-      console.log("toAdd",toAdd)
+      if (toAdd.dataType == 'toc' ){ 
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/tableOfContents", "http://www.w3.org/2000/01/rdf-schema#label"] 
+        toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/TableOfContents"
+        toAdd.addNew = true
+        toAdd.resourceType = "work"
+      }
+
       if (toAdd.dataType == '6xx' ){ 
         toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/subject", "http://www.w3.org/2000/01/rdf-schema#label"] 
         toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/Subject"
         toAdd.addNew = true
         toAdd.resourceType = "work"
       }
+
+      if (toAdd.dataType == 'genre' ){ 
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/genreForm", "http://www.w3.org/2000/01/rdf-schema#label"] 
+        toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/GenreForm"
+        toAdd.addNew = true
+        toAdd.resourceType = "work"
+      }
+      console.log("toAdd",toAdd)      
       for (let rt of Object.keys(this.activeProfile.rt)){
         if (rt.toLowerCase().includes(toAdd.resourceType)){
           for (let pt of Object.keys(this.activeProfile.rt[rt].pt)){
@@ -6663,7 +6703,7 @@ export const useProfileStore = defineStore('profile', {
                     copyFrom.id = copyFrom.id + "_" + short.generate()
 
 
-                    if (toAdd.PropertyPath[0] != "http://id.loc.gov/ontologies/bibframe/subject"){
+                    if (toAdd.PropertyPath[0] != "http://id.loc.gov/ontologies/bibframe/subject" && toAdd.PropertyPath[0] != "http://id.loc.gov/ontologies/bibframe/genreForm"){
                       copyFrom.userValue = {'@root': toAdd.PropertyPath[0]}
                       copyFrom.userValue[toAdd.PropertyPath[0]] = [{
                         '@guid': short.generate(),
@@ -6703,7 +6743,14 @@ export const useProfileStore = defineStore('profile', {
                               let foundEl = document.querySelector(`[data-field-guid="${copyFrom['@guid']}"]`)
                               foundEl.focus()     
                               console.log("toAdd.value",toAdd.value) 
-                              let lcshString = toAdd.value.map((v)=>{ return v[Object.keys(v)[0]] }).join("--")
+
+                              let toAddString
+                              if (toAdd.PropertyPath[0] == "http://id.loc.gov/ontologies/bibframe/subject"){
+                                toAddString = toAdd.value.map((v)=>{ return '$' + Object.keys(v)[0] + v[Object.keys(v)[0]] }).join("")
+                              }else if (toAdd.PropertyPath[0] == "http://id.loc.gov/ontologies/bibframe/genreForm"){
+                                toAddString = toAdd.value
+                              }
+                                
                                       
                               setTimeout(()=>{
 
@@ -6716,7 +6763,7 @@ export const useProfileStore = defineStore('profile', {
                                   // foundEl.dispatchEvent(eventA);
                                   // foundEl.value="Hellooo"
                                   const event = new Event('input', { bubbles: true });
-                                  foundEl.value = lcshString;
+                                  foundEl.value = toAddString;
                                   foundEl.dispatchEvent(event);
 
 

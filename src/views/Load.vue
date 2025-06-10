@@ -232,7 +232,7 @@
                     these are only for testing input, and cannot be used for posting or in production.</summary>
                   <div :class="{ 'hide-options': hideOptions }">
                     <div class="load-buttons">
-                      <button class="load-button" @click="loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{
+                      <button class="load-button" @click="urlToLoad='new'; loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{
                         s.name
                       }}</button>
                     </div>
@@ -549,6 +549,8 @@ export default {
         useLoadUrl = this.lccnLoadSelected.bfdbPackageURL
       }else if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://") || this.urlToLoad.startsWith("/")) {
         useLoadUrl = this.urlToLoad
+      }else if (this.urlToLoad=='new') {
+        // continue on with a empty profile
       }else{
         alert("Please enter a valid URL or identifier to load.")
       }

@@ -3581,6 +3581,21 @@ const utilsNetwork = {
                       }
                   });
               }
+              else if (marcTag === "655") {
+
+                let allSFields = {}
+                  subfieldsList.forEach(sfDict => {
+                    allSFields[Object.keys(sfDict)[0]] = sfDict[Object.keys(sfDict)[0]]
+                  });
+                  if (allSFields['2'] && allSFields['2'] === 'lcgft' && allSFields.hasOwnProperty('a')) {
+                      extractedResults.push({
+                          id: oclcNumber,
+                          type: "oclc",
+                          dataType: "genre",
+                          value: allSFields.a
+                      });
+                  }
+              }
               // Rule 4: Any 6XX field when indicator 2 is '0'
               // Keep all subfields for this 6XX field occurrence together.
               else if (marcTag.length === 3 && marcTag.startsWith('6') && !isNaN(parseInt(marcTag.substring(1)))) {
@@ -3602,7 +3617,221 @@ const utilsNetwork = {
       });
 
       return extractedResults;
-    }
+    },
+
+    async linkedDataLCSHContributors(contributorsUris){
+
+        
+      let url = useConfigStore().returnUrls.util + 'related/works/contributor'
+
+      const rawResponse = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        //signal: AbortSignal.timeout(5000),
+        body: JSON.stringify({uris: contributorsUris})
+      });
+
+      const content = await rawResponse.json();
+
+      return content
+      
+    },
+
+    async linkedDataLCSHContributorsExtract(data){
+      // TODO: Implement extraction logic
+      if (data){
+        console.log("linkedDataLCSHContributorsExtract data:",data)
+
+        for (let lccnUri of Object.keys(data)){
+          
+          let workUrls = data[lccnUri].results.map(work => work.uri + '.json');
+          
+            let workPromises = workUrls.map(url => fetch(url).then(response => response.json()));
+
+            try {
+              let workResults = await Promise.all(workPromises);
+              console.log("workResults", workResults);
+              // Now process each workResult
+              for (let workData of workResults) {
+                // Process workData
+                console.log("Processing workData:", workData);
+
+                let lookup = {}
+                let lcshList = []
+
+                for (let g of workData){
+
+                  if (g && g['@id'] && g['@id'].startsWith('_:')){
+                    lookup[g['@id']] = {}
+                    if (g['@type'] && g['@type'].length > 0){
+                      lookup[g['@id']]['@type'] = g['@type'][0]
+                    }
+                    if (g['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'] && g['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length > 0){
+                      lookup[g['@id']]['label'] = g['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['@value']
+                    }else{
+                      if (g['http://www.w3.org/2000/01/rdf-schema#label'] && g['http://www.w3.org/2000/01/rdf-schema#label'].length > 0){
+                      lookup[g['@id']]['label'] = g['http://www.w3.org/2000/01/rdf-schema#label'][0]['@value']
+                      }                      
+                    }      
+                    
+                    if (g['http://id.loc.gov/ontologies/bflc/marcKey'] && g['http://id.loc.gov/ontologies/bflc/marcKey'].length > 0){
+                      lookup[g['@id']]['marcKey'] = g['http://id.loc.gov/ontologies/bflc/marcKey'][0]['@value']
+                    }
+                    
+                  }
+
+                  if (g['@id'].startsWith('http://id.loc.gov/resources/works')){
+                    lcshList.push(g)
+                  }
+                  
+
+                }
+
+                if (lcshList.length > 0) {
+                  lcshList = lcshList.reduce((prev, current) => {
+                  return (Object.keys(prev).length > Object.keys(current).length) ? prev : current;
+                  });
+                } else {
+                  lcshList = {}; // Or handle as an error/empty case
+                }
+                if (lcshList && lcshList['http://id.loc.gov/ontologies/bibframe/subject']){
+                  lcshList = lcshList['http://id.loc.gov/ontologies/bibframe/subject']
+                }
+                if (lcshList && lcshList.length > 0){
+                  for (let lcsh of lcshList) {
+                      // find the lcsh in the main graph
+
+
+                      let userData = {
+                          "@root": "http://id.loc.gov/ontologies/bibframe/subject",
+                          "http://id.loc.gov/ontologies/bibframe/subject": [{
+                              "@guid": short.generate(),
+                              "@type": "http://www.loc.gov/mads/rdf/v1#ComplexSubject",
+                              "http://www.w3.org/2000/01/rdf-schema#label": [{
+                                  "@guid": short.generate(),
+                                  "http://www.w3.org/2000/01/rdf-schema#label": null
+                              }],
+                              "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [{
+                                  "@guid": short.generate(),
+                                  "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": null
+                              }],
+                              "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme": [{
+                                  "@guid": short.generate(),
+                                  "@type": "http://www.loc.gov/mads/rdf/v1#MADSScheme",
+                                  "@id": "http://id.loc.gov/authorities/subjects",
+                                  "http://www.w3.org/2000/01/rdf-schema#label": [{
+                                      "@guid": short.generate(),
+                                      "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress Subject Headings",
+                                      "@language": "en"
+                                  }]
+                              }],
+                              "http://www.loc.gov/mads/rdf/v1#componentList": [
+
+                              ],
+                              "http://id.loc.gov/ontologies/bibframe/source": [{
+                                  "@guid": short.generate(),
+                                  "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                                  "@id": "http://id.loc.gov/authorities/subjects",
+                                  "http://www.w3.org/2000/01/rdf-schema#label": [{
+                                      "@guid": short.generate(),
+                                      "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress Subject Headings",
+                                      "@language": "en"
+                                  }]
+                              }]
+                          }]
+                      }
+                      for (let g of workData) {
+                          if (g['@id'] === lcsh['@id']) {
+
+                              if (g['@type'] && g['@type'].indexOf('http://www.loc.gov/mads/rdf/v1#ComplexSubject') > -1) {
+
+                                  console.log("Complex Subject:", g);
+
+
+
+
+                                  if (g['http://www.loc.gov/mads/rdf/v1#componentList'] && g['http://www.loc.gov/mads/rdf/v1#componentList'].length > 0) {
+                                      let components = g['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@list'];
+                                      for (let component of components) {
+                                          // now find this in the graph...
+                                          console.log("component:", component);
+                                          let userValueComponent = {
+                                              "@guid": short.generate(),
+                                              "@type": null,
+                                              // "@id": "http://id.loc.gov/authorities/subjects/sh85036614",
+                                              "http://www.w3.org/2000/01/rdf-schema#label": [{
+                                                  "@guid": short.generate(),
+                                                  "http://www.w3.org/2000/01/rdf-schema#label": null,
+                                              }],
+                                              "http://id.loc.gov/ontologies/bflc/marcKey": [{
+                                                  "@guid": short.generate(),
+                                                  "http://id.loc.gov/ontologies/bflc/marcKey": null
+                                              }]
+                                          }
+                                          for (let g2 of workData) {
+                                              if (g2['@id'] === component['@id']) {
+                                                  console.log("component g2:", g2);
+                                                  if (g2['@id']) {
+                                                      userValueComponent['@id'] = g2['@id']
+                                                  }
+                                                  if (g2['@type'] && g2['@type'].length > 0) {
+                                                      userValueComponent['@type'] = g2['@type'][0]
+                                                  }
+                                                  if (g2['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'] && g2['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length > 0) {
+                                                      userValueComponent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'] = g2['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['@value']
+                                                  } else if (g2['http://www.w3.org/2000/01/rdf-schema#label'] && g2['http://www.w3.org/2000/01/rdf-schema#label'].length > 0) {
+                                                      userValueComponent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'] = g2['http://www.w3.org/2000/01/rdf-schema#label'][0]['@value']
+                                                  }
+
+                                                  if (g2['http://id.loc.gov/ontologies/bflc/marcKey'] && g2['http://id.loc.gov/ontologies/bflc/marcKey'].length > 0) {
+                                                      userValueComponent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey'] = g2['http://id.loc.gov/ontologies/bflc/marcKey'][0]['@value']
+                                                  }
+                                              }
+                                          }
+                                          console.log("userValueComponent:", userValueComponent);
+                                          userData['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#componentList'].push(userValueComponent);
+                                      }
+                                  }
+
+
+                              } else {
+                                  // simple subject
+                              }
+
+                          }
+
+
+                      }
+
+
+
+                  }                  
+
+
+                }
+
+                console.log("lcshList:", lcshList);
+                console.log("lookup:", lookup);
+
+
+
+              }
+            } catch (error) {
+              console.error("Error fetching work data:", error);
+            }
+
+
+        }
+
+
+      }
+      await new Promise(r => setTimeout(r, 5000));
+
+      return [':)'];
+    },
 
 
 
