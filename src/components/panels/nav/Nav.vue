@@ -174,7 +174,6 @@
           },
         ]
 
-
         if (!this.$route.path.includes('edit')){
           menuButtonSubMenu.push(
             {
@@ -186,7 +185,6 @@
             }
           )
         }
-
 
         const config = useConfigStore()
         if (config.returnUrls.displayLCOnlyFeatures){
