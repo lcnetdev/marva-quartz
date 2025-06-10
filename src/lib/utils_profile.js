@@ -866,6 +866,31 @@ const utilsProfile = {
   },
 
 
+  
+  returnContributorUris: function(profile){
+    let uris = []
+    for (let rt in profile["rt"]){
+        for (let pt in profile["rt"][rt]["pt"]){
+            pt = profile["rt"][rt]["pt"][pt]
+            if (pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution'){
+                if (pt.userValue && 
+                    pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
+                    pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] &&
+                    pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] &&
+                    pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0] &&
+                    pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]['@id']
+                  ){
+                    uris.push(pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]['@id'])
+                }
+            }
+          
+        }
+    }
+
+    return uris
+  },
+
+
 }
 
 

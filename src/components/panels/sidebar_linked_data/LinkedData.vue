@@ -6,6 +6,7 @@
   import { mapStores, mapState, mapWritableState } from 'pinia'
 
   import utilsParse from '@/lib/utils_parse';
+  import utilsProfile from '@/lib/utils_profile';
 
 
   export default {
@@ -36,6 +37,20 @@
 
     methods: {
 
+      allAmazonLinks(isbnList) {
+        let links=[]
+        for (let i = 0; i < isbnList.length; i++) {
+          if (isbnList[i].length == 10) {
+            links.push(`https://www.amazon.com/dp/${isbnList[i]}/`);
+          }
+        }
+
+        for (let l of links){
+          window.open(l, '_blank');
+        }
+        
+
+      },
       add(item){
 
 //         this.profileStore.addLinkedData({id: 'hSJ0zwEACAAJ', type: 'googleBooks', dataType: 'subtitle', value: 'The Origins of Public Education in Imperial Austria 1769-1869'})
@@ -63,15 +78,19 @@
         // }
         if (this.activeProfile.linkedData && this.activeProfile.linkedData.isbn){ this.linkedData.isbn = this.activeProfile.linkedData.isbn }
         
-        if (this.activeProfile && this.activeProfile.linkedData && this.activeProfile.linkedData.isbn && this.activeProfile.linkedData.isbn.length > 0 && !this.activeProfile.linkedData.done ) {
+        let hasContributors = (utilsProfile.returnContributorUris(this.activeProfile).length > 0)
+
+        
+        
+        if ( (this.activeProfile && this.activeProfile.linkedData && this.activeProfile.linkedData.isbn && this.activeProfile.linkedData.isbn.length > 0 && !this.activeProfile.linkedData.done) || (hasContributors ) ) {
           this.profileStore.buildLinkedData()
-          let interval = window.setInterval(() => {
-            console.log("Checking if linked data is done", this.linkedData)
-            if (this.linkedData.done){                     
-              console.log("Linked Data Done", this.linkedData)  
-              clearInterval(interval)              
-            }
-          }, 100)
+          // let interval = window.setInterval(() => {
+          //   console.log("Checking if linked data is done", this.linkedData)
+          //   if (this.linkedData.done){                     
+          //     console.log("Linked Data Done", this.linkedData)  
+          //     clearInterval(interval)              
+          //   }
+          // }, 100)
 
         }else{
           // no isbn to work with just set done to true
@@ -158,13 +177,15 @@
 
           <template v-for="(value, index) in linkedData">
             
-            <AccordionItem style="height: auto" :default-closed="true" v-if="index != 'thumbnail' && index != 'done' && index != 'isbn' && linkedData[index].length>0">
+            <AccordionItem style="height: auto" :default-closed="true" v-if="index != 'thumbnail' && index != 'done' && index != 'isbn' && index != 'contributors' && linkedData[index].length>0">
               <template #summary>
+
                 <div class="title" >
                   <template v-if="index=='subtitle'">Subtitle</template>
                   <template v-if="index=='noteContent'">Summary Note</template>
                   <template v-if="index=='noteTOC'">Table of Contents</template>
                   <template v-if="index=='lcsh'">Subject Heading</template>
+                  <template v-if="index=='genre'">Genre/Form</template>
 
                 </div>
               </template>
@@ -174,7 +195,7 @@
 
                   <div class="value" v-if="item.dataType != '6xx'" >{{ item.value }}</div>
                   <div class="value" v-else >
-                    <span v-for="x in item.value">${{ Object.keys(x)[0] }}{{ x[Object.keys(x)[0]] }}</span>
+                    <span v-for="x in item.value" class="subject-heading">${{ Object.keys(x)[0] }}&nbsp;{{ x[Object.keys(x)[0]] }} </span>
                   </div>
 
                   <div class="controls">
@@ -195,6 +216,7 @@
 
       <div v-if="linkedData.isbn && linkedData.isbn.length > 0">
         <div>Amazon Links</div>
+        <button style="margin-left: 1em;" @click="allAmazonLinks(linkedData.isbn)">Open All</button>
         <template v-for="(isbn, index) in linkedData.isbn">
           <div class="value" v-if="isbn.length==10">
             <a :href="'https://www.amazon.com/dp/' + isbn +'/'" target="_blank">{{ isbn }}</a>
@@ -227,6 +249,12 @@
 </template>
 
 <style scoped>
+
+
+.subject-heading{
+  font-family: 'Courier New', Courier, monospace;
+  padding-right: 0.2em;
+}
 .external-link{
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')") !important;
   text-decoration: none;
