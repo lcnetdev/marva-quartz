@@ -372,7 +372,7 @@ export default {
 
       return !recordSelected
     },
-    // TODO: do something with this: `selectedRecordUrl`
+
     checkLccn: async function () {
       console.info("checkLCCN")
       this.existingLCCN = false
