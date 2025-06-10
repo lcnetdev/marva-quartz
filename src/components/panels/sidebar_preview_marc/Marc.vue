@@ -95,8 +95,8 @@ export default {
 <template>
 
   <div class="marc-preview-content">
-     <button class="popout-button">
-      <span class="material-icons" @click="open = !open" style="font-size: 14px;">open_in_new</span>
+    <button class="popout-button" @click="open = !open">
+      <span class="material-icons" style="font-size: 14px;">open_in_new</span>
     </button>
 
     <WindowPortal @close="closeWindow" :open="open" :content="previewData" type="marc" :sourceDoc="sourceDoc">

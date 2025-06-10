@@ -82,6 +82,7 @@ export default {
             })
         },
         openPortal() {
+            console.info("open")
             this.windowRef = window.open("", "", "width=700,height=900,left=200,top=200");
             this.windowRef.addEventListener('beforeunload', this.closePortal);
             // magic!
@@ -160,6 +161,7 @@ export default {
 
 <style>
 
+div:has(div.version-number),
 div:has(div.marc.record) {
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')");
     color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')");
