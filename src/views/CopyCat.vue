@@ -204,7 +204,7 @@ export default {
     return {
 
       urlToLoad: '',
-      selectedRecordUrl: '',
+      selectedRecordUrl: false,
       continueRecords: [],
 
       urlToLoadIsHttp: false,
