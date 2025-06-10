@@ -572,7 +572,9 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     async buildProfiles() {
+      console.log("-----------------")
       const config = useConfigStore()
+      console.log("config: ", config)
 
       let profileData;
       try{
@@ -4967,7 +4969,7 @@ export const useProfileStore = defineStore('profile', {
           process(ptObj, function (obj,key,value) {
               // e.g.
 
-             
+
 
               if (!latinRegex.test(value)){
                 nonLatinNodes.push({
@@ -5361,7 +5363,7 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-      
+
       if (allScriptsFound.length>0){
         // get mode
         let mostCommong = allScriptsFound.sort((a,b) => allScriptsFound.filter(v => v===a).length - allScriptsFound.filter(v => v===b).length).pop();
@@ -6543,9 +6545,9 @@ export const useProfileStore = defineStore('profile', {
       console.log(":linkedDatalinkedData",linkedData)
 
       for (let isbn of linkedData.isbn){
-       
+
         let baseData = await utilsNetwork.linkedDataBaseRelated(isbn)
-        console.log("baseData",baseData)      
+        console.log("baseData",baseData)
 
         let oclcMarcData = utilsNetwork.linkedDataExtractOclcMarc(baseData.results)
         console.log("oclcMarcData",oclcMarcData)
@@ -6566,9 +6568,9 @@ export const useProfileStore = defineStore('profile', {
         linkedData.isbn = [...new Set(linkedData.isbn)];
 
 
-        
 
-        if (baseData.results.isbns && baseData.results.isbns.length > 0){          
+
+        if (baseData.results.isbns && baseData.results.isbns.length > 0){
           let googleBookData = await utilsNetwork.linkedDataAllGoogleBooksByIsbns(baseData.results.isbns)
           googleBookData = utilsNetwork.linkedDataExtractGoogleBooks(googleBookData)
           console.log("googleBookData",googleBookData)
@@ -6601,7 +6603,7 @@ export const useProfileStore = defineStore('profile', {
         if (genre.value && genre.value.length > 0){
           genre.value = genre.value.replace(/[\.]$/, '')
         }
-      }      
+      }
 
       // unique the lcsh
       let addedLCSH = []
@@ -6653,38 +6655,38 @@ export const useProfileStore = defineStore('profile', {
 
     addLinkedData(toAdd){
 
-      if (toAdd.dataType == 'subtitle'){ 
-        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/subtitle"] 
+      if (toAdd.dataType == 'subtitle'){
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/subtitle"]
         toAdd.addNew = false
         toAdd.resourceType = "instance"
       }
-      if (toAdd.dataType == 'description' || toAdd.dataType == 'note'){ 
-        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/summary", "http://www.w3.org/2000/01/rdf-schema#label"] 
+      if (toAdd.dataType == 'description' || toAdd.dataType == 'note'){
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/summary", "http://www.w3.org/2000/01/rdf-schema#label"]
         toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/Summary"
         toAdd.addNew = true
         toAdd.resourceType = "work"
       }
-      if (toAdd.dataType == 'toc' ){ 
-        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/tableOfContents", "http://www.w3.org/2000/01/rdf-schema#label"] 
+      if (toAdd.dataType == 'toc' ){
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/tableOfContents", "http://www.w3.org/2000/01/rdf-schema#label"]
         toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/TableOfContents"
         toAdd.addNew = true
         toAdd.resourceType = "work"
       }
 
-      if (toAdd.dataType == '6xx' ){ 
-        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/subject", "http://www.w3.org/2000/01/rdf-schema#label"] 
+      if (toAdd.dataType == '6xx' ){
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/subject", "http://www.w3.org/2000/01/rdf-schema#label"]
         toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/Subject"
         toAdd.addNew = true
         toAdd.resourceType = "work"
       }
 
-      if (toAdd.dataType == 'genre' ){ 
-        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/genreForm", "http://www.w3.org/2000/01/rdf-schema#label"] 
+      if (toAdd.dataType == 'genre' ){
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/genreForm", "http://www.w3.org/2000/01/rdf-schema#label"]
         toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/GenreForm"
         toAdd.addNew = true
         toAdd.resourceType = "work"
       }
-      console.log("toAdd",toAdd)      
+      console.log("toAdd",toAdd)
       for (let rt of Object.keys(this.activeProfile.rt)){
         if (rt.toLowerCase().includes(toAdd.resourceType)){
           for (let pt of Object.keys(this.activeProfile.rt[rt].pt)){
@@ -6741,8 +6743,8 @@ export const useProfileStore = defineStore('profile', {
                             setTimeout(()=>{
 
                               let foundEl = document.querySelector(`[data-field-guid="${copyFrom['@guid']}"]`)
-                              foundEl.focus()     
-                              console.log("toAdd.value",toAdd.value) 
+                              foundEl.focus()
+                              console.log("toAdd.value",toAdd.value)
 
                               let toAddString
                               if (toAdd.PropertyPath[0] == "http://id.loc.gov/ontologies/bibframe/subject"){
@@ -6750,8 +6752,8 @@ export const useProfileStore = defineStore('profile', {
                               }else if (toAdd.PropertyPath[0] == "http://id.loc.gov/ontologies/bibframe/genreForm"){
                                 toAddString = toAdd.value
                               }
-                                
-                                      
+
+
                               setTimeout(()=>{
 
                                   // const eventA = new Event('input', {
@@ -6770,11 +6772,11 @@ export const useProfileStore = defineStore('profile', {
                               },500)
 
 
-                              
+
                               console.log("foundEl",foundEl)
 
                             },250)
-                          
+
                       }
 
                       break
@@ -6783,18 +6785,18 @@ export const useProfileStore = defineStore('profile', {
                 }
 
 
-                
+
 
 
               }else{
 
 
-                
+
                 // does it already have the property
-                if (pt.userValue 
-                  && pt.userValue[toAdd.PropertyPath[0]] 
+                if (pt.userValue
+                  && pt.userValue[toAdd.PropertyPath[0]]
                   && pt.userValue[toAdd.PropertyPath[0]][0]
-                  && !pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]]                 
+                  && !pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]]
                   ){
                     console.log("it does not has the property",pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]])
                     // doesn't have the prperty so create it wholelly
@@ -6805,10 +6807,10 @@ export const useProfileStore = defineStore('profile', {
                     uv[toAdd.PropertyPath[1]] = toAdd.value
                     pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]] = [uv]
 
-                  }else if (pt.userValue 
-                  && pt.userValue[toAdd.PropertyPath[0]] 
+                  }else if (pt.userValue
+                  && pt.userValue[toAdd.PropertyPath[0]]
                   && pt.userValue[toAdd.PropertyPath[0]][0]
-                  && pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]]                 
+                  && pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]]
                   ){
 
                     let uv = {
