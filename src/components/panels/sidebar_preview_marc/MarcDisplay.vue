@@ -168,6 +168,7 @@ li {
 /* Allow the style to propogate to the popout window */
 div:has(div.version-number),
 div:has(div.marc.record) {
+    padding-left: 25px;
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-background-color')");
     color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-font-color')");
     font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-opac-font-size')");
