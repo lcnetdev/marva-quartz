@@ -48,8 +48,8 @@
           <hr>
           <label for="lccn">LCCN: </label>
           <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
-            :disabled="loadLccnFromRecord(selectedWcRecord)" />
-          <Badge v-if="loadLccnFromRecord(selectedWcRecord)" text="This LCCN is from the selected record."
+            :disabled="selectedRecordUrl" />
+          <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record."
             noHover="true" badgeType="primary" />
           <br>
           <template v-if="wcIndex == 'sn'">
@@ -204,7 +204,7 @@ export default {
     return {
 
       urlToLoad: '',
-
+      selectedRecordUrl: false,
       continueRecords: [],
 
       urlToLoadIsHttp: false,
@@ -331,16 +331,21 @@ export default {
 
       let idx = marc010.indexOf("$a")
       this.urlToLoad = marc010.slice(idx + 2).trim()
+
       this.checkLccn()
-      return this.urlToLoad
+      return true
     },
 
     setSelectedRecord: function (value) {
+      this.urlToLoad = ''
       this.selectedWcRecord = value
 
       // check if there's an LCCN in the record
-      this.loadLccnFromRecord(value)
+      let existingLccn = this.loadLccnFromRecord(value)
+      this.selectedRecordUrl = existingLccn
       this.checkLccn()
+      console.info("load: ", existingLccn)
+      console.info("this.selectedRecordUrl: ", this.selectedRecordUrl)
     },
 
     setSearchPage: function (value) {
