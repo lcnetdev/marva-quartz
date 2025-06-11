@@ -1112,7 +1112,7 @@ export const useConfigStore = defineStore('config', {
           return state.regionUrls.dev
         }
       }else{
-        console.log("no window?")
+        process.stdout.write("no window?")
         // if it gets here it means it is running uint tests probably,
         // so return the playwrightTestConfig since it has the urls setup for external testing
         return state.regionUrls.playwrightTestConfig

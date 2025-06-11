@@ -90,20 +90,20 @@ export default {
   },
 
   async mounted() {
-    console.log("??", this.configStore.versionMajor)
+    process.stdout.write("??", this.configStore.versionMajor)
 //     const configStore = useConfigStore()
 // const profileStore = useProfileStore()
 
-    console.log("starting preferenceStore")
+    process.stdout.write("starting preferenceStore")
     this.preferenceStore.initalize()
-    console.log("finished preferenceStore")
+    process.stdout.write("finished preferenceStore")
     // this.profileStore.buildProfiles()
     //window.setTimeout(async ()=>{
 
     if (!this.catCode){
       this.showLoginModal = true
     }
-    console.log("buildingProfiles")
+    process.stdout.write("buildingProfiles")
     await this.profileStore.buildProfiles()
       //let profile =  this.profileStore.loadNewTemplate('Monograph','mattmatt')
       //this.profileStore.activeProfile = profile
