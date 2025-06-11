@@ -585,6 +585,7 @@ export const useProfileStore = defineStore('profile', {
 
         alert('Could not download the profiles, unable to continue.')
         console.error(err);
+        console.error("Error Downloading profiles from:", config.returnUrls.profiles)
       }
 
 
@@ -598,6 +599,7 @@ export const useProfileStore = defineStore('profile', {
         console.log("Error Downloading Starting Points from:", config.returnUrls.starting)
         alert('Could not download the starting points, unable to continue.')
         console.error(err);
+        console.error("Error Downloading Starting Points from:", config.returnUrls.starting)
       }
 
       // FLAG: NEEDS_PROFILE_ALIGNMENT
