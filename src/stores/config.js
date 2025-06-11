@@ -1092,6 +1092,7 @@ export const useConfigStore = defineStore('config', {
     * @return {object} - The url config object
     */
     returnUrls: (state) => {
+      console.log('returnUrls')
       // testing for window here because of running unit tests in node
       if (typeof window !== 'undefined'){
         console.log("window: ", window.location.href)
