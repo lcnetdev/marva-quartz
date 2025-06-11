@@ -1092,10 +1092,11 @@ export const useConfigStore = defineStore('config', {
     * @return {object} - The url config object
     */
     returnUrls: (state) => {
+      console.log('returnUrls')
       // testing for window here because of running unit tests in node
       if (typeof window !== 'undefined'){
         console.log("window: ", window.location.href)
-        if (window && (!window.location.href.includes('localhost:5555') && !window.location.href.includes('localhost:4444') && window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1') )){
+        if (window && ((!window.location.href.includes('localhost:5555') && !window.location.href.includes('localhost:4444')) && (window.location.href.startsWith('http://localhost') || window.location.href.startsWith('http://127.0.0.1')) )){
           return state.regionUrls.dev
         }else if (window && window.location.href.startsWith('https://preprod-3001')){
           return state.regionUrls.staging
@@ -1112,7 +1113,6 @@ export const useConfigStore = defineStore('config', {
           return state.regionUrls.dev
         }
       }else{
-
         // if it gets here it means it is running uint tests probably,
         // so return the playwrightTestConfig since it has the urls setup for external testing
         return state.regionUrls.playwrightTestConfig
