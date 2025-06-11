@@ -419,7 +419,7 @@ const utilsNetwork = {
         url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/"
       }
 
-      url = url + lccn + "&blastdacache=" + Date.now()
+      url = url + lccn.trim() + "&blastdacache=" + Date.now()
 
       let result = await fetch(
         url,
@@ -3621,7 +3621,7 @@ const utilsNetwork = {
 
     async linkedDataLCSHContributors(contributorsUris){
 
-        
+
       let url = useConfigStore().returnUrls.util + 'related/works/contributor'
 
       const rawResponse = await fetch(url, {
@@ -3637,7 +3637,7 @@ const utilsNetwork = {
       const content = await rawResponse.json();
 
       return content
-      
+
     },
 
     async linkedDataLCSHContributorsExtract(data){
@@ -3646,9 +3646,9 @@ const utilsNetwork = {
         console.log("linkedDataLCSHContributorsExtract data:",data)
 
         for (let lccnUri of Object.keys(data)){
-          
+
           let workUrls = data[lccnUri].results.map(work => work.uri + '.json');
-          
+
             let workPromises = workUrls.map(url => fetch(url).then(response => response.json()));
 
             try {
@@ -3674,19 +3674,19 @@ const utilsNetwork = {
                     }else{
                       if (g['http://www.w3.org/2000/01/rdf-schema#label'] && g['http://www.w3.org/2000/01/rdf-schema#label'].length > 0){
                       lookup[g['@id']]['label'] = g['http://www.w3.org/2000/01/rdf-schema#label'][0]['@value']
-                      }                      
-                    }      
-                    
+                      }
+                    }
+
                     if (g['http://id.loc.gov/ontologies/bflc/marcKey'] && g['http://id.loc.gov/ontologies/bflc/marcKey'].length > 0){
                       lookup[g['@id']]['marcKey'] = g['http://id.loc.gov/ontologies/bflc/marcKey'][0]['@value']
                     }
-                    
+
                   }
 
                   if (g['@id'].startsWith('http://id.loc.gov/resources/works')){
                     lcshList.push(g)
                   }
-                  
+
 
                 }
 
@@ -3808,7 +3808,7 @@ const utilsNetwork = {
 
 
 
-                  }                  
+                  }
 
 
                 }
