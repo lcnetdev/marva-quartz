@@ -572,9 +572,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     async buildProfiles() {
-      process.stdout.write("-----------------")
       const config = useConfigStore()
-      process.stdout.write("config: ", config)
 
       let profileData;
       try{
