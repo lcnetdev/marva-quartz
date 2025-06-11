@@ -99,7 +99,7 @@
                 <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
                   <input placeholder="URL to resource or identifier to search" class="url-to-load" type="text"
                     @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
-  
+
                     <div v-if="loadingRecord" class="loading-record">L<span class="infinite-spin">O</span>ADING REC<span class="infinite-spin">O</span>RD...</div>
 
                   <p>Need to search title or author? Use <a href="https://preprod-8230.id.loc.gov/lds/index.xqy"
@@ -513,12 +513,12 @@ export default {
           this.urlToLoadIsHttp = true
           // this will tigger using the default profile
           this.loadUrl(new Event('click'), null)
-          
+
           return false;
         }else{
           this.urlToLoadIsHttp = false
         }
-        
+
       } else {
         this.urlToLoadIsHttp = false
 
@@ -561,7 +561,7 @@ export default {
         if (this.urlToLoadTimer){
           return false
         }
-        this.urlToLoadTimer = window.setTimeout(() => {          
+        this.urlToLoadTimer = window.setTimeout(() => {
           this.urlToLoadTimer = null
           this.loadUrl(useInstanceProfile, multiTestFlag)
         }, 250)
@@ -591,7 +591,7 @@ export default {
         // check to see if there is a default profile set
         if (this.defaultProfile && this.defaultProfile != '') {
           useInstanceProfile = this.defaultProfile
-        } 
+        }
         // don't keep going if there was no search result
         if (this.searchByLccnResults && this.searchByLccnResults.length === 0){
           return false
@@ -787,7 +787,7 @@ export default {
 
     async refreshSavedRecords() {
 
-
+      console.log("refreshSavedRecords: ", this.preferenceStore.returnUserNameForSaving)
 
       let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
 
@@ -822,6 +822,7 @@ export default {
   },
 
   mounted: async function () {
+    console.log("mounted")
     this.loadingRecord=false
     this.refreshSavedRecords()
     if (window.location.hash && window.location.hash == '#stats') {
@@ -839,7 +840,7 @@ export default {
 
 
   created: async function () {
-
+    console.log("created")
     this.refreshSavedRecords()
 
     // this is checking to see if the route is available to load the passed URL to it

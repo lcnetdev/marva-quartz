@@ -90,7 +90,7 @@ export default {
   },
 
   async mounted() {
-    console.log(this.configStore.versionMajor)
+    console.log("??", this.configStore.versionMajor)
 //     const configStore = useConfigStore()
 // const profileStore = useProfileStore()
 
