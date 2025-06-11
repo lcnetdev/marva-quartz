@@ -174,17 +174,18 @@
           },
         ]
 
-        if (!this.$route.path.includes('edit')){
-          menuButtonSubMenu.push(
-            {
-              text: "Copy Cat.",
-              click: () => {
-                this.profileStore.copyCatMode = !this.profileStore.copyCatMode
-              },
-              emoji: this.profileStore.copyCatMode ? "heavy_check_mark" : "smile_cat"
-            }
-          )
-        }
+        menuButtonSubMenu.push(
+          {
+            text: "Copy Cat.",
+            click: () => {
+              if (this.$route.path.includes('edit')){
+                this.$router.push('/load')
+              }
+              this.profileStore.copyCatMode = !this.profileStore.copyCatMode
+            },
+            emoji: this.profileStore.copyCatMode ? "heavy_check_mark" : "smile_cat"
+          }
+        )
 
         const config = useConfigStore()
         if (config.returnUrls.displayLCOnlyFeatures){

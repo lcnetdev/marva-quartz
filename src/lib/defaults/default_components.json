@@ -222,7 +222,7 @@
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
                                                 "@guid": "p9aBJtEtK8xmmSQD2Wr7a7",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "cartographic image (cri)"
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "cartographic image"
                                             }
                                         ]
                                     }
@@ -276,7 +276,7 @@
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
                                                 "@guid": "tf4kCiRgaBoyzMZ1toeQf7",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations (ill)"
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations"
                                             }
                                         ]
                                     }
@@ -328,7 +328,7 @@
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
                                                 "@guid": "twigRcScQG1Vw1kWsEpo49",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "color (mul)"
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "color"
                                             }
                                         ]
                                     }
@@ -571,7 +571,7 @@
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
                                                 "@guid": "7im4k2Mc8ajvA2crzRiDRX",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations (ill)"
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations"
                                             }
                                         ]
                                     }
@@ -625,7 +625,7 @@
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
                                                 "@guid": "7im4k2Mc8ajvA2crzRiDRX",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations (ill)"
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations"
                                             }
                                         ]
                                     },
@@ -635,7 +635,7 @@
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
                                                 "@guid": "kqX2rkDfLYFenRerG5q8JU",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "maps (map)"
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "maps"
                                             }
                                         ],
                                         "@type": "http://id.loc.gov/ontologies/bibframe/Illustration"
@@ -742,7 +742,7 @@
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
                                                 "@guid": "opYvbRLVQbFgU7m7YGm34a",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "maps (map)"
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "maps"
                                             }
                                         ]
                                     }
@@ -864,7 +864,7 @@
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
                                                 "@guid": "srLcpXUjoCpefAV4LGD1U4",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "cartographic image (cri)"
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "cartographic image"
                                             }
                                         ]
                                     }
@@ -923,7 +923,7 @@
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
                                                 "@guid": "srLcpXUjoCpefAV4LGD1U4",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "cartographic image (cri)"
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "cartographic image"
                                             }
                                         ]
                                     }
@@ -977,7 +977,7 @@
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
                                                 "@guid": "opYvbRLVQbFgU7m7YGm34a",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "maps (map)"
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "maps"
                                             }
                                         ]
                                     }
@@ -1098,7 +1098,7 @@
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
                                                         "@guid": "t94yFoZdB8mVeBy9pYQnsA",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "language (lang)"
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "language"
                                                     }
                                                 ],
                                                 "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
@@ -1779,7 +1779,7 @@
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
                                                         "@guid": "7EgLYVh5v5jk925H3bnY6t",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "bibliography (biblio)"
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "bibliography"
                                                     }
                                                 ],
                                                 "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
@@ -1841,7 +1841,7 @@
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
                                                         "@guid": "pMHWBV9aRMsWaVbvB8Ms2E",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "bibliography (biblio)"
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "bibliography"
                                                     }
                                                 ],
                                                 "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
@@ -2148,7 +2148,7 @@
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
                                                         "@guid": "jFeMwZq42vCmU3xxQ4uMdr",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "additional physical form (addphys)"
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "additional physical form"
                                                     }
                                                 ],
                                                 "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
@@ -2259,7 +2259,7 @@
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
                                                         "@guid": "aaCQgTDGtdhNki7ijc837a",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "accompanying material (accmat)"
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "accompanying material"
                                                     }
                                                 ],
                                                 "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
@@ -2370,7 +2370,7 @@
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
                                                         "@guid": "7TgqRM744nvSCsVANQhwKz",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details (physical)"
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details"
                                                     }
                                                 ],
                                                 "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
@@ -2432,7 +2432,7 @@
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
                                                         "@guid": "7TgqRM744nvSCsVANQhwKz",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details (physical)"
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details"
                                                     }
                                                 ],
                                                 "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
@@ -2592,7 +2592,7 @@
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
                                                         "@guid": "3ottSxjy5LpZGRsHYfrU2c",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "accompanying material (accmat)"
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "accompanying material"
                                                     }
                                                 ],
                                                 "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
@@ -2839,7 +2839,7 @@
                                         "http://www.w3.org/2000/01/rdf-schema#label": [
                                             {
                                                 "@guid": "woB3HZpHQnvBNawJQhPgV9",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "Titles from separate title pates."
+                                                "http://www.w3.org/2000/01/rdf-schema#label": "Titles from separate title pages."
                                             }
                                         ],
                                         "@type": "http://id.loc.gov/ontologies/bibframe/Note"
