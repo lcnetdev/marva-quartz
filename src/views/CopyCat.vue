@@ -389,10 +389,6 @@ export default {
       console.info("checkLCCN")
       this.existingLCCN = false
       this.existingISBN = false
-      if (!this.urlToLoad) {
-        this.existingRecordUrl = ""
-        return false
-      }
 
       console.info("urlToLoad: ", this.urlToLoad)
 
