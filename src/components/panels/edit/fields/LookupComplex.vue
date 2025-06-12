@@ -76,7 +76,7 @@
                         </div>
                       </div>
                     </div>
-                    
+
                     <input style="width:auto" @keyup="navKey" class="can-select" :data-field-guid="guid" :data-guid="structure['@guid']" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
                     <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
                   </div>
@@ -171,8 +171,10 @@
 
 
   </template>
+
   <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :guid="guid" :propertyPath="propertyPath" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal" :searchType="searchType" />
-  <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" />
+  <!-- <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" /> -->
+  <SubjectEditor2 ref="subjectEditorModal2" v-model="displaySubjectModal" @hideSubjectModal="hideSubjectModal()" />
 
 </template>
 
@@ -183,7 +185,7 @@
 
 
 import ComplexLookupModal from "@/components/panels/edit/modals/ComplexLookupModal.vue";
-import SubjectEditor from "@/components/panels/edit/modals/SubjectEditor.vue";
+import SubjectEditor from  "@/components/panels/edit/modals/SubjectEditor.vue";
 
 import LabelDereference from "@/components/panels/edit/fields/helpers/LabelDereference.vue";
 import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.vue";
@@ -200,6 +202,7 @@ import { mapStores, mapState, mapWritableState } from 'pinia'
 
 import utilsMisc from '@/lib/utils_misc'
 import utilsNetwork from '@/lib/utils_network'
+import SubjectEditor2 from "../modals/SubjectEditor2.vue";
 
 
 export default {
@@ -210,7 +213,8 @@ export default {
     LabelDereference,
     AuthTypeIcon,
     ActionButton,
-    ValidationIcon
+    ValidationIcon,
+    SubjectEditor2
 
     // Keypress: () => import('vue-keypress'),
     // EditSubjectEditor,
@@ -627,8 +631,13 @@ export default {
 
             this.fromPaste = event.inputType == 'insertFromPaste' ? true : false
             this.displaySubjectModal=true
+
             this.$nextTick(() => {
-              this.$refs.subjectEditorModal.focusInput()
+              try {
+                this.$refs.subjectEditorModal.focusInput()
+              } catch(err) {
+                console.info("couldn't do it.")
+              }
             })
           }
 
@@ -656,6 +665,7 @@ export default {
         },10)
       })
     },
+
 
 
     subjectAdded: function(components){
