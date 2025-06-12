@@ -52,22 +52,22 @@
           <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record."
             noHover="true" badgeType="primary" />
           <br><br>
-          <template v-if="wcIndex == 'sn'">
-            Check for existing record using:
-            <template v-if="searchType != 'lccn'">
-              <br>
-              <label for="matchPoint">Match on: </label>
-              <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
-            </template>
-            <div id="container">
-              <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
-                @click="changeSearchType($event)" ref="toggle">
-              <label for="search-type" class="toggle-container">
-                <div>LCCN</div>
-                <div>Other Identifier</div>
-              </label>
-            </div>
+
+          Check for existing record using:
+          <template v-if="searchType != 'lccn'">
+            <br>
+            <label for="matchPoint">Match on: </label>
+            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
           </template>
+          <div id="container">
+            <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
+              @click="changeSearchType($event)" ref="toggle">
+            <label for="search-type" class="toggle-container">
+              <div>LCCN</div>
+              <div>Other Identifier</div>
+            </label>
+          </div>
+
 
           <template v-if="existingLCCN || existingISBN">
             <br>
@@ -313,7 +313,8 @@ export default {
     changeSearchType: function (event) {
       if (event.target.checked) {
         this.searchType = "isbn"
-        this.isbn = this.wcQuery
+
+        this.isbn = this.wcIndex == 'sn' ? this.wcQuery : ''
       } else {
         this.searchType = "lccn"
       }
