@@ -17,7 +17,7 @@
         <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'"
           :class="['simptip-position-bottom', { 'active': (searchMode === 'HUBS') }]">Hubs</button>
       </div>
-      <div class="detail-head">labels</div>
+
 
       <!-- second row -->
       <template v-if="activeSearch !== false">
@@ -31,7 +31,13 @@
           @loadContext="loadContext"
           @selectContext="selectContext" />
       </template>
-      <div class="detail-body">details</div>
+      <div class="detail-body">
+        <DetailsPanel
+          :contextData="contextData"
+          :contextRequestInProgress="contextRequestInProgress"
+          @addClassNumber="addClassNumber"
+        />
+      </div>
 
       <!-- third row -->
       <div class="search-heading">search heading</div>
@@ -97,6 +103,7 @@ import { AccordionList, AccordionItem } from "vue3-rich-accordion";
 import ComplexSearchResultsDisplay from './helpers/ComplexSearchResultsDisplay.vue'
 
 import Component from './helpers/LookupComponent.js'
+import DetailsPanel from './helpers/DetailsPanel.vue'
 
 const debounce = (callback, wait) => {
   let timeoutId = null;
@@ -119,7 +126,8 @@ export default {
     AuthTypeIcon,
     AccordionList,
     AccordionItem,
-    ComplexSearchResultsDisplay
+    ComplexSearchResultsDisplay,
+    DetailsPanel
   },
   props: {
     structure: Object,
@@ -174,6 +182,28 @@ export default {
   },
 
   methods: {
+    addClassNumber: function (classNum) {
+      let profile = this.activeProfile
+
+      let targetComponent = this.returnComponentByPropertyLabel('Classification numbers')
+
+      let propertyPath = [
+        { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
+        { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/classificationPortion" }
+      ]
+
+      let fieldGuid = null
+      try {
+        fieldGuid = targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["@guid"]
+      } catch (err) {
+        fieldGuid = short.generate()
+      }
+      this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
+    },
+    clearSelected: function () {
+      this.pickLookup[this.pickCurrent].picked = false
+      this.pickCurrent = null
+    },
     buildComponents: function (searchString) {
       console.info("\n\nbuildComponents: ", searchString)
       let subjectStringSplit = searchString.split('--')
@@ -207,14 +237,14 @@ export default {
         }
 
         if (this.typeLookup[id + offset]) {
-          component.type =this.typeLookup[id + offset]
+          component.type = this.typeLookup[id + offset]
         }
 
         if (component.uri && component.uri.includes("/hubs/")) {
           component.type = "bf:Hub"
         }
 
-        if (ss.includes('‑‑')){
+        if (ss.includes('‑‑')) {
           component.complex(true)
         }
         component.posStart = activePosStart
@@ -736,11 +766,15 @@ export default {
 
         this.pickLookup[this.pickPostion].picked = true
 
+        let type = "Topic"
         try {
-          let marcKey = this.pickLookup[this.pickPostion].marcKey
-          let type = marcKey.match(/\$[axyzv]{1}/g)
-          type = this.getTypeFromSubfield(type[0])
-          this.setTypeClick(null, type)
+          if (this.pickLookup[this.pickPostion].extra.rdftypes.length > 0) {
+            type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
+          } else {
+            let marcKey = this.pickLookup[this.pickPostion].marcKey
+            type = marcKey.match(/\$[axyzv]{1}/g)
+            type = this.getTypeFromSubfield(type[0])
+          }
         } catch (err) {
           console.error("Error getting the type. ", err)
         }
@@ -862,8 +896,8 @@ export default {
   margin-right: auto;
   display: grid;
   grid-gap: 2px;
-  grid-template-columns: 60% 40%;
-  grid-template-rows: 10% 80% 5% 5%;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: 3% 87% 5% 5%;
 }
 
 /* first row */
@@ -871,12 +905,6 @@ export default {
   background-color: brown;
   grid-row: 1;
   grid-column: 1;
-}
-
-.detail-head {
-  background-color: chocolate;
-  grid-row: 1;
-  grid-column: 2;
 }
 
 /* second row */
@@ -888,27 +916,29 @@ export default {
 
 .detail-body {
   background-color: bisque;
-  grid-row: 2;
+  grid-row: 1/3;
   grid-column: 2;
+  height: 100%;
+  overflow-x: scroll;
 }
 
 /* third row */
 .search-heading {
   background-color: burlywood;
   grid-row: 3;
-  grid-column: 1;
+  grid-column: 1/3;
 }
 
 /* last row */
 .search-bar {
   background-color: coral;
   grid-row: 4;
-  grid-column: 1;
+  grid-column: 1/3;
 }
 
 .button-holder {
   background-color: darkgoldenrod;
-  grid-row: 4;
+  grid-row: 5;
   grid-column: 2;
 }
 
@@ -969,4 +999,59 @@ export default {
   background-color: #0080001f;
   border: solid 3px;
 }
+
+/* Details Panel */
+.details-list {
+  columns: 3;
+  break-inside: avoid;
+  padding-left: 20px;
+}
+
+.details-list:has(.details-details) {
+  margin-top: 10px;
+  padding-left: 0px;
+  columns: 2;
+  break-inside: avoid;
+}
+
+.details-details {
+  list-style: none;
+  break-inside: avoid;
+}
+
+.details-list>li {
+  break-inside: avoid;
+}
+
+.see-search {
+  width: 20px;
+  height: 20px;
+  font-size: x-small;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+
+ul:has(.modal-context-data-li) {
+  padding-left: 20px;
+}
+
+.see-also {
+  font-size: 12px;
+  margin-right: 10px;
+}
+
+.expandable-class-label {
+  cursor: help;
+}
+
+.expand {
+  font-size: 14px;
+}
+
+.simptip-position-bottom::before,
+.simptip-position-bottom::after {
+  left: -30% !important;
+}
+
 </style>
