@@ -2522,6 +2522,7 @@ export default {
 
 
     loadContext: async function (pickPostion) {
+      console.info("loadContext: ", pickPostion)
       if (this.pickCurrent == null) {
         this.pickPostion = pickPostion
       } else {

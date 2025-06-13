@@ -30,132 +30,53 @@
                     </div>
                 </div>
             </div>
-            <div v-if="searchResults && searchResults.names.length > 0 && !this.searching" class="subject-section"
-                :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() == 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
-                <span class="subject-results-heading">LCNAF</span>
-                <div v-for="(name, idx) in searchResults.names"
-                    @click="$emit('selectContext', (searchResults.names.length - idx) * -1)"
-                    @mouseover="setPickPosition((searchResults.names.length - idx) * -1)"
-                    :data-id="(searchResults.names.length - idx) * -1" :key="name.uri"
-                    :class="['fake-option', { 'unselected': (pickPostion != (searchResults.names.length - idx) * -1), 'selected': (pickPostion == (searchResults.names.length - idx) * -1), 'picked': (pickLookup[(searchResults.names.length - idx) * -1] && pickLookup[(searchResults.names.length - idx) * -1].picked) }]">
-                    <span v-if="name.suggestLabel && name.suggestLabel.length > 100">{{ name.suggestLabel.substring(0,
-                        100) }}...</span>
-                    <span v-else>{{ name.suggestLabel }}</span>
-                    <span> [LCNAF]</span>
-                    <span v-if="name.collections">
-                        {{ this.buildAddtionalInfo(name.collections) }}
-                        <!-- :style="{'background-color': setBackgroundColor(name.count, searchResults.names)}" -->
-                        <span v-if="name.count && name.count > 0" class="usage-count">
-                            {{ buildCount(name) }}
-                        </span>
-                    </span>
-                    <div class="may-sub-container" style="display: inline;">
-                        <AuthTypeIcon
-                            v-if="name.collections && name.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                            :type="'may subd geog'"></AuthTypeIcon>
-                    </div>
-                </div>
-            </div>
-
-            <!-- LCSH -->
-            <div v-if="searchResults && searchResults.subjectsComplex.length > 0" class="subject-section"
-                :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() >= 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
-                <span class="subject-results-heading">{{ searchMode == "HUBS" ? 'Keyword' : 'Complex' }}</span>
-                <div v-for="(subjectC, idx) in searchResults.subjectsComplex" @click="selectContext(idx)"
-                    @mouseover="setPickPosition(idx)" :data-id="idx" :key="subjectC.uri"
-                    :class="['fake-option', { 'unselected': (pickPostion != idx), 'selected': (pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked) }]">
-                    {{ subjectC.suggestLabel }}<span></span>
-                    <span v-if="subjectC.collections">
-                        {{ this.buildAddtionalInfo(subjectC.collections) }}
-                        <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsComplex)}" -->
-                        <span v-if="subjectC.count && subjectC.count > 0" class="usage-count">{{ buildCount(subjectC)
-                            }}</span>
-                    </span>
-                    <div class="may-sub-container" style="display: inline;">
-                        <AuthTypeIcon
-                            v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                            :type="'may subd geog'"></AuthTypeIcon>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TODO: get mouseover and contextSelecting emiting the components to the parent -->
-
-            <div v-if="searchResults && searchResults.subjectsSimple.length > 0" class="subject-section"
-                :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() == 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
-                <span class="subject-results-heading">{{ searchMode == "HUBS" ? 'Left Anchored' : 'Simple' }}</span>
-                <div v-for="(subject, idx) in searchResults.subjectsSimple"
-                    @click="$emit('selectContext', searchResults.subjectsComplex.length + idx)"
-                    @mouseover="setPickPosition(searchResults.subjectsComplex.length + idx)"
-                    :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri"
-                    :class="['fake-option', { 'unselected': (pickPostion != searchResults.subjectsComplex.length + idx), 'selected': (pickPostion == searchResults.subjectsComplex.length + idx), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option': (subject.literal), unusable: !checkUsable(subject) }]">
-                    {{ subject.suggestLabel }}
-                    <span v-if="subject.literal">
-                        {{ subject.label }}
-                    </span>
-                    <span v-if="subject.literal">[Literal]</span>
-                    <span v-if="!subject.literal">
-                        {{ this.buildAddtionalInfo(subject.collections) }}
-                        <span class="from-auth" v-if="checkFromAuth(subject)"> (Auth)</span>
-                        <span class="from-rda" v-if="checkFromRda(subject)"> [RDA]</span>
-                        <!-- :style="{'background-color': setBackgroundColor(subject.count, searchResults.subjectsSimple)}" -->
-                        <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject)
-                            }}</span>
-                    </span>
-                    <div class="may-sub-container" style="display: inline;">
-                        <AuthTypeIcon
-                            v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                            :type="'may subd geog'"></AuthTypeIcon>
-                    </div>
-                </div>
-            </div>
 
 
-            <!-- ChildrenSubjects -->
-            <div v-if="searchResults && searchResults.subjectsChildrenComplex.length > 0" class="subject-section"
-                :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() == 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
-                <span class="subject-results-heading">CYAC Complex</span>
-                <div v-for="(subjectC, idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)"
-                    @mouseover="setPickPosition(idx)" :data-id="idx" :key="subjectC.uri"
-                    :class="['fake-option', { 'unselected': (pickPostion != idx), 'selected': (pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked) }]">
-                    {{ subjectC.suggestLabel }}<span></span>
-                    <span v-if="subjectC.collections">
-                        {{ this.buildAddtionalInfo(subjectC.collections) }}
-                        <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}" -->
-                        <span v-if="subjectC.count && subjectC.count > 0" class="usage-count">{{ buildCount(subjectC)
-                            }}</span>
-                    </span>
-                    <div class="may-sub-container" style="display: inline;">
-                        <AuthTypeIcon
-                            v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                            :type="'may subd geog'"></AuthTypeIcon>
-                    </div>
-                </div>
-            </div>
-
-            <div v-if="searchResults && searchResults.subjectsChildren.length > 0" class="subject-section"
-                :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() == 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
-                <span class="subject-results-heading">CYAC Simple</span>
-                <div v-for="(subject, idx) in searchResults.subjectsChildren"
-                    @click="$emit('selectContext', searchResults.subjectsChildrenComplex.length + idx)"
-                    @mouseover="setPickPosition(searchResults.subjectsChildrenComplex.length + idx)"
-                    :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri"
-                    :class="['fake-option', { 'unselected': (pickPostion != searchResults.subjectsChildrenComplex.length + idx), 'selected': (pickPostion == searchResults.subjectsChildrenComplex.length + idx), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option': (subject.literal) }]">
-                    {{ subject.suggestLabel }}<span v-if="subject.literal">
-                        {{ subject.label }}</span> <span v-if="subject.literal">[Literal]</span>
-                    <span v-if="!subject.literal">
-                        {{ this.buildAddtionalInfo(subject.collections) }}
-                        <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}" -->
-                        <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject)
-                            }}</span>
-                    </span>
-                    <div class="may-sub-container" style="display: inline;">
-                        <AuthTypeIcon
-                            v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                            :type="'may subd geog'"></AuthTypeIcon>
-                    </div>
-                </div>
-            </div>
+            <SearchResultOption
+                searchType="names"
+                label="LCNAF"
+                index="(searchResults.names.length - ix) * - 1"
+                :searchResults="searchResults"
+                :pickLookup="pickLookup"
+                @selectContext="selectContext"
+                @emitLoadContext="loadContext"
+            />
+            <SearchResultOption
+                searchType="subjectsComplex"
+                :label="searchMode == 'HUBS' ? 'Keyword' : 'Complex'"
+                index="ix"
+                :searchResults="searchResults"
+                :pickLookup="pickLookup"
+                @selectContext="selectContext"
+                @emitLoadContext="loadContext"
+            />
+            <SearchResultOption
+                searchType="subjectsSimple"
+                :label="searchMode == 'HUBS' ? 'Left Anchored' : 'Simple'"
+                index="searchResults.subjectsComplex.length + ix"
+                :searchResults="searchResults"
+                :pickLookup="pickLookup"
+                @selectContext="selectContext"
+                @emitLoadContext="loadContext"
+            />
+            <SearchResultOption
+                searchType="subjectsChildrenComplex"
+                label="CYAC Complex"
+                index="ix"
+                :searchResults="searchResults"
+                :pickLookup="pickLookup"
+                @selectContext="selectContext"
+                @emitLoadContext="loadContext"
+            />
+            <SearchResultOption
+                searchType="subjectsChildren"
+                label="CYAC Simple"
+                index="searchResults.subjectsChildrenComplex.length + ix"
+                :searchResults="searchResults"
+                :pickLookup="pickLookup"
+                @selectContext="selectContext"
+                @emitLoadContext="loadContext"
+            />
         </div>
     </div>
 </template>
@@ -175,6 +96,7 @@ import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.v
 import utilsNetwork from '@/lib/utils_network';
 
 import { AccordionList, AccordionItem } from "vue3-rich-accordion";
+import SearchResultOption from './SearchResultOption.vue'
 
 const debounce = (callback, wait) => {
     let timeoutId = null;
@@ -196,11 +118,13 @@ export default {
         VueFinalModal,
         AuthTypeIcon,
         AccordionList,
-        AccordionItem
+        AccordionItem,
+        SearchResultOption
     },
     props: {
         searchResults: Object,
         pickLookup: Object,
+        searchMode: String,
     },
 
     watch: {},
@@ -220,6 +144,15 @@ export default {
     },
 
     methods: {
+        selectContext: function(idx){
+            this.$emit('selectContext', idx)
+        },
+        loadContext:function(pickPosition){
+            if (this.pickCurrent == null) {
+                this.pickPostion = pickPosition
+            }
+            this.$emit('loadContext', pickPosition)
+        },
         // Functions for searchResults
 
         // Return the number of search results that are populated.
@@ -233,35 +166,7 @@ export default {
             }
             return count
         },
-        buildAddtionalInfo: function (collections) {
-            if (collections) {
-                let out = []
-                if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings") || collections.includes("http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings")) {
-                    out.push("(Auth Hd)")
-                } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")) {
-                    out.push("(GnFrm)")
-                } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions")) {
-                    out.push("(GeoSubDiv)")
-                } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSH_Childrens")) {
-                    out.push("(ChldSubj)")
-                } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")) {
-                    out.push("(SubDiv)")
-                }
 
-                // favor SubDiv over GnFrm
-                if (out.includes("(GnFrm)") && collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")) {
-                    out = ["(SubDiv)"]
-                }
-
-                // if (collections.includes("LCNAF")){
-                //     out.push("[LCNAF]")
-                // }
-
-                return out.join(" ")
-            } else {
-                return ""
-            }
-        },
         checkUsable: function (data) {
             let notes = data.extra.notes || []
             if (notes.includes("THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS RECORD HAS BEEN REVIEWED AND/OR UPDATED")) {

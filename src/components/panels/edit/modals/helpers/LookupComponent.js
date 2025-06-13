@@ -15,7 +15,6 @@ export default class Component{
 
     // Setters
     set label(x){
-        console.info("setting label: ", x)
         this._label = x
     }
     set uri(x){

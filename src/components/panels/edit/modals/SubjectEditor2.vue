@@ -24,8 +24,12 @@
         {{ activeSearch }}
       </template>
       <template v-else>
-        <ComplexSearchResultsDisplay :searchResults="searchResults" :pickLookup="pickLookup"
-          @emitLoadContext="loadContext" @selectContext="selectContext" />
+        <ComplexSearchResultsDisplay
+          :searchResults="searchResults"
+          :pickLookup="pickLookup"
+          :searchMode="searchMode"
+          @loadContext="loadContext"
+          @selectContext="selectContext" />
       </template>
       <div class="detail-body">details</div>
 
@@ -603,6 +607,7 @@ export default {
     renderHintBoxes: function () { },
 
     selectContext: async function (pickPostion, update = true) {
+      console.info('selectContext')
       if (pickPostion != null) {
         this.pickPostion = pickPostion
         this.pickCurrent = pickPostion
@@ -748,6 +753,7 @@ export default {
       }
     },
     loadContext: function (pickPostion) {
+      console.info("loadContext: ", pickPostion)
       if (this.pickCurrent == null) {
         this.pickPostion = pickPostion
       } else {
@@ -766,12 +772,16 @@ export default {
     },
 
     getContext: async function () {
+      console.info("getContext")
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false
       }
       //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
       this.contextData = this.pickLookup[this.pickPostion].extra
+
+      console.info("contextData: ", this.contextData)
+      console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
 
       if (this.pickLookup[this.pickPostion].uri) {
         this.contextData.literal = false
