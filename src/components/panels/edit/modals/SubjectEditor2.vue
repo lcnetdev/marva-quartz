@@ -168,7 +168,9 @@ export default {
       searchResults: null,
       localContextCache: null,
       activeSearch: false,
+      contextRequestInProgress: false,
 
+      pickLookup: {},
       pickCurrent: null,
       localContextCache: {},
       contextData: {},
@@ -212,9 +214,7 @@ export default {
       this.pickCurrent = null
     },
     buildComponents: function (searchString) {
-      console.info("\n\nbuildComponents: ", searchString)
       let subjectStringSplit = searchString.split('--')
-      console.info("subjectStringSplit: ", subjectStringSplit)
 
       this.components = []
       let id = 0
@@ -222,9 +222,7 @@ export default {
       let offset = 0
 
       for (let ss of subjectStringSplit) {
-        console.info("ss: ", ss)
         let component = new Component(ss)
-        console.info('label: ', component.label)
         component.posStart = activePosStart
 
         let tempSs = ss.replace("‑", "-")
@@ -257,7 +255,6 @@ export default {
         component.posStart = activePosStart
         component.posEnd = activePosStart + ss.length
 
-        console.info("saving component: ", JSON.parse(JSON.stringify(component)))
         this.components.push(component)
 
         activePosStart = activePosStart + ss.length + 2
@@ -294,7 +291,6 @@ export default {
       console.info("searchStringFull: ", searchStringFull)
       console.info("complexSub: ", complexSub)
       that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
-
       console.info("that.searchResults: ", that.searchResults, "\n-----------------------")
 
       // replace the true keyboard hypen with the werid hypen to prevent spliting on open lifedates
@@ -440,8 +436,8 @@ export default {
 
 
     closeSubjectBuilder: function () {
-      console.info("closing?")
       this.$emit('hideSubjectModal', true)
+      // TODO: reset values
     },
 
     searchModeSwitch: function (mode) {
@@ -497,7 +493,6 @@ export default {
       }
     },
     subjectStringChanged: async function (event) {
-      console.info("subjectStringChanged")
       // Adjust for pasting from ClassWeb
       this.subjectString = this.subjectString.replace("—", "--")
 
@@ -551,14 +546,10 @@ export default {
       }
 
       if (!this.subjectString.endsWith("--")) {
-        console.info("buildComponents")
         this.buildComponents(this.subjectString)
       }
 
       // this.renderHintBoxes()
-
-      console.info("components: ", JSON.parse(JSON.stringify(this.components)))
-
       // if they are typing in the heading select it as we go
       if (event) {
         for (let c of this.components) {
@@ -566,20 +557,16 @@ export default {
             this.activeComponent = c
             this.activeComponentIndex = c.id
 
-            console.info("c: ", JSON.parse(JSON.stringify(c)))
             // it is not empty
             // it does not end with "-" so that '--' typing doesn't trigger a search
             if (c.label.trim() != '' && !c.label.endsWith('-')) {
-              console.info("search1")
               this.searchApis(c.label, event.target.value, this)
 
               // BUT if it ends with a number and - then it is a name with open life dates
               // so do look that one up
             } else if (/[0-9]{4}\??-/.test(c.label)) {
-              console.info("search2")
               this.searchApis(c.label, event.target.value, this)
             } else if (/,\s[0-9]{4}-/.test(c.label)) {
-              console.info("search3")
               this.searchApis(c.label, event.target.value, this)
             }
             //            // BUT if it starts with
@@ -644,7 +631,6 @@ export default {
     renderHintBoxes: function () { },
 
     selectContext: async function (pickPostion, update = true) {
-      console.info('selectContext')
       if (pickPostion != null) {
         this.pickPostion = pickPostion
         this.pickCurrent = pickPostion
@@ -796,8 +782,6 @@ export default {
 
     //TODO get this working with mouseover
     loadContext: function (pickPostion) {
-      console.info("loadContext: ", pickPostion)
-      console.info("this.pickCurrent: ", this.pickCurrent)
       if (this.pickCurrent == null) {
         this.pickPostion = pickPostion
       } else {
@@ -816,7 +800,6 @@ export default {
     },
 
     getContext: async function () {
-      console.info("getContext: ", this.pickPostion)
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false
@@ -824,14 +807,10 @@ export default {
       //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
       this.contextData = this.pickLookup[this.pickPostion].extra
 
-      console.info("contextData: ", this.contextData)
-      console.info("this.pickLookup[this.pickPostion]: ", this.pickLookup[this.pickPostion])
-
       if (this.pickLookup[this.pickPostion].uri) {
         this.contextData.literal = false
         this.contextData.title = this.pickLookup[this.pickPostion].label
         this.contextData.uri = this.pickLookup[this.pickPostion].uri
-        console.info("contextData: ", this.contextData)
         if (Object.keys(this.contextData).includes("marcKeys")) {
           this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKeys[0]
         } else if (Object.keys(this.contextData).includes("marcKey")) {
