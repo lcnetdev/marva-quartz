@@ -54,14 +54,6 @@
           <br><br>
 
           Check for existing record using:
-          <template v-if="searchType != 'lccn'">
-            <br>
-            <label for="matchPoint">Match on: </label>
-            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
-          </template>
-          <template v-else>
-            <br><br>
-          </template>
           <div id="container">
             <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
               @click="changeSearchType($event)" ref="toggle">
@@ -70,6 +62,11 @@
               <div>Other Identifier</div>
             </label>
           </div>
+          <template v-if="searchType != 'lccn'">
+            <br>
+            <label for="matchPoint">Match on: </label>
+            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
+          </template>
 
 
           <template v-if="existingLCCN || existingISBN">
