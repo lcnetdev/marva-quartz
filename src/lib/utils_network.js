@@ -1594,8 +1594,6 @@ const utilsNetwork = {
       }
 
       for (let heading of headings){
-        console.info("heading: ", heading)
-
         let foundHeading = false
         // console.log("---------------------\n",heading,"\n------------------------\n")
 
@@ -2215,8 +2213,6 @@ const utilsNetwork = {
       // console.log("result",result)
 
       this.subjectSearchActive = false
-
-      console.info("result: ", result)
 
       return result
     },
