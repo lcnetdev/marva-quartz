@@ -51,21 +51,28 @@
             :disabled="selectedRecordUrl" />
           <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record."
             noHover="true" badgeType="primary" />
-          <br>
-          <template v-if="wcIndex == 'sn'">
-            Check for existing record using:
-            <div id="container">
-              <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
-                @click="changeSearchType($event)" ref="toggle">
-              <label for="search-type" class="toggle-container">
-                <div>LCCN</div>
-                <div>ISBN</div>
-              </label>
-            </div>
+          <br><br>
+
+          Check for existing record using:
+          <div id="container">
+            <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
+              @click="changeSearchType($event)" ref="toggle">
+            <label for="search-type" class="toggle-container">
+              <div>LCCN</div>
+              <div>Other Identifier</div>
+            </label>
+          </div>
+          <template v-if="searchType != 'lccn'">
+            <br>
+            <label for="matchPoint">Match on: </label>
+            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
+          </template>
+          <template v-else>
+            <br><br>
           </template>
 
+
           <template v-if="existingLCCN || existingISBN">
-            <br>
             <Badge v-if="existingLCCN"
               text="A record with this LCCN might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
@@ -268,6 +275,8 @@ export default {
       hasLccn: false,
       checkingLCCN: false,
       searchType: 'lccn',
+      isbn: '',
+      matchTitle: '',
     }
   },
   computed: {
@@ -307,6 +316,8 @@ export default {
     changeSearchType: function (event) {
       if (event.target.checked) {
         this.searchType = "isbn"
+
+        this.isbn = this.wcIndex == 'sn' ? this.wcQuery : ''
       } else {
         this.searchType = "lccn"
       }
@@ -377,10 +388,6 @@ export default {
       console.info("checkLCCN")
       this.existingLCCN = false
       this.existingISBN = false
-      if (!this.urlToLoad) {
-        this.existingRecordUrl = ""
-        return false
-      }
 
       console.info("urlToLoad: ", this.urlToLoad)
 
@@ -418,7 +425,7 @@ export default {
       // else if (!this.existingLCCN && this.wcIndex == "sn"){
       else if (this.searchType == 'isbn') {
         this.checkingLCCN = true
-        let potentialISBN = this.wcQuery
+        let potentialISBN = this.isbn
         console.info("isbn", potentialISBN)
         let resp = await utilsNetwork.searchLccn(potentialISBN)
         this.checkingLCCN = false
@@ -437,7 +444,7 @@ export default {
         }
       }
 
-
+      console.info("this.existingRecordUrl: ", this.existingRecordUrl)
     },
 
     encodingLevel: function (value) {
