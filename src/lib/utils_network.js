@@ -1594,6 +1594,7 @@ const utilsNetwork = {
       }
 
       for (let heading of headings){
+        console.info("heading: ", heading)
 
         let foundHeading = false
         // console.log("---------------------\n",heading,"\n------------------------\n")
@@ -2192,10 +2193,11 @@ const utilsNetwork = {
       }
 
       // we want to double check the rdfType heading to make sure if we need to ask id to get more clarity about the rdfType
+
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
         for (let r of result.hit){
-          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/') > 0){
+          if (!r.literal){  //&& r.uri.indexOf('id.loc.gov/authorities/names/') > 0
             r.heading.rdfType = "http://www.loc.gov/mads/rdf/v1#" + r.extra.rdftypes[0] //responseUri
           }
         }
@@ -2213,6 +2215,8 @@ const utilsNetwork = {
       // console.log("result",result)
 
       this.subjectSearchActive = false
+
+      console.info("result: ", result)
 
       return result
     },
