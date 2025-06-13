@@ -67,10 +67,12 @@
             <label for="matchPoint">Match on: </label>
             <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
           </template>
+          <template v-else>
+            <br><br>
+          </template>
 
 
           <template v-if="existingLCCN || existingISBN">
-            <br>
             <Badge v-if="existingLCCN"
               text="A record with this LCCN might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
@@ -441,6 +443,8 @@ export default {
           this.existingRecordUrl = ""
         }
       }
+
+      console.info("this.existingRecordUrl: ", this.existingRecordUrl)
     },
 
     encodingLevel: function (value) {
