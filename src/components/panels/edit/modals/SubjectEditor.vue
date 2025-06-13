@@ -2527,10 +2527,15 @@ methods: {
 
       this.pickLookup[this.pickPostion].picked=true
 
+      let type = null
       try {
-        let marcKey = this.pickLookup[this.pickPostion].marcKey
-        let type = marcKey.match(/\$[axyzv]{1}/g)
-        type = this.getTypeFromSubfield(type[0])
+        if (this.pickLookup[this.pickPostion].extra.rdftypes.length > 0){
+          type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
+        } else {
+          let marcKey = this.pickLookup[this.pickPostion].marcKey
+          type = marcKey.match(/\$[axyzv]{1}/g)
+          type = this.getTypeFromSubfield(type[0])
+        }
         this.setTypeClick(null, type)
       } catch(err) {
         console.error("Error getting the type. ", err)
