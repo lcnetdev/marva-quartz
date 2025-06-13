@@ -207,11 +207,12 @@ export default {
         },
 
         setPickPosition: function(pickPosition){
+            console.info("setPickPosition: ", pickPosition)
             if (this.pickCurrent == null) {
                 this.pickPostion = pickPosition
             }
 
-            this.$emit('emitLoadContext', pickPosition)
+            this.$emit('loadContext', pickPosition)
         },
     },
 

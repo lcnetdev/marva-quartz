@@ -302,6 +302,9 @@ export default {
     },
 
     methods: {
+        newSearch: function(term){
+            this.$emit('newSearch', term)
+        },
         addClassNumber: function(code){
             this.$emit('addClassNumber', code)
         },

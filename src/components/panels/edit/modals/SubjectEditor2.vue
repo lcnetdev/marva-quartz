@@ -36,6 +36,7 @@
           :contextData="contextData"
           :contextRequestInProgress="contextRequestInProgress"
           @addClassNumber="addClassNumber"
+          @newSearch="newSearch"
         />
       </div>
 
@@ -170,6 +171,7 @@ export default {
 
       pickCurrent: null,
       localContextCache: {},
+      contextData: {},
 
     }
   },
@@ -182,6 +184,11 @@ export default {
   },
 
   methods: {
+    newSearch: function (v) {
+      this.subjectString = v
+      this.subjectStringChanged()
+      this.searchApis(v, v, this)
+    },
     addClassNumber: function (classNum) {
       let profile = this.activeProfile
 
@@ -786,8 +793,11 @@ export default {
         }
       }
     },
+
+    //TODO get this working with mouseover
     loadContext: function (pickPostion) {
       console.info("loadContext: ", pickPostion)
+      console.info("this.pickCurrent: ", this.pickCurrent)
       if (this.pickCurrent == null) {
         this.pickPostion = pickPostion
       } else {
@@ -806,7 +816,7 @@ export default {
     },
 
     getContext: async function () {
-      console.info("getContext")
+      console.info("getContext: ", this.pickPostion)
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false
@@ -821,6 +831,7 @@ export default {
         this.contextData.literal = false
         this.contextData.title = this.pickLookup[this.pickPostion].label
         this.contextData.uri = this.pickLookup[this.pickPostion].uri
+        console.info("contextData: ", this.contextData)
         if (Object.keys(this.contextData).includes("marcKeys")) {
           this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKeys[0]
         } else if (Object.keys(this.contextData).includes("marcKey")) {
