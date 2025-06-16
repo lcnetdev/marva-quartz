@@ -124,6 +124,7 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+    linkedData: {},
 
     componentLibrary : {
       profiles:{
@@ -4632,7 +4633,7 @@ export const useProfileStore = defineStore('profile', {
         // console.log("this.activeProfilethis.activeProfilethis.activeProfile",this.activeProfile)
         // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
-
+        // console.log("Data changed, this.activeProfile", this.activeProfile)
         // if they have auto save on then save it also
         if (usePreferenceStore().returnValue('--b-general-auto-save')){
 
@@ -4965,7 +4966,9 @@ export const useProfileStore = defineStore('profile', {
 
           process(ptObj, function (obj,key,value) {
               // e.g.
-              // console.log(obj,key);
+
+             
+
               if (!latinRegex.test(value)){
                 nonLatinNodes.push({
                   ptObj:ptObj,
@@ -4990,7 +4993,7 @@ export const useProfileStore = defineStore('profile', {
 
       let nonLatin = this.returnAllNonLatinLiterals(true)
       let nonLatinMap = {}
-
+      // console.log("nonLatin",nonLatin)
       for (let nl of nonLatin){
         let ptFound = null
         for (let rt of this.activeProfile.rtOrder){
@@ -5023,7 +5026,7 @@ export const useProfileStore = defineStore('profile', {
         nonLatinMap[ptFound['@guid']].scripts = [...new Set(nonLatinMap[ptFound['@guid']].scripts)];
 
       }
-
+      // console.log("nonLatinMap",nonLatinMap)
 
       return nonLatinMap
 
@@ -5083,8 +5086,6 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
         let blankNode = utilsProfile.returnGuidLocation(pt.userValue,fieldGuid)
         if (blankNode){
-
-          console.log(blankNode)
           if (lang){
             blankNode['@language'] = lang
           }else{
@@ -5346,6 +5347,11 @@ export const useProfileStore = defineStore('profile', {
     setMostCommonNonLatinScript(){
 
       let literals = this.returnAllNonLatinLiterals()
+
+      // if (literals.length == 0){
+      //   literals = this.returnAllNonLatinLiterals(true)
+      // }
+
       let allScriptsFound = []
       for (let l of literals){
         if (l.node && l.node['@language'] && l.node['@language'].indexOf('-')>-1){
@@ -5355,7 +5361,7 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-
+      
       if (allScriptsFound.length>0){
         // get mode
         let mostCommong = allScriptsFound.sort((a,b) => allScriptsFound.filter(v => v===a).length - allScriptsFound.filter(v => v===b).length).pop();
@@ -6533,9 +6539,315 @@ export const useProfileStore = defineStore('profile', {
 
     isTestEnv(){
       return window.location.href.includes("localhost:5555")
-    }
+    },
 
 
+    async buildLinkedData(){
+
+
+      let linkedData = {
+        subtitle: [],
+        noteContent: [],
+        noteTOC: [],
+        thumbnail: [],
+        lcsh: [],
+        genre: [],
+        contributors: utilsProfile.returnContributorUris(this.activeProfile),
+        isbn: (this.activeProfile.linkedData && this.activeProfile.linkedData.isbn) ? this.activeProfile.linkedData.isbn : [],
+      }
+      console.log(":linkedDatalinkedData",linkedData)
+
+      for (let isbn of linkedData.isbn){
+       
+        let baseData = await utilsNetwork.linkedDataBaseRelated(isbn)
+        console.log("baseData",baseData)      
+
+        let oclcMarcData = utilsNetwork.linkedDataExtractOclcMarc(baseData.results)
+        console.log("oclcMarcData",oclcMarcData)
+        linkedData.subtitle = linkedData.subtitle.concat(oclcMarcData.filter((v) => (v.dataType == 'subtitle')));
+        linkedData.noteContent = linkedData.noteContent.concat(oclcMarcData.filter((v) => (v.dataType == 'description')));
+        linkedData.noteTOC = linkedData.noteTOC.concat(oclcMarcData.filter((v) => (v.dataType == 'toc')));
+        linkedData.thumbnail = linkedData.thumbnail.concat(oclcMarcData.filter((v) => (v.dataType == 'thumbnail')));
+        linkedData.lcsh = linkedData.lcsh.concat(oclcMarcData.filter((v) => (v.dataType == '6xx')));
+        linkedData.genre = linkedData.genre.concat(oclcMarcData.filter((v) => (v.dataType == 'genre')));
+
+        linkedData.isbn = linkedData.isbn.concat(baseData.results.isbns);
+
+        linkedData.isbn.map((v)=>{
+          if (v.length > 10){
+            linkedData.isbn.push(utilsProfile.isbn13to10(v))
+          }
+        })
+        linkedData.isbn = [...new Set(linkedData.isbn)];
+
+
+        
+
+        if (baseData.results.isbns && baseData.results.isbns.length > 0){          
+          let googleBookData = await utilsNetwork.linkedDataAllGoogleBooksByIsbns(baseData.results.isbns)
+          googleBookData = utilsNetwork.linkedDataExtractGoogleBooks(googleBookData)
+          console.log("googleBookData",googleBookData)
+
+          googleBookData.filter((v) => (v.dataType == 'toc'))
+
+          linkedData.subtitle = linkedData.subtitle.concat(googleBookData.filter((v) => (v.dataType == 'subtitle')));
+          linkedData.noteContent = linkedData.noteContent.concat(googleBookData.filter((v) => (v.dataType == 'description')));
+          linkedData.noteTOC = linkedData.noteTOC.concat(googleBookData.filter((v) => (v.dataType == 'toc')));
+          linkedData.thumbnail = linkedData.thumbnail.concat(googleBookData.filter((v) => (v.dataType == 'thumbnail')));
+          linkedData.lcsh = linkedData.lcsh.concat(googleBookData.filter((v) => (v.dataType == 'subject')));
+
+
+        }
+
+        // if we got a hit on one of the isbns we can stop
+        if (baseData.results.records.length > 0){
+          break
+        }
+
+
+      }
+      // remove the $1 or $0
+      for (let lcsh of linkedData.lcsh){
+        lcsh.value = lcsh.value.filter((v) => (Object.keys(v)[0] != '1' && Object.keys(v)[0] != '0') )
+      }
+
+      // remove trailing punctuation from genreForm
+      for (let genre of linkedData.genre){
+        if (genre.value && genre.value.length > 0){
+          genre.value = genre.value.replace(/[\.]$/, '')
+        }
+      }      
+
+      // unique the lcsh
+      let addedLCSH = []
+      let keepLCSH = []
+      for (let lcsh of linkedData.lcsh){
+        let v = JSON.stringify(lcsh.value)
+        if (addedLCSH.indexOf(v) == -1){
+          addedLCSH.push(v)
+          keepLCSH.push(lcsh)
+        }
+      }
+
+      linkedData.lcsh=keepLCSH
+
+      for (let key in linkedData) {
+        if (Array.isArray(linkedData[key])) {
+          const uniqueValues = new Set();
+          linkedData[key] = linkedData[key].filter(item => {
+        if (item && typeof item.value !== 'undefined') {
+          if (!uniqueValues.has(item.value)) {
+            uniqueValues.add(item.value);
+            return true;
+          }
+          return false;
+        }
+        // Keep items that don't have a 'value' property or are not objects
+        return true;
+          });
+        }
+      }
+
+      // ask for contributor LCSH possbilbities
+      if (linkedData.contributors && linkedData.contributors.length > 0){
+        let lcshContributors = await utilsNetwork.linkedDataLCSHContributors(linkedData.contributors)
+        // console.log("lcshContributors",lcshContributors)
+        // kick this off but don't wait for it to finish
+        utilsNetwork.linkedDataLCSHContributorsExtract(lcshContributors).then((colabResults)=>{
+          console.log("colabResults",colabResults)
+        })
+        // if (lcshContributors && lcshContributors.length > 0){
+      }
+
+      console.log("linkedData",linkedData)
+      this.linkedData = linkedData
+      this.linkedData.done = true
+
+    },
+
+
+    addLinkedData(toAdd){
+
+      if (toAdd.dataType == 'subtitle'){ 
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/title", "http://id.loc.gov/ontologies/bibframe/subtitle"] 
+        toAdd.addNew = false
+        toAdd.resourceType = "instance"
+      }
+      if (toAdd.dataType == 'description' || toAdd.dataType == 'note'){ 
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/summary", "http://www.w3.org/2000/01/rdf-schema#label"] 
+        toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/Summary"
+        toAdd.addNew = true
+        toAdd.resourceType = "work"
+      }
+      if (toAdd.dataType == 'toc' ){ 
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/tableOfContents", "http://www.w3.org/2000/01/rdf-schema#label"] 
+        toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/TableOfContents"
+        toAdd.addNew = true
+        toAdd.resourceType = "work"
+      }
+
+      if (toAdd.dataType == '6xx' ){ 
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/subject", "http://www.w3.org/2000/01/rdf-schema#label"] 
+        toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/Subject"
+        toAdd.addNew = true
+        toAdd.resourceType = "work"
+      }
+
+      if (toAdd.dataType == 'genre' ){ 
+        toAdd.PropertyPath = ["http://id.loc.gov/ontologies/bibframe/genreForm", "http://www.w3.org/2000/01/rdf-schema#label"] 
+        toAdd.typeOf = "http://id.loc.gov/ontologies/bibframe/GenreForm"
+        toAdd.addNew = true
+        toAdd.resourceType = "work"
+      }
+      console.log("toAdd",toAdd)      
+      for (let rt of Object.keys(this.activeProfile.rt)){
+        if (rt.toLowerCase().includes(toAdd.resourceType)){
+          for (let pt of Object.keys(this.activeProfile.rt[rt].pt)){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyURI == toAdd.PropertyPath[0]){
+
+              if (toAdd.addNew){
+
+                // find the matching property to copy from
+                let copyFrom = null
+                for (let ptLookingFor of Object.keys(this.activeProfile.rt[rt].pt)){
+                  if (this.activeProfile.rt[rt].pt[ptLookingFor].propertyURI == toAdd.PropertyPath[0]){
+                    copyFrom = this.activeProfile.rt[rt].pt[ptLookingFor]
+                    copyFrom = JSON.parse(JSON.stringify(copyFrom))
+                    copyFrom['@guid'] = short.generate()
+                    copyFrom.id = copyFrom.id + "_" + short.generate()
+
+
+                    if (toAdd.PropertyPath[0] != "http://id.loc.gov/ontologies/bibframe/subject" && toAdd.PropertyPath[0] != "http://id.loc.gov/ontologies/bibframe/genreForm"){
+                      copyFrom.userValue = {'@root': toAdd.PropertyPath[0]}
+                      copyFrom.userValue[toAdd.PropertyPath[0]] = [{
+                        '@guid': short.generate(),
+                        '@type': toAdd.typeOf,
+                        [toAdd.PropertyPath[1]]: [{
+                          '@guid': short.generate(),
+                          [toAdd.PropertyPath[1]]: toAdd.value
+                        }]
+                      }]
+
+                      let newIndex = this.activeProfile.rt[rt].ptOrder.indexOf(this.activeProfile.rt[rt].pt[ptLookingFor].id)
+                      if (newIndex){
+                          newIndex++
+                          this.activeProfile.rt[rt].ptOrder.splice(newIndex, 0, copyFrom.id);
+                          this.activeProfile.rt[rt].pt[copyFrom.id] = copyFrom;
+                          this.dataChanged()
+                          this.activeComponent = this.activeProfile.rt[rt].pt[copyFrom.id]
+                      }
+                      break
+                    }else{
+
+                      // do something special for subjects
+                      console.log("copyFrom",copyFrom)
+                      copyFrom.userValue = {'@root': toAdd.PropertyPath[0], '@guid': short.generate()}
+
+                      // insert the new one and then look for it
+                      let newIndex = this.activeProfile.rt[rt].ptOrder.indexOf(this.activeProfile.rt[rt].pt[ptLookingFor].id)
+                      if (newIndex){
+                          newIndex++
+                          this.activeProfile.rt[rt].ptOrder.splice(newIndex, 0, copyFrom.id);
+                          this.activeProfile.rt[rt].pt[copyFrom.id] = copyFrom;
+                          this.dataChanged()
+                          this.activeComponent = this.activeProfile.rt[rt].pt[copyFrom.id]
+
+                            setTimeout(()=>{
+
+                              let foundEl = document.querySelector(`[data-field-guid="${copyFrom['@guid']}"]`)
+                              foundEl.focus()     
+                              console.log("toAdd.value",toAdd.value) 
+
+                              let toAddString
+                              if (toAdd.PropertyPath[0] == "http://id.loc.gov/ontologies/bibframe/subject"){
+                                toAddString = toAdd.value.map((v)=>{ return '$' + Object.keys(v)[0] + v[Object.keys(v)[0]] }).join("")
+                              }else if (toAdd.PropertyPath[0] == "http://id.loc.gov/ontologies/bibframe/genreForm"){
+                                toAddString = toAdd.value
+                              }
+                                
+                                      
+                              setTimeout(()=>{
+
+                                  // const eventA = new Event('input', {
+                                  //     data:'helloo',
+                                  //     bubbles: true,
+
+                                  // });
+                                  // console.log("Sending eventA",eventA)
+                                  // foundEl.dispatchEvent(eventA);
+                                  // foundEl.value="Hellooo"
+                                  const event = new Event('input', { bubbles: true });
+                                  foundEl.value = toAddString;
+                                  foundEl.dispatchEvent(event);
+
+
+                              },500)
+
+
+                              
+                              console.log("foundEl",foundEl)
+
+                            },250)
+                          
+                      }
+
+                      break
+                    }
+                  }
+                }
+
+
+                
+
+
+              }else{
+
+
+                
+                // does it already have the property
+                if (pt.userValue 
+                  && pt.userValue[toAdd.PropertyPath[0]] 
+                  && pt.userValue[toAdd.PropertyPath[0]][0]
+                  && !pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]]                 
+                  ){
+                    console.log("it does not has the property",pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]])
+                    // doesn't have the prperty so create it wholelly
+
+                    let uv = {
+                      '@guid': short.generate()
+                    }
+                    uv[toAdd.PropertyPath[1]] = toAdd.value
+                    pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]] = [uv]
+
+                  }else if (pt.userValue 
+                  && pt.userValue[toAdd.PropertyPath[0]] 
+                  && pt.userValue[toAdd.PropertyPath[0]][0]
+                  && pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]]                 
+                  ){
+
+                    let uv = {
+                      '@guid': short.generate(),
+                      'http://id.loc.gov/ontologies/bibframe/subtitle': toAdd.value
+                    }
+                    pt.userValue[toAdd.PropertyPath[0]][0][toAdd.PropertyPath[1]].push(uv)
+                  }
+                  this.dataChanged()
+              }
+              break
+            }
+          }
+        }
+        // for (let pt in state.activeProfile.rt[rt].pt){
+        //   if (state.activeProfile.rt[rt].pt[pt]['@guid'] === guid){
+        //     return state.activeProfile.rt[rt].pt[pt]
+        //   }
+        // }
+      }
+
+
+
+    },
 
 
 

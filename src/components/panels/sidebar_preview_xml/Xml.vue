@@ -115,9 +115,7 @@
 </script>
 
 <template>
-
   <div>
-
     <XmlViewer ref="xmlviewer" :xml="xml" />
 
 

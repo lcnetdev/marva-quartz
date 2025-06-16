@@ -2,7 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.3.1] - 2025-05-27
+
+## [1.3.9] - 2025-06-09
+### Updated
+- Details display to account for changes to suggest2
+- CopyCat logic for when to display message that there are no results for an LCCN.
+- Use `suggest2` order for complext lookup results
+- Improve subjectBuilder selection when choosing a complex subdivision
+- Improve subjectBuilder complex subdivision search
+- Classification information incldes assigner
+- Classification label can be expaned when possible
+
+## Fixed
+- ComplexLookup preference for number for results not always being reflected in the results
+
+### Added
+- CopyCat: preference to have non-latin checkbox default
+
+
+## [1.3.8] - 2025-06-05
+### Added
+- Ability to open Marc preview in a separate window
+- Marva CopyCat uses `998` for user info
+
+## [1.3.7   ] - 2025-06-04
+### Updated
+- Advanced NAR: Don't build auto-046 if 046 is present in advanced mode statements. And add more presets.
+
+
+## [1.3.5   ] - 2025-06-03
+### Updated
+- Changes behavior of the load screen LCCN search input box. You only will see the LCCN number there no URL, also adds default profile that can be changed so you can just press enter to load using that profile.
+
+## [1.3.4   ] - 2025-06-02
+### Fixes
+- The preview NAR button in the NAR modal will check its state better, before it could be "locked" disabled.
+
+
+## [1.3.3   ] - 2025-05-30
+### Updated
+- When there is a non-latin agent with no non-latin literals in the file it will not build the non-latin labels and marcKeys this update lets you force it to from the non-latin agent tool modal
+
+
+## [1.3.2   ] - 2025-05-30
+### Updated
+- Updated the NAR interface advanced mode to have textarea resizable subfield text fields and start off the field with a "$"
+
+## [1.3.1   ] - 2025-05-27
 ### Added
 - "Quick View" feature added to Marva
 

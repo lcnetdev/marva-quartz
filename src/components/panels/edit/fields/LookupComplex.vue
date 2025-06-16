@@ -6,7 +6,7 @@
 
 
       <span class="bfcode-display-mode-holder-label" :title="structure.propertyLabel">{{profileStore.returnBfCodeLabel(structure)}}:</span>
-      <input class="input-inline-mode can-select" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :data-guid="structure['@guid']" :disabled="readOnly" />
+      <input class="input-inline-mode can-select" @keyup="navKey" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :data-field-guid="guid" :data-guid="structure['@guid']" :disabled="readOnly" />
 
 
 
@@ -76,8 +76,8 @@
                         </div>
                       </div>
                     </div>
-
-                    <input style="width:auto" @keyup="navKey" class="can-select" :data-guid="structure['@guid']" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
+                    
+                    <input style="width:auto" @keyup="navKey" class="can-select" :data-field-guid="guid" :data-guid="structure['@guid']" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
                     <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
                   </div>
                 </div>
@@ -123,7 +123,7 @@
             </div>
 
             <div class="lookup-fake-input-text">
-                <input   v-on:keydown.enter.prevent="submitField" @keyup="navKey" class="can-select" :data-guid="structure['@guid']" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
+              <input   v-on:keydown.enter.prevent="submitField" @keyup="navKey" class="can-select" :data-guid="structure['@guid']" :data-field-guid="guid" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
                 <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
             </div>
           </template>
@@ -730,6 +730,7 @@ export default {
   margin: 1px;
   border-radius: 1em;
   border: dashed lightgray 1px;
+  font-family: Helvetica, Arial, sans-serif;
 }
 .marc-deliminated-lcsh-mode-container a{
   color: inherit !important;

@@ -74,14 +74,6 @@
                   <button @click="searchModeSwitch('GEO')" :data-tooltip="'Shortcut: CTRL+ALT+3'" :class="['simptip-position-bottom',{'active':(searchMode==='GEO')}]">Indirect Geo</button>
                   <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
                   <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='HUBS')}]">Hubs</button>
-
-                  <template v-if="preferenceStore.returnValue('--b-edit-complex-include-usage')">
-                    | Sort:
-                    <select v-model="selectedSortOrder" @change="applySort">
-                      <option value="alpha">Alpha</option>
-                      <option value="useageDesc">Highest Usage</option>
-                    </select>
-                  </template>
                 </div>
 
 
@@ -311,17 +303,36 @@
                     <template v-for="key in panelDetailOrder">
                       <div v-if="contextData[key] && contextData[key].length>0">
                         <template v-if="key != 'sources'">
-                          <template v-if="['lcclasss', 'broaders', 'identifiers'].includes(key)">
+
+                          <template v-if="key=='lcclasses'">
+                            <span  class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                            <ul class="">
+                              <li class="" v-if="key=='lcclasses'" v-for="v in contextData['lcclasses']">
+                                <template v-if="typeof v != 'string'">
+                                  ({{ v.assigner }})
+                                  <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
+                                  <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
+                                </template>
+                                <template v-else>
+                                  {{ v }}
+                                </template>
+                                <template v-if="v.label">
+                                  <span v-if="v.label.split('--').length == 1">
+                                    --{{ getClassLabel(v.label) }}
+                                  </span>
+                                  <span v-else :data-tooltip="v.label" class="expandable-class-label simptip-position-bottom">
+                                    --{{ getClassLabel(v.label) }}<span class="expand material-icons">help</span>
+                                  </span>
+                                </template>
+                              </li>
+                            </ul>
+                          </template>
+
+                          <template v-else-if="['broaders', 'identifiers'].includes(key)">
                             <div class="modal-context-data-title" v-if="key != 'identifiers'">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                             <ul  class="details-list">
                               <template v-for="v in contextData[key]">
-                                <li class="modal-context-data-li" v-if="key=='lcclasss'">
-                                  <template v-if="typeof v === 'string'">
-                                    <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
-                                    <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
-                                  </template>
-                                </li>
-                                <li class="modal-context-data-li" v-else-if="key == 'broaders'">
+                                <li class="modal-context-data-li" v-if="key == 'broaders'">
                                   {{v}}
                                   <button class="material-icons see-search" @click="newSearch(v)">search</button>
                                 </li>
@@ -935,6 +946,20 @@ ul:has(.modal-context-data-li){
   margin-right: 10px;
 }
 
+.expandable-class-label{
+  cursor: help;
+}
+
+.expand {
+  font-size: 14px;
+}
+
+.simptip-position-bottom::before,
+.simptip-position-bottom::after{
+  left: -30% !important;
+}
+
+
 </style>
 
 <style>
@@ -1000,9 +1025,7 @@ watch: {
     this.linkModeString = this.searchValue
   },
 
-  watchSort: function(){
-    this.selectedSortOrder = this.applySort()
-  }
+  watchSort: function(){},
 
 },
 
@@ -1070,6 +1093,7 @@ data: function() {
       "occupations": "Occupations",
       "languages": "Associated Languages",
       "lcclasss": "LC Classification",
+      "lcclasses": "LC Classification",
       "broaders": "Has Broader Authority",
       "gacs": "GAC(s)",
       "collections": "MADS Collections",
@@ -1087,7 +1111,7 @@ data: function() {
     panelDetailOrder: [
             "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds","birthdates","deathdates", "birthplaces",
             "locales", "activityfields","occupations","languages",
-            "sources", "sees", "lcclasss", "identifiers","broaders",
+            "sources", "sees", "lcclasses", "lcclasss", "identifiers","broaders",
             "collections", "subjects", "marcKeys"
         ],
     selectedSortOrder: ""
@@ -1103,6 +1127,20 @@ computed: {
   ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral']),
 },
 methods: {
+  getClassLabel: function(label){
+    let pieces = label.split("--")
+
+    if (pieces.length == 1){
+      return label
+    }
+
+    let posSpecialTopic = pieces.indexOf('Special topics, A-Z')
+    if (posSpecialTopic != -1){
+      return pieces.at(posSpecialTopic - 1)
+    }
+
+    return pieces.at(-1)
+  },
   // Conduct a new search on "related" term
   newSearch: function(v){
     this.subjectString = v
@@ -1121,7 +1159,7 @@ methods: {
       { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
       { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/classificationPortion" }
     ]
-    
+
     let fieldGuid = null
     try {
       fieldGuid = targetComponent.userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/classificationPortion"][0]["@guid"]
@@ -1838,21 +1876,20 @@ methods: {
 
     let complexSub = []
 
-    if (currentPos > 0){
-      let newTerm = searchStringFullPieces.slice(currentPos, currentPos+2).join("--")
-      if (newTerm.includes("--")){
-        complexSub.push(newTerm)
-      }
-    }
+    // to search for complex subdivisions, we'll look that come after the first term
+
     if (currentPos > 1){
+      //this will search `s1--s2`
       let newTerm = searchStringFullPieces.slice(currentPos-1, currentPos+1).join("--")
       if (newTerm.includes("--")){
         complexSub.push(newTerm)
       }
     }
 
-    if (complexSub.length < 2){
-      complexSub.push('')
+    if (currentPos == 1){
+      //this will search `s1--s2`
+      let newTerm = searchStringFullPieces[1]
+      complexSub.push(newTerm)
     }
 
     if (searchStringFull.includes("---")){
@@ -2006,13 +2043,6 @@ methods: {
       // },100)
     })
 
-    if (that.preferenceStore.returnValue('--b-edit-complex-include-usage')){
-      that.selectedSortOrder = 'alpha'
-      that.applySort()
-    } else {
-      that.selectedSortOrder = 'alpha'
-      that.applySort()
-    }
   }, 500),
 
   navStringClick: function(event){
@@ -2156,51 +2186,6 @@ methods: {
   clearSelected: function(){
     this.pickLookup[this.pickCurrent].picked = false
     this.pickCurrent = null
-  },
-
-  applySort: function(){
-    let typeSort = this.selectedSortOrder
-
-    if (this.searchMode == 'WORKS' || this.searchMode == 'HUBS'){
-      typeSort = 'alpha'
-    }
-
-    for (let r in this.searchResults){
-      let records = this.searchResults[r]
-      if (typeSort == 'alpha'){
-        this.searchResults[r] = records.sort((a, b) => {
-          if (a.suggestLabel === undefined){
-            return 0 //1
-          } else if (b.suggestLabel === undefined){
-            return 0 //-1
-          } else if ( a.suggestLabel.toLowerCase().replace("--", " ") > b.suggestLabel.toLowerCase().replace("--", " ")){
-            return 1
-          } else {
-            return -1
-          }
-        })
-
-        this.buildPickLookup()
-
-      } else if (typeSort == 'useageDesc'){
-        this.searchResults[r] = records.sort((a,b) => {
-          if (a.count === undefined){
-            return 0 //1
-          } else if (b.count === undefined){
-            return 0 //-1
-          } else if ( a.count > b.count){
-            return -1
-          } else if (a.count == 0 && b.count == 0){
-            return 0
-          } else {
-            return 1
-          }
-        })
-
-        this.buildPickLookup()
-      }
-
-    }
   },
 
   buildCount: function(subject){
@@ -2429,10 +2414,28 @@ methods: {
 
       // if the selected heading is made of parts of the search string
       let replacePos = []
+
       if (this.searchStringPos > 0){ // we're looking at a subdivision and we've got a complex heading. Figure out if the pieces
         replacePos = [this.searchStringPos]
         let incomingPieces = this.pickLookup[this.pickPostion].label.toLowerCase().split("‑‑")
 
+        let looksLikeMatch = (set1, set2) => {
+          let matches = []
+          if (set1.length != set2.length){
+            return false
+          } else {
+            for (let idx in set1){
+              if (set2[idx].includes(set1[idx])){
+                matches.push(true)
+              }
+            }
+          }
+
+          return matches.every(v => v === true)
+
+        }
+
+        // Figure out how the select term fits into the existing term.
         if (splitStringLower.length != incomingPieces.length){
           for (let termIdx in incomingPieces){
 
@@ -2445,6 +2448,16 @@ methods: {
               replacePos.unshift(this.searchStringPos-1)
             }
           }
+        }else if (splitStringLower.length == incomingPieces.length){
+          if (splitStringLower.at(-1) == incomingPieces.at(0)){
+            // we're appending, so we just want to replace the last piece of the current string
+            replacePos.push(splitStringLower.length - 1)
+          } else if (looksLikeMatch(splitStringLower, incomingPieces)) {
+            replacePos = []
+          } else { // same length, first and last don't match, and the arrays don't last.
+            //should something happen?
+          }
+
         } else {
           replacePos = []
         }
@@ -2514,10 +2527,15 @@ methods: {
 
       this.pickLookup[this.pickPostion].picked=true
 
+      let type = null
       try {
-        let marcKey = this.pickLookup[this.pickPostion].marcKey
-        let type = marcKey.match(/\$[axyzv]{1}/g)
-        type = this.getTypeFromSubfield(type[0])
+        if (this.pickLookup[this.pickPostion].extra.rdftypes.length > 0){
+          type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
+        } else {
+          let marcKey = this.pickLookup[this.pickPostion].marcKey
+          type = marcKey.match(/\$[axyzv]{1}/g)
+          type = this.getTypeFromSubfield(type[0])
+        }
         this.setTypeClick(null, type)
       } catch(err) {
         console.error("Error getting the type. ", err)
@@ -3569,15 +3587,7 @@ created: function () {
 },
 
 before: function () {},
-mounted: function(){
-  if (this.preferenceStore.returnValue('--b-edit-complex-include-usage')){
-    this.selectedSortOrder = 'alpha'
-    this.applySort()
-  } else {
-    this.selectedSortOrder = 'alpha'
-    this.applySort()
-  }
-},
+mounted: function(){},
 
 
 updated: function() {

@@ -40,8 +40,8 @@
         nextInputIsVoyagerModeDiacritics: false,
 
 
-        disableAddButton: true,
 
+        
         oneXX: '',
         oneXXParts: {},
         oneXXErrors: [],
@@ -109,7 +109,18 @@
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
 
 
+      disableAddButton() {
 
+        if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
+          return true
+        }
+        
+        if (this.oneXX.trim() == ''){
+          return true
+        }
+
+        return false
+      }
 
 
     },
@@ -176,6 +187,10 @@
               let fieldTag = field.fieldTag
               let indicators = field.indicators.replace(/[#]/g,' ')
 
+              // if they are adding a 046 dont add it automatically
+              if (fieldTag == '046'){
+                this.zero46 = {}
+              }
 
               let newField = {
                 fieldTag: fieldTag,
@@ -248,7 +263,7 @@
 
 
 
-          this.disableAddButton= true
+          
           this.oneXX = ''
           this.oneXXParts = {}
           this.oneXXErrors = []
@@ -410,7 +425,7 @@
 
         checkOneXX(){
           this.oneXXErrors = []
-          this.disableAddButton = true
+          
           if (this.oneXX.length<3){ return true}
 
           if (/[^0-9 #]/.test(this.oneXX.slice(3,5))){
@@ -483,7 +498,7 @@
               this.oneXXResultsTimeout = window.setTimeout(()=>{
                 this.searchAuthLabel(authLabel,'1xx')
               },500)
-              this.disableAddButton=false
+              
             }
 
             if (dollarKey.d){
@@ -501,8 +516,6 @@
                 this.zero46.f = lifeDates[0]
               }
 
-
-
             }
 
             if (dollarKey.a){
@@ -510,7 +523,7 @@
                console.log("found a hyphenated name")
                if (dollarKey.a.split(',')[0]){
                 let hyphenated = dollarKey.a.split(',')[0].split('-')
-                console.log(hyphenated)
+                // console.log(hyphenated)
                 if (hyphenated.length == 2){
                   let newDollarA = `${hyphenated[1]}, ${dollarKey.a.split(',')[1].trim()} ${hyphenated[0]}-`
                   let hyphenated4xx = {}
@@ -580,13 +593,6 @@
             this.oneXXErrors.push("No Subfield $a entered for 1XX")
           }
 
-          if (!this.mainTitle || !this.mainTitleDate || !this.mainTitleLccn){
-            this.disableAddButton = true
-
-          }
-          if (this.oneXXErrors.length>0){
-            this.disableAddButton = true
-          }
 
 
 
@@ -594,9 +600,11 @@
         },
 
         checkFourXX(){
+
+          
+
           this.fourXXErrors = []
-          this.disableAddButton = true
-          if (this.fourXX.length<3){ return true}
+          if (this.fourXX.length<3){ return true}          
 
           if (/[^0-9 #]/.test(this.fourXX.slice(3,5))){
             this.fourXXErrors.push("There's an invalid indicator for 4XX")
@@ -665,7 +673,7 @@
               this.fourXXResultsTimeout = window.setTimeout(()=>{
                 this.searchAuthLabel(authLabel,'4xx')
               },500)
-              this.disableAddButton=false
+              
             }
 
 
@@ -710,10 +718,6 @@
           }
 
 
-          if (!this.mainTitle){
-            this.disableAddButton = true
-            // this.fourXXErrors.push("You need to add a bf:mainTitle to the work first")
-          }
 
 
 
@@ -725,7 +729,9 @@
           this.extraMarcStatements.push({
             fieldTag: '',
             indicators: '##',
+            value: '$',
             subfields: {
+              
             }
           })
 
@@ -883,6 +889,13 @@
             }
           }
 
+
+          if (event.target.tagName.toLowerCase() === 'textarea') {
+            // Reset height to 'auto' to ensure scrollHeight is calculated correctly,
+            // allowing the textarea to shrink if content is removed.
+            event.target.style.height = 'auto';
+            event.target.style.height = (event.target.scrollHeight + 2) + 'px';
+          }
 
         },
 
@@ -1225,10 +1238,6 @@
           }
 
 
-          if (!this.mainTitle){
-            this.disableAddButton = true
-            // this.oneXXErrors.push("You need to add a bf:mainTitle to the work first")
-          }
           if (this.lastComplexLookupString.trim() != ''){
             this.oneXX = '1XX##$a'+this.lastComplexLookupString
             this.checkOneXX()
@@ -1383,6 +1392,8 @@
                     <option class="preset-option" value="home">Presets</option>
                     <option class="preset-option" value="1001#">"1001 "</option>
                     <option class="preset-option" value="1001#and 4001#">"1001 " &amp; "4001 "</option>
+                    <option class="preset-option" value="1101#">"1101 "</option>
+                    <option class="preset-option" value="1101#and 4101#">"1101 " &amp; "4101 "</option>                    
                     <option class="preset-option" value="1102#">"1102 "</option>
                     <option class="preset-option" value="1102#and 4102#">"1102 " &amp; "4102 "</option>
                     <option class="preset-option" value="1112#">"1112 "</option>
@@ -1631,13 +1642,16 @@
                       placeholder="IND"
                       style="margin-right: 1em; width: 40px; font-family: 'Courier New', Courier, monospace;"
                     />
-                    <input
-                      type="text"
-                      v-model="row.value"
+
+                    <textarea
+                     v-model="row.value"
                       placeholder="$a xyz $b abc..."
                       style="margin-right: 1em; flex-grow: 1;"
                       @keydown="keydown" @keyup="keyup"
-                    />
+                    ></textarea>
+                    
+
+
                     <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>
                     <button v-if="extraMarcStatements.length-1 == index" @click="addRow" style="margin-left: 1em;">Add Row</button>
                   </div>

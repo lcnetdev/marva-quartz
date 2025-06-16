@@ -72,7 +72,8 @@ export const usePreferenceStore = defineStore('preference', {
       dualEdit: false,
       opac: true,
       xml:false,
-      marc: false
+      marc: false,
+      linkedData: false,
 
 
     },
@@ -1146,7 +1147,15 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'General',
         range: [true,false]
     },
-
+      '--s-general-default-profile' : {
+        desc: 'Default profile to use when pressing [ENTER].',
+        descShort: 'Default profile',
+        value: 'lc:RT:bf2:Monograph:Instance',
+        type: 'string',
+        hide: true,
+        unit: null,
+        group: 'General'
+    },
 
       // diacritics
 
@@ -1392,6 +1401,15 @@ export const usePreferenceStore = defineStore('preference', {
           unit: 'em',
           group: 'Copy Cat',
           range: [1,2]
+      },
+      '--b-edit-copy-cat-non-latin' : {
+        desc: 'Select NonLatin by default in CopyCat.',
+        descShort: 'NonLatin Default',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Copy Cat',
+        range: [true,false]
       },
 
 
@@ -1824,9 +1842,9 @@ export const usePreferenceStore = defineStore('preference', {
     isNarTester(){
 
       // pioneers
-      // let canTest = ["kevinford","pfrank","eram","ctur","trod","jowill","ntra","ddavis","nalf","fd07","cyea","fc80","smcc","tsod","fo","hhuh","yshi","cc33","amors","cd01","mnaz","cgir","pkho","cf31","stellier","test",'matt']
+      let canTest = ["kevinford","pfrank","eram","ctur","trod","jowill","ntra","ddavis","nalf","fd07","cyea","fc80","smcc","tsod","fo","hhuh","yshi","cc33","amors","cd01","mnaz","cgir","pkho","cf31","stellier","test",'matt', 'n123']
       // Dev
-      let canTest = ["dev", "matt", "fo", "pfrank", "kevinford", "n123"]
+      // let canTest = ["dev", "matt", "fo", "pfrank", "kevinford", "n123"]
 
       // Convert initials and code to lowercase if they exist
       const initials = this.catInitals ? this.catInitals.toLowerCase() : '';
@@ -1866,10 +1884,17 @@ export const usePreferenceStore = defineStore('preference', {
     },
 
     setPanelData(data){
-
       for (let key of Object.keys(data.view)){
         this.panelDisplay[key] = data.view[key]
       }
+
+      // anything not stored turn off
+      for (let key of Object.keys(this.panelDisplay)){
+        if (!data.view[key]){
+          this.panelDisplay[key] = false
+        }
+      }
+
       window.setTimeout(() => {
 
         for (let key of Object.keys(data.percents)){

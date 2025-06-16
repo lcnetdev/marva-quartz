@@ -74,6 +74,7 @@
           "occupations": "Occupations",
           "languages": "Associated Languages",
           "lcclasss": "LC Classification",
+          "lcclasses": "LC Classification",
           "broaders": "Has Broader Authority",
           "gacs": "GAC(s)",
           "collections": "MADS Collections",
@@ -89,7 +90,7 @@
         },
         panelDetailOrder: [
             "birthdates","deathdates", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds",
-            "sources", "lcclasss", "birthplaces",  "locales",
+            "sources", "lcclasses", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "identifiers","broaders",
             "collections", "genres", "subjects", "marcKeys", "rdftypes"
@@ -169,6 +170,17 @@
     },
 
     methods: {
+      sortResults: function(a,b){
+         if (a.label.includes('Literal')){
+          return -1
+         } else if (a.label > b.label){
+          return 1
+         } else if(a.label < b.label){
+          return -1
+         } else {
+          return 0
+         }
+      },
       checkLcOnly: function(){
         let config = useConfigStore()
 
@@ -1115,7 +1127,7 @@
                     </option>
                     <template v-if="!isSimpleLookup()">
                       <!-- .sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0)) -->
-                      <option v-for="(r,idx) in activeComplexSearch.sort((a,b) => (a.label.includes('Literal') ? -1 : a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0))" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
+                      <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
                         <div :class="['option-text', {unusable: !checkUsable(r)}]">
                           <span v-html="generateLabel(r)"></span>
                           <span v-if="checkFromAuth(r)" class="from-auth"> (Auth)</span>
@@ -1239,21 +1251,33 @@
                     <!-- Secondary -->
                     <template v-for="key in panelDetailOrder">
                       <div v-if="activeContext.extra[key] && activeContext.extra[key].length>0">
-
                         <template v-if="key != 'sources'">
-                          <ul class="details-list">
-                            <li class="details-details" v-if="key=='lcclasss'" v-for="v in activeContext.extra['lcclasss']">
-                              <template v-if="typeof v === 'string'">
-                                <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
-                                <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v" target="_blank">{{ v }}</a>
-                                <button class="material-icons see-search" @click="addClassNumber(v)">add</button>
-                              </template>
-                            </li>
+                          <template v-if="key=='lcclasses'">
+                            <span  class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
+                            <ul class="">
+                              <li class="" v-if="key=='lcclasses'" v-for="v in activeContext.extra['lcclasses']">
+                                  <template v-if="v.assigner">({{ v.assigner }}) </template>
+                                  <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
+                                <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
+                                <template v-if="v.label">
+                                  <span v-if="v.label.split('--').length == 1">
+                                    --{{ v.label.split("--").at(-1) }}
+                                  </span>
+                                  <span v-else :data-tooltip="v.label" class="expandable-class-label simptip-position-bottom">
+                                    --{{ v.label.split("--").at(-1) }}<span class="expand material-icons">help</span>
+                                  </span>
+                                </template>
+                              </li>
+                            </ul>
+                          </template>
+                          <template v-else>
+                            <ul>
                             <li class="details-details" v-if='["identifiers","broaders",].includes(key)'>
                               <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</span>
                               {{ activeContext.extra[key].join(" ; ") }}
                             </li>
                           </ul>
+                          </template>
                         </template>
                       </div>
                     </template>
@@ -1667,7 +1691,17 @@
   cursor: pointer;
 }
 
+.expandable-class-label{
+  cursor: help;
+}
 
+.expand {
+  font-size: 14px;
+}
 
+.simptip-position-bottom::before,
+.simptip-position-bottom::after{
+  left: -30% !important;
+}
 
 </style>

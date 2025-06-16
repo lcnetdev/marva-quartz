@@ -759,7 +759,15 @@ const utilsProfile = {
   */
 
   pickBestNonLatinScriptOption: function(scriptWanted, scriptOptions){
-
+    // if there is no scriptWanted that means it could not determine what default script was
+    if (!scriptWanted){
+      // but if there is anything in the scriptOptions, just use that then
+      if (scriptOptions.length > 0){
+        scriptWanted = scriptOptions[0]
+      }else{
+        return false
+      }
+    }
     // if we have that script then tell them to use it
     for (let sO of scriptOptions){
       if (scriptWanted.toLowerCase().trim() == sO.toLowerCase().trim()){
@@ -824,7 +832,63 @@ const utilsProfile = {
     return aap
 },
 
+  isbn13to10(isbn) {
+    // 1 - Remove the first three digits
+    isbn = isbn.substring(3);
 
+    // 2 - Remove the last digit
+    isbn = isbn.slice(0, -1);
+
+    // 3 - Calculate the weights for the check digit
+    let multipliers = [10, 9, 8, 7, 6, 5, 4, 3, 2];
+    let weights = [];
+
+    for (let i = 0; i < isbn.length; i++) {
+      weights.push(parseInt(isbn[i]) * multipliers[i]);
+    }
+
+    // 4 - Add weights from step 3
+    const sum = weights.reduce((prev, curr) => prev + curr);
+
+    // 5 - Perfom a modulo 11 on the accumulated weight form step 4
+    const remainder = sum % 11;
+
+    // 6 - Generate check digit
+    let check = remainder === 0 ? 0 : 11 - remainder;
+
+    // 7 - Verify if the check digit is valid
+    check = check === 10 ? "X" : check;
+
+    // 8 - Append check digit
+    isbn += check;
+
+    return isbn;
+  },
+
+
+  
+  returnContributorUris: function(profile){
+    let uris = []
+    for (let rt in profile["rt"]){
+        for (let pt in profile["rt"][rt]["pt"]){
+            pt = profile["rt"][rt]["pt"][pt]
+            if (pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution'){
+                if (pt.userValue && 
+                    pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
+                    pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] &&
+                    pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] &&
+                    pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0] &&
+                    pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]['@id']
+                  ){
+                    uris.push(pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]['@id'])
+                }
+            }
+          
+        }
+    }
+
+    return uris
+  },
 
 
 }

@@ -1252,7 +1252,14 @@ export default {
   mounted: function(){
     this.$nextTick().then(() => {
       this.expandHeightToContent()
+
+      window.setTimeout(()=>{
+        this.expandHeightToContent()
+      },100)      
+
     })
+
+
 
     //get the preferences to load into the page
     for (let k in this.styleDefault){

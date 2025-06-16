@@ -419,18 +419,18 @@ const utilsNetwork = {
         url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/"
       }
 
-      url = url + lccn
+      url = url + lccn.trim() + "&blastdacache=" + Date.now()
 
       let result = await fetch(
         url,
         {
           method: 'HEAD',
-          redirect: 'manual',
+          // redirect: 'manual',
           // mode: 'cors',
-          headers: {
-            'Access-Control-Expose-Headers': 'x-preflabel',
-            'access-control-allow-headers': 'x-preflabel'
-          }
+          // headers: {
+          //   'Access-Control-Expose-Headers': 'x-preflabel',
+          //   'access-control-allow-headers': 'x-preflabel'
+          // }
         }
       )
 
@@ -443,7 +443,7 @@ const utilsNetwork = {
     * @param {allowAbort} --
     * @return {array} - An array of {@link searchComplexResult} results
     */
-    searchComplex: async function(searchPayload){
+    searchComplex: async function(searchPayload, blast=true){
       // console.log("searchPayload",searchPayload)
         let returnUrls = useConfigStore().returnUrls
 
@@ -485,11 +485,13 @@ const utilsNetwork = {
               url = url + "&usage=true"
             }
 
-            url = url + "&blastdacache=" + Date.now()
+            if (blast){
+              url = url + "&blastdacache=" + Date.now()
+            }
 
             // url = url + "&sortfield=label"
 
-            console.info("url: ", url)
+            // console.info("url: ", url)
 
             // don't allow a ? in the keyword if it is already marked as keyword search
             if (url.includes('searchtype=keyword') && url.includes('q=?')){
@@ -1592,7 +1594,6 @@ const utilsNetwork = {
       }
 
       for (let heading of headings){
-
         let foundHeading = false
         // console.log("---------------------\n",heading,"\n------------------------\n")
 
@@ -2190,10 +2191,11 @@ const utilsNetwork = {
       }
 
       // we want to double check the rdfType heading to make sure if we need to ask id to get more clarity about the rdfType
+
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
         for (let r of result.hit){
-          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/') > 0){
+          if (!r.literal){  //&& r.uri.indexOf('id.loc.gov/authorities/names/') > 0
             r.heading.rdfType = "http://www.loc.gov/mads/rdf/v1#" + r.extra.rdftypes[0] //responseUri
           }
         }
@@ -2378,9 +2380,9 @@ const utilsNetwork = {
 
 
       this.subjectSearchActive = true
-      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF Auth Names'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsNames).replace("<OFFSET>", "1")+'&rdftype=Name'
-      let namesGeoUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF Geographic'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsNames).replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Geographic'
-      let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let namesUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF Auth Names'].url.replace('<QUERY>',searchVal).replace('&count=30','&count='+numResultsNames).replace("<OFFSET>", "1")+'&rdftype=Name&keepdiacritics=true'
+      let namesGeoUrl = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF Geographic'].url.replace('<QUERY>',searchVal).replace('&count=30','&count='+numResultsNames).replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings&rdftype=Geographic&keepdiacritics=true'
+      let namesUrlSubdivision = useConfigStore().lookupConfig['http://preprod.id.loc.gov/authorities/names'].modes[0]['NAF All'].url.replace('<QUERY>',searchVal).replace('&count=30','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&keepdiacritics=true'
 
       let subjectUrlComplexSearchVal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
@@ -2389,9 +2391,7 @@ const utilsNetwork = {
       let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
       let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
 
-      let subjectUrlComplexSubdivison1 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[0])).replace('&count=25','&count='+Math.ceil(numResultsComplex/3)).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
-      let subjectUrlComplexSubdivison2 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[1])).replace('&count=25','&count='+Math.ceil(numResultsComplex/3)).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
-      let subjectUrlComplexSubdivison3 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>', searchVal).replace('&count=25','&count='+numResultsComplex/3).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let subjectUrlComplexSubdivison1 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[0])).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       // let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
       // let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
@@ -2477,22 +2477,6 @@ const utilsNetwork = {
         processor: 'lcAuthorities',
         url: [subjectUrlComplexSubdivison1],
         searchValue: complexSub[0],
-        subjectSearch: true,
-        subdivision: true,
-        signal: this.controllers.controllerPayloadSubjectsComplexSubdivision.signal,
-      }
-      let searchPayloadSubjectsComplexSubdivision2 = {
-        processor: 'lcAuthorities',
-        url: [subjectUrlComplexSubdivison2],
-        searchValue: complexSub[1],
-        subjectSearch: true,
-        subdivision: true,
-        signal: this.controllers.controllerPayloadSubjectsComplexSubdivision.signal,
-      }
-      let searchPayloadSubjectsComplexSubdivision3 = {
-        processor: 'lcAuthorities',
-        url: [subjectUrlComplexSubdivison3],
-        searchValue: searchVal,
         subjectSearch: true,
         subdivision: true,
         signal: this.controllers.controllerPayloadSubjectsComplexSubdivision.signal,
@@ -2597,8 +2581,6 @@ const utilsNetwork = {
       let resultsSubjectsSimple=[]
       let resultsPayloadSubjectsSimpleSubdivision=[]
       let resultsSubjectsComplexSubdivision1=[]
-      let resultsSubjectsComplexSubdivision2=[]
-      let resultsSubjectsComplexSubdivision3=[]
       let resultsSubjectsComplex=[]
       let resultsSubjectsComplexSearchVal=[]
       let resultsSubjectsComplexPart=[]
@@ -2620,19 +2602,26 @@ const utilsNetwork = {
       // resultsExactName, resultsExactSubject,
 
       if (mode == "LCSHNAF"){
-        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsSubjectsComplex, resultsHierarchicalGeographic, resultsSubjectsComplexSearchVal, resultsSubjectsComplexSubdivision1, resultsSubjectsComplexSubdivision2, resultsSubjectsComplexSubdivision3] = await Promise.all([
+        [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsSubjectsSimple, resultsPayloadSubjectsSimpleSubdivision, resultsHierarchicalGeographic] = await Promise.all([
             this.searchComplex(searchPayloadNames),
-            this.searchComplex( searchPayloadNamesGeo),
+            this.searchComplex(searchPayloadNamesGeo),
             this.searchComplex(searchPayloadNamesSubdivision),
             this.searchComplex(searchPayloadSubjectsSimple),
             this.searchComplex(searchPayloadSubjectsSimpleSubdivision),
-            this.searchComplex(searchPayloadSubjectsComplex),
             this.searchComplex(searchPayloadHierarchicalGeographic),
-            this.searchComplex(searchPayloadSubjectsComplexSearchVal),
-            this.searchComplex(searchPayloadSubjectsComplexSubdivision1),
-            this.searchComplex(searchPayloadSubjectsComplexSubdivision2),
-            this.searchComplex(searchPayloadSubjectsComplexSubdivision3),
         ]);
+
+        // break out the complex searches because they can take a while and slow down all results
+        [resultsSubjectsComplex, resultsSubjectsComplexSearchVal] = await Promise.all([
+            this.searchComplex(searchPayloadSubjectsComplex, false),
+            this.searchComplex(searchPayloadSubjectsComplexSearchVal, false),
+        ]);
+
+        if (complexSub[0]){
+          [resultsSubjectsComplexSubdivision1] = await Promise.all([
+              this.searchComplex(searchPayloadSubjectsComplexSubdivision1),
+          ]);
+        }
 
       } else if (mode == "CHILD"){
         [resultsNames, resultsNamesGeo, resultsNamesSubdivision, resultsChildrenSubjects, resultsChildrenSubjectsComplex, resultsChildrenSubjectsSubdivisions] = await Promise.all([
@@ -2686,14 +2675,8 @@ const utilsNetwork = {
       if (resultsChildrenSubjectsComplex.length>0){
         resultsChildrenSubjectsComplex.pop()
       }
-      if (resultsSubjectsComplexSubdivision1.length>0){
+      if (resultsSubjectsComplexSubdivision1 && resultsSubjectsComplexSubdivision1.length>0){
         resultsSubjectsComplexSubdivision1.pop()
-      }
-      if (resultsSubjectsComplexSubdivision2.length>0){
-        resultsSubjectsComplexSubdivision2.pop()
-      }
-      if (resultsSubjectsComplexSubdivision3.length>0){
-        resultsSubjectsComplexSubdivision3.pop()
       }
 
       if (resultsSubjectsSimple.length>0){
@@ -2774,7 +2757,11 @@ const utilsNetwork = {
         resultsSubjectsComplex = resultsSubjectsComplex.concat(resultsSubjectsComplexSearchVal.filter((item) => !resultsSubjectsComplex.some((o) => o.label == item.label))) //dedupe
       }
 
-      let complexHeadings = resultsSubjectsComplex.concat(resultsSubjectsComplexSubdivision1).concat(resultsSubjectsComplexSubdivision2).concat(resultsSubjectsComplexSubdivision3)
+
+      let complexHeadings = resultsSubjectsComplex
+      if (pos > 0){
+        complexHeadings = resultsSubjectsComplex.concat(resultsSubjectsComplexSubdivision1)
+      }
 
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
@@ -2787,6 +2774,7 @@ const utilsNetwork = {
       }
 
       this.subjectSearchActive = false
+
       return results
 
     },
@@ -2989,25 +2977,6 @@ const utilsNetwork = {
 
       return {status:false, postLocation: (content.postLocation) ? content.postLocation : null, msg: JSON.stringify(content.publish,null,2), msgObj: content.publish}
     }
-  },
-
-  /**
-   * Check if the given LCCN belongs to a record in ID
-   *
-   * @param {string} lccn - LCCN to check against ID
-   * @returns
-   */
-  checkLccn: async function(lccn){
-    let url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/" + lccn + "&blastdacache=" + Date.now()
-    let resp = await fetch(
-      url,
-      {
-        method: 'HEAD',
-      }
-    )
-
-    console.info("lccn check: ", resp)
-    return resp
   },
 
   /**
@@ -3398,9 +3367,471 @@ const utilsNetwork = {
       }
 
 
-    }
+    },
+
+    async linkedDataBaseRelated(isbn){
+      let returnUrls = useConfigStore().returnUrls
+      let r = await fetch(returnUrls.util + 'worldcat/relatedmeta/:' + isbn)
+      let data = await r.json()
+      console.log("linkedDataBaseRelated data:",data)
+      return data
+    },
 
 
+    async linkedDataAllGoogleBooksByIsbns(isbns){
+
+      let promises = isbns.map(isbn => {
+        let url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
+        return fetch(url).then(response => response.json());
+      });
+
+      try {
+        let results = await Promise.all(promises);
+        return results;
+      } catch (error) {
+        console.error("Error fetching from Google Books API:", error);
+        return [];
+      }
+
+    },
+
+    linkedDataExtractGoogleBooks(data) {
+      const extractedData = [];
+
+      if (!Array.isArray(data)) {
+          console.warn("Input is not an array.");
+          return extractedData;
+      }
+
+      data.forEach(topLevelEntry => {
+          // Check if topLevelEntry is an object and has an 'items' array
+          if (topLevelEntry && typeof topLevelEntry === 'object' && Array.isArray(topLevelEntry.items)) {
+              topLevelEntry.items.forEach(item => {
+                  // Check if item is an object and has an 'id'
+                  if (item && typeof item === 'object' && item.id) {
+                      const itemId = item.id;
+
+                      // Check for volumeInfo
+                      if (item.volumeInfo && typeof item.volumeInfo === 'object') {
+                          const volumeInfo = item.volumeInfo;
+
+                          // Extract description
+                          if (typeof volumeInfo.description === 'string') {
+                              const newDescription = {
+                                  id: itemId,
+                                  type: 'googleBooks',
+                                  dataType: 'description',
+                                  value: volumeInfo.description
+                              };
+                              if (!extractedData.some(entry =>
+                                  entry.type === newDescription.type &&
+                                  entry.value === newDescription.value
+                              )) {
+                                  extractedData.push(newDescription);
+                              }
+                          }
+
+                          // Extract subtitle
+                          if (typeof volumeInfo.subtitle === 'string') {
+                              const newSubtitle = {
+                                  id: itemId,
+                                  type: 'googleBooks',
+                                  dataType: 'subtitle',
+                                  value: volumeInfo.subtitle
+                              };
+                              if (!extractedData.some(entry =>
+                                  entry.type === newSubtitle.type &&
+                                  entry.value === newSubtitle.value
+                              )) {
+                                  extractedData.push(newSubtitle);
+                              }
+                          }
+
+                          // Extract thumbnail
+                          if (volumeInfo.imageLinks && typeof volumeInfo.imageLinks === 'object') {
+                              let thumbnailUrl = null;
+                              if (typeof volumeInfo.imageLinks.thumbnail === 'string') {
+                                  thumbnailUrl = volumeInfo.imageLinks.thumbnail;
+                              } else if (typeof volumeInfo.imageLinks.smallThumbnail === 'string') {
+                                  // Fallback to smallThumbnail if thumbnail is not available
+                                  thumbnailUrl = volumeInfo.imageLinks.smallThumbnail;
+                              }
+
+                              if (thumbnailUrl !== null) {
+                                  const newThumbnail = {
+                                      id: itemId,
+                                      type: 'googleBooks',
+                                      dataType: 'thumbnail', // Still categorized as 'thumbnail'
+                                      value: thumbnailUrl
+                                  };
+                                  if (!extractedData.some(entry =>
+                                      entry.type === newThumbnail.type &&
+                                      entry.value === newThumbnail.value
+                                  )) {
+                                      extractedData.push(newThumbnail);
+                                  }
+                              }
+                          }
+                      }
+                  } else {
+                      // console.warn("Item is malformed or missing ID:", item);
+                  }
+              });
+          } else {
+              // console.warn("Top-level entry is malformed or missing 'items' array:", topLevelEntry);
+          }
+      });
+
+      return extractedData;
+    },
+
+    linkedDataExtractOclcMarc(dataInput) {
+      const extractedResults = [];
+
+      // Check if the overall dataInput is an object and has the 'records' key
+      if (!dataInput || typeof dataInput !== 'object' || !Array.isArray(dataInput.records)) {
+          // console.warn("Input data is not in the expected format or 'records' array is missing.");
+          return extractedResults;
+      }
+
+      dataInput.records.forEach(record => {
+          // Ensure record is an object
+          if (!record || typeof record !== 'object') {
+              // console.warn("Skipping invalid record (not an object).");
+              return; // Skip this record
+          }
+
+          const oclcNumber = record.oclcNumber;
+          // Ensure oclcNumber is present
+          if (!oclcNumber) {
+              // console.warn("Skipping record due to missing oclcNumber.");
+              return; // Skip this record
+          }
+
+          const marcJSON = record.marcJSON;
+          // Ensure marcJSON is an object
+          if (!marcJSON || typeof marcJSON !== 'object') {
+              // console.warn(`Skipping record ${oclcNumber} due to missing or invalid marcJSON.`);
+              return; // Skip this record
+          }
+
+          const marcFields = marcJSON.fields;
+          // Ensure marcFields is an array
+          if (!Array.isArray(marcFields)) {
+              // console.warn(`Skipping record ${oclcNumber} due to missing or invalid marcJSON.fields.`);
+              return; // Skip this record
+          }
+
+          marcFields.forEach(fieldObj => {
+              // Ensure fieldObj is a non-empty object
+              if (!fieldObj || typeof fieldObj !== 'object' || Object.keys(fieldObj).length === 0) {
+                  // console.warn(`Skipping invalid field object in record ${oclcNumber}.`);
+                  return; // Skip this field object
+              }
+
+              const marcTag = Object.keys(fieldObj)[0];
+              const fieldData = fieldObj[marcTag];
+
+              // Process only if fieldData is an object (which variable fields should be)
+              // and has a subfields array. This check is crucial.
+              if (typeof fieldData !== 'object' || fieldData === null || !Array.isArray(fieldData.subfields)) {
+                  // This will correctly skip control fields (like 001 which have string values, not objects with subfields)
+                  // and variable fields that might be malformed without a subfields array.
+                  return; // Skip this field
+              }
+
+              const subfieldsList = fieldData.subfields;
+
+              // Rule 1: 505 subfield a, tag it toc
+              if (marcTag === "505") {
+                  subfieldsList.forEach(sfDict => {
+                      if (sfDict && typeof sfDict === 'object' && sfDict.hasOwnProperty('a')) {
+                          extractedResults.push({
+                              id: oclcNumber,
+                              type: "oclc",
+                              dataType: "toc",
+                              value: sfDict.a
+                          });
+                      }
+                  });
+              }
+              // Rule 2: 520 subfield a, tag it description
+              else if (marcTag === "520") {
+                  subfieldsList.forEach(sfDict => {
+                      if (sfDict && typeof sfDict === 'object' && sfDict.hasOwnProperty('a')) {
+                          extractedResults.push({
+                              id: oclcNumber,
+                              type: "oclc",
+                              dataType: "description",
+                              value: sfDict.a
+                          });
+                      }
+                  });
+              }
+              // Rule 3: 245 subfield b, tag it subtitle
+              else if (marcTag === "245") {
+                  subfieldsList.forEach(sfDict => {
+                      if (sfDict && typeof sfDict === 'object' && sfDict.hasOwnProperty('b')) {
+                          extractedResults.push({
+                              id: oclcNumber,
+                              type: "oclc",
+                              dataType: "subtitle",
+                              value: sfDict.b
+                          });
+                      }
+                  });
+              }
+              else if (marcTag === "655") {
+
+                let allSFields = {}
+                  subfieldsList.forEach(sfDict => {
+                    allSFields[Object.keys(sfDict)[0]] = sfDict[Object.keys(sfDict)[0]]
+                  });
+                  if (allSFields['2'] && allSFields['2'] === 'lcgft' && allSFields.hasOwnProperty('a')) {
+                      extractedResults.push({
+                          id: oclcNumber,
+                          type: "oclc",
+                          dataType: "genre",
+                          value: allSFields.a
+                      });
+                  }
+              }
+              // Rule 4: Any 6XX field when indicator 2 is '0'
+              // Keep all subfields for this 6XX field occurrence together.
+              else if (marcTag.length === 3 && marcTag.startsWith('6') && !isNaN(parseInt(marcTag.substring(1)))) {
+                  const indicator2 = fieldData.ind2;
+                  if (indicator2 === "0") { // Indicator 2 must be the string "0"
+                      // Only add an entry if there are actual subfields in this 6XX field.
+                      if (subfieldsList.length > 0) {
+                          extractedResults.push({
+                              id: oclcNumber,
+                              type: "oclc",
+                              dataType: "6xx",
+                              original_tag: marcTag,
+                              value: subfieldsList // Store the array of subfield objects
+                          });
+                      }
+                  }
+              }
+          });
+      });
+
+      return extractedResults;
+    },
+
+    async linkedDataLCSHContributors(contributorsUris){
+
+
+      let url = useConfigStore().returnUrls.util + 'related/works/contributor'
+
+      const rawResponse = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        //signal: AbortSignal.timeout(5000),
+        body: JSON.stringify({uris: contributorsUris})
+      });
+
+      const content = await rawResponse.json();
+
+      return content
+
+    },
+
+    async linkedDataLCSHContributorsExtract(data){
+      // TODO: Implement extraction logic
+      if (data){
+        console.log("linkedDataLCSHContributorsExtract data:",data)
+
+        for (let lccnUri of Object.keys(data)){
+
+          let workUrls = data[lccnUri].results.map(work => work.uri + '.json');
+
+            let workPromises = workUrls.map(url => fetch(url).then(response => response.json()));
+
+            try {
+              let workResults = await Promise.all(workPromises);
+              console.log("workResults", workResults);
+              // Now process each workResult
+              for (let workData of workResults) {
+                // Process workData
+                console.log("Processing workData:", workData);
+
+                let lookup = {}
+                let lcshList = []
+
+                for (let g of workData){
+
+                  if (g && g['@id'] && g['@id'].startsWith('_:')){
+                    lookup[g['@id']] = {}
+                    if (g['@type'] && g['@type'].length > 0){
+                      lookup[g['@id']]['@type'] = g['@type'][0]
+                    }
+                    if (g['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'] && g['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length > 0){
+                      lookup[g['@id']]['label'] = g['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['@value']
+                    }else{
+                      if (g['http://www.w3.org/2000/01/rdf-schema#label'] && g['http://www.w3.org/2000/01/rdf-schema#label'].length > 0){
+                      lookup[g['@id']]['label'] = g['http://www.w3.org/2000/01/rdf-schema#label'][0]['@value']
+                      }
+                    }
+
+                    if (g['http://id.loc.gov/ontologies/bflc/marcKey'] && g['http://id.loc.gov/ontologies/bflc/marcKey'].length > 0){
+                      lookup[g['@id']]['marcKey'] = g['http://id.loc.gov/ontologies/bflc/marcKey'][0]['@value']
+                    }
+
+                  }
+
+                  if (g['@id'].startsWith('http://id.loc.gov/resources/works')){
+                    lcshList.push(g)
+                  }
+
+
+                }
+
+                if (lcshList.length > 0) {
+                  lcshList = lcshList.reduce((prev, current) => {
+                  return (Object.keys(prev).length > Object.keys(current).length) ? prev : current;
+                  });
+                } else {
+                  lcshList = {}; // Or handle as an error/empty case
+                }
+                if (lcshList && lcshList['http://id.loc.gov/ontologies/bibframe/subject']){
+                  lcshList = lcshList['http://id.loc.gov/ontologies/bibframe/subject']
+                }
+                if (lcshList && lcshList.length > 0){
+                  for (let lcsh of lcshList) {
+                      // find the lcsh in the main graph
+
+
+                      let userData = {
+                          "@root": "http://id.loc.gov/ontologies/bibframe/subject",
+                          "http://id.loc.gov/ontologies/bibframe/subject": [{
+                              "@guid": short.generate(),
+                              "@type": "http://www.loc.gov/mads/rdf/v1#ComplexSubject",
+                              "http://www.w3.org/2000/01/rdf-schema#label": [{
+                                  "@guid": short.generate(),
+                                  "http://www.w3.org/2000/01/rdf-schema#label": null
+                              }],
+                              "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": [{
+                                  "@guid": short.generate(),
+                                  "http://www.loc.gov/mads/rdf/v1#authoritativeLabel": null
+                              }],
+                              "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme": [{
+                                  "@guid": short.generate(),
+                                  "@type": "http://www.loc.gov/mads/rdf/v1#MADSScheme",
+                                  "@id": "http://id.loc.gov/authorities/subjects",
+                                  "http://www.w3.org/2000/01/rdf-schema#label": [{
+                                      "@guid": short.generate(),
+                                      "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress Subject Headings",
+                                      "@language": "en"
+                                  }]
+                              }],
+                              "http://www.loc.gov/mads/rdf/v1#componentList": [
+
+                              ],
+                              "http://id.loc.gov/ontologies/bibframe/source": [{
+                                  "@guid": short.generate(),
+                                  "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                                  "@id": "http://id.loc.gov/authorities/subjects",
+                                  "http://www.w3.org/2000/01/rdf-schema#label": [{
+                                      "@guid": short.generate(),
+                                      "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress Subject Headings",
+                                      "@language": "en"
+                                  }]
+                              }]
+                          }]
+                      }
+                      for (let g of workData) {
+                          if (g['@id'] === lcsh['@id']) {
+
+                              if (g['@type'] && g['@type'].indexOf('http://www.loc.gov/mads/rdf/v1#ComplexSubject') > -1) {
+
+                                  console.log("Complex Subject:", g);
+
+
+
+
+                                  if (g['http://www.loc.gov/mads/rdf/v1#componentList'] && g['http://www.loc.gov/mads/rdf/v1#componentList'].length > 0) {
+                                      let components = g['http://www.loc.gov/mads/rdf/v1#componentList'][0]['@list'];
+                                      for (let component of components) {
+                                          // now find this in the graph...
+                                          console.log("component:", component);
+                                          let userValueComponent = {
+                                              "@guid": short.generate(),
+                                              "@type": null,
+                                              // "@id": "http://id.loc.gov/authorities/subjects/sh85036614",
+                                              "http://www.w3.org/2000/01/rdf-schema#label": [{
+                                                  "@guid": short.generate(),
+                                                  "http://www.w3.org/2000/01/rdf-schema#label": null,
+                                              }],
+                                              "http://id.loc.gov/ontologies/bflc/marcKey": [{
+                                                  "@guid": short.generate(),
+                                                  "http://id.loc.gov/ontologies/bflc/marcKey": null
+                                              }]
+                                          }
+                                          for (let g2 of workData) {
+                                              if (g2['@id'] === component['@id']) {
+                                                  console.log("component g2:", g2);
+                                                  if (g2['@id']) {
+                                                      userValueComponent['@id'] = g2['@id']
+                                                  }
+                                                  if (g2['@type'] && g2['@type'].length > 0) {
+                                                      userValueComponent['@type'] = g2['@type'][0]
+                                                  }
+                                                  if (g2['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'] && g2['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length > 0) {
+                                                      userValueComponent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'] = g2['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['@value']
+                                                  } else if (g2['http://www.w3.org/2000/01/rdf-schema#label'] && g2['http://www.w3.org/2000/01/rdf-schema#label'].length > 0) {
+                                                      userValueComponent['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'] = g2['http://www.w3.org/2000/01/rdf-schema#label'][0]['@value']
+                                                  }
+
+                                                  if (g2['http://id.loc.gov/ontologies/bflc/marcKey'] && g2['http://id.loc.gov/ontologies/bflc/marcKey'].length > 0) {
+                                                      userValueComponent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey'] = g2['http://id.loc.gov/ontologies/bflc/marcKey'][0]['@value']
+                                                  }
+                                              }
+                                          }
+                                          console.log("userValueComponent:", userValueComponent);
+                                          userData['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#componentList'].push(userValueComponent);
+                                      }
+                                  }
+
+
+                              } else {
+                                  // simple subject
+                              }
+
+                          }
+
+
+                      }
+
+
+
+                  }
+
+
+                }
+
+                console.log("lcshList:", lcshList);
+                console.log("lookup:", lookup);
+
+
+
+              }
+            } catch (error) {
+              console.error("Error fetching work data:", error);
+            }
+
+
+        }
+
+
+      }
+      await new Promise(r => setTimeout(r, 5000));
+
+      return [':)'];
+    },
 
 
 
