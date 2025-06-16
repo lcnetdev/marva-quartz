@@ -2329,129 +2329,117 @@
                         },
                         "label": "Filmographies (inst note)"
                     },
+
                     {
                         "id": "awdinUMoF7FU5hhzZ948fJ",
                         "groupId": "Illustrations",
-                        "position": 12,
+                        "position": 0,
                         "structure": {
-                            "mandatory": "false",
-                            "repeatable": "true",
-                            "type": "resource",
+                            "propertyLabel": "Extent",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/extent",
                             "resourceTemplates": [],
                             "valueConstraint": {
                                 "valueTemplateRefs": [
-                                    "lc:RT:bf2:Note"
+                                    "lc:RT:bf2:Extent"
                                 ],
                                 "useValuesFrom": [],
                                 "valueDataType": {},
                                 "defaults": []
                             },
-                            "propertyLabel": "Notes about the Instance",
-                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Notesonnotes",
-                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "remark": "https://original.rdatoolkit.org/3.4.html",
                             "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
                             "parentId": "lc:RT:bf2:Monograph:Instance",
                             "userValue": {
-                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
-                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                "@root": "http://id.loc.gov/ontologies/bibframe/extent",
+                                "http://id.loc.gov/ontologies/bibframe/extent": [
                                     {
-                                        "@guid": "fLNvASvFAPg2yaYsvUiCAR",
-                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                        "@guid": "hD9oA1JtcHgo3D2NiyDdED",
+                                        "http://id.loc.gov/ontologies/bibframe/note": [
                                             {
-                                                "@guid": "rYzzZNx1JWMgeffT6petqr",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations"
-                                            }
-                                        ],
-                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
-                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
-                                            {
-                                                "@guid": "6VrsQH5PnLsxKUxsXbP3se",
-                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/physical",
+                                                "@guid": "scQrday8SNwwMPdg5pGqci",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
-                                                        "@guid": "7TgqRM744nvSCsVANQhwKz",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details"
+                                                        "@guid": "ebayQB4HLMUwoBjZ8Lhaf5",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "illustrations"
                                                     }
                                                 ],
-                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                                "@type": "http://id.loc.gov/ontologies/bibframe/Note"
                                             }
-                                        ]
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Extent"
                                     }
                                 ]
                             },
                             "@guid": null,
                             "canBeHidden": true,
-                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
-                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
-                            "hashCode": 1294285788,
-                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/extent|lc:RT:bf2:Extent",
+                            "id": "id_loc_gov_ontologies_bibframe_extent__extent",
+                            "hashCode": 264011767,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/extent",
                             "hasData": true,
                             "userModified": true,
                             "dataLoaded": false
                         },
-                        "label": "Illustrations (inst note)"
+                        "label": "Illustrations (extnt)"
                     },
+
                     {
                         "id": "rA9Dofs4QZ38hUxrjxqRcY",
                         "groupId": "Illustrations, Map",
-                        "position": 13,
+                        "position": 0,
                         "structure": {
-                            "mandatory": "false",
-                            "repeatable": "true",
-                            "type": "resource",
+                            "propertyLabel": "Extent",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/extent",
                             "resourceTemplates": [],
                             "valueConstraint": {
                                 "valueTemplateRefs": [
-                                    "lc:RT:bf2:Note"
+                                    "lc:RT:bf2:Extent"
                                 ],
                                 "useValuesFrom": [],
                                 "valueDataType": {},
                                 "defaults": []
                             },
-                            "propertyLabel": "Notes about the Instance",
-                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Notesonnotes",
-                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "remark": "https://original.rdatoolkit.org/3.4.html",
                             "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
                             "parentId": "lc:RT:bf2:Monograph:Instance",
                             "userValue": {
-                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
-                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                "@root": "http://id.loc.gov/ontologies/bibframe/extent",
+                                "http://id.loc.gov/ontologies/bibframe/extent": [
                                     {
-                                        "@guid": "fLNvASvFAPg2yaYsvUiCAR",
-                                        "http://www.w3.org/2000/01/rdf-schema#label": [
+                                        "@guid": "hD9oA1JtcHgo3D2NiyDdED",
+                                        "http://id.loc.gov/ontologies/bibframe/note": [
                                             {
-                                                "@guid": "rYzzZNx1JWMgeffT6petqr",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "illustrations, maps"
-                                            }
-                                        ],
-                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
-                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
-                                            {
-                                                "@guid": "6VrsQH5PnLsxKUxsXbP3se",
-                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/physical",
+                                                "@guid": "scQrday8SNwwMPdg5pGqci",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
-                                                        "@guid": "7TgqRM744nvSCsVANQhwKz",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details"
+                                                        "@guid": "ebayQB4HLMUwoBjZ8Lhaf5",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "illustrations, maps"
                                                     }
                                                 ],
-                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource"
+                                                "@type": "http://id.loc.gov/ontologies/bibframe/Note"
                                             }
-                                        ]
+                                        ],
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Extent"
                                     }
                                 ]
                             },
                             "@guid": null,
                             "canBeHidden": true,
-                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
-                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
-                            "hashCode": 1294285788,
-                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/extent|lc:RT:bf2:Extent",
+                            "id": "id_loc_gov_ontologies_bibframe_extent__extent",
+                            "hashCode": 264011767,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/extent",
                             "hasData": true,
                             "userModified": true,
                             "dataLoaded": false
                         },
-                        "label": "Illustrations, map (inst note)"
+                        "label": "Illustrations, map (extnt)"
                     },
                     {
                         "id": "9hDgD6zpGXZpvhujVGLywC",
@@ -2956,67 +2944,61 @@
                         },
                         "label": "Discography (inst note)"
                     },
+
                     {
                         "id": "nfrU6YS59WVvVzsJUySHDK",
                         "groupId": "Color Ill., Color Maps",
-                        "position": 1,
+                        "position": 0,
                         "structure": {
-                            "mandatory": "false",
-                            "repeatable": "true",
-                            "type": "resource",
+                            "propertyLabel": "Extent",
+                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/extent",
                             "resourceTemplates": [],
                             "valueConstraint": {
                                 "valueTemplateRefs": [
-                                    "lc:RT:bf2:Note"
+                                    "lc:RT:bf2:Extent"
                                 ],
                                 "useValuesFrom": [],
                                 "valueDataType": {},
                                 "defaults": []
                             },
-                            "propertyLabel": "Notes about the Instance",
-                            "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Notesonnotes",
-                            "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                            "mandatory": "false",
+                            "repeatable": "true",
+                            "type": "resource",
+                            "remark": "https://original.rdatoolkit.org/3.4.html",
                             "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
                             "parentId": "lc:RT:bf2:Monograph:Instance",
                             "userValue": {
-                                "@root": "http://id.loc.gov/ontologies/bibframe/note",
-                                "http://id.loc.gov/ontologies/bibframe/note": [
+                                "@root": "http://id.loc.gov/ontologies/bibframe/extent",
+                                "http://id.loc.gov/ontologies/bibframe/extent": [
                                     {
-                                        "@guid": "16uaAHuNhyQDtqbgVEjxXN",
-                                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+                                        "@guid": "hD9oA1JtcHgo3D2NiyDdED",
+                                        "http://id.loc.gov/ontologies/bibframe/note": [
                                             {
-                                                "@guid": "c9eGzfXsxoDuGX1EFmNFQ6",
-                                                "@type": "http://www.w3.org/2000/01/rdf-schema#Resource",
-                                                "@id": "http://id.loc.gov/vocabulary/mnotetype/physical",
+                                                "@guid": "scQrday8SNwwMPdg5pGqci",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
-                                                        "@guid": "gcvkLqgzw65pU9q3gP43mX",
-                                                        "http://www.w3.org/2000/01/rdf-schema#label": "physical details "
+                                                        "@guid": "ebayQB4HLMUwoBjZ8Lhaf5",
+                                                        "http://www.w3.org/2000/01/rdf-schema#label": "illustrations, maps"
                                                     }
-                                                ]
+                                                ],
+                                                "@type": "http://id.loc.gov/ontologies/bibframe/Note"
                                             }
                                         ],
-                                        "@type": "http://id.loc.gov/ontologies/bibframe/Note",
-                                        "http://www.w3.org/2000/01/rdf-schema#label": [
-                                            {
-                                                "@guid": "pt6BVnRLTorTvoQWxkofar",
-                                                "http://www.w3.org/2000/01/rdf-schema#label": "Illustration (color), color maps"
-                                            }
-                                        ]
+                                        "@type": "http://id.loc.gov/ontologies/bibframe/Extent"
                                     }
                                 ]
                             },
                             "@guid": null,
                             "canBeHidden": true,
-                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
-                            "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
-                            "hashCode": 1294285788,
-                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note",
+                            "preferenceId": "http://id.loc.gov/ontologies/bibframe/extent|lc:RT:bf2:Extent",
+                            "id": "id_loc_gov_ontologies_bibframe_extent__extent",
+                            "hashCode": 264011767,
+                            "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/extent",
                             "hasData": true,
                             "userModified": true,
                             "dataLoaded": false
                         },
-                        "label": "Color ill, color maps (inst note)"
+                        "label": "Color ill, color maps (extnt)"
                     }
                 ]
             },
