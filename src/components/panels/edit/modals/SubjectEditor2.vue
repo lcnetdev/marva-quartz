@@ -246,7 +246,7 @@ export default {
         }
 
         if (ss.includes('‑‑')) {
-          component.complex(true)
+          component.complex = true
         }
         component.posStart = activePosStart
         component.posEnd = activePosStart + ss.length
@@ -282,6 +282,9 @@ export default {
 
       searchString = searchString.trim().normalize()
       searchStringFull = searchStringFull.trim().normalize()
+
+      searchString = searchString.replaceAll('‑', '-')
+      searchStringFull = searchStringFull.replaceAll('‑', '-')
 
       // make the "searching..." text grow
       let ti = window.setInterval(() => { that.activeSearch = ((!that.activeSearch) ? '' : that.activeSearch) + '.' }, 100)
@@ -451,6 +454,22 @@ export default {
 
     searchModeSwitch: function (mode) {
       this.searchMode = mode
+
+
+      if (mode == "GEO") {
+        // if the term has -- swap them for `‑‑`
+        if (this.subjectString.includes("--")){
+          this.subjectString = this.subjectString.replace("--", "‑‑")
+          this.subjectStringChanged()
+          this.navStringClick({})
+        }
+
+      }
+
+      if (this.activeComponent && this.activeComponent.label) {
+        this.searchApis(this.activeComponent.label, this.subjectString, this)
+      }
+      this.$refs.subjectInput.focus()
     },
 
     // Search String functions

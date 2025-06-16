@@ -11,6 +11,7 @@ export default class Component{
         this._marcKey = null,
         this._nonLatinLabel = null,
         this._nonLatinMarcKey = null
+        this._complex = false
     }
 
     // Setters
