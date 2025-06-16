@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.11] - 2025-06-16
+### Updated
+- In NAR creation LDR/18 is now blank
+- In NAR creation the "Creat NAR" button will populate a $d if it detects a date in the searched name
+- Strip out square brackets from the date when building a 670
+
 
 ## [1.3.9] - 2025-06-09
 ### Updated
