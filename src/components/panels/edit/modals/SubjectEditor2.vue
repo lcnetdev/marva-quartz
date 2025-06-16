@@ -33,15 +33,25 @@
       </div>
 
       <!-- third row -->
-      <div class="search-heading">search heading</div>
+      <div class="search-heading">
+        search heading<br>
+        {{ components }}
+
+      </div>
 
       <!-- last row -->
       <div class="search-bar">
-        <form autocomplete="off" style="height: 3em;">
+        <form autocomplete="off" style="height: 3em;" class="search-box">
           <input v-on:keydown.enter.prevent="navInput" placeholder="Enter Subject Headings Here" ref="subjectInput"
             autocomplete="off" type="text" v-model="subjectString" @input="subjectStringChanged" @keydown="navInput"
             @keyup="navString" @click="navStringClick" class="input-single-subject subject-input" id="subject-input">
         </form>
+        <div v-for="(c, idx) in components" :ref="'cBackground' + idx"
+          :class="['color-holder', { 'color-holder-okay': (c.uri !== null || c.literal) }, { 'color-holder-type-okay': (c.type !== null || showTypes === false) }]"
+          v-bind:key="idx">??
+          {{ c.label }}
+        </div>
+
 
         <!-- type selection -->
         <div ref="toolbar" style="display: flex;">
@@ -134,6 +144,7 @@ export default {
 
   watch: {
     searchValue: function () {
+      console.info("watch: ", this.searchValue)
       this.subjectString = this.searchValue
     },
   },
@@ -151,6 +162,8 @@ export default {
       },
       showTypes: true,
 
+      heading: {},
+
       components: [],
       activeComponent: null,
       activeComponentIndex: 0,
@@ -165,6 +178,7 @@ export default {
       localContextCache: null,
       activeSearch: false,
       contextRequestInProgress: false,
+      searchPos: 0,
 
       pickLookup: {},
       pickCurrent: null,
@@ -209,53 +223,258 @@ export default {
       this.pickLookup[this.pickCurrent].picked = false
       this.pickCurrent = null
     },
+
+    /**
+     * When loading from an existing subject, the component lookup
+     * needs to be build, so the components will have URIs, types,
+     * and be flaged as literals or not
+     *
+     * @param {obj} incomingSubjects - the existing subject data
+     */
+    buildLookupComponents: function (incomingSubjects) {
+      this.typeLookup = {}
+
+      if (!incomingSubjects || typeof incomingSubjects == "undefined") {
+        return
+      }
+
+      let lookUp
+
+      // The subject is made of multiple parts
+      if (Array.isArray(incomingSubjects)) {
+        for (let subjIdx in incomingSubjects) {
+          this.componetLookup[subjIdx] = {}
+          let type = incomingSubjects[subjIdx]["@type"]
+
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
+            this.typeLookup[subjIdx] = 'madsrdf:Topic'
+          }
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")) {
+            this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
+          }
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic") || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")) {
+            this.typeLookup[subjIdx] = 'madsrdf:Geographic'
+          }
+          if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")) {
+            this.typeLookup[subjIdx] = 'madsrdf:Temporal'
+          }
+          if (type.includes("Hub") || type.includes("Work")) {
+            this.typeLookup[subjIdx] = type
+          }
+
+
+          if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")) {
+            lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+          } else {
+            lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
+          }
+          try {
+            let label = incomingSubjects[subjIdx][lookUp][0][lookUp].replaceAll("--", "‑‑")
+
+            //Set up componentLookup, so the component builder can give them URIs
+            this.componetLookup[subjIdx][label] = {
+              label: incomingSubjects[subjIdx][lookUp][0][lookUp],
+              literal: incomingSubjects[subjIdx]["@id"] ? false : true,
+              uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null,
+              type: this.typeLookup[subjIdx],
+              marcKey: incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"] ? incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"] : ""
+            }
+
+          } catch (err) {
+            console.error(err)
+          }
+        }
+      } else {
+        // dealing with a complex subject
+        this.componetLookup[0] = {}
+        let type = incomingSubjects["@type"] ? incomingSubjects["@type"] : ""
+
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
+          this.typeLookup[0] = 'madsrdf:Topic'
+        }
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")) {
+          this.typeLookup[0] = 'madsrdf:GenreForm'
+        }
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic" || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))) {
+          this.typeLookup[0] = 'madsrdf:Geographic'
+        }
+        if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")) {
+          this.typeLookup[0] = 'madsrdf:Temporal'
+        }
+        if (type.includes("Hub") || type.includes("Work")) {
+          this.typeLookup[0] = type
+        }
+
+        if (Object.keys(incomingSubjects).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")) {
+          lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+        } else {
+          lookUp = "http://www.w3.org/2000/01/rdf-schema#label"
+        }
+        try {
+          let label = incomingSubjects[lookUp][0][lookUp].replaceAll("--", "‑‑")
+          //Set up componentLookup, so the component builder can give them URIs
+          this.componetLookup[0][label] = {
+            label: incomingSubjects[lookUp][0][lookUp],
+            literal: incomingSubjects["@id"] ? false : true,
+            uri: incomingSubjects["@id"] ? incomingSubjects["@id"] : null,
+            type: this.typeLookup[0],
+            marcKey: incomingSubjects["http://id.loc.gov/ontologies/bflc/marcKey"] ? incomingSubjects["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"] : ""
+          }
+        } catch (err) {
+          console.error(err)
+        }
+      }
+
+    },
+
+    checkToolBarHeight: function () {
+      // also check to see if the toolbar is off the screen,
+      // in very very low res setups sometimes this area gets clipped
+      if (this.$refs.toolbar && this.$refs.toolbar.getBoundingClientRect().bottom > window.innerHeight) {
+        this.lowResMode = true
+        this.$emit('lowResModeActivate', true)
+      }
+    },
+
+    /**
+     * Creates components from the search string
+     *
+     * If the subject is loaded from an existing record, there will be a search string
+     * but there won't be components.
+     */
     buildComponents: function (searchString) {
+      // searchString = searchString.replace("—", "--") // when copying a heading from class web
+
       let subjectStringSplit = searchString.split('--')
 
+      let targetIndex = []
+      let componentLookUpCount = Object.keys(this.componetLookup).length
+
+      if (componentLookUpCount > 0) { //We might be dealing with something that needs to stitch some terms together
+        if (componentLookUpCount < subjectStringSplit.length) {
+          let target = false
+          let targetType = null
+          let splitTarget = false
+          for (let i in this.componetLookup) {
+            for (let j in this.componetLookup[i]) {
+              targetType = this.componetLookup[i][j].type
+
+              if (this.componetLookup[i][j].label.includes("--")) {
+                target = this.componetLookup[i][j].label.replaceAll("--", "‑‑")
+                targetIndex = i  // needs this to ensure the target will go into the search string in the right place
+                splitTarget = target.split('‑‑')
+              }
+
+              let matchIndx = []
+              if (target) {  // && targetType == 'madsrdf:Geographic'
+                for (let i in subjectStringSplit) {
+                  if (target == subjectStringSplit[i]) { matchIndx.push(i); break } // if there is an exact match, keep it and move on
+                  if (target.includes(subjectStringSplit[i])) {  //&& subjectStringSplit[i].length > 3
+                    matchIndx.push(i)
+                  }
+                }
+
+                //remove them
+                for (let i = matchIndx.length - 1; i >= 0; i--) {
+                  subjectStringSplit.splice(matchIndx[i], 1)
+                }
+                // add the combined terms
+                // subjectStringSplit.push(target)
+                subjectStringSplit.splice(targetIndex, 0, target)
+              }
+            }
+          }
+        }
+      }
+
+      console.info("building the components: ", searchString)
+      console.info("componetLookup: ", this.componetLookup)
+      // clear the current
       this.components = []
       let id = 0
-      let activePosStart = 0
-      let offset = 0
 
+      let activePosStart = 0
+
+      /**
+       * When a string in the middle of a heading changes, the typeLookup will get thrown off.
+       * Need a way to track this.
+       */
+      let diff = []
+      // if (subjectStringSplit.length < Object.keys(this.componetLookup).length){
+      //   diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes( Object.keys(this.componetLookup[x])[0]))
+      // }
+
+      let offset = 0
       for (let ss of subjectStringSplit) {
-        let component = new Component(ss)
-        component.posStart = activePosStart
+        console.info("\n\n--------------", ss)
+        if (subjectStringSplit.length < Object.keys(this.componetLookup).length) {
+          diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes(Object.keys(this.componetLookup[x])[0]))
+        }
+
+        if (diff.length > 0) {
+          if (diff.includes(id.toString()) && id.toString() == diff.at(-1)) {
+            offset = Object.keys(this.componetLookup).length - subjectStringSplit.length
+          }
+        }
+
+        // check the lookup to see if we have the data for this label
+        let uri = null
+        let type = null
+        let literal = null
+        let marcKey = null
+        let nonLatinLabel = null
+        let nonLatinMarcKey = null
 
         let tempSs = ss.replace("‑", "-")
 
+
         if (this.componetLookup[id + offset] && this.componetLookup[id + offset][tempSs]) {
-          component.literal = this.componetLookup[id + offset][tempSs].literal
-          component.uri = this.componetLookup[id + offset][tempSs].uri
-          component.marcKey = this.componetLookup[id + offset][tempSs].marcKey
-          component.nonLatinLabel = this.componetLookup[id + offset][tempSs].nonLatinTitle
-          component.nonLatinMarcKey = this.componetLookup[id + offset][tempSs].nonLatinMarcKey
+          literal = this.componetLookup[id + offset][tempSs].literal
+          uri = this.componetLookup[id + offset][tempSs].uri
+          marcKey = this.componetLookup[id + offset][tempSs].marcKey
+          nonLatinLabel = this.componetLookup[id + offset][tempSs].nonLatinTitle
+          nonLatinMarcKey = this.componetLookup[id + offset][tempSs].nonLatinMarcKey
         } else if (this.componetLookup[id + offset] && this.componetLookup[id + offset][ss]) {
-          component.literal = this.componetLookup[id + offset][ss].literal
-          component.uri = this.componetLookup[id + offset][ss].uri
-          component.marcKey = this.componetLookup[id + offset][ss].marcKey
-          component.nonLatinLabel = this.componetLookup[id + offset][ss].nonLatinTitle
-          component.nonLatinMarcKey = this.componetLookup[id + offset][ss].nonLatinMarcKey
+          literal = this.componetLookup[id + offset][ss].literal
+          uri = this.componetLookup[id + offset][ss].uri
+          marcKey = this.componetLookup[id + offset][ss].marcKey
+          nonLatinLabel = this.componetLookup[id + offset][ss].nonLatinTitle
+          nonLatinMarcKey = this.componetLookup[id + offset][ss].nonLatinMarcKey
         }
 
         if (this.typeLookup[id + offset]) {
-          component.type = this.typeLookup[id + offset]
+          type = this.typeLookup[id + offset]
         }
 
-        if (component.uri && component.uri.includes("/hubs/")) {
-          component.type = "bf:Hub"
+        if (uri && uri.includes("/hubs/")) {
+          type = "bf:Hub"
         }
 
-        if (ss.includes('‑‑')) {
-          component.complex = true
-        }
-        component.posStart = activePosStart
-        component.posEnd = activePosStart + ss.length
+        console.info("adding component for ", ss)
+        this.components.push({
+          label: ss,
+          uri: uri,
+          id: id,
+          type: type, //this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
+          complex: ss.includes('‑‑'),
+          literal: literal,
+          posStart: activePosStart,
+          posEnd: activePosStart + ss.length,
+          marcKey: marcKey,
+          nonLatinLabel: nonLatinLabel,
+          nonLatinMarcKey: nonLatinMarcKey,
+        })
 
-        this.components.push(component)
-
+        // increase the start length by the length of the string and also add 2 for the "--"
         activePosStart = activePosStart + ss.length + 2
+
         id++
       }
+
+      //make sure the searchString matches the components
+      this.subjectString = this.components.map((component) => component.label).join("--")
+
+      console.info("final components: ", this.components)
 
     },
 
@@ -273,6 +492,7 @@ export default {
     },
 
 
+    // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
     searchApis: debounce(async (searchString, searchStringFull, that) => {
       that.pickCurrent = null //reset the current selection when the search changes
 
@@ -282,9 +502,6 @@ export default {
 
       searchString = searchString.trim().normalize()
       searchStringFull = searchStringFull.trim().normalize()
-
-      searchString = searchString.replaceAll('‑', '-')
-      searchStringFull = searchStringFull.replaceAll('‑', '-')
 
       // make the "searching..." text grow
       let ti = window.setInterval(() => { that.activeSearch = ((!that.activeSearch) ? '' : that.activeSearch) + '.' }, 100)
@@ -296,14 +513,56 @@ export default {
 
       }, 10000)
 
+      let searchStringFullPieces = searchStringFull.split('--')
+      let currentPos = searchStringFullPieces.indexOf(searchString)
+
+      searchString = searchString.replaceAll('‑', '-')
+      searchStringFull = searchStringFull.replaceAll('‑', '-')
+
+      that.searchStringPos = currentPos
+
       let complexSub = []
 
-      console.info("\n--------------searching")
-      console.info("searchString: ", searchString)
-      console.info("searchStringFull: ", searchStringFull)
-      console.info("complexSub: ", complexSub)
+      // to search for complex subdivisions, we'll look that come after the first term
+
+      if (currentPos > 1) {
+        //this will search `s1--s2`
+        let newTerm = searchStringFullPieces.slice(currentPos - 1, currentPos + 1).join("--")
+        if (newTerm.includes("--")) {
+          complexSub.push(newTerm)
+        }
+      }
+
+      if (currentPos == 1) {
+        //this will search `s1--s2`
+        let newTerm = searchStringFullPieces[1]
+        complexSub.push(newTerm)
+      }
+
+      if (searchStringFull.includes("---")) {
+        searchStringFull = searchStringFull.replace("---", "‑--")
+      }
+
       that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
-      console.info("that.searchResults: ", that.searchResults, "\n-----------------------")
+      // that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, that.searchMode)
+
+      // if they clicked around while it was doing this lookup bail out
+      // if (that.activeSearchInterrupted){
+
+
+
+      //   window.clearInterval(ti)
+      //   window.clearTimeout(tiBackup)
+      //   that.activeSearch = false
+      //   that.activeSearchInterrupted = false
+
+      //   console.log("that.activeSearchInterrupted",that.activeSearchInterrupted)
+
+      //   return false
+
+      // }
+
+
 
       // replace the true keyboard hypen with the werid hypen to prevent spliting on open lifedates
       for (let s of that.searchResults.names) {
@@ -311,7 +570,7 @@ export default {
         s.label = s.label.replaceAll('-', '‑')
       }
 
-      // keep complex subjects as one piece
+
       for (let s of that.searchResults.subjectsComplex) {
         s.labelOrginal = s.label
         s.complex = true
@@ -353,7 +612,9 @@ export default {
       }
 
       that.pickLookup = {}
+
       that.pickPostion = that.searchResults.subjectsSimple.length + that.searchResults.subjectsComplex.length - 1
+
       that.buildPickLookup()
 
       for (let k in that.pickLookup) {
@@ -373,7 +634,7 @@ export default {
             }
             // do they even have the same label currently, they might be clicking around in the interface
             // so at this point with the async lookup this is not even the right componen
-            if (that.activeComponent && that.pickLookup[k].label != that.activeComponent.label) {
+            if (that.pickLookup[k].label != that.activeComponent.label) {
               break
             }
           }
@@ -397,7 +658,11 @@ export default {
       that.activeSearch = false
 
       that.$nextTick(() => {
-        // that.checkToolBarHeight()
+        that.checkToolBarHeight()
+
+
+
+        // window.setTimeout(()=> {
 
         // find out how small the smallest one is and then loop through and try to make all of them
         // that size so they fit on one line of the display
@@ -408,6 +673,21 @@ export default {
             smallest_size = el.offsetHeight
           }
         }
+        // alert(smallest_size)
+        // for (let el of document.getElementsByClassName("fake-option")){
+        //   if (el.offsetHeight > smallest_size){
+        //     let startFontSize = 1.25
+        //     while (el.offsetHeight >smallest_size){
+        //       startFontSize=startFontSize-0.01
+        //       el.style.fontSize = startFontSize + 'em';
+        //       if (startFontSize<=0.01){
+        //         el.style.fontSize = "1.25em"
+        //         break
+        //       }
+        //     }
+        //   }
+        // }
+        // },100)
       })
 
     }, 500),
@@ -455,31 +735,272 @@ export default {
     searchModeSwitch: function (mode) {
       this.searchMode = mode
 
+      /**
+       * If it's in GEO mode look at all the components and build the
+       * subject string based on the ones with out URIs.
+       * How does this affect literals
+       *
+       * (c.uri !== null || c.literal)
+       */
 
       if (mode == "GEO") {
-        // if the term has -- swap them for `‑‑`
-        if (this.subjectString.includes("--")){
-          this.subjectString = this.subjectString.replace("--", "‑‑")
-          this.subjectStringChanged()
-          this.navStringClick({})
+        // if the User selected the first part of an indirect geo from the LCSH/LCNAF
+        // search and then swaps to GEO to finish, replace the `--` between the two
+        // to ease the process
+        // if there is a component that is != literal and uri == null, get the index
+        let potentialGeoIdx = this.components.findIndex((i) => i.literal == null && i.uri == null)
+        let prevComponent
+        if (potentialGeoIdx > 1) {
+          prevComponent = JSON.parse(JSON.stringify(this.components.at(potentialGeoIdx - 1)))
+          // if the previous component is geographic, swap the -- for not `‑‑` between
+          if (prevComponent.type == 'madsrdf:Geographic') {
+            let posEnd = this.subjectString.indexOf(this.components[potentialGeoIdx].label)
+            let posStart = posEnd - 2
+            this.subjectString = this.subjectString.slice(0, posStart) + '‑‑' + this.subjectString.slice(posEnd)
+            this.subjectStringChanged()
+            this.navStringClick({})
+          }
         }
 
+
+        /**
+         * When dealing with a switch to GEO, we need to combine the "loose" components
+         * into 1 so the search will work.
+         */
+        //get the loose components
+        let looseComponents = []
+        let indx = []
+        let componentMap = []
+        for (let c in this.components) {
+          if (this.components[c].uri == null && this.components[c].literal != true) {
+            looseComponents.push(this.components[c])
+            indx.push(c)
+            componentMap.push("-")
+          } else {
+            componentMap.push(c)
+          }
+        }
+
+        //only stitch the loose components togethere if there are 2 next to each other
+        if (indx.length == 2 && indx[1] - 1 == indx[0]) {
+          /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+           *  !! the `not` hyphens are very important !!
+           *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+           */
+          // Update the id of the active component to indx[0] so we're working with the first component of the looseComponents
+          this.activeComponentIndex = Number(indx[0])
+
+          //this.activeComponent = looseComponents.map((comp) => {return comp.id == this.activeComponentIndex})
+          this.activeComponent = looseComponents.filter((comp) => comp.id == this.activeComponentIndex)[0]
+          //this.activeComponent = looseComponents[this.activeComponentIndex]
+
+          this.activeComponent.id = this.activeComponentIndex
+
+          //update the active component with the loose components
+          for (let c in looseComponents) {
+            if (c != 0) {
+              let part1 = ""
+              if (c == 1) {
+                part1 = looseComponents[0].label
+              } else {
+                part1 = this.activeComponent.label
+              }
+              const part2 = looseComponents[c].label
+              this.activeComponent.label = part1 + "‑‑" + part2
+              this.activeComponent.posEnd = looseComponents[c].posEnd
+            }
+          }
+          this.activeComponent.posStart = looseComponents[0].posStart
+
+          // we need to make sure the order is maintained
+          // use the component map to determine maintain order
+          let final = []
+          for (let el in componentMap) {
+            let good = componentMap[el] != '-'
+            if (good) {
+              final.push(this.components[el].label)
+            } else {
+              final.push(this.activeComponent.label)
+            }
+          }
+
+          final = new Set(final)
+          final = Array.from(final)
+
+          this.subjectString = final.join("--")
+
+          //Splice the components from the first looseComponet to the end and add the new activeComponent to the end
+          this.components.splice(indx[0], indx.length, this.activeComponent)
+
+          // need to make sure postStart and posEnd are correct, and the id
+          this.adjustStartEndPos(this.components)
+          for (let x in this.components) {
+            let prev = null
+            let current = this.components[x]
+
+            if (x > 0) {
+              prev = this.components[x] - 1
+            } else if (x == 0) {
+              current.posStart = 0
+            } else {
+              current.posStart = prev.posEnd + 2
+            }
+            current.posEnd = current.posStart + current.label.length
+
+            current.id = x
+          }
+
+          // get the boxes lined up correctly
+          try {
+            this.renderHintBoxes()
+          } catch (err) { }
+
+          // hacky, but without this `this.componentLooks` won't match in `subjectStringChanged`
+          for (let i in this.components) {
+            for (let j in this.componetLookup) {
+              const key = Object.keys(this.componetLookup[j])[0]
+              if (this.components[i].label == key) {
+                this.componetLookup[i] = this.componetLookup[j]
+              }
+            }
+          }
+        }
+      } else {
+        // Above we took loose components and combined them,
+        // here we undo that incase someone made a mistake and the geo
+        // term has a subject in it that needs to be split out.
+        let unApproved = []
+        let unApprovedIdx = []
+        let approved = []
+        for (let c in this.components) {
+          if (this.components[c].uri == null && this.components[c].literal != true) {
+            unApproved.push(this.components[c])
+            unApprovedIdx.push(c)
+          } else {
+            approved.push(this.components[c])
+          }
+        }
+
+        //remove the terms that have been exploded
+        for (let i in unApprovedIdx) {
+          if (this.components[unApprovedIdx[i]].label.includes("‑‑")) {
+            this.components.splice(unApprovedIdx[i], 1)
+          }
+        }
+
+        for (let c in unApproved) {
+          let target = unApproved[c]
+          let id = target.id
+
+          if (target.label.includes("‑‑")) {
+            let needComponents = target.label.split("‑‑")
+            //build and add the exploded components
+            for (let idx in needComponents) {
+              let start = 0
+              let end = 0
+
+              let previous = null
+              if (idx == 0) {
+                start = 0
+              } else {
+                previous = this.components.at(-1)
+                start = previous.posEnd + 2 //for the hyphens
+              }
+              end = start + needComponents[idx].length
+              this.components.splice(id, 0, {
+                label: needComponents[idx],
+                uri: null,
+                id: idx,
+                type: mode == "GEO" ? 'madsrdf:Geographic' : 'madsrdf:Topic',
+                complex: false,
+                literal: null,
+                posStart: start,
+                posEnd: end,
+              })
+
+              id++
+            }
+
+
+          }
+
+          let final = this.components.map((component) => component.label)
+
+          this.adjustStartEndPos(this.components)
+          this.subjectString = final.join("--")
+        }
+
+        // get the boxes lined up correctly
+        this.renderHintBoxes()
       }
 
       if (this.activeComponent && this.activeComponent.label) {
         this.searchApis(this.activeComponent.label, this.subjectString, this)
       }
+      console.info("focus 4")
       this.$refs.subjectInput.focus()
+    },
+
+    updateAvctiveTypeSelected: function () {
+      //set them all false
+      for (let k in this.activeTypes) {
+        this.activeTypes[k].selected = false
+      }
+
+      if (this.activeComponent && this.activeComponent.type) {
+        if (this.activeTypes[this.activeComponent.type]) {
+          this.activeTypes[this.activeComponent.type].selected = true
+        } else if (this.activeComponent.type == 'madsrdf:HierarchicalGeographic') {
+          this.activeTypes["madsrdf:Geographic"].selected = true
+        } else {
+          this.activeTypes["madsrdf:Topic"].selected = true
+        }
+      } else if (this.activeComponent.type == null && this.activeComponent.marcKey != null) { //fall back on the marcKey, this can be null if the selection is too fast?
+        let subfield = this.activeComponent.marcKey.slice(5, 7)
+        switch (subfield) {
+          case ("$v"):
+            subfield = "madsrdf:GenreForm"
+            break
+          case ("$y"):
+            subfield = "madsrdf:Temporal"
+            break
+          case ("$z"):
+            subfield = "madsrdf:Geographic"
+            break
+          default:
+            subfield = "madsrdf:Topic"
+        }
+
+        this.activeTypes[subfield].selected = true
+        this.activeComponent.type = subfield
+      }
+
     },
 
     // Search String functions
     navStringClick: function (event) {
+      console.info("click")
       // when clicked send it over to the navString func with fake key property to trigger if statement
       event.key = 'ArrowLeft'
       this.navString(event)
     },
 
     navString: function (event) {
+      console.info("nav string")
+      // find the term the cursor is in
+      let searchStringPieces = this.subjectString.split("--")
+      let input = this.$refs.subjectInput
+      let cursorPos = input.selectionStart;
+      for (let idx in searchStringPieces) {
+        if (idx == 0 && cursorPos <= searchStringPieces[idx].length) {
+          this.searchPos = idx
+          break
+        } else if (cursorPos <= searchStringPieces[idx].length + 2) {
+          this.searchPos = idx
+          break
+        }
+      }
+
       if (event.key == 'ArrowLeft' || event.key == 'ArrowRight') {
         if (!event.target) {
           event = { target: this.$refs.subjectInput }
@@ -493,15 +1014,17 @@ export default {
           }
         }
 
-        // keep track of where we were so that we don't do unessary refreshes
-        if (this.oldActiveComponentIndex != this.activeComponentIndex) {
-          // this.updateAvctiveTypeSelected()
-          // this.subjectStringChanged(event)
-          this.oldActiveComponentIndex = this.activeComponentIndex
-        } else if (this.activeComponent.uri === null) {
-          // this.updateAvctiveTypeSelected()
-          // this.subjectStringChanged(event)
-        }
+        this.subjectStringChanged(event)
+
+        // // keep track of where we were so that we don't do unessary refreshes
+        // if (this.oldActiveComponentIndex != this.activeComponentIndex) {
+        //   this.updateAvctiveTypeSelected()
+        //   this.subjectStringChanged(event)
+        //   this.oldActiveComponentIndex = this.activeComponentIndex
+        // } else if (this.activeComponent.uri === null) {
+        //   this.updateAvctiveTypeSelected()
+        //   this.subjectStringChanged(event)
+        // }
       }
 
       // text macros
@@ -513,16 +1036,47 @@ export default {
             // manually change the v-model var and force a update
             this.$nextTick(() => {
               this.subjectString = event.target.value
-              // this.subjectStringChanged()
+              this.subjectStringChanged()
               this.navString({ key: 'ArrowRight' })
             })
           }
         }
       }
     },
+
+    validateOkayToAdd: function () {
+      this.okayToAdd = false
+      let allHaveURI = true
+      let allHaveType = true
+
+      for (let c of this.components) {
+        if (!c.uri && !c.literal) {
+          allHaveURI = false
+        }
+        if (!c.type) {
+          allHaveType = false
+        }
+      }
+
+      if (allHaveURI && allHaveType) {
+        this.okayToAdd = true
+      }
+      if (allHaveURI && !allHaveType && this.components.length == 1) {
+        this.okayToAdd = true
+      }
+    },
+
     subjectStringChanged: async function (event) {
-      // Adjust for pasting from ClassWeb
       this.subjectString = this.subjectString.replace("—", "--")
+      this.validateOkayToAdd()
+
+      //fake the "click" so the results panel populates
+      if (this.initialLoad == true) {
+        let pieces = this.$refs.subjectInput.value.replace("—", "--").split("--")
+        let lastPiece = pieces.at(-1)
+        this.searchApis(lastPiece, this.$refs.subjectInput.value.replace("—", "--"), this)
+        this.initialLoad = false
+      }
 
       // they are setting the type, next key inputed is important
       if (event && event.data === '$') {
@@ -560,6 +1114,8 @@ export default {
         }
       }
 
+      this.showTypes = true
+
       // if they erase everything remove the components
       if (this.subjectString.length == 0) {
         this.activeComponent = null
@@ -572,52 +1128,67 @@ export default {
         // quickly, it will end up searcing on the last letter to be deleted
         this.searchApis("", "", this)
       }
-
       if (!this.subjectString.endsWith("--")) {
+        console.info("buildComponents: ", this.subjectString)
         this.buildComponents(this.subjectString)
       }
 
-      // this.renderHintBoxes()
+      this.renderHintBoxes()
+
+
       // if they are typing in the heading select it as we go
       if (event) {
+
+
         for (let c of this.components) {
+          console.info("c: ", c)
           if (event.target.selectionStart >= c.posStart && event.target.selectionStart <= c.posEnd + 1) {
             this.activeComponent = c
             this.activeComponentIndex = c.id
 
             // it is not empty
-            // it does not end with "-" so that '--' typing doesn't trigger a search
+            // it dose not end with "-" so it the '--' typing doesn't trigger
             if (c.label.trim() != '' && !c.label.endsWith('-')) {
+              console.info("search1")
               this.searchApis(c.label, event.target.value, this)
 
               // BUT if it ends with a number and - then it is a name with open life dates
               // so do look that one up
             } else if (/[0-9]{4}\??-/.test(c.label)) {
+              console.info("search2")
               this.searchApis(c.label, event.target.value, this)
             } else if (/,\s[0-9]{4}-/.test(c.label)) {
+              console.info("search3")
               this.searchApis(c.label, event.target.value, this)
             }
             //            // BUT if it starts with
+
             break
           }
-        }
 
+        }
       } else {
+
         // if there is no event this was triggered from code
         // so the current active component is the one we need to update with anything changed
         // which would likely be the type if not a keyboard event
+
         this.activeComponent = this.components[this.activeComponentIndex]
+
+
       }
 
-      // this.updateAvctiveTypeSelected()
+      this.updateAvctiveTypeSelected()
+
       if (this.components.length == 1 && this.components[0].complex) {
         this.showTypes = false
+
       }
 
-      // this.validateOkayToAdd()
+      this.validateOkayToAdd()
 
       this.$nextTick(() => {
-        // this.checkToolBarHeight()
+        this.checkToolBarHeight()
 
 
         // there are some senarios where we can safly assume the type, this is invoked when
@@ -649,14 +1220,18 @@ export default {
 
           }
 
-          // this.updateAvctiveTypeSelected()
-          // this.validateOkayToAdd()
+          this.updateAvctiveTypeSelected()
+          this.validateOkayToAdd()
         }, 400)
       })
+
+      // if (event === null){
+      //   console.log(event)
+      // }
+
     },
 
     navInput: function (event) {
-      console.info("navInput")
       if (event.key == 'ArrowUp') {
         if (parseInt(this.pickPostion) <= this.searchResults.names.length * -1) {
           return false
@@ -782,12 +1357,14 @@ export default {
                 // this.searchValueLocal = inputV.value
 
                 this.$nextTick(() => {
+                  console.info("focus 11")
                   inputV.focus()
                 })
 
               })
             } else {
               this.$nextTick(() => {
+                console.info("focus 12")
                 inputV.focus()
               })
             }
@@ -843,8 +1420,30 @@ export default {
           //
         }
       }
+
+
+
     },
-    renderHintBoxes: function () { },
+    renderHintBoxes: function () {
+      console.info("hintbox")
+      // wait for the UI to render
+      this.$nextTick(() => {
+        // loop through the current components
+        let activeLeft = 0
+        for (let com of this.components) {
+          // set the left
+          this.$nextTick(() => {
+            if (this.$refs['cBackground' + com.id] && this.$refs['cBackground' + com.id][0]) {
+              this.$refs['cBackground' + com.id][0].style.left = `${activeLeft}px`
+              // add the width of all the existing components to the var
+              // add 12 to accomodate the "--" seperator
+              activeLeft = activeLeft + this.$refs['cBackground' + com.id][0].offsetWidth + 11
+            }
+          })
+        }
+      })
+
+    },
 
     selectContext: async function (pickPostion, update = true) {
       if (pickPostion != null) {
@@ -962,7 +1561,7 @@ export default {
         this.subjectString = splitString.join('--')
 
 
-        if (this.componetLookup && !this.componetLookup[this.activeComponentIndex]) {
+        if (!this.componetLookup[this.activeComponentIndex]) {
           this.componetLookup[this.activeComponentIndex] = {}
         }
 
@@ -975,15 +1574,11 @@ export default {
 
         this.pickLookup[this.pickPostion].picked = true
 
-        let type = "Topic"
         try {
-          if (this.pickLookup[this.pickPostion].extra.rdftypes.length > 0) {
-            type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
-          } else {
-            let marcKey = this.pickLookup[this.pickPostion].marcKey
-            type = marcKey.match(/\$[axyzv]{1}/g)
-            type = this.getTypeFromSubfield(type[0])
-          }
+          let marcKey = this.pickLookup[this.pickPostion].marcKey
+          let type = marcKey.match(/\$[axyzv]{1}/g)
+          type = this.getTypeFromSubfield(type[0])
+          this.setTypeClick(null, type)
         } catch (err) {
           console.error("Error getting the type. ", err)
         }
@@ -994,6 +1589,9 @@ export default {
           this.subjectStringChanged()
         }
       }
+
+
+
     },
 
     //TODO get this working with mouseover
@@ -1049,6 +1647,7 @@ export default {
         this.contextData.literal = true
       }
 
+      console.info("contextData: ", this.contextData)
       this.contextRequestInProgress = false
     },
 
@@ -1097,170 +1696,3 @@ export default {
 
 </script>
 
-<style type="text/css">
-#subject-builder-modal-container {
-  background-color: white;
-  height: 95vh;
-  width: 95vw;
-  margin-left: auto;
-  margin-right: auto;
-  display: grid;
-  grid-gap: 2px;
-  grid-template-columns: 50% 50%;
-  grid-template-rows: 3% 87% 5% 5%;
-}
-
-/* first row */
-.search-type {
-  background-color: brown;
-  grid-row: 1;
-  grid-column: 1;
-}
-
-/* second row */
-.search-results {
-  background-color: aqua;
-  grid-row: 2;
-  grid-column: 1;
-}
-
-.detail-body {
-  background-color: bisque;
-  grid-row: 1/3;
-  grid-column: 2;
-  height: 100%;
-  overflow-x: scroll;
-}
-
-/* third row */
-.search-heading {
-  background-color: burlywood;
-  grid-row: 3;
-  grid-column: 1/3;
-}
-
-/* last row */
-.search-bar {
-  background-color: coral;
-  grid-row: 4;
-  grid-column: 1/3;
-}
-
-.button-holder {
-  background-color: darkgoldenrod;
-  grid-row: 5;
-  grid-column: 2;
-}
-
-/* Search type selection */
-#search-in-holder button {
-  font-size: 0.85em;
-  background-color: white;
-  color: black;
-  border: solid 1px #c1c1c1;
-}
-
-#search-in-holder .active {
-  background-color: whitesmoke;
-  -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
-  -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
-  box-shadow: inset 0px 0px 5px #c1c1c1;
-
-}
-
-/* Search bar */
-.input-single-subject {
-  width: 99%;
-  border: none;
-  font-size: 1.5em;
-  min-height: 1.5em;
-  max-height: 1.5em;
-  background: none;
-  background-color: #fff;
-  border: 1px solid #9aa4a4;
-  border-top-right-radius: 0.5em;
-  border-bottom-right-radius: 0.5em;
-}
-
-.input-single-subject:focus {
-  outline: 0;
-}
-
-/* Resource Type Selectiion */
-.type-list-ol {
-  padding-left: 0
-}
-
-.type-item {
-  display: inline-block;
-  border: solid 1px #9aa4a4;
-  border-radius: 0.5em;
-  padding: 0.1em;
-  margin-left: 1em;
-  cursor: pointer;
-  background-color: transparent;
-}
-
-.type-item::before {
-  content: " ";
-}
-
-.type-item-selected {
-  background-color: #0080001f;
-  border: solid 3px;
-}
-
-/* Details Panel */
-.details-list {
-  columns: 3;
-  break-inside: avoid;
-  padding-left: 20px;
-}
-
-.details-list:has(.details-details) {
-  margin-top: 10px;
-  padding-left: 0px;
-  columns: 2;
-  break-inside: avoid;
-}
-
-.details-details {
-  list-style: none;
-  break-inside: avoid;
-}
-
-.details-list>li {
-  break-inside: avoid;
-}
-
-.see-search {
-  width: 20px;
-  height: 20px;
-  font-size: x-small;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-}
-
-ul:has(.modal-context-data-li) {
-  padding-left: 20px;
-}
-
-.see-also {
-  font-size: 12px;
-  margin-right: 10px;
-}
-
-.expandable-class-label {
-  cursor: help;
-}
-
-.expand {
-  font-size: 14px;
-}
-
-.simptip-position-bottom::before,
-.simptip-position-bottom::after {
-  left: -30% !important;
-}
-</style>

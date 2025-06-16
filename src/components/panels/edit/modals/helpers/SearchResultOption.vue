@@ -89,8 +89,6 @@ export default {
             return count
         },
         setPickPosition: function (pickPosition) {
-            console.info("setPickPosition: ", pickPosition)
-
             this.pickPostion = pickPosition
             this.$emit('emitLoadContext', pickPosition)
         },

@@ -102,394 +102,24 @@
                 :class="{ 'scroll-all': preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
                 <div v-if="activeSearch !== false">{{ activeSearch }}</div>
                 <div v-if="searchResults !== null" style="height: 95%">
-
-                  <div v-if="searchResults && searchResults.exact.length > 0" class="subject-section"
-                    :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
-                    <span class="subject-results-heading">Known Label</span>
-                    <div v-for="(subject, idx) in searchResults.exact"
-                      @click="selectContext((searchResults.names.length - idx) * -1 - 2)"
-                      @mouseover="loadContext((searchResults.names.length - idx) * -1 - 2)"
-                      :data-id="((searchResults.names.length - idx) * -1 - 2)" :key="subject.uri"
-                      :class="['fake-option', { 'unselected': (pickPostion != (searchResults.names.length - idx) * -1 - 2), 'selected': (pickPostion == (searchResults.names.length - idx) * -1 - 2), 'picked': (pickLookup[(searchResults.names.length - idx) * -1 - 2] && pickLookup[(searchResults.names.length - idx) * -1 - 2].picked) }]">
-                      <template v-if="subject.label == activeComponent.label.replaceAll('‑', '-')">
-                        {{ subject.label }}
-                      </template>
-                      <template v-else>
-                        {{ subject.label }}
-                        <span class="subject-variant">
-                          ((VARIANT))
-                        </span>
-                      </template>
-                      <span v-if="subject.collections && subject.collections.includes('LCNAF')"> [LCNAF]</span>
-                      <span v-if="subject.collections">
-                        {{ this.buildAddtionalInfo(subject.collections) }}
-                      </span>
-                      <div class="may-sub-container" style="display: inline;">
-                        <AuthTypeIcon
-                          v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                          :type="'may subd geog'"></AuthTypeIcon>
-                      </div>
-                    </div>
-                  </div>
-                  <div v-if="searchResults && searchResults.names.length > 0 && !this.searching" class="subject-section"
-                    :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() == 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
-                    <span class="subject-results-heading">LCNAF</span>
-                    <div v-for="(name, idx) in searchResults.names"
-                      @click="selectContext((searchResults.names.length - idx) * -1)"
-                      @mouseover="loadContext((searchResults.names.length - idx) * -1)"
-                      :data-id="(searchResults.names.length - idx) * -1" :key="name.uri"
-                      :class="['fake-option', { 'unselected': (pickPostion != (searchResults.names.length - idx) * -1), 'selected': (pickPostion == (searchResults.names.length - idx) * -1), 'picked': (pickLookup[(searchResults.names.length - idx) * -1] && pickLookup[(searchResults.names.length - idx) * -1].picked) }]">
-                      <span v-if="name.suggestLabel && name.suggestLabel.length > 100">{{ name.suggestLabel.substring(0,
-                        100) }}...</span>
-                      <span v-else>{{ name.suggestLabel }}</span>
-                      <span> [LCNAF]</span>
-                      <span v-if="name.collections">
-                        {{ this.buildAddtionalInfo(name.collections) }}
-                        <!-- :style="{'background-color': setBackgroundColor(name.count, searchResults.names)}" -->
-                        <span v-if="name.count && name.count > 0" class="usage-count">{{ buildCount(name) }}</span>
-                      </span>
-                      <div class="may-sub-container" style="display: inline;">
-                        <AuthTypeIcon
-                          v-if="name.collections && name.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                          :type="'may subd geog'"></AuthTypeIcon>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- LCSH -->
-                  <div v-if="searchResults && searchResults.subjectsComplex.length > 0" class="subject-section"
-                    :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() >= 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
-                    <span class="subject-results-heading">{{ searchMode == "HUBS" ? 'Keyword' : 'Complex' }}</span>
-                    <div v-for="(subjectC, idx) in searchResults.subjectsComplex" @click="selectContext(idx)"
-                      @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri"
-                      :class="['fake-option', { 'unselected': (pickPostion != idx), 'selected': (pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked) }]">
-                      {{ subjectC.suggestLabel }}<span></span>
-                      <span v-if="subjectC.collections">
-                        {{ this.buildAddtionalInfo(subjectC.collections) }}
-                        <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsComplex)}" -->
-                        <span v-if="subjectC.count && subjectC.count > 0" class="usage-count">{{ buildCount(subjectC)
-                          }}</span>
-                      </span>
-                      <div class="may-sub-container" style="display: inline;">
-                        <AuthTypeIcon
-                          v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                          :type="'may subd geog'"></AuthTypeIcon>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div v-if="searchResults && searchResults.subjectsSimple.length > 0" class="subject-section"
-                    :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() == 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
-                    <span class="subject-results-heading">{{ searchMode == "HUBS" ? 'Left Anchored' : 'Simple' }}</span>
-                    <div v-for="(subject, idx) in searchResults.subjectsSimple"
-                      @click="selectContext(searchResults.subjectsComplex.length + idx)"
-                      @mouseover="loadContext(searchResults.subjectsComplex.length + idx)"
-                      :data-id="searchResults.subjectsComplex.length + idx" :key="subject.uri"
-                      :class="['fake-option', { 'unselected': (pickPostion != searchResults.subjectsComplex.length + idx), 'selected': (pickPostion == searchResults.subjectsComplex.length + idx), 'picked': (pickLookup[searchResults.subjectsComplex.length + idx] && pickLookup[searchResults.subjectsComplex.length + idx].picked), 'literal-option': (subject.literal), unusable: !checkUsable(subject) }]">
-                      {{ subject.suggestLabel }}
-                      <span v-if="subject.literal">
-                        {{ subject.label }}
-                      </span>
-                      <span v-if="subject.literal">[Literal]</span>
-                      <span v-if="!subject.literal">
-                        {{ this.buildAddtionalInfo(subject.collections) }}
-                        <span class="from-auth" v-if="checkFromAuth(subject)"> (Auth)</span>
-                        <span class="from-rda" v-if="checkFromRda(subject)"> [RDA]</span>
-                        <!-- :style="{'background-color': setBackgroundColor(subject.count, searchResults.subjectsSimple)}" -->
-                        <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject)
-                          }}</span>
-                      </span>
-                      <div class="may-sub-container" style="display: inline;">
-                        <AuthTypeIcon
-                          v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                          :type="'may subd geog'"></AuthTypeIcon>
-                      </div>
-                    </div>
-                  </div>
-
-
-                  <!-- ChildrenSubjects -->
-                  <div v-if="searchResults && searchResults.subjectsChildrenComplex.length > 0" class="subject-section"
-                    :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() == 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
-                    <span class="subject-results-heading">CYAC Complex</span>
-                    <div v-for="(subjectC, idx) in searchResults.subjectsChildrenComplex" @click="selectContext(idx)"
-                      @mouseover="loadContext(idx)" :data-id="idx" :key="subjectC.uri"
-                      :class="['fake-option', { 'unselected': (pickPostion != idx), 'selected': (pickPostion == idx), 'picked': (pickLookup[idx] && pickLookup[idx].picked) }]">
-                      {{ subjectC.suggestLabel }}<span></span>
-                      <span v-if="subjectC.collections">
-                        {{ this.buildAddtionalInfo(subjectC.collections) }}
-                        <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}" -->
-                        <span v-if="subjectC.count && subjectC.count > 0" class="usage-count">{{ buildCount(subjectC)
-                          }}</span>
-                      </span>
-                      <div class="may-sub-container" style="display: inline;">
-                        <AuthTypeIcon
-                          v-if="subjectC.collections && subjectC.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                          :type="'may subd geog'"></AuthTypeIcon>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div v-if="searchResults && searchResults.subjectsChildren.length > 0" class="subject-section"
-                    :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'small-container': this.numPopulatedResults() == 3 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'medium-container': this.numPopulatedResults() == 2 && preferenceStore.returnValue('--b-edit-complex-scroll-independently'), 'large-container': this.numPopulatedResults() == 1 && preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
-                    <span class="subject-results-heading">CYAC Simple</span>
-                    <div v-for="(subject, idx) in searchResults.subjectsChildren"
-                      @click="selectContext(searchResults.subjectsChildrenComplex.length + idx)"
-                      @mouseover="loadContext(searchResults.subjectsChildrenComplex.length + idx)"
-                      :data-id="searchResults.subjectsChildrenComplex.length + idx" :key="subject.uri"
-                      :class="['fake-option', { 'unselected': (pickPostion != searchResults.subjectsChildrenComplex.length + idx), 'selected': (pickPostion == searchResults.subjectsChildrenComplex.length + idx), 'picked': (pickLookup[searchResults.subjectsChildrenComplex.length + idx] && pickLookup[searchResults.subjectsChildrenComplex.length + idx].picked), 'literal-option': (subject.literal) }]">
-                      {{ subject.suggestLabel }}<span v-if="subject.literal">
-                        {{ subject.label }}</span> <span v-if="subject.literal">[Literal]</span>
-                      <span v-if="!subject.literal">
-                        {{ this.buildAddtionalInfo(subject.collections) }}
-                        <!-- :style="{'background-color': setBackgroundColor(subjectC.count, searchResults.subjectsChildrenComplex)}" -->
-                        <span v-if="subject.count && subject.count > 0" class="usage-count">{{ buildCount(subject)
-                          }}</span>
-                      </span>
-                      <div class="may-sub-container" style="display: inline;">
-                        <AuthTypeIcon
-                          v-if="subject.collections && subject.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                          :type="'may subd geog'"></AuthTypeIcon>
-                      </div>
-                    </div>
-                  </div>
-
-
-
+                  <ComplexSearchResultsDisplay
+                    :searchResults="searchResults"
+                    :pickLookup="pickLookup"
+                    :searchMode="searchMode"
+                    @loadContext="loadContext"
+                    @selectContext="selectContext" />
 
                 </div>
               </div>
 
               <!-- Results Panel -->
-              <div
-                :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()};`"
-                :class="['subject-editor-container-right', { 'subject-editor-container-right-lowres': lowResMode }]">
-                <div v-if="contextRequestInProgress" style="font-weight: bold;">Retrieving data...</div>
-                <div class="modal-context" :style="{}" v-if="Object.keys(contextData).length > 0">
-                  <h3 v-if="contextData.title">
-                    <span class="modal-context-icon simptip-position-top" v-if="contextData.rdftypes"
-                      :data-tooltip="'Type: ' + contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]">
-                      <AuthTypeIcon :type="contextData.rdftypes.includes('Hub') ? 'Hub' : contextData.rdftypes[0]">
-                      </AuthTypeIcon>
-                    </span>
-                    <span style="font-weight: bold !important;">{{ Array.isArray(contextData.title) ?
-                      contextData.title[0]["@value"] :
-                      contextData.title }}</span>
-                    <!-- <AuthTypeIcon v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')" :type="'may subd geog'"></AuthTypeIcon> -->
-                    <!-- <sup style="font-size: .5em;" v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')">(may subd geog)</sup> -->
-                    <span
-                      v-if="contextData.collections && contextData.collections.includes('http://id.loc.gov/authorities/subjects/collection_SubdivideGeographically')"
-                      style="font-weight: 200 !important;">
-                      &nbsp;&nbsp;&nbsp;[May Subd Geog]
-                    </span>
-                    <br>
-                    <span>{{ contextData.uri.split("/").at(-1) }}</span>
-                  </h3>
-                  <h3 v-if="contextData.literal">
-                    {{ contextData.label }} [Literal]
-                  </h3>
-
-                  <div class="modal-context-data-title" v-if="contextData.rdftypes">
-                    {{ contextData.rdftypes.includes('Hub') ? 'Hub' :
-                      contextData.rdftypes[0] }}</div>
-                  <a style="color:#2c3e50" :href="rewriteURI(contextData.uri)" target="_blank"
-                    v-if="contextData.literal != true">view
-                    on id.loc.gov</a>
-
-                  <!-- Dates -->
-                  <template v-if="(Object.keys(contextData).includes('birthdates') && contextData['birthdates'].length > 0)
-                    || (Object.keys(contextData).includes('deathdates') && contextData['deathdates'].length > 0)">
-                    <br>
-                    <span class="dates-container" style="padding-bottom: 10px;">
-                      <span v-if="contextData['birthdates'] && contextData['birthdates'].length > 0"
-                        style="margin-right: 15px;">
-                        <span class="modal-context-data-title">Date of Birth: </span>
-                        <span>{{ contextData['birthdates'][0] }}</span>
-                      </span>
-                      <span v-if="contextData['deathdates'] && contextData['deathdates'].length > 0">
-                        <span class="modal-context-data-title">Date of Death: </span>
-                        <span>{{ contextData['deathdates'][0] }}</span>
-                      </span>
-                    </span>
-                  </template>
-                  <br>
-
-                  <!-- Labels & Relationships -->
-                  <template v-for="key in panelDetailOrder">
-                    <div v-if="contextData[key] && contextData[key].length > 0">
-                      <template
-                        v-if="contextData[key] && contextData[key].length > 0 && ['nonlatinLabels', 'variantLabels', 'varianttitles', 'contributors', 'relateds'].includes(key)">
-                        <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
-                          this.labelMap[key] : key }}:</div>
-                        <ul class="details-list">
-                          <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])"
-                            v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx">
-                            <span v-if="key != 'sees' && key != 'relateds'">{{ v }}</span>
-                            <div v-else-if="key == 'relateds'">
-                              {{ v }}<button class="material-icons see-search" @click="newSearch(v)">search</button>
-                            </div>
-                            <div v-else>
-                              <a target="_blank" :href="'https://id.loc.gov/authorities/label/' + v">{{ v }}</a>
-                              <button class="material-icons see-search" @click="newSearch(v)">search</button>
-                            </div>
-                          </li>
-                        </ul>
-                      </template>
-                      <template
-                        v-else-if="key == 'notes' && (!contextData.collections.includes('http://id.loc.gov/authorities/names/collection_LCNAF') && !contextData.rdftypes.includes('Hub'))">
-                        <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
-                          this.labelMap[key] : key }}:</span>
-                        <ul>
-                          <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])"
-                            v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx">
-                            {{ v }}
-                          </li>
-                        </ul>
-                      </template>
-                      <template v-else-if="key == 'sources'">
-                        <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
-                          this.labelMap[key] : key }}:</span>
-                        <ul>
-                          <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])"
-                            v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx">
-                            {{ v }}
-                          </li>
-                        </ul>
-                      </template>
-                      <template v-else-if="key == 'sees'">
-                        <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
-                          this.labelMap[key] : key }}:</span>
+               <DetailsPanel
+                :contextData="contextData"
+                :contextRequestInProgress="contextRequestInProgress"
+                @addClassNumber="addClassNumber"
+                @newSearch="newSearch" />
 
 
-                        <ul class="details-list">
-                          <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])"
-                            v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx">
-                            <a target="_blank" :href="'https://id.loc.gov/authorities/label/' + v">{{ v }}</a>
-                            <button class="material-icons see-search" @click="newSearch(v)">search</button>
-                          </li>
-                        </ul>
-                      </template>
-                      <template v-else-if="key == 'gacs'">
-                        <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
-                          this.labelMap[key] : key }}:</span>
-                        {{ contextData[key].join(" ; ") }}
-                      </template>
-                    </div>
-                  </template>
-
-                  <!-- Primary -->
-                  <ul class="details-list">
-                    <template v-for="key in panelDetailOrder">
-                      <template
-                        v-if="['birthplaces', 'locales', 'activityfields', 'occupations', 'languages'].includes(key) && contextData[key] && contextData[key].length > 0">
-                        <li class="details-details">
-                          <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
-                            this.labelMap[key] : key }}:</span>
-                          {{ contextData[key].join(" ; ") }}
-                        </li>
-                      </template>
-                    </template>
-                  </ul>
-
-                  <!-- Secondary -->
-                  <template v-for="key in panelDetailOrder">
-                    <div v-if="contextData[key] && contextData[key].length > 0">
-                      <template v-if="key != 'sources'">
-
-                        <template v-if="key == 'lcclasses'">
-                          <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
-                            this.labelMap[key] : key }}:</span>
-                          <ul class="">
-                            <li class="" v-if="key == 'lcclasses'" v-for="v in contextData['lcclasses']">
-                              <template v-if="typeof v != 'string'">
-                                ({{ v.assigner }})
-                                <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v.code"
-                                  target="_blank">{{ v.code }}</a>
-                                <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
-                              </template>
-                              <template v-else>
-                                {{ v }}
-                              </template>
-                              <template v-if="v.label">
-                                <span v-if="v.label.split('--').length == 1">
-                                  --{{ getClassLabel(v.label) }}
-                                </span>
-                                <span v-else :data-tooltip="v.label"
-                                  class="expandable-class-label simptip-position-bottom">
-                                  --{{ getClassLabel(v.label) }}<span class="expand material-icons">help</span>
-                                </span>
-                              </template>
-                            </li>
-                          </ul>
-                        </template>
-
-                        <template v-else-if="['broaders', 'identifiers'].includes(key)">
-                          <div class="modal-context-data-title" v-if="key != 'identifiers'">{{
-                            Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
-                          <ul class="details-list">
-                            <template v-for="v in contextData[key]">
-                              <li class="modal-context-data-li" v-if="key == 'broaders'">
-                                {{ v }}
-                                <button class="material-icons see-search" @click="newSearch(v)">search</button>
-                              </li>
-                            </template>
-                            <li class="details-details" v-if="key == 'identifiers'">
-                              <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
-                                this.labelMap[key] : key
-                                }}:</span>
-                              {{ contextData[key].join(" ; ") }}
-                            </li>
-                          </ul>
-                        </template>
-                      </template>
-                    </div>
-                  </template>
-
-                  <!-- Admin -->
-                  <div class="admin-fields">
-                    <br>
-                    <hr>
-                    <AccordionList :open-multiple-items="true">
-                      <AccordionItem id="admin-fields" default-closed>
-                        <template #summary>
-                          <div>Extra Details</div>
-                        </template>
-                        <template v-for="key in panelDetailOrder">
-                          <template
-                            v-if='contextData[key] && contextData[key].length > 0 && ["notes", "collections", "subjects", "marcKeys"].includes(key)'>
-                            <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
-                              this.labelMap[key] : key }}:</div>
-                            <ul>
-                              <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])"
-                                v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx">
-                                <template v-if="v.startsWith('http')">
-                                  <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
-                                </template>
-                                <template v-else-if="key == 'notes'">
-                                  <span :class="{ unusable: v.includes('CANNOT BE USED UNDER RDA') }">{{ v }}</span>
-                                </template>
-                                <template v-else>
-                                  {{ v }}
-                                </template>
-                              </li>
-                              <li class="modal-context-data-li" v-else v-bind:key="'var' + key">{{ contextData[key] }}
-                              </li>
-                            </ul>
-                          </template>
-                        </template>
-                      </AccordionItem>
-                    </AccordionList>
-                  </div>
-                </div>
-
-
-
-
-
-
-
-
-              </div>
 
 
             </div>
@@ -731,10 +361,10 @@ body #app {
   padding-top: 5px;
 }
 
-.subject-editor-container-right-lowres {
+/* .subject-editor-container-right-lowres {
   height: 304px;
   max-height: 304px;
-}
+} */
 
 
 .type-list-ol {
@@ -1121,6 +751,8 @@ import AuthTypeIcon from "@/components/panels/edit/fields/helpers/AuthTypeIcon.v
 import utilsNetwork from '@/lib/utils_network';
 
 import { AccordionList, AccordionItem } from "vue3-rich-accordion";
+import DetailsPanel from './helpers/DetailsPanel.vue'
+import ComplexSearchResultsDisplay from './helpers/ComplexSearchResultsDisplay.vue'
 
 const debounce = (callback, wait) => {
   let timeoutId = null;
@@ -1142,7 +774,9 @@ export default {
     VueFinalModal,
     AuthTypeIcon,
     AccordionList,
-    AccordionItem
+    AccordionItem,
+    DetailsPanel,
+    ComplexSearchResultsDisplay
   },
   props: {
     structure: Object,
@@ -1264,20 +898,8 @@ export default {
     ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral']),
   },
   methods: {
-    getClassLabel: function (label) {
-      let pieces = label.split("--")
 
-      if (pieces.length == 1) {
-        return label
-      }
-
-      let posSpecialTopic = pieces.indexOf('Special topics, A-Z')
-      if (posSpecialTopic != -1) {
-        return pieces.at(posSpecialTopic - 1)
-      }
-
-      return pieces.at(-1)
-    },
+    // Emitted from DetailsPanel
     // Conduct a new search on "related" term
     newSearch: function (v) {
       this.subjectString = v
@@ -1285,7 +907,7 @@ export default {
       this.searchApis(v, v, this)
     },
 
-
+    // Emitted from DetailsPanel
     // Add class number from details to Marva
     addClassNumber: function (classNum) {
       let profile = this.activeProfile
@@ -1304,86 +926,6 @@ export default {
         fieldGuid = short.generate()
       }
       this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
-    },
-    checkUsable: function (data) {
-      let notes = data.extra.notes || []
-      if (notes.includes("THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS RECORD HAS BEEN REVIEWED AND/OR UPDATED")) {
-        return false
-      }
-      return true
-    },
-    checkFromRda: function (data) {
-      let notes = data.extra.notes || []
-      let isRda = false
-
-      for (let note of notes) {
-        if (note.includes("$erda")) {
-          isRda = true
-        }
-      }
-
-      return isRda
-    },
-    checkFromAuth: function (data) {
-      let notes = data.extra.notes || []
-      let identifiers = data.extra.identifiers || []
-
-      let looksLikeLccn = identifiers.filter((i) => i.startsWith("n")).length > 0 ? true : false
-
-      return looksLikeLccn
-    },
-    /**
-     * Set the background color for the usage numbers. Based on 5 color heat map
-     * https://stackoverflow.com/questions/12875486/what-is-the-algorithm-to-create-colors-for-a-heatmap
-     *
-     * @param value - the value of the term that will create the color
-     * @param records - a list of records to get the min/max
-     *
-     * @return the CSS value for the background color
-     */
-    setBackgroundColor: function (value, records) {
-      let range = records.map((r) => r.count).filter(n => n != undefined)
-      let min = Math.min(...range)
-      let max = Math.max(...range)
-
-      let normalizedValue = (value - min) / (max - min)
-
-      let h = (1.0 - normalizedValue) * 240
-      return "hsl(" + h + ", 100%, 50%)";
-    },
-    rewriteURI: function (uri) {
-      if (!uri) { return false }
-      let returnUrls = useConfigStore().returnUrls
-
-      // use internal links for prodcution
-      if (returnUrls.dev || returnUrls.publicEndpoints) {
-        uri = uri.replace('http://preprod.id.', 'https://id.')
-        uri = uri.replace('https://preprod-8230.id.loc.gov', 'https://id.loc.gov')
-        uri = uri.replace('https://test-8080.id.lctl.gov', 'https://id.loc.gov')
-        uri = uri.replace('https://preprod-8080.id.loc.gov', 'https://id.loc.gov')
-        uri = uri.replace('https://preprod-8288.id.loc.gov', 'https://id.loc.gov')
-      } else { // if it's not dev or public make sure we're using 8080
-        uri = uri.replace('https://id.loc.gov', 'https://preprod-8080.id.loc.gov')
-        uri = uri.replace('http://id.loc.gov', 'https://preprod-8080.id.loc.gov')
-      }
-
-
-      return uri
-    },
-    hasOverFlow: function (element) {
-      let overflow = element.scrollHeight > element.clientHeight
-      return overflow
-    },
-    // Return the number of search results that are populated.
-    // Used to determine how tall to make each set of search results
-    numPopulatedResults: function () {
-      let count = 0
-      for (let key of Object.keys(this.searchResults)) {
-        if (this.searchResults[key].length >= 1) {
-          count++
-        }
-      }
-      return count
     },
 
     //parse complex headings so we can have complete and broken up headings
@@ -2286,90 +1828,10 @@ export default {
       this.contextRequestInProgress = false
     },
 
-    _getContextDeprecated: async function () {
-      if (this.pickLookup[this.pickPostion].literal) {
-        this.contextData = this.pickLookup[this.pickPostion]
-        return false
-      }
-
-      this.contextRequestInProgress = true
-      this.contextData = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
-
-      // for backwards compability
-      if (this.contextData.nodeMap.marcKey && this.contextData.nodeMap.marcKey[0]) {
-        this.pickLookup[this.pickPostion].marcKey = this.contextData.nodeMap.marcKey[0]
-      }
-
-      // we will modify our local context data here to make things easier
-      if (Array.isArray(this.contextData.title)) {
-        // first grab the non-latin auth labels
-        this.contextData.nonLatinTitle = JSON.parse(JSON.stringify(this.contextData.title.filter((v) => { return (v['@language'] != "en" ? v['@language'] : "") })))
-        this.pickLookup[this.pickPostion].nonLatinTitle = this.contextData.nonLatinTitle
-
-        // return the first label with no language tag
-        this.contextData.title = this.contextData.title.filter((v) => { return (v['@language'] == "en" || !v['@language']) })[0]
-        if (this.contextData.title && this.contextData.title['@value']) {
-          this.contextData.title = this.contextData.title['@value']
-        }
-      }
-
-      //save the marcKey
-      if (Array.isArray(this.contextData.marcKey)) {
-        // first grab the non-latin auth labels
-        this.contextData.nonLatinMarcKey = JSON.parse(JSON.stringify(this.contextData.marcKey.filter((v) => { return (v['@language']) })))
-        this.pickLookup[this.pickPostion].nonLatinMarcKey = this.contextData.nonLatinMarcKey
-        // return the first label with no language tag
-        this.contextData.marcKey = this.contextData.marcKey.filter((v) => { return (!v['@language']) })[0]
-        if (this.contextData.marcKey && this.contextData.marcKey['@value']) {
-          this.contextData.marcKey = this.contextData.marcKey['@value']
-          this.pickLookup[this.pickPostion].marcKey = this.contextData.marcKey
-        }
-      }
-
-      this.contextRequestInProgress = false
-    },
-
     /** Clear the current selection so that hovering will update the preview again */
     clearSelected: function () {
       this.pickLookup[this.pickCurrent].picked = false
       this.pickCurrent = null
-    },
-
-    buildCount: function (subject) {
-      if (subject.count) {
-        return "[" + subject.count + "]"
-      }
-
-    },
-
-    buildAddtionalInfo: function (collections) {
-      if (collections) {
-        let out = []
-        if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings") || collections.includes("http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings")) {
-          out.push("(Auth Hd)")
-        } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")) {
-          out.push("(GnFrm)")
-        } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions")) {
-          out.push("(GeoSubDiv)")
-        } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSH_Childrens")) {
-          out.push("(ChldSubj)")
-        } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")) {
-          out.push("(SubDiv)")
-        }
-
-        // favor SubDiv over GnFrm
-        if (out.includes("(GnFrm)") && collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")) {
-          out = ["(SubDiv)"]
-        }
-
-        // if (collections.includes("LCNAF")){
-        //     out.push("[LCNAF]")
-        // }
-
-        return out.join(" ")
-      } else {
-        return ""
-      }
     },
 
     runMacroExpressMacro(event) {
@@ -2520,8 +1982,6 @@ export default {
 
     },
 
-
-
     loadContext: async function (pickPostion) {
       console.info("loadContext: ", pickPostion)
       if (this.pickCurrent == null) {
@@ -2651,7 +2111,6 @@ export default {
         }
 
         try {
-          console.info("focus 10")
           this.$refs.subjectInput.focus()
         } catch (err) {
           console.log("working with existing data: $refs")

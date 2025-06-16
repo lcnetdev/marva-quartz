@@ -1,16 +1,16 @@
 export default class Component{
-    constructor(label){
-        this._label = label,
-        this._uri = null,
-        this._id = 0,
-        this._type = null,
-        this._complex = false,
-        this._literal = true,
-        this._posStart = 0,
-        this._posEnd = 0 + label.length,
-        this._marcKey = null,
-        this._nonLatinLabel = null,
-        this._nonLatinMarcKey = null
+    constructor(cObj){
+        this._label = cObj.label,
+        this._uri = cObj.uri || null
+        this._id = 0
+        this._type = cObj.extra && cObj.extra.rdftypes ? cObj.extra.rdftypes[0] : "Topic"
+        this._complex = false
+        this._literal = true
+        this._posStart = 0
+        this._posEnd = 0 + this._label.length
+        this._marcKey = cObj.extra && cObj.extra.marcKeys ? cObj.extra.marcKeys[0] : null
+        this._nonLatinLabel = cObj.extra && cObj.extra.marcKeys ? cObj.extra.nonlatinLabels : []
+        this._nonLatinMarcKey = cObj.extra && cObj.extra.marcKeys ? cObj.extra.marcKeys[0] : null  //TODO: is this right?
         this._complex = false
     }
 
