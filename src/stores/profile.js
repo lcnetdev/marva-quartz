@@ -5655,11 +5655,13 @@ export const useProfileStore = defineStore('profile', {
       }else{
         useDate = false
       }
+      if (useDate){
+        useDate = useDate.replace(/\[/g, '').replace(/\]/g, '') // remove brackets if they exist
+        useDate = useDate.replace(/{/g, '').replace(/}/g, '') // remove brackets if they exist
 
-      useDate = useDate.replace(/\[/g, '').replace(/\]/g, '') // remove brackets if they exist
-      useDate = useDate.replace(/{/g, '').replace(/}/g, '') // remove brackets if they exist
+        useDate = useDate.trim()
+      }
 
-      useDate = useDate.trim()
       
       
       return useDate
