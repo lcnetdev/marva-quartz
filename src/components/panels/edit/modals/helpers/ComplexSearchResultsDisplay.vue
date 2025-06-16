@@ -207,7 +207,6 @@ export default {
         },
 
         setPickPosition: function(pickPosition){
-            console.info("setPickPosition: ", pickPosition)
             if (this.pickCurrent == null) {
                 this.pickPostion = pickPosition
             }
@@ -259,12 +258,6 @@ export default {
 .subject-variant {
     color: #ffc107;
     font-weight: bold;
-}
-
-
-.usage-count {
-    /* color: white;
-  text-shadow: black 0px 0px 10px; */
 }
 
 .from-rda,

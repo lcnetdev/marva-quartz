@@ -71,13 +71,12 @@ export default {
 
     methods: {
         calculateIndex: function (i) {
-            console.info("calculateIndex: ", this.index)
             const searchResults = this.searchResults
             try {
                 let f = new Function('searchResults', "return " + this.index.replace('ix', i))
                 return f(searchResults)
             } catch(err) {
-                console.info("error: ", err)
+                return i
              }
         },
         numPopulatedResults: function () {
@@ -99,6 +98,7 @@ export default {
             if (subject.count) {
                 return "[" + subject.count + "]"
             }
+            return ""
 
         },
         buildAddtionalInfo: function (collections) {

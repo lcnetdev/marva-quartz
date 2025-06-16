@@ -174,7 +174,7 @@
 
   <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :guid="guid" :propertyPath="propertyPath" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal" :searchType="searchType" />
   <!-- <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" /> -->
-  <SubjectEditor2 ref="subjectEditorModal2" v-model="displaySubjectModal" @hideSubjectModal="hideSubjectModal()" />
+  <SubjectEditor2 ref="subjectEditorModal2"    :searchValue="searchValue" v-model="displaySubjectModal" @hideSubjectModal="hideSubjectModal()" :searchType="searchType" />
 
 </template>
 
@@ -634,9 +634,10 @@ export default {
 
             this.$nextTick(() => {
               try {
-                this.$refs.subjectEditorModal.focusInput()
+                // this.$refs.subjectEditorModal.focusInput()
+                this.$refs.subjectEditorModal2.focusInput()
               } catch(err) {
-                console.info("couldn't do it.")
+                console.info("couldn't do it.", err)
               }
             })
           }

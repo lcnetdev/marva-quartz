@@ -712,10 +712,6 @@ body #app {
   overflow-y: hidden;
 }
 
-.subject-editor-container-left .modal-context-data-li {
-  /*font-size: 1em;*/
-}
-
 .subject-editor-container-left-lowres {
   font-size: 0.75em !important;
   height: 352px;
@@ -1039,10 +1035,6 @@ li::before {
   color: #999999;
 }*/
 
-.usage-count {
-  /* color: white;
-  text-shadow: black 0px 0px 10px; */
-}
 
 .from-rda,
 .from-auth {
@@ -1680,6 +1672,7 @@ export default {
     linkModeTextChange: async function (event) {
 
       try {
+        console.info("focus 1")
         this.$refs.subjectInput.focus()
       } catch (err) {
         console.log("Loading from existing data")
@@ -1704,6 +1697,7 @@ export default {
 
         let timeoutFocus = window.setTimeout(() => {
           if (this.$refs.subjectInput) {
+            console.info("focus 2")
             this.$refs.subjectInput.focus()
             window.clearTimeout(timeoutFocus)
           }
@@ -1728,6 +1722,7 @@ export default {
       }
 
       this.$nextTick(() => {
+        console.info("focus 3")
         this.$refs.subjectInput.focus()
       })
 
@@ -1959,6 +1954,7 @@ export default {
       if (this.activeComponent && this.activeComponent.label) {
         this.searchApis(this.activeComponent.label, this.subjectString, this)
       }
+      console.info("focus 4")
       this.$refs.subjectInput.focus()
     },
 
@@ -2444,12 +2440,14 @@ export default {
                 this.$nextTick(() => {
                   inputV.setSelectionRange(insertAt + 1, insertAt + 1)
                   this.$nextTick(() => {
+                    console.info("focus 5")
                     inputV.focus()
                     // this.doSearch()
                   })
                 })
               } else {
                 this.$nextTick(() => {
+                  console.info("focus 6")
                   inputV.focus()
                 })
               }
@@ -2487,6 +2485,7 @@ export default {
             // inputV.value=inputV.value+macro.codeEscape
 
             inputV.setSelectionRange(insertAt + 1, insertAt + 1)
+            console.info("focus 7")
             inputV.focus()
 
 
@@ -2496,6 +2495,7 @@ export default {
                 // this.searchValueLocal = inputV.value
                 // this.subjectString = inputV.value
                 this.$nextTick(() => {
+                  console.info("focus 8")
                   inputV.focus()
                 })
 
@@ -2503,6 +2503,7 @@ export default {
             } else {
 
               this.$nextTick(() => {
+                console.info("focus 9")
                 inputV.focus()
               })
 
@@ -2650,6 +2651,7 @@ export default {
         }
 
         try {
+          console.info("focus 10")
           this.$refs.subjectInput.focus()
         } catch (err) {
           console.log("working with existing data: $refs")
@@ -2826,12 +2828,14 @@ export default {
                 // this.searchValueLocal = inputV.value
 
                 this.$nextTick(() => {
+                  console.info("focus 11")
                   inputV.focus()
                 })
 
               })
             } else {
               this.$nextTick(() => {
+                console.info("focus 12")
                 inputV.focus()
               })
             }
@@ -2932,6 +2936,7 @@ export default {
       this.activeComponent.type = type
       this.typeLookup[this.activeComponentIndex] = type
       this.subjectStringChanged()
+      console.info("focus 13")
       this.$refs.subjectInput.focus()
     },
 

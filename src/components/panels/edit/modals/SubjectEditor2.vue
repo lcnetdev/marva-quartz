@@ -24,20 +24,12 @@
         {{ activeSearch }}
       </template>
       <template v-else>
-        <ComplexSearchResultsDisplay
-          :searchResults="searchResults"
-          :pickLookup="pickLookup"
-          :searchMode="searchMode"
-          @loadContext="loadContext"
-          @selectContext="selectContext" />
+        <ComplexSearchResultsDisplay :searchResults="searchResults" :pickLookup="pickLookup" :searchMode="searchMode"
+          @loadContext="loadContext" @selectContext="selectContext" />
       </template>
       <div class="detail-body">
-        <DetailsPanel
-          :contextData="contextData"
-          :contextRequestInProgress="contextRequestInProgress"
-          @addClassNumber="addClassNumber"
-          @newSearch="newSearch"
-        />
+        <DetailsPanel :contextData="contextData" :contextRequestInProgress="contextRequestInProgress"
+          @addClassNumber="addClassNumber" @newSearch="newSearch" />
       </div>
 
       <!-- third row -->
@@ -140,7 +132,11 @@ export default {
     fromPaste: Boolean,
   },
 
-  watch: {},
+  watch: {
+    searchValue: function () {
+      this.subjectString = this.searchValue
+    },
+  },
 
   data: function () {
     return {
@@ -261,6 +257,19 @@ export default {
         id++
       }
 
+    },
+
+    focusInput: function () {
+      this.$nextTick(() => {
+
+        let timeoutFocus = window.setTimeout(() => {
+          if (this.$refs.subjectInput) {
+            console.info("focus 2")
+            this.$refs.subjectInput.focus()
+            window.clearTimeout(timeoutFocus)
+          }
+        }, 10)
+      })
     },
 
 
@@ -627,7 +636,195 @@ export default {
       })
     },
 
-    navInput: function () { },
+    navInput: function (event) {
+      console.info("navInput")
+      if (event.key == 'ArrowUp') {
+        if (parseInt(this.pickPostion) <= this.searchResults.names.length * -1) {
+          return false
+        }
+
+        this.pickCurrent = null //allows keyboard selection
+        this.loadContext(parseInt(this.pickPostion) - 1)
+        this.pickCurrent = parseInt(this.pickPostion)
+        event.preventDefault()
+        return false
+      } else if (event.key == 'ArrowDown') {
+
+        if (parseInt(this.pickPostion) >= this.searchResults.subjectsSimple.length - 1 + this.searchResults.subjectsComplex.length) {
+          return false
+        }
+
+        this.pickCurrent = null //allows keyboard selection
+        this.loadContext(parseInt(this.pickPostion) + 1)
+        this.pickCurrent = parseInt(this.pickPostion)
+        event.preventDefault()
+        return false
+      } else if (event.key == 'Enter') {
+        if (event.shiftKey) {
+          this.add()
+          return
+        }
+        this.selectContext()
+
+      } else if (event.ctrlKey && event.key == "1") {
+        this.searchModeSwitch("LCSHNAF")
+      } else if (event.ctrlKey && event.key == "2") {
+        this.searchModeSwitch("CHILD")
+      } else if (event.ctrlKey && event.key == "3") {
+        this.searchModeSwitch("GEO")
+      } else if (event.ctrlKey && event.key == "4") {
+        this.searchModeSwitch("HUBS")
+      } else if (this.searchMode == 'GEO' && event.key == "-") {
+        if (this.components.length > 0) {
+          let lastC = this.components[this.components.length - 1]
+
+          // if the last component has a URI then it was just selected
+          // so we are not in the middle of a indirect heading, we are about to type it
+          // so let them put in normal --. Unless the last piece was geographic. Then they
+          // may have selected the first part from LCSH/LCNAF
+          if (lastC.uri && this.activeComponentIndex == this.components.length - 1 && lastC.type != 'madsrdf:Geographic') {
+            return true
+          }
+
+          // if the last string is a normal "-" then make this one normal too
+          if (this.subjectString.slice(-1) == '-') {
+            return true
+          }
+
+        }
+
+        let start = event.target.selectionStart
+        let end = event.target.selectionEnd
+        // console.log(this.subjectString.substring(0,start),'|',this.subjectString.substring(end,this.subjectString.length))
+
+        this.subjectString = this.subjectString.substring(0, start) + '‑' + this.subjectString.substring(end, this.subjectString.length)
+        this.subjectString = this.subjectString.trim()
+
+        this.$nextTick(() => {
+          // console.log(start,end)
+          if (end - start > 0) {
+            event.target.setSelectionRange(start + 1, start + 1)
+          } else {
+            event.target.setSelectionRange(start + 1, end + 1)
+          }
+
+        })
+
+        this.subjectStringChanged(event)
+
+        event.preventDefault()
+        return false
+
+      } else {
+        // they might be trying to insert a diacritic here
+
+        // This mode is they press Crtl+e to enter diacritic macro mode, so they did that on the last kedown and now we need to act on the next keystroke and interpret it as a macro code
+        if (this.nextInputIsVoyagerModeDiacritics) {
+          // they are pressing shift in about to press antoher macro shrotcut
+          if (event.key == 'Shift') {
+            return false
+          }
+
+          if (this.diacriticPacks.voyager[event.code]) {
+            let useMacro
+            for (let macro of this.diacriticPacks.voyager[event.code]) {
+              if (macro.shiftKey == event.shiftKey) {
+                useMacro = macro
+                break
+              }
+            }
+
+            let inputV = event.target
+            let insertAt = event.target.value.length
+            if (event.target && event.target.selectionStart) {
+              insertAt = event.target.selectionStart
+            }
+
+            if (!useMacro.combining) {
+              // it is not a combining unicode char so just insert it into the value
+              if (inputV.value) {
+                // inputV.value=inputV.value+useMacro.codeEscape
+                inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+              } else {
+                inputV.value = useMacro.codeEscape
+              }
+              // this.searchValueLocal = inputV.value
+
+            } else {
+              // inputV.value=inputV.value+useMacro.codeEscape
+              inputV.value = inputV.value.substring(0, insertAt) + useMacro.codeEscape + inputV.value.substring(insertAt);
+              // this.searchValueLocal = inputV.value
+
+            }
+
+            if (insertAt) {
+              this.$nextTick(() => {
+                inputV.setSelectionRange(insertAt + 1, insertAt + 1)
+                // this.searchValueLocal = inputV.value
+
+                this.$nextTick(() => {
+                  inputV.focus()
+                })
+
+              })
+            } else {
+              this.$nextTick(() => {
+                inputV.focus()
+              })
+            }
+
+            // manually change the v-model var and force a update
+            this.$nextTick(() => {
+              this.subjectString = inputV.value
+              this.subjectStringChanged()
+              this.navString({ key: 'ArrowRight' })
+            })
+
+
+          }
+          // turn off mode
+          this.nextInputIsVoyagerModeDiacritics = false
+          event.target.style.removeProperty('background-color')
+          event.preventDefault()
+          return false
+        }
+        // all macros use the ctrl key
+        if (event.ctrlKey == true) {
+          if (this.diacriticUse.length > 0) {
+            for (let macro of this.diacriticUseValues) {
+              if (event.code == macro.code && event.ctrlKey == macro.ctrlKey && event.altKey == macro.altKey && event.shiftKey == macro.shiftKey) {
+                // console.log("run this macro", macro)
+                event.preventDefault()
+                this.runMacroExpressMacro(event)
+
+                // manually change the v-model var and force a update
+                this.$nextTick(() => {
+                  this.subjectString = event.target.value
+                  this.subjectStringChanged()
+                  this.navString({ key: 'ArrowRight' })
+                })
+                //
+
+                return false
+
+              }
+            }
+          }
+
+          // they are entering into voyager diacritic mode
+          if (event.code == 'KeyE') {
+            if (!this.preferenceStore.returnValue('--b-diacritics-disable-voyager-mode')) {
+              event.target.style.backgroundColor = "chartreuse"
+              this.nextInputIsVoyagerModeDiacritics = true
+              event.preventDefault()
+              return false
+            }
+
+          }
+          //
+        }
+      }
+    },
     renderHintBoxes: function () { },
 
     selectContext: async function (pickPostion, update = true) {
@@ -869,9 +1066,13 @@ export default {
 
   },
 
-  created: function () { },
+  created: function () {
+    console.info("created")
+  },
   before: function () { },
-  mounted: function () { },
+  mounted: function () {
+    console.info("mounted")
+  },
   updated: function () { }
 };
 
@@ -1043,5 +1244,4 @@ ul:has(.modal-context-data-li) {
 .simptip-position-bottom::after {
   left: -30% !important;
 }
-
 </style>
