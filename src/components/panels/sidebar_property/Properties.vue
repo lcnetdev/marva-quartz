@@ -466,11 +466,6 @@
 <template>
   <template  v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-accordion') == true">
     <AccordionList  :open-multiple-items="false">
-
-      <span class="edit-component-library">
-        <div class="icon-container"><span :class="['material-icons', 'order-icon', 'simptip-position-left', {'edit-on': preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')}]" data-tooltip="EDIT LIBRARY" @click="toggleComponentLibraryEdit">settings</span></div>
-      </span>
-
       <template v-for="profileName in activeProfile.rtOrder" :key="profileName">
       <!-- <div v-for="profileName in activeProfile.rtOrder" class="sidebar" :key="profileName"> -->
 
@@ -582,6 +577,9 @@
       <div class="icon-container"><span class="material-icons order-icon simptip-position-left" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span></div>
     </span>
     <hr>
+    <span class="edit-component-library">
+      <div class="icon-container"><span :class="['material-icons', 'order-icon', 'simptip-position-left', {'edit-on': preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')}]" data-tooltip="EDIT LIBRARY" @click="toggleComponentLibraryEdit">settings</span></div>
+    </span>
 
 
   </template>
@@ -745,7 +743,7 @@
                 <template v-if="clProfile.groups[group].length>1">
                   <span>
                       <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
-                      <span data-tooltip="Set Default" class="simptip-position-left default-check">
+                      <span class="simptip-position-left default-check">
                         <input v-if="clProfile.type != 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="default-component" type="checkbox" @click="makeDefaultComponent(clProfile.groups[group])" :checked="clProfile.groups[group][0].useDefault" />
                         <button v-if="clProfile.type == 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" data-tooltip="ADD TO MYBRARY" class="add-default-component simptip-position-left material-icons" @click.stop='addToMyLibrary(clProfile.groups[group])'>add</button>
                       </span>
