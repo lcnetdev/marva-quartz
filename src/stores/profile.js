@@ -5645,16 +5645,24 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      let useDate = false
       if (provisionActivitySimpleDate){
-        return provisionActivitySimpleDate
+        useDate = provisionActivitySimpleDate
       }else if(provisionActivityEDTFDate){
-        return provisionActivityEDTFDate
+        useDate = provisionActivityEDTFDate
       }else if (originDate){
-        return originDate
+        useDate = originDate
       }else{
-        return false
+        useDate = false
       }
 
+      useDate = useDate.replace(/\[/g, '').replace(/\]/g, '') // remove brackets if they exist
+      useDate = useDate.replace(/{/g, '').replace(/}/g, '') // remove brackets if they exist
+
+      useDate = useDate.trim()
+      
+      
+      return useDate
 
     },
 

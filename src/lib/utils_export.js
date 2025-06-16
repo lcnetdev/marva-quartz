@@ -2103,7 +2103,7 @@ const utilsExport = {
 		let rootEl = document.createElementNS(marcNamespace,"marcxml:record");
 
 		let leader = document.createElementNS(marcNamespace,"marcxml:leader");
-		leader.innerHTML = "     nz  a22     ni 4500"
+		leader.innerHTML = "     nz  a22     n  4500"
 		marcTxt =  marcTxt + 'LDR    ' + leader.innerHTML + "\n"
 		rootEl.appendChild(leader)
 
