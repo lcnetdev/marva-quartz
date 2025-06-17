@@ -4,7 +4,7 @@
   import { AccordionList, AccordionItem } from "vue3-rich-accordion";
   // import "vue3-rich-accordion/accordion-library-styles.css";
   import draggable from 'vuedraggable'
-
+  import short from 'short-uuid'
 
   import { mapStores, mapState, mapWritableState } from 'pinia'
   import { isReadonly } from 'vue';
@@ -37,15 +37,20 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent', 'emptyComponents','returnComponentLibrary']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent', 'emptyComponents','returnComponentLibrary', 'componentLibrary']),
       ...mapState(usePreferenceStore, ['styleDefault', 'isEmptyComponent', 'layoutActive', 'layoutActiveFilter', 'createLayoutMode']),
 
 
-      ...mapWritableState(useProfileStore, ['activeComponent', 'emptyComponents']),
+      ...mapWritableState(useProfileStore, ['activeComponent', 'emptyComponents', 'saveComponentLibrary']),
     },
 
 
     methods: {
+      toggleComponentLibraryEdit: function(){
+        let v = this.preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')
+
+        this.preferenceStore.setValue('--b-edit-main-splitpane-properties-component-library-defaults', !v)
+      },
       isPrimaryComponent: function(profileName, activeProfile, target){
         if (!this.profileStore.profiles[activeProfile.id].rt[profileName]){
           return false
@@ -113,7 +118,65 @@
 
       },
 
+      addToMyLibrary: function(obj){
+        console.info("addToMyLibrary: ", obj)
 
+        for (let component of obj){
+          let structure = component.structure
+
+          if (structure['parentId'].includes(":Item")){
+            let key = structure['parentId']
+            if (key && key.includes(":Item")){
+              if (key.includes("-") || key.includes("_")){
+                  let idx
+                  idx = key.indexOf("_")
+                  if (idx < 0){
+                      idx = key.indexOf("-")
+                  }
+                  key = key.slice(0, idx)
+              }
+            }
+            structure['parentId'] = key
+          }
+
+          if (!this.componentLibrary.profiles[structure['parentId']]){
+            this.componentLibrary.profiles[structure['parentId']] = {
+              groups:[]
+            }
+          }
+
+          let label = prompt("What to call this component?", component.label + " [D]")
+          if (!label){
+            console.info("no label")
+            return false
+          }
+
+          let gId = null
+          if (obj.length > 1){
+            gId = component.groupId + " (default)"
+          }
+
+          this.componentLibrary.profiles[structure['parentId']].groups.push({
+            id: short.generate(),
+            groupId: gId,
+            position: this.componentLibrary.profiles[structure['parentId']].groups.length,
+            structure: structure,
+            label: label
+          })
+
+          this.saveComponentLibrary()
+        }
+      },
+
+      makeDefaultComponent: function(obj){
+        //set default, obj.default = !obj.default
+        console.info("makeDefaultComponent: ", obj)
+        if (Array.isArray(obj)){
+          this.profileStore.makeComponentDefault(obj[0].id)
+        } else {
+          this.profileStore.makeComponentDefault(obj.id)
+        }
+      },
 
       addComponentLibrary(event,clId,supressPropmpt){
         if (event){
@@ -156,17 +219,11 @@
         let sentFirstComponentOfGroup = false
         let supressPrompt = false
         for (let groups of this.returnComponentLibrary){
-
-
           if (groups.groups[group]){
             for (let component of groups.groups[group]){
-
-
               let r = this.addComponentLibrary(null,component.id,supressPrompt)
               // if the first one returns canceled then stop, otherwise supress the prompt from here on
               if (r == 'canceled'){ return false}else{supressPrompt=true}
-
-
             }
           }
 
@@ -409,13 +466,6 @@
 <template>
   <template  v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-accordion') == true">
     <AccordionList  :open-multiple-items="false">
-
-      <span class="order-actions-span">
-        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">list_alt</span></div>
-        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="USE ORDER" @click="useOrder">sync</span></div>
-        <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span></div>
-      </span>
-
       <template v-for="profileName in activeProfile.rtOrder" :key="profileName">
       <!-- <div v-for="profileName in activeProfile.rtOrder" class="sidebar" :key="profileName"> -->
 
@@ -520,8 +570,16 @@
     </AccordionList>
 
 
-
-
+    <hr>
+    <span class="order-actions-span">
+      <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="SAVE ORDER" @click="saveOrder">list_alt</span></div>
+      <div class="icon-container"><span class="material-icons order-icon simptip-position-right" data-tooltip="USE ORDER" @click="useOrder">sync</span></div>
+      <div class="icon-container"><span class="material-icons order-icon simptip-position-left" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span></div>
+    </span>
+    <hr>
+    <span class="edit-component-library" v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-show-defaults') || returnComponentLibrary.length > 0">
+      <div class="icon-container"><span :class="['material-icons', 'order-icon', 'simptip-position-left', {'edit-on': preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')}]" data-tooltip="EDIT LIBRARY" @click="toggleComponentLibraryEdit">settings</span></div>
+    </span>
 
 
   </template>
@@ -633,16 +691,19 @@
 
                   <button v-if="clProfile.type != 'default'" :class="{'material-icons' : true, 'component-library-settings-button': true, 'component-library-settings-button-invert': (activeComponentLibrary == component.id)  }" @click="configComponentLibrary(component.id)">settings_applications</button>
 
+                  <span>
+                    <div class="component-library-item-container sidebar-property-li-empty" @click="addComponentLibrary($event,component.id)" >
+                      <a href="#" @click="addComponentLibrary($event,component.id)">{{ component.label }}</a>
+                      <button v-if="component.groupId == null && clProfile.type == 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="add-default-component material-icons" @click.stop='addToMyLibrary(clProfile.groups[group])'>add</button>
+                    </div>
 
-
-                  <div class="component-library-item-container sidebar-property-li-empty" @click="addComponentLibrary($event,component.id)" >
-                    <a href="#" @click="addComponentLibrary($event,component.id)">{{ component.label }}</a>
-                  </div>
+                  </span>
                     <template v-if="activeComponentLibrary == component.id && clProfile.type != 'default'">
                       <div class="component-library-settings">
 
                           <button class="material-icons simptip-position-right" data-tooltip="DELETE" @click="delComponentLibrary($event,component.id)">delete_forever</button>
                           <button class="material-icons simptip-position-right" data-tooltip="RENAME" @click="renameComponentLibrary($event,component.id,component.label)">new_label</button>
+                          <!-- <button v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" :class="['material-icons', 'simptip-position-right', {'default-component': component.useDefault}]" data-tooltip="LOAD" @click="makeDefaultComponent(component)">add_box</button> -->
                           <select @change="configComponentLibraryAssignGroup($event,component.id)">
                             <option value="" :selected="(component.groupId===null)">No Group</option>
                             <option value="A" :selected="(component.groupId==='A')">Group A</option>
@@ -680,7 +741,13 @@
                 </template>
 
                 <template v-if="clProfile.groups[group].length>1">
-                  <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
+                  <span>
+                      <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
+                      <span class="simptip-position-left default-check">
+                        <!-- <input v-if="clProfile.type != 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="default-component" type="checkbox" @click="makeDefaultComponent(clProfile.groups[group])" :checked="clProfile.groups[group][0].useDefault" /> -->
+                        <button v-if="clProfile.type == 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" data-tooltip="ADD TO MYBRARY" class="add-default-component simptip-position-left material-icons" @click.stop='addToMyLibrary(clProfile.groups[group])'>add</button>
+                      </span>
+                  </span>
                 </template>
               </div>
             </template>
@@ -777,7 +844,6 @@
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-properties-font-size')");
 }
 
-
 .container-type-icon{
   color: #ffffff;
   width: inherit;
@@ -805,7 +871,7 @@
   height: 1px;
 }
 .component-librart-group-button{
-  width: 100%;
+  width: calc(100% - 25px);
   height: 16px;
   font-size: 12px;
 
@@ -813,6 +879,11 @@
 }
 .component-librart-group-button span{
   font-size: 12px;
+}
+.default-component {
+  margin-left: 5px;
+  background-color: rgb(6, 204, 6);
+  z-index: 999;
 }
 
 .sidebar-property-li-cl{
@@ -981,6 +1052,20 @@ li.not-populated-hide:before{
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-background-color')") !important;
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-font-color')") !important;
   cursor: pointer;
+}
+
+.add-default-component{
+  font-size: 12px;
+  padding: unset;
+}
+
+.edit-component-library{
+    margin-left: 80%;
+}
+.edit-on {
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-background-color')") !important;
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-properties-font-color')") !important;
+  border-radius: 25%
 }
 
 </style>

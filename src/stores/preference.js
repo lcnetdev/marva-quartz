@@ -249,6 +249,15 @@ export const usePreferenceStore = defineStore('preference', {
         type: 'object',
         group: 'preferenes',
       },
+      '--b-edit-main-splitpane-properties-component-library-defaults' : {
+        desc: 'Setting defaults to load with the record and moving default components to my components.',
+        descShort: 'Edit Component Library Defaults',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'Sidebars - Property',
+        range: [true,false]
+      },
 
 
 

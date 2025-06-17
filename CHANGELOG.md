@@ -9,6 +9,15 @@ All notable changes to this project will be documented in this file.
 - Strip out square brackets from the date when building a 670
 
 
+## [1.3.11] - 2025-06-16
+### Updated
+- Default component library
+
+### Added
+- Ability move default components to my library
+- Ability to set a component as default
+
+
 ## [1.3.9] - 2025-06-09
 ### Updated
 - Details display to account for changes to suggest2
