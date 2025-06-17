@@ -218,18 +218,18 @@
 
 
       // if there are default component, switch'em on. This might not be the right place
-      this.$nextTick(()=>{
-        for (let groups of this.returnComponentLibrary){
-          for (let group of groups.groupsOrder){
-            let target = groups.groups[group]
-            if (target[0].useDefault){
-              for (let component of target){
-                let r = this.profileStore.addFromComponentLibrary(component.id)
-              }
-            }
-          }
-        }
-    })
+    //   this.$nextTick(()=>{
+    //     for (let groups of this.returnComponentLibrary){
+    //       for (let group of groups.groupsOrder){
+    //         let target = groups.groups[group]
+    //         if (target[0].useDefault){
+    //           for (let component of target){
+    //             let r = this.profileStore.addFromComponentLibrary(component.id)
+    //           }
+    //         }
+    //       }
+    //     }
+    // })
 
 
 

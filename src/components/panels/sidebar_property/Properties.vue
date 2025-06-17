@@ -577,7 +577,7 @@
       <div class="icon-container"><span class="material-icons order-icon simptip-position-left" data-tooltip="LOAD DEFAULT" @click="useDefault">history</span></div>
     </span>
     <hr>
-    <span class="edit-component-library">
+    <span class="edit-component-library" v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-show-defaults') || returnComponentLibrary.length > 0">
       <div class="icon-container"><span :class="['material-icons', 'order-icon', 'simptip-position-left', {'edit-on': preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')}]" data-tooltip="EDIT LIBRARY" @click="toggleComponentLibraryEdit">settings</span></div>
     </span>
 
@@ -703,7 +703,7 @@
 
                           <button class="material-icons simptip-position-right" data-tooltip="DELETE" @click="delComponentLibrary($event,component.id)">delete_forever</button>
                           <button class="material-icons simptip-position-right" data-tooltip="RENAME" @click="renameComponentLibrary($event,component.id,component.label)">new_label</button>
-                          <button v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" :class="['material-icons', 'simptip-position-right', {'default-component': component.useDefault}]" data-tooltip="DEFAULT" @click="makeDefaultComponent(component)">add_box</button>
+                          <!-- <button v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" :class="['material-icons', 'simptip-position-right', {'default-component': component.useDefault}]" data-tooltip="LOAD" @click="makeDefaultComponent(component)">add_box</button> -->
                           <select @change="configComponentLibraryAssignGroup($event,component.id)">
                             <option value="" :selected="(component.groupId===null)">No Group</option>
                             <option value="A" :selected="(component.groupId==='A')">Group A</option>
@@ -744,7 +744,7 @@
                   <span>
                       <button class="component-librart-group-button" @click="addComponentLibraryGroup(clProfile.groups[group][0].groupId)"><span class="material-icons">arrow_upward</span>Add {{clProfile.type != 'default' ? 'Group' : ''}} {{ clProfile.groups[group][0].groupId }} <span class="material-icons">arrow_upward</span></button>
                       <span class="simptip-position-left default-check">
-                        <input v-if="clProfile.type != 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="default-component" type="checkbox" @click="makeDefaultComponent(clProfile.groups[group])" :checked="clProfile.groups[group][0].useDefault" />
+                        <!-- <input v-if="clProfile.type != 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" class="default-component" type="checkbox" @click="makeDefaultComponent(clProfile.groups[group])" :checked="clProfile.groups[group][0].useDefault" /> -->
                         <button v-if="clProfile.type == 'default' && preferenceStore.returnValue('--b-edit-main-splitpane-properties-component-library-defaults')" data-tooltip="ADD TO MYBRARY" class="add-default-component simptip-position-left material-icons" @click.stop='addToMyLibrary(clProfile.groups[group])'>add</button>
                       </span>
                   </span>
