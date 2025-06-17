@@ -33,7 +33,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
 
-  timeout: 10 * 1000,  // set timeout to 1 minute, default is 30s
+  timeout: 30 * 1000,  // set timeout to 30s, less than this can lead to a timeout before the MARC refreshes
 
   /* Configure projects for major browsers */
   projects: [
