@@ -1628,6 +1628,8 @@ const utilsExport = {
 
 		rdfBasic.appendChild(datasetDescriptionEl)
 
+		console.info("rdfBasic: ", rdfBasic)
+
 		let strXmlBasic = (new XMLSerializer()).serializeToString(rdfBasic)
 		let strXml = (new XMLSerializer()).serializeToString(rdf)
 		// console.log(strXml)
@@ -1703,9 +1705,13 @@ const utilsExport = {
 			bf2MarcXmlElRdf.appendChild(bf2MarcItems[x].cloneNode(true))
 		}
 	}
+
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
 	console.info("strXmlBasic: ", strXmlBasic)
+	// for (let item of xmlLog){
+	// 	console.info(item)
+	// }
 
 	return {
 		xmlDom: rdf,
