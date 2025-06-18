@@ -438,6 +438,7 @@ const utilsExport = {
   */
   buildXMLProcess: async function(profile){
 	console.info("<< buildXMLProcess >>")
+	console.info(JSON.stringify(profile))
     // console.log(profile)
 
     // keep track of the proces for later
@@ -1704,7 +1705,7 @@ const utilsExport = {
 	}
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
-	// console.info("strXmlBasic: ", strXmlBasic)
+	console.info("strXmlBasic: ", strXmlBasic)
 
 	return {
 		xmlDom: rdf,

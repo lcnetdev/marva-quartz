@@ -7,25 +7,47 @@ import { usePreferenceStore } from '@/stores/preference'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
-import { monograph_subject_simple_complex_sub } from './xml/monograph_subject_simple_complex_sub.json'
+import { monograph_subject_simple, monograph_subject_simple_simple_sub } from './xml/monograph_subject_simple.json'
 
 const pinia = createPinia()
 const app = createApp()
 app.use(pinia)
 
-let profile = monograph_subject_simple_complex_sub
+
 
 // buildXMLProcess calls a function that requires "this.activeProfile" to be populated
-useProfileStore().activeProfile = profile
+
 usePreferenceStore().catInitals = "test"
 usePreferenceStore().catCode = "test"
 
-let simpleComplexSubXml = await utils_export.buildXMLProcess(profile)
+
+
+
+const expectedSimpleSubjectXml = `<bf:subject><madsrdf:Topic ns1:about="http://id.loc.gov/authorities/subjects/sh85038796"><madsrdf:isMemberOfMADSScheme ns1:resource="http://id.loc.gov/authorities/subjects"/><madsrdf:authoritativeLabel>Dogs</madsrdf:authoritativeLabel><rdfs:label>Dogs</rdfs:label><bflc:marcKey>150  $aDogs</bflc:marcKey><bf:source><bf:Source ns1:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:label>Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:Topic></bf:subject>`
+const expectedSimpleSubjectSimpleSubXml = `<bf:subject><madsrdf:ComplexSubject xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"><bf:source><bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source><madsrdf:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/authorities/subjects"/><madsrdf:authoritativeLabel>Dogs--History</madsrdf:authoritativeLabel><rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Dogs--History</rdfs:label><madsrdf:componentList rdf:parseType="Collection"><madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh85038796"><madsrdf:authoritativeLabel>Dogs</madsrdf:authoritativeLabel><bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">150  $aDogs</bflc:marcKey></madsrdf:Topic><madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh99005024"><madsrdf:authoritativeLabel>History</madsrdf:authoritativeLabel><bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">180  $xHistory</bflc:marcKey></madsrdf:Topic></madsrdf:componentList></madsrdf:ComplexSubject></bf:subject>`
+
+
 
 describe('Subject XML is correct', () => {
-    describe("Simple Subject with complex subdivision", () => {
-        it('should have..?', () => {
-            expect(simpleComplexSubXml).toBe("x")
+    describe("Simple Subject", () => {
+        test('should contain the expectedSimpleSubjectXml', async () => {
+            let profile = monograph_subject_simple
+            useProfileStore().activeProfile = profile
+            let simpleSubjectXmlString = await utils_export.buildXMLProcess(profile)
+            let xmlString = simpleSubjectXmlString.xlmStringBasic
+
+            expect(xmlString).toContain(expectedSimpleSubjectXml)
+        });
+    })
+
+    describe("Simple Subject with simple subdivision", () => {
+        test('should contain the expectedSimpleSubjectSimpleSubXml', async () => {
+            let profile = monograph_subject_simple_simple_sub
+            useProfileStore().activeProfile = profile
+            let simpleSubjectSimpleSubXmlString = await utils_export.buildXMLProcess(profile)
+            let xmlString = simpleSubjectSimpleSubXmlString.xlmStringBasic
+
+            expect(xmlString).toContain(expectedSimpleSubjectSimpleSubXml)
         });
     })
 });
