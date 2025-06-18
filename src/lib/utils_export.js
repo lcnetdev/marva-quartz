@@ -360,7 +360,7 @@ const utilsExport = {
   * @return {boolean}
   */
   buildXML: async function(profile){
-	console.info("profile: ", profile)
+	console.log("## BUILD XML ##")
 	if (!profile || (profile && Object.keys(profile).length==0)){
 		console.warn("Trying to build XML with bad profile:", profile)
 		return false
@@ -437,6 +437,7 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
+	console.info("<< buildXMLProcess >>")
     // console.log(profile)
 
     // keep track of the proces for later
