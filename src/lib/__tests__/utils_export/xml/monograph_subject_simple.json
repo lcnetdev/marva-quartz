@@ -1798,7 +1798,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/expressionOf"
                         },
-                        "@guid": "e5zBJYGcA7nz2WtZmsxSbR",
+                        "@guid": "i8nngW5UKB3PSjBZT7pJFg",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/expressionOf|http://id.loc.gov/ontologies/bibframe/Hub",
                         "id": "id_loc_gov_ontologies_bibframe_expressionOf__expression_of_[search_for_a_hub]",
@@ -1830,7 +1830,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/contribution"
                         },
-                        "@guid": "iGf3wZoDLc6aeSy15uRpjA",
+                        "@guid": "mJPN9xjQLDo6cqvnwp9quy",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/PrimaryContribution",
                         "id": "id_loc_gov_ontologies_bibframe_contribution__creator_of_work",
@@ -1860,7 +1860,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/title"
                         },
-                        "@guid": "dzUpn4nHbN5btSpQ1kRLyu",
+                        "@guid": "cCdqzEEctSK8gBaSfcYFh4",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/title|lc:RT:bf2:WorkTitle",
                         "id": "id_loc_gov_ontologies_bibframe_title__title_information",
@@ -1890,7 +1890,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/contribution"
                         },
-                        "@guid": "7CXVbKFDgs2gArf2hzWp1K",
+                        "@guid": "iNixhhXAY9YzXaTEyxMoaG",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/Contribution",
                         "id": "id_loc_gov_ontologies_bibframe_contribution__contributors",
@@ -1917,7 +1917,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/note"
                         },
-                        "@guid": "tZqfgCGgFh7fVhFLxJjGKu",
+                        "@guid": "4deFQgTt9D24DZSfi6r7BK",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Work",
                         "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_work",
@@ -1944,7 +1944,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/tableOfContents"
                         },
-                        "@guid": "wTVNN1nBzoXDT3AUjWNZbS",
+                        "@guid": "qbKFxxkiXd2DSs51Spiomm",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/tableOfContents|lc:RT:bf2:Contents",
                         "id": "id_loc_gov_ontologies_bibframe_tableOfContents__contents",
@@ -1972,7 +1972,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/summary"
                         },
-                        "@guid": "nE7vjm1bQ8ir3VMAhzsXAa",
+                        "@guid": "cvYqEhzGaHxks8K1fr2cwU",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/summary|lc:RT:bf2:Summary",
                         "id": "id_loc_gov_ontologies_bibframe_summary__summary",
@@ -2078,7 +2078,7 @@
                             ],
                             "@root": "http://id.loc.gov/ontologies/bibframe/subject"
                         },
-                        "@guid": "qARbP6gDQW1r4qwoKhz2eB",
+                        "@guid": "ci8Ppv7W7iBTiPE57VUGn2",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/subject|lc:RT:bf2:Components",
                         "id": "id_loc_gov_ontologies_bibframe_subject__subjects",
@@ -2111,7 +2111,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/geographicCoverage"
                         },
-                        "@guid": "gGqGDxMkq2TEy19hAb9kRL",
+                        "@guid": "4ynDcv6mmo872Zu5rVHGiA",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/geographicCoverage|lc:RT:bf2:Form:Geog",
                         "id": "id_loc_gov_ontologies_bibframe_geographicCoverage__geographic_coverage",
@@ -2145,7 +2145,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/genreForm"
                         },
-                        "@guid": "p8HdKdkbhpB2cC9p5nm1Gf",
+                        "@guid": "whAjLuyyc6egJZjiF4ifMh",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
                         "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
@@ -2175,7 +2175,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/classification"
                         },
-                        "@guid": "wHAx2CiL3UwJiEZJ5Dttas",
+                        "@guid": "j9DuEVkR9TpfuY83WBUKVV",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/classification|lc:RT:bf2:LCC",
                         "id": "id_loc_gov_ontologies_bibframe_classification__classification_numbers",
@@ -2205,7 +2205,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/intendedAudience"
                         },
-                        "@guid": "dCbrkMkQjm8RPMBrVEP5ed",
+                        "@guid": "ioKdGS6EddcGUzPdaakFaU",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/intendedAudience|lc:RT:bf2:Audience",
                         "id": "id_loc_gov_ontologies_bibframe_intendedAudience__intended_audience",
@@ -2242,7 +2242,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/content"
                         },
-                        "@guid": "9nd4qzHuawcKpi6u8h64Vh",
+                        "@guid": "dEri1byrX5p3AMnWRBCg1m",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/content|http://id.loc.gov/ontologies/bibframe/Content",
                         "id": "id_loc_gov_ontologies_bibframe_content__content_type",
@@ -2272,7 +2272,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/language"
                         },
-                        "@guid": "vPC2KafKL3Z16zqLmtxqKi",
+                        "@guid": "r36fGm9ri3fywawtTSgJVQ",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/language|http://id.loc.gov/ontologies/bibframe/Language",
                         "id": "id_loc_gov_ontologies_bibframe_language__language_008_[1st]_041_a_[others]",
@@ -2304,7 +2304,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/accompaniedBy"
                         },
-                        "@guid": "ebT4HqMzHfzg5k3HJeM7mP",
+                        "@guid": "8qmrV45yj7zAcMH5ZWRUZb",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/accompaniedBy|lc:RT:bf2:LangResource",
                         "id": "id_loc_gov_ontologies_bibframe_accompaniedBy__language_resource_041_bdefgt",
@@ -2332,7 +2332,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/note"
                         },
-                        "@guid": "5WRYeAo2n2qmmJPvn3LcpZ",
+                        "@guid": "9iSuZinAoNW1x3dNR3tYpU",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Work",
                         "id": "id_loc_gov_ontologies_bibframe_note__language_note_041_hijkmnpqr_or_041_1",
@@ -2359,7 +2359,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/notation"
                         },
-                        "@guid": "6bs33SebohRH5cW3kb5p6z",
+                        "@guid": "tF4ao4y5jqaQyrakhFaShs",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/notation|lc:RT:bf2:Notation",
                         "id": "id_loc_gov_ontologies_bibframe_notation__notation_note",
@@ -2391,7 +2391,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/illustrativeContent"
                         },
-                        "@guid": "w2Nime2TGQq2XQs3LnxtUi",
+                        "@guid": "wD6G3K4pg7Graoyy2VGMz8",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
                         "id": "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
@@ -2421,7 +2421,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/colorContent"
                         },
-                        "@guid": "2LnTWZoFmxvgQYUyvYLfqL",
+                        "@guid": "6Sgw9rSd491jBuAWR3GS7s",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/colorContent|http://id.loc.gov/ontologies/bibframe/ColorContent",
                         "id": "id_loc_gov_ontologies_bibframe_colorContent__color_content",
@@ -2451,7 +2451,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent"
                         },
-                        "@guid": "j5tSo8qL1Doe2Az997846V",
+                        "@guid": "dkMSHgBDCqNQf8Biq7T2L3",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
                         "id": "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content",
@@ -2481,7 +2481,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bflc/governmentPubType"
                         },
-                        "@guid": "c4oAFC71qcnyGVK2H5Q3eB",
+                        "@guid": "d6G39UTG14bRdqYAAqAR98",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bflc/governmentPubType|http://id.loc.gov/ontologies/bflc/GovernmentPubType",
                         "id": "id_loc_gov_ontologies_bflc_governmentPubType__government_publication",
@@ -2509,7 +2509,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/relation"
                         },
-                        "@guid": "4TCzwyJ52V8G1N984iyBog",
+                        "@guid": "gKHLJ968Wt9eM5Ctyp1qny",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/relation|lc:RT:bf2:RelWorkLookup",
                         "id": "id_loc_gov_ontologies_bibframe_relation__search_related_workseries",
@@ -2539,7 +2539,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/relation"
                         },
-                        "@guid": "hTJFV2VH6pnhjUZzs4fcrn",
+                        "@guid": "n9QZTyT66BD7Q3Nj5DM8eT",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/relation|lc:RT:bf2:SeriesHub",
                         "id": "id_loc_gov_ontologies_bibframe_relation__input_transcribed_series",
@@ -2566,7 +2566,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/relation"
                         },
-                        "@guid": "7ye5j6zB1wjvfm3ywKFf7E",
+                        "@guid": "oTPv3QgNNVd6cQsjA7gWf1",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/relation|lc:RT:bf2:RelWorkInput",
                         "id": "id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc",
@@ -2596,7 +2596,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/notation"
                         },
-                        "@guid": "boKMSUmPwyqH3tmjqpoTQy",
+                        "@guid": "859HLn2jdMQuv8GVuxkrfq",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/notation|http://id.loc.gov/ontologies/bibframe/Notation",
                         "id": "id_loc_gov_ontologies_bibframe_notation__script",
@@ -2623,7 +2623,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/originDate"
                         },
-                        "@guid": "uX6NMrG1Ev71ouEQyc3mgV",
+                        "@guid": "p9vy3vZ9rWi5WXc4bSJrDp",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/originDate|lc:RT:bf2:Monograph:Work",
                         "id": "id_loc_gov_ontologies_bibframe_originDate__date_of_work",
@@ -2655,7 +2655,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/originPlace"
                         },
-                        "@guid": "sCHjmuBbUXw3UYDBVUzxWY",
+                        "@guid": "42Ue4h7zN5tZB4h3tufvxq",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/originPlace|http://id.loc.gov/ontologies/bibframe/Place",
                         "id": "id_loc_gov_ontologies_bibframe_originPlace__country_of_origin_of_the_work",
@@ -2681,7 +2681,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/temporalCoverage"
                         },
-                        "@guid": "xtkAid8sEc1oWFJpVLzrAU",
+                        "@guid": "kSdnjz4aWSyJeAsbnHKf8g",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/temporalCoverage|lc:RT:bf2:Monograph:Work",
                         "id": "id_loc_gov_ontologies_bibframe_temporalCoverage__time_coverage_of_the_content",
@@ -2708,7 +2708,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/contentAccessibility"
                         },
-                        "@guid": "fiYp8579DUhy5rba24P5Wi",
+                        "@guid": "uRpiFCV4mG7eD7RfKDLUAk",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/contentAccessibility|lc:RT:bf2:ContAccess",
                         "id": "id_loc_gov_ontologies_bibframe_contentAccessibility__accessibility_content",
@@ -2736,7 +2736,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/dissertation"
                         },
-                        "@guid": "4McNLAKzJasfS4KT9tj9dE",
+                        "@guid": "1tz4DYGENQXgsMLYFZKXAR",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/dissertation|lc:RT:bf2:Monograph:Dissertation",
                         "id": "id_loc_gov_ontologies_bibframe_dissertation__dissertation",
@@ -2764,12 +2764,12 @@
                             "@root": "http://id.loc.gov/ontologies/bibframe/hasInstance",
                             "http://id.loc.gov/ontologies/bibframe/hasInstance": [
                                 {
-                                    "@guid": "goR1ts9WY29AJcjEkStQfG",
-                                    "@id": "http://id.loc.gov/resources/instances/e2094753"
+                                    "@guid": "fE8VjDrWzTLr9HXXuUNWrQ",
+                                    "@id": "http://id.loc.gov/resources/instances/e1788177"
                                 }
                             ]
                         },
-                        "@guid": "p5o6qwG8oWkR6XPG1cMQ3z",
+                        "@guid": "1ZVr5PT7p66kaSu9Vb2sW2",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/hasInstance|lc:RT:bf2:Monograph:Instance",
                         "id": "id_loc_gov_ontologies_bibframe_hasInstance__add_bibframe_instance",
@@ -2777,7 +2777,7 @@
                         "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/hasInstance"
                     }
                 },
-                "URI": "http://id.loc.gov/resources/works/e2094753"
+                "URI": "http://id.loc.gov/resources/works/e1788177"
             },
             "lc:RT:bf2:Monograph:Instance": {
                 "ptOrder": [
@@ -2825,12 +2825,12 @@
                             "@root": "http://id.loc.gov/ontologies/bibframe/instanceOf",
                             "http://id.loc.gov/ontologies/bibframe/instanceOf": [
                                 {
-                                    "@guid": "qcc9KMK3AdQnV3BeeRvrNp",
-                                    "@id": "http://id.loc.gov/resources/works/e2094753"
+                                    "@guid": "86YiQgsYkNQZgGn4kp11Nz",
+                                    "@id": "http://id.loc.gov/resources/works/e1788177"
                                 }
                             ]
                         },
-                        "@guid": "8MyRvZrfJkRtHwLjwttaaF",
+                        "@guid": "sQFCk25QGJctuJGyFyMZQH",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/instanceOf|lc:RT:bf2:Monograph:Work",
                         "id": "id_loc_gov_ontologies_bibframe_instanceOf__instance_of",
@@ -2862,7 +2862,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/title"
                         },
-                        "@guid": "3co6q2pHFTmJu7bVgrmkyW",
+                        "@guid": "8PrubhA8k2iBsE27RsFazR",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/title|lc:RT:bf2:InstanceTitle",
                         "id": "id_loc_gov_ontologies_bibframe_title__title_information",
@@ -2888,7 +2888,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/responsibilityStatement"
                         },
-                        "@guid": "sxykM27a2DHNd9JBGiHoPr",
+                        "@guid": "6MVP9ZAm4AiCFdFM3K2ZoC",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/responsibilityStatement|lc:RT:bf2:Monograph:Instance",
                         "id": "id_loc_gov_ontologies_bibframe_responsibilityStatement__statement_of_responsibility",
@@ -2914,7 +2914,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/editionStatement"
                         },
-                        "@guid": "xnumUo7sQRLPWLoSfGV24U",
+                        "@guid": "haUKigfhTeJEgDUBdwReSG",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/editionStatement|lc:RT:bf2:Monograph:Instance",
                         "id": "id_loc_gov_ontologies_bibframe_editionStatement__edition_statement",
@@ -2945,7 +2945,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/provisionActivity"
                         },
-                        "@guid": "2Y83fpqgDfFxjWrjA9odnQ",
+                        "@guid": "vp4y8KJMLExpkHWb3X15gD",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/provisionActivity|lc:RT:bf2:PubInfoNew",
                         "id": "id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity",
@@ -2971,7 +2971,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/copyrightDate"
                         },
-                        "@guid": "quuGSHLTLbCf1QPSr8BaqS",
+                        "@guid": "uGZrfwAiNZiwbesQEo5ZsT",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/copyrightDate|lc:RT:bf2:Monograph:Instance",
                         "id": "id_loc_gov_ontologies_bibframe_copyrightDate__copyright_date",
@@ -3008,7 +3008,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/issuance"
                         },
-                        "@guid": "ot2udFFDukayF42nzzx2sF",
+                        "@guid": "9XVKvHJgt6Kd6acSCkMGet",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/issuance|http://id.loc.gov/ontologies/bibframe/Issuance",
                         "id": "id_loc_gov_ontologies_bibframe_issuance__mode_of_issuance",
@@ -3043,7 +3043,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/identifiedBy"
                         },
-                        "@guid": "9Gq4yypp2FUvqUMoD9jy4p",
+                        "@guid": "audp8eDoZPj4e3xzX7yJw9",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/identifiedBy|lc:RT:bf2:Identifiers:LCCN",
                         "id": "id_loc_gov_ontologies_bibframe_identifiedBy__identifiers",
@@ -3070,7 +3070,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/acquisitionSource"
                         },
-                        "@guid": "5B2BpPdDWiS7nkPmHSFzgH",
+                        "@guid": "9NNmR1LQW8nrQ4tPqXovjg",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/acquisitionSource|lc:RT:bf2:AcqSource",
                         "id": "id_loc_gov_ontologies_bibframe_acquisitionSource__acquisitions_identifiers",
@@ -3098,7 +3098,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/note"
                         },
-                        "@guid": "7rZQEaTfAPWem3BWisE2Tn",
+                        "@guid": "afAdQreh9gAuh2MerJt5C3",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
                         "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
@@ -3126,7 +3126,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent"
                         },
-                        "@guid": "rzSwugPNea7GbJLA2cBPYt",
+                        "@guid": "g859BrQWmESn616rShVXbK",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/supplementaryContent|lc:RT:bf2:SupplContentNote",
                         "id": "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content_url",
@@ -3153,7 +3153,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/immediateAcquisition"
                         },
-                        "@guid": "qrdZG73sYe2sUa5QgpeaWL",
+                        "@guid": "ryjtYrASzy76LwH3TfbZyf",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/immediateAcquisition|lc:RT:bf2:ImmAcqSource",
                         "id": "id_loc_gov_ontologies_bibframe_immediateAcquisition__immediate_source_of_acquisition_note",
@@ -3190,7 +3190,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/media"
                         },
-                        "@guid": "83igoHHbbxxxVZtDFddmnu",
+                        "@guid": "xrs2sMaZj93mEDFzKqT1YC",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/media|http://id.loc.gov/ontologies/bibframe/Media",
                         "id": "id_loc_gov_ontologies_bibframe_media__media_type",
@@ -3218,7 +3218,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/extent"
                         },
-                        "@guid": "u3Com7yNqh6BxHRK7ZAnch",
+                        "@guid": "n2eDdj7tr9okaeVEDrXwDN",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/extent|lc:RT:bf2:Extent",
                         "id": "id_loc_gov_ontologies_bibframe_extent__physical_description",
@@ -3245,7 +3245,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/dimensions"
                         },
-                        "@guid": "mcADdEfUK1RoftdCuehLMZ",
+                        "@guid": "9aVvbmhpL8MyCVWHis4E3K",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/dimensions|lc:RT:bf2:Monograph:Instance",
                         "id": "id_loc_gov_ontologies_bibframe_dimensions__dimensions",
@@ -3282,7 +3282,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/carrier"
                         },
-                        "@guid": "3Cv2HMzFMgTgHu9Jz72GzJ",
+                        "@guid": "jJTvrw7MHTzyN4EhcFSred",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/carrier|http://id.loc.gov/ontologies/bibframe/Carrier",
                         "id": "id_loc_gov_ontologies_bibframe_carrier__carrier_type",
@@ -3309,7 +3309,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/usageAndAccessPolicy"
                         },
-                        "@guid": "t6wyHz4Zg8vFjfM7a4ebDh",
+                        "@guid": "8mBoce6PmoyrBwenAiwMwA",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/usageAndAccessPolicy|lc:RT:bf2:Item:Access",
                         "id": "id_loc_gov_ontologies_bibframe_usageAndAccessPolicy__access_policy",
@@ -3338,7 +3338,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/notation"
                         },
-                        "@guid": "irbufMyKMKdV44bmbVTBHw",
+                        "@guid": "2LD3NDUwz71aXcgWQuYTJS",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/notation|http://id.loc.gov/ontologies/bibframe/TactileNotation",
                         "id": "id_loc_gov_ontologies_bibframe_notation__braille?",
@@ -3366,7 +3366,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/electronicLocator"
                         },
-                        "@guid": "o7VbqunbaLUHTfMkVZasnn",
+                        "@guid": "tLx1Dt3ZHhhpmgXvPhGqnh",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/electronicLocator|lc:RT:bf2:URL",
                         "id": "id_loc_gov_ontologies_bibframe_electronicLocator__url_of_instance",
@@ -3392,7 +3392,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bflc/projectedProvisionDate"
                         },
-                        "@guid": "52yaM4CvuDTJo3xvbuttei",
+                        "@guid": "8osUd2aS7WxX9rZK8zdsp6",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bflc/projectedProvisionDate|lc:RT:bf2:Monograph:Instance",
                         "id": "id_loc_gov_ontologies_bflc_projectedProvisionDate__projected_publication_date_yymm",
@@ -3419,7 +3419,7 @@
                         "userValue": {
                             "@root": "http://id.loc.gov/ontologies/bibframe/hasItem"
                         },
-                        "@guid": "vo4RPeqnRH6vDwPnM8RdXq",
+                        "@guid": "fx5DyuqLH4e6GbGK9RskWp",
                         "canBeHidden": true,
                         "preferenceId": "http://id.loc.gov/ontologies/bibframe/hasItem|lc:RT:bf2:Monograph:Item",
                         "id": "id_loc_gov_ontologies_bibframe_hasItem__has_item",
@@ -3427,7 +3427,7 @@
                         "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/hasItem"
                     }
                 },
-                "URI": "http://id.loc.gov/resources/instances/e2094753"
+                "URI": "http://id.loc.gov/resources/instances/e1788177"
             }
         },
         "rtOrder": [
@@ -3496,7 +3496,7 @@
             }
         ],
         "procInfo": "update instance",
-        "eId": "e2094753",
+        "eId": "e1788177",
         "neweId": false,
         "user": "tester (tester)",
         "status": "unposted",
