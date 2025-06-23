@@ -831,7 +831,16 @@ export default {
                       "@guid": short.generate(),
                       "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": useProfile.eId
                     }
-                  ]
+                  ],
+                  "http://id.loc.gov/ontologies/bibframe/assigner": [{
+                    "@guid": short.generate(),
+                    "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
+                    "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+                    "http://www.w3.org/2000/01/rdf-schema#label": [{
+                      "@guid": short.generate(),
+                      "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
+                    }]
+                  }]
                 }
               ]
             }
