@@ -66,8 +66,8 @@
           <label for="lccn">LCCN for record: </label>
           <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
             :disabled="selectedRecordUrl" />
-          <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record."
-            noHover="true" badgeType="primary" />
+          <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record." noHover="true"
+            badgeType="primary" />
           <br><br>
 
 
@@ -91,20 +91,14 @@
           </template>
           <template v-else>
             <Badge v-if="urlToLoad != '' && !checkingLCCN && !existingLCCN && searchType == 'lccn' && wcIndex == 'sn'"
-              text="No results for this LCCN, try searching for the ISBN."
-              badgeType="warning" :noHover="true" />
+              text="No results for this LCCN, try searching for the ISBN." badgeType="warning" :noHover="true" />
           </template>
           <br>
           <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority"
             :class="{ 'needs-input': !recordPriority }" /><br>
           <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
           <label for="jackphy">Does this record contain non-Latin script that should be retained? </label>
-            <input
-              name="jackphy"
-              id="jackphy"
-              type="checkbox"
-              v-model="jackphyCheck"
-              /><br>
+          <input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
           <br>
           <h3>Load with profile:</h3>
           <template v-if="posting">
@@ -444,6 +438,14 @@ export default {
       }
 
       console.info("this.existingRecordUrl: ", this.existingRecordUrl)
+      if (this.existingRecordUrl) {
+        let data = await utilsNetwork.fetchSimpleLookup(this.existingRecordUrl)
+        console.info("data: ", data)
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(data, "text/html")
+        let title = doc.querySelectorAll('[name="dc.title"]')
+        console.info("title: ", title[0].content)
+      }
     },
 
     encodingLevel: function (value) {

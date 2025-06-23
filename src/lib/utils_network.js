@@ -318,7 +318,7 @@ const utilsNetwork = {
           return false
         }
 
-        if (url.includes('.rdf') || url.includes('.xml')){
+        if (url.includes('.rdf') || url.includes('.xml') || url.includes('.html')){
           data =  await response.text()
         }else{
           data =  await response.json()
@@ -416,7 +416,8 @@ const utilsNetwork = {
     searchLccn: async function name(lccn) {
       let url = "https://id.loc.gov/resources/instances/identifier/"
       if (useConfigStore().returnUrls.displayLCOnlyFeatures){
-        url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/"
+        // url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/"
+        url = "https://preprod-8289.id.loc.gov/resources/instances/identifier/"
       }
 
       url = url + lccn.trim() + "&blastdacache=" + Date.now()
