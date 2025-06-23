@@ -749,6 +749,7 @@ export default {
               targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
             }
 
+            // Add the Admin Metadata with the eNumber
             pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
               "mandatory": false,
               "parent": parent,
@@ -817,6 +818,22 @@ export default {
                 "valueDataType": {},
                 "valueTemplateRefs": [targetTemplate]
               }
+            }
+
+            // Add the eNumber to the instance identifier
+            pt['id_loc_gov_ontologies_bibframe_identifiedBy__lccn_or_isbn'].userValue = {
+              "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
+                {
+                  "@guid": short.generate(),
+                  "@type": "http://id.loc.gov/ontologies/bibframe/Local",
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
+                    {
+                      "@guid": short.generate(),
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": useProfile.eId
+                    }
+                  ]
+                }
+              ]
             }
 
             this.activeProfile.rt[rt].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
