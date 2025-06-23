@@ -119,7 +119,6 @@
       },
 
       addToMyLibrary: function(obj){
-        console.info("addToMyLibrary: ", obj)
 
         for (let component of obj){
           let structure = component.structure
@@ -147,7 +146,6 @@
 
           let label = prompt("What to call this component?", component.label + " [D]")
           if (!label){
-            console.info("no label")
             return false
           }
 
@@ -170,7 +168,6 @@
 
       makeDefaultComponent: function(obj){
         //set default, obj.default = !obj.default
-        console.info("makeDefaultComponent: ", obj)
         if (Array.isArray(obj)){
           this.profileStore.makeComponentDefault(obj[0].id)
         } else {

@@ -714,7 +714,6 @@ export default {
         }
 
         //For IBCs add the admin metadata
-        console.info("eNumber: ", useProfile.eId)
         for (let rt in this.activeProfile.rt) {
           if (rt.includes(":Ibc:Instance")) {
             let pt = this.activeProfile.rt[rt].pt
@@ -846,8 +845,6 @@ export default {
             }
 
             this.activeProfile.rt[rt].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
-
-            console.info("activeProfile: ", JSON.parse(JSON.stringify(this.activeProfile)))
           }
         }
       }

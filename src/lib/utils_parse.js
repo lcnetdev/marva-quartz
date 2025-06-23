@@ -2042,7 +2042,6 @@ const utilsParse = {
     profile = this.extractISBN(profile)
 
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
-    console.info("profile: ", JSON.stringify(profile.rt['lc:RT:bf2:Monograph:Instance'].pt['id_loc_gov_ontologies_bibframe_adminmetadata_3'].userValue))
 
     return profile
 
