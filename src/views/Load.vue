@@ -766,36 +766,6 @@ export default {
                         {
                             "@guid": short.generate(),
                             "@type": "http://id.loc.gov/ontologies/bibframe/AdminMetadata",
-                            "http://id.loc.gov/ontologies/bibframe/assigner": [
-                                        {
-                                            "@guid": short.generate(),
-                                            "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
-                                            "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
-                                            "http://www.w3.org/2000/01/rdf-schema#label": [
-                                                {
-                                                    "@guid": short.generate(),
-                                                    "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
-                                                }
-                                            ],
-                                            "http://id.loc.gov/ontologies/bibframe/code": [
-                                                {
-                                                    "@guid": short.generate(),
-                                                    "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC",
-                                                    "@datatype": "http://id.loc.gov/datatypes/orgs/code"
-                                                },
-                                                {
-                                                    "@guid": short.generate(),
-                                                    "http://id.loc.gov/ontologies/bibframe/code": "dlcmrc",
-                                                    "@datatype": "http://id.loc.gov/datatypes/orgs/normalized"
-                                                },
-                                                {
-                                                    "@guid": short.generate(),
-                                                    "http://id.loc.gov/ontologies/bibframe/code": "US-dlcmrc",
-                                                    "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511"
-                                                }
-                                            ]
-                                        }
-                                    ],
                             "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
                                 {
                                     "@guid": short.generate(),
