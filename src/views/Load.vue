@@ -820,28 +820,30 @@ export default {
             }
 
             // Add the eNumber to the instance identifier
-            pt['id_loc_gov_ontologies_bibframe_identifiedBy__lccn_or_isbn'].userValue = {
-              "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
-                {
-                  "@guid": short.generate(),
-                  "@type": "http://id.loc.gov/ontologies/bibframe/Local",
-                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
-                    {
-                      "@guid": short.generate(),
-                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": useProfile.eId
-                    }
-                  ],
-                  "http://id.loc.gov/ontologies/bibframe/assigner": [{
+            if (Object.keys(pt).includes("id_loc_gov_ontologies_bibframe_identifiedBy__identifiers")){
+              pt['id_loc_gov_ontologies_bibframe_identifiedBy__identifiers'].userValue = {
+                "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
+                  {
                     "@guid": short.generate(),
-                    "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
-                    "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
-                    "http://www.w3.org/2000/01/rdf-schema#label": [{
+                    "@type": "http://id.loc.gov/ontologies/bibframe/Local",
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
+                      {
+                        "@guid": short.generate(),
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": useProfile.eId
+                      }
+                    ],
+                    "http://id.loc.gov/ontologies/bibframe/assigner": [{
                       "@guid": short.generate(),
-                      "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
+                      "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
+                      "http://www.w3.org/2000/01/rdf-schema#label": [{
+                        "@guid": short.generate(),
+                        "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
+                      }]
                     }]
-                  }]
-                }
-              ]
+                  }
+                ]
+              }
             }
 
             this.activeProfile.rt[rt].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
