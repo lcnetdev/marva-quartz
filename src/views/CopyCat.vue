@@ -45,14 +45,8 @@
             </select>
 
           </form>
-          <hr>
-          <label for="lccn">LCCN: </label>
-          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
-            :disabled="selectedRecordUrl" />
-          <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record."
-            noHover="true" badgeType="primary" />
-          <br><br>
 
+          <hr style="margin-bottom: 10px;;">
           Check for existing record using:
           <div id="container">
             <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
@@ -62,14 +56,19 @@
               <div>Other Identifier</div>
             </label>
           </div>
+
           <template v-if="searchType != 'lccn'">
-            <br>
             <label for="matchPoint">Match on: </label>
             <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
           </template>
-          <template v-else>
-            <br><br>
-          </template>
+
+          <br>
+          <label for="lccn">LCCN for record: </label>
+          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
+            :disabled="selectedRecordUrl" />
+          <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record."
+            noHover="true" badgeType="primary" />
+          <br><br>
 
 
           <template v-if="existingLCCN || existingISBN">
