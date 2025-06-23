@@ -2069,7 +2069,7 @@ const utilsParse = {
                   }
                   profile.linkedData.isbn.push(bnode['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'][0]['http://www.w3.org/1999/02/22-rdf-syntax-ns#value'].trim())
                 }
-              }            
+              }
             }
           }
         }

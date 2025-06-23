@@ -99,7 +99,7 @@
                 <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
                   <input placeholder="URL to resource or identifier to search" class="url-to-load" type="text"
                     @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
-  
+
                     <div v-if="loadingRecord" class="loading-record">L<span class="infinite-spin">O</span>ADING REC<span class="infinite-spin">O</span>RD...</div>
 
                   <p>Need to search title or author? Use <a href="https://preprod-8230.id.loc.gov/lds/index.xqy"
@@ -513,12 +513,12 @@ export default {
           this.urlToLoadIsHttp = true
           // this will tigger using the default profile
           this.loadUrl(new Event('click'), null)
-          
+
           return false;
         }else{
           this.urlToLoadIsHttp = false
         }
-        
+
       } else {
         this.urlToLoadIsHttp = false
 
@@ -561,7 +561,7 @@ export default {
         if (this.urlToLoadTimer){
           return false
         }
-        this.urlToLoadTimer = window.setTimeout(() => {          
+        this.urlToLoadTimer = window.setTimeout(() => {
           this.urlToLoadTimer = null
           this.loadUrl(useInstanceProfile, multiTestFlag)
         }, 250)
@@ -591,7 +591,7 @@ export default {
         // check to see if there is a default profile set
         if (this.defaultProfile && this.defaultProfile != '') {
           useInstanceProfile = this.defaultProfile
-        } 
+        }
         // don't keep going if there was no search result
         if (this.searchByLccnResults && this.searchByLccnResults.length === 0){
           return false
@@ -748,6 +748,7 @@ export default {
               targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
             }
 
+            // Add the Admin Metadata with the eNumber
             pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
               "mandatory": false,
               "parent": parent,
@@ -759,12 +760,89 @@ export default {
               "resourceTemplates": [],
               '@guid': short.generate(),
               "type": "resource",
-              "userValue": { "@root": "http://id.loc.gov/ontologies/bibframe/adminMetadata" },
+              "userValue": {
+                    "@root": "http://id.loc.gov/ontologies/bibframe/adminMetadata",
+                    "http://id.loc.gov/ontologies/bibframe/adminMetadata": [
+                        {
+                            "@guid": short.generate(),
+                            "@type": "http://id.loc.gov/ontologies/bibframe/AdminMetadata",
+                            "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
+                                {
+                                    "@guid": short.generate(),
+                                    "@type": "http://id.loc.gov/ontologies/bibframe/Local",
+                                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
+                                        {
+                                            "@guid": "8wJoYGrC8ut67SxhnXMEQp",
+                                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": useProfile.eId
+                                        }
+                                    ],
+                                    "http://id.loc.gov/ontologies/bibframe/assigner": [
+                                        {
+                                            "@guid": short.generate(),
+                                            "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
+                                            "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
+                                            "http://www.w3.org/2000/01/rdf-schema#label": [
+                                                {
+                                                    "@guid": short.generate(),
+                                                    "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
+                                                }
+                                            ],
+                                            "http://id.loc.gov/ontologies/bibframe/code": [
+                                                {
+                                                    "@guid": short.generate(),
+                                                    "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC",
+                                                    "@datatype": "http://id.loc.gov/datatypes/orgs/code"
+                                                },
+                                                {
+                                                    "@guid": short.generate(),
+                                                    "http://id.loc.gov/ontologies/bibframe/code": "dlcmrc",
+                                                    "@datatype": "http://id.loc.gov/datatypes/orgs/normalized"
+                                                },
+                                                {
+                                                    "@guid": short.generate(),
+                                                    "http://id.loc.gov/ontologies/bibframe/code": "US-dlcmrc",
+                                                    "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
               "valueConstraint": {
                 "defaults": [],
                 "useValuesFrom": [],
                 "valueDataType": {},
                 "valueTemplateRefs": [targetTemplate]
+              }
+            }
+
+            // Add the eNumber to the instance identifier
+            if (Object.keys(pt).includes("id_loc_gov_ontologies_bibframe_identifiedBy__identifiers")){
+              pt['id_loc_gov_ontologies_bibframe_identifiedBy__identifiers'].userValue = {
+                "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
+                  {
+                    "@guid": short.generate(),
+                    "@type": "http://id.loc.gov/ontologies/bibframe/Local",
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
+                      {
+                        "@guid": short.generate(),
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": useProfile.eId
+                      }
+                    ],
+                    "http://id.loc.gov/ontologies/bibframe/assigner": [{
+                      "@guid": short.generate(),
+                      "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
+                      "http://www.w3.org/2000/01/rdf-schema#label": [{
+                        "@guid": short.generate(),
+                        "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
+                      }]
+                    }]
+                  }
+                ]
               }
             }
 
