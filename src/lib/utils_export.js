@@ -437,6 +437,7 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
+	console.info("profile: ", profile)
     // console.log(profile)
 
     // keep track of the proces for later
@@ -610,7 +611,7 @@ const utilsExport = {
 				let mostCommonScript = useProfileStore().setMostCommonNonLatinScript()
 
 				if (!mostCommonScript){
-					// if there is no most common script which comes from the literals then we need to check based 
+					// if there is no most common script which comes from the literals then we need to check based
 					// on the if agent manually overrode the non-latin script to use
 					if (profile.nonLatinScriptAgents){
 						if (profile.nonLatinScriptAgents[ptObj['@guid']]){
@@ -665,7 +666,7 @@ const utilsExport = {
 							}
 							// if we have a language then great, also check the manual setting
 							if (profile.nonLatinScriptAgents){
-								
+
 								if (profile.nonLatinScriptAgents[ptObj['@guid']]){
 									keepLang = [profile.nonLatinScriptAgents[ptObj['@guid']]]
 									console.log("keeping keepLang",keepLang)
