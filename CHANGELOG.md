@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [1.3.12] - 2025-06-23
 ### Updated
 - IBC profile is loaded with eNumber
+- Update RBMS lookup to use suggest service
 
 ## [1.3.11] - 2025-06-16
 ### Updated
