@@ -835,7 +835,7 @@ export default {
                   "http://id.loc.gov/ontologies/bibframe/assigner": [{
                     "@guid": short.generate(),
                     "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
-                    "@type": "http://id.loc.gov/ontologies/bibframe/Agent",
+                    "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
                     "http://www.w3.org/2000/01/rdf-schema#label": [{
                       "@guid": short.generate(),
                       "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
