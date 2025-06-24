@@ -2774,6 +2774,8 @@ export const useProfileStore = defineStore('profile', {
           //   ]
           // }
 
+          console.info("!propertypath: ", propertyPath)
+          console.info("?nodeMape collections: ", nodeMap.collections)
           // add the source for Genre/Form
           if (propertyPath.map((obj) => obj.propertyURI).includes("http://id.loc.gov/ontologies/bibframe/genreForm")){
             let objId = blankNode['@id']
@@ -2787,6 +2789,21 @@ export const useProfileStore = defineStore('profile', {
                           {
                               "@guid": short.generate(),
                               "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress genre/form terms for library and archival materials"
+                          }
+                      ]
+                  }
+              ]
+            } if (nodeMap.collections.includes('http://id.loc.gov/vocabulary/rbms/collection_rbmscv')){
+              console.info("nodeMape collections: ", nodeMap.collections)
+              blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+                {
+                      "@guid": short.generate(),
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                      "@id": "http://id.loc.gov/vocabulary/genreFormSchemes/rbmscv",
+                      "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                              "@guid": short.generate(),
+                              "http://www.w3.org/2000/01/rdf-schema#label": "RBMS Controlled Vocabularies"
                           }
                       ]
                   }
