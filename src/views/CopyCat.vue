@@ -383,6 +383,7 @@ export default {
       this.existingISBN = false
 
       console.info("urlToLoad: ", this.urlToLoad)
+      if (this.urlToLoad.length < 3){ return }
 
       if (this.searchType == 'lccn') {
         this.checkingLCCN = true
@@ -437,14 +438,11 @@ export default {
         }
       }
 
-      console.info("this.existingRecordUrl: ", this.existingRecordUrl)
       if (this.existingRecordUrl) {
         let data = await utilsNetwork.fetchSimpleLookup(this.existingRecordUrl)
-        console.info("data: ", data)
         const parser = new DOMParser()
         const doc = parser.parseFromString(data, "text/html")
         let title = doc.querySelectorAll('[name="dc.title"]')
-        console.info("title: ", title[0].content.split("(Instance)")[0])
         this.matchTitle = title[0].content.split("(Instance)")[0]
       }
     },
