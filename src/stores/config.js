@@ -459,7 +459,7 @@ export const useConfigStore = defineStore('config', {
       "processor" : 'lcAuthorities',
       "modes":[
         {
-          'LCGFT All':{"url":"https://id.loc.gov/authorities/genreForms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},          
+          'LCGFT All':{"url":"https://id.loc.gov/authorities/genreForms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
           'RBMS':{"url":"https://id.loc.gov/vocabulary/rbmscv/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 
         }
@@ -551,7 +551,7 @@ export const useConfigStore = defineStore('config', {
 			"processor" : 'lcAuthorities',
 			"modes":[
 				{
-					'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience.html"},
+          'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 					'LCDGT':{"url": "https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
           // 'LCSH':{"url": "https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 				}
