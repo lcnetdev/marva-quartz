@@ -76,11 +76,6 @@
             </h4>
             <br>
           </template>
-          <template v-else-if="urlToLoad.length < 10 && urlToLoad.length != 0">
-            <br>
-            <Badge text="LCCNs should be 10 characters long." badgeType="warning" :noHover="true" />
-            <br>
-          </template>
           <template v-else>
             <Badge v-if="urlToLoad != '' && !checkingLCCN && !existingLCCN && searchType == 'lccn' && wcIndex == 'sn'"
               text="No results for this LCCN, try searching for the ISBN." badgeType="warning" :noHover="true" />
