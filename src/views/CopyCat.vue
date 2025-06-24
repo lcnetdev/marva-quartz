@@ -283,7 +283,7 @@ export default {
     startingPointsFiltered() {
       let points = []
       for (let k in this.startingPoints) {
-        if (this.startingPoints[k].work && this.startingPoints[k].instance) {
+        if (this.startingPoints[k].work && this.startingPoints[k].instance && k != 'IBC description') {
           points.push(this.startingPoints[k])
         }
       }
