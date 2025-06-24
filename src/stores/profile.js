@@ -2558,7 +2558,7 @@ export const useProfileStore = defineStore('profile', {
       //   }
       // }
 
-      if (['Work', 'Hub'].includes(type)){
+      if (['Work', 'Hub', 'GenreForm'].includes(type)){
         type = "http://id.loc.gov/ontologies/bibframe/" + type
       }
       if (type && !type.startsWith("http")){

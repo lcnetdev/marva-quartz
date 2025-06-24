@@ -76,7 +76,7 @@
                         </div>
                       </div>
                     </div>
-                    
+
                     <input style="width:auto" @keyup="navKey" class="can-select" :data-field-guid="guid" :data-guid="structure['@guid']" v-on:keydown.enter.prevent="submitField" v-model="searchValue" ref="lookupInput" @focusin="focused" type="text" @input="textInputEvent($event)" :disabled="readOnly" />
                     <!-- @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)"  -->
                   </div>
