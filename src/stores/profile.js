@@ -2774,8 +2774,6 @@ export const useProfileStore = defineStore('profile', {
           //   ]
           // }
 
-          console.info("!propertypath: ", propertyPath)
-          console.info("?nodeMape collections: ", nodeMap.collections)
           // add the source for Genre/Form
           if (propertyPath.map((obj) => obj.propertyURI).includes("http://id.loc.gov/ontologies/bibframe/genreForm")){
             let objId = blankNode['@id']
@@ -2794,7 +2792,6 @@ export const useProfileStore = defineStore('profile', {
                   }
               ]
             } if (nodeMap.collections.includes('http://id.loc.gov/vocabulary/rbms/collection_rbmscv')){
-              console.info("nodeMape collections: ", nodeMap.collections)
               blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
                 {
                       "@guid": short.generate(),
