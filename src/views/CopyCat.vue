@@ -74,11 +74,10 @@
               <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{
                 existingLCCN ? 'LCCN' : 'identifier' }}: "{{ matchTitle }}"</a>
             </h4>
-            <br>
           </template>
           <template v-else>
             <Badge v-if="urlToLoad != '' && !checkingLCCN && !existingLCCN && searchType == 'lccn' && wcIndex == 'sn'"
-              text="No results for this LCCN, try searching for the ISBN." badgeType="warning" :noHover="true" />
+              text="No matches for this LCCN, try searching for on another identifier like the ISBN." badgeType="warning" :noHover="true" />
           </template>
 
           <br>
@@ -91,7 +90,6 @@
 
           <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority"
             :class="{ 'needs-input': !recordPriority }" /><br>
-          <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
           <label for="jackphy">Does this record contain non-Latin script that should be retained? </label>
           <input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
           <br>
