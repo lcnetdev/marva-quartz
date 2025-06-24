@@ -57,30 +57,22 @@
             </label>
           </div>
 
+          <br>
           <template v-if="searchType != 'lccn'">
             <label for="matchPoint">Match on: </label>
             <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
           </template>
-
-          <br>
-          <label for="lccn">LCCN for record: </label>
-          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
-            :disabled="selectedRecordUrl" />
-          <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record." noHover="true"
-            badgeType="primary" />
-          <br><br>
-
 
           <template v-if="existingLCCN || existingISBN">
             <Badge v-if="existingLCCN"
               text="A record with this LCCN might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
             <Badge v-if="existingISBN"
-              text="A record with this ISBN might exist. If you continue, the copy cat record will be merged with the existing record."
+              text="A record with this identifier might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
             <h4>
               <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{
-                existingLCCN ? 'LCCN' : 'ISBN' }}</a>
+                existingLCCN ? 'LCCN' : 'identifier' }}: "{{ matchTitle }}"</a>
             </h4>
             <br>
           </template>
@@ -93,7 +85,15 @@
             <Badge v-if="urlToLoad != '' && !checkingLCCN && !existingLCCN && searchType == 'lccn' && wcIndex == 'sn'"
               text="No results for this LCCN, try searching for the ISBN." badgeType="warning" :noHover="true" />
           </template>
+
           <br>
+          <label for="lccn">LCCN for record: </label>
+          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
+            :disabled="selectedRecordUrl" />
+          <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record." noHover="true"
+            badgeType="primary" />
+          <br><br>
+
           <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority"
             :class="{ 'needs-input': !recordPriority }" /><br>
           <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
@@ -444,7 +444,8 @@ export default {
         const parser = new DOMParser()
         const doc = parser.parseFromString(data, "text/html")
         let title = doc.querySelectorAll('[name="dc.title"]')
-        console.info("title: ", title[0].content)
+        console.info("title: ", title[0].content.split("(Instance)")[0])
+        this.matchTitle = title[0].content.split("(Instance)")[0]
       }
     },
 
