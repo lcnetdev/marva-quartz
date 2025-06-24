@@ -46,7 +46,6 @@
 
         activeComplexSearch: [],
         activeComplexSearchInProgress: false,
-        activeSimpleLookup: [],
         controller: new AbortController(),
 
         initalSearchState: true,
@@ -160,9 +159,7 @@
 
       modeSelect: async function(){
         this.activeComplexSearch = []
-        this.activeSimpleLookup = []
         this.doSearch()
-
       }
 
 
@@ -264,8 +261,6 @@
       reset: function(){
         this.activeContext = null
         this.activeComplexSearch = []
-        this.activeSimpleLookup = []
-        this.activeSimpleLookupCache = []
         this.searchValueLocal = null
         this.authorityLookupLocal = null
       },
@@ -278,17 +273,11 @@
           this.controller = new AbortController()
         }
 
-        if (!this.isSimpleLookup()){
-          if (!this.searchValueLocal){ return false}
-
-          if (this.searchValueLocal.trim()==''){
-            return false
-          }
-        } else {
-          if (!this.searchValueLocal){
-            this.searchValueLocal = ""
-          }
+        if (!this.searchValueLocal){ return false}
+        if (this.searchValueLocal.trim()==''){
+          return false
         }
+
         if (this.searchValueLocal.length<3){
           // if it is non-latin
           if (this.searchValueLocal.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/)){
@@ -297,9 +286,6 @@
             // check the config, some vocabs have very short codes, like the marc geo
             // so if it is configed to allow short search overtide the < 3 rule
             let minCharBeforeSearch = 3
-            if (this.isSimpleLookup()){
-              minCharBeforeSearch = -1
-            }
             this.modalSelectOptions.forEach((a)=>{
               if (a.minCharBeforeSearch && a.minCharBeforeSearch < minCharBeforeSearch){
                 minCharBeforeSearch = a.minCharBeforeSearch
@@ -339,78 +325,45 @@
           this.modalSelectOptions.forEach((a)=>{
             if (a.label==this.modeSelect){
               searchPayload.processor=a.processor
-              if (a.urls.includes("<QUERY>")){
-                searchPayload.type = 'complex'
-                searchPayload.url.push(
-                  a.urls
-                    .replace('<QUERY>', this.searchValueLocal)
-                    .replace('<OFFSET>', offset)
-                    .replace('<TYPE>', searchType)
-                )
-              } else { // we're mixing a simple lookup and a complex one
-                searchPayload.url.push(a.urls)
-              }
+              searchPayload.type = 'complex'
+              searchPayload.url.push(
+                a.urls
+                  .replace('<QUERY>', this.searchValueLocal)
+                  .replace('<OFFSET>', offset)
+                  .replace('<TYPE>', searchType)
+              )
             }
           })
 
         // wrapping this in setTimeout might not be needed anymore
-        if (searchPayload.type == 'complex'){
-          this.searchTimeout = window.setTimeout(async ()=>{
-            this.activeComplexSearchInProgress = true
-            this.activeComplexSearch = []
+        this.searchTimeout = window.setTimeout(async ()=>{
+          this.activeComplexSearchInProgress = true
+          this.activeComplexSearch = []
+          this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
+
+          // 2025-03 // there is currently an issue with ID suggest2/ that if you search with SOME diacritics it will fail
+          // so there is now a flag that enables it searching it. So if they get NO results at all then try again with the flag
+          // There will always be 1 result which is the literal
+
+          if (this.activeComplexSearch.length == 1 && this.activeComplexSearch[0].literal){
+            // modify the payload to include the flag in the url
+            searchPayload.url[0] = searchPayload.url[0] + '&keepdiacritics=true'
             this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
-
-            // 2025-03 // there is currently an issue with ID suggest2/ that if you search with SOME diacritics it will fail
-            // so there is now a flag that enables it searching it. So if they get NO results at all then try again with the flag
-            // There will always be 1 result which is the literal
-
-            if (this.activeComplexSearch.length == 1 && this.activeComplexSearch[0].literal){
-              // modify the payload to include the flag in the url
-              searchPayload.url[0] = searchPayload.url[0] + '&keepdiacritics=true'
-              this.activeComplexSearch = await utilsNetwork.searchComplex(searchPayload)
-            }
-
-            this.activeComplexSearchInProgress = false
-            this.initalSearchState =false
-
-            if (this.activeComplexSearch.length == 0 && offset > 0){
-              // reset offset, set the page back one
-              // this can happen because the "total" given from the suggest service reflects the number before deduping.
-              offset = 0
-              this.currentPage--
-              this.doSearch()
-              alert("You've reached last page with results. The other pages are empty.")
-            }
-          }, 100)
-        } else {
-          let filter = function(obj, target){
-            let result = []
-            for (let key in obj){
-              if (key != target[0].replace(".html", "").replace("https", "http")){
-                result.push(obj[key])
-              }
-            }
-
-            return result
           }
 
-          let results = await utilsNetwork.loadSimpleLookup(searchPayload.url)
-          utilsNetwork.lookupLibrary[searchPayload.url] = results
-          this.activeSimpleLookup = filter(results.metadata.values, searchPayload.url).sort((a,b) => (a.label[0] > b.label[0]) ? 1 : (a.label[0] < b.label[0]) ? -1 : 0)
+          this.activeComplexSearchInProgress = false
+          this.initalSearchState =false
 
-          if (this.searchValueLocal.length > 0){
-            this.activeSimpleLookup.push({
-              uri: "",
-              label: [this.searchValueLocal],
-              code: [],
-              displayLabel: [this.searchValueLocal + " [Literal]"]
-            })
+          if (this.activeComplexSearch.length == 0 && offset > 0){
+            // reset offset, set the page back one
+            // this can happen because the "total" given from the suggest service reflects the number before deduping.
+            offset = 0
+            this.currentPage--
+            this.doSearch()
+            alert("You've reached last page with results. The other pages are empty.")
           }
-          if (this.searchValueLocal && this.searchValueLocal.length > 1){
-            this.activeSimpleLookup = this.activeSimpleLookup.filter((term) => term.label[0].toLowerCase().includes(this.searchValueLocal.toLowerCase()))
-          }
-          // this.selectChange()
-        }
+        }, 100)
+
       },
 
 
@@ -445,9 +398,7 @@
           this.$refs.selectOptions.focus()
           try {
             this.$refs.selectOptions.value=this.activeComplexSearch[0].uri
-          } catch {
-            this.$refs.selectOptions.value=this.activeSimpleLookup[0].uri
-          }
+          } catch {}
           this.selectChange()
           return true
         }
@@ -749,11 +700,6 @@
         let toLoad = null
         if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
           toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
-          if (!toLoad){
-            let label = this.activeSimpleLookup[this.$refs.selectOptions.selectedIndex].label
-            let uri = this.$refs.selectOptions.value
-            toLoad = {label: label, uri: uri, literal: false, undifferentiated: false}
-          }
         } else {
           // We're loading existing data and want to preselect the search result
           // that matches that value
@@ -962,15 +908,6 @@
         }
         this.doSearch()
       },
-
-      isSimpleLookup: function(){
-        const mode = this.modeSelect
-        const options = this.modalSelectOptions
-        const activeMode = options.filter((opt) => opt.label == mode)[0]
-
-        return !activeMode.urls.includes("<QUERY>")
-      },
-
     },
 
     updated: function(event){
@@ -996,10 +933,7 @@
               this.selectChange()
             }, (2 * 1000)
             )
-          } else if (this.isSimpleLookup()){
-            this.searchValueLocal = this.searchValue
-            this.doSearch()
-          }else {
+          } else {
             this.searchValueLocal = this.searchValue
           }
 
@@ -1119,26 +1053,21 @@
               <hr style="margin-top: 5px;">
               <div>
                   <select size="100" ref="selectOptions" class="modal-entity-select" @change="selectChange($event)"  @keydown="selectNav($event)" :style="`${this.preferenceStore.styleModalBackgroundColor()}; ${this.preferenceStore.styleModalTextColor()}`">
-                    <option v-if="(activeComplexSearch.length == 0 && activeSimpleLookup.length == 0)&& activeComplexSearchInProgress == false && initalSearchState != true">
+                    <option v-if="activeComplexSearch.length == 0 && activeComplexSearchInProgress == false && initalSearchState != true">
                       No results found.
                     </option>
                     <option v-if="activeComplexSearchInProgress == true">
                       Searching...
                     </option>
-                    <template v-if="!isSimpleLookup()">
-                      <!-- .sort((a,b) => (a.label > b.label ? 1 : (a.label < b.label) ? -1 : 0)) -->
-                      <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
-                        <div :class="['option-text', {unusable: !checkUsable(r)}]">
-                          <span v-html="generateLabel(r)"></span>
-                          <span v-if="checkFromAuth(r)" class="from-auth"> (Auth)</span>
-                          <span v-if="checkFromRda(r)" class="from-rda"> [RDA]</span>
-                        </div>
-                      </option>
-                    </template>
-                    <template v-else-if="activeSimpleLookup && Object.keys(activeSimpleLookup).length > 0">
-                      <option v-for="(r, idx) in activeSimpleLookup" @click="selectChange()" :data-label="r.label" :value="r.uri" v-bind:key="idx" class="complex-lookup-result" v-html="r.displayLabel">
-                      </option>
-                    </template>
+
+                    <option v-for="(r,idx) in activeComplexSearch" :data-label="r.label" :value="r.uri" v-bind:key="idx" :style="(r.depreciated || r.undifferentiated) ? 'color:red' : ''" class="complex-lookup-result">
+                      <div :class="['option-text', {unusable: !checkUsable(r)}]">
+                        <span v-html="generateLabel(r)"></span>
+                        <span v-if="checkFromAuth(r)" class="from-auth"> (Auth)</span>
+                        <span v-if="checkFromRda(r)" class="from-rda"> [RDA]</span>
+                      </div>
+                    </option>
+
                   </select>
                   <br>
 
