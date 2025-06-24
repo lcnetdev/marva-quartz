@@ -82,7 +82,7 @@
           </template>
 
           <br>
-          <label for="lccn">LCCN for record: </label>
+          <label for="lccn">LCCN: </label>
           <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
             :disabled="selectedRecordUrl" />
           <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record." noHover="true"
@@ -447,21 +447,6 @@ export default {
         return 'High'
       }
       return 'Low'
-    },
-
-    catLevelToolTip: function (value) {
-      switch (value) {
-        case "PccAdapt":
-          return "042 contains 'pcc' & Language = English"
-        case "CopyCat":
-          return "Encoding Level is 'high', Not PCC record, Language = English"
-        case "OrigRes":
-          return "Low level record, Not PCC, or not English"
-        case "OrigCop":
-          return "Cataloging Agency and Transcribing Agency are 'DLC'"
-        default:
-          return "You shouldn't be seeing this. Let someone know the value is '" + value + "'"
-      }
     },
 
     getMarcFieldAsString: function (record, target) {
