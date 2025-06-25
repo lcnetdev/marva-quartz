@@ -43,6 +43,7 @@ const utilsNetwork = {
       "controllerCyak": new AbortController(),
       "exactName": new AbortController(),
       "exactSubject": new AbortController(),
+      "lccnSearchController": new AbortController(),
     },
     subjectSearchActive: false,
 
@@ -318,7 +319,7 @@ const utilsNetwork = {
           return false
         }
 
-        if (url.includes('.rdf') || url.includes('.xml')){
+        if (url.includes('.rdf') || url.includes('.xml') || url.includes('.html')){
           data =  await response.text()
         }else{
           data =  await response.json()
@@ -414,6 +415,12 @@ const utilsNetwork = {
     },
 
     searchLccn: async function name(lccn) {
+      if (this.subjectSearchActive){
+        this.controllers["lccnSearchController"].abort()
+        this.controllers["lccnSearchController"] = new AbortController()
+      }
+      this.subjectSearchActive = true
+
       let url = "https://id.loc.gov/resources/instances/identifier/"
       if (useConfigStore().returnUrls.displayLCOnlyFeatures){
         url = "https://preprod-8080.id.loc.gov/resources/instances/identifier/"
@@ -425,6 +432,7 @@ const utilsNetwork = {
         url,
         {
           method: 'HEAD',
+          signal: this.controllers["lccnSearchController"].signal
           // redirect: 'manual',
           // mode: 'cors',
           // headers: {
@@ -433,6 +441,8 @@ const utilsNetwork = {
           // }
         }
       )
+
+      this.subjectSearchActive = false
 
       return result
     },
@@ -1595,7 +1605,6 @@ const utilsNetwork = {
       }
 
       for (let heading of headings){
-
         let foundHeading = false
         // console.log("---------------------\n",heading,"\n------------------------\n")
 
@@ -2193,10 +2202,11 @@ const utilsNetwork = {
       }
 
       // we want to double check the rdfType heading to make sure if we need to ask id to get more clarity about the rdfType
+
       if (Array.isArray(result.hit)){
         // it wont be an array if its a complex heading
         for (let r of result.hit){
-          if (!r.literal && r.uri.indexOf('id.loc.gov/authorities/names/') > 0){
+          if (!r.literal){  //&& r.uri.indexOf('id.loc.gov/authorities/names/') > 0
             r.heading.rdfType = "http://www.loc.gov/mads/rdf/v1#" + r.extra.rdftypes[0] //responseUri
           }
         }

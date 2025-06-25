@@ -1631,22 +1631,6 @@ export const useProfileStore = defineStore('profile', {
 
         }
 
-        if (URI.includes("rbmscv")){
-          blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
-            {
-                  "@guid": short.generate(),
-                  "@type": "http://id.loc.gov/ontologies/bibframe/Source",
-                  "@id": "http://id.loc.gov/vocabulary/genreFormSchemes/rbmscv",
-                  "http://www.w3.org/2000/01/rdf-schema#label": [
-                      {
-                          "@guid": short.generate(),
-                          "http://www.w3.org/2000/01/rdf-schema#label": "RBMS Controlled Vocabularies"
-                      }
-                  ]
-              }
-          ]
-        }
-
         // they changed something
         this.dataChanged()
 
@@ -2571,7 +2555,7 @@ export const useProfileStore = defineStore('profile', {
       //   }
       // }
 
-      if (['Work', 'Hub'].includes(type)){
+      if (['Work', 'Hub', 'GenreForm'].includes(type)){
         type = "http://id.loc.gov/ontologies/bibframe/" + type
       }
       if (type && !type.startsWith("http")){
@@ -2800,6 +2784,20 @@ export const useProfileStore = defineStore('profile', {
                           {
                               "@guid": short.generate(),
                               "http://www.w3.org/2000/01/rdf-schema#label": "Library of Congress genre/form terms for library and archival materials"
+                          }
+                      ]
+                  }
+              ]
+            } if (nodeMap.collections.includes('http://id.loc.gov/vocabulary/rbms/collection_rbmscv')){
+              blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
+                {
+                      "@guid": short.generate(),
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Source",
+                      "@id": "http://id.loc.gov/vocabulary/genreFormSchemes/rbmscv",
+                      "http://www.w3.org/2000/01/rdf-schema#label": [
+                          {
+                              "@guid": short.generate(),
+                              "http://www.w3.org/2000/01/rdf-schema#label": "RBMS Controlled Vocabularies"
                           }
                       ]
                   }
@@ -5642,16 +5640,26 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      let useDate = false
       if (provisionActivitySimpleDate){
-        return provisionActivitySimpleDate
+        useDate = provisionActivitySimpleDate
       }else if(provisionActivityEDTFDate){
-        return provisionActivityEDTFDate
+        useDate = provisionActivityEDTFDate
       }else if (originDate){
-        return originDate
+        useDate = originDate
       }else{
-        return false
+        useDate = false
+      }
+      if (useDate){
+        useDate = useDate.replace(/\[/g, '').replace(/\]/g, '') // remove brackets if they exist
+        useDate = useDate.replace(/{/g, '').replace(/}/g, '') // remove brackets if they exist
+
+        useDate = useDate.trim()
       }
 
+
+
+      return useDate
 
     },
 
@@ -6049,7 +6057,6 @@ export const useProfileStore = defineStore('profile', {
 
 
               }else{
-
                 // loop till we find the first one
                 for (let pt in this.activeProfile.rt[component.parentId].pt){
                   if (this.activeProfile.rt[component.parentId].pt[pt].id == component.id){
@@ -6063,7 +6070,6 @@ export const useProfileStore = defineStore('profile', {
 
               if (ptObjFound != false){
                 console.log("Found orignal here:",ptObjFound)
-
                 if (ptObjFound.hashCode == component.hashCode){
 
                   // if the component we found in the system already has data in it then we are going to add a new component
@@ -6074,7 +6080,6 @@ export const useProfileStore = defineStore('profile', {
 
                   // we also need to create new @guid valuse inside the userValue in case they add multiple versions of the same
                   component = this.componentLibraryUpdateUserValueGuid(component)
-
 
                   if (Object.keys(ptObjFound.userValue).length <= 1 || ptObjFound.id.includes("id_loc_gov_ontologies_bibframe_adminmetadata")){
                     // if this is 1 or 0 then the userdata is empty, with just a @root property
@@ -6116,12 +6121,10 @@ export const useProfileStore = defineStore('profile', {
                       }
                     }
                     let newId = component.id + "_" + (total_components+1)
-
                     let oldId = JSON.parse(JSON.stringify(component.id))
 
                     // rename it
                     component.id = newId
-
                     // add it to the pt
                     this.activeProfile.rt[component.parentId].pt[newId] = JSON.parse(JSON.stringify(component))
                     // add it to the order
@@ -6199,6 +6202,26 @@ export const useProfileStore = defineStore('profile', {
         for (let group of this.componentLibrary.profiles[key].groups){
           if (group.id == id){
             group.label = newLabel
+            this.saveComponentLibrary()
+            return true
+          }
+        }
+      }
+    },
+
+    /**
+    * Set or unset the default nature of the component
+    */
+    makeComponentDefault(id){
+      for (let key in this.componentLibrary.profiles){
+        for (let group of this.componentLibrary.profiles[key].groups){
+          if (group.id == id){
+            if (Object.keys(group).includes("useDefault")){
+              group.useDefault = !group.useDefault
+            } else {
+              group["useDefault"] = true
+            }
+
             this.saveComponentLibrary()
             return true
           }

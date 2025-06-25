@@ -1,7 +1,9 @@
 <!-- https://stackoverflow.com/questions/49657462/open-a-vuejs-component-on-a-new-window -->
 <template>
         <template v-if="open">
+            <div class="marc-preview-content">
             <MarcDisplay :previewData="content" selected="" v-if="type == 'marc'"/>
+            </div>
         </template>
 </template>
 

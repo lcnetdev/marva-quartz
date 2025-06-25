@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.13] - 2025-06-25
+### Added
+- Toggle for `Load.vue` between loading from `convertedit-pkg` or `editor-pkg`
+
+### Updated
+- More prep for OrigBF records
+
+
+## [1.3.12] - 2025-06-23
+### Updated
+- IBC profile is loaded with eNumber
+- Update RBMS lookup to use suggest service
+
+## [1.3.11] - 2025-06-16
+### Updated
+- In NAR creation LDR/18 is now blank
+- In NAR creation the "Creat NAR" button will populate a $d if it detects a date in the searched name
+- Strip out square brackets from the date when building a 670
+
+
+## [1.3.11] - 2025-06-16
+### Updated
+- Default component library
+
+### Added
+- Ability move default components to my library
+- Ability to set a component as default
+
 
 ## [1.3.9] - 2025-06-09
 ### Updated

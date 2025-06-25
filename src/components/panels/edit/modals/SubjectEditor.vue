@@ -2140,14 +2140,19 @@ export default {
 
         this.pickLookup[this.pickPostion].picked = true
 
-        try {
+      let type = null
+      try {
+        if (this.pickLookup[this.pickPostion].extra.rdftypes.length > 0){
+          type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
+        } else {
           let marcKey = this.pickLookup[this.pickPostion].marcKey
-          let type = marcKey.match(/\$[axyzv]{1}/g)
+          type = marcKey.match(/\$[axyzv]{1}/g)
           type = this.getTypeFromSubfield(type[0])
-          this.setTypeClick(null, type)
-        } catch (err) {
-          console.error("Error getting the type. ", err)
         }
+        this.setTypeClick(null, type)
+      } catch(err) {
+        console.error("Error getting the type. ", err)
+      }
 
         // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
         //Need something to prevent recursion

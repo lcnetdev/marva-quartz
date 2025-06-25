@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 3,
-    versionPatch: 10,
+    versionPatch: 13,
 
 
 
@@ -48,12 +48,12 @@ export const useConfigStore = defineStore('config', {
         // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
 
         // offical prod profiles that work outside firewall
-        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
-        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
+        // profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
         // offical stage profiles inside the firewall
-        // starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
-        // profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
+        starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
+        profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
         // offical prod profiles inside the firewall
         // starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
@@ -460,7 +460,8 @@ export const useConfigStore = defineStore('config', {
       "modes":[
         {
           'LCGFT All':{"url":"https://id.loc.gov/authorities/genreForms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
-          'RBMS':{"url":"https://id.loc.gov/vocabulary/rbmscv.html"},
+          'RBMS':{"url":"https://id.loc.gov/vocabulary/rbmscv/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
+
         }
       ]
 
@@ -550,7 +551,7 @@ export const useConfigStore = defineStore('config', {
 			"processor" : 'lcAuthorities',
 			"modes":[
 				{
-					'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience.html"},
+          'MARC Audience':{"url": "https://id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 					'LCDGT':{"url": "https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
           // 'LCSH':{"url": "https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
 				}

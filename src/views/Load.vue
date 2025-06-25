@@ -13,7 +13,8 @@
       <div v-if="!copyCatMode">
         <splitpanes>
           <pane class="load" v-if="displayAllRecords">
-            <button style="float: right; z-index: 1000;" @click="displayAllRecords = false; displayDashboard = true">Close</button>
+            <button style="float: right; z-index: 1000;"
+              @click="displayAllRecords = false; displayDashboard = true">Close</button>
             <div v-if="dashBoard && dashBoard.totalDays">
               <h1>
                 <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"
@@ -44,7 +45,8 @@
 
             <div id="all-records-table">
               <div style="text-align: right;" v-if="dataTableRecords.length == dataTableInitalLimit">
-                <button @click="dataTableRecords = allRecords">Only showing the latest {{ dataTableInitalLimit }} records.
+                <button @click="dataTableRecords = allRecords">Only showing the latest {{ dataTableInitalLimit }}
+                  records.
                   Show all {{ allRecords.length }}?</button>
               </div>
               <DataTable :loading="isLoadingAllRecords" :rows="dataTableRecords" striped hoverable>
@@ -99,8 +101,9 @@
                 <form ref="urlToLoadForm" v-on:submit.prevent="loadUrl">
                   <input placeholder="URL to resource or identifier to search" class="url-to-load" type="text"
                     @input="loadSearch" v-model="urlToLoad" ref="urlToLoad">
-  
-                    <div v-if="loadingRecord" class="loading-record">L<span class="infinite-spin">O</span>ADING REC<span class="infinite-spin">O</span>RD...</div>
+
+                  <div v-if="loadingRecord" class="loading-record">L<span class="infinite-spin">O</span>ADING REC<span
+                      class="infinite-spin">O</span>RD...</div>
 
                   <p>Need to search title or author? Use <a href="https://preprod-8230.id.loc.gov/lds/index.xqy"
                       target="_blank">BFDB</a>.</p>
@@ -152,6 +155,19 @@
                   First Enter the URL or identifier for a resource above, then select a profile.
                 </div>
 
+                <template v-if="showLoadTypeSelection()">
+                  <h3>Load Type:</h3>
+                  <div id="container">
+                    <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
+                      @click="changeLoadType($event)" ref="toggle">
+                    <label for="search-type" class="toggle-container">
+                      <div>Reconvert from Marc</div>
+                      <div>Continue Editing BF</div>
+                    </label>
+                  </div>
+                  <br>
+                </template>
+
                 <h3>Load with profile:</h3>
                 <div class="load-buttons">
                   <button class="load-button" @click="loadUrl(s.instance)"
@@ -162,8 +178,10 @@
 
                 <div class="default-profile-container">
                   <span>Default profile to use on [Enter] key</span>
-                  <select v-model="defaultProfile" @change="preferenceStore.setValue('--s-general-default-profile', defaultProfile)">
-                    <option v-for="s in startingPointsFiltered" :value="s.instance" :key="s.instance">{{ s.name }}</option>
+                  <select v-model="defaultProfile"
+                    @change="preferenceStore.setValue('--s-general-default-profile', defaultProfile)">
+                    <option v-for="s in startingPointsFiltered" :value="s.instance" :key="s.instance">{{ s.name }}
+                    </option>
                   </select>
                 </div>
 
@@ -213,28 +231,23 @@
               </div>
 
               <div>
-                <h1 style="margin-bottom: 10px;">
+                <h2 style="margin-bottom: 10px;">
                   <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"
                     class="material-icons">edit_document</span>
-                  <span>Create Blank Record</span>
-                </h1>
+                  <span>Create Original BIBFRAME (origbf) Descriptions</span>
+                </h2>
                 <div style="padding:5px;">
-                  Use these blank templates to test, but any record that you want to post to Voyager must originate in
-                  Voyager.
-                  Marva cannot currently assign Voyager bib numbers, so you need to create a stub record in Voyager
-                  and
-                  then load
-                  it into Marva.
+                  Use these templates for original BIBFRAME descriptions in Marva and then sent to Folio as Modern MARC records.
                 </div>
                 <div @click="hideOptions = !hideOptions">
                   <summary><span style="text-decoration: underline;">Click Here</span> to access blank record
-                    templates. Currently
-                    these are only for testing input, and cannot be used for posting or in production.</summary>
+                    templates.</summary>
                   <div :class="{ 'hide-options': hideOptions }">
                     <div class="load-buttons">
-                      <button class="load-button" @click="urlToLoad='new'; loadUrl(s.instance)" v-for="s in startingPointsFiltered">{{
-                        s.name
-                      }}</button>
+                      <button class="load-button" @click="urlToLoad = 'new'; loadUrl(s.instance)"
+                        v-for="s in startingPointsFiltered">{{
+                          s.name
+                        }}</button>
                     </div>
                   </div>
                 </div>
@@ -316,6 +329,7 @@ export default {
       hideOptions: true,
 
       loadingRecord: false,
+      loadType: "loadMarc",
 
     }
   },
@@ -352,7 +366,18 @@ export default {
   },
 
   methods: {
+    showLoadTypeSelection: function () {
+      let config = useConfigStore()
+      return config.returnUrls.displayLCOnlyFeatures
+    },
 
+    changeLoadType: function (event) {
+      if (event.target.checked) {
+        this.loadType = "loadBf"
+      } else {
+        this.loadType = "loadMarc"
+      }
+    },
 
     loadFromAllRecord: function (eId) {
 
@@ -497,12 +522,12 @@ export default {
     loadSearch: function () {
       this.lccnLoadSelected = null
       console.log("this.urlToLoad", this.urlToLoad)
-      console.log("this.urlToLoad.indexOf('BFDB URI')",this.urlToLoad.indexOf('BFDB URI'))
-      console.log("this.urlToLoad.indexOf('Status')",this.urlToLoad.indexOf('Status'))
+      console.log("this.urlToLoad.indexOf('BFDB URI')", this.urlToLoad.indexOf('BFDB URI'))
+      console.log("this.urlToLoad.indexOf('Status')", this.urlToLoad.indexOf('Status'))
       if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://")) {
         this.urlToLoadIsHttp = true
         return false
-      }else if(this.urlToLoad.indexOf('BFDB URI') > -1 && this.urlToLoad.indexOf('Status') > -1  ){
+      } else if (this.urlToLoad.indexOf('BFDB URI') > -1 && this.urlToLoad.indexOf('Status') > -1) {
 
         let urlMatch = this.urlToLoad.match(/:\/\/[^\s\/]+\/.*?\/instances\/[^\s]+/g);
         if (urlMatch && urlMatch.length > 0) {
@@ -513,12 +538,12 @@ export default {
           this.urlToLoadIsHttp = true
           // this will tigger using the default profile
           this.loadUrl(new Event('click'), null)
-          
+
           return false;
-        }else{
+        } else {
           this.urlToLoadIsHttp = false
         }
-        
+
       } else {
         this.urlToLoadIsHttp = false
 
@@ -543,25 +568,27 @@ export default {
     },
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
-      console.log("useInstanceProfile",useInstanceProfile)
+      console.log("useInstanceProfile", useInstanceProfile)
       let useLoadUrl = ''
       if (this.lccnLoadSelected) {
         useLoadUrl = this.lccnLoadSelected.bfdbPackageURL
-      }else if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://") || this.urlToLoad.startsWith("/")) {
+        if (this.loadType == 'loadBf') {
+          useLoadUrl = useLoadUrl.replace("convertedit-pkg", "editor-pkg")
+        }
+      } else if (this.urlToLoad.startsWith("http://") || this.urlToLoad.startsWith("https://") || this.urlToLoad.startsWith("/")) {
         useLoadUrl = this.urlToLoad
-      }else if (this.urlToLoad=='new') {
+      } else if (this.urlToLoad == 'new') {
         // continue on with a empty profile
-      }else{
+      } else {
         alert("Please enter a valid URL or identifier to load.")
       }
 
-
       // did they just hit enter and the record is loading, and not ready to go yet
       if (useLoadUrl.trim() === '' && this.searchByLccnResults && typeof this.searchByLccnResults === 'string') {
-        if (this.urlToLoadTimer){
+        if (this.urlToLoadTimer) {
           return false
         }
-        this.urlToLoadTimer = window.setTimeout(() => {          
+        this.urlToLoadTimer = window.setTimeout(() => {
           this.urlToLoadTimer = null
           this.loadUrl(useInstanceProfile, multiTestFlag)
         }, 250)
@@ -569,11 +596,11 @@ export default {
       }
 
       if (useLoadUrl.trim() !== '') {
-        this.loadingRecord=true
+        this.loadingRecord = true
         let xml = await utilsNetwork.fetchBfdbXML(useLoadUrl)
         if (!xml) {
           alert("There was an error retrieving that URL. Are you sure it is correct: " + this.urlToLoad)
-          this.loadingRecord=false
+          this.loadingRecord = false
           return false
         }
         // if (xml.indexOf('<rdf:RDF'))
@@ -587,13 +614,13 @@ export default {
       // console.log("useInstanceProfile", useInstanceProfile)
 
       // if it is an event it means they did not click the profile button but pressed ENTER
-      if (useInstanceProfile instanceof Event){
+      if (useInstanceProfile instanceof Event) {
         // check to see if there is a default profile set
         if (this.defaultProfile && this.defaultProfile != '') {
           useInstanceProfile = this.defaultProfile
-        } 
+        }
         // don't keep going if there was no search result
-        if (this.searchByLccnResults && this.searchByLccnResults.length === 0){
+        if (this.searchByLccnResults && this.searchByLccnResults.length === 0) {
           return false
         }
       }
@@ -609,13 +636,13 @@ export default {
 
       // check if the input field is empty
       if (useLoadUrl == "" && useProfile === null) {
-        this.loadingRecord=false
+        this.loadingRecord = false
         alert("Please enter the URL or Identifier of the record you want to load.")
         return false
       }
 
       if (useProfile === null) {
-        this.loadingRecord=false
+        this.loadingRecord = false
         alert('No profile selected. Select a profile under "Load with profile."')
         return false
       }
@@ -715,7 +742,7 @@ export default {
 
         //For IBCs add the admin metadata
         for (let rt in this.activeProfile.rt) {
-          if (rt.includes(":Ibc:Instance")) {
+          if (rt.includes(":Instance")) {  // :Ibc:Instance
             let pt = this.activeProfile.rt[rt].pt
             let parent
             let parentId
@@ -748,6 +775,7 @@ export default {
               targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
             }
 
+            // Add the Admin Metadata with the eNumber
             pt['id_loc_gov_ontologies_bibframe_adminmetadata'] = {
               "mandatory": false,
               "parent": parent,
@@ -759,7 +787,57 @@ export default {
               "resourceTemplates": [],
               '@guid': short.generate(),
               "type": "resource",
-              "userValue": { "@root": "http://id.loc.gov/ontologies/bibframe/adminMetadata" },
+              "userValue": {
+                "@root": "http://id.loc.gov/ontologies/bibframe/adminMetadata",
+                "http://id.loc.gov/ontologies/bibframe/adminMetadata": [
+                  {
+                    "@guid": short.generate(),
+                    "@type": "http://id.loc.gov/ontologies/bibframe/AdminMetadata",
+                    "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
+                      {
+                        "@guid": short.generate(),
+                        "@type": "http://id.loc.gov/ontologies/bibframe/Local",
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
+                          {
+                            "@guid": "8wJoYGrC8ut67SxhnXMEQp",
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": useProfile.eId
+                          }
+                        ],
+                        "http://id.loc.gov/ontologies/bibframe/assigner": [
+                          {
+                            "@guid": short.generate(),
+                            "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
+                            "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
+                            "http://www.w3.org/2000/01/rdf-schema#label": [
+                              {
+                                "@guid": short.generate(),
+                                "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
+                              }
+                            ],
+                            "http://id.loc.gov/ontologies/bibframe/code": [
+                              {
+                                "@guid": short.generate(),
+                                "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC",
+                                "@datatype": "http://id.loc.gov/datatypes/orgs/code"
+                              },
+                              {
+                                "@guid": short.generate(),
+                                "http://id.loc.gov/ontologies/bibframe/code": "dlcmrc",
+                                "@datatype": "http://id.loc.gov/datatypes/orgs/normalized"
+                              },
+                              {
+                                "@guid": short.generate(),
+                                "http://id.loc.gov/ontologies/bibframe/code": "US-dlcmrc",
+                                "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
               "valueConstraint": {
                 "defaults": [],
                 "useValuesFrom": [],
@@ -768,11 +846,38 @@ export default {
               }
             }
 
+            // Add the eNumber to the instance identifier
+            if (Object.keys(pt).includes("id_loc_gov_ontologies_bibframe_identifiedBy__identifiers")) {
+              pt['id_loc_gov_ontologies_bibframe_identifiedBy__identifiers'].userValue = {
+                "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
+                  {
+                    "@guid": short.generate(),
+                    "@type": "http://id.loc.gov/ontologies/bibframe/Local",
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
+                      {
+                        "@guid": short.generate(),
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": useProfile.eId
+                      }
+                    ],
+                    "http://id.loc.gov/ontologies/bibframe/assigner": [{
+                      "@guid": short.generate(),
+                      "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
+                      "http://www.w3.org/2000/01/rdf-schema#label": [{
+                        "@guid": short.generate(),
+                        "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
+                      }]
+                    }]
+                  }
+                ]
+              }
+            }
+
             this.activeProfile.rt[rt].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
           }
         }
       }
-      this.loadingRecord=false
+      this.loadingRecord = false
       if (multiTestFlag) {
         this.$router.push(`/multiedit/`)
         return true
@@ -822,7 +927,7 @@ export default {
   },
 
   mounted: async function () {
-    this.loadingRecord=false
+    this.loadingRecord = false
     this.refreshSavedRecords()
     if (window.location.hash && window.location.hash == '#stats') {
       // console.log("showing stats")
@@ -874,12 +979,12 @@ export default {
 </script>
 
 <style>
-
-.loading-record{
+.loading-record {
   text-align: center;
   font-size: 1.5em;
   margin-bottom: 1em;
 }
+
 .dt-bg-gray-50 {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-modals-background-color-accent')") !important;
   color: v-bind("preferenceStore.returnValue('--c-edit-modals-text-color')") !important;
@@ -1070,22 +1175,93 @@ summary {
 
 }
 
-.default-profile-container{
-  padding:0.25em;
-  margin-top:1em
+.default-profile-container {
+  padding: 0.25em;
+  margin-top: 1em
 }
-.default-profile-container select{
+
+.default-profile-container select {
   margin-left: 1em;
   font-size: 1em;
 }
+
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .infinite-spin {
   display: inline-block;
   /* don't do it :( */
   /* animation: spin 2s linear infinite; */
+}
+
+/* toggle */
+/* https://hudecz.medium.com/how-to-create-a-pure-css-toggle-button-2fcc955a8984 */
+#container {
+  margin-left: 5px;
+}
+
+.toggle {
+  display: none;
+}
+
+.toggle-container {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: fit-content;
+  border: 3px solid v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
+  border-radius: 20px;
+  background: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
+  font-weight: bold;
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
+  cursor: pointer;
+}
+
+.toggle-container::before {
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  left: 0%;
+  border-radius: 20px;
+  background: black;
+  transition: all 0.3s;
+}
+
+.toggle-container div {
+  padding: 6px;
+  text-align: center;
+  z-index: 1;
+}
+
+.toggle:checked+.toggle-container::before {
+  left: 50%;
+}
+
+.toggle:checked+.toggle-container div:first-child {
+  color: black;
+  transition: color 0.3s;
+}
+
+.toggle:checked+.toggle-container div:last-child {
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
+  transition: color 0.3s;
+}
+
+.toggle+.toggle-container div:first-child {
+  color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')");
+  transition: color 0.3s;
+}
+
+.toggle+.toggle-container div:last-child {
+  color: black;
+  transition: color 0.3s;
 }
 </style>

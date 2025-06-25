@@ -1239,6 +1239,19 @@
 
 
           if (this.lastComplexLookupString.trim() != ''){
+            const yearMatch = this.lastComplexLookupString.match(/(\d{4})/)
+            if (yearMatch) {
+              // Only insert if not already preceded by $d
+              const year = yearMatch[1]
+              const idx = this.lastComplexLookupString.indexOf(year)
+              if (idx > 0 && !/\$d\s*$/.test(this.lastComplexLookupString.slice(0, idx))) {
+                this.lastComplexLookupString =
+                  this.lastComplexLookupString.slice(0, idx) +
+                  ' $d ' +
+                  this.lastComplexLookupString.slice(idx)
+              }
+            }
+
             this.oneXX = '1XX##$a'+this.lastComplexLookupString
             this.checkOneXX()
           }
@@ -1660,6 +1673,11 @@
 
               </div>
 
+              <button @click="toggleAdvancedNARMode">
+                <span v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use advanced NAR mode</span>
+                <span v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use regular mode</span>
+              </button>
+
             </template>
 
 
@@ -1673,10 +1691,7 @@
             </template>
 
 
-            <button @click="toggleAdvancedNARMode">
-              <span v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use advanced NAR mode</span>
-              <span v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use regular mode</span>
-            </button>
+
             <hr>
 
             <div v-if="populatedValue && populatedValue.marcKey && !populatedValue.URI" style="text-align: center;">

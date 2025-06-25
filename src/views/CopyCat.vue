@@ -45,60 +45,53 @@
             </select>
 
           </form>
-          <hr>
-          <label for="lccn">LCCN: </label>
-          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
-            :disabled="selectedRecordUrl" />
-          <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record."
-            noHover="true" badgeType="primary" />
+
+          <hr style="margin-bottom: 10px;;">
+          Check for existing record using:
+          <div id="container">
+            <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
+              @click="changeSearchType($event)" ref="toggle">
+            <label for="search-type" class="toggle-container">
+              <div>LCCN</div>
+              <div>Other Identifier</div>
+            </label>
+          </div>
+
           <br>
-          <template v-if="wcIndex == 'sn'">
-            Check for existing record using:
-            <div id="container">
-              <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
-                @click="changeSearchType($event)" ref="toggle">
-              <label for="search-type" class="toggle-container">
-                <div>LCCN</div>
-                <div>ISBN</div>
-              </label>
-            </div>
+          <template v-if="searchType != 'lccn'">
+            <label for="matchPoint">Match on: </label>
+            <input name="matchPoint" id="matchPoint" type="text" v-model="isbn" @input="checkLccn" />
           </template>
 
           <template v-if="existingLCCN || existingISBN">
-            <br>
             <Badge v-if="existingLCCN"
               text="A record with this LCCN might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
             <Badge v-if="existingISBN"
-              text="A record with this ISBN might exist. If you continue, the copy cat record will be merged with the existing record."
+              text="A record with this identifier might exist. If you continue, the copy cat record will be merged with the existing record."
               badgeType="warning" :noHover="true" />
             <h4>
               <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{
-                existingLCCN ? 'LCCN' : 'ISBN' }}</a>
+                existingLCCN ? 'LCCN' : 'identifier' }}: "{{ matchTitle }}"</a>
             </h4>
-            <br>
-          </template>
-          <template v-else-if="urlToLoad.length < 10 && urlToLoad.length != 0">
-            <br>
-            <Badge text="LCCNs should be 10 characters long." badgeType="warning" :noHover="true" />
-            <br>
           </template>
           <template v-else>
             <Badge v-if="urlToLoad != '' && !checkingLCCN && !existingLCCN && searchType == 'lccn' && wcIndex == 'sn'"
-              text="No results for this LCCN, try searching for the ISBN."
-              badgeType="warning" :noHover="true" />
+              text="No matches for this LCCN, try searching for on another identifier like the ISBN." badgeType="warning" :noHover="true" />
           </template>
+
           <br>
+          <label for="lccn">LCCN: </label>
+          <input name="lccn" id="lccn" type="text" v-model="urlToLoad" @input="checkLccn"
+            :disabled="selectedRecordUrl" />
+          <Badge v-if="selectedRecordUrl" text="This LCCN is from the selected record." noHover="true"
+            badgeType="primary" />
+          <br><br>
+
           <label for="prio">Priority: </label><input name="prio" type="text" v-model="recordPriority"
             :class="{ 'needs-input': !recordPriority }" /><br>
-          <!-- <label for="ibc">Is there an IBC with the same LCCN? : </label><input name="ibc" id="ibc" type="checkbox" v-model="ibcCheck" /><br> -->
           <label for="jackphy">Does this record contain non-Latin script that should be retained? </label>
-            <input
-              name="jackphy"
-              id="jackphy"
-              type="checkbox"
-              v-model="jackphyCheck"
-              /><br>
+          <input name="jackphy" id="jackphy" type="checkbox" v-model="jackphyCheck" /><br>
           <br>
           <h3>Load with profile:</h3>
           <template v-if="posting">
@@ -268,6 +261,8 @@ export default {
       hasLccn: false,
       checkingLCCN: false,
       searchType: 'lccn',
+      isbn: '',
+      matchTitle: '',
     }
   },
   computed: {
@@ -288,7 +283,7 @@ export default {
     startingPointsFiltered() {
       let points = []
       for (let k in this.startingPoints) {
-        if (this.startingPoints[k].work && this.startingPoints[k].instance) {
+        if (this.startingPoints[k].work && this.startingPoints[k].instance && k != 'IBC description') {
           points.push(this.startingPoints[k])
         }
       }
@@ -307,6 +302,8 @@ export default {
     changeSearchType: function (event) {
       if (event.target.checked) {
         this.searchType = "isbn"
+
+        this.isbn = this.wcIndex == 'sn' ? this.wcQuery : ''
       } else {
         this.searchType = "lccn"
       }
@@ -377,12 +374,9 @@ export default {
       console.info("checkLCCN")
       this.existingLCCN = false
       this.existingISBN = false
-      if (!this.urlToLoad) {
-        this.existingRecordUrl = ""
-        return false
-      }
 
       console.info("urlToLoad: ", this.urlToLoad)
+      if (this.urlToLoad.length < 3){ return }
 
       if (this.searchType == 'lccn') {
         this.checkingLCCN = true
@@ -418,7 +412,7 @@ export default {
       // else if (!this.existingLCCN && this.wcIndex == "sn"){
       else if (this.searchType == 'isbn') {
         this.checkingLCCN = true
-        let potentialISBN = this.wcQuery
+        let potentialISBN = this.isbn
         console.info("isbn", potentialISBN)
         let resp = await utilsNetwork.searchLccn(potentialISBN)
         this.checkingLCCN = false
@@ -437,7 +431,13 @@ export default {
         }
       }
 
-
+      if (this.existingRecordUrl) {
+        let data = await utilsNetwork.fetchSimpleLookup(this.existingRecordUrl)
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(data, "text/html")
+        let title = doc.querySelectorAll('[name="dc.title"]')
+        this.matchTitle = title[0].content.split("(Instance)")[0]
+      }
     },
 
     encodingLevel: function (value) {
@@ -445,21 +445,6 @@ export default {
         return 'High'
       }
       return 'Low'
-    },
-
-    catLevelToolTip: function (value) {
-      switch (value) {
-        case "PccAdapt":
-          return "042 contains 'pcc' & Language = English"
-        case "CopyCat":
-          return "Encoding Level is 'high', Not PCC record, Language = English"
-        case "OrigRes":
-          return "Low level record, Not PCC, or not English"
-        case "OrigCop":
-          return "Cataloging Agency and Transcribing Agency are 'DLC'"
-        default:
-          return "You shouldn't be seeing this. Let someone know the value is '" + value + "'"
-      }
     },
 
     getMarcFieldAsString: function (record, target) {
