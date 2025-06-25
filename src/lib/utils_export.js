@@ -463,11 +463,20 @@ const utilsExport = {
     let rdf = document.createElementNS(this.namespace.rdf, "RDF");
 	let rdfBasic = document.createElementNS(this.namespace.rdf, "RDF");
 
+	console.info("\n\n-----------------------------------")
+	console.info("rdf: ", rdf.outerHTML)
+	console.info("rdfBasic: ", rdfBasic.outerHTML)
+
     // just add all the namespaces into the root element
 	for (let ns of Object.keys(this.namespace)){
+		console.info("ns: ", ns)
 		rdf.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:${ns}`, this.namespace[ns])
 		rdfBasic.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:${ns}`, this.namespace[ns])
 	}
+
+	console.info("\n\n-----------------------------------")
+	console.info("rdf: ", rdf.outerHTML)
+	console.info("rdfBasic: ", rdfBasic.outerHTML)
 
     // these are elements used to store metadata about the record in the backend
 	let xmlVoidDataRtsUsed = []
@@ -1289,6 +1298,7 @@ const utilsExport = {
 
 
 			if (orginalProfile.rt[rt].unusedXml){
+				console.info("\n\nhere?\n\n")
 
 				let unusedXmlNode = xmlParser.parseFromString(orginalProfile.rt[rt].unusedXml, "text/xml")
 				unusedXmlNode = unusedXmlNode.children[0]
@@ -1305,8 +1315,14 @@ const utilsExport = {
 				}
 			}
 
+			console.info("rootElName: ", rootElName)
+			try {
+			 console.info("orginalProfile: ", orginalProfile.rt[rt]["id_loc_gov_ontologies_bibframe_subject__subjects"].userValue)
+			} catch {}
+			console.info("\nrootEl: ", rootEl.outerHTML)
 			// build the lookup
 			tleLookup[rootElName][orginalProfile.rt[rt].URI] = rootEl
+			console.info("\n this one?: ", tleLookup[rootElName][orginalProfile.rt[rt].URI].outerHTML)
 		}
 
 		// console.log("tleLookup --- tleLookup")
@@ -1369,15 +1385,28 @@ const utilsExport = {
 		// also just build a basic version tosave
 		for (let URI in tleLookup['Work']){
 
-			console.info("\n tleLookup HTML: ", tleLookup["Work"][URI].outerHTML) // this is good, but RDF is not defined
+			// setting the ns gets the tests to pass
+			// tleLookup["Work"][URI].setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:rdf`, "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+
+			console.info("\n tleLookup HTML: ", tleLookup["Work"][URI].outerHTML) // this is good, but not rdf namespace, Marva has it
+			console.info("\n tleLookup attrib: ", tleLookup["Work"][URI].attributes)
 			console.info("\n tleLookup: ", tleLookup["Work"][URI])
-			console.info("\n tleLookup: ", tleLookup["Work"][URI].prefix)
+			for (let a of tleLookup["Work"][URI].attributes){
+				console.info("a: ", a.prefix, "--", a.namespaceURI) // rdf:about is missing namespaceURI? nope. It's there
+			}
+
+			// for (let prop in tleLookup["Work"][URI]){
+			// 	console.info(prop, ": ", tleLookup["Work"][URI][prop], "?")
+			// }
+			console.info("\n tleLookup prefix: ", tleLookup["Work"][URI].prefix)
+			console.info("\n tleLookup nsURI: ", tleLookup["Work"][URI].namespaceURI)
+			console.info("\n tleLookup nodeType: ", tleLookup["Work"][URI].nodeType)
 
 			console.info(">>>>>>>>>>>>>>>>>>>>", this.namespace.rdf)
 
 			let theWork = (new XMLSerializer()).serializeToString(tleLookup['Work'][URI])
 
-			console.info("\n theWork: ", theWork) // this is good, but is using "ns1" as the namespace prefix instead of "rdf"
+			console.info("\n theWork: ", theWork) // this is using "ns1" as the namespace prefix instead of "rdf". It does have ns for bf
 
 			// theWork = theWork.replace(/\sxmlns:[a-z]+="http.*?"/g,'')
 			theWork = xmlParser.parseFromString(theWork, "text/xml").children[0];
