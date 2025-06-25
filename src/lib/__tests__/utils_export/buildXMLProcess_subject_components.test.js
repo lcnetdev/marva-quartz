@@ -45,7 +45,7 @@ describe('Subject XML is correct', () => {
             let profile = monograph_subject_simple_simple_sub
             useProfileStore().activeProfile = profile
             let xmlList = await utils_export.buildXMLProcess(profile)
-            let xmlString = xmlList.xlmStringBasic                   // xlmStringBasic gives unbound namespace prefix "rdf"
+            let xmlString = xmlList.xlmStringBasic
 
             expect(xmlString).toContain(expectedSimpleSubjectSimpleSubXml)
         });
@@ -60,4 +60,10 @@ describe('Subject XML is correct', () => {
             expect(xmlString).toContain(expectedPersonalNameXml)
         });
     })
+
+    // Geographic
+
+    // person subdivision
+
+    // Hub
 });
