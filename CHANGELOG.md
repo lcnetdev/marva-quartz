@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.13] - 2025-06-25
+### Added
+- Toggle for `Load.vue` between loading from `convertedit-pkg` or `editor-pkg`
+
 ## [1.3.12] - 2025-06-23
 ### Updated
 - IBC profile is loaded with eNumber
