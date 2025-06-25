@@ -1364,13 +1364,27 @@ const utilsExport = {
 			}
 		}
 
-
+		console.info("\n rdfBasic outerHTML3: ", rdfBasic.outerHTML) // OK
 
 		// also just build a basic version tosave
 		for (let URI in tleLookup['Work']){
+
+			console.info("\n tleLookup HTML: ", tleLookup["Work"][URI].outerHTML) // this is good, but RDF is not defined
+			console.info("\n tleLookup: ", tleLookup["Work"][URI])
+			console.info("\n tleLookup: ", tleLookup["Work"][URI].prefix)
+
+			console.info(">>>>>>>>>>>>>>>>>>>>", this.namespace.rdf)
+
 			let theWork = (new XMLSerializer()).serializeToString(tleLookup['Work'][URI])
+
+			console.info("\n theWork: ", theWork) // this is good, but is using "ns1" as the namespace prefix instead of "rdf"
+
 			// theWork = theWork.replace(/\sxmlns:[a-z]+="http.*?"/g,'')
 			theWork = xmlParser.parseFromString(theWork, "text/xml").children[0];
+
+			console.info("\n theWork2: ", theWork.outerHTML)
+			// parse error, it has "ns1:..." instead of "rdf:..." when running the tests, but on the server it's right
+
 			rdfBasic.appendChild(theWork)
 		}
 		for (let URI in tleLookup['Hub']){
@@ -1379,6 +1393,8 @@ const utilsExport = {
 			theHub = xmlParser.parseFromString(theHub, "text/xml").children[0];
 			rdfBasic.appendChild(theHub)
 		}
+
+		console.info("\n rdfBasic outerHTML4: ", rdfBasic.outerHTML) // first instance of parse error
 
 		for (let URI in tleLookup['Instance']){
 			// let instance = tleLookup['Instance'][URI].cloneNode( true )
@@ -1623,14 +1639,22 @@ const utilsExport = {
 		}
 
 		let strXmlFormatted = (new XMLSerializer()).serializeToString(rdf)
-
 		strXmlFormatted = utilsMisc.prettifyXmlJS(strXmlFormatted, ' ')
 
 		rdfBasic.appendChild(datasetDescriptionEl)
 
-		console.info("rdfBasic: ", rdfBasic)
+		console.info("datasetDescriptionEl: ", JSON.parse(JSON.stringify(datasetDescriptionEl)))
+		console.info("rdfBasic: ", rdfBasic, "--", JSON.parse(JSON.stringify(rdfBasic)))
+		console.info("rdf: ", Object.keys(rdf).length)
 
+		console.info("string: ", rdfBasic.outerHTML)
+
+
+		// console.info("strXmlFormatted: ", strXmlFormatted)
+
+		// There's an error being introduced somewhere above this, where? And why does this only happen with the complex subject?
 		let strXmlBasic = (new XMLSerializer()).serializeToString(rdfBasic)
+		console.info("serialized: ", strXmlBasic)
 		let strXml = (new XMLSerializer()).serializeToString(rdf)
 		// console.log(strXml)
     /*
@@ -1640,7 +1664,7 @@ const utilsExport = {
         and all the namespaces.
         The below line fixes this in FF for me.
     */
-    //strXmlFormatted = uiUtils.prettifyXmlJS(strXmlBasic, ' ')
+    // strXmlFormatted = uiUtils.prettifyXmlJS(strXmlBasic, ' ')
 
     if (useConfigStore().postUsingAlmaXmlFormat){
 
