@@ -748,7 +748,7 @@ export default {
 
         //For IBCs add the admin metadata
         for (let rt in this.activeProfile.rt) {
-          if (rt.includes(":Ibc:Instance")) {
+          if (rt.includes(":Instance")) {  // :Ibc:Instance
             let pt = this.activeProfile.rt[rt].pt
             let parent
             let parentId
