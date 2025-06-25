@@ -616,7 +616,6 @@
                 let url = "https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/"
                 let bibId = null
 
-                console.info("profile: ", this.activeProfile)
                 // get the bibID
                 for (let rt in this.activeProfile.rt){
                   let type = rt.split(':').slice(-1)[0]
