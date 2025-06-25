@@ -1298,8 +1298,6 @@ const utilsExport = {
 
 
 			if (orginalProfile.rt[rt].unusedXml){
-				console.info("\n\nhere?\n\n")
-
 				let unusedXmlNode = xmlParser.parseFromString(orginalProfile.rt[rt].unusedXml, "text/xml")
 				unusedXmlNode = unusedXmlNode.children[0]
 				for (let el of unusedXmlNode.children){
@@ -1314,15 +1312,7 @@ const utilsExport = {
 					}
 				}
 			}
-
-			console.info("rootElName: ", rootElName)
-			try {
-			 console.info("orginalProfile: ", orginalProfile.rt[rt]["id_loc_gov_ontologies_bibframe_subject__subjects"].userValue)
-			} catch {}
-			console.info("\nrootEl: ", rootEl.outerHTML)
-			// build the lookup
 			tleLookup[rootElName][orginalProfile.rt[rt].URI] = rootEl
-			console.info("\n this one?: ", tleLookup[rootElName][orginalProfile.rt[rt].URI].outerHTML)
 		}
 
 		// console.log("tleLookup --- tleLookup")
@@ -1380,39 +1370,18 @@ const utilsExport = {
 			}
 		}
 
-		console.info("\n rdfBasic outerHTML3: ", rdfBasic.outerHTML) // OK
-
 		// also just build a basic version tosave
 		for (let URI in tleLookup['Work']){
 
-			// setting the ns gets the tests to pass
-			// tleLookup["Work"][URI].setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:rdf`, "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-
-			console.info("\n tleLookup HTML: ", tleLookup["Work"][URI].outerHTML) // this is good, but not rdf namespace, Marva has it
-			console.info("\n tleLookup attrib: ", tleLookup["Work"][URI].attributes)
-			console.info("\n tleLookup: ", tleLookup["Work"][URI])
-			for (let a of tleLookup["Work"][URI].attributes){
-				console.info("a: ", a.prefix, "--", a.namespaceURI) // rdf:about is missing namespaceURI? nope. It's there
-			}
-
-			// for (let prop in tleLookup["Work"][URI]){
-			// 	console.info(prop, ": ", tleLookup["Work"][URI][prop], "?")
-			// }
-			console.info("\n tleLookup prefix: ", tleLookup["Work"][URI].prefix)
-			console.info("\n tleLookup nsURI: ", tleLookup["Work"][URI].namespaceURI)
-			console.info("\n tleLookup nodeType: ", tleLookup["Work"][URI].nodeType)
-
-			console.info(">>>>>>>>>>>>>>>>>>>>", this.namespace.rdf)
-
+			// setting the ns prefix for rdf here gets the tests to pass, but this should be necessary
+			tleLookup["Work"][URI].setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
 			let theWork = (new XMLSerializer()).serializeToString(tleLookup['Work'][URI])
-
-			console.info("\n theWork: ", theWork) // this is using "ns1" as the namespace prefix instead of "rdf". It does have ns for bf
+			// This is the line that requires the line above it. Without it, the unit tests for complex subjects fail.
+			// When this line runs for the test, the namespace gets the prefix `ns1` instead of `rdf` and a child element still refers to "rdf".
+			// This doesn't happen in production.
 
 			// theWork = theWork.replace(/\sxmlns:[a-z]+="http.*?"/g,'')
 			theWork = xmlParser.parseFromString(theWork, "text/xml").children[0];
-
-			console.info("\n theWork2: ", theWork.outerHTML)
-			// parse error, it has "ns1:..." instead of "rdf:..." when running the tests, but on the server it's right
 
 			rdfBasic.appendChild(theWork)
 		}
@@ -1422,8 +1391,6 @@ const utilsExport = {
 			theHub = xmlParser.parseFromString(theHub, "text/xml").children[0];
 			rdfBasic.appendChild(theHub)
 		}
-
-		console.info("\n rdfBasic outerHTML4: ", rdfBasic.outerHTML) // first instance of parse error
 
 		for (let URI in tleLookup['Instance']){
 			// let instance = tleLookup['Instance'][URI].cloneNode( true )
@@ -1671,13 +1638,6 @@ const utilsExport = {
 		strXmlFormatted = utilsMisc.prettifyXmlJS(strXmlFormatted, ' ')
 
 		rdfBasic.appendChild(datasetDescriptionEl)
-
-		console.info("datasetDescriptionEl: ", JSON.parse(JSON.stringify(datasetDescriptionEl)))
-		console.info("rdfBasic: ", rdfBasic, "--", JSON.parse(JSON.stringify(rdfBasic)))
-		console.info("rdf: ", Object.keys(rdf).length)
-
-		console.info("string: ", rdfBasic.outerHTML)
-
 
 		// console.info("strXmlFormatted: ", strXmlFormatted)
 
