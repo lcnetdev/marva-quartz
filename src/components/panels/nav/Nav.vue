@@ -606,6 +606,31 @@
             }
           )
 
+          menu.push(
+            {
+              text: "Open in Folio",
+              id:"send-folio",
+              ref:"folio",
+              icon: "🇫",
+              click: () => {
+                let url = "https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/"
+                let bibId = null
+
+                // get the bibID
+                for (let rt in this.activeProfile.rt){
+                  let type = rt.split(':').slice(-1)[0]
+                  let url = this.activeProfile.rt[rt].URI
+                  if (type=='Instance'){
+                    bibId =  url.split("/")[url.split('/').length - 1]
+                  }
+                }
+                window.open(url + bibId)
+              },
+              class: (this.activeProfilePosted) ? "record-posted-folio-ok" : "record-unposted-folio-no",
+            }
+          )
+
+
 
           if (this.preferenceStore.copyMode){
               menu.push({ is: "separator" })
@@ -1175,6 +1200,13 @@
       margin-left: 100px;
     }
 
+    .record-unposted-folio-ok{
+      pointer-events: all;
+    }
+    .record-unposted-folio-no{
+      pointer-events: none;
+      opacity: .5;
+    }
 
     .record-posted .icon{
       color: green !important;

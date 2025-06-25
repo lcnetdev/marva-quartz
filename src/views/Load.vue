@@ -231,23 +231,17 @@
               </div>
 
               <div>
-                <h1 style="margin-bottom: 10px;">
+                <h2 style="margin-bottom: 10px;">
                   <span style="font-size: 1.25em; vertical-align: bottom; margin-right: 3px;"
                     class="material-icons">edit_document</span>
-                  <span>Create Blank Record</span>
-                </h1>
+                  <span>Create Original BIBFRAME (origbf) Descriptions</span>
+                </h2>
                 <div style="padding:5px;">
-                  Use these blank templates to test, but any record that you want to post to Voyager must originate in
-                  Voyager.
-                  Marva cannot currently assign Voyager bib numbers, so you need to create a stub record in Voyager
-                  and
-                  then load
-                  it into Marva.
+                  Use these templates for original BIBFRAME descriptions in Marva and then sent to Folio as Modern MARC records.
                 </div>
                 <div @click="hideOptions = !hideOptions">
                   <summary><span style="text-decoration: underline;">Click Here</span> to access blank record
-                    templates. Currently
-                    these are only for testing input, and cannot be used for posting or in production.</summary>
+                    templates.</summary>
                   <div :class="{ 'hide-options': hideOptions }">
                     <div class="load-buttons">
                       <button class="load-button" @click="urlToLoad = 'new'; loadUrl(s.instance)"
@@ -748,7 +742,7 @@ export default {
 
         //For IBCs add the admin metadata
         for (let rt in this.activeProfile.rt) {
-          if (rt.includes(":Ibc:Instance")) {
+          if (rt.includes(":Instance")) {  // :Ibc:Instance
             let pt = this.activeProfile.rt[rt].pt
             let parent
             let parentId
