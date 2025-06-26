@@ -32,6 +32,7 @@ describe('methods', () => {
 
   describe('setValueCOmplex', () => {
     it('should have type bf:Place', () => {
+      let activeProfile =
       expect(true).toBe(false)
     });
   })
