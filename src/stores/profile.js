@@ -2569,8 +2569,19 @@ export const useProfileStore = defineStore('profile', {
       // namely that the rdf:Type in BF is bf:Authority
       if ((!type && !URI) || lastProperty.includes("intendedAudience")){
         type = await utilsRDF.suggestTypeProfile(lastProperty, pt)
+        console.info("suggestTypeProfile: ", type)
         if (type == false){
           type = await utilsRDF.suggestTypeNetwork(lastProperty)
+          console.info("suggestTypeNetwork: ", type)
+        }
+      }
+
+      // More granual typing for Geographic
+      if (type == "http://www.loc.gov/mads/rdf/v1#Geographic"){
+        if (propertyPath.filter((v) => { return v.propertyURI == 'http://id.loc.gov/ontologies/bibframe/geographicCoverage' }).length > 0){
+          type = "http://id.loc.gov/ontologies/bibframe/GeographicCoverage"
+        } else {
+          type = "http://id.loc.gov/ontologies/bibframe/Place"
         }
       }
 
