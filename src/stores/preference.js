@@ -1157,7 +1157,7 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'General'
     },
       '--b-general-default-load-tupe' : {
-        desc: 'Set the default load type to "Continue Editing BF".',
+        desc: 'Set the default load type to "Continue Editing BF". Note: Reconverting ensures the record has gone through the most recent version of the marc-bf conversion.',
         descShort: 'Default Load Type "Continue"',
         value: false,
         type: 'boolean',
