@@ -158,10 +158,17 @@
                 <template v-if="showLoadTypeSelection()">
                   <h3>Load Type:</h3>
                   <div id="container">
-                    <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
-                      @click="changeLoadType($event)" ref="toggle">
+                    <input
+                      type="checkbox"
+                      id="search-type"
+                      class="toggle"
+                      name="search-type"
+                      value="keyword"
+                      @click="changeLoadType($event)"
+                      ref="toggle"
+                      :checked="this.preferenceStore.returnValue('--b-general-default-load-tupe')">
                     <label for="search-type" class="toggle-container">
-                      <div>Reconvert from Marc</div>
+                      <div>Reconvert from MARC</div>
                       <div>Continue Editing BF</div>
                     </label>
                   </div>
@@ -217,13 +224,13 @@
                             v-if="record.contributor">
                             by
                             {{ record.contributor }}</span><span> ({{ record.lccn }})</span></div>
-                        <div class="continue-record-lastedit"><span v-if="record.status == 'posted'">Posted</span><span
+                        <div class="continue-record-lastedit"><span v-if="record.status == 'published'">Posted</span><span
                             v-if="record.status == 'unposted'">last edited</span> <span>{{
                               returnTimeAgo(record.timestamp)
                             }}</span>
                         </div>
                       </router-link>
-                      <div class="material-icons" v-if="record.status == 'posted'" title="Posted record">check_box
+                      <div class="material-icons" v-if="record.status == 'published'" title="Posted record">check_box
                       </div>
                     </li>
                   </ul>
