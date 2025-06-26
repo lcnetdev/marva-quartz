@@ -158,10 +158,17 @@
                 <template v-if="showLoadTypeSelection()">
                   <h3>Load Type:</h3>
                   <div id="container">
-                    <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
-                      @click="changeLoadType($event)" ref="toggle">
+                    <input
+                      type="checkbox"
+                      id="search-type"
+                      class="toggle"
+                      name="search-type"
+                      value="keyword"
+                      @click="changeLoadType($event)"
+                      ref="toggle"
+                      :checked="this.preferenceStore.returnValue('--b-general-default-load-tupe')">
                     <label for="search-type" class="toggle-container">
-                      <div>Reconvert from Marc</div>
+                      <div>Reconvert from MARC</div>
                       <div>Continue Editing BF</div>
                     </label>
                   </div>

@@ -1156,6 +1156,15 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'General'
     },
+      '--b-general-default-load-tupe' : {
+        desc: 'Set the default load type to "Continue Editing BF".',
+        descShort: 'Default Load Type "Continue"',
+        value: false,
+        type: 'boolean',
+        unit: null,
+        group: 'General',
+        range: [true,false]
+    },
 
       // diacritics
 
