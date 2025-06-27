@@ -42,7 +42,7 @@
 
 
       // ...mapState(usePreferenceStore, ['debugModalData']),
-      ...mapWritableState(useProfileStore, ['showPostModal', 'activeProfilePosted', 'activeProfilePostedTimestamp']),
+      ...mapWritableState(useProfileStore, ['showPostModal', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'activeProfile']),
 
 
 
@@ -75,7 +75,7 @@
 
         post: async function(){
 
-          
+
           const config = useConfigStore()
 
           if (!config.returnUrls.displayLCOnlyFeatures){
@@ -85,14 +85,14 @@
           }
 
 
-          
+
 
 
           this.$refs.errorHolder.style.height = this.initalHeight + 'px'
           this.posting = true
           this.postResults = {}
           this.postResults = await this.profileStore.publishRecord()
-          this.posting = false          
+          this.posting = false
           if (this.postResults.status !== false){
             this.activeProfilePosted = true
             this.activeProfilePostedTimestamp = Date.now()
@@ -101,9 +101,9 @@
             this.activeProfilePostedTimestamp = false
           }
 
-          
-          
-          
+
+
+
         },
 
         onSelectElement (event) {
@@ -134,6 +134,21 @@
             msg = JSON.stringify(msg,null,2)
             msg = msg.replace(/\\n|\\t/g, '').replace(/\\"/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
             return msg
+        },
+
+        getLcapUrl: function(){
+          let base = "https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/"
+
+          let bibId = null
+          for (let rt in this.activeProfile.rt){
+            let type = rt.split(':').slice(-1)[0]
+            let url = this.activeProfile.rt[rt].URI
+            if (type=='Instance'){
+              bibId =  url.split("/")[url.split('/').length - 1]
+            }
+          }
+
+          return base + bibId
         },
 
 
@@ -196,7 +211,9 @@
                 <div v-for="rl in postResults.resourceLinks" v-bind:key="rl.url">
                   <a :href="rl.url+'?blastdacache=' + Date.now()" target="_blank">View {{rl.type}} on {{rl.env}}</a>
                 </div>
-
+                <div>
+                  <a :href="getLcapUrl()" target="_blank">Open in LCAP</a>
+                </div>
               </div>
             </div>
 

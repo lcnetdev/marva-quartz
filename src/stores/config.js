@@ -65,7 +65,7 @@ export const useConfigStore = defineStore('config', {
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'production',
-        dev: false,
+        dev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
       },
