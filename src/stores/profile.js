@@ -2540,6 +2540,17 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueComplex: async function(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null ){
+      console.info("@@@@@@@@@@@@@@@@@@@\n@@@@@@@@@@@@@@@@@@@@@\nsetValueComplex")
+      console.info("componentGuid: ", componentGuid)
+      console.info("fieldGuid: ", fieldGuid)
+      console.info("propertyPath: ", propertyPath)
+      console.info("URI: ", URI)
+      console.info("label: ", label)
+      console.info("type: ", type)
+      console.info("nodeMap: ", nodeMap)
+      console.info("marcKey: ", marcKey)
+
+      console.info("profile1: ", JSON.parse(JSON.stringify(this.activeProfile)))
       // TODO: reconcile this to how the profiles are built, or dont..
       // remove the sameAs from this property path, which will be the last one, we don't need it
       propertyPath = propertyPath.filter((v)=> { return (v.propertyURI!=='http://www.w3.org/2002/07/owl#sameAs')  })
@@ -2548,6 +2559,8 @@ export const useProfileStore = defineStore('profile', {
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+
+      console.info("pt: ", pt)
 
       // if (!type && URI && !lastProperty.includes("intendedAudience")){
       //   // I regretfully inform you we will need to look this up
@@ -2628,11 +2641,13 @@ export const useProfileStore = defineStore('profile', {
           }
 
           for (let aLabelNode of label){
+            console.info("aLabel: ", aLabelNode)
 
             if (!blankNode['http://www.w3.org/2000/01/rdf-schema#label']){
               blankNode['http://www.w3.org/2000/01/rdf-schema#label'] = []
             }
             if (typeof aLabelNode == 'string'){
+              console.info("string")
               blankNode['http://www.w3.org/2000/01/rdf-schema#label'].push(
                 {
                   '@guid': short.generate(),
@@ -2853,7 +2868,10 @@ export const useProfileStore = defineStore('profile', {
         console.error('setValueComplex: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
 
-      console.log("pt is ",pt)
+      console.log("pt is ", JSON.stringify(pt.userValue))
+      console.log("pt: ", JSON.stringify(pt.userValue))
+      console.log("profile Primary: ", JSON.stringify(this.activeProfile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_contribution__creator_of_work']))
+      console.log("profile Contrib: ", JSON.stringify(this.activeProfile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_contribution__contributors']))
     },
 
     /**
