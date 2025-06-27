@@ -437,7 +437,6 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
-	console.info("profile: ", JSON.stringify(profile))
     // console.log(profile)
 
     // keep track of the proces for later

@@ -31,8 +31,8 @@ describe('methods', () => {
     });
   })
 
-  describe('setValueComplex', () => {
-    it('GeographicCoverage should have type "bf:GeographicCoverage"', () => {
+  describe('setValueComplex for a Geographic', () => {
+    it('GeographicCoverage should have type "bf:GeographicCoverage"', async () => {
       let profile = mockMonographProfile
       useProfileStore().activeProfile = profile
 
@@ -45,7 +45,7 @@ describe('methods', () => {
       const nodeMap = {"gacs": [ "e-sp---" ]}
       const marcKey = '151  $aSpain'
 
-      useProfileStore().setValueComplex(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap, marcKey)
+      await useProfileStore().setValueComplex(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap, marcKey)
 
       const userValue = profile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_geographicCoverage__geographic_coverage'].userValue
       const target = userValue['http://id.loc.gov/ontologies/bibframe/geographicCoverage'][0]['@type']
@@ -53,35 +53,31 @@ describe('methods', () => {
       expect(target).toBe('http://id.loc.gov/ontologies/bibframe/GeographicCoverage')
     });
 
-    // it('PrimaryContributor should have type "bf:Place"', () => {
-    //   let profile = mockMonographProfile
-    //   useProfileStore().activeProfile = profile
+    it('Geo PrimaryContributor should have type "bf:Place"', async () => {
+      let profile = mockMonographProfile
+      useProfileStore().activeProfile = profile
 
-    //   const componentGuid = 'egcQykPR8xGwXEoNBU2kLE'
-    //   const fieldGuid = null
-    //   const propertyPath = [
-    //     { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/contribution" },
-    //     { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/agent" },
-    //     { level: 2, propertyURI: "http://www.w3.org/2002/07/owl#sameAs" }]
-    //   const URI = 'http://id.loc.gov/authorities/names/n79006971'
-    //   const label = 'Spain'
-    //   const type = 'Geographic'
-    //   const nodeMap = {"gacs": [ "e-sp---" ]}
-    //   const marcKey = '151  $aSpain'
+      const componentGuid = 'egcQykPR8xGwXEoNBU2kLE'
+      const fieldGuid = null
+      const propertyPath = [
+        { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/contribution" },
+        { level: 1, propertyURI: "http://id.loc.gov/ontologies/bibframe/agent" },
+        { level: 2, propertyURI: "http://www.w3.org/2002/07/owl#sameAs" }]
+      const URI = 'http://id.loc.gov/authorities/names/n79006971'
+      const label = 'Spain'
+      const type = 'Geographic'
+      const nodeMap = {"gacs": [ "e-sp---" ]}
+      const marcKey = '151  $aSpain'
 
-    //   useProfileStore().setValueComplex(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap, marcKey)
+      await useProfileStore().setValueComplex(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap, marcKey)
 
-    //   // console.info(">>>>", profile.rt['lc:RT:bf2:Monograph:Work'].pt)
+      const userValue = profile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_contribution__creator_of_work'].userValue
+      const target = userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]['@type']
 
-    //   const userValue = profile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_contribution__creator_of_work'].userValue
-    //   const target = userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]['@type']
+      expect(target).toBe('http://id.loc.gov/ontologies/bibframe/Place')
+    });
 
-    //   console.info(">>>>>>", JSON.stringify(profile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_contribution__creator_of_work']))
-
-    //   expect(JSON.stringify(userValue)).toBe(JSON.stringify('http://id.loc.gov/ontologies/bibframe/Place'))
-    // });
-
-    it('Contributor should have type "bf:Place"', () => {
+    it('Geo Contributor should have type "bf:Place"', async () => {
       let profile = mockMonographProfile
       useProfileStore().activeProfile = profile
 
@@ -105,16 +101,12 @@ describe('methods', () => {
       }
       const marcKey = '151  $aSpain'
 
-      useProfileStore().setValueComplex(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap, marcKey)
-
-      // console.info(">>>>", profile.rt['lc:RT:bf2:Monograph:Work'].pt)
+      await useProfileStore().setValueComplex(componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap, marcKey)
 
       const userValue = profile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_contribution__contributors'].userValue
       const target = userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]['@type']
 
-      console.info(">>>>>>", JSON.stringify(profile.rt['lc:RT:bf2:Monograph:Work'].pt['id_loc_gov_ontologies_bibframe_contribution__contributors']))
-
-      expect(JSON.stringify(userValue)).toBe(JSON.stringify('http://id.loc.gov/ontologies/bibframe/Place'))
+      expect(target).toBe('http://id.loc.gov/ontologies/bibframe/Place')
     });
   })
 

@@ -697,7 +697,6 @@
       },
 
       selectChange: async function(){
-        console.info("selectChange")
         let toLoad = null
         if (this.authorityLookupLocal == null && this.$refs.selectOptions != null ){
           toLoad = this.activeComplexSearch[this.$refs.selectOptions.selectedIndex]
@@ -758,7 +757,6 @@
           results.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
         }
 
-        console.info("results: ", results)
         // try {
         //   let r = await utilsNetwork.returnContext(toLoad.uri)
         //   // r = this.activeContext
