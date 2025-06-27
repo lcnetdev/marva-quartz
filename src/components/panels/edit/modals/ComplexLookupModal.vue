@@ -756,6 +756,7 @@
           results.type = 'Hub'
           results.typeFull='http://id.loc.gov/ontologies/bibframe/Hub'
         }
+
         // try {
         //   let r = await utilsNetwork.returnContext(toLoad.uri)
         //   // r = this.activeContext
