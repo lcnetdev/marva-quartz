@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [1.3.14] - 2025-06-27
+### Updated
+- how complex geographic types are set
+
+### Added
+- Unit tests for complex geographic values
+
+
 ## [1.3.13] - 2025-06-25
 ### Added
 - Toggle for `Load.vue` between loading from `convertedit-pkg` or `editor-pkg`
