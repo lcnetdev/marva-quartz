@@ -101,7 +101,7 @@ describe('Subject XML is correct', () => {
 
     // Complex topic Food--Portugal--Porto--History--20th century
     describe("Complex Subject", () => {
-        test('should contain the expectedHubXml', async () => {
+        test('should contain the expectedComplexXml', async () => {
             let profile = monograph_subject_complex
             useProfileStore().activeProfile = profile
             let xmlList = await utils_export.buildXMLProcess(profile)
@@ -113,7 +113,7 @@ describe('Subject XML is correct', () => {
 
     // person subdivision gf
     describe("Personal name subject with genre/form subdivision", () => {
-        test('should contain the expectedHubXml', async () => {
+        test('should contain the expectedPersonGFXml', async () => {
             let profile = monograph_subject_personal_name_sub_gf
             useProfileStore().activeProfile = profile
             let xmlList = await utils_export.buildXMLProcess(profile)
@@ -132,6 +132,8 @@ describe('Subject XML is correct', () => {
             expect(xmlString).toContain(expectedHubSubdivXml)
         });
     })
+    
+    //
 
 
 });
