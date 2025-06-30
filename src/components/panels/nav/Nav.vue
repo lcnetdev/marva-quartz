@@ -626,7 +626,7 @@
                 }
                 window.open(url + bibId)
               },
-              class: (this.activeProfilePosted || this.isStaging() || (this.activeProfile && this.activeProfile.status && this.activeProfile.status == 'posted' )) ? "record-posted-folio-ok" : "record-unposted-folio-no",
+              class: (this.activeProfilePosted || this.isStaging() || (this.activeProfile && this.activeProfile.status && this.activeProfile.status == 'published' )) ? "record-posted-folio-ok" : "record-unposted-folio-no",
             }
           )
 
