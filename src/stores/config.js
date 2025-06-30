@@ -68,6 +68,7 @@ export const useConfigStore = defineStore('config', {
         dev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
+        lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
       },
 
       externalDev:{
@@ -86,6 +87,7 @@ export const useConfigStore = defineStore('config', {
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
         publicEndpoints:true,
+        lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
 
       },
 
@@ -108,6 +110,7 @@ export const useConfigStore = defineStore('config', {
 
         worldCat: 'https://preprod-3001.id.loc.gov/bfe2/util/worldcat/',
         copyCatUpload: 'https://preprod-3001.id.loc.gov/bfe2/util/copycat/upload/stag', // change ports for production
+        lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
@@ -131,6 +134,8 @@ export const useConfigStore = defineStore('config', {
         // starting : 'https://editor.id.loc.gov/api/listconfigs?where=index.resourceType:startingPoints&where=index.label:config',
         profiles : '/bfe2/util/profiles/profile/prod',
         starting : '/bfe2/util/profiles/starting/prod',
+
+        lcap: 'https://lcsg.toolkit.lcap.loc.gov/lcap-productivity/marva/bibId/',
 
         worldCat: 'https://editor.id.loc.gov/bfe2/util/worldcat/',
         copyCatUpload: 'https://editor.id.loc.gov/bfe2/util/copycat/upload/prod',
