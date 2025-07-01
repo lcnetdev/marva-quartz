@@ -967,7 +967,7 @@ export default {
         for (let subjIdx in incomingSubjects) {
           this.componetLookup[subjIdx] = {}
           let type = incomingSubjects[subjIdx]["@type"]
-          
+
           console.info("type: ", type)
 
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
@@ -1012,7 +1012,7 @@ export default {
         // dealing with a complex subject
         this.componetLookup[0] = {}
         let type = incomingSubjects["@type"] ? incomingSubjects["@type"] : ""
-        
+
         console.info("complex type: ", type)
 
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
@@ -1076,7 +1076,7 @@ export default {
           for (let i in this.componetLookup) {
             for (let j in this.componetLookup[i]) {
               targetType = this.componetLookup[i][j].type
-              
+
               console.info("targetType: ", targetType)
 
               if (this.componetLookup[i][j].label.includes("--")) {
@@ -1126,7 +1126,7 @@ export default {
 
       let offset = 0
       for (let ss of subjectStringSplit) {
-        console.info("\n\n--------------", ss)
+        console.info("ss", ss)
         if (subjectStringSplit.length < Object.keys(this.componetLookup).length) {
           diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes(Object.keys(this.componetLookup[x])[0]))
         }
@@ -1169,7 +1169,7 @@ export default {
         if (uri && uri.includes("/hubs/")) {
           type = "bf:Hub"
         }
-        
+
         console.info("type: ", type)
 
         console.info("adding component for ", ss)
@@ -1207,7 +1207,6 @@ export default {
     linkModeTextChange: async function (event) {
 
       try {
-        console.info("focus 1")
         this.$refs.subjectInput.focus()
       } catch (err) {
         console.log("Loading from existing data")
@@ -1232,7 +1231,6 @@ export default {
 
         let timeoutFocus = window.setTimeout(() => {
           if (this.$refs.subjectInput) {
-            console.info("focus 2")
             this.$refs.subjectInput.focus()
             window.clearTimeout(timeoutFocus)
           }
@@ -1257,7 +1255,6 @@ export default {
       }
 
       this.$nextTick(() => {
-        console.info("focus 3")
         this.$refs.subjectInput.focus()
       })
 
@@ -1489,7 +1486,6 @@ export default {
       if (this.activeComponent && this.activeComponent.label) {
         this.searchApis(this.activeComponent.label, this.subjectString, this)
       }
-      console.info("focus 4")
       this.$refs.subjectInput.focus()
     },
 
@@ -1652,6 +1648,8 @@ export default {
 
       that.buildPickLookup()
 
+      console.info("that.pickLookup: ", that.pickLookup)
+
       for (let k in that.pickLookup) {
         that.pickLookup[k].picked = false
         if (searchString.toLowerCase() == that.pickLookup[k].label.toLowerCase() && !that.pickLookup[k].literal) {
@@ -1785,12 +1783,15 @@ export default {
     },
 
     getContext: async function () {
+      console.info("\n\ngetContext")
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false
       }
       //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
       this.contextData = this.pickLookup[this.pickPostion].extra
+
+      console.info("this.contextData: ", this.contextData)
 
       if (this.pickLookup[this.pickPostion].uri) {
         this.contextData.literal = false
@@ -1803,8 +1804,13 @@ export default {
         }
         let types = this.pickLookup[this.pickPostion].extra['rdftypes']
 
+        // Setting the type in contextData
+        console.info("types: ", types)
+
         this.contextData.type = types.includes("Hub") ? "bf:Hub" : types.includes("Work") ? "bf:Work" : "madsrdf:" + types[0]
         this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
+
+        console.info("this.contextData.type: ", this.contextData.type)
 
         //Check if it's a Jurisdiction, and overwrite
         if (this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
@@ -1819,6 +1825,7 @@ export default {
       }
 
       this.contextRequestInProgress = false
+      console.info("final contextData: ", JSON.parse(JSON.stringify(this.contextData)))
     },
 
     /** Clear the current selection so that hovering will update the preview again */
@@ -1895,14 +1902,12 @@ export default {
                 this.$nextTick(() => {
                   inputV.setSelectionRange(insertAt + 1, insertAt + 1)
                   this.$nextTick(() => {
-                    console.info("focus 5")
                     inputV.focus()
                     // this.doSearch()
                   })
                 })
               } else {
                 this.$nextTick(() => {
-                  console.info("focus 6")
                   inputV.focus()
                 })
               }
@@ -1940,7 +1945,6 @@ export default {
             // inputV.value=inputV.value+macro.codeEscape
 
             inputV.setSelectionRange(insertAt + 1, insertAt + 1)
-            console.info("focus 7")
             inputV.focus()
 
 
@@ -1950,7 +1954,6 @@ export default {
                 // this.searchValueLocal = inputV.value
                 // this.subjectString = inputV.value
                 this.$nextTick(() => {
-                  console.info("focus 8")
                   inputV.focus()
                 })
 
@@ -1958,7 +1961,6 @@ export default {
             } else {
 
               this.$nextTick(() => {
-                console.info("focus 9")
                 inputV.focus()
               })
 
@@ -1976,7 +1978,6 @@ export default {
     },
 
     loadContext: async function (pickPostion) {
-      console.info("loadContext: ", pickPostion)
       if (this.pickCurrent == null) {
         this.pickPostion = pickPostion
       } else {
@@ -2005,6 +2006,7 @@ export default {
     },
 
     selectContext: async function (pickPostion, update = true) {
+      console.info("\n\nselectContext: ", pickPostion)
       if (pickPostion != null) {
         this.pickPostion = pickPostion
         this.pickCurrent = pickPostion
@@ -2142,6 +2144,7 @@ export default {
           type = marcKey.match(/\$[axyzv]{1}/g)
           type = this.getTypeFromSubfield(type[0])
         }
+        console.info("setTypeClick: ", type)
         this.setTypeClick(null, type)
       } catch(err) {
         console.error("Error getting the type. ", err)
@@ -2285,14 +2288,12 @@ export default {
                 // this.searchValueLocal = inputV.value
 
                 this.$nextTick(() => {
-                  console.info("focus 11")
                   inputV.focus()
                 })
 
               })
             } else {
               this.$nextTick(() => {
-                console.info("focus 12")
                 inputV.focus()
               })
             }
@@ -2354,6 +2355,7 @@ export default {
     },
 
     updateAvctiveTypeSelected: function () {
+      console.info("\n\nupdateAvctiveTypeSelected")
       //set them all false
       for (let k in this.activeTypes) {
         this.activeTypes[k].selected = false
@@ -2387,14 +2389,17 @@ export default {
         this.activeComponent.type = subfield
       }
 
+      console.info("this.activeComponent.type: ", this.activeComponent.type)
+
     },
 
     setTypeClick: function (event, type) {
       this.activeComponent.type = type
       this.typeLookup[this.activeComponentIndex] = type
       this.subjectStringChanged()
-      console.info("focus 13")
       this.$refs.subjectInput.focus()
+
+      console.info("this.typeLookup: ", this.typeLookup)
     },
 
     renderHintBoxes: function () {
@@ -2444,6 +2449,7 @@ export default {
     },
 
     subjectStringChanged: async function (event) {
+      console.info("\n\nsubjectStringChanged: ", event)
       this.subjectString = this.subjectString.replace("—", "--")
       this.validateOkayToAdd()
 
@@ -2483,6 +2489,8 @@ export default {
         this.nextInputIsTypeSelection = false
         this.subjectStringChanged()
 
+        console.info("this.typeLookup: ", this.typeLookup)
+
       } else {
         // its a normal keystroke not after '$' but check to see if it was a keyboard event
         // if not then event will be null and was just evoked from code, if its a event then they are typeing in a search value, clear out the old
@@ -2506,7 +2514,6 @@ export default {
         this.searchApis("", "", this)
       }
       if (!this.subjectString.endsWith("--")) {
-        console.info("buildComponents: ", this.subjectString)
         this.buildComponents(this.subjectString)
       }
 
@@ -2526,16 +2533,13 @@ export default {
             // it is not empty
             // it dose not end with "-" so it the '--' typing doesn't trigger
             if (c.label.trim() != '' && !c.label.endsWith('-')) {
-              console.info("search1")
               this.searchApis(c.label, event.target.value, this)
 
               // BUT if it ends with a number and - then it is a name with open life dates
               // so do look that one up
             } else if (/[0-9]{4}\??-/.test(c.label)) {
-              console.info("search2")
               this.searchApis(c.label, event.target.value, this)
             } else if (/,\s[0-9]{4}-/.test(c.label)) {
-              console.info("search3")
               this.searchApis(c.label, event.target.value, this)
             }
             //            // BUT if it starts with
@@ -2551,6 +2555,7 @@ export default {
         // which would likely be the type if not a keyboard event
 
         this.activeComponent = this.components[this.activeComponentIndex]
+        console.info("this.activeComponent: ", this.activeComponent)
 
 
       }
@@ -2573,6 +2578,7 @@ export default {
 
         window.setTimeout(() => {
           for (let x of this.components) {
+            console.info("x: ", x)
             if (this.localContextCache[x.uri]) {
               if (this.activeComponent.type || this.localContextCache[x.uri].type) {
                 // don't do anything
@@ -2596,6 +2602,8 @@ export default {
             }
 
           }
+
+          console.info("this.components: ", this.components)
 
           this.updateAvctiveTypeSelected()
           this.validateOkayToAdd()
@@ -2711,6 +2719,7 @@ export default {
     },
 
     getTypeFromSubfield: function (subfield) {
+      console.info("\n\ngetTypeFromSubfield: ", subfield)
       switch (subfield) {
         case ("$a"):
           subfield = "madsrdf:Topic"
@@ -2731,10 +2740,12 @@ export default {
           subfield = false
       }
 
+      console.info("subfield: ", subfield)
       return subfield
     },
 
     add: async function () {
+      console.info("\n\nadd")
       //remove any existing thesaurus label, so it has the most current
       //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2742,11 +2753,13 @@ export default {
       // remove our werid hyphens before we send it back
       for (let c of this.components) {
         c.label = c.label.replaceAll('‑', '-')
+        console.info("this.activeTypes: ", this.activeTypes)
         // we have the full mads type from the build process, check if the component is a id name authortiy
         // if so over write the user defined type with the full type from the authority file so that
         // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
         if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]) {
           let tempType = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#', 'madsrdf:')
+          console.info("tempType: ", tempType)
           if (!Object.keys(this.activeTypes).includes(tempType)) {
             c.type = tempType
           }
@@ -2754,6 +2767,7 @@ export default {
             c.type = tempType
           }
         }
+        console.info("c.type: ", c.type)
       }
 
       // If the individual components together, match a complex subject, switch'em so the user ends up with a controlled term
@@ -2766,6 +2780,7 @@ export default {
       } catch {
         componentTypes = false
       }
+      console.info("componentTypes: ", componentTypes)
 
       let complexSubjects = this.searchResults["subjectsComplex"].concat(this.searchResults["subjectsChildrenComplex"])
 
@@ -2843,6 +2858,8 @@ export default {
               }
 
               subfield = this.getTypeFromSubfield(subfield)
+
+              console.info("subfield: ", subfield)
 
               // Override the subfield of the first element based on the marc tag
               let tag = target.marcKey.slice(0, 3)
@@ -2922,6 +2939,8 @@ export default {
       if (newComponents.length > 0) {
         this.components = newComponents
       }
+
+      console.info("emit: ", this.components)
       this.$emit('subjectAdded', this.components)
     },
 

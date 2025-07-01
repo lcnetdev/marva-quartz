@@ -437,8 +437,6 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
-	console.info("<< buildXMLProcess >>")
-	console.info(JSON.stringify(profile))
     // console.log(profile)
 
     // keep track of the proces for later
@@ -463,20 +461,11 @@ const utilsExport = {
     let rdf = document.createElementNS(this.namespace.rdf, "RDF");
 	let rdfBasic = document.createElementNS(this.namespace.rdf, "RDF");
 
-	console.info("\n\n-----------------------------------")
-	console.info("rdf: ", rdf.outerHTML)
-	console.info("rdfBasic: ", rdfBasic.outerHTML)
-
     // just add all the namespaces into the root element
 	for (let ns of Object.keys(this.namespace)){
-		console.info("ns: ", ns)
 		rdf.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:${ns}`, this.namespace[ns])
 		rdfBasic.setAttributeNS("http://www.w3.org/2000/xmlns/", `xmlns:${ns}`, this.namespace[ns])
 	}
-
-	console.info("\n\n-----------------------------------")
-	console.info("rdf: ", rdf.outerHTML)
-	console.info("rdfBasic: ", rdfBasic.outerHTML)
 
     // these are elements used to store metadata about the record in the backend
 	let xmlVoidDataRtsUsed = []
@@ -1639,11 +1628,7 @@ const utilsExport = {
 
 		rdfBasic.appendChild(datasetDescriptionEl)
 
-		// console.info("strXmlFormatted: ", strXmlFormatted)
-
-		// There's an error being introduced somewhere above this, where? And why does this only happen with the complex subject?
 		let strXmlBasic = (new XMLSerializer()).serializeToString(rdfBasic)
-		console.info("serialized: ", strXmlBasic)
 		let strXml = (new XMLSerializer()).serializeToString(rdf)
 		// console.log(strXml)
     /*
