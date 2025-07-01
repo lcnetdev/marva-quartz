@@ -2331,11 +2331,11 @@
                     },
 
                     {
-                        "id": "awdinUMoF7FU5hhzZ948fJ",
+                        "id": "8RW8KQuWmj5UoQVozbWTcR",
                         "groupId": "Illustrations",
                         "position": 0,
                         "structure": {
-                            "propertyLabel": "Extent",
+                            "propertyLabel": "Physical description",
                             "propertyURI": "http://id.loc.gov/ontologies/bibframe/extent",
                             "resourceTemplates": [],
                             "valueConstraint": {
@@ -2356,13 +2356,13 @@
                                 "@root": "http://id.loc.gov/ontologies/bibframe/extent",
                                 "http://id.loc.gov/ontologies/bibframe/extent": [
                                     {
-                                        "@guid": "hD9oA1JtcHgo3D2NiyDdED",
+                                        "@guid": "bDdt2qmmjWp3QX4cFCyvSt",
                                         "http://id.loc.gov/ontologies/bibframe/note": [
                                             {
-                                                "@guid": "scQrday8SNwwMPdg5pGqci",
+                                                "@guid": "moYBFoKs9iuc6ACrjsUjEQ",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
-                                                        "@guid": "ebayQB4HLMUwoBjZ8Lhaf5",
+                                                        "@guid": "qGrg5tJwhMe69kqhJxZ16M",
                                                         "http://www.w3.org/2000/01/rdf-schema#label": "illustrations"
                                                     }
                                                 ],
@@ -2376,8 +2376,8 @@
                             "@guid": null,
                             "canBeHidden": true,
                             "preferenceId": "http://id.loc.gov/ontologies/bibframe/extent|lc:RT:bf2:Extent",
-                            "id": "id_loc_gov_ontologies_bibframe_extent__extent",
-                            "hashCode": 264011767,
+                            "id": "id_loc_gov_ontologies_bibframe_extent__physical_description",
+                            "hashCode": 1322374297,
                             "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/extent",
                             "hasData": true,
                             "userModified": true,
@@ -2387,11 +2387,11 @@
                     },
 
                     {
-                        "id": "rA9Dofs4QZ38hUxrjxqRcY",
+                        "id": "8kM8yXVBX92kx8YtmTT98m",
                         "groupId": "Illustrations, Map",
                         "position": 0,
                         "structure": {
-                            "propertyLabel": "Extent",
+                            "propertyLabel": "Physical description",
                             "propertyURI": "http://id.loc.gov/ontologies/bibframe/extent",
                             "resourceTemplates": [],
                             "valueConstraint": {
@@ -2412,13 +2412,13 @@
                                 "@root": "http://id.loc.gov/ontologies/bibframe/extent",
                                 "http://id.loc.gov/ontologies/bibframe/extent": [
                                     {
-                                        "@guid": "hD9oA1JtcHgo3D2NiyDdED",
+                                        "@guid": "pPUxYd9bvY2ATCC5kWQVS3",
                                         "http://id.loc.gov/ontologies/bibframe/note": [
                                             {
-                                                "@guid": "scQrday8SNwwMPdg5pGqci",
+                                                "@guid": "c6nEMoYLvvuEVCb81X6WWR",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
-                                                        "@guid": "ebayQB4HLMUwoBjZ8Lhaf5",
+                                                        "@guid": "mTD5wNpvxqvkQZk4PkLY8G",
                                                         "http://www.w3.org/2000/01/rdf-schema#label": "illustrations, maps"
                                                     }
                                                 ],
@@ -2432,8 +2432,8 @@
                             "@guid": null,
                             "canBeHidden": true,
                             "preferenceId": "http://id.loc.gov/ontologies/bibframe/extent|lc:RT:bf2:Extent",
-                            "id": "id_loc_gov_ontologies_bibframe_extent__extent",
-                            "hashCode": 264011767,
+                            "id": "id_loc_gov_ontologies_bibframe_extent__physical_description",
+                            "hashCode": 1322374297,
                             "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/extent",
                             "hasData": true,
                             "userModified": true,
@@ -2946,11 +2946,11 @@
                     },
 
                     {
-                        "id": "nfrU6YS59WVvVzsJUySHDK",
+                        "id": "8kM8yXVBX92kx8YtmTT98m",
                         "groupId": "Color Ill., Color Maps",
                         "position": 0,
                         "structure": {
-                            "propertyLabel": "Extent",
+                            "propertyLabel": "Physical description",
                             "propertyURI": "http://id.loc.gov/ontologies/bibframe/extent",
                             "resourceTemplates": [],
                             "valueConstraint": {
@@ -2971,13 +2971,13 @@
                                 "@root": "http://id.loc.gov/ontologies/bibframe/extent",
                                 "http://id.loc.gov/ontologies/bibframe/extent": [
                                     {
-                                        "@guid": "hD9oA1JtcHgo3D2NiyDdED",
+                                        "@guid": "pPUxYd9bvY2ATCC5kWQVS3",
                                         "http://id.loc.gov/ontologies/bibframe/note": [
                                             {
-                                                "@guid": "scQrday8SNwwMPdg5pGqci",
+                                                "@guid": "c6nEMoYLvvuEVCb81X6WWR",
                                                 "http://www.w3.org/2000/01/rdf-schema#label": [
                                                     {
-                                                        "@guid": "ebayQB4HLMUwoBjZ8Lhaf5",
+                                                        "@guid": "mTD5wNpvxqvkQZk4PkLY8G",
                                                         "http://www.w3.org/2000/01/rdf-schema#label": "illustrations, maps"
                                                     }
                                                 ],
@@ -2991,14 +2991,14 @@
                             "@guid": null,
                             "canBeHidden": true,
                             "preferenceId": "http://id.loc.gov/ontologies/bibframe/extent|lc:RT:bf2:Extent",
-                            "id": "id_loc_gov_ontologies_bibframe_extent__extent",
-                            "hashCode": 264011767,
+                            "id": "id_loc_gov_ontologies_bibframe_extent__physical_description",
+                            "hashCode": 1322374297,
                             "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/extent",
                             "hasData": true,
                             "userModified": true,
                             "dataLoaded": false
                         },
-                        "label": "Color ill, color maps (extnt)"
+                        "label": "Color Ill, color maps (extnt)"
                     }
                 ]
             },
