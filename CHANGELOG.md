@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.3.17] - 2025-01-01
+### Updated
+- Load screen updates to prompt to resync from LCAP if no LCCN found
+- Adds dates loaded from METS records in BFDB/ID to show when a record was last edited 
+- Made minor improvments to NAR input 
+
+
 ## [1.3.14] - 2025-06-27
 ### Updated
 - how complex geographic types are set
