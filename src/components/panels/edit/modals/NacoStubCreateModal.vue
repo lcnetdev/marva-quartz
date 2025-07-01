@@ -729,12 +729,15 @@
           this.extraMarcStatements.push({
             fieldTag: '',
             indicators: '##',
-            value: '$',
+            value: '$a',
             subfields: {
               
             }
           })
 
+          this.$nextTick(()=>{
+            document.getElementsByClassName('extra-marc-tag')[document.getElementsByClassName('extra-marc-tag').length-1].focus()
+          })
 
         },
 
@@ -1646,6 +1649,7 @@
                       v-model="row.fieldTag"
                       maxlength="3"
                       placeholder="TAG"
+                      class="extra-marc-tag"
                       style="margin-right: 1em; width: 50px;"
                     />
                     <input

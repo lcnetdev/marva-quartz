@@ -148,7 +148,18 @@
                               <span v-else>{{ r.label }}</span>
                             </td>
                             <td><a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">BFDB</a></td>
-                            <td> </td>
+                            <td> 
+                              <span data-tooltip="When record was loaded/edited in BFDB" class="simptip-position-left" v-if="recordLastSystemDate[r.idURL]">{{ recordLastSystemDate[r.idURL] }}</span>  
+                              <span v-else>
+                                  <ul class="dots-loading">        
+                                      <li class="dot one"></li>
+                                      <li class="dot two"></li>
+                                      <li class="dot three"></li>
+                                  </ul>
+
+
+                              </span>
+                            </td>
                           </tr>
                         </tbody>
                       </table>
@@ -376,6 +387,8 @@ export default {
 
       loadingRecord: false,
       loadType: "loadMarc",
+
+      recordLastSystemDate: {},
 
     }
   },
@@ -616,6 +629,29 @@ export default {
         }
 
         console.log("searchByLccnResults", this.searchByLccnResults)
+
+        for (let r of this.searchByLccnResults) {
+          if (r.idURL && r.idURL.indexOf('http') > -1) {
+            utilsNetwork.fetchLastSystemDate(r.idURL).then((results)=>{
+              console.log("results", results)
+              if (results){
+                try{
+                  results = new Date(results).getTime()
+                  results = this.returnTimeAgo(results / 1000)
+                  this.recordLastSystemDate[r.idURL] = results            
+
+                } catch (e) {
+                  console.warn("Error parsing date", e)
+                  this.recordLastSystemDate[r.idURL] = 'error'
+
+                }
+              }
+              
+            })
+            
+          }
+        }
+
 
       }, 500)
 
@@ -1034,6 +1070,38 @@ export default {
 </script>
 
 <style>
+
+.dots-loading {
+    text-wrap: nowrap;
+}
+.dot {
+    display: inline-block;
+    border-radius: 40px;
+    background-color: black;
+    animation: dot 1.5s infinite;
+    margin-right: 4px;
+}
+
+.one {
+    animation-delay: 0.0s;
+}
+
+.two {
+    animation-delay: 0.5s;
+}
+
+.three {
+    animation-delay: 1.0s;
+}
+
+@keyframes dot {
+     0% { width: 3px; height: 3px; margin-right: 4px; }
+    25% { width: 5px; height: 5px; margin-right: 2px; }
+    33% { width: 3px; height: 3px; margin-right: 4px; }
+   100% { width: 3px; height: 3px; margin-right: 4px; }
+}
+
+
 .loading-record {
   text-align: center;
   font-size: 1.5em;
