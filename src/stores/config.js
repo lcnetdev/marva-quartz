@@ -88,6 +88,7 @@ export const useConfigStore = defineStore('config', {
         simpleLookupLang: 'en',
         publicEndpoints:true,
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
+        bfdb : 'https://preprod-8230.id.loc.gov/',
 
       },
 
