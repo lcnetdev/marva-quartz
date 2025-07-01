@@ -1197,6 +1197,7 @@ export default {
       this.subjectString = this.components.map((component) => component.label).join("--")
 
       console.info("final components: ", this.components)
+      console.info("components string: ", JSON.stringify(this.components))
 
     },
 
@@ -1498,6 +1499,7 @@ export default {
      *
      */
     buildPickLookup: function () {
+      console.info("\n\n\tbuildPickLookup")
       for (let x in this.searchResults.subjectsComplex) {
         this.pickLookup[x] = this.searchResults.subjectsComplex[x]
       }
@@ -1674,6 +1676,7 @@ export default {
         }
       }
 
+      console.info("that.pickPosition: ", that.pickPostion, "--", that.pickLookup[that.pickPostion])
       // that.contextData.dispatch("clearContext", { self: that})
       if (that.pickLookup[that.pickPostion] && !that.pickLookup[that.pickPostion].literal) {
         that.contextRequestInProgress = true
@@ -1682,6 +1685,7 @@ export default {
 
         // keep a local copy of it for looking up subject type
         if (that.contextData) {
+          console.info("local copy")
           that.localContextCache[that.contextData.uri] = JSON.parse(JSON.stringify(that.contextData))
         }
       }
@@ -1722,6 +1726,8 @@ export default {
         // }
         // },100)
       })
+
+      console.info("that.contextData after search: ", that.contextData)
 
     }, 500),
 
@@ -2157,7 +2163,8 @@ export default {
         }
       }
 
-
+      console.info("select > activeComponentIndex: ", this.activeComponentIndex)
+      console.info("select > activeComponent: ", this.activeComponent)
 
     },
 
@@ -2449,7 +2456,7 @@ export default {
     },
 
     subjectStringChanged: async function (event) {
-      console.info("\n\nsubjectStringChanged: ", event)
+      console.info("\n\n\tsubjectStringChanged: ", event, "--", this.subjectString)
       this.subjectString = this.subjectString.replace("—", "--")
       this.validateOkayToAdd()
 
@@ -2468,6 +2475,7 @@ export default {
       }
 
       // if the event coming in is the keystroke after a '$' then check to change the type
+      // Does this ever get used, are people entering $a/v/z/y in the subject search??
       if (event && this.nextInputIsTypeSelection) {
         if (event.data.toLowerCase() === 'a' || event.data.toLowerCase() === 'x') {
           this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
@@ -2489,7 +2497,7 @@ export default {
         this.nextInputIsTypeSelection = false
         this.subjectStringChanged()
 
-        console.info("this.typeLookup: ", this.typeLookup)
+        console.info("\tthis.typeLookup: ", this.typeLookup)
 
       } else {
         // its a normal keystroke not after '$' but check to see if it was a keyboard event
@@ -2499,7 +2507,11 @@ export default {
         }
       }
 
-      this.showTypes = true
+      // this.showTypes = true
+      // Only show when there's a literal selected
+      try{
+        this.showTypes = this.pickLookup[this.pickPostion].literal && this.pickLookup[this.pickPostion].picked
+      } catch {}
 
       // if they erase everything remove the components
       if (this.subjectString.length == 0) {
@@ -2525,7 +2537,7 @@ export default {
 
 
         for (let c of this.components) {
-          console.info("c: ", c)
+          console.info("\tc: ", c)
           if (event.target.selectionStart >= c.posStart && event.target.selectionStart <= c.posEnd + 1) {
             this.activeComponent = c
             this.activeComponentIndex = c.id
@@ -2555,7 +2567,7 @@ export default {
         // which would likely be the type if not a keyboard event
 
         this.activeComponent = this.components[this.activeComponentIndex]
-        console.info("this.activeComponent: ", this.activeComponent)
+        console.info("\tthis.activeComponent: ", this.activeComponent)
 
 
       }
@@ -2578,7 +2590,7 @@ export default {
 
         window.setTimeout(() => {
           for (let x of this.components) {
-            console.info("x: ", x)
+            console.info("\tx: ", x)
             if (this.localContextCache[x.uri]) {
               if (this.activeComponent.type || this.localContextCache[x.uri].type) {
                 // don't do anything
@@ -2603,7 +2615,7 @@ export default {
 
           }
 
-          console.info("this.components: ", this.components)
+          console.info("\tthis.components: ", this.components)
 
           this.updateAvctiveTypeSelected()
           this.validateOkayToAdd()
@@ -2745,7 +2757,7 @@ export default {
     },
 
     add: async function () {
-      console.info("\n\nadd")
+      console.info("\n\nadd: ", this.components)
       //remove any existing thesaurus label, so it has the most current
       //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2753,20 +2765,24 @@ export default {
       // remove our werid hyphens before we send it back
       for (let c of this.components) {
         c.label = c.label.replaceAll('‑', '-')
+        console.info("c: ", JSON.parse(JSON.stringify(c)))
         console.info("this.activeTypes: ", this.activeTypes)
+        console.info("this.localContextCache: ", this.localContextCache)
         // we have the full mads type from the build process, check if the component is a id name authortiy
         // if so over write the user defined type with the full type from the authority file so that
         // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
-        if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]) {
-          let tempType = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#', 'madsrdf:')
-          console.info("tempType: ", tempType)
-          if (!Object.keys(this.activeTypes).includes(tempType)) {
-            c.type = tempType
-          }
-          if (c.type == 'madsrdf:Topic') {
-            c.type = tempType
-          }
-        }
+
+        // This is a fallback that will replace a user selected type with the type from the `localContextCache`, maybe not needed?
+        // if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]) {
+        //   let tempType = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#', 'madsrdf:')
+        //   console.info("tempType: ", tempType)
+        //   if (!Object.keys(this.activeTypes).includes(tempType)) {
+        //     c.type = tempType
+        //   }
+        //   if (c.type == 'madsrdf:Topic') {
+        //     c.type = tempType
+        //   }
+        // }
         console.info("c.type: ", c.type)
       }
 
@@ -2784,6 +2800,7 @@ export default {
 
       let complexSubjects = this.searchResults["subjectsComplex"].concat(this.searchResults["subjectsChildrenComplex"])
 
+      // Determine if the build heading matches a complex subject, replace the individual pieces with 1 heading if possible
       for (let el in complexSubjects) {
         let target = complexSubjects[el]
         if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false) {
@@ -2792,10 +2809,10 @@ export default {
           let targetContext = target.extra
 
           let marcKey = ""
-          if (Array.isArray(targetContext.marcKey) && typeof targetContext.marcKey[0] == 'string') {
-            marcKey = targetContext.marcKey[0]
+          if (Array.isArray(targetContext.marcKeys) && typeof targetContext.marcKeys[0] == 'string') {
+            marcKey = targetContext.marcKeys[0]
           } else if (targetContext.marcKey) {
-            marcKey = targetContext.marcKey //[0]["@value"]
+            marcKey = targetContext.marcKey
           }
 
           if (marcKey.slice(5) == componentTypes) {
@@ -2940,7 +2957,8 @@ export default {
         this.components = newComponents
       }
 
-      console.info("emit: ", this.components)
+      console.info("type: ", typeof this.components)
+      console.info("emit: ", JSON.stringify(this.components))
       this.$emit('subjectAdded', this.components)
     },
 
