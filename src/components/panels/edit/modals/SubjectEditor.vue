@@ -151,6 +151,7 @@
                     <li :class="['type-item', { 'type-item-selected': (type.selected) }]" v-for="type in activeTypes"
                       :key="type.value" @click="setTypeClick($event, type.value)"
                       :style="`${this.preferenceStore.styleModalTextColor()}`">
+                      {{ type }}
                       {{ type.label }}</li>
                   </ol>
                 </div>
@@ -919,6 +920,7 @@ export default {
         url = url.replace('http://id.', 'https://preprod-8080.id.')
         url = url.replace('https://id.', 'https://preprod-8080.id.')
       }
+      console.info("url: ", url)
       let data = await utilsNetwork.fetchSimpleLookup(url + ".json", true)
       let components = false
       let subfields = false
@@ -1149,27 +1151,29 @@ export default {
 
 
         if (this.componetLookup[id + offset] && this.componetLookup[id + offset][tempSs]) {
-          literal = this.componetLookup[id + offset][tempSs].literal
-          uri = this.componetLookup[id + offset][tempSs].uri
-          marcKey = this.componetLookup[id + offset][tempSs].marcKey
-          nonLatinLabel = this.componetLookup[id + offset][tempSs].nonLatinTitle
+          literal         = this.componetLookup[id + offset][tempSs].literal
+          uri             = this.componetLookup[id + offset][tempSs].uri
+          marcKey         = this.componetLookup[id + offset][tempSs].marcKey
+          nonLatinLabel   = this.componetLookup[id + offset][tempSs].nonLatinTitle
           nonLatinMarcKey = this.componetLookup[id + offset][tempSs].nonLatinMarcKey
         } else if (this.componetLookup[id + offset] && this.componetLookup[id + offset][ss]) {
-          literal = this.componetLookup[id + offset][ss].literal
-          uri = this.componetLookup[id + offset][ss].uri
-          marcKey = this.componetLookup[id + offset][ss].marcKey
-          nonLatinLabel = this.componetLookup[id + offset][ss].nonLatinTitle
+          literal         = this.componetLookup[id + offset][ss].literal
+          uri             = this.componetLookup[id + offset][ss].uri
+          marcKey         = this.componetLookup[id + offset][ss].marcKey
+          nonLatinLabel   = this.componetLookup[id + offset][ss].nonLatinTitle
           nonLatinMarcKey = this.componetLookup[id + offset][ss].nonLatinMarcKey
         }
 
-        if (this.typeLookup[id + offset]) {
-          type = this.typeLookup[id + offset]
-        }
+        // if (this.typeLookup[id + offset]) {
+        //   type = this.typeLookup[id + offset]
+        // }
 
         if (uri && uri.includes("/hubs/")) {
           type = "bf:Hub"
         }
 
+        console.info("this.componetLookup: ", this.componetLookup)
+        console.info("this.typeLookup: ", this.typeLookup)
         console.info("type: ", type)
 
         console.info("adding component for ", ss)
@@ -1177,7 +1181,7 @@ export default {
           label: ss,
           uri: uri,
           id: id,
-          type: type, //this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : type,
+          type: this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : 'madsrdf:Topic',
           complex: ss.includes('‑‑'),
           literal: literal,
           posStart: activePosStart,
@@ -2102,7 +2106,8 @@ export default {
           this.pickLookup[k].picked = false
         }
         // complex headings are all topics (...probably)
-        this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
+        // this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
+        this.components[this.activeComponentIndex] = 'madsrdf:Topic'
         this.pickLookup[this.pickPostion].picked = true
 
         //This check is needed to prevent falling into recursive loop when loading
@@ -2135,6 +2140,8 @@ export default {
         let _ = await this.getContext() //ensure the pickLookup has the marcKey
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')] = this.pickLookup[this.pickPostion]
 
+        console.info("this.componetLookup: ", this.componetLookup)
+
         for (let k in this.pickLookup) {
           this.pickLookup[k].picked = false
         }
@@ -2153,7 +2160,9 @@ export default {
         console.info("setTypeClick: ", type)
         this.setTypeClick(null, type)
       } catch(err) {
-        console.error("Error getting the type. ", err)
+        // console.error("Error getting the type. ", err)
+        console.error("Error getting the type: ", this.components[this.activeComponentIndex])
+
       }
 
         // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
@@ -2376,7 +2385,7 @@ export default {
         } else {
           this.activeTypes["madsrdf:Topic"].selected = true
         }
-      } else if (this.activeComponent.type == null && this.activeComponent.marcKey != null) { //fall back on the marcKey, this can be null if the selection is too fast?
+      } else if (this.activeComponent.type && this.activeComponent.type == null && this.activeComponent.marcKey != null) { //fall back on the marcKey, this can be null if the selection is too fast?
         let subfield = this.activeComponent.marcKey.slice(5, 7)
         switch (subfield) {
           case ("$v"):
@@ -2392,6 +2401,7 @@ export default {
             subfield = "madsrdf:Topic"
         }
 
+        console.info("subfield: ", subfield)
         this.activeTypes[subfield].selected = true
         this.activeComponent.type = subfield
       }
@@ -2400,10 +2410,16 @@ export default {
 
     },
 
-    setTypeClick: function (event, type) {
+    setTypeClick: function (event, type) { // should this set the type in the component??
+      console.info("\n\tsetTypeClick: ", type)
+      console.info("components 1: ", JSON.parse(JSON.stringify(this.components)))
       this.activeComponent.type = type
-      this.typeLookup[this.activeComponentIndex] = type
-      this.subjectStringChanged()
+      // this.typeLookup[this.activeComponentIndex] = type
+
+      this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra = {"type": type}
+
+      console.info("components 2: ", JSON.parse(JSON.stringify(this.components)))
+      this.subjectStringChanged() // without this the active selection won't show any indication
       this.$refs.subjectInput.focus()
 
       console.info("this.typeLookup: ", this.typeLookup)
@@ -2457,6 +2473,7 @@ export default {
 
     subjectStringChanged: async function (event) {
       console.info("\n\n\tsubjectStringChanged: ", event, "--", this.subjectString)
+      console.info("\tcomponents: ", this.components)
       this.subjectString = this.subjectString.replace("—", "--")
       this.validateOkayToAdd()
 
@@ -2478,19 +2495,23 @@ export default {
       // Does this ever get used, are people entering $a/v/z/y in the subject search??
       if (event && this.nextInputIsTypeSelection) {
         if (event.data.toLowerCase() === 'a' || event.data.toLowerCase() === 'x') {
-          this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
+          // this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
+          this.components[this.activeComponentIndex].type = 'madsrdf:Topic'
           this.subjectString = this.subjectString.replace('$' + event.data, '')
         }
         if (event.data.toLowerCase() === 'v') {
-          this.typeLookup[this.activeComponentIndex] = 'madsrdf:GenreForm'
+          // this.typeLookup[this.activeComponentIndex] = 'madsrdf:GenreForm'
+          this.components[this.activeComponentIndex].type = 'madsrdf:GenreForm'
           this.subjectString = this.subjectString.replace('$' + event.data, '')
         }
         if (event.data.toLowerCase() === 'z') {
-          this.typeLookup[this.activeComponentIndex] = 'madsrdf:Geographic'
+          // this.typeLookup[this.activeComponentIndex] = 'madsrdf:Geographic'
+          this.components[this.activeComponentIndex].type = 'madsrdf:Geographic'
           this.subjectString = this.subjectString.replace('$' + event.data, '')
         }
         if (event.data.toLowerCase() === 'y') {
-          this.typeLookup[this.activeComponentIndex] = 'madsrdf:Temporal'
+          // this.typeLookup[this.activeComponentIndex] = 'madsrdf:Temporal'
+          this.components[this.activeComponentIndex].type = 'madsrdf:Temporal'
           this.subjectString = this.subjectString.replace('$' + event.data, '')
         }
 
@@ -2766,7 +2787,7 @@ export default {
       for (let c of this.components) {
         c.label = c.label.replaceAll('‑', '-')
         console.info("c: ", JSON.parse(JSON.stringify(c)))
-        console.info("this.activeTypes: ", this.activeTypes)
+        // console.info("this.activeTypes: ", this.activeTypes)
         console.info("this.localContextCache: ", this.localContextCache)
         // we have the full mads type from the build process, check if the component is a id name authortiy
         // if so over write the user defined type with the full type from the authority file so that
@@ -2800,7 +2821,7 @@ export default {
 
       let complexSubjects = this.searchResults["subjectsComplex"].concat(this.searchResults["subjectsChildrenComplex"])
 
-      // Determine if the build heading matches a complex subject, replace the individual pieces with 1 heading if possible
+      // Determine if the built heading matches a complex subject, replace the individual pieces with 1 heading if possible
       for (let el in complexSubjects) {
         let target = complexSubjects[el]
         if (target.label.replaceAll("‑", "-") == componentCheck && target.depreciated == false) {
@@ -2856,14 +2877,18 @@ export default {
             } else {
               data = target
             }
+            console.info("data: ", data)
             let subs
             subs = target.marcKey.slice(5)
             // subfields = subfields.match(/\$./g)
             subs = subs.match(/\$[axyzv]{1}/g)
+            console.info("marcKey: ", target.marcKey)
+            console.info("subs: ", subs)
             const complexLabel = target.label
             // build the new components
             let id = prevItems
             let labels = complexLabel.split("--")
+
             for (let idx in labels) {
               let subfield
               if (data) {
@@ -2873,10 +2898,7 @@ export default {
                 subfield = marcKey.match(/\$[axyzv]{1}/g)
                 subfield = subfield[idx]
               }
-
               subfield = this.getTypeFromSubfield(subfield)
-
-              console.info("subfield: ", subfield)
 
               // Override the subfield of the first element based on the marc tag
               let tag = target.marcKey.slice(0, 3)
@@ -2919,7 +2941,9 @@ export default {
                     tag = "180"
                 }
               }
+              console.info("tag: ", tag)
               let marcKey = tag + "  " + sub + labels[idx]
+              console.info("marcKey: ", marcKey)
 
               let uriId = idx
 
