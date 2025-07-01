@@ -111,12 +111,15 @@
 
                 <ol>
 
-                  <li v-if="searchByLccnResults && searchByLccnResults.length === 0">
-                    <div>No results...</div>
+
+                  <div v-if="searchByLccnResults && searchByLccnResults.length === 0">No results...</div>
+
+                  <li v-if="(searchByLccnResults && searchByLccnResults.length === 0) || showSyncOptions">
+                    
 
                     <div><button @click="openLCAPSyncURL()">Click to Request LCAP Sync for this LCCN</button></div>
                     <div>and then</div>
-                    <div><button @click="loadSearch()">Click to Run Search Again</button></div>
+                    <div><button @click="loadSearch(); showSyncOptions=false">Click to Run Search Again</button></div>
                   </li>
 
                   <template v-if="searchByLccnResults && typeof searchByLccnResults === 'string'">
@@ -129,6 +132,7 @@
                     <table>
                         <thead>
                           <tr>
+                            <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
@@ -158,6 +162,13 @@
                                   </ul>
 
 
+                              </span>
+                            </td>
+                            <td>
+                              <span data-tooltip="Show LCAP Resync Buttons" class="simptip-position-left">
+
+                              
+                                <a href="#" style="cursor: pointer; color:inherit; text-decoration: none;" @click.prevent="showSyncOptions = true" class="material-icons"  title="Show Resync Options">loop</a>
                               </span>
                             </td>
                           </tr>
@@ -372,6 +383,8 @@ export default {
       lccnLoadSelected: false,
 
       dataTableInitalLimit: 1000,
+
+      showSyncOptions: false,
 
       defaultProfile: '',
 
