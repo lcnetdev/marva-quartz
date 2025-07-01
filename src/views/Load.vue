@@ -111,7 +111,13 @@
 
                 <ol>
 
-                  <li v-if="searchByLccnResults && searchByLccnResults.length === 0">No results...</li>
+                  <li v-if="searchByLccnResults && searchByLccnResults.length === 0">
+                    <div>No results...</div>
+
+                    <div><button @click="openLCAPSyncURL()">Click to Request LCAP Sync for this LCCN</button></div>
+                    <div>and then</div>
+                    <div><button @click="loadSearch()">Click to Run Search Again</button></div>
+                  </li>
 
                   <template v-if="searchByLccnResults && typeof searchByLccnResults === 'string'">
 
@@ -120,7 +126,40 @@
                   </template>
                   <template v-else>
 
+                    <table>
+                        <thead>
+                          <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
+                            <td  v-if="searchByLccnResults.length > 1">
+                              <input type="radio"
+                                v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch' + idx"
+                                :name="'lccnsearch' + idx" checked="true" />
+                            </td>
+
+                            <td>
+                              <label  v-if="searchByLccnResults.length > 1" style="cursor: pointer;" :for="'lccnsearch' + idx">{{ r.label }}</label>
+                              <span v-else>{{ r.label }}</span>
+                            </td>
+                            <td><a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">BFDB</a></td>
+                            <td> </td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+
+<!-- 
                     <li v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
+
+
+
+
                       <div style="display:flex">
 
                         <div style="flex:2;">{{+ + idx }}. <span style="font-weight:bold">{{ r.label }}</span></div>
@@ -138,10 +177,10 @@
                           </span>
                         </div>
 
-                        <!-- <div style="flex:1"><a href="#" target="_blank" @click.prevent="instanceEditorLink = r.bfdbPackageURL; testInstance()">Retrieve</a></div> -->
+                        
 
                       </div>
-                    </li>
+                    </li> -->
 
 
 
@@ -378,6 +417,13 @@ export default {
       return config.returnUrls.displayLCOnlyFeatures
     },
 
+    openLCAPSyncURL(){
+
+      window.open(`http://c2vlpndmsojump01.loc.gov/foliar/api/fetch_and_load/bib?lccn=${this.urlToLoad}&serialization=json`, '_blank')
+
+    },
+
+    
     changeLoadType: function (event) {
       if (event.target.checked) {
         this.loadType = "loadBf"
@@ -568,6 +614,8 @@ export default {
         if (this.searchByLccnResults.length == 1) {
           this.lccnLoadSelected = this.searchByLccnResults[0]
         }
+
+        console.log("searchByLccnResults", this.searchByLccnResults)
 
       }, 500)
 
