@@ -3848,7 +3848,7 @@ const utilsNetwork = {
 
       let basePath = url.split('id.loc.gov/')[1];
 
-      let bfdbUrl = useConfigStore().returnUrls.bfdb + basePath + '.doc.xml';
+      let bfdbUrl = useConfigStore().returnUrls.bfdb + basePath + '.doc.xml' + "?blastdacache=" + Date.now();
 
       let results
       try {
@@ -3857,7 +3857,7 @@ const utilsNetwork = {
 
         // try ID
         let id = basePath.split('/').pop()
-        let idUrl = useConfigStore().returnUrls.id + 'data/bibs/' + id + '.mets.xml';
+        let idUrl = useConfigStore().returnUrls.id + 'data/bibs/' + id + '.mets.xml' + "?blastdacache=" + Date.now();
         try {
           results = await fetch(idUrl);
         } catch (error) {
