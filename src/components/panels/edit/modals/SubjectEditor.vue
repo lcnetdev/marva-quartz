@@ -966,6 +966,7 @@ export default {
 
       // The subject is made of multiple parts
       if (Array.isArray(incomingSubjects)) {
+        console.info("\tmultiple parts")
         for (let subjIdx in incomingSubjects) {
           this.componetLookup[subjIdx] = {}
           let type = incomingSubjects[subjIdx]["@type"]
@@ -973,19 +974,24 @@ export default {
           console.info("type: ", type)
 
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
-            this.typeLookup[subjIdx] = 'madsrdf:Topic'
+            // this.typeLookup[subjIdx] = 'madsrdf:Topic'
+            type = 'madsrdf:Topic'
           }
           if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")) {
-            this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
+            // this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
+            type = 'madsrdf:GenreForm'
           }
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic") || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")) {
-            this.typeLookup[subjIdx] = 'madsrdf:Geographic'
+            // this.typeLookup[subjIdx] = 'madsrdf:Geographic'
+            type = 'madsrdf:Geographic'
           }
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")) {
-            this.typeLookup[subjIdx] = 'madsrdf:Temporal'
+            // this.typeLookup[subjIdx] = 'madsrdf:Temporal'
+            type = 'madsrdf:Temporal'
           }
           if (type.includes("Hub") || type.includes("Work")) {
-            this.typeLookup[subjIdx] = type
+            // this.typeLookup[subjIdx] = type
+            type = type
           }
 
 
@@ -1002,7 +1008,7 @@ export default {
               label: incomingSubjects[subjIdx][lookUp][0][lookUp],
               literal: incomingSubjects[subjIdx]["@id"] ? false : true,
               uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null,
-              type: this.typeLookup[subjIdx],
+              type: type, //this.typeLookup[subjIdx],
               marcKey: incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"] ? incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"] : ""
             }
 
@@ -1011,26 +1017,32 @@ export default {
           }
         }
       } else {
+        console.info("\tcomplex")
         // dealing with a complex subject
         this.componetLookup[0] = {}
         let type = incomingSubjects["@type"] ? incomingSubjects["@type"] : ""
 
-        console.info("complex type: ", type)
+        console.info("\tcomplex type: ", type)
 
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
-          this.typeLookup[0] = 'madsrdf:Topic'
+          // this.typeLookup[0] = 'madsrdf:Topic'
+          type = 'madsrdf:Topic'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")) {
-          this.typeLookup[0] = 'madsrdf:GenreForm'
+          // this.typeLookup[0] = 'madsrdf:GenreForm'
+          type = 'madsrdf:GenreForm'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic" || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))) {
-          this.typeLookup[0] = 'madsrdf:Geographic'
+          // this.typeLookup[0] = 'madsrdf:Geographic'
+          type = 'madsrdf:Geographic'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")) {
-          this.typeLookup[0] = 'madsrdf:Temporal'
+          // this.typeLookup[0] = 'madsrdf:Temporal'
+          type = 'madsrdf:Temporal'
         }
         if (type.includes("Hub") || type.includes("Work")) {
-          this.typeLookup[0] = type
+          // this.typeLookup[0] = type
+          type = type
         }
 
         if (Object.keys(incomingSubjects).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")) {
@@ -1045,7 +1057,7 @@ export default {
             label: incomingSubjects[lookUp][0][lookUp],
             literal: incomingSubjects["@id"] ? false : true,
             uri: incomingSubjects["@id"] ? incomingSubjects["@id"] : null,
-            type: this.typeLookup[0],
+            type: type, //this.typeLookup[0],
             marcKey: incomingSubjects["http://id.loc.gov/ontologies/bflc/marcKey"] ? incomingSubjects["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"] : ""
           }
         } catch (err) {
@@ -1173,7 +1185,6 @@ export default {
         }
 
         console.info("this.componetLookup: ", this.componetLookup)
-        console.info("this.typeLookup: ", this.typeLookup)
         console.info("type: ", type)
 
         console.info("adding component for ", ss)
@@ -2107,7 +2118,7 @@ export default {
         }
         // complex headings are all topics (...probably)
         // this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
-        this.components[this.activeComponentIndex] = 'madsrdf:Topic'
+        this.components[this.activeComponentIndex].type = 'madsrdf:Topic'
         this.pickLookup[this.pickPostion].picked = true
 
         //This check is needed to prevent falling into recursive loop when loading
@@ -2174,6 +2185,8 @@ export default {
 
       console.info("select > activeComponentIndex: ", this.activeComponentIndex)
       console.info("select > activeComponent: ", this.activeComponent)
+
+      this.$refs.subjectInput.focus()
 
     },
 
@@ -2546,7 +2559,10 @@ export default {
         // quickly, it will end up searcing on the last letter to be deleted
         this.searchApis("", "", this)
       }
+
       if (!this.subjectString.endsWith("--")) {
+        // TODO: does this need to be "--"?, Yes, a name search won't have results
+        // do 2 checks !endswith &&(||?) that the previous component has been verified?
         this.buildComponents(this.subjectString)
       }
 
@@ -2636,7 +2652,7 @@ export default {
 
           }
 
-          console.info("\tthis.components: ", this.components)
+          console.info("\tthis.components: ", JSON.parse(JSON.stringify(this.components)))
 
           this.updateAvctiveTypeSelected()
           this.validateOkayToAdd()
@@ -3033,6 +3049,7 @@ export default {
 
 
     loadUserValue: function (userValue) {
+      console.info("loadUserValue: ", userValue)
       // reset things if they might be opening this again for some reason
       this.cleanState()
 
@@ -3301,7 +3318,6 @@ export default {
     if (searchValue && this.components.length != searchValue.split("--").length && !searchValue.endsWith('--')) {
       this.buildLookupComponents(incomingSubjects)
       this.buildComponents(searchValue)
-
       this.initialLoad = false
       this.subjectStringChanged()
       this.activeComponentIndex = 0
