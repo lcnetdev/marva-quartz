@@ -811,7 +811,6 @@ export default {
       componetLookup: {},
       localContextCache: {},
       nextInputIsTypeSelection: false,
-      typeLookup: {},
       okayToAdd: false,
       lowResMode: false,
       searchStringPos: 0,
@@ -956,7 +955,6 @@ export default {
      */
     buildLookupComponents: function (incomingSubjects) {
         console.info("\n\nbuildLookupComponents: ", incomingSubjects)
-      this.typeLookup = {}
 
       if (!incomingSubjects || typeof incomingSubjects == "undefined") {
         return
@@ -974,25 +972,20 @@ export default {
           console.info("type: ", type)
 
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
-            // this.typeLookup[subjIdx] = 'madsrdf:Topic'
             type = 'madsrdf:Topic'
           }
           if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")) {
-            // this.typeLookup[subjIdx] = 'madsrdf:GenreForm'
             type = 'madsrdf:GenreForm'
           }
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic") || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")) {
-            // this.typeLookup[subjIdx] = 'madsrdf:Geographic'
             type = 'madsrdf:Geographic'
           }
           if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")) {
-            // this.typeLookup[subjIdx] = 'madsrdf:Temporal'
             type = 'madsrdf:Temporal'
           }
-          if (type.includes("Hub") || type.includes("Work")) {
-            // this.typeLookup[subjIdx] = type
-            type = type
-          }
+          // if (type.includes("Hub") || type.includes("Work")) {
+          //   type = type
+          // }
 
 
           if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")) {
@@ -1008,7 +1001,7 @@ export default {
               label: incomingSubjects[subjIdx][lookUp][0][lookUp],
               literal: incomingSubjects[subjIdx]["@id"] ? false : true,
               uri: incomingSubjects[subjIdx]["@id"] ? incomingSubjects[subjIdx]["@id"] : null,
-              type: type, //this.typeLookup[subjIdx],
+              type: type,
               marcKey: incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"] ? incomingSubjects[subjIdx]["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"] : ""
             }
 
@@ -1025,25 +1018,20 @@ export default {
         console.info("\tcomplex type: ", type)
 
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
-          // this.typeLookup[0] = 'madsrdf:Topic'
           type = 'madsrdf:Topic'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")) {
-          // this.typeLookup[0] = 'madsrdf:GenreForm'
           type = 'madsrdf:GenreForm'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic" || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))) {
-          // this.typeLookup[0] = 'madsrdf:Geographic'
           type = 'madsrdf:Geographic'
         }
         if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")) {
-          // this.typeLookup[0] = 'madsrdf:Temporal'
           type = 'madsrdf:Temporal'
         }
-        if (type.includes("Hub") || type.includes("Work")) {
-          // this.typeLookup[0] = type
-          type = type
-        }
+        // if (type.includes("Hub") || type.includes("Work")) {
+        //   type = type
+        // }
 
         if (Object.keys(incomingSubjects).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")) {
           lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
@@ -1057,7 +1045,7 @@ export default {
             label: incomingSubjects[lookUp][0][lookUp],
             literal: incomingSubjects["@id"] ? false : true,
             uri: incomingSubjects["@id"] ? incomingSubjects["@id"] : null,
-            type: type, //this.typeLookup[0],
+            type: type,
             marcKey: incomingSubjects["http://id.loc.gov/ontologies/bflc/marcKey"] ? incomingSubjects["http://id.loc.gov/ontologies/bflc/marcKey"][0]["http://id.loc.gov/ontologies/bflc/marcKey"] : ""
           }
         } catch (err) {
@@ -1130,17 +1118,12 @@ export default {
       let activePosStart = 0
 
       /**
-       * When a string in the middle of a heading changes, the typeLookup will get thrown off.
+       * When a string in the middle of a heading changes
        * Need a way to track this.
        */
-      let diff = []
-      // if (subjectStringSplit.length < Object.keys(this.componetLookup).length){
-      //   diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes( Object.keys(this.componetLookup[x])[0]))
-      // }
-
+      let diff = []  //TODO: understand what/why is happening here.
       let offset = 0
       for (let ss of subjectStringSplit) {
-        console.info("ss", ss)
         if (subjectStringSplit.length < Object.keys(this.componetLookup).length) {
           diff = Object.keys(this.componetLookup).filter(x => !subjectStringSplit.includes(Object.keys(this.componetLookup[x])[0]))
         }
@@ -1175,10 +1158,6 @@ export default {
           nonLatinLabel   = this.componetLookup[id + offset][ss].nonLatinTitle
           nonLatinMarcKey = this.componetLookup[id + offset][ss].nonLatinMarcKey
         }
-
-        // if (this.typeLookup[id + offset]) {
-        //   type = this.typeLookup[id + offset]
-        // }
 
         if (uri && uri.includes("/hubs/")) {
           type = "bf:Hub"
@@ -2117,7 +2096,6 @@ export default {
           this.pickLookup[k].picked = false
         }
         // complex headings are all topics (...probably)
-        // this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
         this.components[this.activeComponentIndex].type = 'madsrdf:Topic'
         this.pickLookup[this.pickPostion].picked = true
 
@@ -2427,15 +2405,12 @@ export default {
       console.info("\n\tsetTypeClick: ", type)
       console.info("components 1: ", JSON.parse(JSON.stringify(this.components)))
       this.activeComponent.type = type
-      // this.typeLookup[this.activeComponentIndex] = type
 
       this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra = {"type": type}
 
       console.info("components 2: ", JSON.parse(JSON.stringify(this.components)))
       this.subjectStringChanged() // without this the active selection won't show any indication
       this.$refs.subjectInput.focus()
-
-      console.info("this.typeLookup: ", this.typeLookup)
     },
 
     renderHintBoxes: function () {
@@ -2508,30 +2483,24 @@ export default {
       // Does this ever get used, are people entering $a/v/z/y in the subject search??
       if (event && this.nextInputIsTypeSelection) {
         if (event.data.toLowerCase() === 'a' || event.data.toLowerCase() === 'x') {
-          // this.typeLookup[this.activeComponentIndex] = 'madsrdf:Topic'
           this.components[this.activeComponentIndex].type = 'madsrdf:Topic'
           this.subjectString = this.subjectString.replace('$' + event.data, '')
         }
         if (event.data.toLowerCase() === 'v') {
-          // this.typeLookup[this.activeComponentIndex] = 'madsrdf:GenreForm'
           this.components[this.activeComponentIndex].type = 'madsrdf:GenreForm'
           this.subjectString = this.subjectString.replace('$' + event.data, '')
         }
         if (event.data.toLowerCase() === 'z') {
-          // this.typeLookup[this.activeComponentIndex] = 'madsrdf:Geographic'
           this.components[this.activeComponentIndex].type = 'madsrdf:Geographic'
           this.subjectString = this.subjectString.replace('$' + event.data, '')
         }
         if (event.data.toLowerCase() === 'y') {
-          // this.typeLookup[this.activeComponentIndex] = 'madsrdf:Temporal'
           this.components[this.activeComponentIndex].type = 'madsrdf:Temporal'
           this.subjectString = this.subjectString.replace('$' + event.data, '')
         }
 
         this.nextInputIsTypeSelection = false
         this.subjectStringChanged()
-
-        console.info("\tthis.typeLookup: ", this.typeLookup)
 
       } else {
         // its a normal keystroke not after '$' but check to see if it was a keyboard event
@@ -2552,7 +2521,6 @@ export default {
         this.activeComponent = null
         this.activeComponentIndex = 0
         this.componetLookup = {}
-        this.typeLookup = {}
         this.components = []
 
         //search for nothing. Otherwise, if the user deletes their search
@@ -3037,7 +3005,6 @@ export default {
       this.contextRequestInProgress = false
       this.componetLookup = {}
       this.nextInputIsTypeSelection = false
-      this.typeLookup = {}
       this.okayToAdd = false
       this.showTypes = false
 
