@@ -6,7 +6,7 @@
     "dev": "vite",
     "dev-external": "vite --port 4444",
     "dev-e2e": "vite --port 5555",
-    "test:e2e": "npx playwright test --headed",
+    "test:e2e": "npx playwright test --headed --trace=on",
     "build": "vite build",
     "preview": "vite preview",
     "test:unit": "vitest --environment jsdom --no-isolate --root src/",
