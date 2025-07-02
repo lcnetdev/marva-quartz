@@ -144,7 +144,6 @@
                     <li :class="['type-item', { 'type-item-selected': (type.selected) }]" v-for="type in activeTypes"
                       :key="type.value" @click="setTypeClick($event, type.value)"
                       :style="`${this.preferenceStore.styleModalTextColor()}`">
-                      {{ type }}
                       {{ type.label }}</li>
                   </ol>
                 </div>

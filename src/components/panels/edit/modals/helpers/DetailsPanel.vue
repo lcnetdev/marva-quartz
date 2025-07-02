@@ -404,4 +404,13 @@ ul:has(.modal-context-data-li) {
 .simptip-position-bottom::after {
     left: -30% !important;
 }
+
+.modal-context-data-title {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.modal-context-data-li {
+    font-size: .85em;
+}
 </style>

@@ -5,12 +5,12 @@
         <div v-for="(value, ix) in searchResults[searchType]" @click="$emit('selectContext', calculateIndex(ix))"
             @mouseover="setPickPosition(calculateIndex(ix))" :data-id="calculateIndex(ix)" :key="value.uri"
             :class="['fake-option', { 'unselected': (pickPostion != calculateIndex(ix)), 'selected': (pickPostion == calculateIndex(ix)), 'picked': (pickLookup[calculateIndex(ix)] && pickLookup[calculateIndex(ix)].picked) }]">
-            <span v-if="value.suggestLabel && value.suggestLabel.length > 100">{{ value.suggestLabel.substring(0, 100)
+            <span class='label' v-if="value.suggestLabel && value.suggestLabel.length > 100">{{ value.suggestLabel.substring(0, 100)
             }}...</span>
-            <span v-else-if="value.literal">
+            <span class='label' v-else-if="value.literal">
                 {{ value.label }} [Literal]
             </span>
-            <span v-else>{{ value.suggestLabel }}</span>
+            <span v-else class="label">{{ value.suggestLabel }}</span>
             <span v-if="searchType == 'names'"> [LCNAF]</span>
             <span v-if="value.collections">
                 {{ buildAddtionalInfo(value.collections) }}
@@ -125,20 +125,20 @@ export default {
             if (collections) {
                 let out = []
                 if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings") || collections.includes("http://id.loc.gov/authorities/subjects/collection_NamesAuthorizedHeadings")) {
-                    out.push("(Auth Hd)")
+                    out.push(" (Auth Hd)")
                 } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")) {
-                    out.push("(GnFrm)")
+                    out.push(" (GnFrm)")
                 } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_GeographicSubdivisions")) {
-                    out.push("(GeoSubDiv)")
+                    out.push(" (GeoSubDiv)")
                 } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_LCSH_Childrens")) {
-                    out.push("(ChldSubj)")
+                    out.push(" (ChldSubj)")
                 } else if (collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")) {
-                    out.push("(SubDiv)")
+                    out.push(" (SubDiv)")
                 }
 
                 // favor SubDiv over GnFrm
                 if (out.includes("(GnFrm)") && collections.includes("http://id.loc.gov/authorities/subjects/collection_Subdivisions")) {
-                    out = ["(SubDiv)"]
+                    out = [" (SubDiv)"]
                 }
 
                 // if (collections.includes("LCNAF")){
@@ -147,7 +147,7 @@ export default {
 
                 return out.join(" ")
             } else {
-                return ""
+                return " "
             }
         },
     },
@@ -158,3 +158,10 @@ export default {
     updated: function () { }
 }
 </script>
+
+
+<style>
+.picked .label{
+    font-weight: bold;
+}
+</style>
