@@ -257,16 +257,6 @@ test('add complex subdivision, type first part of subdivision and then select th
     await expect(page.locator('#app')).toContainText('650 0 $a Dogs $x History $y 20th century');
 });
 
-// CYAC
-
-// Hubs
-
-// Check XML and MARC correct for
-// Geo--sub
-// name--sub
-//      name (direct order)--sub
-// hub--sub
-
 // Test headings with Hierarchical Geographic
 test('Build heading "Dogs--geo", but the geo headings is typed before selecting "Hierarchical Geo" with correct XML and MARC', async ({ page }) => {
     await page.goto('http://localhost:5555/bfe2/quartz/');
@@ -400,3 +390,97 @@ test('Build heading "Dogs--geo", but the first part of the geo heading is select
     await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/names/n50006403-781');
     await expect(page.locator('#app')).toContainText('650 0 $a Dogs $z Portugal $z Porto');
 });
+
+// CYAC
+test('Add a CYAC heading, it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('9');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('pigs');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+2');
+    await page.getByText('Pigs', { exact: true }).first().click();
+    await expect(page.getByRole('heading')).toContainText('Pigs');
+    await expect(page.getByRole('heading')).toContainText('sj96006230');
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('Pigs');
+    await expect(page.locator('#app')).toContainText('150 $aPigs');
+    await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/childrensSubjects/sj96006230');
+});
+
+// Hubs
+test('Add a HUB heading, it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('e');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('euripides. medea');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+4');
+    await expect(page.getByRole('dialog')).toContainText('Euripides. Medea (Auth) [RDA]');
+    await page.getByText('Euripides. Medea', { exact: true }).nth(1).click();
+    await expect(page.getByRole('heading')).toContainText('Euripides. Medea');
+    await expect(page.getByRole('heading')).toContainText('7b8475be-4aeb-83dc-7bf7-18a0dc7eae58');
+    await expect(page.getByRole('dialog')).toContainText('Identifiers: nr2002000714 ; oca05666133');
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('Euripides. Medea');
+    await expect(page.locator('#app')).toContainText('1000 $aEuripides.$tMedea');
+    await expect(page.locator('#app')).toContainText('http://id.loc.gov/resources/hubs/7b8475be-4aeb-83dc-7bf7-18a0dc7eae58');
+});
+
+test('Add a HUB heading wita subdivision, it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('e');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('euripides. medea');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+4');
+    await page.getByText('Euripides. Medea', { exact: true }).nth(1).click();
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+1');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Euripides. Medea--interviews');
+    await page.getByText('Interviews', { exact: true }).nth(1).click();
+    await expect(page.getByRole('dialog')).toContainText('GenreForm');
+    await expect(page.getByRole('heading')).toContainText('sh99001682');
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('Euripides. Medea--Interviews');
+    await expect(page.locator('#app')).toContainText('Euripides. Medea');
+    await expect(page.locator('#app')).toContainText('1000 $aEuripides.$tMedea');
+    await expect(page.locator('#app')).toContainText('Interviews');
+    await expect(page.locator('#app')).toContainText('185 $vInterviews');
+    await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/subjects/sh99001682');
+    await expect(page.locator('#app')).toContainText('http://id.loc.gov/resources/hubs/7b8475be-4aeb-83dc-7bf7-18a0dc7eae58');
+});
+
+
+// Check XML and MARC correct for
+// Geo--sub
+// name--sub
+//      name (direct order)--sub
+// hub--sub
