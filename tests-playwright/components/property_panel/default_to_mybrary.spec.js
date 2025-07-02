@@ -19,10 +19,11 @@ test('Can add a default component to my component library.', async ({ page }) =>
     await page.locator('summary').filter({ hasText: 'library_add Defaults:' }).locator('span').nth(3).click();
 
     // this has to be before the thing that triggers the dialogs
-    page.on('dialog', async dialog => {
-        console.log("Is this thing on?");
-        await dialog.accept();
+    page.on('dialog', dialog => {
+        console.log("Is this thing on?", dialog.message());
+        dialog.accept();
     });
+
     await page.getByRole('listitem').filter({ hasText: 'At headadd' }).getByRole('button').click();
 
     await page.locator('summary').filter({ hasText: 'library_add Library: Instance' }).click();

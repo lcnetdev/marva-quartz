@@ -21,7 +21,8 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 2,
+  // firefox tests seem to timeout when tests run in parallel, event with a 90s timeout
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -33,7 +34,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
 
-  timeout: 30 * 1000,  // set timeout to 30s, less than this can lead to a timeout before the MARC refreshes
+  timeout: 30 * 1000,  // set timeout to 60s, less 30 can lead to a timeout before the MARC refreshes, less than 60 can cause timeout in firefox tests
 
   /* Configure projects for major browsers */
   projects: [

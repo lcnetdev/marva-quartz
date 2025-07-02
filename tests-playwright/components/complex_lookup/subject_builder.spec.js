@@ -89,7 +89,7 @@ test('select a complex heading with correct XML and MARC', async ({ page }) => {
     await expect(page.getByRole('heading')).toContainText('sh2007005769');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('Dogs--Abnormalities');
+    await expect(page.locator('#app')).toContainText('Dogs‑‑Abnormalities');
     await expect(page.locator('#app')).toContainText('150 $aDogs$xAbnormalities');
     await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/subjects/sh2007005769');
     await expect(page.locator('#app')).toContainText('650 0 $a Dogs $x Abnormalities $0 http://id.loc.gov/authorities/subjects/sh2007005769');
