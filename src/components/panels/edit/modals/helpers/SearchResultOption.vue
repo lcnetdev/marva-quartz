@@ -6,7 +6,7 @@
             @mouseover="setPickPosition(calculateIndex(ix))" :data-id="calculateIndex(ix)" :key="value.uri"
             :class="['fake-option', { 'unselected': (pickPostion != calculateIndex(ix)), 'selected': (pickPostion == calculateIndex(ix)), 'picked': (pickLookup[calculateIndex(ix)] && pickLookup[calculateIndex(ix)].picked) }]">
             <span v-if="value.suggestLabel && value.suggestLabel.length > 100">{{ value.suggestLabel.substring(0, 100)
-                }}...</span>
+            }}...</span>
             <span v-else-if="value.literal">
                 {{ value.label }} [Literal]
             </span>
@@ -15,6 +15,8 @@
             <span v-if="value.collections">
                 {{ buildAddtionalInfo(value.collections) }}
                 <!-- :style="{'background-color': setBackgroundColor(name.count, searchResults.names)}" -->
+                <span class="from-auth" v-if="checkFromAuth(value)"> (Auth)</span>
+                <span class="from-rda" v-if="checkFromRda(value)"> [RDA]</span>
                 <span v-if="value.count && value.count > 0" class="usage-count">
                     {{ buildCount(value) }}
                 </span>
@@ -70,14 +72,34 @@ export default {
     },
 
     methods: {
+        checkFromRda: function (data) {
+            let notes = data.extra.notes || []
+            let isRda = false
+
+            for (let note of notes) {
+                if (note.includes("$erda")) {
+                    isRda = true
+                }
+            }
+
+            return isRda
+        },
+        checkFromAuth: function (data) {
+            let notes = data.extra.notes || []
+            let identifiers = data.extra.identifiers || []
+
+            let looksLikeLccn = identifiers.filter((i) => i.startsWith("n")).length > 0 ? true : false
+
+            return looksLikeLccn
+        },
         calculateIndex: function (i) {
             const searchResults = this.searchResults
             try {
                 let f = new Function('searchResults', "return " + this.index.replace('ix', i))
                 return f(searchResults)
-            } catch(err) {
+            } catch (err) {
                 return i
-             }
+            }
         },
         numPopulatedResults: function () {
             let count = 0

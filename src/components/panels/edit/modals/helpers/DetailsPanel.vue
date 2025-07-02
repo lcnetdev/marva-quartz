@@ -176,7 +176,7 @@
                                 <li class="details-details" v-if="key == 'identifiers'">
                                     <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
                                         this.labelMap[key] : key
-                                    }}:</span>
+                                        }}:</span>
                                     {{ contextData[key].join(" ; ") }}
                                 </li>
                             </ul>
@@ -207,7 +207,7 @@
                                         </template>
                                         <template v-else-if="key == 'notes'">
                                             <span :class="{ unusable: v.includes('CANNOT BE USED UNDER RDA') }">{{ v
-                                            }}</span>
+                                                }}</span>
                                         </template>
                                         <template v-else>
                                             {{ v }}
@@ -302,10 +302,10 @@ export default {
     },
 
     methods: {
-        newSearch: function(term){
+        newSearch: function (term) {
             this.$emit('newSearch', term)
         },
-        addClassNumber: function(code){
+        addClassNumber: function (code) {
             this.$emit('addClassNumber', code)
         },
         getClassLabel: function (label) {
@@ -350,3 +350,58 @@ export default {
 }
 
 </script>
+
+<style>
+.details-list {
+    columns: 3;
+    break-inside: avoid;
+    padding-left: 20px;
+}
+
+.details-list:has(.details-details) {
+    margin-top: 10px;
+    padding-left: 0px;
+    columns: 2;
+    break-inside: avoid;
+}
+
+.details-details {
+    list-style: none;
+    break-inside: avoid;
+}
+
+.details-list>li {
+    break-inside: avoid;
+}
+
+.see-search {
+    width: 20px;
+    height: 20px;
+    font-size: x-small;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+}
+
+ul:has(.modal-context-data-li) {
+    padding-left: 20px;
+}
+
+.see-also {
+    font-size: 12px;
+    margin-right: 10px;
+}
+
+.expandable-class-label {
+    cursor: help;
+}
+
+.expand {
+    font-size: 14px;
+}
+
+.simptip-position-bottom::before,
+.simptip-position-bottom::after {
+    left: -30% !important;
+}
+</style>

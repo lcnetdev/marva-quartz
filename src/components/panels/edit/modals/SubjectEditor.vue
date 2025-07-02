@@ -102,22 +102,15 @@
                 :class="{ 'scroll-all': preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
                 <div v-if="activeSearch !== false">{{ activeSearch }}</div>
                 <div v-if="searchResults !== null" style="height: 95%">
-                  <ComplexSearchResultsDisplay
-                    :searchResults="searchResults"
-                    :pickLookup="pickLookup"
-                    :searchMode="searchMode"
-                    @loadContext="loadContext"
-                    @selectContext="selectContext" />
+                  <ComplexSearchResultsDisplay :searchResults="searchResults" :pickLookup="pickLookup"
+                    :searchMode="searchMode" @loadContext="loadContext" @selectContext="selectContext" />
 
                 </div>
               </div>
 
               <!-- Results Panel -->
-               <DetailsPanel
-                :contextData="contextData"
-                :contextRequestInProgress="contextRequestInProgress"
-                @addClassNumber="addClassNumber"
-                @newSearch="newSearch" />
+              <DetailsPanel :contextData="contextData" :contextRequestInProgress="contextRequestInProgress"
+                @addClassNumber="addClassNumber" @newSearch="newSearch" />
 
 
 
@@ -305,344 +298,345 @@
 
 
 <style type="text/css" scoped>
-    .subject-lookup-modal-container {
-      margin-left: auto;
-      margin-right: auto;
-      background-color: white;
-      width: 95vw;
-      height: 95vh;
-    }
+.subject-lookup-modal-container {
+  margin-left: auto;
+  margin-right: auto;
+  background-color: white;
+  width: 95vw;
+  height: 95vh;
+}
 
 
-    body #app {
-      background-color: white !important;
-    }
+body #app {
+  background-color: white !important;
+}
 
-    .subject-editor-container {
-      width: 99%;
-      margin-left: auto;
-      margin-right: auto;
-      /* height: 470px; */
-      height: 90%;
-    }
+.subject-editor-container {
+  width: 99%;
+  margin-left: auto;
+  margin-right: auto;
+  /* height: 470px; */
+  height: 90%;
+}
 
-    .subject-editor-container-lowres {
-      height: 350px;
-      max-height: 350px;
-    }
+.subject-editor-container-lowres {
+  height: 350px;
+  max-height: 350px;
+}
 
-    .add-button-lowres {
-      margin-top: 0 !important;
-    }
+.add-button-lowres {
+  margin-top: 0 !important;
+}
 
-    .subject-editor-container-left {
-      display: flex;
-      height: 95%;
-      position: relative;
-      overflow-y: hidden;
-    }
+.subject-editor-container-left {
+  display: flex;
+  height: 95%;
+  position: relative;
+  overflow-y: hidden;
+}
 
-    .subject-editor-container-left-lowres {
-      font-size: 0.75em !important;
-      height: 352px;
-      max-height: 352px;
+.subject-editor-container-left-lowres {
+  font-size: 0.75em !important;
+  height: 352px;
+  max-height: 352px;
 
-    }
+}
 
-    .subject-editor-container-right {
-      flex: 1;
-      align-self: flex-start;
-      padding: 2em;
-      /* height: 503px; */
-      height: 100%;
-      overflow-y: scroll;
-      background: whitesmoke;
+.subject-editor-container-right {
+  flex: 1;
+  align-self: flex-start;
+  padding: 2em;
+  /* height: 503px; */
+  height: 100%;
+  overflow-y: scroll;
+  background: whitesmoke;
 
-      padding-top: 5px;
-    }
+  padding-top: 5px;
+}
 
-    /* .subject-editor-container-right-lowres {
+/* .subject-editor-container-right-lowres {
       height: 304px;
       max-height: 304px;
     } */
 
 
-    .type-list-ol {
-      padding-left: 0
-    }
+.type-list-ol {
+  padding-left: 0
+}
 
-    .type-list-ol-lowres {
-      margin: 0;
-    }
-
-
-    .color-holder {
-      font-size: 1.5em;
-      position: absolute;
-      padding-top: 0.3em;
-
-      pointer-events: none;
-      border-style: solid;
-      border-width: 3px;
-      border-color: rgb(255 132 132 / 52%);
-      border-radius: 0.25em;
-      color: transparent;
-
-      background-color: rgb(255 132 132 / 25%);
-      /*letter-spacing: -0.04em;*/
-
-      height: 1.5em;
-      font-family: sans-serif;
-
-      left: 0;
-      top: 0;
+.type-list-ol-lowres {
+  margin: 0;
+}
 
 
+.color-holder {
+  font-size: 1.5em;
+  position: absolute;
+  padding-top: 0.3em;
 
-    }
+  pointer-events: none;
+  border-style: solid;
+  border-width: 3px;
+  border-color: rgb(255 132 132 / 52%);
+  border-radius: 0.25em;
+  color: transparent;
 
-    .subject-input {
-      font-family: sans-serif;
-    }
+  background-color: rgb(255 132 132 / 25%);
+  /*letter-spacing: -0.04em;*/
 
-    .input-single {
-      width: 95%;
-      border: none;
-      height: 100%;
-      font-size: 1.5em;
+  height: 1.5em;
+  font-family: sans-serif;
 
-
-      background: none;
-      transition-property: color;
-      transition-duration: 500ms;
-    }
-
-    .input-single:focus {
-      outline: none !important
-    }
-
-    .fake-option {
-      font-size: 1em;
-      cursor: pointer;
-      text-indent: 2em hanging;
-    }
-
-    .fake-option:hover {
-      background-color: whitesmoke;
-    }
-
-    .literal-option {
-      font-style: italic;
-    }
-
-    .unselected::before {
-      content: "• ";
-      color: #999999;
-    }
-
-    .selected {
-      background-color: whitesmoke;
-    }
-
-    .selected::before {
-      content: "> ";
-      color: #999999;
-    }
-
-    .picked {
-      font-weight: bold;
-    }
-
-    .picked::before {
-      content: "✓ " !important;
-      transition-property: all;
-      transition-duration: 500ms;
-      font-weight: bold;
-      color: green;
-      font-size: larger;
-    }
-
-    .modal-context-data-title {
-      font-size: 1em;
-      font-weight: bold;
-    }
-
-    .modal-context ul {
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-
-    .modal-context-data-li {
-      font-size: 0.85em;
-    }
-
-    .modal-context h3 {
-      margin: 0;
-      padding: 0;
-    }
-
-    .modal-context-icon {
-      font-family: "fontello", Avenir, Helvetica, Arial, sans-serif;
-      font-size: 1.25em;
-      padding-right: 0.25em;
-
-    }
-
-    .color-holder-okay {
-      background-color: #0080001f;
-    }
-
-    .color-holder-type-okay {
-      border-color: #00800047;
-    }
-
-    .type-item {
-      display: inline-block;
-      border: solid 1px #9aa4a4;
-      border-radius: 0.5em;
-      padding: 0.1em;
-      margin-left: 1em;
-      cursor: pointer;
-      background-color: transparent;
-    }
-
-    .type-item::before {
-      content: " ";
-    }
-
-    .type-item-selected {
-      background-color: #0080001f;
-      border: solid 3px;
-    }
-
-    .input-single-subject {
-      width: 99%;
-      border: none;
-      font-size: 1.5em;
-      min-height: 1.5em;
-      max-height: 1.5em;
-      background: none;
-
-      background-color: #fff;
-      border: 1px solid #9aa4a4;
-      border-top-right-radius: 0.5em;
-      border-bottom-right-radius: 0.5em;
+  left: 0;
+  top: 0;
 
 
 
-    }
+}
 
-    .input-single-subject:focus {
-      outline: 0;
-    }
+.subject-input {
+  font-family: sans-serif;
+}
 
-    #search-in-holder button {
-      font-size: 0.85em;
-      background-color: white;
-      color: black;
-      border: solid 1px #c1c1c1;
-    }
-    #search-in-holder .active {
-      background-color: whitesmoke;
-      -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
-      -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
-      box-shadow: inset 0px 0px 5px #c1c1c1;
-    }
+.input-single {
+  width: 95%;
+  border: none;
+  height: 100%;
+  font-size: 1.5em;
 
-    .subjectEditorModeButtons {
-      display: inline-flex;
-      font-size: 0.9em;
-      color: white;
-      font-size: 1.1em;
-      line-height: 1.5em;
-    }
 
-    .subjectEditorModeTextEnabled {
-      text-decoration: underline;
+  background: none;
+  transition-property: color;
+  transition-duration: 500ms;
+}
 
-    }
+.input-single:focus {
+  outline: none !important
+}
 
-    .link-mode-good-heading,
-    .link-mode-bad-heading {
-      font-size: 1.15em;
-      font-weight: bold;
-    }
+.fake-option {
+  font-size: 1em;
+  cursor: pointer;
+  text-indent: 2em hanging;
+}
 
-    .link-mode-good-heading-alink {
-      color: inherit;
-    }
+.fake-option:hover {
+  background-color: whitesmoke;
+}
 
-    .link-mode-subdivision {
-      padding-left: 0.25em;
-      padding-right: 0.25em;
-    }
+.literal-option {
+  font-style: italic;
+}
 
-    .link-mode-good-heading::before {
-      content: "✓ " !important;
-      transition-property: all;
-      transition-duration: 500ms;
-      font-weight: bold;
-      color: green;
-      font-size: larger;
-    }
+.unselected::before {
+  content: "• ";
+  color: #999999;
+}
 
-    .link-mode-bad-heading::before {
-      content: "x " !important;
-      transition-property: all;
-      transition-duration: 500ms;
-      font-weight: bold;
-      color: darkred;
-      font-size: x-large;
-    }
+.selected {
+  background-color: whitesmoke;
+}
 
-    .clear-selected-button {
-      margin-top: 10px;
-    }
+.selected::before {
+  content: "> ";
+  color: #999999;
+}
 
-    .menu-buttons {
-      margin-right: 5px;
-      padding-top: 5px;
-      padding-left: 15px;
-      float: right;
-    }
+.picked {
+  font-weight: bold;
+}
 
-    .subject-section {
-      border-top: solid black;
-      border-bottom: solid-black;
-    }
+.picked::before {
+  content: "✓ " !important;
+  transition-property: all;
+  transition-duration: 500ms;
+  font-weight: bold;
+  color: green;
+  font-size: larger;
+}
 
-    .scrollable-subjects {
-      overflow-y: scroll;
-    }
+.modal-context-data-title {
+  font-size: 1em;
+  font-weight: bold;
+}
 
-    .small-container {
-      height: 33%;
-    }
+.modal-context ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
 
-    .medium-container {
-      height: 50%;
-    }
+.modal-context-data-li {
+  font-size: 0.85em;
+}
 
-    .large-container {
-      height: 90%;
-    }
+.modal-context h3 {
+  margin: 0;
+  padding: 0;
+}
 
-    /* document.documentElement.clientHeight */
-    .scroll-all {
-      overflow-y: scroll;
-    }
+.modal-context-icon {
+  font-family: "fontello", Avenir, Helvetica, Arial, sans-serif;
+  font-size: 1.25em;
+  padding-right: 0.25em;
 
-    .subject-container-outer {
-      /* height: v-bind('returnBrowserHeight()'); */
-      height: 100%;
-    }
+}
 
-    .subject-variant {
-      color: #ffc107;
-      font-weight: bold;
-    }
+.color-holder-okay {
+  background-color: #0080001f;
+}
 
-    /*
+.color-holder-type-okay {
+  border-color: #00800047;
+}
+
+.type-item {
+  display: inline-block;
+  border: solid 1px #9aa4a4;
+  border-radius: 0.5em;
+  padding: 0.1em;
+  margin-left: 1em;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.type-item::before {
+  content: " ";
+}
+
+.type-item-selected {
+  background-color: #0080001f;
+  border: solid 3px;
+}
+
+.input-single-subject {
+  width: 99%;
+  border: none;
+  font-size: 1.5em;
+  min-height: 1.5em;
+  max-height: 1.5em;
+  background: none;
+
+  background-color: #fff;
+  border: 1px solid #9aa4a4;
+  border-top-right-radius: 0.5em;
+  border-bottom-right-radius: 0.5em;
+
+
+
+}
+
+.input-single-subject:focus {
+  outline: 0;
+}
+
+#search-in-holder button {
+  font-size: 0.85em;
+  background-color: white;
+  color: black;
+  border: solid 1px #c1c1c1;
+}
+
+#search-in-holder .active {
+  background-color: whitesmoke;
+  -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+  -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+  box-shadow: inset 0px 0px 5px #c1c1c1;
+}
+
+.subjectEditorModeButtons {
+  display: inline-flex;
+  font-size: 0.9em;
+  color: white;
+  font-size: 1.1em;
+  line-height: 1.5em;
+}
+
+.subjectEditorModeTextEnabled {
+  text-decoration: underline;
+
+}
+
+.link-mode-good-heading,
+.link-mode-bad-heading {
+  font-size: 1.15em;
+  font-weight: bold;
+}
+
+.link-mode-good-heading-alink {
+  color: inherit;
+}
+
+.link-mode-subdivision {
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
+.link-mode-good-heading::before {
+  content: "✓ " !important;
+  transition-property: all;
+  transition-duration: 500ms;
+  font-weight: bold;
+  color: green;
+  font-size: larger;
+}
+
+.link-mode-bad-heading::before {
+  content: "x " !important;
+  transition-property: all;
+  transition-duration: 500ms;
+  font-weight: bold;
+  color: darkred;
+  font-size: x-large;
+}
+
+.clear-selected-button {
+  margin-top: 10px;
+}
+
+.menu-buttons {
+  margin-right: 5px;
+  padding-top: 5px;
+  padding-left: 15px;
+  float: right;
+}
+
+.subject-section {
+  border-top: solid black;
+  border-bottom: solid-black;
+}
+
+.scrollable-subjects {
+  overflow-y: scroll;
+}
+
+.small-container {
+  height: 33%;
+}
+
+.medium-container {
+  height: 50%;
+}
+
+.large-container {
+  height: 90%;
+}
+
+/* document.documentElement.clientHeight */
+.scroll-all {
+  overflow-y: scroll;
+}
+
+.subject-container-outer {
+  /* height: v-bind('returnBrowserHeight()'); */
+  height: 100%;
+}
+
+.subject-variant {
+  color: #ffc107;
+  font-weight: bold;
+}
+
+/*
     .left-menu-list-item-has-data::before {
       content: "✓ " !important;
       color: #999999;
@@ -654,75 +648,75 @@
     }*/
 
 
-    .from-rda,
-    .from-auth {
-      font-weight: bold;
-    }
+.from-rda,
+.from-auth {
+  font-weight: bold;
+}
 
-    .unusable {
-      color: red;
-    }
+.unusable {
+  color: red;
+}
 
-    .details-list {
-      columns: 3;
-      break-inside: avoid;
-      padding-left: 20px;
-    }
+.details-list {
+  columns: 3;
+  break-inside: avoid;
+  padding-left: 20px;
+}
 
-    .details-list:has(.details-details) {
-      margin-top: 10px;
-      padding-left: 0px;
-      columns: 2;
-      break-inside: avoid;
-    }
+.details-list:has(.details-details) {
+  margin-top: 10px;
+  padding-left: 0px;
+  columns: 2;
+  break-inside: avoid;
+}
 
-    .details-details {
-      list-style: none;
-      break-inside: avoid;
-    }
+.details-details {
+  list-style: none;
+  break-inside: avoid;
+}
 
-    .details-list>li {
-      break-inside: avoid;
-    }
+.details-list>li {
+  break-inside: avoid;
+}
 
-    .see-search {
-      width: 20px;
-      height: 20px;
-      font-size: x-small;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-    }
+.see-search {
+  width: 20px;
+  height: 20px;
+  font-size: x-small;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
 
-    ul:has(.modal-context-data-li) {
-      padding-left: 20px;
-    }
+ul:has(.modal-context-data-li) {
+  padding-left: 20px;
+}
 
-    .see-also {
-      font-size: 12px;
-      margin-right: 10px;
-    }
+.see-also {
+  font-size: 12px;
+  margin-right: 10px;
+}
 
-    .expandable-class-label {
-      cursor: help;
-    }
+.expandable-class-label {
+  cursor: help;
+}
 
-    .expand {
-      font-size: 14px;
-    }
+.expand {
+  font-size: 14px;
+}
 
-    .simptip-position-bottom::before,
-    .simptip-position-bottom::after {
-      left: -30% !important;
-    }
+.simptip-position-bottom::before,
+.simptip-position-bottom::after {
+  left: -30% !important;
+}
 </style>
 
 <style>
-    div.may-sub-container span span.material-icons-outlined {
-      font-size: .8em;
-      position: relative;
-      top: -3px;
-    }
+div.may-sub-container span span.material-icons-outlined {
+  font-size: .8em;
+  position: relative;
+  top: -3px;
+}
 </style>
 
 <script>
@@ -954,7 +948,7 @@ export default {
      * @param {obj} incomingSubjects - the existing subject data
      */
     buildLookupComponents: function (incomingSubjects) {
-        console.info("\n\nbuildLookupComponents: ", incomingSubjects)
+      console.info("\n\nbuildLookupComponents: ", incomingSubjects)
 
       if (!incomingSubjects || typeof incomingSubjects == "undefined") {
         return
@@ -1062,7 +1056,7 @@ export default {
      * but there won't be components.
      */
     buildComponents: function (searchString) {
-        console.info("buildComponents: ", searchString)
+      console.info("buildComponents: ", searchString)
       // searchString = searchString.replace("—", "--") // when copying a heading from class web
 
       let subjectStringSplit = searchString.split('--')
@@ -1110,7 +1104,7 @@ export default {
       }
 
       console.info("building the components: ", searchString)
-      console.info("componetLookup: ", this.componetLookup)
+      console.info("componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
       // clear the current
       this.components = []
       let id = 0
@@ -1146,16 +1140,16 @@ export default {
 
 
         if (this.componetLookup[id + offset] && this.componetLookup[id + offset][tempSs]) {
-          literal         = this.componetLookup[id + offset][tempSs].literal
-          uri             = this.componetLookup[id + offset][tempSs].uri
-          marcKey         = this.componetLookup[id + offset][tempSs].marcKey
-          nonLatinLabel   = this.componetLookup[id + offset][tempSs].nonLatinTitle
+          literal = this.componetLookup[id + offset][tempSs].literal
+          uri = this.componetLookup[id + offset][tempSs].uri
+          marcKey = this.componetLookup[id + offset][tempSs].marcKey
+          nonLatinLabel = this.componetLookup[id + offset][tempSs].nonLatinTitle
           nonLatinMarcKey = this.componetLookup[id + offset][tempSs].nonLatinMarcKey
         } else if (this.componetLookup[id + offset] && this.componetLookup[id + offset][ss]) {
-          literal         = this.componetLookup[id + offset][ss].literal
-          uri             = this.componetLookup[id + offset][ss].uri
-          marcKey         = this.componetLookup[id + offset][ss].marcKey
-          nonLatinLabel   = this.componetLookup[id + offset][ss].nonLatinTitle
+          literal = this.componetLookup[id + offset][ss].literal
+          uri = this.componetLookup[id + offset][ss].uri
+          marcKey = this.componetLookup[id + offset][ss].marcKey
+          nonLatinLabel = this.componetLookup[id + offset][ss].nonLatinTitle
           nonLatinMarcKey = this.componetLookup[id + offset][ss].nonLatinMarcKey
         }
 
@@ -1171,7 +1165,7 @@ export default {
           label: ss,
           uri: uri,
           id: id,
-          type: this.componetLookup && this.componetLookup[id+offset] && this.componetLookup[id+offset][ss] && this.componetLookup[id+offset][ss].extra ? this.componetLookup[id+offset][ss].extra.type : 'madsrdf:Topic',
+          type: this.componetLookup && this.componetLookup[id + offset] && this.componetLookup[id + offset][ss] && this.componetLookup[id + offset][ss].extra ? this.componetLookup[id + offset][ss].extra.type : 'madsrdf:Topic',
           complex: ss.includes('‑‑'),
           literal: literal,
           posStart: activePosStart,
@@ -1806,6 +1800,7 @@ export default {
 
         // Setting the type in contextData
         console.info("types: ", types)
+        console.info("pickLookup: ", this.pickLookup[this.pickPostion])
 
         this.contextData.type = types.includes("Hub") ? "bf:Hub" : types.includes("Work") ? "bf:Work" : "madsrdf:" + types[0]
         this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
@@ -2137,22 +2132,22 @@ export default {
 
         this.pickLookup[this.pickPostion].picked = true
 
-      let type = null
-      try {
-        if (this.pickLookup[this.pickPostion].extra.rdftypes.length > 0){
-          type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
-        } else {
-          let marcKey = this.pickLookup[this.pickPostion].marcKey
-          type = marcKey.match(/\$[axyzv]{1}/g)
-          type = this.getTypeFromSubfield(type[0])
-        }
-        console.info("setTypeClick: ", type)
-        this.setTypeClick(null, type)
-      } catch(err) {
-        // console.error("Error getting the type. ", err)
-        console.error("Error getting the type: ", this.components[this.activeComponentIndex])
+        let type = null
+        try {
+          if (this.pickLookup[this.pickPostion].extra.rdftypes.length > 0) {
+            type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
+          } else {
+            let marcKey = this.pickLookup[this.pickPostion].marcKey
+            type = marcKey.match(/\$[axyzv]{1}/g)
+            type = this.getTypeFromSubfield(type[0])
+          }
+          console.info("setTypeClick: ", type)
+          this.setTypeClick(null, type)
+        } catch (err) {
+          // console.error("Error getting the type. ", err)
+          console.error("Error getting the type: ", this.components[this.activeComponentIndex])
 
-      }
+        }
 
         // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
         //Need something to prevent recursion
@@ -2406,7 +2401,11 @@ export default {
       console.info("components 1: ", JSON.parse(JSON.stringify(this.components)))
       this.activeComponent.type = type
 
-      this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra = {"type": type}
+      if (this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra.type){
+        this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].type = type
+      } else {
+        this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra = { "type": type }
+      }
 
       console.info("components 2: ", JSON.parse(JSON.stringify(this.components)))
       this.subjectStringChanged() // without this the active selection won't show any indication
@@ -2512,9 +2511,9 @@ export default {
 
       // this.showTypes = true
       // Only show when there's a literal selected
-      try{
+      try {
         this.showTypes = this.pickLookup[this.pickPostion].literal && this.pickLookup[this.pickPostion].picked
-      } catch {}
+      } catch { }
 
       // if they erase everything remove the components
       if (this.subjectString.length == 0) {
@@ -3033,6 +3032,7 @@ export default {
 
 
   updated: function () {
+    console.info("\n\n\nupdated")
     // preselect the search type, if a children's subject
     if (this.searchType.includes("Childrens")) {
       this.searchMode = "CHILD"
@@ -3060,6 +3060,8 @@ export default {
         incomingSubjects = false
       }
     }
+
+    console.info("incomingSubjects: ", incomingSubjects)
 
     let searchValue = this.searchValue
     if (!searchValue) { return }
