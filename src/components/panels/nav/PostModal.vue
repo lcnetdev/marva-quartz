@@ -137,7 +137,7 @@
         },
 
         getLcapUrl: function(){
-          let base = "https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/"
+          let base = useConfigStore().returnUrls.lcap //"https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/"
 
           let bibId = null
           for (let rt in this.activeProfile.rt){
