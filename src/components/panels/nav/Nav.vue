@@ -608,14 +608,14 @@
 
           menu.push(
             {
-              text: "Open in Folio",
-              id:"send-folio",
-              ref:"folio",
-              icon: "🇫",
+              text: "Open in LCAP",
+              id:"send-lcap",
+              ref:"lcap",
+              icon: "open_in_new",
               click: () => {
-                let url = "https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/"
+                let url =  useConfigStore().returnUrls.lcap // "https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/"
                 let bibId = null
-
+                console.log("url",url)
                 // get the bibID
                 for (let rt in this.activeProfile.rt){
                   let type = rt.split(':').slice(-1)[0]
@@ -626,7 +626,7 @@
                 }
                 window.open(url + bibId)
               },
-              class: (this.activeProfilePosted) ? "record-posted-folio-ok" : "record-unposted-folio-no",
+              class: (this.activeProfilePosted || this.isStaging() || (this.activeProfile && this.activeProfile.status && this.activeProfile.status == 'published' )) ? "record-posted-folio-ok" : "record-unposted-folio-no",
             }
           )
 

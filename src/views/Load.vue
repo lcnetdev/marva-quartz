@@ -111,7 +111,16 @@
 
                 <ol>
 
-                  <li v-if="searchByLccnResults && searchByLccnResults.length === 0">No results...</li>
+
+                  <div v-if="searchByLccnResults && searchByLccnResults.length === 0">No results...</div>
+
+                  <li v-if="(searchByLccnResults && searchByLccnResults.length === 0) || showSyncOptions">
+                    
+
+                    <div><button @click="openLCAPSyncURL()">Click to Request LCAP Sync for this LCCN</button></div>
+                    <div>and then</div>
+                    <div><button @click="loadSearch(); showSyncOptions=false">Click to Run Search Again</button></div>
+                  </li>
 
                   <template v-if="searchByLccnResults && typeof searchByLccnResults === 'string'">
 
@@ -120,7 +129,59 @@
                   </template>
                   <template v-else>
 
+                    <table>
+                        <thead>
+                          <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
+                            <td  v-if="searchByLccnResults.length > 1">
+                              <input type="radio"
+                                v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch' + idx"
+                                :name="'lccnsearch' + idx" checked="true" />
+                            </td>
+
+                            <td>
+                              <label  v-if="searchByLccnResults.length > 1" style="cursor: pointer;" :for="'lccnsearch' + idx">{{ r.label }}</label>
+                              <span v-else>{{ r.label }}</span>
+                            </td>
+                            <td><a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">BFDB</a></td>
+                            <td> 
+                              <span data-tooltip="When record was loaded/edited in BFDB" class="simptip-position-left" v-if="recordLastSystemDate[r.idURL]">{{ recordLastSystemDate[r.idURL] }}</span>  
+                              <span v-else>
+                                  <ul class="dots-loading">        
+                                      <li class="dot one"></li>
+                                      <li class="dot two"></li>
+                                      <li class="dot three"></li>
+                                  </ul>
+
+
+                              </span>
+                            </td>
+                            <td>
+                              <span data-tooltip="Show LCAP Resync Buttons" class="simptip-position-left">
+
+                              
+                                <a href="#" style="cursor: pointer; color:inherit; text-decoration: none;" @click.prevent="showSyncOptions = true" class="material-icons"  title="Show Resync Options">loop</a>
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+
+<!-- 
                     <li v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
+
+
+
+
                       <div style="display:flex">
 
                         <div style="flex:2;">{{+ + idx }}. <span style="font-weight:bold">{{ r.label }}</span></div>
@@ -138,10 +199,10 @@
                           </span>
                         </div>
 
-                        <!-- <div style="flex:1"><a href="#" target="_blank" @click.prevent="instanceEditorLink = r.bfdbPackageURL; testInstance()">Retrieve</a></div> -->
+                        
 
                       </div>
-                    </li>
+                    </li> -->
 
 
 
@@ -158,10 +219,17 @@
                 <template v-if="showLoadTypeSelection()">
                   <h3>Load Type:</h3>
                   <div id="container">
-                    <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
-                      @click="changeLoadType($event)" ref="toggle">
+                    <input
+                      type="checkbox"
+                      id="search-type"
+                      class="toggle"
+                      name="search-type"
+                      value="keyword"
+                      @click="changeLoadType($event)"
+                      ref="toggle"
+                      :checked="this.preferenceStore.returnValue('--b-general-default-load-tupe')">
                     <label for="search-type" class="toggle-container">
-                      <div>Reconvert from Marc</div>
+                      <div>Reconvert from MARC</div>
                       <div>Continue Editing BF</div>
                     </label>
                   </div>
@@ -217,13 +285,13 @@
                             v-if="record.contributor">
                             by
                             {{ record.contributor }}</span><span> ({{ record.lccn }})</span></div>
-                        <div class="continue-record-lastedit"><span v-if="record.status == 'posted'">Posted</span><span
+                        <div class="continue-record-lastedit"><span v-if="record.status == 'published'">Posted</span><span
                             v-if="record.status == 'unposted'">last edited</span> <span>{{
                               returnTimeAgo(record.timestamp)
                             }}</span>
                         </div>
                       </router-link>
-                      <div class="material-icons" v-if="record.status == 'posted'" title="Posted record">check_box
+                      <div class="material-icons" v-if="record.status == 'published'" title="Posted record">check_box
                       </div>
                     </li>
                   </ul>
@@ -316,6 +384,8 @@ export default {
 
       dataTableInitalLimit: 1000,
 
+      showSyncOptions: false,
+
       defaultProfile: '',
 
       displayDashboard: true,
@@ -330,6 +400,8 @@ export default {
 
       loadingRecord: false,
       loadType: "loadMarc",
+
+      recordLastSystemDate: {},
 
     }
   },
@@ -371,6 +443,13 @@ export default {
       return config.returnUrls.displayLCOnlyFeatures
     },
 
+    openLCAPSyncURL(){
+
+      window.open(`http://c2vlpndmsojump01.loc.gov/foliar/api/fetch_and_load/bib?lccn=${this.urlToLoad}&serialization=json`, '_blank')
+
+    },
+
+    
     changeLoadType: function (event) {
       if (event.target.checked) {
         this.loadType = "loadBf"
@@ -561,6 +640,31 @@ export default {
         if (this.searchByLccnResults.length == 1) {
           this.lccnLoadSelected = this.searchByLccnResults[0]
         }
+
+        console.log("searchByLccnResults", this.searchByLccnResults)
+
+        for (let r of this.searchByLccnResults) {
+          if (r.idURL && r.idURL.indexOf('http') > -1) {
+            utilsNetwork.fetchLastSystemDate(r.idURL).then((results)=>{
+              console.log("results", results)
+              if (results){
+                try{
+                  results = new Date(results).getTime()
+                  results = this.returnTimeAgo(results / 1000)
+                  this.recordLastSystemDate[r.idURL] = results            
+
+                } catch (e) {
+                  console.warn("Error parsing date", e)
+                  this.recordLastSystemDate[r.idURL] = 'error'
+
+                }
+              }
+              
+            })
+            
+          }
+        }
+
 
       }, 500)
 
@@ -979,6 +1083,38 @@ export default {
 </script>
 
 <style>
+
+.dots-loading {
+    text-wrap: nowrap;
+}
+.dot {
+    display: inline-block;
+    border-radius: 40px;
+    background-color: black;
+    animation: dot 1.5s infinite;
+    margin-right: 4px;
+}
+
+.one {
+    animation-delay: 0.0s;
+}
+
+.two {
+    animation-delay: 0.5s;
+}
+
+.three {
+    animation-delay: 1.0s;
+}
+
+@keyframes dot {
+     0% { width: 3px; height: 3px; margin-right: 4px; }
+    25% { width: 5px; height: 5px; margin-right: 2px; }
+    33% { width: 3px; height: 3px; margin-right: 4px; }
+   100% { width: 3px; height: 3px; margin-right: 4px; }
+}
+
+
 .loading-record {
   text-align: center;
   font-size: 1.5em;

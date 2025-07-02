@@ -3845,6 +3845,41 @@ const utilsNetwork = {
     },
 
 
+    fetchLastSystemDate: async function(url) {
+
+      let basePath = url.split('id.loc.gov/')[1];
+
+      let bfdbUrl = useConfigStore().returnUrls.bfdb + basePath + '.doc.xml' + "?blastdacache=" + Date.now();
+
+      let results
+      try {
+        results = await fetch(bfdbUrl);
+      } catch (error) {
+
+        // try ID
+        let id = basePath.split('/').pop()
+        let idUrl = useConfigStore().returnUrls.id + 'data/bibs/' + id + '.mets.xml' + "?blastdacache=" + Date.now();
+        try {
+          results = await fetch(idUrl);
+        } catch (error) {
+          console.error("Error fetching from bfdbUrl and idUrl:", error);
+          return null; // Return null if both fetches fail
+        }        
+      }
+      
+      results = await results.text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(results, "application/xml");
+      const metsHdr = xmlDoc.getElementsByTagNameNS("http://www.loc.gov/METS/", "metsHdr")[0];
+      if (metsHdr) {
+        results = metsHdr.getAttribute("LASTMODDATE");
+      } else {
+        results = null;
+      }
+
+      return results
+    },
+
 
 
 }

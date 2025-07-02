@@ -493,6 +493,7 @@ export default {
               ]
           )
         }else{
+          console.info("setValueComplex: ", contextValue)
           delete contextValue.typeFull
 
           let type = (contextValue.type && (contextValue.type.includes("Hub") || contextValue.type.includes("Work")) ) ? contextValue.type : contextValue.extra.rdftypes[0]
@@ -502,6 +503,8 @@ export default {
               type = struct.valueConstraint.valueDataType.dataTypeURI
             }
           }
+
+          console.info("type: ", type)
 
           this.profileStore.setValueComplex(
             this.guid,

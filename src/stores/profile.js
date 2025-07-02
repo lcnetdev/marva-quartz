@@ -2571,6 +2571,15 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
+      // More granual typing for Geographic
+      if (type == "http://www.loc.gov/mads/rdf/v1#Geographic"){
+        if (propertyPath.filter((v) => { return v.propertyURI == 'http://id.loc.gov/ontologies/bibframe/geographicCoverage' }).length > 0){
+          type = "http://id.loc.gov/ontologies/bibframe/GeographicCoverage"
+        } else {
+          type = "http://id.loc.gov/ontologies/bibframe/Place"
+        }
+      }
+
       if (pt !== false){
         pt.hasData = true
         pt.userModified = true
@@ -2667,7 +2676,6 @@ export const useProfileStore = defineStore('profile', {
 
 
 
-
           // if (URI.indexOf('n2010057779') > -1){
           //   nodeMap.vernacularMarcKeys = ["4001 $a玄 武岩,$d1969-@zxx-Hani","4001 $a현 무암,$d1969-@zxx-Hang"]
           // }
@@ -2731,7 +2739,6 @@ export const useProfileStore = defineStore('profile', {
               console.error("Cannot understand response from context extaction for marcKey:",marcKey)
             }
           }
-
 
           // add in the venacular marckeys
           if (nodeMap && nodeMap.vernacularMarcKeys){
@@ -2839,7 +2846,7 @@ export const useProfileStore = defineStore('profile', {
         console.error('setValueComplex: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }
 
-      console.log("pt is ",pt)
+      console.log("pt is ", JSON.stringify(pt.userValue))
     },
 
     /**
