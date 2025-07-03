@@ -3,7 +3,14 @@
 All notable changes to this project will be documented in this file.
 
 
-## [1.3.17] - 2025-01-01
+## [1.3.19] - 2025-01-03
+### Fixed
+- NAR: Hyphanted names in basic mode was not generating correct MARC
+### Updated
+- NAR: 046 is no longer is visible in the advanced marc mode, it will add it there and not try to sneak it in during MARC export
+- Will dereference labels for genres, adds a new exception to keep top level resources without bnodes
+
+## [1.3.17] - 2025-07-01
 ### Updated
 - Load screen updates to prompt to resync from LCAP if no LCCN found
 - Adds dates loaded from METS records in BFDB/ID to show when a record was last edited 
