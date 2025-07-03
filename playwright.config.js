@@ -21,7 +21,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : 1,
+  workers: process.env.CI ? 1 : 2,
   // firefox tests seem to timeout when tests run in parallel, event with a 90s timeout
   // removing parallel tests gets rid of the timeouts, but increases the time it takes for the tests.
   // Event max 2 workers could cause firefox to timeout.
@@ -52,14 +52,14 @@ export default defineConfig({
 
     },
 
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'],
-        storageState: 'tests-playwright/.auth/user.json', // Use prepared auth state
-      },
-      dependencies: ['setup'], // setup as a dependency project
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'],
+    //     storageState: 'tests-playwright/.auth/user.json', // Use prepared auth state
+    //   },
+    //   dependencies: ['setup'], // setup as a dependency project
 
-    },
+    // },
 
     // {
     //   name: 'webkit',

@@ -964,18 +964,18 @@ export default {
 
           console.info("type: ", type)
 
-          if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
-            type = 'madsrdf:Topic'
-          }
-          if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")) {
-            type = 'madsrdf:GenreForm'
-          }
-          if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic") || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")) {
-            type = 'madsrdf:Geographic'
-          }
-          if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")) {
-            type = 'madsrdf:Temporal'
-          }
+          // if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
+          //   type = 'madsrdf:Topic'
+          // }
+          // if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")) {
+          //   type = 'madsrdf:GenreForm'
+          // }
+          // if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic") || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")) {
+          //   type = 'madsrdf:Geographic'
+          // }
+          // if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")) {
+          //   type = 'madsrdf:Temporal'
+          // }
           // if (type.includes("Hub") || type.includes("Work")) {
           //   type = type
           // }
@@ -1045,6 +1045,8 @@ export default {
           console.error(err)
         }
       }
+
+      console.info("this.componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
 
     },
 
@@ -1159,12 +1161,19 @@ export default {
         console.info("this.componetLookup: ", this.componetLookup)
         console.info("type: ", type)
 
+        // set the type
+        try {
+          type = this.componetLookup[id + offset][ss].type
+        } catch(e){
+          type = ''
+        }
+
         console.info("adding component for ", ss)
         this.components.push({
           label: ss,
           uri: uri,
           id: id,
-          type: this.componetLookup && this.componetLookup[id + offset] && this.componetLookup[id + offset][ss] && this.componetLookup[id + offset][ss].extra ? this.componetLookup[id + offset][ss].extra.type : 'madsrdf:Topic',
+          type: type,
           complex: ss.includes('‑‑'),
           literal: literal,
           posStart: activePosStart,
@@ -2086,6 +2095,9 @@ export default {
 
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label] = this.pickLookup[this.pickPostion]
 
+        // set the type at the top for consistency
+        this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label].type = this.pickLookup[this.pickPostion].extra.type
+
         for (let k in this.pickLookup) {
           this.pickLookup[k].picked = false
         }
@@ -2123,6 +2135,7 @@ export default {
         let _ = await this.getContext() //ensure the pickLookup has the marcKey
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')] = this.pickLookup[this.pickPostion]
 
+
         console.info("this.componetLookup: ", this.componetLookup)
 
         for (let k in this.pickLookup) {
@@ -2132,6 +2145,7 @@ export default {
         this.pickLookup[this.pickPostion].picked = true
 
         let type = null
+        console.info("getting type: ", this.pickLookup[this.pickPostion])
         try {
           if (this.pickLookup[this.pickPostion].extra.rdftypes.length > 0) {
             type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
@@ -2141,9 +2155,10 @@ export default {
             type = this.getTypeFromSubfield(type[0])
           }
           console.info("setTypeClick: ", type)
+          this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
           this.setTypeClick(null, type)
         } catch (err) {
-          // console.error("Error getting the type. ", err)
+          console.error("Error getting the type. ", err)
           console.error("Error getting the type: ", this.components[this.activeComponentIndex])
 
         }
@@ -2400,11 +2415,15 @@ export default {
       console.info("components 1: ", JSON.parse(JSON.stringify(this.components)))
       this.activeComponent.type = type
 
-      if (this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra.type){
-        this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].type = type
-      } else {
-        this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra = { "type": type }
-      }
+      console.info(">>>>", this.componetLookup)
+      console.info("base: ", this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label])
+
+      // this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].type = type
+      // if (this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra.type){
+      //   this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra.type = type
+      // } else {
+      //   this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra = { "type": type }
+      // }
 
       console.info("components 2: ", JSON.parse(JSON.stringify(this.components)))
       this.subjectStringChanged() // without this the active selection won't show any indication

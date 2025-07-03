@@ -24,7 +24,8 @@ test('Find simple heading "Dogs" with correct XML and MARC', async ({ page }) =>
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
     await expect(page.getByRole('dialog')).toContainText('Dogs');
-    await page.getByText('Dogs', { exact: true }).first().click();
+    // await page.getByText('Dogs', { exact: true }).first().click();
+    await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
     await expect(page.getByText('sh85038796')).toBeVisible();
 
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
@@ -54,7 +55,7 @@ test('Build heading "Dogs--History" with correct XML and MARC', async ({ page })
     await page.locator('div').filter({ hasText: /^Search LCSH\/LCNAF$/ }).nth(2).click();
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
-    await page.locator('div').filter({ hasText: /^Dogs\(Auth Hd\) public$/ }).locator('span').nth(1).click();
+    await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
     await expect(page.getByRole('heading')).toContainText('sh85038796');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--history');
@@ -150,7 +151,8 @@ test('Write the entire string before validation', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
-    await page.getByText('Dogs', { exact: true }).first().click();
+    // await page.getByText('Dogs', { exact: true }).first().click();
+    await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');
@@ -334,7 +336,7 @@ test('Build heading "Dogs--geo", but the first part of the geo heading is select
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
-    await page.locator('div').filter({ hasText: /^Dogs\(Auth Hd\) public$/ }).locator('span').nth(1).click();
+    await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
     await expect(page.getByRole('heading')).toContainText('sh85038796');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
@@ -369,7 +371,7 @@ test('Build heading "Dogs--geo", but the first part of the geo heading is select
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
-    await page.locator('div').filter({ hasText: /^Dogs\(Auth Hd\) public$/ }).locator('span').nth(1).click();
+    await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
     await expect(page.getByRole('heading')).toContainText('sh85038796');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
