@@ -55,7 +55,7 @@
             <div v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels') && complexLookupValues.length==0"  class="lookup-fake-input-label" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">{{structure.propertyLabel}}</div>
           </template>
 
-
+          <!-- SHORT CODE DISPLAY MODE -->
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == true">
             <div class="lookup-fake-input-text">
                 <div class="bfcode-display-mode-holder">
@@ -87,33 +87,22 @@
 
 
 
-
+          <!-- NORMAL DISPLAY MODE -->
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
 
-
+              
               <div v-for="(avl,idx) in complexLookupValues" :class="['selected-value-container']">
                 <div class="selected-value-container-auth">
-                  <!-- <br>
-                  !!{{ avl.type }}
-                  <br>
-                  {{ preferenceStore.returnValue('--b-edit-complex-use-value-icons') }} -->
                   <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')"  :type="avl.type"/>
                 </div>
-
+                
                 <div class="selected-value-container-title">
-                  <!-- <span class="material-icons check-mark">check_circle_outline</span> -->
                   <span v-if="!avl.needsDereference && !avl.uneditable " style="padding-right: 0.3em; font-weight: bold">
                     <a href="#" :class="['entity-link']" @click="openAuthority()" ref="el">{{avl.label}}</a>
                     <ValidationIcon :value="avl" />
-                    <!-- <span class="uncontrolled" v-if="avl.isLiteral">
-                      (uncontrolled)
-                    </span>
-                    <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style="">
-                    </span> -->
-
                   </span>
-                  <span v-else-if="avl.needsDereference" style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"><span class="material-icons check-mark">check_circle_outline</span></span></span>
+                  <span v-else-if="avl.needsDereference" style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/></span>
                   <span v-else-if="avl.uneditable" style="padding-right: 0.3em; font-weight: bold">{{ avl.label }} (Uneditable)</span>
                 </div>
                 <div class="selected-value-container-action" v-if="!avl.uneditable">
@@ -137,6 +126,7 @@
         </div>
 
 
+        <!-- SUBJECT MODE -->
         <template v-if="configStore.useSubjectEditor.includes(structure.propertyURI)">
 
           <div class="marc-deliminated-lcsh-mode-container" v-if="marcDeliminatedLCSHModeResults && marcDeliminatedLCSHModeResults.hit && Array.isArray(marcDeliminatedLCSHModeResults.hit)">

@@ -42,7 +42,7 @@ export default {
     fetchLabel: function(){
       if (this.URI){
         if (this.URI.startsWith('http://') || this.URI.startsWith('https://') ){
-
+          // console.log('fetching label for URI: ' + this.URI)
           if (this.URI.includes('id.loc.gov')){
 
             // if its a instance/work/hub getthe x-pref label from the head request
@@ -52,6 +52,8 @@ export default {
                 this.URI.includes('/resources/hubs/') ||
                 this.URI.includes('/ontologies/bibframe/') ||
 
+
+                this.URI.includes('/authorities/genreForms/') ||
 
                 this.URI.includes('/vocabulary/')
               ){
@@ -64,8 +66,10 @@ export default {
               URL = URL.replace('http://','https://')
 
               let cache = sessionStorage.getItem(URL);
-
               if (cache){
+
+                // console.log('using cached label for URI: ' + this.URI)
+                // console.log('cached label: ' + cache)
 
                 this.displayLabel = cache
 
@@ -74,11 +78,9 @@ export default {
                 if (returnUrls.env == "production"){
                   URL = URL.replace("//id.", "//preprod-8080.id.")
                 }
-
-                let self = this
                 fetch(URL, {method: 'HEAD' }).then(
-                  function(response)
-                    {
+                  (response) => {
+                      // console.log('fetching label for URI: ' + this.URI)
 
                       // an id upgrade enables a ecoded pref-label to be exposed
                       // since the old x-preflabel is not encoded and header vars are not unicode supporting
@@ -87,16 +89,16 @@ export default {
                       if (response.headers.get("x-preflabel-encoded")){
                         preflabel = decodeURIComponent(response.headers.get("x-preflabel-encoded"));
                       }
-
+                      // console.log('x-preflabel: ' + preflabel)
                       if (preflabel){
-                        self.displayLabel = preflabel
+                        this.displayLabel = preflabel
                         sessionStorage.setItem(URL, preflabel);
                       }
                     }
-                  ).catch(function() {
+                  ).catch((e) => {
 
                         // there was something with the request, ignore
-
+                        console.error('Error fetching label for URI: ' + this.URI);
 
                   });
 
@@ -112,6 +114,9 @@ export default {
               // some common hardcoded values
               if (this.URI == 'http://id.loc.gov/authorities/subjects'){
                 this.displayLabel = 'Library of Congress subject headings'
+              }else{
+                // just return the URI
+                this.displayLabel = this.URI
               }
 
 

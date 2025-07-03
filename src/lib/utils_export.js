@@ -1065,6 +1065,7 @@ const utilsExport = {
 						// but it might be a bnode, but with only a URI
 						for (let userValue of userValueArray){
 
+
 							// 2024 - Still needed?
 							if (userValue['@flags'] && userValue['@flags'].indexOf('simpleLookupTopLevelMulti') > -1){
 
@@ -1174,6 +1175,7 @@ const utilsExport = {
 							}else if (ptObj.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator" && await utilsRDF.suggestTypeNetwork(ptObj.propertyURI) == 'http://www.w3.org/2000/01/rdf-schema#Resource'){
 								// if it is a marked in the profile as a literal and has expected value of rdf:Resource flatten it to a string literal
 								let allXMLFragments = ''
+								let addedResourceAsLiteral = false
 								for (let key1 of Object.keys(userValue).filter(k => (!k.includes('@') ? true : false ) )){
 
 									for (let value1 of userValue[key1]){
@@ -1183,6 +1185,7 @@ const utilsExport = {
 												let p1 = this.createLiteral(key2, value1)
 												if (p1!==false) {
 													rootEl.appendChild(p1);
+													addedResourceAsLiteral=true
 													allXMLFragments = allXMLFragments + `\n${formatXML(p1.outerHTML)}`
 													xmlLog.push(`Listed as rdf:Resource but treating it a a literal, Creating literal for ${key2} with value ${p1.innerHTML}`)
 												}
@@ -1194,6 +1197,19 @@ const utilsExport = {
 									}
 								}
 								componentXmlLookup[`${rt}-${pt}`] = allXMLFragments
+
+								if (!addedResourceAsLiteral){
+									xmlLog.push(`Tried to flatten a resource but it did not have any literal values`, userValue)
+									// also if it is here then there was no action taken, if it at least had a URI then add it
+									if (userValue['@id']) {
+										let p = this.createElByBestNS(ptObj.propertyURI)
+										p.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue['@id'])
+										rootEl.appendChild(p)
+										componentXmlLookup[`${rt}-${pt}`] = formatXML(p.outerHTML)
+										xmlLog.push(`Flattened a resource to a URI ${userValue['@id']}`)
+									}	
+								}
+
 							}else if (userValue['@id']){
 								// it has a URI at least, so make that
 								let p = this.createElByBestNS(ptObj.propertyURI)
