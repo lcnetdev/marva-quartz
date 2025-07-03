@@ -2511,8 +2511,6 @@ export default {
 
       // if they are typing in the heading select it as we go
       if (event) {
-
-
         for (let c of this.components) {
           console.info("\tc: ", c)
           if (event.target.selectionStart >= c.posStart && event.target.selectionStart <= c.posEnd + 1) {
@@ -2532,10 +2530,8 @@ export default {
               this.searchApis(c.label, event.target.value, this)
             }
             //            // BUT if it starts with
-
             break
           }
-
         }
       } else {
 
@@ -2557,51 +2553,6 @@ export default {
       }
 
       this.validateOkayToAdd()
-
-      this.$nextTick(() => {
-        this.checkToolBarHeight()
-
-
-        // there are some senarios where we can safly assume the type, this is invoked when
-        // we want to try that, often delayed after something has been selected
-
-        window.setTimeout(() => {
-          for (let x of this.components) {
-            console.info("\tx: ", x)
-            if (this.localContextCache[x.uri]) {
-              if (this.activeComponent.type || this.localContextCache[x.uri].type) {
-                // don't do anything
-              } else {
-                if (this.localContextCache[x.uri].nodeMap && this.localContextCache[x.uri].nodeMap['MADS Collection'] && this.localContextCache[x.uri].nodeMap['MADS Collection'].includes('GeographicSubdivisions')) {
-                  x.type = 'madsrdf:Geographic'
-                }
-
-                if (this.localContextCache[x.uri].type === 'GenreForm') {
-                  x.type = 'madsrdf:GenreForm'
-                } else if (this.localContextCache[x.uri].type === 'Temporal') {
-                  x.type = 'madsrdf:Temporal'
-                } else if (this.localContextCache[x.uri].type === 'Geographic') {
-                  x.type = 'madsrdf:Geographic'
-                } else if (this.localContextCache[x.uri].type === 'Topic') {
-                  x.type = 'madsrdf:Topic'
-                } else {
-                  x.type = 'madsrdf:Topic'
-                }
-              }
-            }
-
-          }
-
-          console.info("\tthis.components: ", JSON.parse(JSON.stringify(this.components)))
-
-          this.updateAvctiveTypeSelected()
-          this.validateOkayToAdd()
-        }, 400)
-      })
-
-      // if (event === null){
-      //   console.log(event)
-      // }
 
     },
 
