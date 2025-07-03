@@ -2541,8 +2541,6 @@ export default {
 
         this.activeComponent = this.components[this.activeComponentIndex]
         console.info("\tthis.activeComponent: ", this.activeComponent)
-
-
       }
 
       this.updateAvctiveTypeSelected()
@@ -2693,25 +2691,6 @@ export default {
       // remove our werid hyphens before we send it back
       for (let c of this.components) {
         c.label = c.label.replaceAll('‑', '-')
-        console.info("c: ", JSON.parse(JSON.stringify(c)))
-        // console.info("this.activeTypes: ", this.activeTypes)
-        console.info("this.localContextCache: ", this.localContextCache)
-        // we have the full mads type from the build process, check if the component is a id name authortiy
-        // if so over write the user defined type with the full type from the authority file so that
-        // something like a name becomes a madsrdf:PersonalName instead of madsrdf:Topic
-
-        // This is a fallback that will replace a user selected type with the type from the `localContextCache`, maybe not needed?
-        // if (c.uri && c.uri.includes('id.loc.gov/authorities/names/') && this.localContextCache && this.localContextCache[c.uri]) {
-        //   let tempType = this.localContextCache[c.uri].typeFull.replace('http://www.loc.gov/mads/rdf/v1#', 'madsrdf:')
-        //   console.info("tempType: ", tempType)
-        //   if (!Object.keys(this.activeTypes).includes(tempType)) {
-        //     c.type = tempType
-        //   }
-        //   if (c.type == 'madsrdf:Topic') {
-        //     c.type = tempType
-        //   }
-        // }
-        console.info("c.type: ", c.type)
       }
 
       // If the individual components together, match a complex subject, switch'em so the user ends up with a controlled term
