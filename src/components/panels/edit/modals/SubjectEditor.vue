@@ -2414,18 +2414,6 @@ export default {
       console.info("\n\tsetTypeClick: ", type)
       console.info("components 1: ", JSON.parse(JSON.stringify(this.components)))
       this.activeComponent.type = type
-
-      console.info(">>>>", this.componetLookup)
-      console.info("base: ", this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label])
-
-      // this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].type = type
-      // if (this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra.type){
-      //   this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra.type = type
-      // } else {
-      //   this.componetLookup[this.activeComponentIndex][this.components[this.activeComponentIndex].label].extra = { "type": type }
-      // }
-
-      console.info("components 2: ", JSON.parse(JSON.stringify(this.components)))
       this.subjectStringChanged() // without this the active selection won't show any indication
       this.$refs.subjectInput.focus()
     },
@@ -2490,41 +2478,8 @@ export default {
         this.initialLoad = false
       }
 
-      // they are setting the type, next key inputed is important
-      if (event && event.data === '$') {
-        this.nextInputIsTypeSelection = true
-        return false
-      }
-
-      // if the event coming in is the keystroke after a '$' then check to change the type
-      // Does this ever get used, are people entering $a/v/z/y in the subject search??
-      if (event && this.nextInputIsTypeSelection) {
-        if (event.data.toLowerCase() === 'a' || event.data.toLowerCase() === 'x') {
-          this.components[this.activeComponentIndex].type = 'madsrdf:Topic'
-          this.subjectString = this.subjectString.replace('$' + event.data, '')
-        }
-        if (event.data.toLowerCase() === 'v') {
-          this.components[this.activeComponentIndex].type = 'madsrdf:GenreForm'
-          this.subjectString = this.subjectString.replace('$' + event.data, '')
-        }
-        if (event.data.toLowerCase() === 'z') {
-          this.components[this.activeComponentIndex].type = 'madsrdf:Geographic'
-          this.subjectString = this.subjectString.replace('$' + event.data, '')
-        }
-        if (event.data.toLowerCase() === 'y') {
-          this.components[this.activeComponentIndex].type = 'madsrdf:Temporal'
-          this.subjectString = this.subjectString.replace('$' + event.data, '')
-        }
-
-        this.nextInputIsTypeSelection = false
-        this.subjectStringChanged()
-
-      } else {
-        // its a normal keystroke not after '$' but check to see if it was a keyboard event
-        // if not then event will be null and was just evoked from code, if its a event then they are typeing in a search value, clear out the old
-        if (event) {
-          this.searchResults = null
-        }
+      if (event) {
+        this.searchResults = null
       }
 
       // this.showTypes = true
