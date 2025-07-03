@@ -51,6 +51,25 @@
                 </bf:role>
             </bf:Contribution>
         </bf:contribution>
+        <bf:contribution>
+            <bf:Contribution>
+                <bf:agent>
+                    <bf:Agent>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                        <rdfs:label>Robinson-Burns, Xandra</rdfs:label>
+                        <bflc:marcKey>1001 $aRobinson-Burns, Xandra.$d1900-2000</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                        <rdfs:label>author</rdfs:label>
+                        <bf:code>aut</bf:code>
+                    </bf:Role>
+                </bf:role>
+            </bf:Contribution>
+        </bf:contribution>
+
+        
         <bf:title>
             <bf:Title>
                 <bf:mainTitle>Discursul public</bf:mainTitle>
