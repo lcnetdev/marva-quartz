@@ -57,7 +57,8 @@
 
         oldInterface: false,
 
-        idbase: useConfigStore().returnUrls.id
+        idbase: useConfigStore().returnUrls.id,
+        preserveSpace: false,
 
 
       }
@@ -146,9 +147,9 @@
             let date = this.date ? "&sp-date="+this.date : ""
             let countParam = "&count=201"
 
-
+            let cutter = this.preserveSpace ? this.cutterNumber : this.cutterNumber.trimEnd()
             let initalResult =  await utilsNetwork.searchShelfList(
-              this.classNumber.trim() + '' + this.cutterNumber.trim(),
+              this.classNumber.trim() + '' + cutter,
               contributor + title + subj + date + countParam
             )
             let initalFirstClass = initalResult[0].term
@@ -262,8 +263,9 @@
 
           this.results = []
           this.searching=true
+          let cutter = this.preserveSpace ? this.cutterNumber : this.cutterNumber.trimEnd()
           this.results =  await utilsNetwork.searchShelfList(
-            this.classNumber.trim() + '' + this.cutterNumber.trim(),
+            this.classNumber.trim() + '' + cutter,
             contributor + title + subj + date + countParam
           )
           this.searching=false
@@ -446,6 +448,8 @@
                 <input v-model="classNumber" class="number-input" placeholder="Class" @input="search()" type="text" />
                 <input v-model="cutterNumber" class="number-input" @input="search()" placeholder="Cutter" type="text" />
                 <button class="number-input" @click="save" :disabled="(!activeShelfListData.componentGuid)">Save</button>
+                <input name="preserveSpace" type="checkbox" v-model="preserveSpace" @click="search()" />
+                <label for="preserveSpace" class="number-input">Preserve Cutter Spaces</label>
 
                 <div class="menu-buttons">
                   <button class="close-button"   @pointerup="showShelfListingModal=false">X</button>
