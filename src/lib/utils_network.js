@@ -501,8 +501,6 @@ const utilsNetwork = {
 
             // url = url + "&sortfield=label"
 
-            // console.info("url: ", url)
-
             // don't allow a ? in the keyword if it is already marked as keyword search
             if (url.includes('searchtype=keyword') && url.includes('q=?')){
               url = url.replace('q=?','q=')
@@ -3864,9 +3862,9 @@ const utilsNetwork = {
         } catch (error) {
           console.error("Error fetching from bfdbUrl and idUrl:", error);
           return null; // Return null if both fetches fail
-        }        
+        }
       }
-      
+
       results = await results.text();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(results, "application/xml");

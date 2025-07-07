@@ -2960,6 +2960,7 @@ export default {
 
     let searchValue = this.searchValue
     if (!searchValue) { return }
+    console.info("searchValue: ", searchValue)
     searchValue = searchValue.replace("—", "--")
 
     if (searchValue.includes("---")) {
@@ -2979,6 +2980,7 @@ export default {
 
     // this supports loading existing information into the forms
     if (this.authorityLookup != null) {
+      console.info("###AuthorityLookup: ", this.authorityLookup)
       this.authorityLookupLocal = this.authorityLookup.replace("—", "--")
       this.subjectInput = this.authorityLookupLocal
       this.linkModeString = this.authorityLookupLocal
