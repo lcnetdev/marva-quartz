@@ -2146,23 +2146,13 @@ export default {
 
         let type = null
         console.info("getting type: ", this.pickLookup[this.pickPostion])
-        type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
-        this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
-        // this.setTypeClick(null, type)
-        // try {
-        //   if (this.pickLookup[this.pickPostion].extra.rdftypes.length > 0) {
-        //     type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
-        //   } else {
-        //     let marcKey = this.pickLookup[this.pickPostion].marcKey
-        //     type = marcKey.match(/\$[axyzv]{1}/g)
-        //     type = this.getTypeFromSubfield(type[0])
-        //   }
-        //   console.info("setTypeClick: ", type)
-        //   this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
-        //   this.setTypeClick(null, type)
-        // } catch (err) {
-        //   console.error("Error getting the type. ", err)
-        // }
+        try {
+          type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
+          this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
+          // this.updateAvctiveTypeSelected
+        } catch(err){
+
+        }
 
         // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
         //Need something to prevent recursion
@@ -2372,7 +2362,7 @@ export default {
     },
 
     updateAvctiveTypeSelected: function () {
-      console.info("\n\nupdateAvctiveTypeSelected")
+      console.info("\n\nupdateAvctiveTypeSelected: ", this.activeComponent)
       //set them all false
       for (let k in this.activeTypes) {
         this.activeTypes[k].selected = false
@@ -2411,10 +2401,12 @@ export default {
 
     },
 
-    setTypeClick: function (event, type) { // should this set the type in the component??
-      console.info("\n\tsetTypeClick: ", type)
-      console.info("components 1: ", JSON.parse(JSON.stringify(this.components)))
+    setTypeClick: function (event, type) {
+      // this happens with literals, componentLookup needs to get the type
       this.activeComponent.type = type
+      this.activeTypes[type].selected = true
+      this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
+
       this.subjectStringChanged() // without this the active selection won't show any indication
       this.$refs.subjectInput.focus()
     },
