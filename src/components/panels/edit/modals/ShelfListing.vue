@@ -449,7 +449,7 @@
                 <input v-model="cutterNumber" class="number-input" @input="search()" placeholder="Cutter" type="text" />
                 <button class="number-input" @click="save" :disabled="(!activeShelfListData.componentGuid)">Save</button>
                 <input name="preserveSpace" type="checkbox" v-model="preserveSpace" @click="search()" />
-                <label for="preserveSpace">Preserve Cutter Spaces</label>
+                <label for="preserveSpace" class="number-input">Preserve Cutter Spaces</label>
 
                 <div class="menu-buttons">
                   <button class="close-button"   @pointerup="showShelfListingModal=false">X</button>
