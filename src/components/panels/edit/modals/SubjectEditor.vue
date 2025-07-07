@@ -2146,22 +2146,23 @@ export default {
 
         let type = null
         console.info("getting type: ", this.pickLookup[this.pickPostion])
-        try {
-          if (this.pickLookup[this.pickPostion].extra.rdftypes.length > 0) {
-            type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
-          } else {
-            let marcKey = this.pickLookup[this.pickPostion].marcKey
-            type = marcKey.match(/\$[axyzv]{1}/g)
-            type = this.getTypeFromSubfield(type[0])
-          }
-          console.info("setTypeClick: ", type)
-          this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
-          this.setTypeClick(null, type)
-        } catch (err) {
-          console.error("Error getting the type. ", err)
-          console.error("Error getting the type: ", this.components[this.activeComponentIndex])
-
-        }
+        type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
+        this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
+        // this.setTypeClick(null, type)
+        // try {
+        //   if (this.pickLookup[this.pickPostion].extra.rdftypes.length > 0) {
+        //     type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
+        //   } else {
+        //     let marcKey = this.pickLookup[this.pickPostion].marcKey
+        //     type = marcKey.match(/\$[axyzv]{1}/g)
+        //     type = this.getTypeFromSubfield(type[0])
+        //   }
+        //   console.info("setTypeClick: ", type)
+        //   this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
+        //   this.setTypeClick(null, type)
+        // } catch (err) {
+        //   console.error("Error getting the type. ", err)
+        // }
 
         // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
         //Need something to prevent recursion
@@ -2753,7 +2754,6 @@ export default {
         let prevItems = 0
         let allComplex = frozenComponents.every(c => c.complex)
         for (let component in frozenComponents) {
-          // if (this.components[component].complex && !['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(this.components[component].type)){
           const target = frozenComponents[component]
           if (frozenComponents.length > 1 && !(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type)) && target.complex) {
             let uri = target.uri
