@@ -147,7 +147,7 @@
             let date = this.date ? "&sp-date="+this.date : ""
             let countParam = "&count=201"
 
-            let cutter = this.preserveSpace ? this.cutterNumber : this.cutterNumber.trimEnd()
+            let cutter = this.preserveSpace ? this.cutterNumber.trimEnd() : this.cutterNumber.trim()
             let initalResult =  await utilsNetwork.searchShelfList(
               this.classNumber.trim() + '' + cutter,
               contributor + title + subj + date + countParam
@@ -240,7 +240,7 @@
             if (!this.activeShelfListData.cutterGuid){
               this.activeShelfListData.cutterGuid = short.generate()
             }
-            await this.profileStore.setValueLiteral(this.activeShelfListData.componentGuid,this.activeShelfListData.cutterGuid,this.activeShelfListData.componentPropertyPath,this.cutterNumber)
+            await this.profileStore.setValueLiteral(this.activeShelfListData.componentGuid,this.activeShelfListData.cutterGuid,this.activeShelfListData.componentPropertyPath,this.cutterNumber.trim())
           }
 
 
@@ -263,7 +263,7 @@
 
           this.results = []
           this.searching=true
-          let cutter = this.preserveSpace ? this.cutterNumber : this.cutterNumber.trimEnd()
+          let cutter = this.preserveSpace ? this.cutterNumber.trimEnd() : this.cutterNumber.trim()
           this.results =  await utilsNetwork.searchShelfList(
             this.classNumber.trim() + '' + cutter,
             contributor + title + subj + date + countParam
