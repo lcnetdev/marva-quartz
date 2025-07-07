@@ -279,20 +279,36 @@
                     No saved records found.
                   </div>
                   <ul class="continue-record-list">
-                    <li class="continue-record" v-for="record in continueRecords">
-                      <router-link :to="{ name: 'Edit', params: { recordId: record.eid } }">
-                        <div><span class="continue-record-title">{{ record.title }}</span><span
-                            v-if="record.contributor">
-                            by
-                            {{ record.contributor }}</span><span> ({{ record.lccn }})</span></div>
-                        <div class="continue-record-lastedit"><span v-if="record.status == 'published'">Posted</span><span
-                            v-if="record.status == 'unposted'">last edited</span> <span>{{
-                              returnTimeAgo(record.timestamp)
-                            }}</span>
-                        </div>
-                      </router-link>
-                      <div class="material-icons" v-if="record.status == 'published'" title="Posted record">check_box
+                    <li class="" v-for="record in continueRecords">
+                      <div class="continue-record">
+                        <router-link :to="{ name: 'Edit', params: { recordId: record.eid } }">
+                          <div><span class="continue-record-title">{{ record.title }}</span><span
+                              v-if="record.contributor">
+                              by
+                              {{ record.contributor }}</span><span> ({{ record.lccn }})</span></div>
+                          <div class="continue-record-lastedit"><span v-if="record.status == 'published'">Posted</span><span
+                              v-if="record.status == 'unposted'">last edited</span> <span>{{
+                                returnTimeAgo(record.timestamp)
+                              }}</span>
+                          </div>
+                        </router-link>
+                        <div class="material-icons" v-if="record.status == 'published'" title="Posted record">check_box</div>
                       </div>
+                      <template v-if="continueRecordsPreviousVersions[record.lccn]">
+                        <details class="continue-record-previous-versions-details">
+                          <summary>Alternate Versions</summary>
+                          <div class="continue-record-previous-versions">
+                            <ul>
+                              <li v-for="prev in continueRecordsPreviousVersions[record.lccn]">
+                              <router-link :to="{ name: 'Edit', params: { recordId: prev.eid } }">
+                                <span style="opacity: 0.55;">({{ prev.eid }})</span> {{ prev.title }} ({{ returnTimeAgo(prev.timestamp) }})
+                              </router-link>
+                            </li>
+                          </ul>
+                        </div>
+                        </details>
+                      </template>
+                      
                     </li>
                   </ul>
                 </div>
@@ -374,6 +390,7 @@ export default {
       urlToLoadTimer: null,
 
       continueRecords: [],
+      continueRecordsPreviousVersions: {},
 
       urlToLoadIsHttp: false,
 
@@ -1009,6 +1026,15 @@ export default {
           if (!lccnLookup[r.lccn]) {
             this.continueRecords.push(r)
             lccnLookup[r.lccn] = true
+          }else{
+            if (!this.continueRecordsPreviousVersions[r.lccn]) {
+              this.continueRecordsPreviousVersions[r.lccn] = []
+            }
+            if (this.continueRecordsPreviousVersions[r.lccn].map((v) => v.eid).indexOf(r.eid) === -1) {
+              // if the eid is not already in the previous versions, add it
+              // console.log("adding previous version", r)
+              this.continueRecordsPreviousVersions[r.lccn].push(r)
+            }
           }
         } else {
           // no LCCN just add it
@@ -1084,6 +1110,16 @@ export default {
 
 <style>
 
+.continue-record-previous-versions-details a{
+  text-decoration: none;
+  color: inherit !important;
+}
+.continue-record-previous-versions li:hover{
+  text-decoration: underline;
+}
+.continue-record-previous-versions-details summary{
+  text-align: right;
+}
 .dots-loading {
     text-wrap: nowrap;
 }

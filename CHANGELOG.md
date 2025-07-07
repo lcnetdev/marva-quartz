@@ -2,8 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.20] - 2025-07-07
+### Updated
+- Added an "Alternate Versions" detail to the My Records display list to show previous edits of the same LCCN
 
-## [1.3.19] - 2025-01-03
+## [1.3.19] - 2025-07-03
 ### Fixed
 - NAR: Hyphanted names in basic mode was not generating correct MARC
 ### Updated
