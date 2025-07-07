@@ -7,15 +7,19 @@ import { usePreferenceStore } from '@/stores/preference'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
-import { 
-    monograph_subject_simple, 
-    monograph_subject_simple_simple_sub, 
-    monograph_subject_personal_name, 
-    monograph_subject_geo, 
-    monograph_subject_hub, 
+import {
+    monograph_subject_simple,
+    monograph_subject_simple_simple_sub,
+    monograph_subject_personal_name,
+    monograph_subject_geo,
+    monograph_subject_hub,
     monograph_subject_complex,
     monograph_subject_personal_name_sub_gf,
-    monograph_subject_hub_subdivision
+    monograph_subject_hub_subdivision,
+    monograph_subject_literal_topic,
+    monograph_subject_literal_geo,
+    monograph_subject_literal_sub_temp,
+    monograph_subject_topci_sub_literal_genre
     } from './xml/monograph_subject_simple.json'
 
 const pinia = createPinia()
@@ -39,6 +43,11 @@ const expectedComplexXml = `<bf:subject><madsrdf:ComplexSubject><madsrdf:isMembe
 const expectedPersonGFXml = `<bf:subject><madsrdf:ComplexSubject><madsrdf:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/authorities/subjects"/><madsrdf:authoritativeLabel>Twain, David, 1929---Interviews</madsrdf:authoritativeLabel><rdfs:label>Twain, David, 1929---Interviews</rdfs:label><madsrdf:componentList rdf:parseType="Collection"><madsrdf:PersonalName rdf:about="http://id.loc.gov/authorities/names/n82164069"><madsrdf:authoritativeLabel>Twain, David, 1929-</madsrdf:authoritativeLabel><bflc:marcKey>10010$aTwain, David,$d1929-</bflc:marcKey></madsrdf:PersonalName><madsrdf:GenreForm rdf:about="http://id.loc.gov/authorities/subjects/sh99001682"><madsrdf:authoritativeLabel>Interviews</madsrdf:authoritativeLabel><bflc:marcKey>185  $vInterviews</bflc:marcKey></madsrdf:GenreForm></madsrdf:componentList><bf:source><bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:label>Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>`
 const expectedHubSubdivXml = `<bf:subject><madsrdf:ComplexSubject><madsrdf:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/authorities/subjects"/><madsrdf:authoritativeLabel>Euripides. Medea--Commentaries</madsrdf:authoritativeLabel><rdfs:label>Euripides. Medea--Commentaries</rdfs:label><madsrdf:componentList rdf:parseType="Collection"><bf:Hub rdf:about="http://id.loc.gov/resources/hubs/7b8475be-4aeb-83dc-7bf7-18a0dc7eae58"><madsrdf:authoritativeLabel>Euripides. Medea</madsrdf:authoritativeLabel><bflc:marcKey>1000 $aEuripides.$tMedea</bflc:marcKey></bf:Hub><madsrdf:GenreForm rdf:about="http://id.loc.gov/authorities/subjects/sh99001404"><madsrdf:authoritativeLabel>Commentaries</madsrdf:authoritativeLabel><bflc:marcKey>185  $vCommentaries</bflc:marcKey></madsrdf:GenreForm></madsrdf:componentList><bf:source><bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:label>Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>`
 
+const expectedLiteralTopicXml = `<bf:subject><madsrdf:Topic><rdfs:label>literal</rdfs:label></madsrdf:Topic></bf:subject>`
+const expectedLiteralGeoXml = `<bf:subject><madsrdf:Geographic><rdfs:label>literal</rdfs:label></madsrdf:Geographic></bf:subject>`
+
+const expectedLiteralTopicSubTemp = `<bf:subject><madsrdf:ComplexSubject><madsrdf:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/authorities/subjects"/><madsrdf:authoritativeLabel>literal--20th century</madsrdf:authoritativeLabel><rdfs:label>literal--20th century</rdfs:label><madsrdf:componentList rdf:parseType="Collection"><madsrdf:Topic><madsrdf:authoritativeLabel>literal</madsrdf:authoritativeLabel></madsrdf:Topic><madsrdf:Temporal rdf:about="http://id.loc.gov/authorities/subjects/sh2002012476"><madsrdf:authoritativeLabel>20th century</madsrdf:authoritativeLabel><bflc:marcKey>182  $y20th century</bflc:marcKey></madsrdf:Temporal></madsrdf:componentList><bf:source><bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:label>Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>`
+const expectedSubjectToicSubdivLiteralGenre = `><bf:subject><madsrdf:ComplexSubject><madsrdf:isMemberOfMADSScheme rdf:resource="http://id.loc.gov/authorities/subjects"/><madsrdf:authoritativeLabel>Dogs--literal</madsrdf:authoritativeLabel><rdfs:label>Dogs--literal</rdfs:label><madsrdf:componentList rdf:parseType="Collection"><madsrdf:Topic rdf:about="http://id.loc.gov/authorities/subjects/sh85038796"><madsrdf:authoritativeLabel>Dogs</madsrdf:authoritativeLabel><bflc:marcKey>150  $aDogs</bflc:marcKey></madsrdf:Topic><madsrdf:GenreForm><madsrdf:authoritativeLabel>literal</madsrdf:authoritativeLabel></madsrdf:GenreForm></madsrdf:componentList><bf:source><bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:label>Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>`
 
 
 describe('Subject XML is correct', () => {
@@ -121,7 +130,7 @@ describe('Subject XML is correct', () => {
             expect(xmlString).toContain(expectedPersonGFXml)
         });
     })
-    
+
     // Hub subdivision
     describe("Hub Subject with subdivision", () => {
         test('should contain the expectedHubSubdivXml', async () => {
@@ -132,8 +141,47 @@ describe('Subject XML is correct', () => {
             expect(xmlString).toContain(expectedHubSubdivXml)
         });
     })
-    
-    //
+
+    //Literals
+    describe("Simple Literal Subject Topic", () => {
+        test('should contain the expectedLiteralTopicXml', async () => {
+            let profile = monograph_subject_literal_topic
+            useProfileStore().activeProfile = profile
+            let xmlList = await utils_export.buildXMLProcess(profile)
+            let xmlString = xmlList.xlmStringBasic
+            expect(xmlString).toContain(expectedLiteralTopicXml)
+        });
+    })
+
+    describe("Simple Literal Subject Geo", () => {
+        test('should contain the expectedLiteralGeoXml', async () => {
+            let profile = monograph_subject_literal_geo
+            useProfileStore().activeProfile = profile
+            let xmlList = await utils_export.buildXMLProcess(profile)
+            let xmlString = xmlList.xlmStringBasic
+            expect(xmlString).toContain(expectedLiteralGeoXml)
+        });
+    })
+
+    describe("Simple Literal Subject Temp", () => {
+        test('should contain the expectedLiteralTopicSubTemp', async () => {
+            let profile = monograph_subject_literal_sub_temp
+            useProfileStore().activeProfile = profile
+            let xmlList = await utils_export.buildXMLProcess(profile)
+            let xmlString = xmlList.xlmStringBasic
+            expect(xmlString).toContain(expectedLiteralTopicSubTemp)
+        });
+    })
+
+    describe("Simple Subject Topic Literal Subdiv Genre", () => {
+        test('should contain the expectedSubjectToicSubdivLiteralGenre', async () => {
+            let profile = monograph_subject_topci_sub_literal_genre
+            useProfileStore().activeProfile = profile
+            let xmlList = await utils_export.buildXMLProcess(profile)
+            let xmlString = xmlList.xlmStringBasic
+            expect(xmlString).toContain(expectedSubjectToicSubdivLiteralGenre)
+        });
+    })
 
 
 });
