@@ -481,6 +481,157 @@ test('Add a HUB heading wita subdivision, it has the correct XML', async ({ page
 });
 
 
+test('Add a literal and set type Topic, it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('l');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('literal');
+    await page.getByText('literal [Literal]').click();
+    await page.getByText('Topic / Heading ($a $x)').click();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('madsrdf:Topic');
+    await expect(page.locator('#app')).toContainText('rdfs:label');
+    await expect(page.locator('#app')).toContainText('literal');
+});
+
+test('Add a literal and set type Genre, it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('l');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('literal');
+    await page.getByText('literal [Literal]').click();
+    await page.getByText('Genre ($v)').click();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('<madsrdf:GenreFormxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
+    await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">');
+    await expect(page.locator('#app')).toContainText('literal');
+});
+
+test('Add a literal and set type Geographic, it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('l');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('literal');
+    await page.getByText('literal [Literal]').click();
+    await page.getByText('Geographic ($z)').click();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('<madsrdf:Geographicxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
+    await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">');
+    await expect(page.locator('#app')).toContainText('literal');
+});
+
+test('Add a literal and set type Temporal, it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('l');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('literal');
+    await page.getByText('literal [Literal]').click();
+    await page.getByText('Chronological ($y)').click();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('<madsrdf:Temporalxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
+    await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">');
+    await expect(page.locator('#app')).toContainText('literal');
+});
+
+test('Add a Dogs with literal topic sub it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
+    await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).dblclick();
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--literal');
+    await page.getByText('literal [Literal]').click();
+    await page.getByText('Topic / Heading ($a $x)').click();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('<madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
+    await expect(page.locator('#app')).toContainText('Dogs--literal');
+    await expect(page.locator('#app')).toContainText('<madsrdf:componentListrdf:parseType="Collection">');
+    await expect(page.locator('#app')).toContainText('<madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh85038796">');
+    await expect(page.locator('#app')).toContainText('<madsrdf:Topic>');
+    await expect(page.locator('#app')).toContainText('literal');
+});
+
+test('Add a Dogs with literal temporal sub it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
+    await page.getByText('Dogs', { exact: true }).first().click();
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--literal');
+    await page.getByText('literal [Literal]').click();
+    await page.getByText('Chronological ($y)').click();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('<madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
+    await expect(page.locator('#app')).toContainText('Dogs--literal');
+    await expect(page.locator('#app')).toContainText('<madsrdf:componentListrdf:parseType="Collection">');
+    await expect(page.locator('#app')).toContainText('<madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh85038796">');
+    await expect(page.locator('#app')).toContainText('150 $aDogs');
+    await expect(page.locator('#app')).toContainText('<madsrdf:Temporal>');
+    await expect(page.locator('#app')).toContainText('literal');
+});
+
+
+
 // Check XML and MARC correct for
 // Geo--sub
 // name--sub
