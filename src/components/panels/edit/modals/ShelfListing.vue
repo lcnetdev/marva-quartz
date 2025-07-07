@@ -215,7 +215,6 @@
 
 
         async save(){
-          console.info("save")
           // using the
 
           if (this.classNumber && this.classNumber.trim() != ''){
@@ -241,7 +240,6 @@
             if (!this.activeShelfListData.cutterGuid){
               this.activeShelfListData.cutterGuid = short.generate()
             }
-            console.info("saving cutter: ", this.cutterNumber)
             await this.profileStore.setValueLiteral(this.activeShelfListData.componentGuid,this.activeShelfListData.cutterGuid,this.activeShelfListData.componentPropertyPath,this.cutterNumber.trim())
           }
 
