@@ -3811,8 +3811,6 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-
-
       if (pt && pt.userValue && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] && pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'].length>0){
         let uv = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
 
@@ -3884,8 +3882,6 @@ export const useProfileStore = defineStore('profile', {
 
 
       }else{
-
-
         if (pt && (pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/classification' || pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation') && Object.keys(pt.userValue).length == 1){
 
           if (titleNonSort && titleNonSort.trim().length >0 && title){
@@ -3908,6 +3904,17 @@ export const useProfileStore = defineStore('profile', {
           }
 
 
+        } else if (pt && (pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/expressionOf')){
+          return {
+            title: title,
+            classNumber:null,
+            cutterNumber:null,
+            titleNonSort:null,
+            contributors:contributors,
+            firstSubject:null,
+            cutterGuid:null,
+            classGuid:null
+          }
         }
 
 

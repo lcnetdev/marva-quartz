@@ -102,7 +102,7 @@
         },
 
         resetButton(){
-          
+
           this.hubTitle = ""
           this.hubTitleVariant = ""
           this.hubTitleVariantLang = null
@@ -476,8 +476,8 @@
           this.showHubStubCreateModal=false
 
 
-          
-        
+
+
 
 
 
@@ -620,7 +620,7 @@
         },
 
         checkBeforeClosing(event){
-          
+
           this.close()
         },
 
@@ -804,19 +804,19 @@
       }
       if (this.savedHubModalData && this.savedHubModalData.hubTitleVariant){
         this.hubTitleVariant = this.savedHubModalData.hubTitleVariant
-      } 
+      }
       if (this.savedHubModalData && this.savedHubModalData.hubTitleVariantLang){
         this.hubTitleVariantLang = this.savedHubModalData.hubTitleVariantLang
       }
       if (this.savedHubModalData && this.savedHubModalData.hubLang){
         this.hubLang = this.savedHubModalData.hubLang
-      } 
+      }
       if (this.savedHubModalData && this.savedHubModalData.hubCreator){
         this.hubCreator = this.savedHubModalData.hubCreator
       }
 
 
-      
+
 
       this.$nextTick(()=>{
 
@@ -880,7 +880,7 @@
               <div style="flex: 1; text-align: right;">
                 <button class="reset-button" @click="resetButton">Reset Form</button>
               </div>
-            </div>            
+            </div>
 
             <div style="margin-bottom: 1em;">
               <span class="creator-label" v-if="!hubCreator.label">[No Hub Creator]</span>
