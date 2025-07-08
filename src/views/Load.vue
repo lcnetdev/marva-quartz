@@ -115,7 +115,7 @@
                   <div v-if="searchByLccnResults && searchByLccnResults.length === 0">No results...</div>
 
                   <li v-if="(searchByLccnResults && searchByLccnResults.length === 0) || showSyncOptions">
-                    
+
 
                     <div><button @click="openLCAPSyncURL()">Click to Request LCAP Sync for this LCCN</button></div>
                     <div>and then</div>
@@ -152,10 +152,10 @@
                               <span v-else>{{ r.label }}</span>
                             </td>
                             <td><a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">BFDB</a></td>
-                            <td> 
-                              <span data-tooltip="When record was loaded/edited in BFDB" class="simptip-position-left" v-if="recordLastSystemDate[r.idURL]">{{ recordLastSystemDate[r.idURL] }}</span>  
+                            <td>
+                              <span data-tooltip="When record was loaded/edited in BFDB" class="simptip-position-left" v-if="recordLastSystemDate[r.idURL]">{{ recordLastSystemDate[r.idURL] }}</span>
                               <span v-else>
-                                  <ul class="dots-loading">        
+                                  <ul class="dots-loading">
                                       <li class="dot one"></li>
                                       <li class="dot two"></li>
                                       <li class="dot three"></li>
@@ -167,7 +167,7 @@
                             <td>
                               <span data-tooltip="Show LCAP Resync Buttons" class="simptip-position-left">
 
-                              
+
                                 <a href="#" style="cursor: pointer; color:inherit; text-decoration: none;" @click.prevent="showSyncOptions = true" class="material-icons"  title="Show Resync Options">loop</a>
                               </span>
                             </td>
@@ -176,7 +176,7 @@
                       </table>
 
 
-<!-- 
+<!--
                     <li v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
 
 
@@ -199,7 +199,7 @@
                           </span>
                         </div>
 
-                        
+
 
                       </div>
                     </li> -->
@@ -308,7 +308,7 @@
                         </div>
                         </details>
                       </template>
-                      
+
                     </li>
                   </ul>
                 </div>
@@ -466,7 +466,7 @@ export default {
 
     },
 
-    
+
     changeLoadType: function (event) {
       if (event.target.checked) {
         this.loadType = "loadBf"
@@ -668,7 +668,7 @@ export default {
                 try{
                   results = new Date(results).getTime()
                   results = this.returnTimeAgo(results / 1000)
-                  this.recordLastSystemDate[r.idURL] = results            
+                  this.recordLastSystemDate[r.idURL] = results
 
                 } catch (e) {
                   console.warn("Error parsing date", e)
@@ -676,9 +676,9 @@ export default {
 
                 }
               }
-              
+
             })
-            
+
           }
         }
 
@@ -886,14 +886,15 @@ export default {
               console.error(err);
             }
 
-            let targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+            let targetTemplate = "lc:RT:bf2:AdminMetadata"
             try {
               targetTemplate = profileData.filter((obj) => obj.json.Profile.resourceTemplates.some((l) => l.id == useInstanceProfile))[0]
               targetTemplate = targetTemplate.json.Profile.resourceTemplates.filter((obj) => obj.id == useInstanceProfile)[0]
-              targetTemplate = targetTemplate.propertyTemplates.filter((obj) => obj.propertyLabel == 'Admin Metadata')[0].valueConstraint.valueTemplateRefs[0]
+              // targetTemplate = targetTemplate.propertyTemplates.filter((obj) => obj.propertyLabel == 'Admin Metadata')[0].valueConstraint.valueTemplateRefs[0]
+              targetTemplate = "lc:RT:bf2:AdminMetadata"
             } catch (err) {
               console.warn("Using default template for admin metadata: ", err)
-              targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+              targetTemplate = "lc:RT:bf2:AdminMetadata"
             }
 
             // Add the Admin Metadata with the eNumber
