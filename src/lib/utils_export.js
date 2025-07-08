@@ -437,7 +437,7 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
-    // console.log(profile)
+    // console.log(JSON.stringify(profile))
 
     // keep track of the proces for later
 	// let debugHistory = []
@@ -1207,7 +1207,7 @@ const utilsExport = {
 										rootEl.appendChild(p)
 										componentXmlLookup[`${rt}-${pt}`] = formatXML(p.outerHTML)
 										xmlLog.push(`Flattened a resource to a URI ${userValue['@id']}`)
-									}	
+									}
 								}
 
 							}else if (userValue['@id']){

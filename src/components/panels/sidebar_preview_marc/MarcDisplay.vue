@@ -3,9 +3,10 @@ import { usePreferenceStore } from '@/stores/preference'
 import { useProfileStore } from '@/stores/profile'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
+import { AccordionList, AccordionItem } from "vue3-rich-accordion";
 
 export default {
-    components: {},
+    components: {AccordionList, AccordionItem },
     data() {
         return {
         }
@@ -25,7 +26,7 @@ export default {
     },
     watch: {},
     methods: {},
-    created() {},
+    created() { },
     updated() { }
 }
 
@@ -47,11 +48,16 @@ export default {
             </code>
           </pre>
                 <hr>
-                <pre>
-            <code>
-              {{ ver.results.stdout.trim() }}
-            </code>
-          </pre>
+            <AccordionList  :open-multiple-items="true">
+                <AccordionItem id="marc-xml" default-opened>
+                    <template #summary>MARC XML</template>
+                    <pre>
+                        <code>
+{{ ver.results.stdout.trim() }}
+                        </code>
+                    </pre>
+                </AccordionItem>
+            </AccordionList>
             </div>
         </template>
 
@@ -161,6 +167,11 @@ li {
 
 :deep() span.marc.subfield:hover {
     background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-opac-marc-html-highlight-color')");
+}
+
+div.accordion-list details.accordion-item > div.accordion-item__content {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
 }
 
 /* Allow the style to propogate to the popout window */
