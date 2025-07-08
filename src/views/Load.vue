@@ -1031,12 +1031,6 @@ export default {
                   "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
                     {
                       "@guid": short.generate(),
-                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
-                        {
-                          "@guid": short.generate(),
-                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": ""
-                        }
-                      ],
                       "@type": "http://id.loc.gov/ontologies/bibframe/Lccn"
                     }
                   ]
