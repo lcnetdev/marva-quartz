@@ -910,6 +910,7 @@ export default {
               "resourceTemplates": [],
               '@guid': short.generate(),
               "type": "resource",
+              "adminMetadataType": "primary",
               "userValue": {
                 "@root": "http://id.loc.gov/ontologies/bibframe/adminMetadata",
                 "http://id.loc.gov/ontologies/bibframe/adminMetadata": [
