@@ -631,9 +631,70 @@ test('Add a Dogs with literal temporal sub it has the correct XML', async ({ pag
 });
 
 
+test('Add a Geo with subdiv (complex) and check it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
 
-// Check XML and MARC correct for
-// Geo--sub
-// name--sub
-//      name (direct order)--sub
-// hub--sub
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('s');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('spain');
+    await page.getByText('Spain', { exact: true }).first().click();
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Spain--history');
+    await page.getByText('Spain--History', { exact: true }).click();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('<bf:subject><madsrdf:Topicxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"rdf:about="http://id.loc.gov/authorities/subjects/sh85126069"><madsrdf:isMemberOfMADSSchemerdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabel>Spain‑‑History</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Spain‑‑History</rdfs:label><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">151 0$aSpain$xHistory</bflc:marcKey><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:Topic></bf:subject>');
+});
+
+test('Add a Geo with subdiv (simple) and check it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('s');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('spain');
+    await page.getByText('Spain', { exact: true }).first().click();
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Spain--travel');
+    await page.getByText('Travel', { exact: true }).first().click();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('<bf:subject><madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"><madsrdf:isMemberOfMADSSchemerdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabel>Spain--Travel</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Spain--Travel</rdfs:label><madsrdf:componentListrdf:parseType="Collection"><madsrdf:Geographicrdf:about="http://id.loc.gov/authorities/names/n79006971"><madsrdf:authoritativeLabel>Spain</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">151 $aSpain</bflc:marcKey></madsrdf:Geographic><madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh99005039"><madsrdf:authoritativeLabel>Travel</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">180 $xTravel</bflc:marcKey></madsrdf:Topic></madsrdf:componentList><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>');
+});
+
+
+test('Add a name with subdiv (simple) and check it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('t');
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('twain, mark');
+    await page.getByText('Twain, Mark, 1835-1910', { exact: true }).click();
+    await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Twain, Mark, 1835‑1910--interviews');
+    await page.getByText('Interviews', { exact: true }).nth(1).click();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('<bf:subject><madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"><madsrdf:isMemberOfMADSSchemerdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910--Interviews</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Twain, Mark, 1835-1910--Interviews</rdfs:label><madsrdf:componentListrdf:parseType="Collection"><madsrdf:PersonalNamerdf:about="http://id.loc.gov/authorities/names/n79021164"><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aTwain, Mark,$d1835-1910</bflc:marcKey></madsrdf:PersonalName><madsrdf:GenreFormrdf:about="http://id.loc.gov/authorities/subjects/sh99001682"><madsrdf:authoritativeLabel>Interviews</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">185 $vInterviews</bflc:marcKey></madsrdf:GenreForm></madsrdf:componentList><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>');
+});
+
