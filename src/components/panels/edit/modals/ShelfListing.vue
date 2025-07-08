@@ -399,10 +399,12 @@
 
     async mounted() {
       // If they launched the shefllist from the tools menu then it does not have the
-      // context of launching from the component, so fake it via the profile
-      if (Object.keys(this.activeShelfListData)==0){
+      // context of launching from the component, so fake it via the profile.
+      // Unless, it's being loaded from the loading screen
+      if (Object.keys(this.activeShelfListData)==0 && this.$route.path.includes("/edit/")){
         this.profileStore.buildActiveShelfListDataFromProfile()
       }
+
       this.classNumber = this.activeShelfListData.class
       this.cutterNumber = this.activeShelfListData.cutter
       this.contributor = this.activeShelfListData.contributor
