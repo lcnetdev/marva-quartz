@@ -6488,7 +6488,6 @@ export const useProfileStore = defineStore('profile', {
      * @return {void} Updates the activeShelfListData state directly
      */
     buildActiveShelfListDataFromProfile(){
-
       // look through the active profile for the LCC data
       for (let rt in this.activeProfile.rt){
         for (let pt in this.activeProfile.rt[rt].pt){

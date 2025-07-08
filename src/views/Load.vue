@@ -115,11 +115,11 @@
                   <div v-if="searchByLccnResults && searchByLccnResults.length === 0">No results...</div>
 
                   <li v-if="(searchByLccnResults && searchByLccnResults.length === 0) || showSyncOptions">
-                    
+
 
                     <div><button @click="openLCAPSyncURL()">Click to Request LCAP Sync for this LCCN</button></div>
                     <div>and then</div>
-                    <div><button @click="loadSearch(); showSyncOptions=false">Click to Run Search Again</button></div>
+                    <div><button @click="loadSearch(); showSyncOptions = false">Click to Run Search Again</button></div>
                   </li>
 
                   <template v-if="searchByLccnResults && typeof searchByLccnResults === 'string'">
@@ -130,53 +130,56 @@
                   <template v-else>
 
                     <table>
-                        <thead>
-                          <tr>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
-                            <td  v-if="searchByLccnResults.length > 1">
-                              <input type="radio"
-                                v-model="lccnLoadSelected" :value="r" name="lccnToLoad" :id="'lccnsearch' + idx"
-                                :name="'lccnsearch' + idx" checked="true" />
-                            </td>
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th></th>
+                          <th></th>
+                          <th></th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
+                          <td v-if="searchByLccnResults.length > 1">
+                            <input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad"
+                              :id="'lccnsearch' + idx" :name="'lccnsearch' + idx" checked="true" />
+                          </td>
 
-                            <td>
-                              <label  v-if="searchByLccnResults.length > 1" style="cursor: pointer;" :for="'lccnsearch' + idx">{{ r.label }}</label>
-                              <span v-else>{{ r.label }}</span>
-                            </td>
-                            <td><a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">BFDB</a></td>
-                            <td> 
-                              <span data-tooltip="When record was loaded/edited in BFDB" class="simptip-position-left" v-if="recordLastSystemDate[r.idURL]">{{ recordLastSystemDate[r.idURL] }}</span>  
-                              <span v-else>
-                                  <ul class="dots-loading">        
-                                      <li class="dot one"></li>
-                                      <li class="dot two"></li>
-                                      <li class="dot three"></li>
-                                  </ul>
-
-
-                              </span>
-                            </td>
-                            <td>
-                              <span data-tooltip="Show LCAP Resync Buttons" class="simptip-position-left">
-
-                              
-                                <a href="#" style="cursor: pointer; color:inherit; text-decoration: none;" @click.prevent="showSyncOptions = true" class="material-icons"  title="Show Resync Options">loop</a>
-                              </span>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                          <td>
+                            <label v-if="searchByLccnResults.length > 1" style="cursor: pointer;"
+                              :for="'lccnsearch' + idx">{{ r.label }}</label>
+                            <span v-else>{{ r.label }}</span>
+                          </td>
+                          <td><a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">BFDB</a></td>
+                          <td>
+                            <span data-tooltip="When record was loaded/edited in BFDB" class="simptip-position-left"
+                              v-if="recordLastSystemDate[r.idURL]">{{ recordLastSystemDate[r.idURL] }}</span>
+                            <span v-else>
+                              <ul class="dots-loading">
+                                <li class="dot one"></li>
+                                <li class="dot two"></li>
+                                <li class="dot three"></li>
+                              </ul>
 
 
-<!-- 
+                            </span>
+                          </td>
+                          <td>
+                            <span data-tooltip="Show LCAP Resync Buttons" class="simptip-position-left">
+
+
+                              <a href="#" style="cursor: pointer; color:inherit; text-decoration: none;"
+                                @click.prevent="showSyncOptions = true" class="material-icons"
+                                title="Show Resync Options">loop</a>
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+
+                    <!--
                     <li v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
 
 
@@ -199,7 +202,7 @@
                           </span>
                         </div>
 
-                        
+
 
                       </div>
                     </li> -->
@@ -219,14 +222,8 @@
                 <template v-if="showLoadTypeSelection()">
                   <h3>Load Type:</h3>
                   <div id="container">
-                    <input
-                      type="checkbox"
-                      id="search-type"
-                      class="toggle"
-                      name="search-type"
-                      value="keyword"
-                      @click="changeLoadType($event)"
-                      ref="toggle"
+                    <input type="checkbox" id="search-type" class="toggle" name="search-type" value="keyword"
+                      @click="changeLoadType($event)" ref="toggle"
                       :checked="this.preferenceStore.returnValue('--b-general-default-load-tupe')">
                     <label for="search-type" class="toggle-container">
                       <div>Reconvert from MARC</div>
@@ -279,20 +276,39 @@
                     No saved records found.
                   </div>
                   <ul class="continue-record-list">
-                    <li class="continue-record" v-for="record in continueRecords">
-                      <router-link :to="{ name: 'Edit', params: { recordId: record.eid } }">
-                        <div><span class="continue-record-title">{{ record.title }}</span><span
-                            v-if="record.contributor">
-                            by
-                            {{ record.contributor }}</span><span> ({{ record.lccn }})</span></div>
-                        <div class="continue-record-lastedit"><span v-if="record.status == 'published'">Posted</span><span
-                            v-if="record.status == 'unposted'">last edited</span> <span>{{
-                              returnTimeAgo(record.timestamp)
-                            }}</span>
+                    <li class="" v-for="record in continueRecords">
+                      <div class="continue-record">
+                        <router-link :to="{ name: 'Edit', params: { recordId: record.eid } }">
+                          <div><span class="continue-record-title">{{ record.title }}</span><span
+                              v-if="record.contributor">
+                              by
+                              {{ record.contributor }}</span><span> ({{ record.lccn }})</span></div>
+                          <div class="continue-record-lastedit"><span
+                              v-if="record.status == 'published'">Posted</span><span
+                              v-if="record.status == 'unposted'">last edited</span> <span>{{
+                                returnTimeAgo(record.timestamp)
+                              }}</span>
+                          </div>
+                        </router-link>
+                        <div class="material-icons" v-if="record.status == 'published'" title="Posted record">check_box
                         </div>
-                      </router-link>
-                      <div class="material-icons" v-if="record.status == 'published'" title="Posted record">check_box
                       </div>
+                      <template v-if="continueRecordsPreviousVersions[record.lccn]">
+                        <details class="continue-record-previous-versions-details">
+                          <summary>Alternate Versions</summary>
+                          <div class="continue-record-previous-versions">
+                            <ul>
+                              <li v-for="prev in continueRecordsPreviousVersions[record.lccn]">
+                                <router-link :to="{ name: 'Edit', params: { recordId: prev.eid } }">
+                                  <span style="opacity: 0.55;">({{ prev.eid }})</span> {{ prev.title }} ({{
+                                    returnTimeAgo(prev.timestamp) }})
+                                </router-link>
+                              </li>
+                            </ul>
+                          </div>
+                        </details>
+                      </template>
+
                     </li>
                   </ul>
                 </div>
@@ -305,7 +321,8 @@
                   <span>Create Original BIBFRAME (origbf) Descriptions</span>
                 </h2>
                 <div style="padding:5px;">
-                  Use these templates for original BIBFRAME descriptions in Marva and then sent to Folio as Modern MARC records.
+                  Use these templates for original BIBFRAME descriptions in Marva and then sent to Folio as Modern MARC
+                  records.
                 </div>
                 <div @click="hideOptions = !hideOptions">
                   <summary><span style="text-decoration: underline;">Click Here</span> to access blank record
@@ -374,6 +391,7 @@ export default {
       urlToLoadTimer: null,
 
       continueRecords: [],
+      continueRecordsPreviousVersions: {},
 
       urlToLoadIsHttp: false,
 
@@ -443,13 +461,13 @@ export default {
       return config.returnUrls.displayLCOnlyFeatures
     },
 
-    openLCAPSyncURL(){
+    openLCAPSyncURL() {
 
       window.open(`http://c2vlpndmsojump01.loc.gov/foliar/api/fetch_and_load/bib?lccn=${this.urlToLoad}&serialization=json`, '_blank')
 
     },
 
-    
+
     changeLoadType: function (event) {
       if (event.target.checked) {
         this.loadType = "loadBf"
@@ -645,13 +663,13 @@ export default {
 
         for (let r of this.searchByLccnResults) {
           if (r.idURL && r.idURL.indexOf('http') > -1) {
-            utilsNetwork.fetchLastSystemDate(r.idURL).then((results)=>{
+            utilsNetwork.fetchLastSystemDate(r.idURL).then((results) => {
               console.log("results", results)
-              if (results){
-                try{
+              if (results) {
+                try {
                   results = new Date(results).getTime()
                   results = this.returnTimeAgo(results / 1000)
-                  this.recordLastSystemDate[r.idURL] = results            
+                  this.recordLastSystemDate[r.idURL] = results
 
                 } catch (e) {
                   console.warn("Error parsing date", e)
@@ -659,9 +677,9 @@ export default {
 
                 }
               }
-              
+
             })
-            
+
           }
         }
 
@@ -869,14 +887,15 @@ export default {
               console.error(err);
             }
 
-            let targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+            let targetTemplate = "lc:RT:bf2:AdminMetadata"
             try {
               targetTemplate = profileData.filter((obj) => obj.json.Profile.resourceTemplates.some((l) => l.id == useInstanceProfile))[0]
               targetTemplate = targetTemplate.json.Profile.resourceTemplates.filter((obj) => obj.id == useInstanceProfile)[0]
-              targetTemplate = targetTemplate.propertyTemplates.filter((obj) => obj.propertyLabel == 'Admin Metadata')[0].valueConstraint.valueTemplateRefs[0]
+              // targetTemplate = targetTemplate.propertyTemplates.filter((obj) => obj.propertyLabel == 'Admin Metadata')[0].valueConstraint.valueTemplateRefs[0]
+              targetTemplate = "lc:RT:bf2:AdminMetadata"
             } catch (err) {
               console.warn("Using default template for admin metadata: ", err)
-              targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
+              targetTemplate = "lc:RT:bf2:AdminMetadata"
             }
 
             // Add the Admin Metadata with the eNumber
@@ -891,6 +910,7 @@ export default {
               "resourceTemplates": [],
               '@guid': short.generate(),
               "type": "resource",
+              "adminMetadataType": "primary",
               "userValue": {
                 "@root": "http://id.loc.gov/ontologies/bibframe/adminMetadata",
                 "http://id.loc.gov/ontologies/bibframe/adminMetadata": [
@@ -978,9 +998,118 @@ export default {
             }
 
             this.activeProfile.rt[rt].ptOrder.push('id_loc_gov_ontologies_bibframe_adminmetadata')
+
+            // IBC and Monograph add additional empty fields for LCCN and ISBN
+            if (rt.includes("Ibc") || rt.includes("Monograph")) {
+              pt['id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_1'] = {
+                "propertyLabel": "Identifiers",
+                "propertyURI": "http://id.loc.gov/ontologies/bibframe/identifiedBy",
+                "resourceTemplates": [],
+                "type": "resource",
+                "valueConstraint": {
+                  "valueTemplateRefs": [
+                    "lc:RT:bf2:Identifiers:LCCN",
+                    "lc:RT:bf2:Identifiers:ISBN",
+                    "lc:RT:bf2:Identifiers:Oclc",
+                    "lc:RT:bf2:Identifiers:Other",
+                    "lc:RT:bf2:Identifiers:Local",
+                    "lc:RT:bf2:Identifiers:EAN",
+                    "lc:RT:bf2:Identifiers:Nbn",
+                    "lc:RT:bf2:Identifiers:LCOverseas"
+                  ],
+                  "useValuesFrom": [],
+                  "valueDataType": {},
+                  "defaults": []
+                },
+                "mandatory": "false",
+                "repeatable": "true",
+                "remark": "",
+                "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                "parentId": "lc:RT:bf2:Monograph:Instance",
+                "userValue": {
+                  "@guid": short.generate(),
+                  "@root": "http://id.loc.gov/ontologies/bibframe/identifiedBy",
+                  "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
+                    {
+                      "@guid": short.generate(),
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Lccn"
+                    }
+                  ]
+                },
+                "@guid": short.generate(),
+                "canBeHidden": true,
+                "preferenceId": "http://id.loc.gov/ontologies/bibframe/identifiedBy|lc:RT:bf2:Identifiers:LCCN",
+                "id": "id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_1",
+                "hashCode": -1526631250,
+                "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/identifiedBy",
+                "deepHierarchy": false,
+                "hasData": true,
+                "userModified": true,
+                "dataLoaded": false
+              }
+
+              pt['id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_2'] = {
+                "propertyLabel": "Identifiers",
+                "propertyURI": "http://id.loc.gov/ontologies/bibframe/identifiedBy",
+                "resourceTemplates": [],
+                "type": "resource",
+                "valueConstraint": {
+                  "valueTemplateRefs": [
+                    "lc:RT:bf2:Identifiers:LCCN",
+                    "lc:RT:bf2:Identifiers:ISBN",
+                    "lc:RT:bf2:Identifiers:Oclc",
+                    "lc:RT:bf2:Identifiers:Other",
+                    "lc:RT:bf2:Identifiers:Local",
+                    "lc:RT:bf2:Identifiers:EAN",
+                    "lc:RT:bf2:Identifiers:Nbn",
+                    "lc:RT:bf2:Identifiers:LCOverseas"
+                  ],
+                  "useValuesFrom": [],
+                  "valueDataType": {},
+                  "defaults": []
+                },
+                "mandatory": "false",
+                "repeatable": "true",
+                "remark": "",
+                "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                "parentId": "lc:RT:bf2:Monograph:Instance",
+                "userValue": {
+                  "@guid": "iR8GAKNdTi8QRq85nZtDPz",
+                  "@root": "http://id.loc.gov/ontologies/bibframe/identifiedBy",
+                  "http://id.loc.gov/ontologies/bibframe/identifiedBy": [
+                    {
+                      "@type": "http://id.loc.gov/ontologies/bibframe/Isbn"
+                    }
+                  ]
+                },
+                "@guid": "1N17voF8DTBkpowpALhmtp",
+                "canBeHidden": true,
+                "preferenceId": "http://id.loc.gov/ontologies/bibframe/identifiedBy|lc:RT:bf2:Identifiers:LCCN",
+                "id": "id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_2",
+                "hashCode": -1526631250,
+                "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/identifiedBy",
+                "deepHierarchy": false,
+                "hasData": true,
+                "userModified": true,
+                "dataLoaded": false,
+                "activeType": "http://id.loc.gov/ontologies/bibframe/Isbn",
+                "refTemplateUserValueKeys": {
+                  "lc:RT:bf2:Identifiers:LCCN": [
+                    "http://id.loc.gov/ontologies/bibframe/identifiedBy"
+                  ]
+                },
+                "refTemplateUserValue": {}
+              }
+
+              let startPos = this.activeProfile.rt[rt].ptOrder.indexOf('id_loc_gov_ontologies_bibframe_identifiedBy__identifiers')
+              this.activeProfile.rt[rt].ptOrder.splice(startPos+1, 0, 'id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_1')
+              this.activeProfile.rt[rt].ptOrder.splice(startPos+2, 0, 'id_loc_gov_ontologies_bibframe_identifiedBy__identifiers_2')
+            }
           }
         }
       }
+
+
       this.loadingRecord = false
       if (multiTestFlag) {
         this.$router.push(`/multiedit/`)
@@ -1009,6 +1138,15 @@ export default {
           if (!lccnLookup[r.lccn]) {
             this.continueRecords.push(r)
             lccnLookup[r.lccn] = true
+          } else {
+            if (!this.continueRecordsPreviousVersions[r.lccn]) {
+              this.continueRecordsPreviousVersions[r.lccn] = []
+            }
+            if (this.continueRecordsPreviousVersions[r.lccn].map((v) => v.eid).indexOf(r.eid) === -1) {
+              // if the eid is not already in the previous versions, add it
+              // console.log("adding previous version", r)
+              this.continueRecordsPreviousVersions[r.lccn].push(r)
+            }
           }
         } else {
           // no LCCN just add it
@@ -1083,35 +1221,67 @@ export default {
 </script>
 
 <style>
+.continue-record-previous-versions-details a {
+  text-decoration: none;
+  color: inherit !important;
+}
+
+.continue-record-previous-versions li:hover {
+  text-decoration: underline;
+}
+
+.continue-record-previous-versions-details summary {
+  text-align: right;
+}
 
 .dots-loading {
-    text-wrap: nowrap;
+  text-wrap: nowrap;
 }
+
 .dot {
-    display: inline-block;
-    border-radius: 40px;
-    background-color: black;
-    animation: dot 1.5s infinite;
-    margin-right: 4px;
+  display: inline-block;
+  border-radius: 40px;
+  background-color: black;
+  animation: dot 1.5s infinite;
+  margin-right: 4px;
 }
 
 .one {
-    animation-delay: 0.0s;
+  animation-delay: 0.0s;
 }
 
 .two {
-    animation-delay: 0.5s;
+  animation-delay: 0.5s;
 }
 
 .three {
-    animation-delay: 1.0s;
+  animation-delay: 1.0s;
 }
 
 @keyframes dot {
-     0% { width: 3px; height: 3px; margin-right: 4px; }
-    25% { width: 5px; height: 5px; margin-right: 2px; }
-    33% { width: 3px; height: 3px; margin-right: 4px; }
-   100% { width: 3px; height: 3px; margin-right: 4px; }
+  0% {
+    width: 3px;
+    height: 3px;
+    margin-right: 4px;
+  }
+
+  25% {
+    width: 5px;
+    height: 5px;
+    margin-right: 2px;
+  }
+
+  33% {
+    width: 3px;
+    height: 3px;
+    margin-right: 4px;
+  }
+
+  100% {
+    width: 3px;
+    height: 3px;
+    margin-right: 4px;
+  }
 }
 
 

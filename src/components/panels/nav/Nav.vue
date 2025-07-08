@@ -1075,7 +1075,10 @@
                         if (target == vRt){
                           this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
                         }
+                      } else if (rt.includes(":Ibc:Work")){ // IBC only has 1 option
+                        this.profileStore.insertDefaultValuesComponent(structure['@guid'], template)
                       }
+
                     } else if (structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject'){
                       let selection = document.getElementById(structure['@guid']+'-select')
                       let selected

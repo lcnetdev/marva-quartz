@@ -174,8 +174,21 @@
           }
           let additonalFields = []
           if (this.hyphenated4xx && this.buildHyphenated4xx){
-           additonalFields.push(this.hyphenated4xx)
-           console.log("additonalFields",additonalFields)
+
+            let newField = {
+              fieldTag: this.hyphenated4xx.fieldTag,
+              indicators: this.hyphenated4xx.indicators
+            }
+            let counter = 0
+
+            for (let subfield of Object.keys(this.hyphenated4xx)){
+              if (subfield.length==1){
+                newField[counter++] = [subfield, this.hyphenated4xx[subfield].trim()]
+              }
+            }
+
+            additonalFields.push(newField)
+
           }
 
           // if we are in advanced mode buld the statmenents
@@ -183,7 +196,7 @@
             additonalFields=[]
 
             for (let field of this.extraMarcStatements){
-              console.log(field)
+              // console.log(field)
               let fieldTag = field.fieldTag
               let indicators = field.indicators.replace(/[#]/g,' ')
 
@@ -213,6 +226,7 @@
 
 
           let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
+          // console.log("additonalFields",additonalFields)
           let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields, advMode)
 
           this.MARCXml = results.xml
@@ -256,6 +270,30 @@
               }
               this.extraMarcStatements.push(f667)
             }
+
+            // console.log("extraMarcStatements",this.extraMarcStatements)
+            // is there a 046 field already?
+            let has046 = this.extraMarcStatements.some(field => field.fieldTag === '046')
+            if (!has046) {
+            if (this.zero46 !== null){
+                let f046 = {
+                  fieldTag: '046',
+                  indicators: '##',
+                  value: ''
+                }
+                if (this.zero46 && this.zero46.f ){
+                  f046.value = `$f ${this.zero46.f}`
+                }
+                if (this.zero46 && this.zero46.g){              
+                  f046.value = f046.value + ` $g ${this.zero46.g}`
+                }
+                if (f046.value != ''){              
+                  f046.value = f046.value + ` $2 edtf`
+                }
+                this.extraMarcStatements.push(f046)
+              }
+            }
+
           }
         },
 
@@ -501,9 +539,10 @@
               
             }
 
-            if (dollarKey.d){
+            if (dollarKey.d){         
+
               let lifeDates  = dollarKey.d.split('-')
-              if (lifeDates.length>1){
+              if (lifeDates.length>1 && (fieldTag == '100' || fieldTag == 100)){
                 this.zero46 = {}
                 this.zero46.f = lifeDates[0]
                 if (lifeDates[1].trim().length>0){
@@ -511,7 +550,7 @@
                 }
 
               }
-              if (lifeDates.length==1){
+              if (lifeDates.length==1 && (fieldTag == '100' || fieldTag == 100)){
                 this.zero46 = {}
                 this.zero46.f = lifeDates[0]
               }
@@ -520,7 +559,7 @@
 
             if (dollarKey.a){
               if (/[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)){
-               console.log("found a hyphenated name")
+              //  console.log("found a hyphenated name")
                if (dollarKey.a.split(',')[0]){
                 let hyphenated = dollarKey.a.split(',')[0].split('-')
                 // console.log(hyphenated)
@@ -543,7 +582,7 @@
                     }
                   }
                   hyphenated4xx.preview = `${hyphenated4xx.fieldTag} ${hyphenated4xx.indicators.replace(/\s/g,'#')} ${subfields}`
-                  console.log("hyphenated4xx",hyphenated4xx)
+                  // console.log("hyphenated4xx",hyphenated4xx)
                   this.hyphenated4xx = hyphenated4xx
                   this.buildHyphenated4xx = true
 
@@ -1205,6 +1244,8 @@
             this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(",")
           }
 
+          let addingDefaultExtraMarcStatements = false
+
           if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
 
             if (!this.savedNARModalData.extraMarcStatements){
@@ -1222,6 +1263,9 @@
                 f670.value = f670.value + ` $u ${this.instanceURI}`
               }
               this.extraMarcStatements.push(f670)
+
+              addingDefaultExtraMarcStatements = true
+
             }else{
               this.extraMarcStatements = this.savedNARModalData.extraMarcStatements
             }
@@ -1288,6 +1332,32 @@
           }else{
             current = {}
           }
+
+          if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode') && addingDefaultExtraMarcStatements){
+
+            // add the 046 if this is the first time we are populating the extraMarcStatements
+            if (this.zero46 !== null){
+              let f046 = {
+                fieldTag: '046',
+                indicators: '##',
+                value: ''
+              }
+              if (this.zero46 && this.zero46.f ){
+                f046.value = `$f ${this.zero46.f}`
+              }
+              if (this.zero46 && this.zero46.g){              
+                f046.value = f046.value + ` $g ${this.zero46.g}`
+              }
+              if (f046.value != ''){              
+                f046.value = f046.value + ` $2 edtf`
+              }
+              this.extraMarcStatements.push(f046)
+            }
+
+
+          }
+            
+
 
           // for (let x in this.scriptshifterLanguages){
           //   if (this.scriptshifterLanguages[x].s2r || this.scriptshifterLanguages[x].r2s ){

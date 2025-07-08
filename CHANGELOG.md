@@ -2,12 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.21] - 2025-07-08
+### Updated
+- Scratch Monograph and IBC records come in with empty fields of LCCN and ISBN
+- MARC XML preview is collapsable
+- Change AdminMetadata template used in scratch records to allow 040 changes
+- When the shelflist search will use the activeProfile to populate the fields
 
-## [1.3.17] - 2025-01-01
+### Fixed
+- "Add all defaults" not populating AdminMetadata in Scratch records
+- "Add all defualts" not populating Class Number in IBC profile
+
+
+## [1.3.20] - 2025-07-07
+### Updated
+- Added an "Alternate Versions" detail to the My Records display list to show previous edits of the same LCCN
+
+## [1.3.19] - 2025-07-03
+### Fixed
+- NAR: Hyphanted names in basic mode was not generating correct MARC
+### Updated
+- NAR: 046 is no longer is visible in the advanced marc mode, it will add it there and not try to sneak it in during MARC export
+- Will dereference labels for genres, adds a new exception to keep top level resources without bnodes
+
+## [1.3.17] - 2025-07-01
 ### Updated
 - Load screen updates to prompt to resync from LCAP if no LCCN found
-- Adds dates loaded from METS records in BFDB/ID to show when a record was last edited 
-- Made minor improvments to NAR input 
+- Adds dates loaded from METS records in BFDB/ID to show when a record was last edited
+- Made minor improvments to NAR input
 
 
 ## [1.3.14] - 2025-06-27

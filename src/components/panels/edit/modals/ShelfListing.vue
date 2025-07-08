@@ -57,7 +57,8 @@
 
         oldInterface: false,
 
-        idbase: useConfigStore().returnUrls.id
+        idbase: useConfigStore().returnUrls.id,
+        preserveSpace: false,
 
 
       }
@@ -146,9 +147,9 @@
             let date = this.date ? "&sp-date="+this.date : ""
             let countParam = "&count=201"
 
-
+            let cutter = this.preserveSpace ? this.cutterNumber.trimEnd() : this.cutterNumber.trim()
             let initalResult =  await utilsNetwork.searchShelfList(
-              this.classNumber.trim() + '' + this.cutterNumber.trim(),
+              this.classNumber.trim() + '' + cutter,
               contributor + title + subj + date + countParam
             )
             let initalFirstClass = initalResult[0].term
@@ -239,7 +240,7 @@
             if (!this.activeShelfListData.cutterGuid){
               this.activeShelfListData.cutterGuid = short.generate()
             }
-            await this.profileStore.setValueLiteral(this.activeShelfListData.componentGuid,this.activeShelfListData.cutterGuid,this.activeShelfListData.componentPropertyPath,this.cutterNumber)
+            await this.profileStore.setValueLiteral(this.activeShelfListData.componentGuid,this.activeShelfListData.cutterGuid,this.activeShelfListData.componentPropertyPath,this.cutterNumber.trim())
           }
 
 
@@ -262,8 +263,9 @@
 
           this.results = []
           this.searching=true
+          let cutter = this.preserveSpace ? this.cutterNumber.trimEnd() : this.cutterNumber.trim()
           this.results =  await utilsNetwork.searchShelfList(
-            this.classNumber.trim() + '' + this.cutterNumber.trim(),
+            this.classNumber.trim() + '' + cutter,
             contributor + title + subj + date + countParam
           )
           this.searching=false
@@ -397,10 +399,12 @@
 
     async mounted() {
       // If they launched the shefllist from the tools menu then it does not have the
-      // context of launching from the component, so fake it via the profile
-      if (Object.keys(this.activeShelfListData)==0){
+      // context of launching from the component, so fake it via the profile.
+      // Unless, it's being loaded from the loading screen
+      if (Object.keys(this.activeShelfListData)==0 && this.$route.path.includes("/edit/")){
         this.profileStore.buildActiveShelfListDataFromProfile()
       }
+
       this.classNumber = this.activeShelfListData.class
       this.cutterNumber = this.activeShelfListData.cutter
       this.contributor = this.activeShelfListData.contributor
@@ -446,6 +450,8 @@
                 <input v-model="classNumber" class="number-input" placeholder="Class" @input="search()" type="text" />
                 <input v-model="cutterNumber" class="number-input" @input="search()" placeholder="Cutter" type="text" />
                 <button class="number-input" @click="save" :disabled="(!activeShelfListData.componentGuid)">Save</button>
+                <input name="preserveSpace" type="checkbox" v-model="preserveSpace" @click="search()" />
+                <label for="preserveSpace" class="number-input">Preserve Cutter Spaces</label>
 
                 <div class="menu-buttons">
                   <button class="close-button"   @pointerup="showShelfListingModal=false">X</button>

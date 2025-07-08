@@ -51,6 +51,25 @@
                 </bf:role>
             </bf:Contribution>
         </bf:contribution>
+        <bf:contribution>
+            <bf:Contribution>
+                <bf:agent>
+                    <bf:Agent>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Person"/>
+                        <rdfs:label>Robinson-Burns, Xandra</rdfs:label>
+                        <bflc:marcKey>1001 $aRobinson-Burns, Xandra.$d1900-2000</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                        <rdfs:label>author</rdfs:label>
+                        <bf:code>aut</bf:code>
+                    </bf:Role>
+                </bf:role>
+            </bf:Contribution>
+        </bf:contribution>
+
+        
         <bf:title>
             <bf:Title>
                 <bf:mainTitle>Discursul public</bf:mainTitle>
@@ -73,6 +92,26 @@
                 </bf:role>
             </bf:Contribution>
         </bf:contribution>
+        <bf:contribution>
+            <bf:Contribution>
+                <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/PrimaryContribution"/>
+                <bf:agent>
+                    <bf:Agent>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label>Association of Women Librarians in Nigeria. Annual workshop (3rd : 2013 : Agudama-Epie, Nigeria).</rdfs:label>
+                        <bflc:marcKey>1102 $aAssociation of Women Librarians in Nigeria.$bAnnual workshop$n(3rd :$d2013 :$cAgudama-Epie, Nigeria).</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/aut">
+                        <rdfs:label>author</rdfs:label>
+                        <bf:code>aut</bf:code>
+                    </bf:Role>
+                </bf:role>
+            </bf:Contribution>
+        </bf:contribution>
+        <bf:genreForm rdf:resource="https://id.loc.gov/authorities/genreForms/gf2014026049"/>
+        
         <dcterms:isPartOf rdf:resource="http://id.loc.gov/resources/works"/>
         <bf:hasInstance rdf:resource="http://id.loc.gov/resources/instances/24184525"/>
         <bf:adminMetadata>
