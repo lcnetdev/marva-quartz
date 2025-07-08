@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - Scratch Monograph and IBC records come in with empty fields of LCCN and ISBN
 - MARC XML preview is collapsable
 - Change AdminMetadata template used in scratch records to allow 040 changes
+- When the shelflist search will use the activeProfile to populate the fields
 
 ### Fixed
 - "Add all defaults" not populating AdminMetadata in Scratch records
