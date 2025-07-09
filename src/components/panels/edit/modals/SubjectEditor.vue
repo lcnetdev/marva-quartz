@@ -2463,8 +2463,6 @@ export default {
       }
 
       if (!this.subjectString.endsWith("--")) {
-        // TODO: does this need to be "--"?, Yes, a name search won't have results
-        // do 2 checks !endswith &&(||?) that the previous component has been verified?
         this.buildComponents(this.subjectString)
       }
 
@@ -2521,7 +2519,7 @@ export default {
     * uses this.linkModeResults
     * @return {void}
     */
-
+    // Can link mode be stripped out?
     addLinkMode: function () {
 
 
