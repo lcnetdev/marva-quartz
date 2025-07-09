@@ -41,7 +41,7 @@
 
 
 
-        
+
         oneXX: '',
         oneXXParts: {},
         oneXXErrors: [],
@@ -114,7 +114,7 @@
         if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
           return true
         }
-        
+
         if (this.oneXX.trim() == ''){
           return true
         }
@@ -284,10 +284,10 @@
                 if (this.zero46 && this.zero46.f ){
                   f046.value = `$f ${this.zero46.f}`
                 }
-                if (this.zero46 && this.zero46.g){              
+                if (this.zero46 && this.zero46.g){
                   f046.value = f046.value + ` $g ${this.zero46.g}`
                 }
-                if (f046.value != ''){              
+                if (f046.value != ''){
                   f046.value = f046.value + ` $2 edtf`
                 }
                 this.extraMarcStatements.push(f046)
@@ -301,7 +301,7 @@
 
 
 
-          
+
           this.oneXX = ''
           this.oneXXParts = {}
           this.oneXXErrors = []
@@ -463,7 +463,7 @@
 
         checkOneXX(){
           this.oneXXErrors = []
-          
+
           if (this.oneXX.length<3){ return true}
 
           if (/[^0-9 #]/.test(this.oneXX.slice(3,5))){
@@ -536,10 +536,10 @@
               this.oneXXResultsTimeout = window.setTimeout(()=>{
                 this.searchAuthLabel(authLabel,'1xx')
               },500)
-              
+
             }
 
-            if (dollarKey.d){         
+            if (dollarKey.d){
 
               let lifeDates  = dollarKey.d.split('-')
               if (lifeDates.length>1 && (fieldTag == '100' || fieldTag == 100)){
@@ -640,10 +640,10 @@
 
         checkFourXX(){
 
-          
+
 
           this.fourXXErrors = []
-          if (this.fourXX.length<3){ return true}          
+          if (this.fourXX.length<3){ return true}
 
           if (/[^0-9 #]/.test(this.fourXX.slice(3,5))){
             this.fourXXErrors.push("There's an invalid indicator for 4XX")
@@ -712,7 +712,7 @@
               this.fourXXResultsTimeout = window.setTimeout(()=>{
                 this.searchAuthLabel(authLabel,'4xx')
               },500)
-              
+
             }
 
 
@@ -770,7 +770,7 @@
             indicators: '##',
             value: '$a',
             subfields: {
-              
+
             }
           })
 
@@ -1345,10 +1345,10 @@
               if (this.zero46 && this.zero46.f ){
                 f046.value = `$f ${this.zero46.f}`
               }
-              if (this.zero46 && this.zero46.g){              
+              if (this.zero46 && this.zero46.g){
                 f046.value = f046.value + ` $g ${this.zero46.g}`
               }
-              if (f046.value != ''){              
+              if (f046.value != ''){
                 f046.value = f046.value + ` $2 edtf`
               }
               this.extraMarcStatements.push(f046)
@@ -1356,7 +1356,7 @@
 
 
           }
-            
+
 
 
           // for (let x in this.scriptshifterLanguages){
@@ -1476,10 +1476,12 @@
                 <div style="flex: 1;">
                   <select @change="presetChange" class="preset-select">
                     <option class="preset-option" value="home">Presets</option>
+                    <option class="preset-option" value="1000#">"1000 "</option>
                     <option class="preset-option" value="1001#">"1001 "</option>
+                    <option class="preset-option" value="1000#and 4000#">"1000 " &amp; "4000 "</option>
                     <option class="preset-option" value="1001#and 4001#">"1001 " &amp; "4001 "</option>
                     <option class="preset-option" value="1101#">"1101 "</option>
-                    <option class="preset-option" value="1101#and 4101#">"1101 " &amp; "4101 "</option>                    
+                    <option class="preset-option" value="1101#and 4101#">"1101 " &amp; "4101 "</option>
                     <option class="preset-option" value="1102#">"1102 "</option>
                     <option class="preset-option" value="1102#and 4102#">"1102 " &amp; "4102 "</option>
                     <option class="preset-option" value="1112#">"1112 "</option>
@@ -1736,7 +1738,7 @@
                       style="margin-right: 1em; flex-grow: 1;"
                       @keydown="keydown" @keyup="keyup"
                     ></textarea>
-                    
+
 
 
                     <button v-if="extraMarcStatements.length-1 != index" @click="removeRow($event,index)"  style="margin-left: 0.1em;" data-tooltip="Remove Row" class="simptip-position-left" > - </button>

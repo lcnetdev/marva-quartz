@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.22] - 2025-07-09
+### Updated
+- Display add `AdminMetadata` to hub page
+- Hub gets the same background styling as instance
+
 ## [1.3.21] - 2025-07-08
 ### Updated
 - Scratch Monograph and IBC records come in with empty fields of LCCN and ISBN
