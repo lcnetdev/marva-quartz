@@ -91,12 +91,12 @@
           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false">
             <div class="lookup-fake-input-entities" v-if="marcDeliminatedLCSHMode == false">
 
-              
+
               <div v-for="(avl,idx) in complexLookupValues" :class="['selected-value-container']">
                 <div class="selected-value-container-auth">
                   <AuthTypeIcon passClass="complex-lookup-inline" v-if="avl.type && preferenceStore.returnValue('--b-edit-complex-use-value-icons')"  :type="avl.type"/>
                 </div>
-                
+
                 <div class="selected-value-container-title">
                   <span v-if="!avl.needsDereference && !avl.uneditable " style="padding-right: 0.3em; font-weight: bold">
                     <a href="#" :class="['entity-link']" @click="openAuthority()" ref="el">{{avl.label}}</a>
@@ -481,7 +481,6 @@ export default {
               ]
           )
         }else{
-          console.info("setValueComplex: ", contextValue)
           delete contextValue.typeFull
 
           let type = (contextValue.type && (contextValue.type.includes("Hub") || contextValue.type.includes("Work")) ) ? contextValue.type : contextValue.extra.rdftypes[0]
@@ -491,8 +490,6 @@ export default {
               type = struct.valueConstraint.valueDataType.dataTypeURI
             }
           }
-
-          console.info("type: ", type)
 
           this.profileStore.setValueComplex(
             this.guid,

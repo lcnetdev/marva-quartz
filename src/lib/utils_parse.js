@@ -484,9 +484,7 @@ const utilsParse = {
       // is there admin metdata in the data? If so we need to insert that profile template into the pt
 
       let adminMetadataCount = xml.getElementsByTagName('bf:adminMetadata').length
-
       if (adminMetadataCount>0){
-
         let parent
         let parentId
         // find a sibling and grab their parent id so we can use it for this new property
@@ -1792,6 +1790,9 @@ const utilsParse = {
           if (userValue){
 
             if (profile.rt[pkey].pt[key].parentId.includes(":Instance") && (!userValue['http://id.loc.gov/ontologies/bibframe/status'] || Object.keys(userValue).length > 7)){
+              profile.rt[pkey].pt[key].adminMetadataType = 'primary'
+              adminMedtataPrimary = key
+            } else if (profile.rt[pkey].pt[key].parentId.includes(":Hub") && Object.keys(userValue).length > 7){
               profile.rt[pkey].pt[key].adminMetadataType = 'primary'
               adminMedtataPrimary = key
             }else{
