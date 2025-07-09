@@ -1457,7 +1457,7 @@ export default {
                 label: needComponents[idx],
                 uri: null,
                 id: idx,
-                type: mode == "GEO" ? 'madsrdf:Geographic' : 'madsrdf:Topic',
+                type: mode == "GEO" ? 'madsrdf:Geographic' : 'madsrdf:Topic', // type should get updated when the selection is mad
                 complex: false,
                 literal: null,
                 posStart: start,
@@ -1773,10 +1773,6 @@ export default {
               this.subjectStringChanged()
               this.navString({ key: 'ArrowRight' })
             })
-
-
-
-
           }
         }
       }
@@ -1793,9 +1789,10 @@ export default {
       //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
       this.contextData = this.pickLookup[this.pickPostion].extra
 
-      console.info("this.contextData: ", this.contextData)
+      console.info("this.contextData: ", JSON.parse(JSON.stringify(this.contextData)))
 
       if (this.pickLookup[this.pickPostion].uri) {
+        // Pull information into contextData from 1 level up
         this.contextData.literal = false
         this.contextData.title = this.pickLookup[this.pickPostion].label
         this.contextData.uri = this.pickLookup[this.pickPostion].uri
@@ -1817,9 +1814,15 @@ export default {
 
         //Check if it's a Jurisdiction, and overwrite
         if (this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
+          console.info("update type for jursidition")
           this.contextData.type = "bf:Jursidiction"
           this.contextData.typeFull = "http://id.loc.gov/ontologies/bibframe/Jurisdiction"
+          console.info("componentLookup: ", this.componetLookup)
+          console.info("active: ", this.activeComponentIndex)
         }
+
+        console.info("collections: ", this.pickLookup[this.pickPostion].extra['collections'])
+        console.info("type: ", this.contextData.type)
 
         this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
 
@@ -2147,7 +2150,7 @@ export default {
         let type = null
         console.info("getting type: ", this.pickLookup[this.pickPostion])
         try {
-          type = "madsrdf:" + this.pickLookup[this.pickPostion].extra.rdftypes[0]
+          type = this.pickLookup[this.pickPostion].extra.type //"madsrdf:" +  ... .rdftypes[0]
           this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
           // this.updateAvctiveTypeSelected
         } catch(err){

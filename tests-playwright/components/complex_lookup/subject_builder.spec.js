@@ -698,3 +698,22 @@ test('Add a name with subdiv (simple) and check it has the correct XML', async (
     await expect(page.locator('#app')).toContainText('<bf:subject><madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"><madsrdf:isMemberOfMADSSchemerdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910--Interviews</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Twain, Mark, 1835-1910--Interviews</rdfs:label><madsrdf:componentListrdf:parseType="Collection"><madsrdf:PersonalNamerdf:about="http://id.loc.gov/authorities/names/n79021164"><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aTwain, Mark,$d1835-1910</bflc:marcKey></madsrdf:PersonalName><madsrdf:GenreFormrdf:about="http://id.loc.gov/authorities/subjects/sh99001682"><madsrdf:authoritativeLabel>Interviews</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">185 $vInterviews</bflc:marcKey></madsrdf:GenreForm></madsrdf:componentList><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>');
 });
 
+// jurisdiction
+test('Add a Jurisdiction and check it has the correct XML', async ({ page }) => {
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('Kenya. Horticultural Crops Development Authority');
+    await page.getByText('Kenya. Horticultural Crops Development Authority [LCNAF]').click();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.getByText('bf:Work').click();
+    await expect(page.locator('#app')).toContainText('<bf:subject><bf:Jursidictionrdf:about="http://id.loc.gov/authorities/names/n94900835"><madsrdf:isMemberOfMADSSchemexmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"rdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabelxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">Kenya. Horticultural Crops Development Authority</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Kenya. Horticultural Crops Development Authority</rdfs:label><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">11010$aKenya.$bHorticultural Crops Development Authority</bflc:marcKey><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></bf:Jursidiction></bf:subject>');
+});

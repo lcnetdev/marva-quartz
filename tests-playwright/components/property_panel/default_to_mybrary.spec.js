@@ -22,7 +22,7 @@ test('Can add a default component to my component library.', async ({ page }) =>
     page.on('dialog', dialog => {
         console.log("Is this thing on?", dialog.message());
         dialog.accept();
-    });
+    }); // this doesn't work in Chromium, gut does work in Firefox
 
     await page.getByRole('listitem').filter({ hasText: 'At headadd' }).getByRole('button').click();
 
