@@ -121,6 +121,7 @@
           </form>
         </div>
         <span class="lang-display" v-if="lValue['@language'] && lValue['@language'] !== null">{{ lValue['@language'] }}</span>
+
         <Transition name="action">
           <div class="literal-action" v-if="showActionButton && myGuid == activeField">
             <action-button :type="'literal'" :structure="structure" :fieldGuid="lValue['@guid']"  :guid="guid"  @action-button-command="actionButtonCommand" />
@@ -1255,7 +1256,7 @@ export default {
 
       window.setTimeout(()=>{
         this.expandHeightToContent()
-      },100)      
+      },100)
 
     })
 
@@ -1514,6 +1515,5 @@ textarea:hover{
 .literal-bold{
   font-weight: bold;
 }
-
 
 </style>
