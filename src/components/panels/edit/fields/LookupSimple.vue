@@ -1,6 +1,5 @@
 <template>
 
-
   <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == true">
     <!-- {{ simpleLookupValues }} -->
 
@@ -9,7 +8,6 @@
 
         <span class="bfcode-display-mode-holder-label simptip-position-top" :data-tooltip="structure.propertyLabel" :title="structure.propertyLabel" >{{profileStore.returnBfCodeLabel(structure)}}:</span>
         <input v-model="activeValue" class="inline-lookup-input can-select 1" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
-
         <Transition name="action" v-if="showActionButton && myGuid == activeField">
             <div :class="{'lookup-action':true, 'lookup-action-camm':preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')}" >
 
