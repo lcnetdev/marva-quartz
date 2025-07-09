@@ -1814,11 +1814,8 @@ export default {
 
         //Check if it's a Jurisdiction, and overwrite
         if (this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
-          console.info("update type for jursidition")
           this.contextData.type = "bf:Jursidiction"
           this.contextData.typeFull = "http://id.loc.gov/ontologies/bibframe/Jurisdiction"
-          console.info("componentLookup: ", this.componetLookup)
-          console.info("active: ", this.activeComponentIndex)
         }
 
         console.info("collections: ", this.pickLookup[this.pickPostion].extra['collections'])
@@ -1983,6 +1980,7 @@ export default {
 
     },
 
+    // Load the context when navigation with the keyboard
     loadContext: async function (pickPostion) {
       if (this.pickCurrent == null) {
         this.pickPostion = pickPostion
@@ -1999,16 +1997,6 @@ export default {
       if (this.contextData) {
         this.localContextCache[this.contextData.uri] = JSON.parse(JSON.stringify(this.contextData))
       }
-
-      // this.$store.dispatch("fetchContext", { self: this, searchPayload: this.pickLookup[this.pickPostion].uri }).then(() => {
-
-      //   // keep a local copy of it for looking up subject type
-
-
-      // })
-
-
-
     },
 
     selectContext: async function (pickPostion, update = true) {
@@ -2135,10 +2123,7 @@ export default {
           this.componetLookup[this.activeComponentIndex] = {}
         }
 
-        let _ = await this.getContext() //ensure the pickLookup has the marcKey
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')] = this.pickLookup[this.pickPostion]
-
-
         console.info("this.componetLookup: ", this.componetLookup)
 
         for (let k in this.pickLookup) {
