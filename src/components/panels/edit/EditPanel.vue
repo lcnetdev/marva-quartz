@@ -14,7 +14,7 @@
 
     v-for="profileName in this.activeProfile.rtOrder"
     :key="profileName"
-    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-item': (profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1 && !profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
+    :class="{'edit-panel-work': (profileName.split(':').slice(-1)[0] == 'Work'), 'edit-panel-instance': (profileName.split(':').slice(-1)[0] == 'Instance'), 'edit-panel-hub': (profileName.split(':').slice(-1)[0] == 'Hub'), 'edit-panel-item': (profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-instance-secondary': (profileName.split(':').slice(-1)[0].indexOf('_') > -1 && !profileName.split(':').slice(-1)[0].includes('Item')), 'edit-panel-scroll-x-parent': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x')}">
           <template v-if="instanceMode == true && (profileName.indexOf(':Instance') > -1 || profileName.indexOf(':Item') > -1)">
           <template v-if="profileName.includes(':Instance') && (!layoutActiveFilter || (layoutActiveFilter && Object.keys(layoutActiveFilter['properties']).includes(profileName)))">
                 <div>
@@ -474,6 +474,11 @@
 
 .edit-panel-work{
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')") !important;
+}
+
+.edit-panel-hub{
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')") !important;
+  padding-bottom: 5em;
 }
 
 .edit-panel-instance{
