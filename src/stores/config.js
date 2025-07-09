@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 3,
-    versionPatch: 22,
+    versionPatch: 21,
 
 
 
@@ -27,7 +27,7 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
 
-        validate: 'http://localhost:5200/validate',
+        validate: 'http://localhost:5200/validate/stage',
         // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
 
         publishNar: 'http://localhost:9401/util/nacostub/staging',
@@ -52,12 +52,12 @@ export const useConfigStore = defineStore('config', {
         // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
         // offical stage profiles inside the firewall
-        starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
-        profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
+        // starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
+        // profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
         // offical prod profiles inside the firewall
-        // starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
-        // profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
+        starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
+        profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
 
 
         worldCat: 'http://localhost:5200/worldcat/',
@@ -78,7 +78,7 @@ export const useConfigStore = defineStore('config', {
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
-        validate: 'http://localhost:5200/validate',
+        validate: 'http://localhost:5200/validate/stage',
         profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
         id: 'https://id.loc.gov/',
@@ -100,7 +100,7 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'https://preprod-3001.id.loc.gov/bfe2/scriptshifter/',
         publish: 'https://preprod-3001.id.loc.gov/bfe2/util/publish/staging',
         publishNar: 'https://preprod-3001.id.loc.gov/bfe2/util/nacostub/staging',
-        validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
+        validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate/stage',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
         // bfdb : 'https://preprod-8210.id.loc.gov/',
         bfdb : 'https://preprod-8300.id.loc.gov/',
@@ -128,7 +128,7 @@ export const useConfigStore = defineStore('config', {
         publish: 'https://editor.id.loc.gov/bfe2/util/publish/production',
         publishNar: 'https://editor.id.loc.gov/bfe2/util/nacostub/production',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
-        validate: 'https://editor.id.loc.gov/bfe2/util/validate',
+        validate: 'https://editor.id.loc.gov/bfe2/util/validate/prod',
         bfdb : 'https://preprod-8230.id.loc.gov/',
         bfdbGPO : 'https://preprod-8210.id.loc.gov/',
         // profiles : 'https://editor.id.loc.gov/api/listconfigs?where=index.resourceType:profile',
