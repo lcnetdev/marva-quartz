@@ -2133,7 +2133,7 @@ export default {
         this.pickLookup[this.pickPostion].picked = true
 
         let type = null
-        console.info("getting type: ", this.pickLookup[this.pickPostion])
+        console.info("setting type: ", this.pickLookup[this.pickPostion])
         try {
           type = this.pickLookup[this.pickPostion].extra.type //"madsrdf:" +  ... .rdftypes[0]
           this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
@@ -2364,25 +2364,6 @@ export default {
         } else {
           this.activeTypes["madsrdf:Topic"].selected = true
         }
-      } else if (this.activeComponent.type && this.activeComponent.type == null && this.activeComponent.marcKey != null) { //fall back on the marcKey, this can be null if the selection is too fast?
-        let subfield = this.activeComponent.marcKey.slice(5, 7)
-        switch (subfield) {
-          case ("$v"):
-            subfield = "madsrdf:GenreForm"
-            break
-          case ("$y"):
-            subfield = "madsrdf:Temporal"
-            break
-          case ("$z"):
-            subfield = "madsrdf:Geographic"
-            break
-          default:
-            subfield = "madsrdf:Topic"
-        }
-
-        console.info("subfield: ", subfield)
-        this.activeTypes[subfield].selected = true
-        this.activeComponent.type = subfield
       }
 
       console.info("this.activeComponent.type: ", this.activeComponent.type)
