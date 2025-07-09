@@ -746,7 +746,6 @@ export default {
           return false
         }
       }
-
       for (let key in this.profiles) {
         if (this.profiles[key].rtOrder.indexOf(useInstanceProfile) > -1) {
           useProfile = JSON.parse(JSON.stringify(this.profiles[key]))
@@ -862,9 +861,9 @@ export default {
           }
         }
 
-        //For IBCs add the admin metadata
+        //For empty profiles add the admin metadata
         for (let rt in this.activeProfile.rt) {
-          if (rt.includes(":Instance")) {  // :Ibc:Instance
+          if (rt.includes(":Instance") || rt.includes(":Hub")) {  // :Ibc:Instance
             let pt = this.activeProfile.rt[rt].pt
             let parent
             let parentId

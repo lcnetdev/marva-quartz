@@ -636,8 +636,6 @@ export const useProfileStore = defineStore('profile', {
               }
           )
       }
-
-
       // FLAG: NEEDS_PROFILE_ALIGNMENT
       // TEMP HACK, striping RDA fields for some things for the new editor
       for (let p of profileData){

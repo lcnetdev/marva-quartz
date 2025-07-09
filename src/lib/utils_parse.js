@@ -358,7 +358,6 @@ const utilsParse = {
   },
 
   transformRts: async function(profile){
-    console.info("transformRts: ", profile)
     let toDeleteNoData = []
 
     // before we start processing make sure we have enough instance rts for the number needed
@@ -485,9 +484,7 @@ const utilsParse = {
       // is there admin metdata in the data? If so we need to insert that profile template into the pt
 
       let adminMetadataCount = xml.getElementsByTagName('bf:adminMetadata').length
-      console.info("adminMetadataCount: ", adminMetadataCount)
       if (adminMetadataCount>0){
-        console.info("add admin metadata")
         let parent
         let parentId
         // find a sibling and grab their parent id so we can use it for this new property
@@ -498,10 +495,6 @@ const utilsParse = {
             break
           }
         }
-
-        console.info("parent: ", parent)
-        console.info("parentId: ", parentId)
-        console.info("pt: ", pt)
 
         let targetTemplate = "lc:RT:bf2:AdminMetadata:BFDB"
         try {
