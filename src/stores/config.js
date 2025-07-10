@@ -28,7 +28,7 @@ export const useConfigStore = defineStore('config', {
         publish : 'http://localhost:9401/util/publish/staging',
 
         validate: 'http://localhost:5200/validate/stage',
-        // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
+        // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate/stage',
 
         publishNar: 'http://localhost:9401/util/nacostub/staging',
         bfdb : 'https://preprod-8230.id.loc.gov/',
@@ -154,7 +154,7 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://bibframe.org/marva/util-lang/',
         scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
-        validate: 'https://bibframe.org/marva/util/validate',
+        validate: 'https://bibframe.org/marva/util/validate/stage',
         bfdb : 'https://id.loc.gov/',
         profiles : 'https://bibframe.org/marva/util/profiles/profile/prod',
         starting : 'https://bibframe.org/marva/util/profiles/starting/prod',
@@ -172,7 +172,7 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://bibframe.org/marva/util-lang/',
         scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
-        validate: 'https://bibframe.org/marva/util/validate',
+        validate: 'https://bibframe.org/marva/util/validate/stage',
         bfdb : 'https://id.loc.gov/',
         profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
