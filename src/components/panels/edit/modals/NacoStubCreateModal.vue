@@ -338,9 +338,14 @@
         },
 
         async postNacoStub(){
-
+            console.info(">>>>", this.oneXXParts)
             this.postStatus='posting'
-            let results = await this.profileStore.postNacoStub(this.MARCXml,this.MARClccn)
+            //let results = await this.profileStore.postNacoStub(this.MARCXml,this.MARClccn)
+            let results = {
+                xml: this.MARCXml,
+                pubResuts: {status: true, postLocation: 'http://narURL'},
+                lccn: this.MARClccn
+              }
 
             results.xml = results.xml.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
             results.xml = results.xml.replace(/\<\/marcxml:controlfield>/g,"</marcxml:controlfield>\n")
@@ -351,8 +356,8 @@
             if (results && results.pubResuts && results.pubResuts.msgObj && results.pubResuts.msgObj.errorMessage){
               this.tmpErrorMessage = results.pubResuts.msgObj.errorMessage
             }
+            let type = "http://www.loc.gov/mads/rdf/v1#Name"
             if (results && results.pubResuts && results.pubResuts.status){
-              let type = "http://www.loc.gov/mads/rdf/v1#Name"
               if (this.oneXXParts.fieldTag == "100"){
                 type = "http://www.loc.gov/mads/rdf/v1#PersonalName"
               }else if (this.oneXXParts.fieldTag == "110"){
@@ -374,7 +379,39 @@
               // console.log(this.oneXXParts)
               // console.log(useName)
               let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
-              this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
+              if (this.activeNARStubComponent.source.includes('contribution')){
+                this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
+              } else if (this.activeNARStubComponent.source.includes('subject')){
+                //setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
+                //let MARCKey = await utilsNetwork.returnMARCKey(results.postLocation)
+                let MARCKey = await utilsNetwork.returnMARCKey("https://id.loc.gov/authorities/names/n79021164")
+                let component = [
+                    {
+                        "label": useName,
+                        "uri": newUri,
+                        "id": 0,
+                        "type": type,
+                        "complex": false,
+                        "literal": false,
+                        "marcKey": MARCKey
+                    }
+                  ]
+                  let pp = [
+                      {
+                          "level": 0,
+                          "propertyURI": "http://id.loc.gov/ontologies/bibframe/subject"
+                      },
+                      {
+                          "level": 1,
+                          "propertyURI": "http://www.loc.gov/mads/rdf/v1#componentList"
+                      },
+                      {
+                          "level": 2,
+                          "propertyURI": "http://www.loc.gov/mads/rdf/v1#Topic"
+                      }
+                  ]
+                this.profileStore.setValueSubject(this.activeNARStubComponent.guid, component, pp)
+              }
               // componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null
               this.newNarUri=results.pubResuts.postLocation
               this.postStatus='posted'

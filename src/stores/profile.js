@@ -2866,8 +2866,8 @@ export const useProfileStore = defineStore('profile', {
         // console.log(subjectComponents)
         // console.log(propertyPath)
 
-
-
+        console.info("subjectComponents: ",subjectComponents)
+    
         // find it
         if (pt){
             // build out the hiearchy
