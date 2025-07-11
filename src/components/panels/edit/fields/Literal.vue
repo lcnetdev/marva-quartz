@@ -121,7 +121,8 @@
           </form>
         </div>
         <span class="lang-display" v-if="lValue['@language'] && lValue['@language'] !== null">{{ lValue['@language'] }}</span>
-
+        <span v-if="structure.propertyLabel == 'ISBN'" :data-tooltip="isValidIsbn(lValue.value) ? 'VALID ISBN' : 'INVALID ISBN'" :class="['simptip-position-left', 'material-icons', 'isbn-check', {'isbn-valid': isValidIsbn(lValue.value)}, {'isbn-invalid': !isValidIsbn(lValue.value)}]">{{ isValidIsbn(lValue.value) ? 'check_circle' : 'cancel' }}</span>
+        
         <Transition name="action">
           <div class="literal-action" v-if="showActionButton && myGuid == activeField">
             <action-button :type="'literal'" :structure="structure" :fieldGuid="lValue['@guid']"  :guid="guid"  @action-button-command="actionButtonCommand" />
@@ -329,8 +330,14 @@ export default {
     structure: Object,
     readOnly: Boolean
   },
-
+  
   methods: {
+  
+    isValidIsbn(isbn) {
+        const result = this.profileStore.isValidIsbn(isbn)
+        this.validIsbn = result
+        return result
+    },
 
     usePeriodInCutter(){
 
@@ -1514,6 +1521,15 @@ textarea:hover{
 
 .literal-bold{
   font-weight: bold;
+}
+
+
+.isbn-invalid {
+    color: red;
+}
+
+.isbn-valid {
+    color: green;
 }
 
 </style>
