@@ -312,13 +312,14 @@ const utilsNetwork = {
       }
       // console.log("url:",url)
       // console.log('options:',options)
+      console.info("url: ", url)
       try{
         let response = await fetch(url,options);
         let data = null
         if (response.status == 404){
           return false
         }
-
+        console.info("data: ", data)
         if (url.includes('.rdf') || url.includes('.xml') || url.includes('.html')){
           data =  await response.text()
         }else{
@@ -2808,6 +2809,8 @@ const utilsNetwork = {
       // console.log(putMethod)
       let url = useConfigStore().returnUrls.ldpjs +'ldp/' + eId
 
+      console.info("save: ", url)
+
       await fetch(url, putMethod)
       .then(response => response.text())
       .then((responseText)=>{
@@ -3863,9 +3866,9 @@ const utilsNetwork = {
         } catch (error) {
           console.error("Error fetching from bfdbUrl and idUrl:", error);
           return null; // Return null if both fetches fail
-        }        
+        }
       }
-      
+
       results = await results.text();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(results, "application/xml");

@@ -17,18 +17,19 @@ export const useConfigStore = defineStore('config', {
       dev:{
 
         ldpjs : 'http://localhost:9401/api-staging/',
-        util  : 'http://localhost:9401/util/',
 
-        util  : 'http://localhost:5200/',
+        util  : 'http://localhost:9401/util/',
+        // util  : 'http://localhost:5200/',
         // util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
-        util  :  'https://editor.id.loc.gov/bfe2/util/',
+        // util  :  'https://editor.id.loc.gov/bfe2/util/',
 
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
 
-        validate: 'http://localhost:5200/validate/stage',
+        // validate: 'http://localhost:5200/validate/stage',
         // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
+        validate: 'http://localhost:9401/validate/stage',
 
         publishNar: 'http://localhost:9401/util/nacostub/staging',
         bfdb : 'https://preprod-8230.id.loc.gov/',
@@ -60,11 +61,13 @@ export const useConfigStore = defineStore('config', {
         profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
 
 
-        worldCat: 'http://localhost:5200/worldcat/',
-        copyCatUpload: 'http://localhost:5200/copycat/upload/stag',
+        // worldCat: 'http://localhost:5200/worldcat/',
+        // copyCatUpload: 'http://localhost:5200/copycat/upload/stag',
+        worldCat: 'http://localhost:9401/worldcat/',
+        copyCatUpload: 'http://localhost:9401/copycat/upload/stag',
 
         id: 'https://preprod-8080.id.loc.gov/',
-        env : 'production',
+        env : 'staging',
         dev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
