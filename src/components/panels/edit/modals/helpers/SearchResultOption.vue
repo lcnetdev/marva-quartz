@@ -4,7 +4,7 @@
         <span class="subject-results-heading">{{ label }}</span>
         <div v-for="(value, ix) in searchResults[searchType]" @click="$emit('selectContext', calculateIndex(ix))"
             @mouseover="setPickPosition(calculateIndex(ix))" :data-id="calculateIndex(ix)" :key="value.uri"
-            :class="['fake-option', { 'unselected': (pickPostion != calculateIndex(ix)), 'selected': (pickPostion == calculateIndex(ix)), 'picked': (pickLookup[calculateIndex(ix)] && pickLookup[calculateIndex(ix)].picked) }]">
+            :class="['fake-option', {'not-usable': !checkIsUsable(value), 'unselected': (pickPostion != calculateIndex(ix)), 'selected': (pickPostion == calculateIndex(ix)), 'picked': (pickLookup[calculateIndex(ix)] && pickLookup[calculateIndex(ix)].picked) }]">
             <span class='label' v-if="value.suggestLabel && value.suggestLabel.length > 100">{{ value.suggestLabel.substring(0, 100)
             }}...</span>
             <span class='label' v-else-if="value.literal">
@@ -82,15 +82,17 @@ export default {
                 }
             }
 
-            return isRda
+            return isRda && !this.checkIsUsable(data)
         },
         checkFromAuth: function (data) {
-            let notes = data.extra.notes || []
             let identifiers = data.extra.identifiers || []
-
             let looksLikeLccn = identifiers.filter((i) => i.startsWith("n")).length > 0 ? true : false
-
-            return looksLikeLccn
+            return looksLikeLccn && this.checkIsUsable(data)
+        },
+        checkIsUsable: function(data) {
+            let notes = data.extra.notes || []
+            let needsUpdate = notes.filter((i) => i.includes("CANNOT BE USED") ? true : false).length > 0
+            return !needsUpdate
         },
         calculateIndex: function (i) {
             const searchResults = this.searchResults
@@ -163,5 +165,9 @@ export default {
 <style>
 .picked .label{
     font-weight: bold;
+}
+
+.not-usable{
+    color: red;
 }
 </style>

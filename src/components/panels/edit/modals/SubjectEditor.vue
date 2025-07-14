@@ -1116,7 +1116,7 @@ export default {
        * When a string in the middle of a heading changes
        * Need a way to track this.
        */
-      let diff = []  //TODO: understand what/why is happening here.
+      let diff = []
       let offset = 0
       for (let ss of subjectStringSplit) {
         if (subjectStringSplit.length < Object.keys(this.componetLookup).length) {
@@ -2125,6 +2125,7 @@ export default {
 
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')] = this.pickLookup[this.pickPostion]
         console.info("this.componetLookup: ", this.componetLookup)
+        console.info("this.componetLookup: ", JSON.stringify(this.componetLookup))
 
         for (let k in this.pickLookup) {
           this.pickLookup[k].picked = false

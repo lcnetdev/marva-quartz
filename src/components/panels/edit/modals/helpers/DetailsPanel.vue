@@ -20,6 +20,8 @@
                     &nbsp;&nbsp;&nbsp;[May Subd Geog]
                 </span>
                 <br>
+                <span v-if="!checkIsUsable(contextData)" class="not-usable">{{ getUsabilityNote(contextData) }}</span>
+                <br>
                 <span>{{ contextData.uri.split("/").at(-1) }}</span>
             </h3>
             <h3 v-if="contextData.literal">
@@ -302,6 +304,16 @@ export default {
     },
 
     methods: {
+        getUsabilityNote: function(data){
+            let notes = data.notes || []
+            let needsNote = notes.filter((i) => i.includes("CANNOT BE USED") ? true : false)
+            return needsNote[0]
+        },
+        checkIsUsable: function(data){
+            let notes = data.notes || []
+            let needsUpdate = notes.filter((i) => i.includes("CANNOT BE USED") ? true : false).length > 0
+            return !needsUpdate
+        },
         newSearch: function (term) {
             this.$emit('newSearch', term)
         },
@@ -413,4 +425,9 @@ ul:has(.modal-context-data-li) {
 .modal-context-data-li {
     font-size: .85em;
 }
+
+.not-usable {
+    color: red;
+}
+
 </style>
