@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [1.3.23] - 2025-07-11
+### Added
+- ISBN validation
+
 ## [1.3.22] - 2025-07-09
 ### Updated
 - Display add `AdminMetadata` to hub page
