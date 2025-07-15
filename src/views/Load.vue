@@ -836,9 +836,6 @@ export default {
         useProfile.status = 'unposted'
       }
 
-
-
-
       if (useLoadUrl.trim() !== '') {
         let profileDataMerge = await utilsParse.transformRts(useProfile)
         this.activeProfile = profileDataMerge
