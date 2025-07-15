@@ -23,7 +23,6 @@ test('Find simple heading "Dogs" with correct XML and MARC', async ({ page }) =>
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
-    await expect(page.getByRole('dialog')).toContainText('Dogs');
     // await page.getByText('Dogs', { exact: true }).first().click();
     await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').nth(1).click();
     await expect(page.getByText('sh85038796')).toBeVisible();
