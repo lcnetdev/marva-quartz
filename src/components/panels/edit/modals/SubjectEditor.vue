@@ -2644,7 +2644,7 @@ export default {
     },
 
     add: async function () {
-      console.info("\n\nadd: ", this.components)
+      console.info("\n\nadd: ", this.components, "--", JSON.stringify(this.components))
       //remove any existing thesaurus label, so it has the most current
       //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2667,6 +2667,8 @@ export default {
       console.info("componentTypes: ", componentTypes)
 
       let complexSubjects = this.searchResults["subjectsComplex"].concat(this.searchResults["subjectsChildrenComplex"])
+
+      console.info(">>>", JSON.stringify(complexSubjects))
 
       // Determine if the built heading matches a complex subject, replace the individual pieces with 1 heading if possible
       for (let el in complexSubjects) {
