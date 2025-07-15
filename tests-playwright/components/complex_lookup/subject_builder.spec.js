@@ -436,7 +436,7 @@ test('Add a HUB heading, it has the correct XML', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('euripides. medea');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+4');
     await expect(page.getByRole('dialog')).toContainText('Euripides. Medea (Auth) [RDA]');
-    await page.getByText('Euripides. Medea', { exact: true }).nth(1).click();
+    await page.getByText('Euripides. Medea (Auth) [RDA]').first().click();
     await expect(page.getByRole('heading')).toContainText('Euripides. Medea');
     await expect(page.getByRole('heading')).toContainText('7b8475be-4aeb-83dc-7bf7-18a0dc7eae58');
     await expect(page.getByRole('dialog')).toContainText('Identifiers: nr2002000714 ; oca05666133');

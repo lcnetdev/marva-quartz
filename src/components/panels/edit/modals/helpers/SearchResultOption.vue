@@ -82,7 +82,7 @@ export default {
                 }
             }
 
-            return isRda && !this.checkIsUsable(data)
+            return isRda && this.checkIsUsable(data)
         },
         checkFromAuth: function (data) {
             let identifiers = data.extra.identifiers || []

@@ -912,7 +912,6 @@ export default {
         url = url.replace('http://id.', 'https://preprod-8080.id.')
         url = url.replace('https://id.', 'https://preprod-8080.id.')
       }
-      console.info("url: ", url)
       let data = await utilsNetwork.fetchSimpleLookup(url + ".json", true)
       let components = false
       let subfields = false
@@ -947,8 +946,6 @@ export default {
      * @param {obj} incomingSubjects - the existing subject data
      */
     buildLookupComponents: function (incomingSubjects) {
-      console.info("\n\nbuildLookupComponents: ", incomingSubjects)
-
       if (!incomingSubjects || typeof incomingSubjects == "undefined") {
         return
       }
@@ -957,29 +954,9 @@ export default {
 
       // The subject is made of multiple parts
       if (Array.isArray(incomingSubjects)) {
-        console.info("\tmultiple parts")
         for (let subjIdx in incomingSubjects) {
           this.componetLookup[subjIdx] = {}
           let type = incomingSubjects[subjIdx]["@type"]
-
-          console.info("type: ", type)
-
-          // if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
-          //   type = 'madsrdf:Topic'
-          // }
-          // if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")) {
-          //   type = 'madsrdf:GenreForm'
-          // }
-          // if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic") || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic")) {
-          //   type = 'madsrdf:Geographic'
-          // }
-          // if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")) {
-          //   type = 'madsrdf:Temporal'
-          // }
-          // if (type.includes("Hub") || type.includes("Work")) {
-          //   type = type
-          // }
-
 
           if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")) {
             lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
@@ -1003,28 +980,9 @@ export default {
           }
         }
       } else {
-        console.info("\tcomplex")
         // dealing with a complex subject
         this.componetLookup[0] = {}
         let type = incomingSubjects["@type"] ? incomingSubjects["@type"] : ""
-
-        console.info("\tcomplex type: ", type)
-
-        if (type.includes("http://www.loc.gov/mads/rdf/v1#Topic") || type.includes("http://id.loc.gov/ontologies/bibframe/Topic")) {
-          type = 'madsrdf:Topic'
-        }
-        if (type.includes("http://www.loc.gov/mads/rdf/v1#GenreForm")) {
-          type = 'madsrdf:GenreForm'
-        }
-        if (type.includes("http://www.loc.gov/mads/rdf/v1#Geographic" || type.includes("http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic"))) {
-          type = 'madsrdf:Geographic'
-        }
-        if (type.includes("http://www.loc.gov/mads/rdf/v1#Temporal")) {
-          type = 'madsrdf:Temporal'
-        }
-        // if (type.includes("Hub") || type.includes("Work")) {
-        //   type = type
-        // }
 
         if (Object.keys(incomingSubjects).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")) {
           lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
@@ -1045,9 +1003,6 @@ export default {
           console.error(err)
         }
       }
-
-      console.info("this.componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
-
     },
 
     /**
@@ -1057,7 +1012,6 @@ export default {
      * but there won't be components.
      */
     buildComponents: function (searchString) {
-      console.info("buildComponents: ", searchString)
       // searchString = searchString.replace("—", "--") // when copying a heading from class web
 
       let subjectStringSplit = searchString.split('--')
@@ -1065,6 +1019,7 @@ export default {
       let targetIndex = []
       let componentLookUpCount = Object.keys(this.componetLookup).length
 
+      // opening an authority after it was created
       if (componentLookUpCount > 0) { //We might be dealing with something that needs to stitch some terms together
         if (componentLookUpCount < subjectStringSplit.length) {
           let target = false
@@ -1073,8 +1028,6 @@ export default {
           for (let i in this.componetLookup) {
             for (let j in this.componetLookup[i]) {
               targetType = this.componetLookup[i][j].type
-
-              console.info("targetType: ", targetType)
 
               if (this.componetLookup[i][j].label.includes("--")) {
                 target = this.componetLookup[i][j].label.replaceAll("--", "‑‑")
@@ -1104,8 +1057,6 @@ export default {
         }
       }
 
-      console.info("building the components: ", searchString)
-      console.info("componetLookup: ", JSON.parse(JSON.stringify(this.componetLookup)))
       // clear the current
       this.components = []
       let id = 0
@@ -1158,9 +1109,6 @@ export default {
           type = "bf:Hub"
         }
 
-        console.info("this.componetLookup: ", this.componetLookup)
-        console.info("type: ", type)
-
         // set the type
         try {
           type = this.componetLookup[id + offset][ss].type
@@ -1168,7 +1116,6 @@ export default {
           type = ''
         }
 
-        console.info("adding component for ", ss)
         this.components.push({
           label: ss,
           uri: uri,
@@ -1191,9 +1138,6 @@ export default {
 
       //make sure the searchString matches the components
       this.subjectString = this.components.map((component) => component.label).join("--")
-
-      console.info("final components: ", this.components)
-      console.info("components string: ", JSON.stringify(this.components))
 
     },
 
@@ -1495,7 +1439,6 @@ export default {
      *
      */
     buildPickLookup: function () {
-      console.info("\n\n\tbuildPickLookup")
       for (let x in this.searchResults.subjectsComplex) {
         this.pickLookup[x] = this.searchResults.subjectsComplex[x]
       }
@@ -1646,8 +1589,6 @@ export default {
 
       that.buildPickLookup()
 
-      console.info("that.pickLookup: ", that.pickLookup)
-
       for (let k in that.pickLookup) {
         that.pickLookup[k].picked = false
         if (searchString.toLowerCase() == that.pickLookup[k].label.toLowerCase() && !that.pickLookup[k].literal) {
@@ -1672,7 +1613,6 @@ export default {
         }
       }
 
-      console.info("that.pickPosition: ", that.pickPostion, "--", that.pickLookup[that.pickPostion])
       // that.contextData.dispatch("clearContext", { self: that})
       if (that.pickLookup[that.pickPostion] && !that.pickLookup[that.pickPostion].literal) {
         that.contextRequestInProgress = true
@@ -1681,7 +1621,6 @@ export default {
 
         // keep a local copy of it for looking up subject type
         if (that.contextData) {
-          console.info("local copy")
           that.localContextCache[that.contextData.uri] = JSON.parse(JSON.stringify(that.contextData))
         }
       }
@@ -1722,8 +1661,6 @@ export default {
         // }
         // },100)
       })
-
-      console.info("that.contextData after search: ", that.contextData)
 
     }, 500),
 
@@ -1781,15 +1718,12 @@ export default {
     },
 
     getContext: async function () {
-      console.info("\n\ngetContext")
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false
       }
       //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
       this.contextData = this.pickLookup[this.pickPostion].extra
-
-      console.info("this.contextData: ", JSON.parse(JSON.stringify(this.contextData)))
 
       if (this.pickLookup[this.pickPostion].uri) {
         // Pull information into contextData from 1 level up
@@ -1804,22 +1738,14 @@ export default {
         let types = this.pickLookup[this.pickPostion].extra['rdftypes']
 
         // Setting the type in contextData
-        console.info("types: ", types)
-        console.info("pickLookup: ", this.pickLookup[this.pickPostion])
-
         this.contextData.type = types.includes("Hub") ? "bf:Hub" : types.includes("Work") ? "bf:Work" : "madsrdf:" + types[0]
         this.contextData.typeFull = this.contextData.type.replace('madsrdf:', 'http://www.loc.gov/mads/rdf/v1#')
-
-        console.info("this.contextData.type: ", this.contextData.type)
 
         //Check if it's a Jurisdiction, and overwrite
         if (this.pickLookup[this.pickPostion].extra['collections'].includes("http://id.loc.gov/authorities/names/collection_Jurisdictions")) {
           this.contextData.type = "bf:Jursidiction"
           this.contextData.typeFull = "http://id.loc.gov/ontologies/bibframe/Jurisdiction"
         }
-
-        console.info("collections: ", this.pickLookup[this.pickPostion].extra['collections'])
-        console.info("type: ", this.contextData.type)
 
         this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
 
@@ -1828,7 +1754,6 @@ export default {
       }
 
       this.contextRequestInProgress = false
-      console.info("final contextData: ", JSON.parse(JSON.stringify(this.contextData)))
     },
 
     /** Clear the current selection so that hovering will update the preview again */
@@ -2000,7 +1925,6 @@ export default {
     },
 
     selectContext: async function (pickPostion, update = true) {
-      console.info("\n\nselectContext: ", pickPostion)
       if (pickPostion != null) {
         this.pickPostion = pickPostion
         this.pickCurrent = pickPostion
@@ -2124,8 +2048,6 @@ export default {
         }
 
         this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')] = this.pickLookup[this.pickPostion]
-        console.info("this.componetLookup: ", this.componetLookup)
-        console.info("this.componetLookup: ", JSON.stringify(this.componetLookup))
 
         for (let k in this.pickLookup) {
           this.pickLookup[k].picked = false
@@ -2134,7 +2056,6 @@ export default {
         this.pickLookup[this.pickPostion].picked = true
 
         let type = null
-        console.info("setting type: ", this.pickLookup[this.pickPostion])
         try {
           type = this.pickLookup[this.pickPostion].extra.type //"madsrdf:" +  ... .rdftypes[0]
           this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
@@ -2149,9 +2070,6 @@ export default {
           this.subjectStringChanged()
         }
       }
-
-      console.info("select > activeComponentIndex: ", this.activeComponentIndex)
-      console.info("select > activeComponent: ", this.activeComponent)
 
       this.$refs.subjectInput.focus()
 
@@ -2351,7 +2269,6 @@ export default {
     },
 
     updateAvctiveTypeSelected: function () {
-      console.info("\n\nupdateAvctiveTypeSelected: ", this.activeComponent)
       //set them all false
       for (let k in this.activeTypes) {
         this.activeTypes[k].selected = false
@@ -2366,9 +2283,6 @@ export default {
           this.activeTypes["madsrdf:Topic"].selected = true
         }
       }
-
-      console.info("this.activeComponent.type: ", this.activeComponent.type)
-
     },
 
     setTypeClick: function (event, type) {
@@ -2428,8 +2342,6 @@ export default {
     },
 
     subjectStringChanged: async function (event) {
-      console.info("\n\n\tsubjectStringChanged: ", event, "--", this.subjectString)
-      console.info("\tcomponents: ", this.components)
       this.subjectString = this.subjectString.replace("—", "--")
       this.validateOkayToAdd()
 
@@ -2473,7 +2385,6 @@ export default {
       // if they are typing in the heading select it as we go
       if (event) {
         for (let c of this.components) {
-          console.info("\tc: ", c)
           if (event.target.selectionStart >= c.posStart && event.target.selectionStart <= c.posEnd + 1) {
             this.activeComponent = c
             this.activeComponentIndex = c.id
@@ -2501,7 +2412,6 @@ export default {
         // which would likely be the type if not a keyboard event
 
         this.activeComponent = this.components[this.activeComponentIndex]
-        console.info("\tthis.activeComponent: ", this.activeComponent)
       }
 
       this.updateAvctiveTypeSelected()
@@ -2618,7 +2528,6 @@ export default {
     },
 
     getTypeFromSubfield: function (subfield) {
-      console.info("\n\ngetTypeFromSubfield: ", subfield)
       switch (subfield) {
         case ("$a"):
           subfield = "madsrdf:Topic"
@@ -2639,12 +2548,10 @@ export default {
           subfield = false
       }
 
-      console.info("subfield: ", subfield)
       return subfield
     },
 
     add: async function () {
-      console.info("\n\nadd: ", this.components, "--", JSON.stringify(this.components))
       //remove any existing thesaurus label, so it has the most current
       //this.profileStore.removeValueSimple(componentGuid, fieldGuid)
 
@@ -2664,11 +2571,8 @@ export default {
       } catch {
         componentTypes = false
       }
-      console.info("componentTypes: ", componentTypes)
 
       let complexSubjects = this.searchResults["subjectsComplex"].concat(this.searchResults["subjectsChildrenComplex"])
-
-      console.info(">>>", JSON.stringify(complexSubjects))
 
       // Determine if the built heading matches a complex subject, replace the individual pieces with 1 heading if possible
       for (let el in complexSubjects) {
@@ -2725,13 +2629,10 @@ export default {
             } else {
               data = target
             }
-            console.info("data: ", data)
             let subs
             subs = target.marcKey.slice(5)
             // subfields = subfields.match(/\$./g)
             subs = subs.match(/\$[axyzv]{1}/g)
-            console.info("marcKey: ", target.marcKey)
-            console.info("subs: ", subs)
             const complexLabel = target.label
             // build the new components
             let id = prevItems
@@ -2789,9 +2690,7 @@ export default {
                     tag = "180"
                 }
               }
-              console.info("tag: ", tag)
               let marcKey = tag + "  " + sub + labels[idx]
-              console.info("marcKey: ", marcKey)
 
               let uriId = idx
 
@@ -2829,8 +2728,6 @@ export default {
         this.components = newComponents
       }
 
-      console.info("type: ", typeof this.components)
-      console.info("emit: ", JSON.stringify(this.components))
       this.$emit('subjectAdded', this.components)
     },
 
@@ -2897,7 +2794,6 @@ export default {
 
 
   updated: function () {
-    console.info("\n\n\nupdated")
     // preselect the search type, if a children's subject
     if (this.searchType.includes("Childrens")) {
       this.searchMode = "CHILD"
@@ -2926,11 +2822,8 @@ export default {
       }
     }
 
-    console.info("incomingSubjects: ", incomingSubjects)
-
     let searchValue = this.searchValue
     if (!searchValue) { return }
-    console.info("searchValue: ", searchValue)
     searchValue = searchValue.replace("—", "--")
 
     if (searchValue.includes("---")) {
@@ -2950,7 +2843,6 @@ export default {
 
     // this supports loading existing information into the forms
     if (this.authorityLookup != null) {
-      console.info("###AuthorityLookup: ", this.authorityLookup)
       this.authorityLookupLocal = this.authorityLookup.replace("—", "--")
       this.subjectInput = this.authorityLookupLocal
       this.linkModeString = this.authorityLookupLocal
