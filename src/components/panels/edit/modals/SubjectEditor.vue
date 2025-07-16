@@ -1726,6 +1726,7 @@ export default {
     },
 
     getContext: async function () {
+      console.info("pickPosition: ", this.pickPostion, "--", this.pickLookup[this.pickPostion])
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false

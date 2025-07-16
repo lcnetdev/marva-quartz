@@ -204,7 +204,10 @@ describe('SubjectEditor searchModeSwitch()', () => {
                 pickLookup: {},
                 searchResults: {
                     subjectsComplex: [],
-                    subjectsChildrenComplex: []
+                    subjectsChildrenComplex: [],
+                    subjectsSimple: [],
+                    subjectsChildren: [],
+                    names: []
                 },
                 $refs: {subjectInput: {}}
             })
@@ -216,3 +219,32 @@ describe('SubjectEditor searchModeSwitch()', () => {
         });
     })
 })
+
+describe('SubjectEditor buildPickLookup()', () => {
+    describe("pickLookup is built correctly.", () => {
+        test('Order should match expectations', async () => {
+            const wrapper = shallowMount(SubjectEditor)
+            wrapper.setData({
+                subjectString: '',
+                componetLookup: {},
+                components: geoComponentsAfterSwitchTogether,
+                pickLookup: {},
+                searchResults: {
+                    subjectsComplex: [ { "collections": [], "label": "Dogs‑‑Abnormalities", "vlabel": "", "suggestLabel": "Dogs--Abnormalities", "uri": "http://id.loc.gov/authorities/subjects/sh2007005769", "literal": false, "depreciated": false, "extra": {}, "total": 60, "undifferentiated": false, "subdivision": false, "count": 0, "labelOrginal": "Dogs--Abnormalities", "complex": true }, { "collections": [], "label": "Dogs‑‑Abnormalities‑‑Bibliography", "vlabel": "", "suggestLabel": "Dogs--Abnormalities--Bibliography", "uri": "http://id.loc.gov/authorities/subjects/sh2007005768", "literal": false, "depreciated": false, "extra": {}, "total": 60, "undifferentiated": false, "subdivision": false, "count": 0, "labelOrginal": "Dogs--Abnormalities--Bibliography", "complex": true }, { "collections": [], "label": "Dogs‑‑Age", "vlabel": "", "suggestLabel": "Dogs--Age", "uri": "http://id.loc.gov/authorities/subjects/sh2008005095", "literal": false, "depreciated": false, "extra": {}, "total": 60, "undifferentiated": false, "subdivision": false, "count": 0, "labelOrginal": "Dogs--Age", "complex": true }, { "collections": [], "label": "Dogs‑‑Age determination", "vlabel": "", "suggestLabel": "Dogs--Age determination", "uri": "http://id.loc.gov/authorities/subjects/sh2008005930", "literal": false, "depreciated": false, "extra": {}, "total": 60, "undifferentiated": false, "subdivision": false, "count": 0, "labelOrginal": "Dogs--Age determination", "complex": true }, { "collections": [], "label": "Dogs‑‑Agility trials", "vlabel": "", "suggestLabel": "Dogs--Agility trials", "uri": "http://id.loc.gov/authorities/subjects/sh91002775", "literal": false, "depreciated": false, "extra": {}, "total": 60, "undifferentiated": false, "subdivision": false, "count": 0, "labelOrginal": "Dogs--Agility trials", "complex": true } ],
+                    subjectsChildrenComplex: [],
+                    subjectsSimple: [ { "collections": [], "label": "Dogs", "vlabel": "", "suggestLabel": "Dogs", "uri": "http://id.loc.gov/authorities/subjects/sh85038796", "literal": false, "depreciated": false, "extra": {}, "total": 33, "undifferentiated": false, "subdivision": false, "count": 0 }, { "collections": [], "label": "Dog adoption", "vlabel": "Dogs--Adoption", "suggestLabel": "Dogs--Adoption (USE Dog adoption)", "uri": "http://id.loc.gov/authorities/subjects/sh97000165", "literal": false, "depreciated": false, "extra": {}, "total": 33, "undifferentiated": false, "subdivision": false, "count": 0 }, { "collections": [], "label": "Dogs as carriers of disease", "vlabel": "", "suggestLabel": "Dogs as carriers of disease", "uri": "http://id.loc.gov/authorities/subjects/sh85038820", "literal": false, "depreciated": false, "extra": {}, "total": 33, "undifferentiated": false, "subdivision": false, "count": 0 }, { "collections": [], "label": "Dogs as laboratory animals", "vlabel": "", "suggestLabel": "Dogs as laboratory animals", "uri": "http://id.loc.gov/authorities/subjects/sh85038821", "literal": false, "depreciated": false, "extra": {}, "total": 33, "undifferentiated": false, "subdivision": false, "count": 0 }, { "collections": [], "label": "Dog breeds", "vlabel": "Dogs--Breeds", "suggestLabel": "Dogs--Breeds (USE Dog breeds)", "uri": "http://id.loc.gov/authorities/subjects/sh85038765", "literal": false, "depreciated": false, "extra": {}, "total": 33, "undifferentiated": false, "subdivision": false, "count": 0 }, { "label": "dogs", "uri": null, "literal": true, "extra": "" } ],
+                    subjectsChildren: [],
+                    names: [ { "collections": [], "label": "Dog's Best Friend (Firm)", "vlabel": "", "suggestLabel": "Dogs Best Friend (Firm) (USE Dog's Best Friend (Firm))", "uri": "http://id.loc.gov/authorities/names/n97121400", "literal": false, "depreciated": false, "extra": {}, "total": 60, "undifferentiated": false, "subdivision": false, "count": 0, "labelOrginal": "Dog's Best Friend (Firm)" }, { "collections": [], "label": "Dog's Breath Productions", "vlabel": "", "suggestLabel": "Dogs Breath Productions (USE Dog's Breath Productions)", "uri": "http://id.loc.gov/authorities/names/no2010202346", "literal": false, "depreciated": false, "extra": {}, "total": 60, "undifferentiated": false, "subdivision": false, "count": 0, "labelOrginal": "Dog's Breath Productions" }, { "collections": [], "label": "Dogs Die in Hot Cars (Musical group)", "vlabel": "", "suggestLabel": "Dogs Die in Hot Cars (Musical group)", "uri": "http://id.loc.gov/authorities/names/no2005012216", "literal": false, "depreciated": false, "extra": {}, "total": 60, "undifferentiated": false, "subdivision": false, "count": 0, "labelOrginal": "Dogs Die in Hot Cars (Musical group)" }, { "collections": [], "label": "Dogs d'Amour (Musical group)", "vlabel": "", "suggestLabel": "Dogs d'Amour (Musical group)", "uri": "http://id.loc.gov/authorities/names/no98016290", "literal": false, "depreciated": false, "extra": {}, "total": 60, "undifferentiated": false, "subdivision": false, "count": 0, "labelOrginal": "Dogs d'Amour (Musical group)" }, { "collections": [], "label": "Blank Dogs", "vlabel": "Dogs, Blank", "suggestLabel": "Dogs, Blank (USE Blank Dogs)", "uri": "http://id.loc.gov/authorities/names/no2009159549", "literal": false, "depreciated": false, "extra": {}, "total": 60, "undifferentiated": false, "subdivision": false, "count": 0, "labelOrginal": "Blank Dogs" } ]
+                }
+            })
+
+            wrapper.vm.buildPickLookup()
+
+            expect(wrapper.vm.pickLookup[-5].label).toEqual("Dog's Best Friend (Firm)")
+            expect(wrapper.vm.pickLookup[0].label).toEqual("Dogs‑‑Abnormalities")
+            expect(wrapper.vm.pickLookup[5].label).toEqual("Dogs")
+            expect(wrapper.vm.pickLookup[9].label).toEqual("Dog breeds")
+        });
+    })
+})
+
