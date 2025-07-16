@@ -2644,6 +2644,8 @@ export default {
             let id = prevItems
             let labels = complexLabel.split("--")
 
+            console.info("data: ", JSON.stringify(data))
+
             for (let idx in labels) {
               let subfield
               if (data) {
