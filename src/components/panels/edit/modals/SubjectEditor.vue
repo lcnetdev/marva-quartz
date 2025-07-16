@@ -1208,8 +1208,10 @@ export default {
         let current = obj[x]
 
         if (x > 0) {
-          prev = obj[x] - 1
-        } else if (x == 0) {
+          prev = obj[x-1]
+        }
+
+        if (x == 0) {
           current.posStart = 0
         } else {
           current.posStart = prev.posEnd + 2
@@ -1238,6 +1240,8 @@ export default {
         // search and then swaps to GEO to finish, replace the `--` between the two
         // to ease the process
         // if there is a component that is != literal and uri == null, get the index
+        console.info("this.subjectString: ", this.subjectString)
+        console.info("components 1: ", JSON.stringify(this.components))
         let potentialGeoIdx = this.components.findIndex((i) => i.literal == null && i.uri == null)
         let prevComponent
         if (potentialGeoIdx > 1) {
@@ -1270,7 +1274,7 @@ export default {
             componentMap.push(c)
           }
         }
-
+        console.log("componentMap: ", componentMap)
         //only stitch the loose components togethere if there are 2 next to each other
         if (indx.length == 2 && indx[1] - 1 == indx[0]) {
           /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1285,7 +1289,7 @@ export default {
           //this.activeComponent = looseComponents[this.activeComponentIndex]
 
           this.activeComponent.id = this.activeComponentIndex
-
+          console.info("looseComponents: ", looseComponents)
           //update the active component with the loose components
           for (let c in looseComponents) {
             if (c != 0) {
@@ -1356,6 +1360,7 @@ export default {
           }
         }
       } else {
+        console.log("else")
         // Above we took loose components and combined them,
         // here we undo that incase someone made a mistake and the geo
         // term has a subject in it that needs to be split out.
@@ -1424,10 +1429,20 @@ export default {
         this.renderHintBoxes()
       }
 
+      console.info("components 2: ", JSON.stringify(this.components))
+      console.info("this.subjectString: ", this.subjectString)
+
       if (this.activeComponent && this.activeComponent.label) {
         this.searchApis(this.activeComponent.label, this.subjectString, this)
       }
-      this.$refs.subjectInput.focus()
+      console.info("this.$refs.subjectInput: ", this.$refs.subjectInput)
+
+      try {
+        this.$refs.subjectInput.focus()
+      } catch(TypeError){
+        console.error("Couldn't focus on input")
+      }
+
     },
 
     /**

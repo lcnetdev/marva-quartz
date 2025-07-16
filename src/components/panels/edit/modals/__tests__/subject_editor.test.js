@@ -4,7 +4,6 @@ import utils_export from "@/lib/utils_export";
 import { useProfileStore } from '@/stores/profile'
 import SubjectEditor from  "@/components/panels/edit/modals/SubjectEditor.vue";
 
-
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
@@ -31,6 +30,10 @@ const componentLookupFoodItalyHistory = {"0":{"Food":{"collections":["http://id.
 const componentIncoming = {"@guid":"bmZDTEpHpmZ88SxYg4pv3E","@type":"http://id.loc.gov/ontologies/bibframe/Topic","@id":"http://id.loc.gov/authorities/subjects/sh85072708","http://www.w3.org/2000/01/rdf-schema#label":[{"@guid":"4GgyD8ku5HM7hsZJhH6UEi","http://www.w3.org/2000/01/rdf-schema#label":"Knitting--Patterns","@language":"en"}],"http://id.loc.gov/ontologies/bflc/marcKey":[{"@guid":"gdRxbz1JNAhahgTWiLfQxj","http://id.loc.gov/ontologies/bflc/marcKey":"150  $aKnitting$vPatterns"}],"http://www.loc.gov/mads/rdf/v1#componentList":[{"@guid":"vBv2z7ZszcJuE4sx5Fj5mj","@type":"http://www.loc.gov/mads/rdf/v1#Authority","http://www.loc.gov/mads/rdf/v1#authoritativeLabel":[{"@guid":"6XvhKKsPiKoX3WrCXfWE1w","http://www.loc.gov/mads/rdf/v1#authoritativeLabel":"Knitting","@language":"en"}],"http://www.loc.gov/mads/rdf/v1#elementList":[{"@guid":"csBKNBoXCvSHkL1zRxZZwt","@type":"http://www.loc.gov/mads/rdf/v1#TopicElement","http://www.loc.gov/mads/rdf/v1#elementValue":[{"@guid":"xsBYkrCcugME5Vb1DEemth","http://www.loc.gov/mads/rdf/v1#elementValue":"Knitting","@language":"en"}]}]},{"@guid":"enmSZqTFFdUZChFgrumBWY","@type":"http://www.loc.gov/mads/rdf/v1#Authority","http://www.loc.gov/mads/rdf/v1#authoritativeLabel":[{"@guid":"3cN6hsHWRDPiRAYZoBbAPe","http://www.loc.gov/mads/rdf/v1#authoritativeLabel":"Patterns","@language":"en"}],"http://www.loc.gov/mads/rdf/v1#elementList":[{"@guid":"akWcfUQ3bFW6SqUUkiN57T","@type":"http://www.loc.gov/mads/rdf/v1#GenreFormElement","http://www.loc.gov/mads/rdf/v1#elementValue":[{"@guid":"snjBZrMnBwcTjpX18iAuos","http://www.loc.gov/mads/rdf/v1#elementValue":"Patterns","@language":"en"}]}]}]}
 const componentLookupStitch = {"0":{"Knitting‑‑Patterns":{"label":"Knitting--Patterns","literal":false,"uri":"http://id.loc.gov/authorities/subjects/sh85072708","type":"madsrdf:Topic","marcKey":"150  $aKnitting$vPatterns"}}}
 const expectedSubjectComponent = [{"label":"Knitting‑‑Patterns","uri":"http://id.loc.gov/authorities/subjects/sh85072708","id":0,"type":"madsrdf:Topic","complex":true,"literal":false,"posStart":0,"posEnd":18,"marcKey":"150  $aKnitting$vPatterns"}]
+
+const geoComponentsBeforeSwitch = [{"label":"Food","uri":"http://id.loc.gov/authorities/subjects/sh85050184","id":0,"type":"madsrdf:Topic","complex":false,"literal":false,"posStart":0,"posEnd":4,"marcKey":"150  $aFood"},{"label":"portugal","uri":null,"id":1,"type":"","complex":false,"literal":null,"posStart":6,"posEnd":14,"marcKey":null,"nonLatinLabel":null,"nonLatinMarcKey":null},{"label":"porto","uri":null,"id":2,"type":"","complex":false,"literal":null,"posStart":16,"posEnd":21,"marcKey":null,"nonLatinLabel":null,"nonLatinMarcKey":null}]
+const geoComponentsAfterSwitchTogether = [{"label":"Food","uri":"http://id.loc.gov/authorities/subjects/sh85050184","id":"0","type":"madsrdf:Topic","complex":false,"literal":false,"posStart":0,"posEnd":4,"marcKey":"150  $aFood"},{"label":"portugal‑‑porto","uri":null,"id":"1","type":"","complex":false,"literal":null,"posStart":6,"posEnd":21,"marcKey":null,"nonLatinLabel":null,"nonLatinMarcKey":null}]
+const geoComponentsAfterSwitchSplit = [{"label":"Food","uri":"http://id.loc.gov/authorities/subjects/sh85050184","id":"0","type":"madsrdf:Topic","complex":false,"literal":false,"posStart":0,"posEnd":4,"marcKey":"150  $aFood"},{"label":"portugal","uri":null,"id":"1","type":"madsrdf:Topic","complex":false,"literal":null,"posStart":6,"posEnd":14},{"label":"porto","uri":null,"id":"2","type":"madsrdf:Topic","complex":false,"literal":null,"posStart":16,"posEnd":21}]
 
 describe('SubjectEditor add()', () => {
     // Dogs
@@ -164,6 +167,53 @@ describe('SubjectEditor buildComponents()', () => {
             wrapper.vm.buildComponents('Knitting--Patterns')
             expect(wrapper.vm.components).toEqual(expectedSubjectComponent)
             expect(wrapper.vm.subjectString).toEqual('Knitting‑‑Patterns')
+        });
+    })
+})
+
+
+describe('SubjectEditor searchModeSwitch()', () => {
+    describe("Switching to geo should change -- to `‑‑` between unverified components.", () => {
+        test('Components should match expected', async () => {
+            const wrapper = shallowMount(SubjectEditor)
+            wrapper.setData({
+                subjectString: 'Food--portugal--porto',
+                componetLookup: {},
+                components: geoComponentsBeforeSwitch,
+                pickLookup: {},
+                searchResults: {
+                    subjectsComplex: [],
+                    subjectsChildrenComplex: []
+                },
+                $refs: {subjectInput: {}}
+            })
+
+            wrapper.vm.searchModeSwitch('GEO')
+            expect(wrapper.vm.components).toEqual(geoComponentsAfterSwitchTogether)
+            expect(wrapper.vm.subjectString).toEqual('Food--portugal‑‑porto')
+        });
+    })
+
+    describe("Switching away from geo should change `‑‑` to -- between unverified components.", () => {
+        test('Components should match expected', async () => {
+            const wrapper = shallowMount(SubjectEditor)
+            wrapper.setData({
+                subjectString: 'Food--portugal‑‑porto',
+                componetLookup: {},
+                components: geoComponentsAfterSwitchTogether,
+                pickLookup: {},
+                searchResults: {
+                    subjectsComplex: [],
+                    subjectsChildrenComplex: []
+                },
+                $refs: {subjectInput: {}}
+            })
+
+            wrapper.vm.searchModeSwitch('LCSH')
+
+            console.log(">>>>", wrapper.vm.components)
+            expect(wrapper.vm.components).toEqual(geoComponentsAfterSwitchSplit)
+            expect(wrapper.vm.subjectString).toEqual('Food--portugal--porto')
         });
     })
 })
