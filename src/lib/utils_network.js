@@ -3219,7 +3219,7 @@ const utilsNetwork = {
         dir ='ascending'
       }
 
-      let urlSearch = "lds/browse.xqy?bq=" + search +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
+      let urlSearch = "lds/browse.xqy?bq=" + search.toUpperCase() +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
 
       // try{
         //let req = await fetch(useConfigStore().returnUrls.shelfListing + `browse/class/${dir}/${search}.json` )
