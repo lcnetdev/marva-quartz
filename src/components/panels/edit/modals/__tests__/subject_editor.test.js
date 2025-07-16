@@ -211,7 +211,6 @@ describe('SubjectEditor searchModeSwitch()', () => {
 
             wrapper.vm.searchModeSwitch('LCSH')
 
-            console.log(">>>>", wrapper.vm.components)
             expect(wrapper.vm.components).toEqual(geoComponentsAfterSwitchSplit)
             expect(wrapper.vm.subjectString).toEqual('Food--portugal--porto')
         });

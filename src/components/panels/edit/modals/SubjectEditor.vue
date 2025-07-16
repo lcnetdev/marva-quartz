@@ -1240,8 +1240,6 @@ export default {
         // search and then swaps to GEO to finish, replace the `--` between the two
         // to ease the process
         // if there is a component that is != literal and uri == null, get the index
-        console.info("this.subjectString: ", this.subjectString)
-        console.info("components 1: ", JSON.stringify(this.components))
         let potentialGeoIdx = this.components.findIndex((i) => i.literal == null && i.uri == null)
         let prevComponent
         if (potentialGeoIdx > 1) {
@@ -1289,7 +1287,6 @@ export default {
           //this.activeComponent = looseComponents[this.activeComponentIndex]
 
           this.activeComponent.id = this.activeComponentIndex
-          console.info("looseComponents: ", looseComponents)
           //update the active component with the loose components
           for (let c in looseComponents) {
             if (c != 0) {
@@ -1429,13 +1426,9 @@ export default {
         this.renderHintBoxes()
       }
 
-      console.info("components 2: ", JSON.stringify(this.components))
-      console.info("this.subjectString: ", this.subjectString)
-
       if (this.activeComponent && this.activeComponent.label) {
         this.searchApis(this.activeComponent.label, this.subjectString, this)
       }
-      console.info("this.$refs.subjectInput: ", this.$refs.subjectInput)
 
       try {
         this.$refs.subjectInput.focus()

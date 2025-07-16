@@ -624,7 +624,6 @@ export default {
               try {
                 this.$refs.subjectEditorModal.focusInput()
               } catch(err) {
-                console.info("couldn't do it.", err)
               }
             })
           }
