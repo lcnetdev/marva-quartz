@@ -1272,7 +1272,6 @@ export default {
             componentMap.push(c)
           }
         }
-        console.log("componentMap: ", componentMap)
         //only stitch the loose components togethere if there are 2 next to each other
         if (indx.length == 2 && indx[1] - 1 == indx[0]) {
           /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1357,7 +1356,6 @@ export default {
           }
         }
       } else {
-        console.log("else")
         // Above we took loose components and combined them,
         // here we undo that incase someone made a mistake and the geo
         // term has a subject in it that needs to be split out.
@@ -1726,7 +1724,6 @@ export default {
     },
 
     getContext: async function () {
-      console.info("pickPosition: ", this.pickPostion, "--", this.pickLookup[this.pickPostion])
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false
