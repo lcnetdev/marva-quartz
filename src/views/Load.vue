@@ -56,7 +56,8 @@
                 <template #tbody="{ row }">
 
                   <td>
-                    <a :href="'/bfe2/quartz/edit/' + row.Id" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
+                    <a v-if="row.Status=='unposted'" :href="'/bfe2/quartz/edit/' + row.Id" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
+                    <a v-else href="#" @click="reloadRecord(row)">Load from BFDB</a>
                   </td>
 
                   <td v-text="(row.RTs) ? row.RTs.join(', ') : row.RTs" />
@@ -278,18 +279,39 @@
                   <ul class="continue-record-list">
                     <li class="" v-for="record in continueRecords">
                       <div class="continue-record">
-                        <router-link :to="{ name: 'Edit', params: { recordId: record.eid } }">
-                          <div><span class="continue-record-title">{{ record.title }}</span><span
-                              v-if="record.contributor">
-                              by
-                              {{ record.contributor }}</span><span> ({{ record.lccn }})</span></div>
-                          <div class="continue-record-lastedit"><span
-                              v-if="record.status == 'published'">Posted</span><span
-                              v-if="record.status == 'unposted'">last edited</span> <span>{{
-                                returnTimeAgo(record.timestamp)
-                              }}</span>
+                        <template v-if="record.status == 'unposted'">
+                          <router-link :to="{ name: 'Edit', params: { recordId: record.eid } }">
+                            <div>
+                              <span class="continue-record-title">{{ record.title }}</span>
+                              <span v-if="record.contributor">
+                                by {{ record.contributor }}</span><span> ({{ record.lccn }})
+                              </span>
+                            </div>
+                            <div class="continue-record-lastedit">
+                              <span>last edited</span>
+                               <span>
+                                  {{returnTimeAgo(record.timestamp) }}
+                                </span>
+                            </div>
+                          </router-link>
+                        </template>
+                        <tempalte v-else>
+                          <div @click="reloadRecord(record)" class="fake-link">
+                            <div>
+                              <span class="continue-record-title">{{ record.title }}</span>
+                              <span v-if="record.contributor">
+                                  by {{ record.contributor }}</span>
+                                <span> ({{ record.lccn }})</span>
+                                <br><span>[Load from BFDB]</span>
+                            </div>
+                            <div class="continue-record-lastedit">
+                              <span>Posted </span>
+                              <span>
+                                {{returnTimeAgo(record.timestamp) }}
+                              </span>
+                            </div>
                           </div>
-                        </router-link>
+                        </tempalte>
                         <div class="material-icons" v-if="record.status == 'published'" title="Posted record">check_box
                         </div>
                       </div>
@@ -687,6 +709,25 @@ export default {
       }, 500)
 
 
+    },
+
+    reloadRecord: function(record){
+      let url
+      let profile
+      try {
+        url = record.externalid.filter((item) => item.includes("/instances/"))[0]
+        profile = record.rstused[0]
+      } catch {
+        url = record.Urls.filter((item) => item.includes("/instances/"))[0]
+        profile = record['RTs'][0]
+      }
+
+      this.lccnLoadSelected = {
+        bfdbPackageURL: url.replace("id.", "preprod-8230.id.").replace("http:", "https:") + '.editor-pkg.xml'
+      }
+      this.urlToLoad = this.lccnLoadSelected.bfdbPackageURL
+      this.loadType = 'loadBf'
+      this.loadUrl(profile)
     },
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
@@ -1566,4 +1607,9 @@ summary {
   color: black;
   transition: color 0.3s;
 }
+
+.fake-link{
+  cursor: pointer;
+}
+
 </style>
