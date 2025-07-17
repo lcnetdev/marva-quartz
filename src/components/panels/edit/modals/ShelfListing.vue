@@ -493,7 +493,7 @@
                         </tr>
                       </template>
 
-                      <template  v-if="r.selected != undefined && r.selected.trim() == 'selected'">
+                      <template  v-if="(r.selected != undefined && r.selected.trim() == 'selected') || (r.term ==  '' && r.frequency ==  '' && r.creator ==  '' && r.uniformtitle ==  '' && r.title ==  '' && r.pubdate ==  '' && r.subject ==  '' && r.altsubject ==  '' && r.bibid ==  '' && r.sort ==  '')">
                         <tr style="background-color: yellow;" ref="selected" :data-bibid="r.bibid">
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
