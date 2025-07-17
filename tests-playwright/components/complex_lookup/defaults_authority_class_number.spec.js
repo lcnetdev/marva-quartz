@@ -11,7 +11,7 @@ test('Load a class number from a NAR', async ({ page }) => {
   await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
   await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
   await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
-  await page.locator('div').filter({ hasText: /^Dogs \(Auth Hd\) public$/ }).locator('span').first().click();
+  await page.getByText('Dogs (Auth Hd) public').click();
   await page.getByRole('listitem').filter({ hasText: 'QL737.C22add' }).getByRole('button').click();
   await page.getByRole('listitem').filter({ hasText: 'QL737.C22add' }).getByRole('button').press('Shift+Enter');
   await page.getByRole('button', { name: 'Close' }).click();

@@ -154,9 +154,6 @@ export const useProfileStore = defineStore('profile', {
 
     // List of empty components for ad hoc mode
     emptyComponents: {},
-
-
-
   }),
   getters: {
 
@@ -1079,7 +1076,7 @@ export const useProfileStore = defineStore('profile', {
               }
           }
       }
-      console.log('this.profiles',this.profiles)
+      // console.log('this.profiles',this.profiles)
       this.profilesLoaded = true
       // return { profiles: this.profiles, lookup: this.rtLookup, startingPoints: this.startingPoints}
 
@@ -6867,7 +6864,7 @@ export const useProfileStore = defineStore('profile', {
 
 
     },
-    
+
     isValidIsbn(isbn){
         // source: https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s13.html
         // Checks for ISBN-10 or ISBN-13 format

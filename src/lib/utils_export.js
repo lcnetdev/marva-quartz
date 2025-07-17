@@ -360,7 +360,7 @@ const utilsExport = {
   * @return {boolean}
   */
   buildXML: async function(profile){
-
+	console.log("## BUILD XML ##")
 	if (!profile || (profile && Object.keys(profile).length==0)){
 		console.warn("Trying to build XML with bad profile:", profile)
 		return false
@@ -437,7 +437,7 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
-    // console.log(JSON.stringify(profile))
+    // console.info("buildXML: ", JSON.stringify(profile))
 
     // keep track of the proces for later
 	// let debugHistory = []
@@ -1303,7 +1303,6 @@ const utilsExport = {
 
 
 			if (orginalProfile.rt[rt].unusedXml){
-
 				let unusedXmlNode = xmlParser.parseFromString(orginalProfile.rt[rt].unusedXml, "text/xml")
 				unusedXmlNode = unusedXmlNode.children[0]
 				for (let el of unusedXmlNode.children){
@@ -1318,8 +1317,6 @@ const utilsExport = {
 					}
 				}
 			}
-
-			// build the lookup
 			tleLookup[rootElName][orginalProfile.rt[rt].URI] = rootEl
 		}
 
@@ -1378,13 +1375,19 @@ const utilsExport = {
 			}
 		}
 
-
-
 		// also just build a basic version tosave
 		for (let URI in tleLookup['Work']){
+
+			// setting the ns prefix for rdf here gets the tests to pass, but this should be necessary
+			tleLookup["Work"][URI].setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
 			let theWork = (new XMLSerializer()).serializeToString(tleLookup['Work'][URI])
+			// This is the line that requires the line above it. Without it, the unit tests for complex subjects fail.
+			// When this line runs for the test, the namespace gets the prefix `ns1` instead of `rdf` and a child element still refers to "rdf".
+			// This doesn't happen in production.
+
 			// theWork = theWork.replace(/\sxmlns:[a-z]+="http.*?"/g,'')
 			theWork = xmlParser.parseFromString(theWork, "text/xml").children[0];
+
 			rdfBasic.appendChild(theWork)
 		}
 		for (let URI in tleLookup['Hub']){
@@ -1637,7 +1640,6 @@ const utilsExport = {
 		}
 
 		let strXmlFormatted = (new XMLSerializer()).serializeToString(rdf)
-
 		strXmlFormatted = utilsMisc.prettifyXmlJS(strXmlFormatted, ' ')
 
 		rdfBasic.appendChild(datasetDescriptionEl)
@@ -1652,7 +1654,7 @@ const utilsExport = {
         and all the namespaces.
         The below line fixes this in FF for me.
     */
-    //strXmlFormatted = uiUtils.prettifyXmlJS(strXmlBasic, ' ')
+    // strXmlFormatted = uiUtils.prettifyXmlJS(strXmlBasic, ' ')
 
     if (useConfigStore().postUsingAlmaXmlFormat){
 
@@ -1717,9 +1719,13 @@ const utilsExport = {
 			bf2MarcXmlElRdf.appendChild(bf2MarcItems[x].cloneNode(true))
 		}
 	}
+
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
 	// console.info("strXmlBasic: ", strXmlBasic)
+	// for (let item of xmlLog){
+	// 	console.info(item)
+	// }
 
 	return {
 		xmlDom: rdf,
