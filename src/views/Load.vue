@@ -144,7 +144,7 @@
                         <tr v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
                           <td v-if="searchByLccnResults.length > 1">
                             <input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad"
-                              :id="'lccnsearch' + idx" :name="'lccnsearch' + idx" :checked="/\/in[0-9]/.test(r.bfdbURL) ? true : false" />
+                              :id="'lccnsearch' + idx" :name="'lccnsearch' + idx" :checked="checkCheck(r)" />
                           </td>
 
                           <td>
@@ -234,7 +234,6 @@
                   </div>
                   <br>
                 </template>
-
                 <h3>Load with profile:</h3>
                 <div class="load-buttons">
                   <button class="load-button" @click="loadUrl(s.instance)"
@@ -479,6 +478,11 @@ export default {
   },
 
   methods: {
+    checkCheck: function(r) {
+      this.lccnLoadSelected = r
+      return /\/in[0-9]/.test(r.bfdbURL) ? true : false
+    },
+
     showLoadTypeSelection: function () {
       let config = useConfigStore()
       return config.returnUrls.displayLCOnlyFeatures
