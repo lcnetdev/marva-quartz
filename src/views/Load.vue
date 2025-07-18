@@ -143,11 +143,13 @@
                       <tbody>
                         <tr v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
                           <td v-if="searchByLccnResults.length > 1">
-                            <input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad"
-                              :id="'lccnsearch' + idx" :name="'lccnsearch' + idx" checked="true" />
+                            <input type="radio" v-model="lccnLoadSelected" :value="r"
+                              :id="'lccnsearch' + idx" :name="'lccnsearch' + idx" />
+                               <!-- :checked="/\/in[0-9]/.test(r.bfdbURL) ? true : false" -->
                           </td>
 
                           <td>
+                            <span v-if="/\/in[0-9]/.test(r.bfdbURL)" style="font-weight: bold;">[FOLIO] </span>
                             <label v-if="searchByLccnResults.length > 1" style="cursor: pointer;"
                               :for="'lccnsearch' + idx">{{ r.label }}</label>
                             <span v-else>{{ r.label }}</span>
@@ -233,7 +235,6 @@
                   </div>
                   <br>
                 </template>
-
                 <h3>Load with profile:</h3>
                 <div class="load-buttons">
                   <button class="load-button" @click="loadUrl(s.instance)"
