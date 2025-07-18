@@ -143,7 +143,7 @@
                       <tbody>
                         <tr v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
                           <td v-if="searchByLccnResults.length > 1">
-                            <input type="radio" @click="lccnLoadSelected = r" :value="r"
+                            <input type="radio" v-model="lccnLoadSelected" :value="r"
                               :id="'lccnsearch' + idx" :name="'lccnsearch' + idx" />
                                <!-- :checked="/\/in[0-9]/.test(r.bfdbURL) ? true : false" -->
                           </td>
