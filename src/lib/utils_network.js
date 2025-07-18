@@ -465,7 +465,7 @@ const utilsNetwork = {
         if (!Array.isArray(urlTemplate)){
             urlTemplate=[urlTemplate]
         }
-
+        
 
         // if we're in lc authortities mode then check if we are doing a keyword search
         // searchtype=keyword
@@ -505,6 +505,14 @@ const utilsNetwork = {
             if (url.includes('searchtype=keyword') && url.includes('q=?')){
               url = url.replace('q=?','q=')
             }
+
+            // if it ends with a ? then convert it to a keyword search
+            if (searchPayload.searchValue  && searchPayload.searchValue.endsWith('?')){
+              // remove last ? from searchPayload.searchValue and replace the searchtype
+              searchPayload.searchValue = searchPayload.searchValue.replace(/\?$/,'')
+              url = url.replace('searchtype=left','searchtype=keyword')
+            }
+
 
             let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
