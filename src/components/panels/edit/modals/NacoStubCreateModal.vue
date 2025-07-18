@@ -1453,7 +1453,17 @@
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1; position: relative;">
                   <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
-                  <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-">
+                  <!-- <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-"> -->
+
+                  <textarea
+                    ref="nar-1xx"
+                    v-model="oneXX"
+                    placeholder="1XX##$aDoe, Jane$d19XX-"
+                    class="title"
+                    @input="checkOneXX"
+                    @keydown="keydown" @keyup="keyup"
+                    ></textarea>
+
                   <div v-if="populatedValue && populatedValue.marcKey">
                     (This value was found in the uncontrolled value of this component<span v-if="lastComplexLookupString"> Use your search value: <a href="#" @click.stop.prevent="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX()">{{ lastComplexLookupString }}</a> instead?</span>)
                   </div>
@@ -1468,7 +1478,15 @@
                 <div style="flex-grow: 1;">
                   <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
 
-                  <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d....">
+                  <!-- <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d...."> -->
+                  <textarea
+                    ref="nar-4xx"
+                    v-model="fourXX"
+                    placeholder="4XX##$a....$d...."
+                    class="title"
+                    @input="checkFourXX"
+                    @keydown="keydown" @keyup="keyup"
+                    ></textarea>
                 </div>
               </div>
 
