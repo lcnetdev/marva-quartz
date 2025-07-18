@@ -714,12 +714,17 @@ export default {
     reloadRecord: function(record){
       let url
       let profile
-      try { // Load page
+
+      if (Object.keys(record).includes('externalid')){
         url = record.externalid.filter((item) => item.includes("/instances/"))[0]
         profile = record.rstused[0]
-      } catch { //Dashboard page
+      } else if (Object.keys(record).includes('Urls')){
         url = record.Urls.filter((item) => item.includes("/instances/"))[0]
         profile = record['RTs'][0]
+      } else {
+        alert("Couldn't load the record")
+        console.error("Failed to load record: ", record)
+        return false
       }
 
       this.lccnLoadSelected = {
