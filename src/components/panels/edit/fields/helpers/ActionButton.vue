@@ -153,7 +153,6 @@
           </button>
         </template>
 
-
         <template v-if="catInitals.toLowerCase().indexOf('matt') > -1">
           <button  class="" :id="`action-button-command-${fieldGuid}-2`" @click="breakRecord()" :style="buttonStyle">
           <span class="button-shortcut-label">2</span>

@@ -94,6 +94,20 @@
 
         },
 
+        manuallyChangeColor: function(id){
+          let color = prompt('Please enter a color in hex6 or hex8 format (e.g. #ff0000)', this.styleDefault[id].value)
+
+          if (color.startsWith('#') && (color.length == 7 || color.length == 9)){
+            this.changeColor(color,id)
+            this.loadPrefGroup()
+          } else {
+            alert('Please enter a valid color in hex6 or hex8 format (e.g. #ff0000)')
+            return
+          }
+
+
+        },
+
 
         loadPrefGroup: function(event){
           // properties for the OPAC and properties panel where interacting with each other
@@ -223,7 +237,7 @@
               <div class="option">
                 <div class="option-title">
                   <div class="option-title-header">{{option.descShort}}</div>
-                  <div class="option-title-desc">{{option.desc}}</div>
+                    <div class="option-title-desc">{{option.desc}} <a href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor(option.id)" v-if="option.type==='color'" class="material-icons manual-input">input</a></div>
 
                   <!-- <div style="font-style: italic; color:orange" v-if="option.id == '--b-edit-main-splitpane-edit-inline-mode'">This mode is disabled right now, we need to fix/improve it.</div> -->
 
@@ -232,7 +246,7 @@
 
                     <template v-if="option.type==='color'">
 
-                        <color-picker :pureColor="option.value" :format="'hex8'" @update:pureColor="changeColor($event,option.id)" />
+                        <color-picker :pureColor="option.value" :ref="option.id" :format="'hex8'" @update:pureColor="changeColor($event,option.id)" />
 
                     </template>
                     <template v-else-if="option.type==='number'">
@@ -282,7 +296,11 @@
 </template>
 
 <style scoped>
-
+  .manual-input{
+    text-decoration: none;
+    color: inherit;
+    font-size: 0.85em;
+  }
   h3{
     margin-bottom: 2em;
   }

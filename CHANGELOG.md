@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [1.3.24] - 2025-07-16
+### Added
+- Tests for SubjectBuilder e2e & unit
+
+### Changed
+- Broke SubjectBuilder into a few pieces
+- Update styling
+- Stream line how `type` is handled for subject components
+
+## [1.3.23] - 2025-07-11
+### Added
+- ISBN validation
+
 ## [1.3.22] - 2025-07-09
 ### Updated
 - Display add `AdminMetadata` to hub page

@@ -501,8 +501,6 @@ const utilsNetwork = {
 
             // url = url + "&sortfield=label"
 
-            // console.info("url: ", url)
-
             // don't allow a ? in the keyword if it is already marked as keyword search
             if (url.includes('searchtype=keyword') && url.includes('q=?')){
               url = url.replace('q=?','q=')
@@ -548,6 +546,7 @@ const utilsNetwork = {
                   if (hit.more && hit.more.undifferentiated && hit.more.undifferentiated == 'Name not-unique'){
                     hitAdd.undifferentiated = true
                   }
+
                   results.push(hitAdd)
                 }
 
@@ -2665,7 +2664,6 @@ const utilsNetwork = {
 
       }
 
-
       // drop the litearl value from names and complex
       if (resultsNames.length>0){
         resultsNames.pop()
@@ -2705,6 +2703,7 @@ const utilsNetwork = {
           newresultsHierarchicalGeographic.push(x)
         }
       }
+
       resultsHierarchicalGeographic = newresultsHierarchicalGeographic
       // resultsHierarchicalGeographic = [{
       //     "label": "Ohio--Cleveland",
@@ -2777,7 +2776,7 @@ const utilsNetwork = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
         'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel > b.suggestLabel ? 1 : a.suggestLabel < b.suggestLabel ? -1 : 1) : resultsNamesSubdivision,
-        'hierarchicalGeographic':  pos == 0 ? [] : resultsHierarchicalGeographic,
+        'hierarchicalGeographic': pos == 0 ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
         'exact': exact
@@ -3220,7 +3219,7 @@ const utilsNetwork = {
         dir ='ascending'
       }
 
-      let urlSearch = "lds/browse.xqy?bq=" + search +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
+      let urlSearch = "lds/browse.xqy?bq=" + search.toUpperCase() +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
 
       // try{
         //let req = await fetch(useConfigStore().returnUrls.shelfListing + `browse/class/${dir}/${search}.json` )
@@ -3863,9 +3862,9 @@ const utilsNetwork = {
         } catch (error) {
           console.error("Error fetching from bfdbUrl and idUrl:", error);
           return null; // Return null if both fetches fail
-        }        
+        }
       }
-      
+
       results = await results.text();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(results, "application/xml");

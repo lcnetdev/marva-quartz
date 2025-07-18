@@ -1,0 +1,1689 @@
+{
+    "id": "Monograph",
+    "rt": {
+        "lc:RT:bf2:Monograph:Work": {
+            "ptOrder": [
+                "id_loc_gov_ontologies_bibframe_expressionOf__expression_of_[search_for_a_hub]",
+                "id_loc_gov_ontologies_bibframe_contribution__creator_of_work",
+                "id_loc_gov_ontologies_bibframe_title__title_information",
+                "id_loc_gov_ontologies_bibframe_contribution__contributors",
+                "id_loc_gov_ontologies_bibframe_note__notes_about_the_work",
+                "id_loc_gov_ontologies_bibframe_tableOfContents__contents",
+                "id_loc_gov_ontologies_bibframe_summary__summary",
+                "id_loc_gov_ontologies_bibframe_subject__subjects",
+                "id_loc_gov_ontologies_bibframe_geographicCoverage__geographic_coverage",
+                "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                "id_loc_gov_ontologies_bibframe_classification__classification_numbers",
+                "id_loc_gov_ontologies_bibframe_intendedAudience__intended_audience",
+                "id_loc_gov_ontologies_bibframe_content__content_type",
+                "id_loc_gov_ontologies_bibframe_language__language_008_[1st]_041_a_[others]",
+                "id_loc_gov_ontologies_bibframe_accompaniedBy__language_resource_041_bdefgt",
+                "id_loc_gov_ontologies_bibframe_note__language_note_041_hijkmnpqr_or_041_1",
+                "id_loc_gov_ontologies_bibframe_notation__notation_note",
+                "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
+                "id_loc_gov_ontologies_bibframe_colorContent__color_content",
+                "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content",
+                "id_loc_gov_ontologies_bflc_governmentPubType__government_publication",
+                "id_loc_gov_ontologies_bibframe_relation__search_related_workseries",
+                "id_loc_gov_ontologies_bibframe_relation__input_transcribed_series",
+                "id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc",
+                "id_loc_gov_ontologies_bibframe_notation__script",
+                "id_loc_gov_ontologies_bibframe_originDate__date_of_work",
+                "id_loc_gov_ontologies_bibframe_originPlace__country_of_origin_of_the_work",
+                "id_loc_gov_ontologies_bibframe_temporalCoverage__time_coverage_of_the_content",
+                "id_loc_gov_ontologies_bibframe_contentAccessibility__accessibility_content",
+                "id_loc_gov_ontologies_bibframe_dissertation__dissertation",
+                "id_loc_gov_ontologies_bibframe_hasInstance__add_bibframe_instance"
+            ],
+            "pt": {
+                "id_loc_gov_ontologies_bibframe_expressionOf__expression_of_[search_for_a_hub]": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "lookup",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "https://id.loc.gov/resources/hubs"
+                        ],
+                        "defaults": [],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Hub"
+                        }
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/expressionOf",
+                    "propertyLabel": "Expression of [search for a Hub]",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Work/ExpressionTitles",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/expressionOf"
+                    },
+                    "@guid": "4MyVC4eautJyr6V8GUiQxK",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/expressionOf|http://id.loc.gov/ontologies/bibframe/Hub",
+                    "id": "id_loc_gov_ontologies_bibframe_expressionOf__expression_of_[search_for_a_hub]",
+                    "hashCode": -1785352126,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/expressionOf|http://id.loc.gov/ontologies/bibframe/Hub"
+                },
+                "id_loc_gov_ontologies_bibframe_contribution__creator_of_work": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bflc:Agents:PrimaryContribution"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/PrimaryContribution"
+                        },
+                        "defaults": [],
+                        "editable": "true",
+                        "repeatable": "true"
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/contribution",
+                    "propertyLabel": "Creator of Work",
+                    "remark": "",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/contribution"
+                    },
+                    "@guid": "3k7kcPoZFqL1zZJiCk5jBf",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/PrimaryContribution",
+                    "id": "id_loc_gov_ontologies_bibframe_contribution__creator_of_work",
+                    "hashCode": -1860249087,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/PrimaryContribution"
+                },
+                "id_loc_gov_ontologies_bibframe_title__title_information": {
+                    "mandatory": "true",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:WorkTitle",
+                            "lc:RT:bf2:Title:VarTitle",
+                            "lc:RT:bf2:ParallelTitle"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/title",
+                    "propertyLabel": "Title information",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Work/ExpressionTitles",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/title"
+                    },
+                    "@guid": "mjEenJr7cERDjRokcYowLi",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/title|lc:RT:bf2:WorkTitle",
+                    "id": "id_loc_gov_ontologies_bibframe_title__title_information",
+                    "hashCode": -540800723,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/title"
+                },
+                "id_loc_gov_ontologies_bibframe_contribution__contributors": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Agents:Contribution"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Contribution"
+                        }
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/contribution",
+                    "propertyLabel": "Contributors",
+                    "remark": "",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/contribution"
+                    },
+                    "@guid": "thWikroTD4c5jBgtbDeP71",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/Contribution",
+                    "id": "id_loc_gov_ontologies_bibframe_contribution__contributors",
+                    "hashCode": -1158362988,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/Contribution"
+                },
+                "id_loc_gov_ontologies_bibframe_note__notes_about_the_work": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Note"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                    "propertyLabel": "Notes about the Work",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/note"
+                    },
+                    "@guid": "ujT2BgGGR95fztcnNpBzdj",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Work",
+                    "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_work",
+                    "hashCode": 1203075139,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/note"
+                },
+                "id_loc_gov_ontologies_bibframe_tableOfContents__contents": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Contents"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/tableOfContents",
+                    "propertyLabel": "Contents",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/tableOfContents"
+                    },
+                    "@guid": "6eRK7wPg9tyb43hZVzvJB1",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/tableOfContents|lc:RT:bf2:Contents",
+                    "id": "id_loc_gov_ontologies_bibframe_tableOfContents__contents",
+                    "hashCode": -803436500,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/tableOfContents"
+                },
+                "id_loc_gov_ontologies_bibframe_summary__summary": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Summary"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/summary",
+                    "propertyLabel": "Summary",
+                    "remark": "https://original.rdatoolkit.org/7.10.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/summary"
+                    },
+                    "@guid": "xnSrmm1NQGqbcwWfb28dXc",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/summary|lc:RT:bf2:Summary",
+                    "id": "id_loc_gov_ontologies_bibframe_summary__summary",
+                    "hashCode": -1627961501,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/summary"
+                },
+                "id_loc_gov_ontologies_bibframe_subject__subjects": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Components",
+                            "lc:RT:bf2:Topic:SubjectWork",
+                            "lc:RT:bf2:Topic:Place:Components",
+                            "lc:RT:bf2:Topic:Childrens:Components"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": [],
+                        "editable": "true",
+                        "repeatable": "true"
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/subject",
+                    "propertyLabel": "Subjects",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Subjects(6XX)",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/subject"
+                    },
+                    "@guid": "q8dKvhs1heAv6FuoaXYWyg",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/subject|lc:RT:bf2:Components",
+                    "id": "id_loc_gov_ontologies_bibframe_subject__subjects",
+                    "hashCode": -1188689188,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/subject"
+                },
+                "id_loc_gov_ontologies_bibframe_geographicCoverage__geographic_coverage": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Form:Geog"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": [],
+                        "editable": "true",
+                        "repeatable": "true"
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/geographicCoverage",
+                    "propertyLabel": "Geographic coverage",
+                    "remark": "",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/geographicCoverage"
+                    },
+                    "@guid": "pPQpLLs2aa171Kt3RfNTEo",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/geographicCoverage|lc:RT:bf2:Form:Geog",
+                    "id": "id_loc_gov_ontologies_bibframe_geographicCoverage__geographic_coverage",
+                    "hashCode": -213276021,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/geographicCoverage"
+                },
+                "id_loc_gov_ontologies_bibframe_genreForm__genreform": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Form"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/GenreForm",
+                            "dataTypeLabel": "",
+                            "remark": ""
+                        },
+                        "defaults": [],
+                        "editable": "true",
+                        "repeatable": "true"
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/genreForm",
+                    "propertyLabel": "Genre/Form",
+                    "remark": "",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/genreForm"
+                    },
+                    "@guid": "4xzeZBnWi9qgEVmTmie5dY",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm",
+                    "id": "id_loc_gov_ontologies_bibframe_genreForm__genreform",
+                    "hashCode": -848088407,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm"
+                },
+                "id_loc_gov_ontologies_bibframe_classification__classification_numbers": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:LCC",
+                            "lc:RT:bf2:DDC",
+                            "lc:RT:bf2:NLM",
+                            "lc:RT:bf2:OtherClass"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/classification",
+                    "propertyLabel": "Classification numbers",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/classification"
+                    },
+                    "@guid": "4qGijUuiWamg76UaaAhfhw",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/classification|lc:RT:bf2:LCC",
+                    "id": "id_loc_gov_ontologies_bibframe_classification__classification_numbers",
+                    "hashCode": -1347109200,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/classification"
+                },
+                "id_loc_gov_ontologies_bibframe_intendedAudience__intended_audience": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Audience"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {
+                            "dataTypeURI": ""
+                        },
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/intendedAudience",
+                    "propertyLabel": "Intended audience",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-MonographConsiderations(andMARC008)",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/intendedAudience"
+                    },
+                    "@guid": "v5R7smwC8eGVWVb18adaB6",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/intendedAudience|lc:RT:bf2:Audience",
+                    "id": "id_loc_gov_ontologies_bibframe_intendedAudience__intended_audience",
+                    "hashCode": -1611216903,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/intendedAudience"
+                },
+                "id_loc_gov_ontologies_bibframe_content__content_type": {
+                    "mandatory": "true",
+                    "repeatable": "true",
+                    "type": "lookup",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/contentTypes"
+                        ],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Content"
+                        },
+                        "editable": "false",
+                        "repeatable": "true",
+                        "defaults": [
+                            {
+                                "defaultURI": "http://id.loc.gov/vocabulary/contentTypes/txt",
+                                "defaultLiteral": "text"
+                            }
+                        ]
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/content",
+                    "propertyLabel": "Content type",
+                    "remark": "https://original.rdatoolkit.org/6.9.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/content"
+                    },
+                    "@guid": "ubG2b1C9EsrW8jN6GBZCpH",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/content|http://id.loc.gov/ontologies/bibframe/Content",
+                    "id": "id_loc_gov_ontologies_bibframe_content__content_type",
+                    "hashCode": -821362884,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/content|http://id.loc.gov/ontologies/bibframe/Content"
+                },
+                "id_loc_gov_ontologies_bibframe_language__language_008_[1st]_041_a_[others]": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "lookup",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/languages"
+                        ],
+                        "defaults": [],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Language"
+                        }
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/language",
+                    "propertyLabel": "Language (008 [1st], 041 $a [others])",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Languages(041)",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/language"
+                    },
+                    "@guid": "pAMd5g15mP3FfMVudSAi5N",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/language|http://id.loc.gov/ontologies/bibframe/Language",
+                    "id": "id_loc_gov_ontologies_bibframe_language__language_008_[1st]_041_a_[others]",
+                    "hashCode": -831483509,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/language|http://id.loc.gov/ontologies/bibframe/Language"
+                },
+                "id_loc_gov_ontologies_bibframe_accompaniedBy__language_resource_041_bdefgt": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:LangResource"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {
+                            "dataTypeURI": ""
+                        },
+                        "editable": "false",
+                        "repeatable": "true",
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/accompaniedBy",
+                    "propertyLabel": "Language resource (041 $bdefgt)",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Languages(041)",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/accompaniedBy"
+                    },
+                    "@guid": "dK5m1T6qAJF4nFUM8ARSj6",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/accompaniedBy|lc:RT:bf2:LangResource",
+                    "id": "id_loc_gov_ontologies_bibframe_accompaniedBy__language_resource_041_bdefgt",
+                    "hashCode": 1850773306,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/accompaniedBy"
+                },
+                "id_loc_gov_ontologies_bibframe_note__language_note_041_hijkmnpqr_or_041_1": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:LangNote"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {}
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                    "propertyLabel": "Language note (041 $hijkmnpqr or 041 1#)",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Languages(041)",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/note"
+                    },
+                    "@guid": "9tXwYKQmP3t4MjCVKQFRXx",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Work",
+                    "id": "id_loc_gov_ontologies_bibframe_note__language_note_041_hijkmnpqr_or_041_1",
+                    "hashCode": -2097329462,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/note"
+                },
+                "id_loc_gov_ontologies_bibframe_notation__notation_note": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Notation"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {}
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/notation",
+                    "propertyLabel": "Notation note",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/notation"
+                    },
+                    "@guid": "xeE9q6fLdJvVv4qq9NdvN5",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/notation|lc:RT:bf2:Notation",
+                    "id": "id_loc_gov_ontologies_bibframe_notation__notation_note",
+                    "hashCode": -1907771369,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/notation"
+                },
+                "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "lookup",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/millus"
+                        ],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Illustration"
+                        },
+                        "repeatable": "true",
+                        "editable": "false",
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/illustrativeContent",
+                    "propertyLabel": "Illustrative content",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-MonographConsiderations(andMARC008)",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/illustrativeContent"
+                    },
+                    "@guid": "4t5EPjMhKZguiaeQXoNdxA",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration",
+                    "id": "id_loc_gov_ontologies_bibframe_illustrativeContent__illustrative_content",
+                    "hashCode": 205380255,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration"
+                },
+                "id_loc_gov_ontologies_bibframe_colorContent__color_content": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "lookup",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/mcolor"
+                        ],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/ColorContent"
+                        },
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/colorContent",
+                    "propertyLabel": "Color content",
+                    "remark": "https://original.rdatoolkit.org/7.17.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/colorContent"
+                    },
+                    "@guid": "cj87z4DZWaphPx8NaQsZwh",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/colorContent|http://id.loc.gov/ontologies/bibframe/ColorContent",
+                    "id": "id_loc_gov_ontologies_bibframe_colorContent__color_content",
+                    "hashCode": -1574658025,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/colorContent|http://id.loc.gov/ontologies/bibframe/ColorContent"
+                },
+                "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "lookup",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/msupplcont"
+                        ],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/SupplementaryContent"
+                        },
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
+                    "propertyLabel": "Supplementary content",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-MonographConsiderations(andMARC008)",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent"
+                    },
+                    "@guid": "m8ZXFercTz7vSzjhDNVWEk",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent",
+                    "id": "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content",
+                    "hashCode": -13789748,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent"
+                },
+                "id_loc_gov_ontologies_bflc_governmentPubType__government_publication": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "lookup",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/mgovtpubtype"
+                        ],
+                        "defaults": [],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bflc/GovernmentPubType"
+                        }
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bflc/governmentPubType",
+                    "propertyLabel": "Government publication",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-MonographConsiderations(andMARC008)",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bflc/governmentPubType"
+                    },
+                    "@guid": "4giDpe2j7kkz1UxPn46Vvr",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bflc/governmentPubType|http://id.loc.gov/ontologies/bflc/GovernmentPubType",
+                    "id": "id_loc_gov_ontologies_bflc_governmentPubType__government_publication",
+                    "hashCode": 31836051,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bflc/governmentPubType|http://id.loc.gov/ontologies/bflc/GovernmentPubType"
+                },
+                "id_loc_gov_ontologies_bibframe_relation__search_related_workseries": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:RelWorkLookup"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/relation",
+                    "propertyLabel": "Search related work/series",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Hubs(240;X00,X10,X11with$t;X30)",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/relation"
+                    },
+                    "@guid": "1FPjMFCKV3rMMLC7B6j8C6",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/relation|lc:RT:bf2:RelWorkLookup",
+                    "id": "id_loc_gov_ontologies_bibframe_relation__search_related_workseries",
+                    "hashCode": -2132813071,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/relation"
+                },
+                "id_loc_gov_ontologies_bibframe_relation__input_transcribed_series": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:SeriesHub"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {
+                            "dataTypeURI": ""
+                        }
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/relation",
+                    "propertyLabel": "Input transcribed series",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Series(490,8XX)",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/relation"
+                    },
+                    "@guid": "vkFCBDGPbuY1kHhXHiAPnA",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/relation|lc:RT:bf2:SeriesHub",
+                    "id": "id_loc_gov_ontologies_bibframe_relation__input_transcribed_series",
+                    "hashCode": 1267568511,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/relation"
+                },
+                "id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:RelWorkInput"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {}
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/relation",
+                    "propertyLabel": "Related work not held by LC",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/relation"
+                    },
+                    "@guid": "oywB7ThWQZ1QYivtoo1Me9",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/relation|lc:RT:bf2:RelWorkInput",
+                    "id": "id_loc_gov_ontologies_bibframe_relation__related_work_not_held_by_lc",
+                    "hashCode": -1123276682,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/relation"
+                },
+                "id_loc_gov_ontologies_bibframe_notation__script": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "lookup",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/mscript"
+                        ],
+                        "defaults": [],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Notation"
+                        }
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/notation",
+                    "propertyLabel": "Script",
+                    "remark": "http://access.rdatoolkit.org/7.13.2.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/notation"
+                    },
+                    "@guid": "8mNKidenbUKvzR6DYp5LWk",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/notation|http://id.loc.gov/ontologies/bibframe/Notation",
+                    "id": "id_loc_gov_ontologies_bibframe_notation__script",
+                    "hashCode": 838556608,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/notation|http://id.loc.gov/ontologies/bibframe/Notation"
+                },
+                "id_loc_gov_ontologies_bibframe_originDate__date_of_work": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "literal",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": [],
+                        "validatePattern": "[0-9]{4}"
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/originDate",
+                    "propertyLabel": "Date of Work",
+                    "remark": "https://original.rdatoolkit.org/6.4.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/originDate"
+                    },
+                    "@guid": "aBvtDDf25sLNWJargNg6xP",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/originDate|lc:RT:bf2:Monograph:Work",
+                    "id": "id_loc_gov_ontologies_bibframe_originDate__date_of_work",
+                    "hashCode": 1068180740,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/originDate"
+                },
+                "id_loc_gov_ontologies_bibframe_originPlace__country_of_origin_of_the_work": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "lookup",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/countries"
+                        ],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Place"
+                        },
+                        "defaults": [],
+                        "editable": "true",
+                        "repeatable": "true"
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/originPlace",
+                    "propertyLabel": "Country of origin of the Work",
+                    "remark": "http://original.rdatoolkit.org/rdachp6_rda6-3164.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/originPlace"
+                    },
+                    "@guid": "fGeJPvgqLUs49sngrz92Te",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/originPlace|http://id.loc.gov/ontologies/bibframe/Place",
+                    "id": "id_loc_gov_ontologies_bibframe_originPlace__country_of_origin_of_the_work",
+                    "hashCode": -1624581637,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/originPlace|http://id.loc.gov/ontologies/bibframe/Place"
+                },
+                "id_loc_gov_ontologies_bibframe_temporalCoverage__time_coverage_of_the_content": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "literal",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/temporalCoverage",
+                    "propertyLabel": "(Time) coverage of the content",
+                    "remark": "https://original.rdatoolkit.org/7.3.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/temporalCoverage"
+                    },
+                    "@guid": "e5B8cPgKpgSwGgVdmXo35Z",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/temporalCoverage|lc:RT:bf2:Monograph:Work",
+                    "id": "id_loc_gov_ontologies_bibframe_temporalCoverage__time_coverage_of_the_content",
+                    "hashCode": -1287115770,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/temporalCoverage"
+                },
+                "id_loc_gov_ontologies_bibframe_contentAccessibility__accessibility_content": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:ContAccess"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {}
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/contentAccessibility",
+                    "propertyLabel": "Accessibility content",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/contentAccessibility"
+                    },
+                    "@guid": "j3Zxy1MB7J4meWzBHDuBVF",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/contentAccessibility|lc:RT:bf2:ContAccess",
+                    "id": "id_loc_gov_ontologies_bibframe_contentAccessibility__accessibility_content",
+                    "hashCode": -1028216769,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/contentAccessibility"
+                },
+                "id_loc_gov_ontologies_bibframe_dissertation__dissertation": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Monograph:Dissertation"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/dissertation",
+                    "propertyLabel": "Dissertation",
+                    "remark": "https://original.rdatoolkit.org/7.9.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/dissertation"
+                    },
+                    "@guid": "1oKu9XHnN2nAoZEwPkgpNV",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/dissertation|lc:RT:bf2:Monograph:Dissertation",
+                    "id": "id_loc_gov_ontologies_bibframe_dissertation__dissertation",
+                    "hashCode": 1695835154,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/dissertation"
+                },
+                "id_loc_gov_ontologies_bibframe_hasInstance__add_bibframe_instance": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Monograph:Instance"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {}
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/hasInstance",
+                    "propertyLabel": "Add BIBFRAME Instance",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Workdaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Work",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/hasInstance",
+                        "http://id.loc.gov/ontologies/bibframe/hasInstance": [
+                            {
+                                "@guid": "3W7tucqWYENxfPXRLRP6qG",
+                                "@id": "http://id.loc.gov/resources/instances/e1568932"
+                            }
+                        ]
+                    },
+                    "@guid": "vbPZeUh5tK5XVAxMLL7eh3",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/hasInstance|lc:RT:bf2:Monograph:Instance",
+                    "id": "id_loc_gov_ontologies_bibframe_hasInstance__add_bibframe_instance",
+                    "hashCode": 822704583,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/hasInstance"
+                }
+            },
+            "URI": "http://id.loc.gov/resources/works/e1568932"
+        },
+        "lc:RT:bf2:Monograph:Instance": {
+            "ptOrder": [
+                "id_loc_gov_ontologies_bibframe_instanceOf__instance_of",
+                "id_loc_gov_ontologies_bibframe_title__title_information",
+                "id_loc_gov_ontologies_bibframe_responsibilityStatement__statement_of_responsibility",
+                "id_loc_gov_ontologies_bibframe_editionStatement__edition_statement",
+                "id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity",
+                "id_loc_gov_ontologies_bibframe_copyrightDate__copyright_date",
+                "id_loc_gov_ontologies_bibframe_issuance__mode_of_issuance",
+                "id_loc_gov_ontologies_bibframe_identifiedBy__identifiers",
+                "id_loc_gov_ontologies_bibframe_acquisitionSource__acquisitions_identifiers",
+                "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content_url",
+                "id_loc_gov_ontologies_bibframe_immediateAcquisition__immediate_source_of_acquisition_note",
+                "id_loc_gov_ontologies_bibframe_media__media_type",
+                "id_loc_gov_ontologies_bibframe_extent__physical_description",
+                "id_loc_gov_ontologies_bibframe_dimensions__dimensions",
+                "id_loc_gov_ontologies_bibframe_carrier__carrier_type",
+                "id_loc_gov_ontologies_bibframe_usageAndAccessPolicy__access_policy",
+                "id_loc_gov_ontologies_bibframe_notation__braille?",
+                "id_loc_gov_ontologies_bibframe_electronicLocator__url_of_instance",
+                "id_loc_gov_ontologies_bflc_projectedProvisionDate__projected_publication_date_yymm",
+                "id_loc_gov_ontologies_bibframe_hasItem__has_item"
+            ],
+            "pt": {
+                "id_loc_gov_ontologies_bibframe_instanceOf__instance_of": {
+                    "propertyLabel": "Instance of",
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/instanceOf",
+                    "resourceTemplates": [],
+                    "type": "resource",
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Monograph:Work"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "mandatory": "false",
+                    "repeatable": "false",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/instanceOf",
+                        "http://id.loc.gov/ontologies/bibframe/instanceOf": [
+                            {
+                                "@guid": "cP1HEJvQFX4mxXAAw6imSW",
+                                "@id": "http://id.loc.gov/resources/works/e1568932"
+                            }
+                        ]
+                    },
+                    "@guid": "amBzhja6zL1XVu67qxfsuo",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/instanceOf|lc:RT:bf2:Monograph:Work",
+                    "id": "id_loc_gov_ontologies_bibframe_instanceOf__instance_of",
+                    "hashCode": -1046286267,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/instanceOf"
+                },
+                "id_loc_gov_ontologies_bibframe_title__title_information": {
+                    "propertyLabel": "Title information",
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/title",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:InstanceTitle",
+                            "lc:RT:bf2:Title:VarTitle",
+                            "lc:RT:bf2:ParallelTitle"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {
+                            "remark": ""
+                        },
+                        "defaults": []
+                    },
+                    "mandatory": "true",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "remark": "https://original.rdatoolkit.org/rdachp2_rda2-3376.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/title"
+                    },
+                    "@guid": "cSjoxayJLcrayLR7xbGP6k",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/title|lc:RT:bf2:InstanceTitle",
+                    "id": "id_loc_gov_ontologies_bibframe_title__title_information",
+                    "hashCode": 806354632,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/title"
+                },
+                "id_loc_gov_ontologies_bibframe_responsibilityStatement__statement_of_responsibility": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "literal",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyLabel": "Statement of responsibility",
+                    "remark": "https://original.rdatoolkit.org/2.4.2.html",
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/responsibilityStatement",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/responsibilityStatement"
+                    },
+                    "@guid": "nNC97wWTW61APayN9UDZLB",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/responsibilityStatement|lc:RT:bf2:Monograph:Instance",
+                    "id": "id_loc_gov_ontologies_bibframe_responsibilityStatement__statement_of_responsibility",
+                    "hashCode": -156804513,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/responsibilityStatement"
+                },
+                "id_loc_gov_ontologies_bibframe_editionStatement__edition_statement": {
+                    "propertyLabel": "Edition statement",
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/editionStatement",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "literal",
+                    "remark": "https://original.rdatoolkit.org/2.5.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/editionStatement"
+                    },
+                    "@guid": "gCK4FBBoY4odxhzw7dxkqB",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/editionStatement|lc:RT:bf2:Monograph:Instance",
+                    "id": "id_loc_gov_ontologies_bibframe_editionStatement__edition_statement",
+                    "hashCode": 47241578,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/editionStatement"
+                },
+                "id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:PubInfoNew",
+                            "lc:RT:bf2:DistInfoNew",
+                            "lc:RT:bf2:ManuInfoNew",
+                            "lc:RT:bf2:ProdInfoNew"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/provisionActivity",
+                    "propertyLabel": "Provision activity",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-ProvisionActivity(264)",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/provisionActivity"
+                    },
+                    "@guid": "wiYwRrcFJ9V8hTY3QFfBoi",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/provisionActivity|lc:RT:bf2:PubInfoNew",
+                    "id": "id_loc_gov_ontologies_bibframe_provisionActivity__provision_activity",
+                    "hashCode": -143719256,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/provisionActivity"
+                },
+                "id_loc_gov_ontologies_bibframe_copyrightDate__copyright_date": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "literal",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/copyrightDate",
+                    "propertyLabel": "Copyright date",
+                    "remark": "https://original.rdatoolkit.org/2.11.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/copyrightDate"
+                    },
+                    "@guid": "mhk8NkNvAsX3FwWfxRRucG",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/copyrightDate|lc:RT:bf2:Monograph:Instance",
+                    "id": "id_loc_gov_ontologies_bibframe_copyrightDate__copyright_date",
+                    "hashCode": -933672697,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/copyrightDate"
+                },
+                "id_loc_gov_ontologies_bibframe_issuance__mode_of_issuance": {
+                    "mandatory": "true",
+                    "repeatable": "true",
+                    "type": "lookup",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/issuance"
+                        ],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Issuance"
+                        },
+                        "editable": "false",
+                        "repeatable": "true",
+                        "defaults": [
+                            {
+                                "defaultURI": "http://id.loc.gov/vocabulary/issuance/mono",
+                                "defaultLiteral": "single unit"
+                            }
+                        ]
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/issuance",
+                    "propertyLabel": "Mode of issuance",
+                    "remark": "https://original.rdatoolkit.org/2.13.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/issuance"
+                    },
+                    "@guid": "cHyDjYtA1QjdwPpru3jFCU",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/issuance|http://id.loc.gov/ontologies/bibframe/Issuance",
+                    "id": "id_loc_gov_ontologies_bibframe_issuance__mode_of_issuance",
+                    "hashCode": -1570761418,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/issuance|http://id.loc.gov/ontologies/bibframe/Issuance"
+                },
+                "id_loc_gov_ontologies_bibframe_identifiedBy__identifiers": {
+                    "propertyLabel": "Identifiers",
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/identifiedBy",
+                    "resourceTemplates": [],
+                    "type": "resource",
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Identifiers:LCCN",
+                            "lc:RT:bf2:Identifiers:ISBN",
+                            "lc:RT:bf2:Identifiers:Oclc",
+                            "lc:RT:bf2:Identifiers:Other",
+                            "lc:RT:bf2:Identifiers:Local",
+                            "lc:RT:bf2:Identifiers:EAN",
+                            "lc:RT:bf2:Identifiers:Nbn",
+                            "lc:RT:bf2:Identifiers:LCOverseas"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "remark": "",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/identifiedBy"
+                    },
+                    "@guid": "aAv4fURVXCPBqTy8Ma43V2",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/identifiedBy|lc:RT:bf2:Identifiers:LCCN",
+                    "id": "id_loc_gov_ontologies_bibframe_identifiedBy__identifiers",
+                    "hashCode": -1526631250,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/identifiedBy"
+                },
+                "id_loc_gov_ontologies_bibframe_acquisitionSource__acquisitions_identifiers": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:AcqSource"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {}
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/acquisitionSource",
+                    "propertyLabel": "Acquisitions identifiers",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/acquisitionSource"
+                    },
+                    "@guid": "9VtKbezmWMvBEQbfv7JaYN",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/acquisitionSource|lc:RT:bf2:AcqSource",
+                    "id": "id_loc_gov_ontologies_bibframe_acquisitionSource__acquisitions_identifiers",
+                    "hashCode": -557088515,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/acquisitionSource"
+                },
+                "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Note"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyLabel": "Notes about the Instance",
+                    "remark": "https://staff.loc.gov/wikis/display/BP2/Marva+cataloging+updates#Marvacatalogingupdates-Notesonnotes",
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/note",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/note"
+                    },
+                    "@guid": "aqcF6cK9gZksJ1ycTa16Ng",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/note|lc:RT:bf2:Monograph:Instance",
+                    "id": "id_loc_gov_ontologies_bibframe_note__notes_about_the_instance",
+                    "hashCode": 1294285788,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note"
+                },
+                "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content_url": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:SupplContentNote"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {}
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/supplementaryContent",
+                    "propertyLabel": "Supplementary content URL",
+                    "remark": "https://original.rdatoolkit.org/7.16.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/supplementaryContent"
+                    },
+                    "@guid": "vkjSrJj19ohrK1BtH3ciF9",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/supplementaryContent|lc:RT:bf2:SupplContentNote",
+                    "id": "id_loc_gov_ontologies_bibframe_supplementaryContent__supplementary_content_url",
+                    "hashCode": -1948451718,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/supplementaryContent"
+                },
+                "id_loc_gov_ontologies_bibframe_immediateAcquisition__immediate_source_of_acquisition_note": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:ImmAcqSource"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {}
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/immediateAcquisition",
+                    "propertyLabel": "Immediate source of acquisition note",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/immediateAcquisition"
+                    },
+                    "@guid": "5dHv3YRtww21KGxqnS8Q6g",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/immediateAcquisition|lc:RT:bf2:ImmAcqSource",
+                    "id": "id_loc_gov_ontologies_bibframe_immediateAcquisition__immediate_source_of_acquisition_note",
+                    "hashCode": 1235921666,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/immediateAcquisition"
+                },
+                "id_loc_gov_ontologies_bibframe_media__media_type": {
+                    "propertyLabel": "Media type",
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/media",
+                    "repeatable": "true",
+                    "resourceTemplates": [],
+                    "type": "lookup",
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/mediaTypes"
+                        ],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Media"
+                        },
+                        "editable": "false",
+                        "repeatable": "true",
+                        "defaults": [
+                            {
+                                "defaultURI": "http://id.loc.gov/vocabulary/mediaTypes/n",
+                                "defaultLiteral": "unmediated"
+                            }
+                        ]
+                    },
+                    "mandatory": "true",
+                    "remark": "https://original.rdatoolkit.org/3.2.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/media"
+                    },
+                    "@guid": "jxpq9s7yagaFM51rcdV9Da",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/media|http://id.loc.gov/ontologies/bibframe/Media",
+                    "id": "id_loc_gov_ontologies_bibframe_media__media_type",
+                    "hashCode": -1011836605,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/media|http://id.loc.gov/ontologies/bibframe/Media"
+                },
+                "id_loc_gov_ontologies_bibframe_extent__physical_description": {
+                    "propertyLabel": "Physical description",
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/extent",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Extent"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "remark": "https://original.rdatoolkit.org/3.4.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/extent"
+                    },
+                    "@guid": "4sAhqto27tZVX1XdTfUP4A",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/extent|lc:RT:bf2:Extent",
+                    "id": "id_loc_gov_ontologies_bibframe_extent__physical_description",
+                    "hashCode": 1322374297,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/extent"
+                },
+                "id_loc_gov_ontologies_bibframe_dimensions__dimensions": {
+                    "propertyLabel": "Dimensions",
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/dimensions",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": [],
+                        "editable": "true"
+                    },
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "literal",
+                    "remark": "https://original.rdatoolkit.org/3.5.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/dimensions"
+                    },
+                    "@guid": "1ZFArqJ3WnDoE5zLCqjAhv",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/dimensions|lc:RT:bf2:Monograph:Instance",
+                    "id": "id_loc_gov_ontologies_bibframe_dimensions__dimensions",
+                    "hashCode": -1106765605,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/dimensions"
+                },
+                "id_loc_gov_ontologies_bibframe_carrier__carrier_type": {
+                    "propertyLabel": "Carrier type",
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/carrier",
+                    "repeatable": "true",
+                    "resourceTemplates": [],
+                    "type": "lookup",
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/carriers"
+                        ],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/Carrier"
+                        },
+                        "repeatable": "true",
+                        "editable": "false",
+                        "defaults": [
+                            {
+                                "defaultURI": "http://id.loc.gov/vocabulary/carriers/nc",
+                                "defaultLiteral": "volume"
+                            }
+                        ]
+                    },
+                    "mandatory": "true",
+                    "remark": "https://original.rdatoolkit.org/3.3.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/carrier"
+                    },
+                    "@guid": "mHCi5iqKjdSLV51LoMxPjM",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/carrier|http://id.loc.gov/ontologies/bibframe/Carrier",
+                    "id": "id_loc_gov_ontologies_bibframe_carrier__carrier_type",
+                    "hashCode": -1818578390,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/carrier|http://id.loc.gov/ontologies/bibframe/Carrier"
+                },
+                "id_loc_gov_ontologies_bibframe_usageAndAccessPolicy__access_policy": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Item:Access"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {}
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/usageAndAccessPolicy",
+                    "propertyLabel": "Access policy",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/usageAndAccessPolicy"
+                    },
+                    "@guid": "xxZBd4jZhNBXzZhd2YfCcR",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/usageAndAccessPolicy|lc:RT:bf2:Item:Access",
+                    "id": "id_loc_gov_ontologies_bibframe_usageAndAccessPolicy__access_policy",
+                    "hashCode": 396470995,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/usageAndAccessPolicy"
+                },
+                "id_loc_gov_ontologies_bibframe_notation__braille?": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "lookup",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [
+                            "http://id.loc.gov/vocabulary/mtactile"
+                        ],
+                        "defaults": [],
+                        "valueDataType": {
+                            "dataTypeURI": "http://id.loc.gov/ontologies/bibframe/TactileNotation"
+                        }
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/notation",
+                    "propertyLabel": "Braille?",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/notation"
+                    },
+                    "@guid": "cSgHhMPqeskL3sg1UkPWn2",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/notation|http://id.loc.gov/ontologies/bibframe/TactileNotation",
+                    "id": "id_loc_gov_ontologies_bibframe_notation__braille?",
+                    "hashCode": 1437729338,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/notation|http://id.loc.gov/ontologies/bibframe/TactileNotation"
+                },
+                "id_loc_gov_ontologies_bibframe_electronicLocator__url_of_instance": {
+                    "propertyLabel": "URL of Instance",
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/electronicLocator",
+                    "resourceTemplates": [],
+                    "type": "resource",
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:URL"
+                        ],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "remark": "http://access.rdatoolkit.org/4.6.html",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/electronicLocator"
+                    },
+                    "@guid": "5GVZ8ARvQan5Jne4zAmru5",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/electronicLocator|lc:RT:bf2:URL",
+                    "id": "id_loc_gov_ontologies_bibframe_electronicLocator__url_of_instance",
+                    "hashCode": -980222911,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/electronicLocator"
+                },
+                "id_loc_gov_ontologies_bflc_projectedProvisionDate__projected_publication_date_yymm": {
+                    "mandatory": "false",
+                    "repeatable": "false",
+                    "type": "literal",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [],
+                        "useValuesFrom": [],
+                        "valueDataType": {},
+                        "defaults": []
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bflc/projectedProvisionDate",
+                    "propertyLabel": "Projected publication date (YYMM)",
+                    "remark": "",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bflc/projectedProvisionDate"
+                    },
+                    "@guid": "cqpyjkyFmNxWv9gW5ZiLzb",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bflc/projectedProvisionDate|lc:RT:bf2:Monograph:Instance",
+                    "id": "id_loc_gov_ontologies_bflc_projectedProvisionDate__projected_publication_date_yymm",
+                    "hashCode": 1413475900,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bflc/projectedProvisionDate"
+                },
+                "id_loc_gov_ontologies_bibframe_hasItem__has_item": {
+                    "mandatory": "false",
+                    "repeatable": "true",
+                    "type": "resource",
+                    "resourceTemplates": [],
+                    "valueConstraint": {
+                        "valueTemplateRefs": [
+                            "lc:RT:bf2:Monograph:Item"
+                        ],
+                        "useValuesFrom": [],
+                        "defaults": [],
+                        "valueDataType": {}
+                    },
+                    "propertyURI": "http://id.loc.gov/ontologies/bibframe/hasItem",
+                    "propertyLabel": "Has Item",
+                    "parent": "lc:profile:bf2:Monographlc:RT:bf2:Monograph:Instancedaaecaf9-6802-4881-9fd3-f8cb900ed605",
+                    "parentId": "lc:RT:bf2:Monograph:Instance",
+                    "userValue": {
+                        "@root": "http://id.loc.gov/ontologies/bibframe/hasItem"
+                    },
+                    "@guid": "u7z5AShToBSFZ96Rb9evXT",
+                    "canBeHidden": true,
+                    "preferenceId": "http://id.loc.gov/ontologies/bibframe/hasItem|lc:RT:bf2:Monograph:Item",
+                    "id": "id_loc_gov_ontologies_bibframe_hasItem__has_item",
+                    "hashCode": -2001108660,
+                    "hashCodeId": "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/hasItem"
+                }
+            },
+            "URI": "http://id.loc.gov/resources/instances/e1568932"
+        }
+    },
+    "rtOrder": [
+        "lc:RT:bf2:Monograph:Work",
+        "lc:RT:bf2:Monograph:Instance"
+    ],
+    "hashRts": {
+        "lc:RT:bf2:Monograph:Work": 1885219685,
+        "lc:RT:bf2:Monograph:Instance": 2145391131
+    },
+    "hashPts": {
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/expressionOf|http://id.loc.gov/ontologies/bibframe/Hub": -1785352126,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/PrimaryContribution": -1860249087,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/title": -540800723,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/contribution|http://id.loc.gov/ontologies/bibframe/Contribution": -1158362988,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/note": -2097329462,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/tableOfContents": -803436500,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/summary": -1627961501,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/subject": -1188689188,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/geographicCoverage": -213276021,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/genreForm|http://id.loc.gov/ontologies/bibframe/GenreForm": -848088407,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/classification": -1347109200,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/intendedAudience": -1611216903,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/content|http://id.loc.gov/ontologies/bibframe/Content": -821362884,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/language|http://id.loc.gov/ontologies/bibframe/Language": -831483509,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/accompaniedBy": 1850773306,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/notation": -1907771369,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/illustrativeContent|http://id.loc.gov/ontologies/bibframe/Illustration": 205380255,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/colorContent|http://id.loc.gov/ontologies/bibframe/ColorContent": -1574658025,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/supplementaryContent|http://id.loc.gov/ontologies/bibframe/SupplementaryContent": -13789748,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bflc/governmentPubType|http://id.loc.gov/ontologies/bflc/GovernmentPubType": 31836051,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/relation": -1123276682,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/notation|http://id.loc.gov/ontologies/bibframe/Notation": 838556608,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/originDate": 1068180740,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/originPlace|http://id.loc.gov/ontologies/bibframe/Place": -1624581637,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/temporalCoverage": -1287115770,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/contentAccessibility": -1028216769,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/dissertation": 1695835154,
+        "lc:RT:bf2:Monograph:Work|http://id.loc.gov/ontologies/bibframe/hasInstance": 822704583,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/instanceOf": -1046286267,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/title": 806354632,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/responsibilityStatement": -156804513,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/editionStatement": 47241578,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/provisionActivity": -143719256,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/copyrightDate": -933672697,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/issuance|http://id.loc.gov/ontologies/bibframe/Issuance": -1570761418,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/identifiedBy": -1526631250,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/acquisitionSource": -557088515,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/note": 1294285788,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/supplementaryContent": -1948451718,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/immediateAcquisition": 1235921666,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/media|http://id.loc.gov/ontologies/bibframe/Media": -1011836605,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/extent": 1322374297,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/dimensions": -1106765605,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/carrier|http://id.loc.gov/ontologies/bibframe/Carrier": -1818578390,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/usageAndAccessPolicy": 396470995,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/notation|http://id.loc.gov/ontologies/bibframe/TactileNotation": 1437729338,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/electronicLocator": -980222911,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bflc/projectedProvisionDate": 1413475900,
+        "lc:RT:bf2:Monograph:Instance|http://id.loc.gov/ontologies/bibframe/hasItem": -2001108660
+    },
+    "log": [
+        {
+            "action": "loadInstance",
+            "from": ""
+        }
+    ],
+    "procInfo": "update instance",
+    "eId": "e1568932",
+    "neweId": true,
+    "user": "fo (fo)",
+    "status": "unposted",
+    "newResource": true
+}
