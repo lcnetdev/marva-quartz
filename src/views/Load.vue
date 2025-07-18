@@ -57,7 +57,7 @@
 
                   <td>
                     <a v-if="row.Status=='unposted'" :href="'/bfe2/quartz/edit/' + row.Id" @click.prevent="loadFromAllRecord(row.Id)">{{ row.Id }}</a>
-                    <a v-else href="#" @click="reloadRecord(row)">Load from BFDB</a>
+                    <a v-else :href="'#'+row.Id" @click="reloadRecord(row)">Load from BFDB</a>
                   </td>
 
                   <td v-text="(row.RTs) ? row.RTs.join(', ') : row.RTs" />
@@ -714,10 +714,10 @@ export default {
     reloadRecord: function(record){
       let url
       let profile
-      try {
+      try { // Load page
         url = record.externalid.filter((item) => item.includes("/instances/"))[0]
         profile = record.rstused[0]
-      } catch {
+      } catch { //Dashboard page
         url = record.Urls.filter((item) => item.includes("/instances/"))[0]
         profile = record['RTs'][0]
       }
