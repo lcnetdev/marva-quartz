@@ -34,6 +34,8 @@
 
         updateCounnter: 0,
 
+        manualInput: false,
+
 
 
       }
@@ -140,6 +142,21 @@
 
         },
 
+        manuallyChangeColor: function(id,dataState){
+          let color = prompt('Please enter a color in hex6 or hex8 format (e.g. #ff0000)', this.returnColor(id,dataState))
+
+          if (color.startsWith('#') && (color.length == 7 || color.length == 9)){
+            this.changeColor(color,id,dataState)
+            this.loadPrefGroup()
+          } else {
+            alert('Please enter a valid color in hex6 or hex8 format (e.g. #ff0000)')
+            return
+          }
+
+
+        },
+
+
         resetColor(id, type){
           let colors = this.preferenceStore.returnValue('--o-edit-general-field-colors')
           if (colors[id] && colors[id][type]){
@@ -217,9 +234,10 @@
 
     created(){
 
-       // this.$nextTick(()=>{
+      this.$nextTick(()=>{
+        this.initalHeight=window.innerHeight/1.15
 
-      // })
+      })
 
     },
 
@@ -279,6 +297,7 @@
           <div id="non-latin-bulk-content" ref="nonLatinBulkContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
 
             <div class="menu-buttons">
+              <button @click="manualInput = !manualInput">Show Manual Input Option</button>
               <button class="close-button" @pointerup="showFieldColorsModal=false">X</button>
             </div>
 
@@ -294,6 +313,7 @@
                   <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('req','req')" v-if="returnColor('req','req') !== null">
                     restart_alt
                   </button>
+                  <a v-if="manualInput" href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor('req','req')" class="material-icons manual-input reset-icon">input</a>
                 </td>
               <tr>
                 <td></td>
@@ -307,12 +327,14 @@
                   <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('all','default')" v-if="returnColor('all','default') !== null">
                     restart_alt
                   </button>
+                  <a v-if="manualInput" href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor('all','default')" class="material-icons manual-input reset-icon">input</a>
                 </td>
                 <td>
                   <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('all','edited')" :format="'hex8'" @update:pureColor="changeColor($event,'all','edited')" />
                   <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('all','edited')" v-if="returnColor('all','edited') !== null">
                     restart_alt
                   </button>
+                  <a v-if="manualInput" href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor('all','edited')" class="material-icons manual-input reset-icon">input</a>
                 </td>
               </tr>
               <tr>
@@ -322,12 +344,14 @@
                   <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('work','default')" v-if="returnColor('work','default') !== null">
                     restart_alt
                   </button>
+                  <a v-if="manualInput" href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor('work','default')" class="material-icons manual-input reset-icon">input</a>
                 </td>
                 <td>
                   <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('work','edited')" :format="'hex8'" @update:pureColor="changeColor($event,'work','edited')" />
                   <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('work','edited')" v-if="returnColor('work','edited') !== null">
                     restart_alt
                   </button>
+                  <a v-if="manualInput" href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor('work','edited')" class="material-icons manual-input reset-icon">input</a>
                 </td>
               </tr>
               <tr>
@@ -337,12 +361,14 @@
                   <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('instance','default')" v-if="returnColor('instance','default') !== null">
                     restart_alt
                   </button>
+                  <a v-if="manualInput" href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor('instance','default')" class="material-icons manual-input reset-icon">input</a>
                 </td>
                 <td>
                   <color-picker :key="updateCounnter + '--default-color'" :pureColor="returnColor('instance','edited')" :format="'hex8'" @update:pureColor="changeColor($event,'instance','edited')" />
                   <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor('instance','edited')" v-if="returnColor('instance','edited') !== null">
                     restart_alt
                   </button>
+                  <a v-if="manualInput" href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor('instance','edited')" class="material-icons manual-input reset-icon">input</a>
                 </td>
               </tr>
               <template v-for="rt in activeProfile.rtOrder">
@@ -360,14 +386,19 @@
                     <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor(pt.preferenceId,'default')" v-if="returnColor(pt.preferenceId,'default') !== null">
                       restart_alt
                     </button>
+
+                    <a v-if="manualInput" href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor(pt.preferenceId,'default')" class="material-icons manual-input reset-icon">input</a>
                   </td>
                   <td>
 
-                    <color-picker :key="updateCounnter + '--edited-color'" :pureColor="returnColor(pt.preferenceId,'edited')" :format="'hex8'" @update:pureColor="changeColor($event,pt.preferenceId,'edited')" />
+                    <color-picker  :key="updateCounnter + '--edited-color'" :pureColor="returnColor(pt.preferenceId,'edited')" :format="'hex8'" @update:pureColor="changeColor($event,pt.preferenceId,'edited')" />
                     <!-- <color-picker :pureColor="'2c3e5023'" :format="'hex8'" @update:pureColor="" /> -->
                     <button alt="Reset Color" title="Reset Color" class="material-icons reset-icon" @click="resetColor(pt.preferenceId,'edited')" v-if="returnColor(pt.preferenceId,'edited') !== null">
                       restart_alt
                     </button>
+
+                    <a v-if="manualInput" href="" alt="Click to set value manually" title="Click to set value manually" @click.prevent="manuallyChangeColor(pt.preferenceId,'edited')" class="material-icons manual-input reset-icon">input</a>
+
 
                   </td>
                 </tr>
@@ -378,6 +409,8 @@
 
 
             </table>
+
+            
 
 
 
@@ -401,6 +434,11 @@
 </style>
 
 <style scoped>
+
+.manual-input{
+  text-decoration: none;
+  color: inherit;
+}
 
 .reset-icon{
   display: inline-block;
