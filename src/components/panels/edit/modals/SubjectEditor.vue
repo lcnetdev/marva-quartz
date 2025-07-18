@@ -168,6 +168,9 @@
                     </div>
                   </div>
 
+                  <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create NAR</button>
+
+
 
                 </div>
               </div>
@@ -871,7 +874,7 @@ export default {
     ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse', 'diacriticPacks']),
     ...mapState(useProfileStore, ['returnComponentByPropertyLabel']),
 
-    ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral']),
+    ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral', 'activeNARStubComponent', 'lastComplexLookupString', 'searchValueLocal', 'showNacoStubCreateModal', 'returnStructureByComponentGuid']),
   },
   methods: {
 
@@ -2787,11 +2790,33 @@ export default {
     loadUserValue: function () {
       // reset things if they might be opening this again for some reason
       this.cleanState()
-    }
+    },
 
+    loadNacoStubModal: function() {
+        // Set the current value for NAR creation
+        this.lastComplexLookupString = this.searchValue
+        // store the info needed to pass to the process
+        this.activeNARStubComponent = {
+          type: 'lookupComplex',
+          guid: this.guid,
+          fieldGuid: null,
+          structure: this.structure,
+          propertyPath:this.propertyPath,
+          source: "subject"
+        }
 
+        this.$emit('hideComplexModal')
+        this.$nextTick(() => {
+          this.showNacoStubCreateModal = true
+        })
+      },
 
-
+      displayProvisonalNAR: function(){
+        if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom.length>0 && this.structure.valueConstraint.useValuesFrom.join(' ').indexOf('id.loc.gov/authorities/subjects')>-1){
+          return true
+        }
+        return false
+      },
   },
 
   created: function () {

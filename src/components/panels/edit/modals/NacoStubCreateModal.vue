@@ -379,6 +379,9 @@
               // console.log(this.oneXXParts)
               // console.log(useName)
               let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
+
+              console.info("activeNARStubComponent: ", this.activeNARStubComponent)
+
               if (this.activeNARStubComponent.source.includes('contribution')){
                 this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
               } else if (this.activeNARStubComponent.source.includes('subject')){
@@ -1261,7 +1264,7 @@
 
 
         init(resetMode){
-
+          console.info("init")
           this.tmpXML=false
           this.tmpErrorMessage=false
           this.mainTitle = this.profileStore.nacoStubReturnMainTitle()
@@ -1308,7 +1311,7 @@
             }
 
           }
-
+          console.info("this.oneXX: ", this.oneXX)
           if (this.savedNARModalData.oneXX){
             this.oneXX = this.savedNARModalData.oneXX
             this.checkOneXX()
@@ -1321,7 +1324,7 @@
             this.mainTitleNote = this.savedNARModalData.mainTitleNote
           }
 
-
+          console.info("this.lastComplexLookupString: ", this.lastComplexLookupString)
           if (this.lastComplexLookupString.trim() != ''){
             const yearMatch = this.lastComplexLookupString.match(/(\d{4})/)
             if (yearMatch) {
@@ -1336,13 +1339,17 @@
               }
             }
 
+            console.info("this.lastComplexLookupString: ", this.lastComplexLookupString)
             this.oneXX = '1XX##$a'+this.lastComplexLookupString
+            console.info("this.oneXX: ", this.oneXX)
             this.checkOneXX()
           }
 
 
           this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
 
+          console.info("this.populatedValue: ", this.populatedValue)
+          console.info("this.oneXX 0: ", this.oneXX)
           if (this.populatedValue && this.populatedValue.marcKey && !resetMode){
 
             // we never want 7xx so replace it
@@ -1361,6 +1368,8 @@
             this.oneXX = this.populatedValue.marcKey
             this.checkOneXX()
           }
+
+          console.info("this.oneXX 1: ", this.oneXX)
 
           let current = window.localStorage.getItem('marva-scriptShifterOptions')
 
@@ -1413,10 +1422,9 @@
 
           // console.log(this.scriptShifterOptions)
 
+          console.info("this.oneXX 2: ", this.oneXX)
 
         }
-
-
 
     },
 
@@ -1489,9 +1497,9 @@
 
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1; position: relative;">
-                  <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
+                  <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
                   <!-- <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-"> -->
-
+                  ??{{ oneXX }}
                   <textarea
                     ref="nar-1xx"
                     v-model="oneXX"
@@ -1513,7 +1521,7 @@
               </div>
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1;">
-                  <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
+                  <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
 
                   <!-- <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d...."> -->
                   <textarea

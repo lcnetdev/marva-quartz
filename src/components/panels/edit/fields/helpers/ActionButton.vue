@@ -432,9 +432,9 @@
 
       buildNacoStub(){
         this.profileStore.lastComplexLookupString = "" // unset this
-        
+
         let source = this.profileStore.returnStructureByComponentGuid(this.guid).propertyURI
-        
+
         this.profileStore.activeNARStubComponent = {
           type: this.type,
           guid: this.guid,
@@ -443,6 +443,9 @@
           propertyPath:this.propertyPath,
           source: source
         }
+
+        console.info("this.profileStore.activeNARStubComponent: ", this.profileStore.activeNARStubComponent)
+
         this.profileStore.showNacoStubCreateModal = true
       },
 
@@ -455,7 +458,7 @@
 
         return false
       },
-      
+
       isSubjectField(){
         let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
