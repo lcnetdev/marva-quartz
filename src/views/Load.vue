@@ -144,13 +144,14 @@
                         <tr v-for="(r, idx) in searchByLccnResults" :key="r.idURL">
                           <td v-if="searchByLccnResults.length > 1">
                             <input type="radio" v-model="lccnLoadSelected" :value="r" name="lccnToLoad"
-                              :id="'lccnsearch' + idx" :name="'lccnsearch' + idx" checked="true" />
+                              :id="'lccnsearch' + idx" :name="'lccnsearch' + idx" :checked="/\/in[0-9]/.test(r.bfdbURL) ? true : false" />
                           </td>
 
                           <td>
                             <label v-if="searchByLccnResults.length > 1" style="cursor: pointer;"
                               :for="'lccnsearch' + idx">{{ r.label }}</label>
                             <span v-else>{{ r.label }}</span>
+                            <span v-if="/\/in[0-9]/.test(r.bfdbURL)" style="font-weight: bold;"> [FOLIO]</span>
                           </td>
                           <td><a :href="r.bfdbURL" style="padding-right: 10px;" target="_blank">BFDB</a></td>
                           <td>
