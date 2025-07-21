@@ -339,12 +339,7 @@
 
         async postNacoStub(){
             this.postStatus='posting'
-            //let results = await this.profileStore.postNacoStub(this.MARCXml,this.MARClccn)
-            let results = {
-                xml: this.MARCXml,
-                pubResuts: {status: true, postLocation: 'http://narURL'},
-                lccn: this.MARClccn
-              }
+            let results = await this.profileStore.postNacoStub(this.MARCXml,this.MARClccn)
 
             results.xml = results.xml.replace(/<marcxml:leader>/g,"\n<marcxml:leader>")
             results.xml = results.xml.replace(/\<\/marcxml:controlfield>/g,"</marcxml:controlfield>\n")
@@ -382,9 +377,7 @@
               if (this.activeNARStubComponent.source.includes('contribution')){
                 this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
               } else if (this.activeNARStubComponent.source.includes('subject')){
-                //setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
-                //let MARCKey = await utilsNetwork.returnMARCKey(results.postLocation)
-                let MARCKey = await utilsNetwork.returnMARCKey("https://id.loc.gov/authorities/names/n79021164")
+                let MARCKey = await utilsNetwork.returnMARCKey(results.postLocation)
                 let component = [
                     {
                         "label": useName,
