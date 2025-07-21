@@ -2864,7 +2864,7 @@ export const useProfileStore = defineStore('profile', {
         // console.log(propertyPath)
 
         console.info("subjectComponents: ",subjectComponents)
-    
+
         // find it
         if (pt){
             // build out the hiearchy
@@ -2947,7 +2947,7 @@ export const useProfileStore = defineStore('profile', {
             }]
 
 
-
+            console.info(">>>>", subjectComponents)
             // if it is a solo subject heading
             if (subjectComponents.length==1){
                 // it might be a literal.

@@ -388,6 +388,7 @@
                 //setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
                 //let MARCKey = await utilsNetwork.returnMARCKey(results.postLocation)
                 let MARCKey = await utilsNetwork.returnMARCKey("https://id.loc.gov/authorities/names/n79021164")
+                console.info("marcKey: ", MARCKey)
                 let component = [
                     {
                         "label": useName,
@@ -396,9 +397,12 @@
                         "type": type,
                         "complex": false,
                         "literal": false,
-                        "marcKey": MARCKey
+                        "marcKey": MARCKey.marcKey
                     }
                   ]
+
+                  console.info("component: ", component)
+
                   let pp = [
                       {
                           "level": 0,
