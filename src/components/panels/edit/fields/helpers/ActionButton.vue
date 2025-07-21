@@ -475,7 +475,7 @@
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
 
-        return this.isContribField() || this.isSubjectField()
+        return (this.isContribField() || this.isSubjectField()) && useConfigStore().returnUrls.displayLCOnlyFeatures
       },
 
 
