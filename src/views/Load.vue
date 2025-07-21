@@ -149,7 +149,7 @@
                           </td>
 
                           <td>
-                            <span v-if="!/\/in[0-9]/.test(r.bfdbURL)" style="font-weight: bold;">[FOLIO] </span>
+                            <span v-if="/\/in[0-9]/.test(r.bfdbURL)" style="font-weight: bold;">[FOLIO] </span>
                             <label v-if="searchByLccnResults.length > 1" style="cursor: pointer;"
                               :for="'lccnsearch' + idx">{{ r.label }}</label>
                             <span v-else>{{ r.label }}</span>
