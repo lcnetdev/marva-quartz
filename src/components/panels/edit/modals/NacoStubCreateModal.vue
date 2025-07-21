@@ -413,6 +413,8 @@
                           "propertyURI": "http://www.loc.gov/mads/rdf/v1#Topic"
                       }
                   ]
+
+                console.info("Set subjects: ", this.activeNARStubComponent, "--", this.activeNARStubComponent.guid)
                 this.profileStore.setValueSubject(this.activeNARStubComponent.guid, component, pp)
               }
               // componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null
@@ -1499,7 +1501,6 @@
                 <div style="flex-grow: 1; position: relative;">
                   <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
                   <!-- <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-"> -->
-                  ??{{ oneXX }}
                   <textarea
                     ref="nar-1xx"
                     v-model="oneXX"

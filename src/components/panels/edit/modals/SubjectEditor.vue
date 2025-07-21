@@ -138,7 +138,11 @@
                   </div>
                 </div>
               </div>
+
               <div ref="toolbar" style="display: flex;">
+                <div v-if="displayProvisonalNAR()">
+                  <button @click="loadNacoStubModal" style="float: right;">Create NAR</button>
+                </div>
                 <div style="flex:2">
                   <ol v-if="showTypes" :class="['type-list-ol', { 'type-list-ol-lowres': lowResMode }]">
                     <li :class="['type-item', { 'type-item-selected': (type.selected) }]" v-for="type in activeTypes"
@@ -167,10 +171,6 @@
                         title="Clear selection & re-enable update on hover">Remove selected</button>
                     </div>
                   </div>
-
-                  <button @click="loadNacoStubModal" style="float: right;" v-if="displayProvisonalNAR() == true">Create NAR</button>
-
-
 
                 </div>
               </div>
@@ -766,6 +766,7 @@ export default {
     profileData: Object,
     searchType: String,
     fromPaste: Boolean,
+    guid: String,
   },
 
   watch: {
@@ -2369,6 +2370,8 @@ export default {
       // this.showTypes = true
       // Only show when there's a literal selected
       try {
+        console.info("literal: ", this.pickLookup[this.pickPostion].literal)
+        console.info("picked: ", this.pickLookup[this.pickPostion].picked)
         this.showTypes = this.pickLookup[this.pickPostion].literal && this.pickLookup[this.pickPostion].picked
       } catch { }
 
@@ -2793,8 +2796,9 @@ export default {
     },
 
     loadNacoStubModal: function() {
+      console.info("loadNacoStubModal: ", this.searchString, this.subjectString)
         // Set the current value for NAR creation
-        this.lastComplexLookupString = this.searchValue
+        this.lastComplexLookupString = this.subjectString
         // store the info needed to pass to the process
         this.activeNARStubComponent = {
           type: 'lookupComplex',
