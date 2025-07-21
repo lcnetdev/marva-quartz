@@ -2370,8 +2370,6 @@ export default {
       // this.showTypes = true
       // Only show when there's a literal selected
       try {
-        console.info("literal: ", this.pickLookup[this.pickPostion].literal)
-        console.info("picked: ", this.pickLookup[this.pickPostion].picked)
         this.showTypes = this.pickLookup[this.pickPostion].literal && this.pickLookup[this.pickPostion].picked
       } catch { }
 
@@ -2650,8 +2648,6 @@ export default {
             let id = prevItems
             let labels = complexLabel.split("--")
 
-            console.info("data: ", JSON.stringify(data))
-
             for (let idx in labels) {
               let subfield
               if (data) {
@@ -2796,7 +2792,6 @@ export default {
     },
 
     loadNacoStubModal: function() {
-      console.info("loadNacoStubModal: ", this.searchString, this.subjectString)
         // Set the current value for NAR creation
         this.lastComplexLookupString = this.subjectString
         // store the info needed to pass to the process

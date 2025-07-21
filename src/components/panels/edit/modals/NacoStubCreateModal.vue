@@ -338,7 +338,6 @@
         },
 
         async postNacoStub(){
-            console.info(">>>>", this.oneXXParts)
             this.postStatus='posting'
             //let results = await this.profileStore.postNacoStub(this.MARCXml,this.MARClccn)
             let results = {
@@ -380,15 +379,12 @@
               // console.log(useName)
               let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
 
-              console.info("activeNARStubComponent: ", this.activeNARStubComponent)
-
               if (this.activeNARStubComponent.source.includes('contribution')){
                 this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
               } else if (this.activeNARStubComponent.source.includes('subject')){
                 //setValueSubject: async function(componentGuid,subjectComponents,propertyPath){
                 //let MARCKey = await utilsNetwork.returnMARCKey(results.postLocation)
                 let MARCKey = await utilsNetwork.returnMARCKey("https://id.loc.gov/authorities/names/n79021164")
-                console.info("marcKey: ", MARCKey)
                 let component = [
                     {
                         "label": useName,
@@ -400,8 +396,6 @@
                         "marcKey": MARCKey.marcKey
                     }
                   ]
-
-                  console.info("component: ", component)
 
                   let pp = [
                       {
@@ -418,7 +412,6 @@
                       }
                   ]
 
-                console.info("Set subjects: ", this.activeNARStubComponent, "--", this.activeNARStubComponent.guid)
                 this.profileStore.setValueSubject(this.activeNARStubComponent.guid, component, pp)
               }
               // componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null
@@ -1270,7 +1263,6 @@
 
 
         init(resetMode){
-          console.info("init")
           this.tmpXML=false
           this.tmpErrorMessage=false
           this.mainTitle = this.profileStore.nacoStubReturnMainTitle()
@@ -1317,7 +1309,6 @@
             }
 
           }
-          console.info("this.oneXX: ", this.oneXX)
           if (this.savedNARModalData.oneXX){
             this.oneXX = this.savedNARModalData.oneXX
             this.checkOneXX()
@@ -1330,7 +1321,6 @@
             this.mainTitleNote = this.savedNARModalData.mainTitleNote
           }
 
-          console.info("this.lastComplexLookupString: ", this.lastComplexLookupString)
           if (this.lastComplexLookupString.trim() != ''){
             const yearMatch = this.lastComplexLookupString.match(/(\d{4})/)
             if (yearMatch) {
@@ -1345,17 +1335,13 @@
               }
             }
 
-            console.info("this.lastComplexLookupString: ", this.lastComplexLookupString)
             this.oneXX = '1XX##$a'+this.lastComplexLookupString
-            console.info("this.oneXX: ", this.oneXX)
             this.checkOneXX()
           }
 
 
           this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
 
-          console.info("this.populatedValue: ", this.populatedValue)
-          console.info("this.oneXX 0: ", this.oneXX)
           if (this.populatedValue && this.populatedValue.marcKey && !resetMode){
 
             // we never want 7xx so replace it
@@ -1374,8 +1360,6 @@
             this.oneXX = this.populatedValue.marcKey
             this.checkOneXX()
           }
-
-          console.info("this.oneXX 1: ", this.oneXX)
 
           let current = window.localStorage.getItem('marva-scriptShifterOptions')
 
@@ -1427,8 +1411,6 @@
           this.scriptShifterOptions = JSON.parse(JSON.stringify(current))
 
           // console.log(this.scriptShifterOptions)
-
-          console.info("this.oneXX 2: ", this.oneXX)
 
         }
 

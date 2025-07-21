@@ -444,8 +444,6 @@
           source: source
         }
 
-        console.info("this.profileStore.activeNARStubComponent: ", this.profileStore.activeNARStubComponent)
-
         this.profileStore.showNacoStubCreateModal = true
       },
 
