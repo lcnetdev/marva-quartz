@@ -1489,7 +1489,7 @@
                     @keydown="keydown" @keyup="keyup"
                     ></textarea>
 
-                  <div v-if="populatedValue && populatedValue.marcKey">
+                  <div v-if="populatedValue && populatedValue.marcKey && (!populatedValue.marcKey.includes(lastComplexLookupString.replace(/ *(\$[a-z]) */g, '$1')))">
                     (This value was found in the uncontrolled value of this component<span v-if="lastComplexLookupString"> Use your search value: <a href="#" @click.stop.prevent="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX()">{{ lastComplexLookupString }}</a> instead?</span>)
                   </div>
                 </div>

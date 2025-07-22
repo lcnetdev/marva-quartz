@@ -2811,7 +2811,6 @@ export default {
       },
 
       displayProvisonalNAR: function(){
-        console.info("useConfigStore(): ", useConfigStore())
         if (!this.activeComponent.literal){ return false }
         if (!useConfigStore().returnUrls.displayLCOnlyFeatures){ return false}
         if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom.length>0 && this.structure.valueConstraint.useValuesFrom.join(' ').indexOf('id.loc.gov/authorities/subjects')>-1){
