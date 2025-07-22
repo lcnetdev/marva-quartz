@@ -130,7 +130,6 @@
                         @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"
                         class="input-single-subject subject-input" id="subject-input">
                     </form>
-                    {{ components }}
                     <div v-for="(c, idx) in components" :ref="'cBackground' + idx"
                       :class="['color-holder', { 'color-holder-okay': (c.uri !== null || c.literal) }, { 'color-holder-type-okay': (c.type !== null || showTypes === false) }]"
                       v-bind:key="idx">
