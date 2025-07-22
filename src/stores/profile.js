@@ -5717,6 +5717,8 @@ export const useProfileStore = defineStore('profile', {
       let URI = null
       let marcKey = null
 
+      console.info("pt: ", pt)
+
       if (pt &&
           pt.userValue &&
           pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
@@ -5725,6 +5727,24 @@ export const useProfileStore = defineStore('profile', {
           pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]){
 
             let agent = pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
+            if (agent && agent['@id']){
+              URI = agent['@id']
+            }
+            if (agent && agent['http://id.loc.gov/ontologies/bflc/marcKey'] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][0] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+              ){
+                marcKey = agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+            }
+
+          }
+
+      if (pt &&
+          pt.userValue &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'] &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]){
+
+            let agent = pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]
             if (agent && agent['@id']){
               URI = agent['@id']
             }
