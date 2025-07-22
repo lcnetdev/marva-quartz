@@ -67,6 +67,7 @@
         instanceURI: false,
         statementOfResponsibility: null,
         statementOfResponsibilityOptions: [],
+        subjectNote: '',
 
         buildHyphenated4xx: false,
         hyphenated4xx: null,
@@ -1264,11 +1265,33 @@
           this.statementOfResponsibility = this.profileStore.nacoStubReturnSoR()
           this.statementOfResponsibilityOptions = []
           this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
+          this.field245 = this.profileStore.nacoStubReturn245()
 
 
 
           if (this.statementOfResponsibility && (this.activeNARStubComponent.source && this.activeNARStubComponent.source != 'subject')){
             this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
+          }
+
+          if (this.statementOfResponsibility && (this.activeNARStubComponent.source && this.activeNARStubComponent.source == 'subject')){
+            let startPos = null
+            let endPos = null
+            let name = this.lastComplexLookupString
+            if (name.includes(",")){
+              name = name.split(",").slice(0, 2)
+              name = name.reverse()
+              name = name.join(" ")
+            }
+
+            let _245 = this.field245.subA + " " + this.field245.subB + " " + this.field245.subC
+            if (_245.toLocaleLowerCase().includes(name.toLocaleLowerCase())){
+              startPos = _245.toLocaleLowerCase().indexOf(name.toLocaleLowerCase())
+              endPos = startPos + name.length
+            }
+
+            if (startPos && endPos){
+              this.mainTitleNote = "title page (" + _245.slice(startPos, endPos).trim() + ")"
+            }
           }
 
           if (this.statementOfResponsibility && this.statementOfResponsibility.split(",").length>1){

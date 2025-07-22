@@ -5762,6 +5762,49 @@ export const useProfileStore = defineStore('profile', {
 
     },
 
+    nacoStubReturn245(guid){
+      let subfieldA = ""
+      let subfieldB = ""
+      let subfieldC = ""
+
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyLabel == "Title information"){
+              let userValue = pt.userValue
+              if (
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                ){
+                  let titleComp = userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                  subfieldA = titleComp[0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
+              }
+
+              if (
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                ){
+                  let titleComp = userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                  subfieldB = titleComp[0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
+              }
+            }
+
+            subfieldC = this.nacoStubReturnSoR()
+          }
+       }
+      }
+
+      return {
+        subA: subfieldA,
+        subB: subfieldB,
+        subC: subfieldC
+      }
+
+    },
+
 
 
     /**
