@@ -130,6 +130,7 @@
                         @input="subjectStringChanged" @keydown="navInput" @keyup="navString" @click="navStringClick"
                         class="input-single-subject subject-input" id="subject-input">
                     </form>
+                    {{ components }}
                     <div v-for="(c, idx) in components" :ref="'cBackground' + idx"
                       :class="['color-holder', { 'color-holder-okay': (c.uri !== null || c.literal) }, { 'color-holder-type-okay': (c.type !== null || showTypes === false) }]"
                       v-bind:key="idx">
@@ -1117,7 +1118,7 @@ export default {
         try {
           type = this.componetLookup[id + offset][ss].type
         } catch(e){
-          type = ''
+          type = null
         }
 
         this.components.push({
@@ -2068,10 +2069,13 @@ export default {
         let type = null
         try {
           type = this.pickLookup[this.pickPostion].extra.type //"madsrdf:" +  ... .rdftypes[0]
+          if (typeof type == 'undefined'){
+            type = null
+          }
           this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
           // this.updateAvctiveTypeSelected
         } catch(err){
-
+          type = null
         }
 
         // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))

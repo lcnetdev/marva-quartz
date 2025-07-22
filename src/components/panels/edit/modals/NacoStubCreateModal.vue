@@ -1267,7 +1267,7 @@
 
 
 
-          if (this.statementOfResponsibility && this.activeNARStubComponent.source != 'subject'){
+          if (this.statementOfResponsibility && (this.activeNARStubComponent.source && this.activeNARStubComponent.source != 'subject')){
             this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
           }
 
