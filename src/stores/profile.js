@@ -5717,8 +5717,6 @@ export const useProfileStore = defineStore('profile', {
       let URI = null
       let marcKey = null
 
-      console.info("pt: ", pt)
-
       if (pt &&
           pt.userValue &&
           pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
