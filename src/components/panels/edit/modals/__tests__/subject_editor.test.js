@@ -254,4 +254,3 @@ describe('SubjectEditor buildPickLookup()', () => {
         });
     })
 })
-
