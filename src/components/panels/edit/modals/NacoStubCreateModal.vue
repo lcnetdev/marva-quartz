@@ -110,7 +110,6 @@
 
 
       disableAddButton() {
-
         if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
           return true
         }
@@ -118,6 +117,12 @@
         if (this.oneXX.trim() == ''){
           return true
         }
+
+        // missing 670 info
+        if (!this.mainTitle){
+          return true
+        }
+
 
         return false
       }
@@ -1689,7 +1694,9 @@
                 </div>
 
 
-                <div v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
+                <!-- <div v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')"> -->
+                <!-- Always show these checks, 670 stuff can slip through -->
+                <div>
                   <div class="error-info-title">Other Checks:</div>
 
 
@@ -1710,7 +1717,7 @@
                   <template v-if="mainTitleDate">
                         <div>
                           <span class="material-icons unique-icon">check</span>
-                          <span class="not-unique-text">670 $a Date: <input v-model="mainTitleDate"/></span>
+                          <span class="not-unique-text">670 $a Date: <input v-model="mainTitleDate" :disabled="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" /></span>
                         </div>
                   </template>
                   <template v-else>
@@ -1737,7 +1744,7 @@
                   <div style="white-space: nowrap; display: inline-block; width: 80%">
                     <span class="material-icons edit-icon">edit</span>
                     <label>670 $b: </label>
-                    <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em"/>
+                    <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em" :disabled="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" />
 
                     <template v-if="statementOfResponsibilityOptions && statementOfResponsibilityOptions.length>0">
                       <div style="padding: 0.2em;">
@@ -1761,7 +1768,7 @@
                     <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
                   </template>
 
-                  <div class="selectable" style="font-family: monospace; padding: 0.2em;">
+                  <div class="selectable" style="font-family: monospace; padding: 0.2em;" v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
 
                     <input type="checkbox" v-model="add667" id="add-667"/>
                     <label for="add-667" style="vertical-align: super; padding-left: 1em;">Add 667 Note</label>
@@ -1772,7 +1779,6 @@
 
 
                 </div>
-
 
               </div>
 
