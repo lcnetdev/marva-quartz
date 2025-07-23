@@ -1284,8 +1284,10 @@
             }
 
             let _245 = this.field245.subA + " " + this.field245.subB + " " + this.field245.subC
-            if (_245.toLocaleLowerCase().includes(name.toLocaleLowerCase())){
-              startPos = _245.toLocaleLowerCase().indexOf(name.toLocaleLowerCase())
+            let lower245 = _245.toLocaleLowerCase()
+            let lowername = name.toLocaleLowerCase().trim()
+            if (lower245.includes(lowername)){
+              startPos = lower245.indexOf(lowername)
               endPos = startPos + name.length
             }
 
