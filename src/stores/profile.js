@@ -5791,11 +5791,11 @@ export const useProfileStore = defineStore('profile', {
                   subfieldB = titleComp[0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
               }
             }
-
-            subfieldC = this.nacoStubReturnSoR()
           }
        }
       }
+
+      subfieldC = this.nacoStubReturnSoR()
 
       return {
         subA: subfieldA,

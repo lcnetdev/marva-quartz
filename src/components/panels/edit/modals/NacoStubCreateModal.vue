@@ -1328,6 +1328,7 @@
 
           }
           if (this.savedNARModalData.oneXX){
+            console.info("savedNARModalData")
             this.oneXX = this.savedNARModalData.oneXX
             this.checkOneXX()
           }
@@ -1353,12 +1354,15 @@
               }
             }
 
+            console.info("set oneXX")
             this.oneXX = '1XX##$a'+this.lastComplexLookupString
             this.checkOneXX()
           }
 
 
           this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
+
+          console.info("this.populatedValue: ", this.populatedValue)
 
           if (this.populatedValue && this.populatedValue.marcKey && !resetMode){
 
@@ -1375,6 +1379,8 @@
             if (this.populatedValue.marcKey.at(-1) == ','){
               this.populatedValue.marcKey = this.populatedValue.marcKey.slice(0, -1)
             }
+
+            console.info("set oneXX 2")
             this.oneXX = this.populatedValue.marcKey
             this.checkOneXX()
           }
