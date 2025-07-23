@@ -957,7 +957,6 @@ export default {
         for (let subjIdx in incomingSubjects) {
           this.componetLookup[subjIdx] = {}
           let type = incomingSubjects[subjIdx]["@type"]
-
           if (Object.keys(incomingSubjects[subjIdx]).includes("http://www.loc.gov/mads/rdf/v1#authoritativeLabel")) {
             lookUp = "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
           } else {
@@ -1108,14 +1107,12 @@ export default {
         if (uri && uri.includes("/hubs/")) {
           type = "bf:Hub"
         }
-
         // set the type
         try {
           type = this.componetLookup[id + offset][ss].type
         } catch(e){
           type = ''
         }
-
         this.components.push({
           label: ss,
           uri: uri,
@@ -1936,6 +1933,8 @@ export default {
         this.pickCurrent = pickPostion
         this.getContext()
         //Science—Experiments
+      } else if (this.pickPostion != null){
+        this.getContext()
       }
 
       if (this.pickLookup[this.pickPostion].complex) {
@@ -2067,7 +2066,7 @@ export default {
           this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
           // this.updateAvctiveTypeSelected
         } catch(err){
-
+          console.error("Couldn't get type: ", err)
         }
 
         // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
@@ -2643,8 +2642,6 @@ export default {
             // build the new components
             let id = prevItems
             let labels = complexLabel.split("--")
-
-            console.info("data: ", JSON.stringify(data))
 
             for (let idx in labels) {
               let subfield
