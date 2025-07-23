@@ -5792,7 +5792,7 @@ export const useProfileStore = defineStore('profile', {
               }
             }
           }
-       }
+        }
       }
 
       subfieldC = this.nacoStubReturnSoR()

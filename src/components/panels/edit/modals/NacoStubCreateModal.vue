@@ -67,7 +67,6 @@
         instanceURI: false,
         statementOfResponsibility: null,
         statementOfResponsibilityOptions: [],
-        subjectNote: '',
 
         buildHyphenated4xx: false,
         hyphenated4xx: null,
@@ -360,7 +359,7 @@
               }else if (this.oneXXParts.fieldTag == "111"){
                 type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
               }else if (this.oneXXParts.fieldTag == "130"){
-                typer = "http://www.loc.gov/mads/rdf/v1#NameTitle"
+                type = "http://www.loc.gov/mads/rdf/v1#NameTitle"
               }else if (this.oneXXParts.fieldTag == "147"){
                 type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
               }
