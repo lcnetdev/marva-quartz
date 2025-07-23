@@ -1761,7 +1761,7 @@
                     <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}</div>
                   </template>
                   <template v-else>
-                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">Missing 670 Date Field! Can't build 670</div>
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">Missing 670 Data! Can't build 670.</div>
                   </template>
 
                   <template v-if="zero46 && Object.keys(zero46).length>0">
