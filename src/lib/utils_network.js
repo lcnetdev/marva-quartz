@@ -2715,6 +2715,7 @@ const utilsNetwork = {
         resultsSubjectsSimple.push(resultsSubjectsSimple.pop())
         // resultsSubjectsSimple.reverse()
       }
+      resultsSubjectsSimpleComplex = resultsSubjectsSimpleComplex.filter((r) => {return (!r.literal)})
       if (resultsSubjectsSimpleComplex.length>0){
         resultsSubjectsSimpleComplex.push(resultsSubjectsSimpleComplex.pop())
       }
