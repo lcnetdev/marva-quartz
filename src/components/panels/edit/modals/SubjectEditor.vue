@@ -910,7 +910,6 @@ export default {
 
     //parse complex headings so we can have complete and broken up headings
     parseComplexSubject: async function (uri) {
-      console.info("parse")
       let returnUrls = useConfigStore().returnUrls
       let url = uri
       if (returnUrls.env == 'production') {
@@ -1478,8 +1477,6 @@ export default {
 
     // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
     searchApis: debounce(async (searchString, searchStringFull, that) => {
-      console.info("searchString: ", searchString)
-      console.info("searchStringFull: ", searchStringFull)
       that.pickCurrent = null //reset the current selection when the search changes
 
       that.searchResults = null
@@ -1529,9 +1526,7 @@ export default {
         searchStringFull = searchStringFull.replace("---", "‑--")
       }
 
-      console.info("search?")
       if (searchString.length > 2){
-        console.info("yes")
         that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
       } else {
         return
