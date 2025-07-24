@@ -994,7 +994,7 @@ export const useConfigStore = defineStore('config', {
         "code": "pa-Guru"
     },
     "persian": {
-        "code": "fa-Deva"
+        "code": "fa-Arab"
     },
     "prakrit_devanagari": {
         "code": "pra-Deva"
