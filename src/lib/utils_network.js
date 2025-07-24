@@ -2378,7 +2378,6 @@ const utilsNetwork = {
     * @return {} -
     */
     subjectSearch: async function(searchVal, complexVal, complexSub, mode){
-      console.info("subjectSearch: ", searchVal)
       // subjectSearch: async function(searchVal, complexVal, mode){
       //encode the URLs
       searchVal = encodeURIComponent(searchVal)
@@ -2426,8 +2425,6 @@ const utilsNetwork = {
       let childrenSubjectSubdivision = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
 
       let searchValHierarchicalGeographic = searchVal.replaceAll('‑','-') //.split(' ').join('--')
-
-      console.info("namesUrl: ", namesUrl)
 
       let subjectUrlHierarchicalGeographic = useConfigStore().lookupConfig['HierarchicalGeographic'].modes[0]['All'].url.replace('<QUERY>',searchValHierarchicalGeographic).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")
 
