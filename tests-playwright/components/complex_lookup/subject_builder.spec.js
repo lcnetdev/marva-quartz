@@ -737,3 +737,26 @@ test('Able to add an edited subject', async ({ page }) => {
     await page.getByText('bf:Work').click();
     await expect(page.locator('#app')).toContainText('<madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"><bf:source><bf:Sourcerdf:about="http://id.loc.gov/authorities/subjects"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"xml:lang="en">Library of Congress Subject Headings</rdfs:label></bf:Source></bf:source><madsrdf:isMemberOfMADSSchemerdf:resource="http://id.loc.gov/authorities/subjects"></madsrdf:isMemberOfMADSScheme><madsrdf:authoritativeLabel>Public schools--Austria--History--18th century--Congresses</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Public schools--Austria--History--18th century--Congresses</rdfs:label><madsrdf:componentListrdf:parseType="Collection"><madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh85108801"><madsrdf:authoritativeLabel>Public schools</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">150 $aPublic schools</bflc:marcKey></madsrdf:Topic><madsrdf:Geographicrdf:about="http://id.loc.gov/rwo/agents/n79040121-781"><madsrdf:authoritativeLabel>Austria</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">181 $zAustria</bflc:marcKey></madsrdf:Geographic><madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh99005024"><madsrdf:authoritativeLabel>History</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">180 $xHistory</bflc:marcKey></madsrdf:Topic><madsrdf:Temporalrdf:about="http://id.loc.gov/authorities/subjects/sh2002012474"><madsrdf:authoritativeLabel>18th century</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">182 $y18th century</bflc:marcKey></madsrdf:Temporal><madsrdf:GenreFormrdf:about="http://id.loc.gov/authorities/subjects/sh99001533"><madsrdf:authoritativeLabel>Congresses</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">185 $vCongresses</bflc:marcKey></madsrdf:GenreForm></madsrdf:componentList></madsrdf:ComplexSubject>');
 });
+
+
+test('Correct USE appears for a Complex Heading', async ({ page }) => {
+    test.slow()// triple the timeout
+    await page.goto('http://localhost:5555/bfe2/quartz/');
+
+    // Update the preferences for this test
+    let prefs = JSON.stringify(preferences)
+    await page.evaluate(prefs => localStorage.setItem("marva-preferences", prefs), prefs)
+    await page.reload();
+
+    await page.getByText('Click Here').click();
+    await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
+    await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('Agriculture--Technological innovations');
+    await expect(page.getByRole('dialog')).toContainText('Agriculture--Technological innovations (USE Agricultural innovations)');
+    await page.getByText('Agriculture--Technological innovations (USE Agricultural innovations)').click();
+    await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
+    await page.locator('.child-elements > div > div > div > .caret').first().click();
+    await expect(page.locator('#app')).toContainText('Agricultural innovations');
+    await expect(page.locator('#app')).toContainText('150 $aAgricultural innovations');
+    await expect(page.locator('#app')).toContainText('rdf:about="http://id.loc.gov/authorities/subjects/sh85002334"');
+});

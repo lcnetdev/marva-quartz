@@ -910,6 +910,7 @@ export default {
 
     //parse complex headings so we can have complete and broken up headings
     parseComplexSubject: async function (uri) {
+      console.info("parse")
       let returnUrls = useConfigStore().returnUrls
       let url = uri
       if (returnUrls.env == 'production') {
@@ -1157,7 +1158,11 @@ export default {
       if (event.key === 'Enter' && event.shiftKey === false) {
         this.linkModeResults = false
         this.linkModeSearching = true
-        this.linkModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.linkModeString)
+        if (this.linkModeString.length > 2){
+          this.linkModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.linkModeString)
+        } else {
+          return
+        }
         this.linkModeSearching = false
 
       } else if (event.key === 'Enter' && event.shiftKey === true) {
@@ -1522,7 +1527,13 @@ export default {
         searchStringFull = searchStringFull.replace("---", "‑--")
       }
 
-      that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
+      console.info("search?")
+      if (searchString.length > 2){
+        console.info("yes")
+        that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
+      } else {
+        return
+      }
       // that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, that.searchMode)
 
       // if they clicked around while it was doing this lookup bail out
@@ -2048,9 +2059,8 @@ export default {
 
         // if the incoming subject can replace the whole subject string, do that
         if (this.pickLookup[this.pickPostion].suggestLabel.includes(this.subjectString + " (USE ")){
-          console.info("1")
-          if(splitString.length > 1 ){
-            this.activeComponentIndex = 0
+          if(splitString.length == 2 ){
+            this.activeComponentIndex = 0  // is this reliable?
             splitString.pop()
           }
         }
