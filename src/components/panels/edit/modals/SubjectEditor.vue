@@ -1157,7 +1157,11 @@ export default {
       if (event.key === 'Enter' && event.shiftKey === false) {
         this.linkModeResults = false
         this.linkModeSearching = true
-        this.linkModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.linkModeString)
+        if (this.linkModeString.length > 2){
+          this.linkModeResults = await utilsNetwork.subjectLinkModeResolveLCSH(this.linkModeString)
+        } else {
+          return
+        }
         this.linkModeSearching = false
 
       } else if (event.key === 'Enter' && event.shiftKey === true) {
@@ -1522,7 +1526,11 @@ export default {
         searchStringFull = searchStringFull.replace("---", "‑--")
       }
 
-      that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
+      if (searchString.length > 2){
+        that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, complexSub, that.searchMode)
+      } else {
+        return
+      }
       // that.searchResults = await utilsNetwork.subjectSearch(searchString, searchStringFull, that.searchMode)
 
       // if they clicked around while it was doing this lookup bail out
@@ -2045,6 +2053,14 @@ export default {
         // console.log('1',JSON.parse(JSON.stringify(this.componetLookup)))
         // take the subject string and split
         let splitString = this.subjectString.split('--')
+
+        // if the incoming subject can replace the whole subject string, do that
+        if (this.pickLookup[this.pickPostion].suggestLabel.includes(this.subjectString + " (USE ")){
+          if(splitString.length == 2 ){
+            this.activeComponentIndex = 0  // is this reliable?
+            splitString.pop()
+          }
+        }
 
         // replace the string with what we selected
         splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')
