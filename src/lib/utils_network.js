@@ -314,7 +314,6 @@ const utilsNetwork = {
       // console.log("url:",url)
       // console.log('options:',options)
       try{
-        throw Error("???")
         let response = await fetch(url,options);
         let data = null
         if (response.status == 404){

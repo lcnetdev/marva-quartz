@@ -1478,6 +1478,8 @@ export default {
 
     // some context messing here, pass the debounce func a ref to the vue "this" as that to ref in the function callback
     searchApis: debounce(async (searchString, searchStringFull, that) => {
+      console.info("searchString: ", searchString)
+      console.info("searchStringFull: ", searchStringFull)
       that.pickCurrent = null //reset the current selection when the search changes
 
       that.searchResults = null
