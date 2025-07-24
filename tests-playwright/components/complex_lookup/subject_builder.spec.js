@@ -740,7 +740,6 @@ test('Able to add an edited subject', async ({ page }) => {
 
 
 test('Correct USE appears for a Complex Heading', async ({ page }) => {
-    test.slow()// triple the timeout
     await page.goto('http://localhost:5555/bfe2/quartz/');
 
     // Update the preferences for this test
@@ -752,7 +751,7 @@ test('Correct USE appears for a Complex Heading', async ({ page }) => {
     await page.getByRole('button', { name: 'Monograph', exact: true }).nth(1).click();
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('Agriculture--Technological innovations');
-    await expect(page.getByRole('dialog')).toContainText('Agriculture--Technological innovations (USE Agricultural innovations)');
+    await expect(page.getByRole('dialog')).toContainText('Agriculture--Technological innovations (USE Agricultural innovations)', {timeout: 60000});
     await page.getByText('Agriculture--Technological innovations (USE Agricultural innovations)').click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.locator('.child-elements > div > div > div > .caret').first().click();
