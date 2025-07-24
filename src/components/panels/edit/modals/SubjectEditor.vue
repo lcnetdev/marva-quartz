@@ -2046,6 +2046,15 @@ export default {
         // take the subject string and split
         let splitString = this.subjectString.split('--')
 
+        // if the incoming subject can replace the whole subject string, do that
+        if (this.pickLookup[this.pickPostion].suggestLabel.includes(this.subjectString + " (USE ")){
+          console.info("1")
+          if(splitString.length > 1 ){
+            this.activeComponentIndex = 0
+            splitString.pop()
+          }
+        }
+
         // replace the string with what we selected
         splitString[this.activeComponentIndex] = this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')
 
