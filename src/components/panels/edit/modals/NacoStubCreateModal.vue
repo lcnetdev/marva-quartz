@@ -110,7 +110,6 @@
 
 
       disableAddButton() {
-
         if (this.oneXXErrors.length > 0 || this.fourXXErrors.length > 0){
           return true
         }
@@ -118,6 +117,12 @@
         if (this.oneXX.trim() == ''){
           return true
         }
+
+        // missing 670 info
+        if (!this.mainTitle){
+          return true
+        }
+
 
         return false
       }
@@ -338,7 +343,6 @@
         },
 
         async postNacoStub(){
-
             this.postStatus='posting'
             let results = await this.profileStore.postNacoStub(this.MARCXml,this.MARClccn)
 
@@ -351,8 +355,8 @@
             if (results && results.pubResuts && results.pubResuts.msgObj && results.pubResuts.msgObj.errorMessage){
               this.tmpErrorMessage = results.pubResuts.msgObj.errorMessage
             }
+            let type = "http://www.loc.gov/mads/rdf/v1#Name"
             if (results && results.pubResuts && results.pubResuts.status){
-              let type = "http://www.loc.gov/mads/rdf/v1#Name"
               if (this.oneXXParts.fieldTag == "100"){
                 type = "http://www.loc.gov/mads/rdf/v1#PersonalName"
               }else if (this.oneXXParts.fieldTag == "110"){
@@ -360,7 +364,7 @@
               }else if (this.oneXXParts.fieldTag == "111"){
                 type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
               }else if (this.oneXXParts.fieldTag == "130"){
-                typer = "http://www.loc.gov/mads/rdf/v1#NameTitle"
+                type = "http://www.loc.gov/mads/rdf/v1#NameTitle"
               }else if (this.oneXXParts.fieldTag == "147"){
                 type = "http://www.loc.gov/mads/rdf/v1#ConferenceName"
               }
@@ -374,7 +378,40 @@
               // console.log(this.oneXXParts)
               // console.log(useName)
               let newUri = `http://id.loc.gov/authorities/names/n${results.lccn}`
-              this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
+
+              if (this.activeNARStubComponent.source.includes('contribution')){
+                this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
+              } else if (this.activeNARStubComponent.source.includes('subject')){
+                let MARCKey = await utilsNetwork.returnMARCKey(results.postLocation)
+                let component = [
+                    {
+                        "label": useName,
+                        "uri": newUri,
+                        "id": 0,
+                        "type": type,
+                        "complex": false,
+                        "literal": false,
+                        "marcKey": MARCKey.marcKey
+                    }
+                  ]
+
+                  let pp = [
+                      {
+                          "level": 0,
+                          "propertyURI": "http://id.loc.gov/ontologies/bibframe/subject"
+                      },
+                      {
+                          "level": 1,
+                          "propertyURI": "http://www.loc.gov/mads/rdf/v1#componentList"
+                      },
+                      {
+                          "level": 2,
+                          "propertyURI": "http://www.loc.gov/mads/rdf/v1#Topic"
+                      }
+                  ]
+
+                this.profileStore.setValueSubject(this.activeNARStubComponent.guid, component, pp)
+              }
               // componentGuid, fieldGuid, propertyPath, URI, label, type, nodeMap=null, marcKey=null
               this.newNarUri=results.pubResuts.postLocation
               this.postStatus='posted'
@@ -1224,7 +1261,6 @@
 
 
         init(resetMode){
-
           this.tmpXML=false
           this.tmpErrorMessage=false
           this.mainTitle = this.profileStore.nacoStubReturnMainTitle()
@@ -1233,11 +1269,35 @@
           this.statementOfResponsibility = this.profileStore.nacoStubReturnSoR()
           this.statementOfResponsibilityOptions = []
           this.instanceURI =  this.profileStore.nacoStubReturnInstanceURI()
+          this.field245 = this.profileStore.nacoStubReturn245()
 
 
 
-          if (this.statementOfResponsibility){
+          if (this.statementOfResponsibility && (this.activeNARStubComponent.source && this.activeNARStubComponent.source != 'subject')){
             this.mainTitleNote = "title page (" + this.statementOfResponsibility  + ")"
+          }
+
+          if (this.statementOfResponsibility && (this.activeNARStubComponent.source && this.activeNARStubComponent.source == 'subject')){
+            let startPos = null
+            let endPos = null
+            let name = this.lastComplexLookupString
+            if (name.includes(",")){
+              name = name.split(",").slice(0, 2)
+              name = name.reverse()
+              name = name.join(" ")
+            }
+
+            let _245 = this.field245.subA + " " + this.field245.subB + " " + this.field245.subC
+            let lower245 = _245.toLocaleLowerCase()
+            let lowername = name.toLocaleLowerCase().trim()
+            if (lower245.includes(lowername)){
+              startPos = lower245.indexOf(lowername)
+              endPos = startPos + name.length
+            }
+
+            if (startPos && endPos){
+              this.mainTitleNote = "title page (" + _245.slice(startPos, endPos).trim() + ")"
+            }
           }
 
           if (this.statementOfResponsibility && this.statementOfResponsibility.split(",").length>1){
@@ -1271,7 +1331,6 @@
             }
 
           }
-
           if (this.savedNARModalData.oneXX){
             this.oneXX = this.savedNARModalData.oneXX
             this.checkOneXX()
@@ -1283,7 +1342,6 @@
           if (this.savedNARModalData.mainTitleNote){
             this.mainTitleNote = this.savedNARModalData.mainTitleNote
           }
-
 
           if (this.lastComplexLookupString.trim() != ''){
             const yearMatch = this.lastComplexLookupString.match(/(\d{4})/)
@@ -1321,6 +1379,7 @@
             if (this.populatedValue.marcKey.at(-1) == ','){
               this.populatedValue.marcKey = this.populatedValue.marcKey.slice(0, -1)
             }
+
             this.oneXX = this.populatedValue.marcKey
             this.checkOneXX()
           }
@@ -1376,10 +1435,7 @@
 
           // console.log(this.scriptShifterOptions)
 
-
         }
-
-
 
     },
 
@@ -1452,9 +1508,8 @@
 
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1; position: relative;">
-                  <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
+                  <button class="paste-from-search simptip-position-left" @click="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX() " v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''" :data-tooltip="'Paste value: ' + lastComplexLookupString"><span class="material-icons">content_paste</span></button>
                   <!-- <input type="text" ref="nar-1xx" v-model="oneXX" @input="checkOneXX" @keydown="keydown" @keyup="keyup" class="title" placeholder="1XX##$aDoe, Jane$d19XX-"> -->
-
                   <textarea
                     ref="nar-1xx"
                     v-model="oneXX"
@@ -1464,7 +1519,7 @@
                     @keydown="keydown" @keyup="keyup"
                     ></textarea>
 
-                  <div v-if="populatedValue && populatedValue.marcKey">
+                  <div v-if="populatedValue && populatedValue.marcKey && (!populatedValue.marcKey.includes(lastComplexLookupString.replace(/ *(\$[a-z]) */g, '$1')))">
                     (This value was found in the uncontrolled value of this component<span v-if="lastComplexLookupString"> Use your search value: <a href="#" @click.stop.prevent="oneXX = '1XX##$a'+lastComplexLookupString; checkOneXX()">{{ lastComplexLookupString }}</a> instead?</span>)
                   </div>
                 </div>
@@ -1476,7 +1531,7 @@
               </div>
               <div style="display: flex; margin-bottom: 1em;">
                 <div style="flex-grow: 1;">
-                  <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
+                  <button class="paste-from-search simptip-position-left" @click="fourXX = '4XX##$a'+lastComplexLookupString; checkFourXX() " :data-tooltip="'Paste value: ' +lastComplexLookupString" v-if="lastComplexLookupString && lastComplexLookupString.trim() != ''"><span class="material-icons">content_paste</span></button>
 
                   <!-- <input type="text" ref="nar-4xx" v-model="fourXX" @input="checkFourXX" class="title" @keydown="keydown" @keyup="keyup" placeholder="4XX##$a....$d...."> -->
                   <textarea
@@ -1639,7 +1694,9 @@
                 </div>
 
 
-                <div v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
+                <!-- <div v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')"> -->
+                <!-- Always show these checks, 670 stuff can slip through -->
+                <div>
                   <div class="error-info-title">Other Checks:</div>
 
 
@@ -1660,7 +1717,7 @@
                   <template v-if="mainTitleDate">
                         <div>
                           <span class="material-icons unique-icon">check</span>
-                          <span class="not-unique-text">670 $a Date: <input v-model="mainTitleDate"/></span>
+                          <span class="not-unique-text">670 $a Date: <input v-model="mainTitleDate" :disabled="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" /></span>
                         </div>
                   </template>
                   <template v-else>
@@ -1687,7 +1744,7 @@
                   <div style="white-space: nowrap; display: inline-block; width: 80%">
                     <span class="material-icons edit-icon">edit</span>
                     <label>670 $b: </label>
-                    <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em"/>
+                    <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em" :disabled="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" />
 
                     <template v-if="statementOfResponsibilityOptions && statementOfResponsibilityOptions.length>0">
                       <div style="padding: 0.2em;">
@@ -1704,14 +1761,14 @@
                     <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">670 $a{{ mainTitle }},{{ mainTitleDate }}: {{ (mainTitleNote!='') ? `$b${mainTitleNote}` : '' }}</div>
                   </template>
                   <template v-else>
-                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">Missing 670 Date Field! Can't build 670</div>
+                    <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">Missing 670 Data! Can't build 670.</div>
                   </template>
 
                   <template v-if="zero46 && Object.keys(zero46).length>0">
                     <div class="selectable" style="font-family: monospace; background-color: whitesmoke; padding: 0.2em;">046  {{ (zero46.f) ? ("$f" + zero46.f) : "" }}{{ (zero46.g) ? ("$g" + zero46.g) : "" }}$2edtf</div>
                   </template>
 
-                  <div class="selectable" style="font-family: monospace; padding: 0.2em;">
+                  <div class="selectable" style="font-family: monospace; padding: 0.2em;" v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
 
                     <input type="checkbox" v-model="add667" id="add-667"/>
                     <label for="add-667" style="vertical-align: super; padding-left: 1em;">Add 667 Note</label>
@@ -1722,7 +1779,6 @@
 
 
                 </div>
-
 
               </div>
 

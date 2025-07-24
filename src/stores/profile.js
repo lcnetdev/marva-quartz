@@ -2863,8 +2863,6 @@ export const useProfileStore = defineStore('profile', {
         // console.log(subjectComponents)
         // console.log(propertyPath)
 
-
-
         // find it
         if (pt){
             // build out the hiearchy
@@ -2945,8 +2943,6 @@ export const useProfileStore = defineStore('profile', {
                 "@guid": short.generate(),
                 "@id": "http://id.loc.gov/authorities/subjects"
             }]
-
-
 
             // if it is a solo subject heading
             if (subjectComponents.length==1){
@@ -5720,6 +5716,7 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,guid)
       let URI = null
       let marcKey = null
+
       if (pt &&
           pt.userValue &&
           pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
@@ -5740,9 +5737,70 @@ export const useProfileStore = defineStore('profile', {
 
           }
 
+      if (pt &&
+          pt.userValue &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'] &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]){
+
+            let agent = pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]
+            if (agent && agent['@id']){
+              URI = agent['@id']
+            }
+            if (agent && agent['http://id.loc.gov/ontologies/bflc/marcKey'] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][0] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+              ){
+                marcKey = agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+            }
+
+          }
+
       return {
         URI: URI,
-        marcKey: marcKey
+        marcKey: marcKey,
+      }
+
+    },
+
+    nacoStubReturn245(guid){
+      let subfieldA = ""
+      let subfieldB = ""
+      let subfieldC = ""
+
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyLabel == "Title information"){
+              let userValue = pt.userValue
+              if (
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                ){
+                  let titleComp = userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                  subfieldA = titleComp[0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
+              }
+
+              if (
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                ){
+                  let titleComp = userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                  subfieldB = titleComp[0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
+              }
+            }
+          }
+        }
+      }
+
+      subfieldC = this.nacoStubReturnSoR()
+
+      return {
+        subA: subfieldA,
+        subB: subfieldB,
+        subC: subfieldC
       }
 
     },

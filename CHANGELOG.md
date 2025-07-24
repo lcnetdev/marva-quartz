@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.3.25] - 2025-07-22
+### Added
+- Ability to create NARs from subject component
+
 ## [1.3.24] - 2025-07-16
 ### Added
 - Tests for SubjectBuilder e2e & unit

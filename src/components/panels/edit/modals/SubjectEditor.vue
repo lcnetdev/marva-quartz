@@ -138,7 +138,11 @@
                   </div>
                 </div>
               </div>
+
               <div ref="toolbar" style="display: flex;">
+                <div v-if="displayProvisonalNAR()">
+                  <button @click="loadNacoStubModal" style="float: right;">Create NAR</button>
+                </div>
                 <div style="flex:2">
                   <ol v-if="showTypes" :class="['type-list-ol', { 'type-list-ol-lowres': lowResMode }]">
                     <li :class="['type-item', { 'type-item-selected': (type.selected) }]" v-for="type in activeTypes"
@@ -167,7 +171,6 @@
                         title="Clear selection & re-enable update on hover">Remove selected</button>
                     </div>
                   </div>
-
 
                 </div>
               </div>
@@ -763,6 +766,7 @@ export default {
     profileData: Object,
     searchType: String,
     fromPaste: Boolean,
+    guid: String,
   },
 
   watch: {
@@ -871,7 +875,7 @@ export default {
     ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse', 'diacriticPacks']),
     ...mapState(useProfileStore, ['returnComponentByPropertyLabel']),
 
-    ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral']),
+    ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral', 'activeNARStubComponent', 'lastComplexLookupString', 'searchValueLocal', 'showNacoStubCreateModal', 'returnStructureByComponentGuid']),
   },
   methods: {
 
@@ -1111,7 +1115,7 @@ export default {
         try {
           type = this.componetLookup[id + offset][ss].type
         } catch(e){
-          type = ''
+          type = null
         }
         this.components.push({
           label: ss,
@@ -2063,9 +2067,13 @@ export default {
         let type = null
         try {
           type = this.pickLookup[this.pickPostion].extra.type //"madsrdf:" +  ... .rdftypes[0]
+          if (typeof type == 'undefined'){
+            type = null
+          }
           this.componetLookup[this.activeComponentIndex][this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')].type = type
           // this.updateAvctiveTypeSelected
         } catch(err){
+          type = null
           console.error("Couldn't get type: ", err)
         }
 
@@ -2784,11 +2792,35 @@ export default {
     loadUserValue: function () {
       // reset things if they might be opening this again for some reason
       this.cleanState()
-    }
+    },
 
+    loadNacoStubModal: function() {
+        // Set the current value for NAR creation
+        this.lastComplexLookupString = this.subjectString
+        // store the info needed to pass to the process
+        this.activeNARStubComponent = {
+          type: 'lookupComplex',
+          guid: this.guid,
+          fieldGuid: null,
+          structure: this.structure,
+          propertyPath:this.propertyPath,
+          source: "subject"
+        }
 
+        this.$emit('hideComplexModal')
+        this.$nextTick(() => {
+          this.showNacoStubCreateModal = true
+        })
+      },
 
-
+      displayProvisonalNAR: function(){
+        if (!this.activeComponent.literal){ return false }
+        if (!useConfigStore().returnUrls.displayLCOnlyFeatures){ return false}
+        if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom.length>0 && this.structure.valueConstraint.useValuesFrom.join(' ').indexOf('id.loc.gov/authorities/subjects')>-1){
+          return true
+        }
+        return false
+      },
   },
 
   created: function () {

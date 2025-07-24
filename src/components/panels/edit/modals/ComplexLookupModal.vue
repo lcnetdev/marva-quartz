@@ -804,7 +804,8 @@
           guid: this.guid,
           fieldGuid: null,
           structure: this.structure,
-          propertyPath:this.propertyPath
+          propertyPath:this.propertyPath,
+          source: "contribution"
         }
 
 

@@ -163,7 +163,7 @@
   </template>
 
   <ComplexLookupModal ref="complexLookupModal" :searchValue="searchValue" :guid="guid" :propertyPath="propertyPath" :authorityLookup="authorityLookup" @emitComplexValue="setComplexValue" @hideComplexModal="searchValue='';displayModal=false;" :structure="structure" v-model="displayModal" :searchType="searchType" />
-  <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" />
+  <SubjectEditor ref="subjectEditorModal" :fromPaste="fromPaste" :guid="guid" :profileData="profileData" :searchValue="searchValue" :authorityLookup="authorityLookup" :isLiteral="isLiteral"  @subjectAdded="subjectAdded" @hideSubjectModal="hideSubjectModal()" :structure="structure" v-model="displaySubjectModal" :searchType="searchType" />
   <!-- <SubjectEditor2 ref="subjectEditorModal2"    :searchValue="searchValue" v-model="displaySubjectModal" @hideSubjectModal="hideSubjectModal()" :searchType="searchType" /> -->
 
 </template>
