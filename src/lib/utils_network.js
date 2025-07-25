@@ -2800,8 +2800,13 @@ const utilsNetwork = {
         complexHeadings = resultsSubjectsComplex.concat(resultsSubjectsComplexSubdivision1)
       }
 
+      if (complexVal.includes("--")){
+        resultsSubjectsSimple = resultsSubjectsSimpleComplex.concat(resultsSubjectsSimple)
+        resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
+      }
+
       let results = {
-        'subjectsSimple': pos == 0 ? resultsSubjectsSimpleComplex.concat(resultsSubjectsSimple) : resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision),
+        'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
         'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel > b.suggestLabel ? 1 : a.suggestLabel < b.suggestLabel ? -1 : 1) : resultsNamesSubdivision,
         'hierarchicalGeographic': pos == 0 ? [] : resultsHierarchicalGeographic,
