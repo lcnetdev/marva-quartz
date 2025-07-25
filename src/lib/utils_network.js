@@ -489,7 +489,7 @@ const utilsNetwork = {
               url = url.replace('https://preprod-8080.id.loc.gov','https://id.loc.gov')
               url = url.replace('https://preprod-8288.id.loc.gov','https://id.loc.gov')
             } else { // if it's not dev or public make sure we're using 8080
-              url = url.replace('https://id.loc.gov', 'https://preprod-8287.id.loc.gov')  // temp change to 8287
+              url = url.replace('https://id.loc.gov', 'https://preprod-8080.id.loc.gov')
             }
 
             if (usePreferenceStore().returnValue('--b-edit-complex-include-usage')){
