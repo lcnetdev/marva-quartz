@@ -31,7 +31,15 @@
                 </div>
             </div>
 
-
+            <SearchResultOption
+                searchType="subjectsSimple"
+                :label="searchMode == 'HUBS' ? 'Left Anchored' : 'Simple'"
+                index="searchResults.subjectsComplex.length + ix"
+                :searchResults="searchResults"
+                :pickLookup="pickLookup"
+                @selectContext="selectContext"
+                @emitLoadContext="loadContext"
+            />
             <SearchResultOption
                 searchType="names"
                 label="LCNAF"
@@ -45,15 +53,6 @@
                 searchType="subjectsComplex"
                 :label="searchMode == 'HUBS' ? 'Keyword' : 'Complex'"
                 index="ix"
-                :searchResults="searchResults"
-                :pickLookup="pickLookup"
-                @selectContext="selectContext"
-                @emitLoadContext="loadContext"
-            />
-            <SearchResultOption
-                searchType="subjectsSimple"
-                :label="searchMode == 'HUBS' ? 'Left Anchored' : 'Simple'"
-                index="searchResults.subjectsComplex.length + ix"
                 :searchResults="searchResults"
                 :pickLookup="pickLookup"
                 @selectContext="selectContext"

@@ -489,7 +489,7 @@ const utilsNetwork = {
               url = url.replace('https://preprod-8080.id.loc.gov','https://id.loc.gov')
               url = url.replace('https://preprod-8288.id.loc.gov','https://id.loc.gov')
             } else { // if it's not dev or public make sure we're using 8080
-              url = url.replace('https://id.loc.gov', 'https://preprod-8080.id.loc.gov')
+              url = url.replace('https://id.loc.gov', 'https://preprod-8287.id.loc.gov')  // temp change to 8287
             }
 
             if (usePreferenceStore().returnValue('--b-edit-complex-include-usage')){
@@ -2800,8 +2800,13 @@ const utilsNetwork = {
         complexHeadings = resultsSubjectsComplex.concat(resultsSubjectsComplexSubdivision1)
       }
 
+      if (complexVal.includes("--")){
+        resultsSubjectsSimple = resultsSubjectsSimpleComplex.concat(resultsSubjectsSimple)
+        resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
+      }
+
       let results = {
-        'subjectsSimple': pos == 0 ? resultsSubjectsSimpleComplex.concat(resultsSubjectsSimple) : resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision),
+        'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
         'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel > b.suggestLabel ? 1 : a.suggestLabel < b.suggestLabel ? -1 : 1) : resultsNamesSubdivision,
         'hierarchicalGeographic': pos == 0 ? [] : resultsHierarchicalGeographic,
