@@ -1489,7 +1489,9 @@
           :sticks="['br']"
           :stickSize="22"
         >
-          <div id="nar-fields-content" ref="narFieldsContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
+          <div id="nar-fields-content" ref="narFieldsContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)"
+            :style="`background-color: ${preferenceStore.returnValue('--c-edit-modals-background-color')};`"
+          >
 
             <div class="menu-buttons">
               <button class="close-button" @pointerup="close">X</button>
@@ -1514,7 +1516,8 @@
                     ref="nar-1xx"
                     v-model="oneXX"
                     placeholder="1XX##$aDoe, Jane$d19XX-"
-                    class="title"
+                    :style="`color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
+                    :class="['title', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                     @input="checkOneXX"
                     @keydown="keydown" @keyup="keyup"
                     ></textarea>
@@ -1538,7 +1541,8 @@
                     ref="nar-4xx"
                     v-model="fourXX"
                     placeholder="4XX##$a....$d...."
-                    class="title"
+                    :style="`color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
+                    :class="['title', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                     @input="checkFourXX"
                     @keydown="keydown" @keyup="keyup"
                     ></textarea>
@@ -1897,7 +1901,6 @@
 
 
   .content-container{
-
     background-color: white;
   }
 
