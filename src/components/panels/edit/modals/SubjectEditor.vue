@@ -2055,7 +2055,7 @@ export default {
         let splitString = this.subjectString.split('--')
 
         // if the incoming subject can replace the whole subject string, do that
-        if (this.pickLookup[this.pickPostion].suggestLabel.includes(this.subjectString + " (USE ")){
+        if (!this.pickLookup[this.pickPostion].literal && this.pickLookup[this.pickPostion].suggestLabel.includes(this.subjectString + " (USE ")){
           if(splitString.length == 2 ){
             this.activeComponentIndex = 0  // is this reliable?
             splitString.pop()
