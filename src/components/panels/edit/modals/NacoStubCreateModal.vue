@@ -106,7 +106,7 @@
 
       ...mapWritableState(useProfileStore, ['activeProfile','showNacoStubCreateModal','activeNARStubComponent','lastComplexLookupString','savedNARModalData']),
 
-      ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
+      ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'styleDefault']),
 
 
       disableAddButton() {
@@ -1441,7 +1441,7 @@
 
 
     created(){
-
+      console.info("color: ", this.preferenceStore.returnValue('--c-edit-main-literal-font-color'))
        // this.$nextTick(()=>{
         // createNacoStubXML
       // })
@@ -1744,7 +1744,8 @@
                   <div style="white-space: nowrap; display: inline-block; width: 80%">
                     <span class="material-icons edit-icon">edit</span>
                     <label>670 $b: </label>
-                    <input placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" style="width:100%; margin-bottom:0.25em" :disabled="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" />
+
+                    <input :class="['literal-input', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]" placeholder="(optional)" v-model="mainTitleNote" @keydown="keydown" @keyup="keyup" :style="`width:100%; margin-bottom:0.25em; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`" :disabled="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')" />
 
                     <template v-if="statementOfResponsibilityOptions && statementOfResponsibilityOptions.length>0">
                       <div style="padding: 0.2em;">
@@ -1795,21 +1796,23 @@
                       v-model="row.fieldTag"
                       maxlength="3"
                       placeholder="TAG"
-                      class="extra-marc-tag"
-                      style="margin-right: 1em; width: 50px;"
+                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
+                      :style="`margin-right: 1em; width: 50px; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
                     />
                     <input
                       type="text"
                       v-model="row.indicators"
                       maxlength="2"
                       placeholder="IND"
-                      style="margin-right: 1em; width: 40px; font-family: 'Courier New', Courier, monospace;"
+                      :style="`margin-right: 1em; width: 40px; font-family: 'Courier New', Courier, monospace; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
+                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                     />
 
                     <textarea
                      v-model="row.value"
                       placeholder="$a xyz $b abc..."
-                      style="margin-right: 1em; flex-grow: 1;"
+                      :style="`margin-right: 1em; flex-grow: 1; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
+                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                       @keydown="keydown" @keyup="keyup"
                     ></textarea>
 
@@ -2094,12 +2097,15 @@ select{
     padding-right: 5px;
   }
 
+  .literal-bold {
+    font-weight: bold;
+  }
+
 
   @keyframes grow {
     0% { transform: scale(1); }
     50% { transform: scale(2); color: blue }
     100% { transform: scale(1); }
   }
-
 
 </style>

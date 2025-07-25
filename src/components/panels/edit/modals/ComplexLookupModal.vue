@@ -1635,4 +1635,8 @@
   left: -30% !important;
 }
 
+.literal-input {
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
+}
+
 </style>
