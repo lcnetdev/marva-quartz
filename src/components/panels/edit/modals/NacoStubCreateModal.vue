@@ -123,6 +123,10 @@
           return true
         }
 
+        if (!this.goodIndicators()){
+          return true
+        }
+
 
         return false
       }
@@ -140,6 +144,12 @@
     },
 
     methods: {
+
+      // Check that the advanced marc entry have indicators
+      goodIndicators: function(){
+        let good = this.extraMarcStatements.every((row) => row.indicators.length == 2)
+        return good
+      },
 
         dragResize: function(newRect){
 
@@ -1704,6 +1714,19 @@
                   <div class="error-info-title">Other Checks:</div>
 
 
+                  <template v-if="goodIndicators()">
+                        <div>
+                          <span class="material-icons unique-icon">check</span>
+                          <span class="not-unique-text">All Indicators Present</span>
+                        </div>
+                  </template>
+                  <template v-else>
+                    <div>
+                          <span class="material-icons not-unique-icon">cancel</span>
+                          <span class="not-unique-text">Indicators Missing</span><span data-tooltip="Add missing indicator in the red field" class="simptip-position-left"><span class="material-icons help-icon">help</span></span>
+                        </div>
+                  </template>
+
                   <template v-if="mainTitle">
                         <div>
                           <span class="material-icons unique-icon">check</span>
@@ -1809,7 +1832,7 @@
                       maxlength="2"
                       placeholder="IND"
                       :style="`margin-right: 1em; width: 40px; font-family: 'Courier New', Courier, monospace; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
-                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
+                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.indicators.length != 2}]"
                     />
 
                     <textarea
@@ -2102,6 +2125,11 @@ select{
 
   .literal-bold {
     font-weight: bold;
+  }
+
+  .missing-indicators {
+    border-color: red;
+    background-color: red;
   }
 
 
