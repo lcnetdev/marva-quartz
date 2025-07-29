@@ -606,29 +606,31 @@
             }
           )
 
-          menu.push(
-            {
-              text: "Open in LCAP",
-              id:"send-lcap",
-              ref:"lcap",
-              icon: "open_in_new",
-              click: () => {
-                let url =  useConfigStore().returnUrls.lcap // "https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/"
-                let bibId = null
-                console.log("url",url)
-                // get the bibID
-                for (let rt in this.activeProfile.rt){
-                  let type = rt.split(':').slice(-1)[0]
-                  let url = this.activeProfile.rt[rt].URI
-                  if (type=='Instance'){
-                    bibId =  url.split("/")[url.split('/').length - 1]
+          if (config.returnUrls.displayLCOnlyFeatures){
+            menu.push(
+              {
+                text: "Open in LCAP",
+                id:"send-lcap",
+                ref:"lcap",
+                icon: "open_in_new",
+                click: () => {
+                  let url =  useConfigStore().returnUrls.lcap // "https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/"
+                  let bibId = null
+                  console.log("url",url)
+                  // get the bibID
+                  for (let rt in this.activeProfile.rt){
+                    let type = rt.split(':').slice(-1)[0]
+                    let url = this.activeProfile.rt[rt].URI
+                    if (type=='Instance'){
+                      bibId =  url.split("/")[url.split('/').length - 1]
+                    }
                   }
-                }
-                window.open(url + bibId)
-              },
-              class: (this.activeProfilePosted || this.isStaging() || (this.activeProfile && this.activeProfile.status && this.activeProfile.status == 'published' )) ? "record-posted-folio-ok" : "record-unposted-folio-no",
+                  window.open(url + bibId)
+                },
+                class: (this.activeProfilePosted || this.isStaging() || (this.activeProfile && this.activeProfile.status && this.activeProfile.status == 'published' )) ? "record-posted-folio-ok" : "record-unposted-folio-no",
+              }
+            )
             }
-          )
 
 
 
