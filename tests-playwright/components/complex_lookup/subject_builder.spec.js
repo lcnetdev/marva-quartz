@@ -760,7 +760,7 @@ test('Correct USE appears for a Complex Heading', async ({ page }) => {
     await expect(page.getByRole('dialog')).toContainText('Agriculture--Technological innovations (USE Agricultural innovations)', {timeout: 60000});
     await page.getByText('Agriculture--Technological innovations (USE Agricultural innovations)').click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
-    await page.locator('.child-elements > div > div > div > .caret').first().click();
+    await page.getByText('bf:Work').click();
     await expect(page.locator('#app')).toContainText('Agricultural innovations');
     await expect(page.locator('#app')).toContainText('150 $aAgricultural innovations');
     await expect(page.locator('#app')).toContainText('rdf:about="http://id.loc.gov/authorities/subjects/sh85002334"');
