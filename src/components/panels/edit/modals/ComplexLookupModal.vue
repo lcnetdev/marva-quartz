@@ -89,7 +89,7 @@
         },
         panelDetailOrder: [
             "birthdates","deathdates", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds",
-            "sources", "lcclasses", "birthplaces",  "locales",
+            "sources", "lcclasses", "lcclasss", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "identifiers","broaders",
             "collections", "genres", "subjects", "marcKeys", "rdftypes"
@@ -1201,6 +1201,25 @@
                               </li>
                             </ul>
                           </template>
+
+                          <template v-else-if="key == 'lcclasss' && activeContext.extra['lcclasses'].length < 1">
+                            <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
+                                this.labelMap[key] : key }}:</span>
+                            <ul class="">
+                                <li class="" v-if="key == 'lcclasss'" v-for="v in activeContext.extra[key]">
+                                    <template v-if="typeof v == 'string'">
+                                        <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v"
+                                            target="_blank">{{ v }}</a>
+                                        <button class="material-icons see-search"
+                                            @click="addClassNumber(v)">add</button>
+                                    </template>
+                                    <template v-else>
+                                        {{ v }}
+                                    </template>
+                                </li>
+                            </ul>
+                        </template>
+
                           <template v-else>
                             <ul>
                             <li class="details-details" v-if='["identifiers","broaders",].includes(key)'>
@@ -1223,7 +1242,7 @@
                               <div>Extra Details</div>
                             </template>
                             <template v-for="key in panelDetailOrder">
-                              <template v-if='activeContext.extra[key] && activeContext.extra[key].length>0 && ["notes", "collections", "marcKeys", "rdftypes"].includes(key)'>
+                              <template v-if='activeContext.extra[key] && activeContext.extra[key].length>0 && ["notes", "collections", "marcKeys", "rdftypes", "lcclasss"].includes(key)'>
                                 <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                                 <ul>
                                   <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
