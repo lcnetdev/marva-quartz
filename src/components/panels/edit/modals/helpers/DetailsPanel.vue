@@ -165,6 +165,24 @@
                             </ul>
                         </template>
 
+                        <template v-else-if="key == 'lcclasss' && contextData['lcclasses'].length < 1">
+                            <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
+                                this.labelMap[key] : key }}:</span>
+                            <ul class="">
+                                <li class="" v-if="key == 'lcclasss'" v-for="v in contextData[key]">
+                                    <template v-if="typeof v == 'string'">
+                                        <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v.code"
+                                            target="_blank">{{ v }}</a>
+                                        <button class="material-icons see-search"
+                                            @click="addClassNumber(v)">add</button>
+                                    </template>
+                                    <template v-else>
+                                        {{ v }}
+                                    </template>
+                                </li>
+                            </ul>
+                        </template>
+
                         <template v-else-if="['broaders', 'identifiers'].includes(key)">
                             <div class="modal-context-data-title" v-if="key != 'identifiers'">{{
                                 Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
