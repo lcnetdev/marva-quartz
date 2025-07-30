@@ -799,7 +799,9 @@ export default {
 
       }else if (event && event.key && event.key==='Enter'){
 
-        if (!this.checkIsRepeatable()){
+        if (!this.profileStore.checkIsRepeatable(this)){
+          alert('This field is not repeatable')
+          this.activeValue = ''
           return
         }
 
@@ -1027,7 +1029,9 @@ export default {
 
     clickAdd: function(item){
 
-      if (!this.checkIsRepeatable()){
+      if (!this.profileStore.checkIsRepeatable(this)){
+        alert('This field is not repeatable')
+        this.activeValue = ''
         return
       }
 
@@ -1304,16 +1308,7 @@ export default {
 
     },
 
-    checkIsRepeatable(){
-      // if the field is not repeatable and they are adding something, prevent it.
-      let currentValue = this.profileStore.returnSimpleLookupValueFromProfile(this.guid, this.propertyPath)
-      if (this.structure.repeatable == 'false'  && currentValue.length > 0){
-        alert('This field is not repeatable')
-        this.activeValue = ''
-        return false
-      }
-      return true
-    }
+
 
   }
 };
