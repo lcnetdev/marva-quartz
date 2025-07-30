@@ -58,7 +58,6 @@
         activeContext: null,
         nextInputIsVoyagerModeDiacritics: false,
 		    searchType: "left",
-        numResults: 30,
 
 
         labelMap: {
@@ -333,7 +332,7 @@
                   .replace('<QUERY>', this.searchValueLocal)
                   .replace('<OFFSET>', offset)
                   .replace('<TYPE>', searchType)
-                  .replace(/count=[0-9]+/ig, "count="+this.numResults)
+                  .replace(/count=[0-9]+/ig, "count="+this.offsetStep)
               )
             }
           })
@@ -901,10 +900,10 @@
 
       adjustNumResults: function(dir){
         if (dir == 'down'){
-          this.numResults -= 10
+          this.offsetStep -= 10
           this.doSearch()
         } else {
-          this.numResults += 10
+          this.offsetStep += 10
           this.doSearch()
         }
       },
@@ -1025,11 +1024,11 @@
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
 				  </div>
                   <div style="float: left; margin-left: 10px;">
-                    Showing "~{{ numResults }}" results
-                    <button @click="adjustNumResults('down')" v-if="numResults > 10">Fewer</button>
+                    Showing "~{{ offsetStep }}" results
+                    <button @click="adjustNumResults('down')" v-if="offsetStep > 10" style="margin-right: 5px;">Fewer</button>
                     <button @click="adjustNumResults('up')">More</button>
                   </div>
-                  <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % numResults) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
+                  <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % offsetStep) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
                     <span :style="`${this.preferenceStore.styleModalTextColor()}`">
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
@@ -1038,7 +1037,7 @@
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
                       </a>
 
-                      <span class="pagination-label" > Page {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.numResults)) ? Math.ceil(this.activeComplexSearch[0].total / this.numResults) : "Last Page"}} </span>
+                      <span class="pagination-label" > Page {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last Page"}} </span>
 
                       <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
