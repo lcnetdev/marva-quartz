@@ -58,6 +58,7 @@
         activeContext: null,
         nextInputIsVoyagerModeDiacritics: false,
 		    searchType: "left",
+        numResults: 30,
 
 
         labelMap: {
@@ -263,6 +264,7 @@
         this.activeComplexSearch = []
         this.searchValueLocal = null
         this.authorityLookupLocal = null
+        this.numResults = 30
       },
 
       // watching the search input, when it changes kick off a search
@@ -331,6 +333,7 @@
                   .replace('<QUERY>', this.searchValueLocal)
                   .replace('<OFFSET>', offset)
                   .replace('<TYPE>', searchType)
+                  .replace(/count=[0-9]+/ig, "count="+this.numResults)
               )
             }
           })
@@ -896,6 +899,16 @@
         }
       },
 
+      adjustNumResults: function(dir){
+        if (dir == 'down'){
+          this.numResults -= 10
+          this.doSearch()
+        } else {
+          this.numResults += 10
+          this.doSearch()
+        }
+      },
+
       forceSearch: function(){
         //reset the search and do it again
         this.currentPage = 1
@@ -1011,6 +1024,11 @@
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
 				  </div>
+                  <div style="float: left;">
+                    Showing "~{{ numResults }}" results
+                    <button @click="adjustNumResults('down')" v-if="numResults > 0">Fewer</button>
+                    <button @click="adjustNumResults('up')">More</button>
+                  </div>
                   <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % 30) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
                     <span :style="`${this.preferenceStore.styleModalTextColor()}`">
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
@@ -1027,6 +1045,7 @@
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
                       </a>
                     </span>
+
                   </div>
                   <div v-else style="min-height: 27px;"></div>
 
