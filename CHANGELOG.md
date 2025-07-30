@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.3.27] - 2025-07-30
+### Added
+- Ability adjust the number of results in complex lookups
+
+
 ## [1.3.25] - 2025-07-22
 ### Added
 - Ability to create NARs from subject component
