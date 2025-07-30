@@ -263,7 +263,7 @@
         this.activeComplexSearch = []
         this.searchValueLocal = null
         this.authorityLookupLocal = null
-        this.numResults = 30
+        this.offsetStep = 30
       },
 
       // watching the search input, when it changes kick off a search
