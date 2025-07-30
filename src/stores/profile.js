@@ -6967,6 +6967,15 @@ export const useProfileStore = defineStore('profile', {
         } else {
             return false
         }
+    },
+
+    checkIsRepeatable(comp){
+      // if the field is not repeatable and they are adding something, prevent it.
+      let currentValue = this.returnSimpleLookupValueFromProfile(comp.guid, comp.propertyPath)
+      if (comp.structure.repeatable == 'false'  && currentValue.length > 0){
+        return false
+      }
+      return true
     }
 
 

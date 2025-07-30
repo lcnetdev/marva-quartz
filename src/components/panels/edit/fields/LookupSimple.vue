@@ -153,7 +153,7 @@ import { usePreferenceStore } from '@/stores/preference'
 import { mapStores, mapState, mapWritableState } from 'pinia'
 
 import utilsNetwork from '@/lib/utils_network';
-
+import utilsProfile from '@/lib/utils_profile'
 import utilsMisc from '@/lib/utils_misc'
 
 
@@ -383,7 +383,6 @@ export default {
     },
 
     focused: async function(){
-
       // set the state active field
       this.activeField = this.myGuid
 
@@ -800,6 +799,12 @@ export default {
 
       }else if (event && event.key && event.key==='Enter'){
 
+        if (!this.profileStore.checkIsRepeatable(this)){
+          alert('This field is not repeatable')
+          this.activeValue = ''
+          return
+        }
+
         this.doubleDelete = false
 
         let metadata = utilsNetwork.lookupLibrary[this.uri].metadata.values
@@ -1023,6 +1028,12 @@ export default {
 
 
     clickAdd: function(item){
+
+      if (!this.profileStore.checkIsRepeatable(this)){
+        alert('This field is not repeatable')
+        this.activeValue = ''
+        return
+      }
 
       this.activePlaceholderText=''
 
@@ -1295,12 +1306,7 @@ export default {
 
     returnCammLabel(simpleLookupValue){
 
-
-
-
-
-
-    }
+    },
 
 
 

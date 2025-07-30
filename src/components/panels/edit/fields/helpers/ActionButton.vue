@@ -526,8 +526,6 @@
       },
 
       showDebug: function() {
-
-
         this.debugModalData= this.profileStore.returnStructureByComponentGuid(this.guid);
         this.showDebugModal = true
         this.sendFocusHome()
