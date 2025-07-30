@@ -899,13 +899,13 @@
       },
 
       adjustNumResults: function(dir){
+        this.currentPage = 1
         if (dir == 'down'){
           this.offsetStep -= 10
-          this.doSearch()
         } else {
           this.offsetStep += 10
-          this.doSearch()
         }
+        this.doSearch()
       },
 
       forceSearch: function(){
