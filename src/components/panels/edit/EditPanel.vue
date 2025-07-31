@@ -547,6 +547,7 @@ div.instanceInfoWrapper {
   cursor: pointer;
   margin-right: 15px;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+  opacity: .4;
 }
 
 .inline-icon.work:hover {
