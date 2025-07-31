@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.3.28] - 2025-07-31
+### Added
+- Ability for "quick" add/delete component -- Adds buttons to create/delete component to display without being in the action button
+- Preference for default cutter length
+
 ## [1.3.27] - 2025-07-30
 ### Added
 - Ability adjust the number of results in complex lookups
