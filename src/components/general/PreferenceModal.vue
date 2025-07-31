@@ -125,11 +125,13 @@
           this.allOptionsCounter++
           console.log(this.renderProperties)
 
+          console.info("styleDefault: ", this.preferenceStore.styleDefault)
 
-
-          for (let k in this.styleDefault){
+          for (let k in this.preferenceStore.styleDefault){
+            console.info("\n\t", k)
             if (this.styleDefault[k].group == this.showPrefModalGroup){
               let o = Object.assign({},this.styleDefault[k])
+              console.info("\t\t", o)
               o.id = k
 
               if (o.type == 'number'){
@@ -190,8 +192,14 @@
 
     },
 
-    mounted() {
+    created(){
+      console.info("created")
+      //refresh the preferences
+      this.loadPrefGroup()
+    },
 
+    mounted() {
+      console.info("mounted")
       this.$nextTick(()=>{
         this.loadPrefGroup()
         this.$nextTick(()=>{
@@ -232,8 +240,8 @@
             <h3>Preferences -   <select @change="loadPrefGroup($event)"><option v-for="group in possilbleGroups" :selected="showPrefModalGroup==group">{{group}}</option></select></h3>
             <button class="close-button" @pointerup="preferenceStore.togglePrefModal()">X</button>
 
-            <div v-for="option in renderProperties" :key="showPrefModalGroup+ '_' +option.id">
 
+            <div v-for="option in renderProperties" :key="showPrefModalGroup+ '_' +option.id">
               <div class="option">
                 <div class="option-title">
                   <div class="option-title-header">{{option.descShort}}</div>

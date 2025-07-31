@@ -791,6 +791,7 @@ export default {
   background-color: transparent;
 
   padding: 0.1em;
+  width: 100%;
 }
 
 .lookup-fake-input:focus-within{
