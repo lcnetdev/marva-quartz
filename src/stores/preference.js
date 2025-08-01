@@ -1230,11 +1230,11 @@ export const usePreferenceStore = defineStore('preference', {
     '--b-shelflist-cutter-length' : {
         desc: 'Starting Cutter Length.',
         descShort: 'Cutter Length',
-        value: 1,
+        value: 3,
         step: 1,
         type: 'number',
-        unit: 'em',
-        group: 'Copy Cat',
+        unit: null,
+        group: 'Shelflisting',
         range: [1,6]
     },
       '--b-shelflist-link-1-label' : {
