@@ -490,6 +490,16 @@ export const usePreferenceStore = defineStore('preference', {
           range: [true,false]
       },
 
+      '--b-edit-main-splitpane-edit-show-add-delete' : {
+          desc: 'Add buttons to quickly add or delete a component.',
+          descShort: 'Quick Add/Delete.',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
+
 
 
 
@@ -1206,6 +1216,27 @@ export const usePreferenceStore = defineStore('preference', {
 
 
       //Shelflisting
+
+      '--b-shelflist-show-cutter-helpers' : {
+        desc: 'Display cutter tools like author cutter and links',
+        descShort: 'Display cutter tools.',
+        value: true,
+        type: 'boolean',
+        unit: null,
+        group: 'Shelflisting',
+        range: [true,false]
+    },
+
+    '--b-shelflist-cutter-length' : {
+        desc: 'Starting Cutter Length.',
+        descShort: 'Cutter Length',
+        value: 1,
+        step: 1,
+        type: 'number',
+        unit: 'em',
+        group: 'Copy Cat',
+        range: [1,6]
+    },
       '--b-shelflist-link-1-label' : {
         desc: 'Label for link 1.',
         descShort: 'Link 1 Label',
@@ -1290,17 +1321,6 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Shelflisting',
         index: 4
       },
-
-      '--b-shelflist-show-cutter-helpers' : {
-        desc: 'Display cutter tools like author cutter and links',
-        descShort: 'Display cutter tools.',
-        value: true,
-        type: 'boolean',
-        unit: null,
-        group: 'Shelflisting',
-        range: [true,false]
-    },
-
 
     '--b-edit-main-splitpane-edit-inline-mode' : {
       desc: 'Compact Advanced Modular Mode.',
@@ -1571,7 +1591,6 @@ export const usePreferenceStore = defineStore('preference', {
             prefs.styleDefault[k] = this.styleDefault[k]
           }
         }
-
 
         this.styleDefault = prefs.styleDefault
         this.panelDisplay = prefs.panelDisplay

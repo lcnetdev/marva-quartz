@@ -1397,6 +1397,7 @@ export default {
 .lookup-fake-input{
   display: flex;
   background-color: transparent;
+  width: 100%;
 
 }
 

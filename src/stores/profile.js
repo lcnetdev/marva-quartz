@@ -4332,6 +4332,11 @@ export const useProfileStore = defineStore('profile', {
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
+      if (pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/adminMetadata'){
+          alert("Cannot create Admin Metadata")
+          return false
+        }
+
       //Ensure that the component is going to the right place by checking the structure.parentID
       // the parentId of different kinds of titles don't include `work` or `instance`, so check the RT in the profile
       let rt = utilsProfile.getRtTypeFromGuid(this.activeProfile, componentGuid)

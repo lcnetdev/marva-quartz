@@ -122,7 +122,7 @@
         </div>
         <span class="lang-display" v-if="lValue['@language'] && lValue['@language'] !== null">{{ lValue['@language'] }}</span>
         <span v-if="structure.propertyLabel == 'ISBN'" :data-tooltip="isValidIsbn(lValue.value) ? 'VALID ISBN' : 'INVALID ISBN'" :class="['simptip-position-left', 'material-icons', 'isbn-check', {'isbn-valid': isValidIsbn(lValue.value)}, {'isbn-invalid': !isValidIsbn(lValue.value)}]">{{ isValidIsbn(lValue.value) ? 'check_circle' : 'cancel' }}</span>
-        
+
         <Transition name="action">
           <div class="literal-action" v-if="showActionButton && myGuid == activeField">
             <action-button :type="'literal'" :structure="structure" :fieldGuid="lValue['@guid']"  :guid="guid"  @action-button-command="actionButtonCommand" />
@@ -330,9 +330,9 @@ export default {
     structure: Object,
     readOnly: Boolean
   },
-  
+
   methods: {
-  
+
     isValidIsbn(isbn) {
         const result = this.profileStore.isValidIsbn(isbn)
         this.validIsbn = result
@@ -377,10 +377,10 @@ export default {
       }
       lccVal = `${this.usePeriodInCutter()}${lccVal}`
       await this.profileStore.setValueLiteral(this.guid,fieldGuid,this.propertyPath,lccVal,null)
+    },
 
-
-
-
+    async tempCutterCalcLength(){
+      return await this.preferenceStore.returnValue('--b-shelflist-cutter-length')
     },
 
     calculateCutter(toCut,howLong){
@@ -1117,10 +1117,7 @@ export default {
 
 
 
-    }
-
-
-
+    },
   },
   computed: {
     // other computed properties
@@ -1130,9 +1127,8 @@ export default {
     ...mapStores(usePreferenceStore),
 
     ...mapState(useConfigStore, ['scriptShifterLangCodes', 'lccFeatureProperties']),
-    ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks']),
     ...mapWritableState(useProfileStore, ['showShelfListingModal','activeField','activeProfile', 'literalLangShow', 'literalLangInfo','dataChangedTimestamp','activeShelfListData','pairedLitearlIndicatorLookup']),
-    ...mapState(usePreferenceStore, ['showPrefModal','showPrefModalgroup','styleDefault', 'showPrefModalGroup', 'fontFamilies']),
+    ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'showPrefModal','showPrefModalgroup','styleDefault', 'showPrefModalGroup', 'fontFamilies', 'returnValue']),
 
     myGuid(){
       return `${this.structure['@guid']}--${this.guid}`
@@ -1207,11 +1203,6 @@ export default {
 
     },
 
-
-
-
-
-
   },
 
 
@@ -1247,7 +1238,7 @@ export default {
       hasNoData: false,
       showField: true,
 
-      cutterCalcLength: 2,
+      cutterCalcLength: 3, //this.styleDefault['--b-shelflist-cutter-length'],
       nextInputIsVoyagerModeDiacritics: false,
 
       preferences: {},
@@ -1283,6 +1274,7 @@ export default {
     }
   },
   created: function(){
+    this.cutterCalcLength = this.preferenceStore.returnValue('--b-shelflist-cutter-length')
 
     this.$nextTick().then(() => {
       this.expandHeightToContent()
@@ -1481,6 +1473,7 @@ textarea:hover{
 .literal-holder{
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .literal-field{
