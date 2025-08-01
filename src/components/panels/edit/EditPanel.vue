@@ -42,8 +42,8 @@
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
 
                             <div class="icon-container">
-                              <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
-                              <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
+                              <span v-if="!profileCompoent.includes('adminmetadata') && !profileCompoent.includes('instanceOf') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
+                              <span v-if="!profileCompoent.includes('adminmetadata') && !profileCompoent.includes('instanceOf') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
                             </div>
 
                         </div>
