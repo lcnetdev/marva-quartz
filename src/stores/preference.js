@@ -1435,10 +1435,10 @@ export const usePreferenceStore = defineStore('preference', {
 
 
     returnUserNameForSaving: function(){
-      return `${this.catInitals} (${this.catCode})`
+      return `${this.catInitals.trim()} (${this.catCode.trim()})`
     },
     returnUserNameForPosting: function(){
-      return this.catCode
+      return this.catCode.trim()
     },
 
 
