@@ -1445,7 +1445,33 @@
 
           // console.log(this.scriptShifterOptions)
 
-        }
+        },
+
+        update670: function(sor){
+
+          if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
+            //remove the existing 670
+            for (let idx in this.extraMarcStatements){
+              if (this.extraMarcStatements[idx].fieldTag == "670"){
+                this.removeRow(null, idx)
+              }
+            }
+
+            let f670 = {
+              fieldTag: '670',
+              indicators: '##',
+              value: `$a ${this.mainTitle}, ${this.mainTitleDate}:`
+            }
+            if (this.mainTitleNote!=''){
+                f670.value = f670.value + ` $b ${this.mainTitleNote}`
+              }
+            if (this.instanceURI){
+              f670.u = this.instanceURI
+              f670.value = f670.value + ` $u ${this.instanceURI}`
+            }
+            this.extraMarcStatements.push(f670)
+          }
+        },
 
     },
 
@@ -1778,7 +1804,7 @@
                       <div style="padding: 0.2em;">
                         Multi SOR found:
                         <template v-for="(sor, index) in statementOfResponsibilityOptions">
-                          <button style="font-size: 0.75em;" @click="mainTitleNote = 'title page (' + sor.trim() + ')'">{{ sor }}</button>
+                          <button style="font-size: 0.75em;" @click="mainTitleNote = 'title page (' + sor.trim() + ')'; update670(sor)">{{ sor }}</button>
                         </template>
                       </div>
 
