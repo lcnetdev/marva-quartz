@@ -1310,8 +1310,8 @@
             }
           }
 
-          if (this.statementOfResponsibility && this.statementOfResponsibility.split(",").length>1){
-            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(",")
+          if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s*and\s*|,/).length>1){
+            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s*and\s*|,/)
           }
 
           let addingDefaultExtraMarcStatements = false
