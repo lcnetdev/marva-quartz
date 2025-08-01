@@ -296,7 +296,7 @@
                             </div>
                           </router-link>
                         </template>
-                        <tempalte v-else>
+                        <template v-else>
                           <div @click="reloadRecord(record)" class="fake-link">
                             <div>
                               <span class="continue-record-title">{{ record.title }}</span>
@@ -312,7 +312,7 @@
                               </span>
                             </div>
                           </div>
-                        </tempalte>
+                        </template>
                         <div class="material-icons" v-if="record.status == 'published'" title="Posted record">check_box
                         </div>
                       </div>
@@ -1168,6 +1168,7 @@ export default {
 
     async refreshSavedRecords() {
 
+      console.log("refreshSavedRecords")
 
 
       let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
