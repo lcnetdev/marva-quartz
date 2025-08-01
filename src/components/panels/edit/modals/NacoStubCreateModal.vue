@@ -1447,7 +1447,7 @@
 
         },
 
-        update670: function(sor){
+        update670: function(){
 
           if (this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')){
             //remove the existing 670
@@ -1804,7 +1804,7 @@
                       <div style="padding: 0.2em;">
                         Multi SOR found:
                         <template v-for="(sor, index) in statementOfResponsibilityOptions">
-                          <button style="font-size: 0.75em;" @click="mainTitleNote = 'title page (' + sor.trim() + ')'; update670(sor)">{{ sor }}</button>
+                          <button style="font-size: 0.75em;" @click="mainTitleNote = 'title page (' + sor.trim() + ')'; update670()">{{ sor }}</button>
                         </template>
                       </div>
 
