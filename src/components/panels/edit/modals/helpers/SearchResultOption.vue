@@ -170,4 +170,17 @@ export default {
 .not-usable{
     color: red;
 }
+
+.small-container {
+  height: 33%;
+}
+
+.medium-container {
+  height: 50%;
+}
+
+.large-container {
+  height: 90%;
+}
+
 </style>
