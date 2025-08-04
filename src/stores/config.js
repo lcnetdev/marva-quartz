@@ -29,8 +29,8 @@ export const useConfigStore = defineStore('config', {
 
         validate: 'http://localhost:5200/validate/stage',
         // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate/stage',
-
         publishNar: 'http://localhost:9401/util/nacostub/staging',
+
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
 

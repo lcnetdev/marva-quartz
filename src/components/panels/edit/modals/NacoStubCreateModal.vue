@@ -392,7 +392,7 @@
               if (this.activeNARStubComponent.source.includes('contribution')){
                 this.profileStore.setValueComplex(this.activeNARStubComponent.guid, null, this.activeNARStubComponent.propertyPath, newUri, useName, type, {}, this.oneXX)
               } else if (this.activeNARStubComponent.source.includes('subject')){
-                let MARCKey = await utilsNetwork.returnMARCKey(results.postLocation)
+                let MARCKey = await utilsNetwork.returnMARCKey(results.pubResuts.postLocation)
                 let component = [
                     {
                         "label": useName,
@@ -426,7 +426,6 @@
               this.newNarUri=results.pubResuts.postLocation
               this.postStatus='posted'
             }
-
         },
 
         close(event){
