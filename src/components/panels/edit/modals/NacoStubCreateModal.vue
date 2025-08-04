@@ -241,7 +241,7 @@
 
 
           let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
-          // console.log("additonalFields",additonalFields)
+          // console.log("additonalFields",additonalFields)          
           let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields, advMode)
 
           this.MARCXml = results.xml
@@ -547,7 +547,12 @@
 
               let subfield = dp.slice(0,1)
               let value = dp.slice(1)
-              dollarKey[subfield] = value.trim()
+              if (dollarKey[subfield]){
+                dollarKey[subfield] = dollarKey[subfield] + '<REPEATED_MARVA_VALUE>' + value.trim()
+              }else{
+                dollarKey[subfield] = value.trim()
+              }
+              
 
               // console.log(dollarKey)
             }
@@ -555,6 +560,7 @@
             dollarKey.indicators = indicators.replace(/[#]/g,' ')
 
             this.oneXXParts = dollarKey
+            console.log("dollarKey",dollarKey)
             let authLabel = ""
             if (dollarKey.a){
               authLabel = authLabel + dollarKey.a
@@ -725,8 +731,14 @@
 
               let subfield = dp.slice(0,1)
               let value = dp.slice(1)
-              dollarKey[subfield] = value.trim()
+              if (dollarKey[subfield]){
+                dollarKey[subfield] = dollarKey[subfield] + '<REPEATED_MARVA_VALUE>' + value.trim()
+              }else{
+                dollarKey[subfield] = value.trim()
+              }
 
+
+              
             }
             dollarKey.fieldTag = fieldTag
             dollarKey.indicators = indicators.replace(/[#]/g,' ')
@@ -1835,7 +1847,10 @@
                 </div>
 
               </div>
-
+              <button @click="toggleAdvancedNARMode">
+                <span v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use advanced NAR mode</span>
+                <span v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use regular mode</span>
+              </button>
               <div v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">
                 <hr/>
                 <!-- <details>
@@ -1879,10 +1894,7 @@
 
               </div>
 
-              <button @click="toggleAdvancedNARMode">
-                <span v-if="!this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use advanced NAR mode</span>
-                <span v-if="this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')">Use regular mode</span>
-              </button>
+
 
             </template>
 
