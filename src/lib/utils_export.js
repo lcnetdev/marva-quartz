@@ -2294,11 +2294,18 @@ const utilsExport = {
 		fieldName.setAttribute( 'ind2', oneXXParts.indicators.charAt(1))
 		for (let key of Object.keys(oneXXParts)){
 			if (key.length == 1){
-				let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
-				subfield.setAttribute( 'code', key)
-				subfield.innerHTML = oneXXParts[key]
-				fieldName.appendChild(subfield)
-				oneXXSubfieldsValues.push(`$${key} ${oneXXParts[key]}`)
+
+				// there might be repeated subfields, split the value and loop through tem
+				let useValues = oneXXParts[key].split("<REPEATED_MARVA_VALUE>");
+				for (let v of useValues){
+					let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+					subfield.setAttribute( 'code', key)
+					subfield.innerHTML = v.trim()
+					fieldName.appendChild(subfield)
+					oneXXSubfieldsValues.push(`$${key} ${v.trim()}`)
+				}
+
+
 			}
 		}
 		// 110//$aMiller, Sam$d1933
@@ -2317,11 +2324,19 @@ const utilsExport = {
 			for (let key of Object.keys(fourXXParts)){
 				// only add the subfields
 				if (key.length == 1){
-					let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
-					subfield.setAttribute( 'code', key)
-					subfield.innerHTML = fourXXParts[key]
-					fieldName4xx.appendChild(subfield)
-					fourXXSubfieldsValues.push(`$${key} ${fourXXParts[key]}`)
+
+					// there might be repeated subfields, split the value and loop through tem
+					let useValues = fourXXParts[key].split("<REPEATED_MARVA_VALUE>");
+					for (let v of useValues){
+						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
+						subfield.setAttribute( 'code', key)
+						subfield.innerHTML = v.trim()
+						fieldName4xx.appendChild(subfield)
+						fourXXSubfieldsValues.push(`$${key} ${v.trim()}`)
+
+
+					}
+
 				}
 			}
 
