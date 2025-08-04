@@ -1,6 +1,6 @@
 <template>
     <div class="search-results" v-if="searchResults">
-        <div v-if="searchResults !== null" style="height: 95%">
+        <div v-if="searchResults !== null" style="height: inherit">
 
             <div v-if="searchResults && searchResults.exact.length > 0" class="subject-section"
                 :class="{ 'scrollable-subjects': preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
@@ -308,4 +308,9 @@ export default {
     color: green;
     font-size: larger;
 }
+
+.search-results {
+    height: inherit;
+}
+
 </style>

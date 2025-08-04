@@ -101,7 +101,7 @@
                 :style="`flex:1; align-self: flex-end; height: 95%; ${this.preferenceStore.styleModalBackgroundColor()}`"
                 :class="{ 'scroll-all': preferenceStore.returnValue('--b-edit-complex-scroll-all') && !preferenceStore.returnValue('--b-edit-complex-scroll-independently') }">
                 <div v-if="activeSearch !== false">{{ activeSearch }}</div>
-                <div v-if="searchResults !== null" style="height: 95%">
+                <div v-if="searchResults !== null" style="height: 100%">
                   <ComplexSearchResultsDisplay :searchResults="searchResults" :pickLookup="pickLookup"
                     :searchMode="searchMode" @loadContext="loadContext" @selectContext="selectContext" />
 
