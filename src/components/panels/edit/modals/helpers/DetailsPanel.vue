@@ -222,7 +222,6 @@
                                 <ul>
                                     <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])"
                                         v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx">
-                                        {{ v }}
                                         <template v-if="typeof v == 'string' && v.startsWith('http')">
                                             <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
                                         </template>
