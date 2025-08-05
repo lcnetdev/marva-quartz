@@ -1266,8 +1266,11 @@
                                 <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                                 <ul>
                                   <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
-                                    <template v-if="v.startsWith('http')">
+                                    <template v-if="typeof v == 'string' && v.startsWith('http')">
                                       <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                                    </template>
+                                    <template v-else-if="key == 'lcclasss'">
+                                      {{ v.code }}
                                     </template>
                                     <template v-else-if="key == 'notes'">
                                       <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
