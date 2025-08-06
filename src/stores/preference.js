@@ -1100,6 +1100,15 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Complex Lookup',
         range: [true,false]
       },
+      '--b-edit-complex-number-jump' : {
+        desc: "Set the number of records that get added/removed when using the Fewer/More buttons. More results can increase search time.",
+        descShort: 'Number for Fewer/More Buttons',
+        value: 10,
+        type: 'number',
+        group: 'Complex Lookup',
+        range: [0, 100],
+        step: 10,
+      },
 
 
       //general
