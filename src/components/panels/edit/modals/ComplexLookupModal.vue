@@ -898,12 +898,23 @@
         }
       },
 
+      updateStep: function(event){
+        let val = event.target.value
+        if (!isNaN(val)){
+          this.preferenceStore.setValue('--b-edit-complex-number-jump', val)
+        }
+      },
       adjustNumResults: function(dir){
         this.currentPage = 1
+        let step = Number(this.preferenceStore.returnValue('--b-edit-complex-number-jump'))
+
         if (dir == 'down'){
-          this.offsetStep -= 10
+          this.offsetStep -= step
+          if (this.offsetStep < 10){
+            this.offsetStep = 10
+          }
         } else {
-          this.offsetStep += 10
+          this.offsetStep += step
         }
         this.doSearch()
       },
@@ -1023,8 +1034,9 @@
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
 				  </div>
-                  <div style="float: left; margin-left: 10px;">
-                    Showing "~{{ offsetStep }}" results
+                  <div style="float: left; margin-left: 10px;" v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % offsetStep) > 0 || activeComplexSearch.length > 0))">
+                    Jump by <input type="text" @input="updateStep" :value="preferenceStore.returnValue('--b-edit-complex-number-jump')" style="width: 30px">
+                    Showing "<={{ offsetStep }}" results
                     <button @click="adjustNumResults('down')" v-if="offsetStep > 10" style="margin-right: 5px;">Fewer</button>
                     <button @click="adjustNumResults('up')">More</button>
                   </div>
