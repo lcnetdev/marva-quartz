@@ -609,9 +609,9 @@
 
             }
 
-            if (dollarKey.t){ // Name titles don't get 046
+            if (dollarKey.t){ // Name titles don't get 046 for the person
               let row = this.extraMarcStatements.map((e) => e.fieldTag).indexOf('046')
-              if (row){
+              if (row && row >= 0){
                 this.extraMarcStatements.splice(row, 1);
               }
               this.zero46 = {}
