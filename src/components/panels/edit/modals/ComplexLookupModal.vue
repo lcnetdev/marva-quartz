@@ -904,11 +904,6 @@
           this.preferenceStore.setValue('--b-edit-complex-number-jump', val)
         }
       },
-      resetSteps:function(){
-        this.preferenceStore.setValue('--b-edit-complex-number-jump', 30)
-        this.currentPage = 1
-        this.doSearch()
-      },
       adjustNumResults: function(dir){
         this.currentPage = 1
         let step = Number(this.preferenceStore.returnValue('--b-edit-complex-number-jump'))
@@ -1041,9 +1036,8 @@
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
 				  </div>
                   <div style="float: left; margin-left: 10px;" v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % offsetStep) > 0 || activeComplexSearch.length > 0))">
-                    <!-- <button @click="resetSteps()" v-if="offsetStep != 30" style="margin-right: 5px;">Reset</button> -->
                     Jump by <input type="text" @input="updateStep" :value="preferenceStore.returnValue('--b-edit-complex-number-jump')" style="width: 30px">
-                    Showing "~{{ offsetStep }}" results
+                    Showing "<={{ offsetStep }}" results
                     <button @click="adjustNumResults('down')" v-if="offsetStep > 10" style="margin-right: 5px;">Fewer</button>
                     <button @click="adjustNumResults('up')">More</button>
                   </div>
