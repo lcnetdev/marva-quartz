@@ -899,8 +899,10 @@
       },
 
       updateStep: function(event){
-        console.info(">>>", event.target.value)
-         this.preferenceStore.setValue('--b-edit-complex-number-jump', event.target.value)
+        let val = event.target.value
+        if (!isNaN(val)){
+          this.preferenceStore.setValue('--b-edit-complex-number-jump', val)
+        }
       },
       resetSteps:function(){
         this.preferenceStore.setValue('--b-edit-complex-number-jump', 30)
