@@ -916,7 +916,6 @@
         } else {
           this.offsetStep += step
         }
-        console.info(this.offsetStep)
         this.doSearch()
       },
 
