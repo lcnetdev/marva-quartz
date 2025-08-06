@@ -609,6 +609,14 @@
 
             }
 
+            if (dollarKey.t){ // Name titles don't get 046 for the person
+              let row = this.extraMarcStatements.map((e) => e.fieldTag).indexOf('046')
+              if (row && row >= 0){
+                this.extraMarcStatements.splice(row, 1);
+              }
+              this.zero46 = {}
+            }
+
             if (dollarKey.a){
               if (/[A-Z][a-z]+\-[A-Z][a-z]+/.test(dollarKey.a)){
               //  console.log("found a hyphenated name")
@@ -1488,7 +1496,6 @@
 
 
     created(){
-      console.info("color: ", this.preferenceStore.returnValue('--c-edit-main-literal-font-color'))
        // this.$nextTick(()=>{
         // createNacoStubXML
       // })
