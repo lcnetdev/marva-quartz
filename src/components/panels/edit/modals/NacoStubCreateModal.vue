@@ -241,7 +241,7 @@
 
 
           let advMode = this.preferenceStore.returnValue('--b-edit-complex-nar-advanced-mode')
-          // console.log("additonalFields",additonalFields)          
+          // console.log("additonalFields",additonalFields)
           let results = await this.profileStore.buildNacoStub(this.oneXXParts,this.fourXXParts, this.mainTitle, this.instanceURI, this.mainTitleDate, this.mainTitleLccn, note, this.zero46,this.add667, additonalFields, advMode)
 
           this.MARCXml = results.xml
@@ -551,7 +551,7 @@
               }else{
                 dollarKey[subfield] = value.trim()
               }
-              
+
 
               // console.log(dollarKey)
             }
@@ -737,7 +737,7 @@
               }
 
 
-              
+
             }
             dollarKey.fieldTag = fieldTag
             dollarKey.indicators = indicators.replace(/[#]/g,' ')
@@ -1872,14 +1872,14 @@
                       maxlength="2"
                       placeholder="IND"
                       :style="`margin-right: 1em; width: 40px; font-family: 'Courier New', Courier, monospace; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
-                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.indicators.length != 2}]"
+                      :class="['extra-marc-ind', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'missing-indicators': row.indicators.length != 2}]"
                     />
 
                     <textarea
                      v-model="row.value"
                       placeholder="$a xyz $b abc..."
                       :style="`margin-right: 1em; flex-grow: 1; font-size: ${preferenceStore.returnValue('--n-edit-main-literal-font-size')}; color: ${preferenceStore.returnValue('--c-edit-main-literal-font-color')};`"
-                      :class="['extra-marc-tag', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
+                      :class="['extra-marc-field', {'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                       @keydown="keydown" @keyup="keyup"
                     ></textarea>
 
