@@ -89,7 +89,7 @@
         },
         panelDetailOrder: [
             "birthdates","deathdates", "notes", "gacs", "nonlatinLabels", "variantLabels", "varianttitles", "contributors", "relateds",
-            "sources", "lcclasses", "birthplaces",  "locales",
+            "sources", "lcclasses", "lcclasss", "birthplaces",  "locales",
             "activityfields","occupations","languages", "sees",
             "identifiers","broaders",
             "collections", "genres", "subjects", "marcKeys", "rdftypes"
@@ -263,6 +263,7 @@
         this.activeComplexSearch = []
         this.searchValueLocal = null
         this.authorityLookupLocal = null
+        this.offsetStep = 30
       },
 
       // watching the search input, when it changes kick off a search
@@ -331,6 +332,7 @@
                   .replace('<QUERY>', this.searchValueLocal)
                   .replace('<OFFSET>', offset)
                   .replace('<TYPE>', searchType)
+                  .replace(/count=[0-9]+/ig, "count="+this.offsetStep)
               )
             }
           })
@@ -804,7 +806,8 @@
           guid: this.guid,
           fieldGuid: null,
           structure: this.structure,
-          propertyPath:this.propertyPath
+          propertyPath:this.propertyPath,
+          source: "contribution"
         }
 
 
@@ -893,6 +896,27 @@
           this.currentPage = max
           this.doSearch()
         }
+      },
+
+      updateStep: function(event){
+        let val = event.target.value
+        if (!isNaN(val)){
+          this.preferenceStore.setValue('--b-edit-complex-number-jump', val)
+        }
+      },
+      adjustNumResults: function(dir){
+        this.currentPage = 1
+        let step = Number(this.preferenceStore.returnValue('--b-edit-complex-number-jump'))
+
+        if (dir == 'down'){
+          this.offsetStep -= step
+          if (this.offsetStep < 10){
+            this.offsetStep = 10
+          }
+        } else {
+          this.offsetStep += step
+        }
+        this.doSearch()
       },
 
       forceSearch: function(){
@@ -1010,7 +1034,13 @@
                 <div class="toggle-btn-grp cssonly">
                   <div v-for="opt in modalSelectOptions"><input type="radio" :value="opt.label" class="search-mode-radio" v-model="modeSelect" name="searchMode"/><label onclick="" class="toggle-btn">{{opt.label}}</label></div>
 				  </div>
-                  <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % 30) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
+                  <div style="float: left; margin-left: 10px;" v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % offsetStep) > 0 || activeComplexSearch.length > 0))">
+                    Jump by <input type="text" @input="updateStep" :value="preferenceStore.returnValue('--b-edit-complex-number-jump')" style="width: 30px">
+                    Showing "<={{ offsetStep }}" results
+                    <button @click="adjustNumResults('down')" v-if="offsetStep > 10" style="margin-right: 5px;">Fewer</button>
+                    <button @click="adjustNumResults('up')">More</button>
+                  </div>
+                  <div v-if="(activeComplexSearch && activeComplexSearch[0] && ((activeComplexSearch[0].total % offsetStep) > 0 || activeComplexSearch.length > 0))" class="complex-lookup-paging">
                     <span :style="`${this.preferenceStore.styleModalTextColor()}`">
                       <a href="#" title="first page" class="first" :class="{off: this.currentPage == 1}" @click="firstPage()">
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_left</span>
@@ -1018,7 +1048,9 @@
                       <a href="#" title="previous page" class="prev" :class="{off: this.currentPage == 1}" @click="prevPage()">
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_left</span>
                       </a>
+
                       <span class="pagination-label" > Page {{ this.currentPage }} of {{ !isNaN(Math.ceil(this.activeComplexSearch[0].total / this.offsetStep)) ? Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) : "Last Page"}} </span>
+
                       <a href="#" title="next page" class="next" :class="{off: Math.ceil(this.activeComplexSearch[0].total / this.offsetStep) == this.currentPage}" @click="nextPage()">
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">chevron_right</span>
                       </a>
@@ -1026,6 +1058,7 @@
                         <span class="material-icons pagination" :style="`${this.preferenceStore.styleModalTextColor()}`">keyboard_double_arrow_right</span>
                       </a>
                     </span>
+
                   </div>
                   <div v-else style="min-height: 27px;"></div>
 
@@ -1200,6 +1233,25 @@
                               </li>
                             </ul>
                           </template>
+
+                          <template v-else-if="key == 'lcclasss' && activeContext.extra['lcclasses'].length < 1">
+                            <span class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ?
+                                this.labelMap[key] : key }}:</span>
+                            <ul class="">
+                                <li class="" v-if="key == 'lcclasss'" v-for="v in activeContext.extra[key]">
+                                    <template v-if="typeof v == 'string'">
+                                        <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v"
+                                            target="_blank">{{ v }}</a>
+                                        <button class="material-icons see-search"
+                                            @click="addClassNumber(v)">add</button>
+                                    </template>
+                                    <template v-else>
+                                        {{ v }}
+                                    </template>
+                                </li>
+                            </ul>
+                        </template>
+
                           <template v-else>
                             <ul>
                             <li class="details-details" v-if='["identifiers","broaders",].includes(key)'>
@@ -1222,12 +1274,15 @@
                               <div>Extra Details</div>
                             </template>
                             <template v-for="key in panelDetailOrder">
-                              <template v-if='activeContext.extra[key] && activeContext.extra[key].length>0 && ["notes", "collections", "marcKeys", "rdftypes"].includes(key)'>
+                              <template v-if='activeContext.extra[key] && activeContext.extra[key].length>0 && ["notes", "collections", "marcKeys", "rdftypes", "lcclasss"].includes(key)'>
                                 <div class="modal-context-data-title">{{ Object.keys(this.labelMap).includes(key) ? this.labelMap[key] : key }}:</div>
                                 <ul>
                                   <li class="modal-context-data-li" v-if="Array.isArray(activeContext.extra[key])" v-for="(v, idx) in activeContext.extra[key] " v-bind:key="'var' + idx">
-                                    <template v-if="v.startsWith('http')">
+                                    <template v-if="typeof v == 'string' && v.startsWith('http')">
                                       <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
+                                    </template>
+                                    <template v-else-if="key == 'lcclasss'">
+                                      {{ v.code }}
                                     </template>
                                     <template v-else-if="key == 'notes'">
                                       <span :class="{unusable: v.includes('CANNOT BE USED UNDER RDA')}">{{ v }}</span>
@@ -1632,6 +1687,10 @@
 .simptip-position-bottom::before,
 .simptip-position-bottom::after{
   left: -30% !important;
+}
+
+.literal-input {
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
 }
 
 </style>

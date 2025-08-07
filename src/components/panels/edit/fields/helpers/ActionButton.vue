@@ -153,7 +153,6 @@
           </button>
         </template>
 
-
         <template v-if="catInitals.toLowerCase().indexOf('matt') > -1">
           <button  class="" :id="`action-button-command-${fieldGuid}-2`" @click="breakRecord()" :style="buttonStyle">
           <span class="button-shortcut-label">2</span>
@@ -434,13 +433,17 @@
       buildNacoStub(){
         this.profileStore.lastComplexLookupString = "" // unset this
 
+        let source = this.profileStore.returnStructureByComponentGuid(this.guid).propertyURI
+
         this.profileStore.activeNARStubComponent = {
           type: this.type,
           guid: this.guid,
           fieldGuid: this.fieldGuid,
           structure: this.structure,
-          propertyPath:this.propertyPath
+          propertyPath:this.propertyPath,
+          source: source
         }
+
         this.profileStore.showNacoStubCreateModal = true
       },
 
@@ -448,6 +451,15 @@
       isContribField(){
         let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
         if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/contribution"){
+          return true
+        }
+
+        return false
+      },
+
+      isSubjectField(){
+        let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
+        if (pt && pt.propertyURI && pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
           return true
         }
 
@@ -463,7 +475,7 @@
         if (!this.propertyPath) return false;
         if (this.propertyPath && this.propertyPath.length==0) return false;
 
-        return this.isContribField()
+        return (this.isContribField() || this.isSubjectField()) && useConfigStore().returnUrls.displayLCOnlyFeatures
       },
 
 
@@ -514,8 +526,6 @@
       },
 
       showDebug: function() {
-
-
         this.debugModalData= this.profileStore.returnStructureByComponentGuid(this.guid);
         this.showDebugModal = true
         this.sendFocusHome()
@@ -532,6 +542,7 @@
       },
 
       duplicateComponent: function(){
+
         this.profileStore.duplicateComponent(this.profileStore.returnStructureByComponentGuid(this.guid)['@guid'],this.structure)
         this.sendFocusHome()
       },

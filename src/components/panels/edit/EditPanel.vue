@@ -40,6 +40,12 @@
                             <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
+
+                            <div class="icon-container">
+                              <span v-if="!profileCompoent.includes('adminmetadata') && !profileCompoent.includes('instanceOf') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
+                              <span v-if="!profileCompoent.includes('adminmetadata') && !profileCompoent.includes('instanceOf') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
+                            </div>
+
                         </div>
                         <Main
                           :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
@@ -91,7 +97,14 @@
                             <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" :value="profileName" :checked="layoutActiveFilter && layoutActiveFilter['properties'][profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])" />
                             {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                             <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
+
+                            <div class="icon-container">
+                              <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
+                              <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
+                            </div>
+
                           </div>
+
                         </template>
                     </template>
                     <template v-if="this.dualEdit == true">
@@ -101,6 +114,12 @@
                           <input v-if="createLayoutMode" type="checkbox" class="layout-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                           {{activeProfile.rt[profileName].pt[profileCompoent].propertyLabel}}
                             <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
+
+                            <div class="icon-container">
+                              <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
+                              <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
+                            </div>
+
                           </div>
                         </template>
                     </template>
@@ -118,7 +137,6 @@
                         </template>
 
                       </template>
-
                       <!-- index == -1 means it's the work, so just add the work -->
                       <Main v-if="profileName.indexOf(':Instance') == -1 && profileName.indexOf(':Item') == -1"
                         :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']"
@@ -226,6 +244,19 @@
     },
 
     methods: {
+
+        addComponent: function(profileName, profileCompoent){
+          let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
+          let structure = this.activeProfile.rt[profileName].pt[profileCompoent]
+          this.profileStore.duplicateComponent(guid, structure)
+          // this.sendFocusHome()
+        },
+
+        removeComponent: function(profileName, profileCompoent){
+          let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
+          this.profileStore.deleteComponent(guid)
+        },
+
         showErrors(guid){
 
           console.log(guid)
@@ -515,6 +546,33 @@ div.instanceInfoWrapper {
 .instanceDeleteButton {
     float: right;
     margin-right: 5px;
+}
+
+.inline-icon {
+  font-size: 1.25em;
+  cursor: pointer;
+  margin-right: 15px;
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+  opacity: .4;
+}
+
+.inline-icon.work:hover {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')");
+}
+
+.inline-icon.instance:hover {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-instance')");
+}
+
+.inline-icon.item:hover {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-item')");
+}
+
+.icon-container{
+  float: right;
 }
 
 

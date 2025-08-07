@@ -154,9 +154,6 @@ export const useProfileStore = defineStore('profile', {
 
     // List of empty components for ad hoc mode
     emptyComponents: {},
-
-
-
   }),
   getters: {
 
@@ -1079,7 +1076,7 @@ export const useProfileStore = defineStore('profile', {
               }
           }
       }
-      console.log('this.profiles',this.profiles)
+      // console.log('this.profiles',this.profiles)
       this.profilesLoaded = true
       // return { profiles: this.profiles, lookup: this.rtLookup, startingPoints: this.startingPoints}
 
@@ -2866,8 +2863,6 @@ export const useProfileStore = defineStore('profile', {
         // console.log(subjectComponents)
         // console.log(propertyPath)
 
-
-
         // find it
         if (pt){
             // build out the hiearchy
@@ -2948,8 +2943,6 @@ export const useProfileStore = defineStore('profile', {
                 "@guid": short.generate(),
                 "@id": "http://id.loc.gov/authorities/subjects"
             }]
-
-
 
             // if it is a solo subject heading
             if (subjectComponents.length==1){
@@ -4339,6 +4332,11 @@ export const useProfileStore = defineStore('profile', {
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
+      if (pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/adminMetadata'){
+          alert("Cannot create Admin Metadata")
+          return false
+        }
+
       //Ensure that the component is going to the right place by checking the structure.parentID
       // the parentId of different kinds of titles don't include `work` or `instance`, so check the RT in the profile
       let rt = utilsProfile.getRtTypeFromGuid(this.activeProfile, componentGuid)
@@ -5723,6 +5721,7 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,guid)
       let URI = null
       let marcKey = null
+
       if (pt &&
           pt.userValue &&
           pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
@@ -5743,9 +5742,70 @@ export const useProfileStore = defineStore('profile', {
 
           }
 
+      if (pt &&
+          pt.userValue &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'] &&
+          pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]){
+
+            let agent = pt.userValue['http://id.loc.gov/ontologies/bibframe/subject'][0]
+            if (agent && agent['@id']){
+              URI = agent['@id']
+            }
+            if (agent && agent['http://id.loc.gov/ontologies/bflc/marcKey'] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][0] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+              ){
+                marcKey = agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
+            }
+
+          }
+
       return {
         URI: URI,
-        marcKey: marcKey
+        marcKey: marcKey,
+      }
+
+    },
+
+    nacoStubReturn245(guid){
+      let subfieldA = ""
+      let subfieldB = ""
+      let subfieldC = ""
+
+      for (let rt of this.activeProfile.rtOrder){
+        if (rt.indexOf(":Instance")>-1){
+          for (let pt of this.activeProfile.rt[rt].ptOrder){
+            pt = this.activeProfile.rt[rt].pt[pt]
+            if (pt.propertyLabel == "Title information"){
+              let userValue = pt.userValue
+              if (
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                ){
+                  let titleComp = userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                  subfieldA = titleComp[0]["http://id.loc.gov/ontologies/bibframe/mainTitle"]
+              }
+
+              if (
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0] &&
+                  userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                ){
+                  let titleComp = userValue['http://id.loc.gov/ontologies/bibframe/title'][0]['http://id.loc.gov/ontologies/bibframe/subtitle']
+                  subfieldB = titleComp[0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
+              }
+            }
+          }
+        }
+      }
+
+      subfieldC = this.nacoStubReturnSoR()
+
+      return {
+        subA: subfieldA,
+        subB: subfieldB,
+        subC: subfieldC
       }
 
     },
@@ -6867,7 +6927,7 @@ export const useProfileStore = defineStore('profile', {
 
 
     },
-    
+
     isValidIsbn(isbn){
         // source: https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s13.html
         // Checks for ISBN-10 or ISBN-13 format
@@ -6912,6 +6972,15 @@ export const useProfileStore = defineStore('profile', {
         } else {
             return false
         }
+    },
+
+    checkIsRepeatable(comp){
+      // if the field is not repeatable and they are adding something, prevent it.
+      let currentValue = this.returnSimpleLookupValueFromProfile(comp.guid, comp.propertyPath)
+      if (comp.structure.repeatable == 'false'  && currentValue.length > 0){
+        return false
+      }
+      return true
     }
 
 

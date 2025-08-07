@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 3,
-    versionPatch: 23,
+    versionPatch: 28,
 
 
 
@@ -27,11 +27,10 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
 
-        // validate: 'http://localhost:5200/validate/stage',
-        // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate',
-        validate: 'http://localhost:9401/validate/stage',
-
+        validate: 'http://localhost:5200/validate/stage',
+        // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate/stage',
         publishNar: 'http://localhost:9401/util/nacostub/staging',
+
         bfdb : 'https://preprod-8230.id.loc.gov/',
         shelfListing: 'https://preprod-8230.id.loc.gov/',
 
@@ -157,10 +156,10 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://bibframe.org/marva/util-lang/',
         scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
-        validate: 'https://bibframe.org/marva/util/validate',
+        validate: 'https://bibframe.org/marva/util/validate/stage',
         bfdb : 'https://id.loc.gov/',
-        profiles : 'https://bibframe.org/marva/util/profiles/profile/prod',
-        starting : 'https://bibframe.org/marva/util/profiles/starting/prod',
+        profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
+        starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
         id: 'https://id.loc.gov/',
         env : 'production',
         publicEndpoints:true,
@@ -175,13 +174,14 @@ export const useConfigStore = defineStore('config', {
         utilLang  :  'https://bibframe.org/marva/util-lang/',
         scriptshifter  :  'https://bibframe.org/scriptshifter/',
         publish: 'https://bibframe.org/marva/util/publish/production',
-        validate: 'https://bibframe.org/marva/util/validate',
+        validate: 'https://bibframe.org/marva/util/validate/stage',
         bfdb : 'https://id.loc.gov/',
         profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-prod/data.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
         id: 'https://id.loc.gov/',
         env : 'production',
         displayLCOnlyFeatures: true,
+        publicEndpoints:true,
         simpleLookupLang: 'en',
       },
 
@@ -996,7 +996,7 @@ export const useConfigStore = defineStore('config', {
         "code": "pa-Guru"
     },
     "persian": {
-        "code": "fa-Deva"
+        "code": "fa-Arab"
     },
     "prakrit_devanagari": {
         "code": "pra-Deva"
