@@ -494,7 +494,7 @@
                       </template>
 
                       <template  v-if="(r.selected != undefined && r.selected.trim() == 'selected') || (r.term ==  '' && r.frequency ==  '' && r.creator ==  '' && r.uniformtitle ==  '' && r.title ==  '' && r.pubdate ==  '' && r.subject ==  '' && r.altsubject ==  '' && r.bibid ==  '' && r.sort ==  '')">
-                        <tr style="background-color: yellow;" ref="selected" :data-bibid="r.bibid">
+                        <tr class="match-point" style="background-color: yellow;" ref="selected" :data-bibid="r.bibid">
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
@@ -598,10 +598,20 @@
     font-weight: bold;
 
   }
-  tr:hover{
-    background-color: aliceblue;
-    color:black
+  tbody tr:nth-child(odd) {
+    background-color: #a8c7fc;
+    color: black;
   }
+  tbody tr:nth-child(odd):hover,
+  tr:hover{
+    background-color: #4a8afa;
+    color:#fff
+  }
+  .match-point:hover{
+    color: black !important;
+    filter: hue-rotate(-30deg);
+  }
+
   td{
     border-bottom: solid 1px whitesmoke;
     /* font-family: Avenir, Helvetica, Arial, sans-serif; */
