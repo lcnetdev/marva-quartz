@@ -588,10 +588,12 @@
     border:dashed 1px black;
   }
 
+  table {
+    border-collapse: collapse;
+  }
   thead tr td{
     text-align: left;
     font-weight: bolder;
-
   }
   th{
     text-align: left;
@@ -602,14 +604,11 @@
     background-color: #a8c7fc;
     color: black;
   }
+  .match-point:hover,
   tbody tr:nth-child(odd):hover,
   tr:hover{
-    background-color: #4a8afa;
-    color:#fff
-  }
-  .match-point:hover{
-    color: black !important;
-    filter: hue-rotate(-30deg);
+    background-color: lightgray !important;
+    color:black;
   }
 
   td{
