@@ -3916,6 +3916,23 @@ const utilsNetwork = {
       return results
     },
 
+    async saveUserPrefs(){},
+    async fetchUserPrefs(user){
+      let url = useConfigStore().returnUrls.util + 'prefs/' + user
+
+      const rawResponse = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const content = await rawResponse.json();
+      console.info("content PREFS: ", content)
+
+      return content
+    },
 
 
 }

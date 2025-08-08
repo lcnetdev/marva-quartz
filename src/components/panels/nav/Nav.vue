@@ -411,6 +411,7 @@
               { is: 'separator'},
               { text: 'Export Prefs', click: () => this.exportPreferences(), icon: 'download' },
               { text: 'Import Prefs', click: () => this.showImportSelectionModal(), icon: 'upload' },
+              { text: 'Load from DB', click: () => this.loadPrefsFromDb(), icon: 'save' },
               { is: 'separator'},
               { text: 'Reset Prefs', click: () => this.preferenceStore.resetPreferences(), icon: 'restart_alt' },
 
@@ -913,6 +914,13 @@
           initalTop: 250
         }
         this.showSelectionModal = true
+      },
+
+      loadPrefsFromDb: async function(){
+        console.info("getting from db")
+        let user = 'test0123456789'
+        let response = await this.preferenceStore.getPrefsFromDB(user)
+
       },
 
       importPreferences: function(selection=null){
