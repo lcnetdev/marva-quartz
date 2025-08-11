@@ -411,7 +411,9 @@
               { is: 'separator'},
               { text: 'Export Prefs', click: () => this.exportPreferences(), icon: 'download' },
               { text: 'Import Prefs', click: () => this.showImportSelectionModal(), icon: 'upload' },
-              { text: 'Load from DB', click: () => this.loadPrefsFromDb(), icon: 'save' },
+              { is: 'separator'},
+              { text: 'Save DB', click: () => this.savePrefsToDb(), icon: 'save' },
+              { text: 'Load from DB', click: () => this.loadPrefsFromDb(), icon: 'sync' },
               { is: 'separator'},
               { text: 'Reset Prefs', click: () => this.preferenceStore.resetPreferences(), icon: 'restart_alt' },
 
@@ -918,9 +920,16 @@
 
       loadPrefsFromDb: async function(){
         console.info("getting from db")
-        let user = 'test0123456789'
+        let user = this.userName
+        console.info("user: ", user)
         let response = await this.preferenceStore.getPrefsFromDB(user)
+        console.info("load: ", response)
+      },
 
+      savePrefsToDb: async function(){
+        let user = this.userName
+        let response = await this.preferenceStore.setPrefsToDB(user)
+        console.info("save: ", response)
       },
 
       importPreferences: function(selection=null){

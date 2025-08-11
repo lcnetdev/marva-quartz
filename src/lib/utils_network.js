@@ -3916,7 +3916,27 @@ const utilsNetwork = {
       return results
     },
 
-    async saveUserPrefs(){},
+    async saveUserPrefs(user){
+      let url = useConfigStore().returnUrls.util + 'prefs/' + user
+      let prefs = window.localStorage.getItem('marva-preferences')
+
+      console.info("prefs: ", prefs)
+      console.info("url: ", url)
+
+      const rawResponse = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: prefs
+      });
+
+      const content = await rawResponse.json();
+      console.info("content PREFS: ", content)
+
+      return content
+    },
     async fetchUserPrefs(user){
       let url = useConfigStore().returnUrls.util + 'prefs/' + user
 
