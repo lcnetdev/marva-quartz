@@ -3918,9 +3918,35 @@ const utilsNetwork = {
 
     async saveUserPrefs(user){
       let url = useConfigStore().returnUrls.util + 'prefs/' + user
-      let prefs = window.localStorage.getItem('marva-preferences')
+      let data = {}
 
-      console.info("prefs: ", prefs)
+      if (window.localStorage.getItem('marva-preferences')){
+        let prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
+        data["prefs"] = prefs
+      } else {
+        console.warn("Couldn't find preferences to save.")
+      }
+      if (window.localStorage.getItem('marva-scriptShifterOptions')){
+        let scriptShifterOptions = JSON.parse(window.localStorage.getItem('marva-scriptShifterOptions'))
+        data["scriptShifterOptions"] = scriptShifterOptions
+      } else {
+        console.warn("Couldn't find ScriptShifter preferences to save.")
+      }
+      if (window.localStorage.getItem('marva-diacriticUse')){
+        let diacriticUse = JSON.parse(window.localStorage.getItem('marva-diacriticUse'))
+        data["diacriticUse"] = diacriticUse
+      } else {
+        console.warn("Couldn't find Diacritic preferences to save.")
+      }
+
+      if (window.localStorage.getItem('marva-componentLibrary')){
+        let marvaComponentLibrary = JSON.parse(window.localStorage.getItem('marva-componentLibrary'))
+        data["marvaComponentLibrary"] = marvaComponentLibrary
+      } else {
+        console.warn("Couldn't find marva-componentLibrary preferences to save.")
+      }
+
+      console.info("prefs: ", data)
       console.info("url: ", url)
 
       const rawResponse = await fetch(url, {
@@ -3929,7 +3955,7 @@ const utilsNetwork = {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: prefs
+        body: JSON.stringify(data)
       });
 
       const content = await rawResponse.json();
