@@ -1560,14 +1560,12 @@ export const usePreferenceStore = defineStore('preference', {
 
     // Get the preferences from the backend
     getPrefsFromDB: async function(user){
-      console.info(">>>", utilsNetwork)
       let response = await utilsNetwork.fetchUserPrefs(user)
       return response
     },
 
     setPrefsToDB: async function(user){
       let response = await utilsNetwork.saveUserPrefs(user)
-      console.info("set response: ", response)
       return response
     },
 

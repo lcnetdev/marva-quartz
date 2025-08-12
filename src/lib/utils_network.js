@@ -3946,9 +3946,6 @@ const utilsNetwork = {
         console.warn("Couldn't find marva-componentLibrary preferences to save.")
       }
 
-      console.info("prefs: ", data)
-      console.info("url: ", url)
-
       const rawResponse = await fetch(url, {
         method: 'POST',
         headers: {
@@ -3959,7 +3956,6 @@ const utilsNetwork = {
       });
 
       const content = await rawResponse.json();
-      console.info("content PREFS: ", content)
 
       return content
     },
@@ -3975,7 +3971,6 @@ const utilsNetwork = {
       });
 
       const content = await rawResponse.json();
-      console.info("content PREFS: ", content)
 
       return content
     },

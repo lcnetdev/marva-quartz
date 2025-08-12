@@ -919,17 +919,28 @@
       },
 
       loadPrefsFromDb: async function(){
-        console.info("getting from db")
         let user = this.userName
-        console.info("user: ", user)
         let response = await this.preferenceStore.getPrefsFromDB(user)
-        console.info("load: ", response)
+
+        for (let key of Object.keys(response.result)){
+          if (key == 'prefs'){
+            window.localStorage.setItem('marva-preferences', JSON.stringify(response.result[key]))
+          } else {
+            window.localStorage.setItem(key, JSON.stringify(response.result[key]))
+          }
+        }
+
+        // reload preferences
+        this.preferenceStore.loadPreferences()
       },
 
       savePrefsToDb: async function(){
+        let overwrite = confirm("This will overwrite your current preferences. Do you want to continue?")
+        if (!overwrite) { return }
+
         let user = this.userName
         let response = await this.preferenceStore.setPrefsToDB(user)
-        console.info("save: ", response)
+        return response
       },
 
       importPreferences: function(selection=null){
