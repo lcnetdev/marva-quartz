@@ -412,8 +412,12 @@
               { text: 'Export Prefs', click: () => this.exportPreferences(), icon: 'download' },
               { text: 'Import Prefs', click: () => this.showImportSelectionModal(), icon: 'upload' },
               { is: 'separator'},
-              { text: 'Save DB', click: () => this.savePrefsToDb(), icon: 'save' },
-              { text: 'Load from DB', click: () => this.loadPrefsFromDb(), icon: 'sync' },
+
+              { text: 'Save to DB', click: () => this.savePrefsToDb(), icon: 'save',
+                class: !config.returnUrls.displayLCOnlyFeatures ? 'yes-hide' : 'no-hide'
+              },
+              { text: 'Load from DB', click: () => this.loadPrefsFromDb(), icon: 'sync',
+                class: !config.returnUrls.displayLCOnlyFeatures ? 'yes-hide' : 'no-hide' },
               { is: 'separator'},
               { text: 'Reset Prefs', click: () => this.preferenceStore.resetPreferences(), icon: 'restart_alt' },
 
@@ -919,6 +923,7 @@
       },
 
       loadPrefsFromDb: async function(){
+        if (!this.config.returnUrls.displayLCOnlyFeatures){ return }
         let user = this.userName
         let response = await this.preferenceStore.getPrefsFromDB(user)
 
@@ -935,6 +940,7 @@
       },
 
       savePrefsToDb: async function(){
+        if (!this.config.returnUrls.displayLCOnlyFeatures){ return }
         let overwrite = confirm("This will overwrite your current preferences. Do you want to continue?")
         if (!overwrite) { return }
 
@@ -1263,6 +1269,9 @@
       background: rgb(30, 231, 57) !important;
     }
 
+    .yes-hide {
+      display: none !important;
+    }
 
 </style>
 
