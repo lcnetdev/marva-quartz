@@ -5,6 +5,7 @@ import diacrticsVoyagerMacroExpress from "@/lib/diacritics/diacritic_pack_voyage
 import diacrticsVoyagerNative from "@/lib/diacritics/diacritic_pack_voyager_native.json"
 import utilsProfile from '../lib/utils_profile'
 import utilsParse from '../lib/utils_parse'
+import utilsNetwork from '../lib/utils_network'
 import short from 'short-uuid'
 
 const translator = short();
@@ -1556,6 +1557,18 @@ export const usePreferenceStore = defineStore('preference', {
       let prefs = JSON.stringify(bfPrefs)
       window.localStorage.setItem('marva-preferences',prefs)
     },
+
+    // Get the preferences from the backend
+    getPrefsFromDB: async function(user){
+      let response = await utilsNetwork.fetchUserPrefs(user)
+      return response
+    },
+
+    setPrefsToDB: async function(user){
+      let response = await utilsNetwork.saveUserPrefs(user)
+      return response
+    },
+
     /**
     * Loads the saved preferences into the current preferences
     * @param {obj} data - preference data from a file

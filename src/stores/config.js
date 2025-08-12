@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 3,
-    versionPatch: 28,
+    versionPatch: 29,
 
 
 
@@ -17,11 +17,11 @@ export const useConfigStore = defineStore('config', {
       dev:{
 
         ldpjs : 'http://localhost:9401/api-staging/',
-        util  : 'http://localhost:9401/util/',
 
-        util  : 'http://localhost:5200/',
+        util  : 'http://localhost:9401/util/',
+        // util  : 'http://localhost:5200/',
         // util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
-        util  :  'https://editor.id.loc.gov/bfe2/util/',
+        // util  :  'https://editor.id.loc.gov/bfe2/util/',
 
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
@@ -60,12 +60,14 @@ export const useConfigStore = defineStore('config', {
         profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
 
 
-        worldCat: 'http://localhost:5200/worldcat/',
-        copyCatUpload: 'http://localhost:5200/copycat/upload/stag',
+        // worldCat: 'http://localhost:5200/worldcat/',
+        // copyCatUpload: 'http://localhost:5200/copycat/upload/stag',
+        worldCat: 'http://localhost:9401/worldcat/',
+        copyCatUpload: 'http://localhost:9401/copycat/upload/stag',
 
         id: 'https://preprod-8080.id.loc.gov/',
-        env : 'production',
-        dev: false,
+        env : 'staging',
+        dev: true,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
@@ -1151,13 +1153,8 @@ export const useConfigStore = defineStore('config', {
     * @return {void} -
     */
     async getScriptShifterLanguages() {
-
       let req = await fetch(this.returnUrls.scriptshifter + 'languages')
       this.scriptshifterLanguages = await req.json()
-
-
-
-
     },
 
     /**

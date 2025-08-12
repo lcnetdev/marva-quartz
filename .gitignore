@@ -14,3 +14,4 @@ coverage/
 /blob-report/
 /playwright/.cache/
 /tests-playwright/.auth/
+*.env

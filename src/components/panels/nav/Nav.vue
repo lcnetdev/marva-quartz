@@ -412,6 +412,13 @@
               { text: 'Export Prefs', click: () => this.exportPreferences(), icon: 'download' },
               { text: 'Import Prefs', click: () => this.showImportSelectionModal(), icon: 'upload' },
               { is: 'separator'},
+
+              { text: 'Save to DB', click: () => this.savePrefsToDb(), icon: 'save',
+                class: !config.returnUrls.displayLCOnlyFeatures ? 'hide-option' : 'no-hide'
+              },
+              { text: 'Load from DB', click: () => this.loadPrefsFromDb(), icon: 'sync',
+                class: !config.returnUrls.displayLCOnlyFeatures ? 'hide-option' : 'no-hide' },
+              { is: 'separator'},
               { text: 'Reset Prefs', click: () => this.preferenceStore.resetPreferences(), icon: 'restart_alt' },
 
 
@@ -915,6 +922,33 @@
         this.showSelectionModal = true
       },
 
+      loadPrefsFromDb: async function(){
+        if (!useConfigStore().returnUrls.displayLCOnlyFeatures){ return }
+        let user = this.userName
+        let response = await this.preferenceStore.getPrefsFromDB(user)
+
+        for (let key of Object.keys(response.result)){
+          if (key == 'prefs'){
+            window.localStorage.setItem('marva-preferences', JSON.stringify(response.result[key]))
+          } else {
+            window.localStorage.setItem(key, JSON.stringify(response.result[key]))
+          }
+        }
+
+        // reload preferences
+        this.preferenceStore.loadPreferences()
+      },
+
+      savePrefsToDb: async function(){
+        if (!useConfigStore().returnUrls.displayLCOnlyFeatures){ return }
+        let overwrite = confirm("This will overwrite your current preferences. Do you want to continue?")
+        if (!overwrite) { return }
+
+        let user = this.userName
+        let response = await this.preferenceStore.setPrefsToDB(user)
+        return response
+      },
+
       importPreferences: function(selection=null){
         const that = this
 
@@ -1235,6 +1269,9 @@
       background: rgb(30, 231, 57) !important;
     }
 
+    .hide-option {
+      display: none !important;
+    }
 
 </style>
 

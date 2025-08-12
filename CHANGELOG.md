@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.3.23] - 2025-08-12
+### Added
+- Ability to save/load preferences to backend
+
 ## [1.3.28] - 2025-07-31
 ### Added
 - Ability for "quick" add/delete component -- Adds buttons to create/delete component to display without being in the action button

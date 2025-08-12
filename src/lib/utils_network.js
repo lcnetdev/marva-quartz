@@ -319,7 +319,6 @@ const utilsNetwork = {
         if (response.status == 404){
           return false
         }
-
         if (url.includes('.rdf') || url.includes('.xml') || url.includes('.html')){
           data =  await response.text()
         }else{
@@ -2805,8 +2804,6 @@ const utilsNetwork = {
         resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
       }
 
-      console.info("")
-
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
@@ -3913,6 +3910,64 @@ const utilsNetwork = {
       return results
     },
 
+    async saveUserPrefs(user){
+      let url = useConfigStore().returnUrls.util + 'prefs/' + user
+      let data = {}
+
+      if (window.localStorage.getItem('marva-preferences')){
+        let prefs = JSON.parse(window.localStorage.getItem('marva-preferences'))
+        data["prefs"] = prefs
+      } else {
+        console.warn("Couldn't find preferences to save.")
+      }
+      if (window.localStorage.getItem('marva-scriptShifterOptions')){
+        let scriptShifterOptions = JSON.parse(window.localStorage.getItem('marva-scriptShifterOptions'))
+        data["scriptShifterOptions"] = scriptShifterOptions
+      } else {
+        console.warn("Couldn't find ScriptShifter preferences to save.")
+      }
+      if (window.localStorage.getItem('marva-diacriticUse')){
+        let diacriticUse = JSON.parse(window.localStorage.getItem('marva-diacriticUse'))
+        data["diacriticUse"] = diacriticUse
+      } else {
+        console.warn("Couldn't find Diacritic preferences to save.")
+      }
+
+      if (window.localStorage.getItem('marva-componentLibrary')){
+        let marvaComponentLibrary = JSON.parse(window.localStorage.getItem('marva-componentLibrary'))
+        data["marvaComponentLibrary"] = marvaComponentLibrary
+      } else {
+        console.warn("Couldn't find marva-componentLibrary preferences to save.")
+      }
+
+      const rawResponse = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const content = await rawResponse.json();
+
+      return content
+    },
+    async fetchUserPrefs(user){
+      let url = useConfigStore().returnUrls.util + 'prefs/' + user
+
+      const rawResponse = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const content = await rawResponse.json();
+
+      return content
+    },
 
 
 }

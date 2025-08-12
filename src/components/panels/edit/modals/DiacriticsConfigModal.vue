@@ -11,7 +11,7 @@
     components: {
       VueFinalModal,
       VueDragResize,
-      
+
     },
 
     data() {
@@ -41,15 +41,15 @@
       ...mapStores(usePreferenceStore),
       ...mapStores(useConfigStore),
 
-      
-      
+
+
       ...mapWritableState(usePreferenceStore, ['showDiacriticConfigModal','diacriticPacks','diacriticUse']),
       // ...mapWritableState(useConfigStore, ['scriptshifterLanguages']),
 
 
 
-      
-      
+
+
     },
 
     watch: {
@@ -62,7 +62,7 @@
     },
 
     methods: {
-        
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -87,7 +87,7 @@
             return char
 
           }
-          
+
         },
 
 
@@ -103,14 +103,14 @@
               }
               if (this.scriptShifterOptions[k].r2s){
                 this.scriptshifterLanguages[k].r2s = true
-              }              
+              }
             }
           }
 
 
         },
 
-        
+
         onSelectElement (event) {
           const tagName = event.target.tagName
 
@@ -145,7 +145,7 @@
 
         //   window.localStorage.setItem('marva-scriptShifterOptions',JSON.stringify(current))
         //   this.scriptShifterOptions = JSON.parse(JSON.stringify(current))
-        // },  
+        // },
 
 
         enabled: function(event){
@@ -162,21 +162,21 @@
         },
 
 
-        
+
 
         disableVoyagerMode(){
 
 
-          
+
           this.preferenceStore.setValue('--b-diacritics-disable-voyager-mode',this.disableVoyagerModeValue )
 
-          
+
 
 
         },
 
 
-        
+
 
 
     },
@@ -217,7 +217,7 @@
       :hide-overlay="false"
       :overlay-transition="'vfm-fade'"
 
-      
+
     >
         <VueDragResize
           :is-active="true"
@@ -231,7 +231,7 @@
           :stickSize="22"
         >
           <div id="diacirtic-content" ref="diacirticContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)">
-            
+
             <div class="menu-buttons">
               <button class="close-button" @pointerup="showDiacriticConfigModal=false">X</button>
             </div>
@@ -251,11 +251,11 @@
                 <div style="padding-left: 2em; font-style: italic;">This mode you press Control+e to put the input into diacritic mode, then press one of the short cuts. It is always activated unless you disable it.</div>
               </div>
 
-              
+
             </fieldset>
 
-            
-            
+
+
 
             <template v-if="showPack == 'macroExpress'">
               <table>
@@ -270,7 +270,7 @@
                   <template v-for="(val,idx) in diacriticPacks.macroExpress">
                     <tr v-for="macro in val">
                       <td><input type="checkbox" :name="idx + '-' + macro.unicode" @change="enabled" v-model="enabledChecks[idx + '-' + macro.unicode]"></td>
-                      <td class="char-example"  v-html="returnExampleChar(macro)"></td>                      
+                      <td class="char-example"  v-html="returnExampleChar(macro)"></td>
                       <td><span class="char-combo">{{ macro.combo }}</span></td>
                       <td><span v-if="macro.name">{{ macro.name }}</span> <span v-if="macro.nick"> ({{ macro.nick }})</span></td>
                     </tr>
@@ -306,7 +306,7 @@
                   <template v-for="(val,idx) in diacriticPacks.voyager">
                     <tr v-for="macro in val">
 
-                      <td class="char-example"  v-html="returnExampleChar(macro)"></td>                      
+                      <td class="char-example"  v-html="returnExampleChar(macro)"></td>
                       <td><span class="char-combo">{{ macro.combo }}</span></td>
                       <td><span v-if="macro.name">{{ macro.name }}</span> <span v-if="macro.nick"> ({{ macro.nick }})</span></td>
                     </tr>
@@ -316,7 +316,7 @@
 
             </template>
 
-            
+
 
           </div>
 
@@ -374,7 +374,7 @@
     width: 25px;
     height: 25px;
   }
-  
+
 
   .option{
     display: flex;
@@ -427,6 +427,6 @@
 
 
 
-  
+
 
 </style>

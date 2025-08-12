@@ -11,7 +11,7 @@
     components: {
       VueFinalModal,
       VueDragResize,
-      
+
     },
 
     data() {
@@ -34,12 +34,12 @@
       ...mapStores(usePreferenceStore),
       ...mapStores(useConfigStore),
 
-      
-      
+
+
       ...mapWritableState(usePreferenceStore, ['showScriptshifterConfigModal','scriptShifterOptions']),
       ...mapWritableState(useConfigStore, ['scriptshifterLanguages']),
 
-      // 
+      //
 
       capitalizeFirstWord: {
       // getter
@@ -53,8 +53,8 @@
         }
       }
 
-      
-      
+
+
     },
 
     watch: {
@@ -67,7 +67,7 @@
     },
 
     methods: {
-        
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -92,7 +92,7 @@
               }
               if (this.scriptShifterOptions[k].r2s){
                 this.scriptshifterLanguages[k].r2s = true
-              }              
+              }
             }
           }
 
@@ -135,9 +135,9 @@
 
           window.localStorage.setItem('marva-scriptShifterOptions',JSON.stringify(current))
           this.scriptShifterOptions = JSON.parse(JSON.stringify(current))
-        },  
+        },
 
-        
+
 
 
     },
@@ -157,7 +157,7 @@
       //     }
       //     if (this.scriptShifterOptions[k].r2s){
       //       json[k].r2s = true
-      //     }              
+      //     }
       //   }
 
       // }
@@ -176,7 +176,7 @@
 
 
 
-      
+
 
       // let req = await fetch(this.configStore.returnUrls.scriptshifter + 'languages')
       // let json = await req.json()
@@ -191,7 +191,7 @@
       //     }
       //     if (this.scriptShifterOptions[k].r2s){
       //       json[k].r2s = true
-      //     }              
+      //     }
       //   }
 
       // }
@@ -200,12 +200,12 @@
 
       // this.$nextTick(()=>{
 
-      //   fetch(this.configStore.returnUrls.scriptshifter + 'languages', { 
+      //   fetch(this.configStore.returnUrls.scriptshifter + 'languages', {
       //     method: 'GET'
       //   })
       //   .then((response) => { return response.json(); })
       //   .then((json) => {
-          
+
       //     for (let k in json){
 
       //       json[k].s2r = false
@@ -217,21 +217,21 @@
       //         }
       //         if (this.scriptShifterOptions[k].r2s){
       //           json[k].r2s = true
-      //         }              
+      //         }
       //       }
 
       //     }
-          
+
       //     this.scriptshifterLanguages = json
 
-          
-          
+
+
 
       //   });
 
 
-        
-     
+
+
       // })
 
 
@@ -250,7 +250,7 @@
       :hide-overlay="true"
       :overlay-transition="'vfm-fade'"
 
-      
+
     >
         <VueDragResize
           :is-active="true"
@@ -268,12 +268,12 @@
               <button class="close-button" @pointerup="showScriptshifterConfigModal=false">X</button>
             </div>
             <p>Visit <a href="https://bibframe.org/scriptshifter" target="_blank">bibframe.org/scriptshifter</a> to test these languages.</p>
-            
+
             <hr style="margin-top: 1em; margin-bottom: 1em;">
             <div style="display: flex; align-items: center;">
               <div style="flex: 0;"><input type="checkbox" v-model="capitalizeFirstWord" id="capitalizeFirstWord"></div>
               <div style="flex:1; padding-left: 1em;"><label for="capitalizeFirstWord"> Capitalize first letter of transliteration</label></div>
-          
+
 
 
             </div>
@@ -287,7 +287,7 @@
                 <th>Script to Roman</th>
                 <th>Roman to Script</th>
               </thead>
-            
+
               <tr  v-for="l in scriptshifterLanguages">
                 <td style="width: 66%;">
                   {{ l.label }}
@@ -299,9 +299,9 @@
                 <td style="text-align: center;">
                   <input :disabled="l.has_s2r==false" type="checkbox" @change="updateLocalStorage" v-model="l.s2r"/>
                 </td>
-                <td style="text-align: center;"> 
+                <td style="text-align: center;">
                   <input :disabled="l.has_r2s==false" type="checkbox" @change="updateLocalStorage" v-model="l.r2s"/>
-                </td>              
+                </td>
               </tr>
               <!-- <input type="checkbox" v-model="optionChecks[z']"> -->
             </table>
@@ -349,7 +349,7 @@
     width: 25px;
     height: 25px;
   }
-  
+
 
   .option{
     display: flex;
@@ -383,7 +383,7 @@
   }
   .debug-modal{
     background-color: white;
-    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27); 
+    -webkit-box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27);
     box-shadow: 0px 10px 13px -7px #000000, 5px 5px 15px 5px rgba(0,0,0,0.27);
     border-radius: 1em;
     padding:1em;
