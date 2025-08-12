@@ -1033,7 +1033,24 @@ export default {
                       "http://www.w3.org/2000/01/rdf-schema#label": [{
                         "@guid": short.generate(),
                         "http://www.w3.org/2000/01/rdf-schema#label": "LC, NDMSO"
-                      }]
+                      }],
+                      "http://id.loc.gov/ontologies/bibframe/code": [
+                        {
+                          "@guid": short.generate(),
+                          "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC",
+                          "@datatype": "http://id.loc.gov/datatypes/orgs/code"
+                        },
+                        {
+                          "@guid": short.generate(),
+                          "http://id.loc.gov/ontologies/bibframe/code": "dlcmrc",
+                          "@datatype": "http://id.loc.gov/datatypes/orgs/normalized"
+                        },
+                        {
+                          "@guid": short.generate(),
+                          "http://id.loc.gov/ontologies/bibframe/code": "US-dlcmrc",
+                          "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511"
+                        }
+                      ]
                     }]
                   }
                 ]

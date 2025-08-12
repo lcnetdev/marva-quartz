@@ -923,7 +923,7 @@
       },
 
       loadPrefsFromDb: async function(){
-        if (!this.config.returnUrls.displayLCOnlyFeatures){ return }
+        if (!useConfigStore().returnUrls.displayLCOnlyFeatures){ return }
         let user = this.userName
         let response = await this.preferenceStore.getPrefsFromDB(user)
 
@@ -940,7 +940,7 @@
       },
 
       savePrefsToDb: async function(){
-        if (!this.config.returnUrls.displayLCOnlyFeatures){ return }
+        if (!useConfigStore().returnUrls.displayLCOnlyFeatures){ return }
         let overwrite = confirm("This will overwrite your current preferences. Do you want to continue?")
         if (!overwrite) { return }
 
