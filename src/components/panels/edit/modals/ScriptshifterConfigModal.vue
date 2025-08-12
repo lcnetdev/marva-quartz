@@ -287,7 +287,6 @@
                 <th>Script to Roman</th>
                 <th>Roman to Script</th>
               </thead>
-              {{ scriptshifterLanguages }}
 
               <tr  v-for="l in scriptshifterLanguages">
                 <td style="width: 66%;">
