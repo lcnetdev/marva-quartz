@@ -414,10 +414,10 @@
               { is: 'separator'},
 
               { text: 'Save to DB', click: () => this.savePrefsToDb(), icon: 'save',
-                class: !config.returnUrls.displayLCOnlyFeatures ? 'yes-hide' : 'no-hide'
+                class: !config.returnUrls.displayLCOnlyFeatures ? 'hide-option' : 'no-hide'
               },
               { text: 'Load from DB', click: () => this.loadPrefsFromDb(), icon: 'sync',
-                class: !config.returnUrls.displayLCOnlyFeatures ? 'yes-hide' : 'no-hide' },
+                class: !config.returnUrls.displayLCOnlyFeatures ? 'hide-option' : 'no-hide' },
               { is: 'separator'},
               { text: 'Reset Prefs', click: () => this.preferenceStore.resetPreferences(), icon: 'restart_alt' },
 
@@ -1269,7 +1269,7 @@
       background: rgb(30, 231, 57) !important;
     }
 
-    .yes-hide {
+    .hide-option {
       display: none !important;
     }
 
