@@ -12,6 +12,7 @@ import utilsProfile from './utils_profile';
 import { parse, parse as parseEDTF } from 'edtf'
 
 import { md5 } from "hash-wasm";
+import { h } from "vue";
 
 
 const escapeHTML = str => str.replace(/[&<>'"]/g,
@@ -2150,11 +2151,20 @@ const utilsExport = {
 		}else if (fourXXParts && fourXXParts.a && !add667){
 			pos29 = 'a'
 		}
-
+		let has667 = add667
 		// if there is a 667 in the extraMarcStatements then set it
 		for (let x of extraMarcStatements){
-			if (x.tag == '667'){
+			if (x.tag == '667' || x.fieldTag == '667'){
 				pos29 = 'b'
+				has667 = true
+			}
+		}
+		console.log("extraMarcStatements", extraMarcStatements)
+		// check again if they made a 400 in the extraMarcStatements and there is no 667 then set it to a
+		for (let x of extraMarcStatements){
+			console.log("x.tag", x.tag, "has667", has667)
+			if ((x.tag == '400' || x.fieldTag == '400') && !has667){
+				pos29 = 'a'
 			}
 		}
 
