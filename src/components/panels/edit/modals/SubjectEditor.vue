@@ -1686,7 +1686,6 @@ export default {
     },
 
     navString: function (event) {
-      console.info("navString")
       if (event.key == 'ArrowLeft' || event.key == 'ArrowRight') {
         // don't let them leave a trailing -- when they are clicking around like wild
         // if (this.subjectString.endsWith('--')){
@@ -1716,11 +1715,6 @@ export default {
       }
 
       // Literature, Modern--Translations into Albanian--History and criticism
-      console.info("active: ", this.activeComponent)
-      console.info("active: ", this.activeComponentIndex)
-
-      console.info("components: ", this.components)
-
       // text macros
       let useTextMacros = this.preferenceStore.returnValue('--o-diacritics-text-macros')
       if (useTextMacros && useTextMacros.length > 0) {

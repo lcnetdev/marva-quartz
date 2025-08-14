@@ -928,7 +928,6 @@
         let response = await this.preferenceStore.getPrefsFromDB(user)
 
         for (let key of Object.keys(response.result)){
-          console.info("key: ", key)
           if (key == 'prefs'){
             window.localStorage.setItem('marva-preferences', JSON.stringify(response.result[key]))
           } else if (key == 'marvaComponentLibrary'){
@@ -940,8 +939,6 @@
 
         // reload preferences
         this.preferenceStore.loadPreferences()
-
-        console.info("response: ", response)
       },
 
       savePrefsToDb: async function(){
