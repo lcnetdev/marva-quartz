@@ -87,7 +87,7 @@
 
       ...mapStores(useProfileStore,usePreferenceStore),
 
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','rtLookup', 'activeProfileSaved', 'isEmptyComponent', 'returnComponentLibrary']),
       ...mapState(usePreferenceStore, ['styleDefault', 'showPrefModal', 'panelDisplay', 'customLayouts', 'createLayoutMode','panelSizePresets']),
       ...mapState(useConfigStore, ['layouts']),
       ...mapWritableState(usePreferenceStore, ['showLoginModal','showScriptshifterConfigModal','showDiacriticConfigModal','showTextMacroModal','layoutActiveFilter','layoutActive','showFieldColorsModal', 'customLayouts', 'createLayoutMode','showPanelSizeModal']),
@@ -930,6 +930,8 @@
         for (let key of Object.keys(response.result)){
           if (key == 'prefs'){
             window.localStorage.setItem('marva-preferences', JSON.stringify(response.result[key]))
+          } else if (key == 'marvaComponentLibrary'){
+            window.localStorage.setItem('marva-componentLibrary', JSON.stringify(response.result[key]))
           } else {
             window.localStorage.setItem(key, JSON.stringify(response.result[key]))
           }

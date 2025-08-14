@@ -89,8 +89,6 @@
 
       },
 
-
-
     },
 
     watch: {
@@ -480,9 +478,9 @@
                   </thead>
                   <tbody>
 
-                    <template v-for="r in results">
+                    <template v-for="(r, index) in results">
                       <template  v-if="r.selected == undefined">
-                        <tr :class="[{nuba: r.notused == 'nuba'}]" :data-bibid="r.bibid">
+                        <tr :class="[{nuba: r.notused == 'nuba'}]" :data-bibid="r.bibid" :style="index%2 != 0 ? 'background-color: ' + this.preferenceStore.returnValue('--c-shelflist-line-colors') + '; ': ''">
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
@@ -526,7 +524,6 @@
 
 </template>
 <style>
-
 
 </style>
 
@@ -601,7 +598,6 @@
 
   }
   tbody tr:nth-child(odd) {
-    background-color: #a8c7fc;
     color: black;
   }
   .match-point:hover,
