@@ -1,0 +1,550 @@
+<rdf:RDF xmlns:bflc="http://id.loc.gov/ontologies/bflc/"
+    xmlns:bf="http://id.loc.gov/ontologies/bibframe/"
+    xmlns:bfsimple="http://id.loc.gov/ontologies/bfsimple/"
+    xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/"
+    xmlns:pmo="http://performedmusicontology.org/ontology/"
+    xmlns:datatypes="http://id.loc.gov/datatypes/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:mstatus="https://id.loc.gov/vocabulary/mstatus/"
+    xmlns:mnotetype="http://id.loc.gov/vocabulary/mnotetype/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:void="http://rdfs.org/ns/void#"
+    xmlns:lcc="http://id.loc.gov/ontologies/lcc#"
+    xmlns:vartitletype="http://id.loc.gov/vocabulary/vartitletype/">
+    <bf:Work xmlns:bf="http://id.loc.gov/ontologies/bibframe/"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://id.loc.gov/resources/works/23179725">
+        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Monograph"/>
+        <bf:title>
+            <bf:Title>
+                <bf:mainTitle>Cel mai mult si mai mult</bf:mainTitle>
+            </bf:Title>
+        </bf:title>
+        <bf:contribution>
+            <bf:Contribution>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/authorities/names/n2016038739">
+                        <rdf:type rdf:resource="http://www.loc.gov/mads/rdf/v1#PersonalName"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Ungureanu, Dan, 1981-</rdfs:label>
+                        <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aUngureanu, Dan,$d1981-</bflc:marcKey>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:role>
+                    <bf:Role rdf:about="http://id.loc.gov/vocabulary/relators/ill">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">illustrator </rdfs:label>
+                    </bf:Role>
+                </bf:role>
+            </bf:Contribution>
+        </bf:contribution>
+        <bf:tableOfContents>
+            <bf:TableOfContents>
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Seniorii / prefaţă de Liviu Papadima ; ilustraţii de Dan Ungureanu -- Juniorii / cu o  prefaţă de  Florentine Sâmihăian.</rdfs:label>
+            </bf:TableOfContents>
+        </bf:tableOfContents>
+        <bf:genreForm>
+            <bf:GenreForm rdf:about="http://id.loc.gov/authorities/genreForms/gf2014026542">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Short stories</rdfs:label>
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">155  $aShort stories</bflc:marcKey>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/authorities/genreForms/collection_LCGFT_General">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress genre/form terms for library and archival materials</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </bf:GenreForm>
+        </bf:genreForm>
+        <bf:genreForm>
+            <bf:GenreForm rdf:about="http://id.loc.gov/authorities/genreForms/gf2014026415">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Literature</rdfs:label>
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">155  $aLiterature</bflc:marcKey>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/authorities/genreForms/collection_LCGFT_General">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress genre/form terms for library and archival materials</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </bf:GenreForm>
+        </bf:genreForm>
+        <bf:classification>
+            <bf:ClassificationLcc>
+                <bf:classificationPortion>PC830</bf:classificationPortion>
+                <bf:itemPortion>.C45 2017</bf:itemPortion>
+                <bf:assigner>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                    </bf:Agent>
+                </bf:assigner>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/uba">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">used by assigner</rdfs:label>
+                    </bf:Status>
+                </bf:status>
+            </bf:ClassificationLcc>
+        </bf:classification>
+        <bf:intendedAudience>
+            <rdfs:Resource xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" rdf:about="http://id.loc.gov/authorities/demographicTerms/dg2015060011">
+                <rdfs:label>Teenagers</rdfs:label>
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">150  $aTeenagers</bflc:marcKey>
+                <bf:source>
+                    <bf:Source rdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcdgt">
+                        <rdfs:label>lcdgt</rdfs:label>
+                    </bf:Source>
+                </bf:source>
+            </rdfs:Resource>
+        </bf:intendedAudience>
+        <bf:content>
+            <bf:Content rdf:about="http://id.loc.gov/vocabulary/contentTypes/txt">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">text</rdfs:label>
+                <bf:code>txt</bf:code>
+            </bf:Content>
+        </bf:content>
+        <bf:language>
+            <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/rum">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Romanian</rdfs:label>
+                <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">rum</bf:code>
+            </bf:Language>
+        </bf:language>
+        <bf:illustrativeContent>
+            <bf:Illustration rdf:about="http://id.loc.gov/vocabulary/millus/ill">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">illustrations</rdfs:label>
+                <bf:code>ill</bf:code>
+            </bf:Illustration>
+        </bf:illustrativeContent>
+        <bf:relation>
+            <bf:Relation>
+                <bf:associatedResource>
+                    <bf:Series>
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bflc/Uncontrolled"/>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>Colecţia "Cărtile mele"</bf:mainTitle>
+                                <bflc:nonSortNum xmlns:bflc="http://id.loc.gov/ontologies/bflc/">0</bflc:nonSortNum>
+                            </bf:Title>
+                        </bf:title>
+                        <bf:status>
+                            <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/t">
+                                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">transcribed </rdfs:label>
+                            </bf:Status>
+                        </bf:status>
+                    </bf:Series>
+                </bf:associatedResource>
+                <bf:relationship>
+                    <bf:Relationship rdf:about="http://id.loc.gov/vocabulary/relationship/series">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">series </rdfs:label>
+                    </bf:Relationship>
+                </bf:relationship>
+            </bf:Relation>
+        </bf:relation>
+        <bf:relation xmlns:bf="http://id.loc.gov/ontologies/bibframe/">
+            <bf:Relation>
+                <bf:associatedResource>
+                    <bf:Series>
+                        <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://id.loc.gov/ontologies/bflc/Uncontrolled"/>
+                        <bf:title>
+                            <bf:Title>
+                                <bf:mainTitle>Juniorii</bf:mainTitle>
+                            </bf:Title>
+                        </bf:title>
+                        <bf:status>
+                            <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/t">
+                                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">transcribed </rdfs:label>
+                            </bf:Status>
+                        </bf:status>
+
+                    </bf:Series>
+                </bf:associatedResource>
+            </bf:Relation>
+        </bf:relation>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">new</rdfs:label>
+                        <bf:code>n</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2023-06-09</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">cyea</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-03-12T11:22:10</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">cyea</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.10.0"/>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-08-13T06:54:46.462607-04:00</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">cyea</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-6-0/"/>
+                <bflc:encodingLevel xmlns:bflc="http://id.loc.gov/ontologies/bflc/">
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/5">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">preliminary</rdfs:label>
+                        <bf:code>5</bf:code>
+                    </bflc:EncodingLevel>
+                </bflc:encodingLevel>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">ISBD: International standard bibliographic description</rdfs:label>
+                        <bf:code>isbd</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Resource description and access</rdfs:label>
+                        <bf:code>rda</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:identifiedBy>
+                    <bf:Local>
+                        <rdf:value>23179725</rdf:value>
+                        <bf:assigner>
+                            <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                            </bf:Organization>
+                        </bf:assigner>
+                    </bf:Local>
+                </bf:identifiedBy>
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">906  $a0$bibc$corignew$d3$encip$f20$gy-gencatlg</bflc:marcKey>
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">9250 $aacquire$b1 shelf copy$xpolicy default</bflc:marcKey>
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">955  $bfc70 2023-06-09 created for PO361140$afc70 2023-09-15 telework to GS/ECE$afc00 2024-03-12 to GS/ECE$afc00 2024-03-12 to GS/ECE</bflc:marcKey>
+                <lclocal:d906 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=906     $a 0 $b ibc $c orignew $d 3 $e ncip $f 20 $g y-gencatlg</lclocal:d906>
+                <lclocal:d925 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=925  0  $a acquire $b 1 shelf copy $x policy default</lclocal:d925>
+                <lclocal:d955 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=955     $b fc70 2023-06-09 created for PO361140 $a fc70 2023-09-15 telework to GS/ECE $a fc00 2024-03-12 to GS/ECE $a fc00 2024-03-12 to GS/ECE</lclocal:d955>
+                <bf:descriptionLanguage>
+                    <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">English</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+                    </bf:Language>
+                </bf:descriptionLanguage>
+                <bf:note>
+                    <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">040  $aDLC$beng$erda$cDLC</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+                <bf:descriptionAuthentication>
+                    <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/pcc">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Program for Cooperative Cataloging</rdfs:label>
+                        <bf:code>pcc</bf:code>
+                    </bf:DescriptionAuthentication>
+                </bf:descriptionAuthentication>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">cyea</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2025-08-13T11:17:07.697Z</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">fc80</bflc:catalogerId>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                    </bf:Status>
+                </bf:status>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2025-08-13T11:48:38.994Z</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">fc80</bflc:catalogerId>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                    </bf:Status>
+                </bf:status>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bflc:aap xmlns:bflc="http://id.loc.gov/ontologies/bflc/">Sâmihăian, Florentina. Cel mai mult si mai mult</bflc:aap>
+        <bflc:aap-normalized xmlns:bflc="http://id.loc.gov/ontologies/bflc/">sâmihăianflorentinacelmaimultsimaimult</bflc:aap-normalized>
+        <dcterms:isPartOf xmlns:dcterms="http://purl.org/dc/terms/"
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://id.loc.gov/resources/works"/>
+        <bf:adminMetadata xmlns:bf="http://id.loc.gov/ontologies/bibframe/">
+            <bf:AdminMetadata>
+                <bf:date>2025-08-13T12:05:23.478Z</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">fc80</bflc:catalogerId>
+                <bf:status>
+                    <bf:Status xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                    </bf:Status>
+                </bf:status>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+    </bf:Work>
+    <bf:Instance xmlns:bf="http://id.loc.gov/ontologies/bibframe/"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://id.loc.gov/resources/instances/23179725">
+        <bf:title>
+            <bf:Title>
+                <bf:mainTitle>Cel mai mult si mai mult</bf:mainTitle>
+            </bf:Title>
+        </bf:title>
+        <bf:provisionActivity>
+            <bf:Publication>
+                <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2017</bf:date>
+                <bf:place>
+                    <bf:Place rdf:about="http://id.loc.gov/vocabulary/countries/rm">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">Romania</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">rm</bf:code>
+                    </bf:Place>
+                </bf:place>
+                <bflc:simplePlace xmlns:bflc="http://id.loc.gov/ontologies/bflc/">[Bucuresţii]</bflc:simplePlace>
+                <bflc:simpleAgent xmlns:bflc="http://id.loc.gov/ontologies/bflc/">Arthur</bflc:simpleAgent>
+                <bflc:simpleDate xmlns:bflc="http://id.loc.gov/ontologies/bflc/">2017</bflc:simpleDate>
+            </bf:Publication>
+        </bf:provisionActivity>
+        <bf:issuance>
+            <bf:Issuance rdf:about="http://id.loc.gov/vocabulary/issuance/mulm">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">multipart monograph </rdfs:label>
+            </bf:Issuance>
+        </bf:issuance>
+        <bf:identifiedBy>
+            <bf:Lccn>
+                <rdf:value>  2023478519</rdf:value>
+            </bf:Lccn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Isbn>
+                <rdf:value>9786067882810</rdf:value>
+                <bf:qualifier>(Seniorii)</bf:qualifier>
+            </bf:Isbn>
+        </bf:identifiedBy>
+        <bf:identifiedBy>
+            <bf:Isbn>
+                <rdf:value>9786067882827</rdf:value>
+                <bf:qualifier>(Juniorii)</bf:qualifier>
+            </bf:Isbn>
+        </bf:identifiedBy>
+        <bf:media>
+            <bf:Media rdf:about="http://id.loc.gov/vocabulary/mediaTypes/n">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">unmediated</rdfs:label>
+                <bf:code>n</bf:code>
+            </bf:Media>
+        </bf:media>
+        <bf:extent>
+            <bf:Extent>
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">2 volumes</rdfs:label>
+                <bf:note>
+                    <bf:Note>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">illustrations</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+            </bf:Extent>
+        </bf:extent>
+        <bf:dimensions>22 cm</bf:dimensions>
+        <bf:carrier>
+            <bf:Carrier rdf:about="http://id.loc.gov/vocabulary/carriers/nc">
+                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">volume</rdfs:label>
+                <bf:code>nc</bf:code>
+            </bf:Carrier>
+        </bf:carrier>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:descriptionLevel rdf:resource="http://id.loc.gov/ontologies/bibframe-2-6-0/"/>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/isbd">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">ISBD: International standard bibliographic description</rdfs:label>
+                        <bf:code>isbd</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:descriptionConventions>
+                    <bf:DescriptionConventions rdf:about="http://id.loc.gov/vocabulary/descriptionConventions/rda">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Resource description and access</rdfs:label>
+                        <bf:code>rda</bf:code>
+                    </bf:DescriptionConventions>
+                </bf:descriptionConventions>
+                <bf:identifiedBy>
+                    <bf:Local>
+                        <rdf:value>23179725</rdf:value>
+                        <bf:assigner>
+                            <bf:Organization rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                                <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                                <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                            </bf:Organization>
+                        </bf:assigner>
+                    </bf:Local>
+                </bf:identifiedBy>
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">906  $a0$bibc$corignew$d3$encip$f20$gy-gencatlg</bflc:marcKey>
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">9250 $aacquire$b1 shelf copy$xpolicy default</bflc:marcKey>
+                <bflc:marcKey xmlns:bflc="http://id.loc.gov/ontologies/bflc/">955  $bfc70 2023-06-09 created for PO361140$afc70 2023-09-15 telework to GS/ECE$afc00 2024-03-12 to GS/ECE$afc00 2024-03-12 to GS/ECE</bflc:marcKey>
+                <lclocal:d906 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=906     $a 0 $b ibc $c orignew $d 3 $e ncip $f 20 $g y-gencatlg</lclocal:d906>
+                <lclocal:d925 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=925  0  $a acquire $b 1 shelf copy $x policy default</lclocal:d925>
+                <lclocal:d955 xmlns:lclocal="http://id.loc.gov/ontologies/lclocal/">=955     $b fc70 2023-06-09 created for PO361140 $a fc70 2023-09-15 telework to GS/ECE $a fc00 2024-03-12 to GS/ECE $a fc00 2024-03-12 to GS/ECE</lclocal:d955>
+                <bf:descriptionLanguage>
+                    <bf:Language rdf:about="http://id.loc.gov/vocabulary/languages/eng">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:lang="en">English</rdfs:label>
+                        <bf:code rdf:datatype="http://www.w3.org/2001/XMLSchema#string">eng</bf:code>
+                    </bf:Language>
+                </bf:descriptionLanguage>
+                <bf:note>
+                    <bf:Note>
+                        <rdf:type rdf:resource="http://id.loc.gov/vocabulary/mnotetype/internal"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">040  $aDLC$beng$erda$cDLC</rdfs:label>
+                    </bf:Note>
+                </bf:note>
+                <bf:descriptionAuthentication>
+                    <bf:DescriptionAuthentication rdf:about="http://id.loc.gov/vocabulary/marcauthen/pcc">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Program for Cooperative Cataloging</rdfs:label>
+                        <bf:code>pcc</bf:code>
+                    </bf:DescriptionAuthentication>
+                </bf:descriptionAuthentication>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">cyea</bflc:catalogerId>
+                <bflc:encodingLevel xmlns:bflc="http://id.loc.gov/ontologies/bflc/">
+                    <bflc:EncodingLevel rdf:about="http://id.loc.gov/vocabulary/menclvl/f">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">full </rdfs:label>
+                    </bflc:EncodingLevel>
+                </bflc:encodingLevel>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2025-08-13T11:48:38.994Z</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">fc80</bflc:catalogerId>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                    </bf:Status>
+                </bf:status>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:date rdf:datatype="http://id.loc.gov/datatypes/edtf">2025-08-13T11:17:07.697Z</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">fc80</bflc:catalogerId>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                    </bf:Status>
+                </bf:status>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlcmrc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress, Network Development and MARC Standards Office</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC-MRC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlcmrc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlcmrc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bf:generationProcess rdf:resource="https://github.com/lcnetdev/marc2bibframe2/releases/tag/v2.10.0"/>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2025-08-13T06:54:46.462607-04:00</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">cyea</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                        <bf:code>c</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2024-03-12T11:22:10</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">cyea</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:adminMetadata>
+            <bf:AdminMetadata>
+                <bf:status>
+                    <bf:Status rdf:about="http://id.loc.gov/vocabulary/mstatus/n">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">new</rdfs:label>
+                        <bf:code>n</bf:code>
+                    </bf:Status>
+                </bf:status>
+                <bf:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2023-06-09</bf:date>
+                <bf:agent>
+                    <bf:Agent rdf:about="http://id.loc.gov/vocabulary/organizations/dlc">
+                        <rdf:type rdf:resource="http://id.loc.gov/ontologies/bibframe/Organization"/>
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">United States, Library of Congress</rdfs:label>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/code">DLC</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/normalized">dlc</bf:code>
+                        <bf:code rdf:datatype="http://id.loc.gov/datatypes/orgs/iso15511">US-dlc</bf:code>
+                    </bf:Agent>
+                </bf:agent>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">cyea</bflc:catalogerId>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:publicationStatement xmlns:bf="http://id.loc.gov/ontologies/bibframe/">xx: xx, 2017</bf:publicationStatement>
+        <dcterms:isPartOf xmlns:dcterms="http://purl.org/dc/terms/"
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:resource="http://id.loc.gov/resources/instances"/>
+        <bf:adminMetadata xmlns:bf="http://id.loc.gov/ontologies/bibframe/">
+            <bf:AdminMetadata>
+                <bf:date>2025-08-13T12:05:23.478Z</bf:date>
+                <bflc:catalogerId xmlns:bflc="http://id.loc.gov/ontologies/bflc/">fc80</bflc:catalogerId>
+                <bf:status>
+                    <bf:Status xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://id.loc.gov/vocabulary/mstatus/c">
+                        <rdfs:label xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">changed</rdfs:label>
+                    </bf:Status>
+                </bf:status>
+            </bf:AdminMetadata>
+        </bf:adminMetadata>
+        <bf:instanceOf rdf:resource="http://id.loc.gov/resources/works/23179725"/>
+    </bf:Instance>
+</rdf:RDF>
