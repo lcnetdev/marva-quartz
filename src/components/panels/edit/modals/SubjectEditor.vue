@@ -131,7 +131,7 @@
                         class="input-single-subject subject-input" id="subject-input">
                     </form>
                     <div v-for="(c, idx) in components" :ref="'cBackground' + idx"
-                      :class="['color-holder', { 'color-holder-okay': (c.uri !== null || c.literal) }, { 'color-holder-type-okay': (c.type !== null || showTypes === false) }]"
+                      :class="['color-holder', { 'color-holder-okay': (c.uri !== null || c.literal) }, { 'color-holder-type-okay': (c.type !== null) }]"
                       v-bind:key="idx">
                       {{ c.label }}
                     </div>
@@ -1686,6 +1686,7 @@ export default {
     },
 
     navString: function (event) {
+      console.info("navString")
       if (event.key == 'ArrowLeft' || event.key == 'ArrowRight') {
         // don't let them leave a trailing -- when they are clicking around like wild
         // if (this.subjectString.endsWith('--')){
@@ -1713,6 +1714,13 @@ export default {
           this.subjectStringChanged(event)
         }
       }
+
+      // Literature, Modern--Translations into Albanian--History and criticism
+      console.info("active: ", this.activeComponent)
+      console.info("active: ", this.activeComponentIndex)
+
+      console.info("components: ", this.components)
+
       // text macros
       let useTextMacros = this.preferenceStore.returnValue('--o-diacritics-text-macros')
       if (useTextMacros && useTextMacros.length > 0) {
@@ -2129,6 +2137,10 @@ export default {
         return false
       } else if (event.key == 'Enter') {
         if (event.shiftKey) {
+          if (!this.okayToAdd) {
+            alert('Something is missing. Make sure all elements in the heading are green.')
+            return
+          }
           this.add()
           return
         }
