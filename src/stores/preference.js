@@ -1332,6 +1332,15 @@ export const usePreferenceStore = defineStore('preference', {
         index: 4
       },
 
+      '--c-shelflist-line-colors' : {
+          value:'#a8c7fc;',
+          desc: 'Accent color for the shelf list results.',
+          descShort: 'Shelf List Accent',
+          type: 'color',
+          group: 'Shelflisting',
+          range: null
+       },
+
     '--b-edit-main-splitpane-edit-inline-mode' : {
       desc: 'Compact Advanced Modular Mode.',
       descShort: 'Use CAMM Mode',
