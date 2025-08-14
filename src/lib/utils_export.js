@@ -1324,6 +1324,7 @@ const utilsExport = {
 		// console.log(tleLookup)
 
 		// console.log("xmlLogxmlLogxmlLog",xmlLog)
+		// console.log(JSON.stringify(xmlLog, null, 2))
 		// Add in a adminMetadata to the resources with this user id
 		// catInitals.log(profile)
 		//get user info from preferenceStore instead of the profile
