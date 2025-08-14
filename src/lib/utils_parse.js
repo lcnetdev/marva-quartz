@@ -82,6 +82,85 @@ const utilsParse = {
   },
 
   /**
+   * Calculates the maximum depth of an XML string and maps node tags to their depth level.
+   * This function is intended for a browser environment where DOMParser is available.
+   *
+   * @param {string} xmlString The XML structure as a string.
+   * @returns {{count: number, nodeMap: object}|{error: string}} An object containing the
+   *          max depth ('count') and a map of nodes at each level ('nodeMap'), or an
+   *          error object if the XML is invalid.
+   */
+  getXmlDepth(xmlString) {
+    // 1. Use the browser's built-in DOMParser to parse the XML string.
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+
+    // Check for parsing errors. The parser will insert a <parsererror> node on failure.
+    if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+      return {
+        error: "Invalid XML string provided."
+      };
+    }
+
+    // 2. Initialize variables for storing the results.
+    let maxDepth = -1;
+    // We use an intermediate map with Sets to automatically handle unique tag names per level.
+    const tempNodeMap = {};
+
+    // 3. Define a recursive function to traverse the DOM tree.
+    const traverse = (node, currentDepth) => {
+      // We only care about element nodes (nodeType 1), not text, comments, etc.
+      if (node.nodeType !== 1) {
+        return;
+      }
+
+      // Update the maximum depth found so far.
+      if (currentDepth > maxDepth) {
+        maxDepth = currentDepth;
+      }
+
+      // Initialize a Set for the current depth level if it doesn't exist yet.
+      if (!tempNodeMap[currentDepth]) {
+        tempNodeMap[currentDepth] = new Set();
+      }
+      // Add the node's tag name to the Set for its level.
+      tempNodeMap[currentDepth].add(node.tagName);
+
+      // Recursively call traverse for all child *elements*.
+      // 'node.children' conveniently contains only element nodes, ignoring text and comments.
+      for (const child of node.children) {
+        traverse(child, currentDepth + 1);
+      }
+    };
+
+    // 4. Start the traversal from the document's root element.
+    if (xmlDoc.documentElement) {
+      traverse(xmlDoc.documentElement, 0);
+    } else {
+      // This handles cases where the XML string is empty or contains only comments.
+      return { count: -1, nodeMap: {} };
+    }
+
+    // 5. Convert the temporary map (with Sets) to the final nodeMap object.
+    // The example output shows a single string value per level. This code makes that happen
+    // if there's only one tag type at a level, but uses an array if there are multiple.
+    const finalNodeMap = {};
+    for (const level in tempNodeMap) {
+      const tags = Array.from(tempNodeMap[level]);
+      finalNodeMap[level] = tags.length === 1 ? tags[0] : tags;
+    }
+
+    // 6. Return the final result object.
+    return {
+      count: maxDepth,
+      nodeMap: finalNodeMap,
+    };
+  },
+
+
+
+
+  /**
   * Takes a URI and turns it into the shortened namespaced version bf:whatever
   *
   * @param {string} uri - the URI to convert
@@ -732,13 +811,7 @@ const utilsParse = {
               }
             }
 
-            // do a deepHierarchy check here to see if it is a very nested bf:relation property if so we will mark it here
-            if (ptk.propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation'){
-              if (e.innerHTML.indexOf("bf:hasInstance")>-1){
-                ptk.deepHierarchy=true
-              }
 
-            }
 
             // start populating the data
             let populateData = null
@@ -748,6 +821,18 @@ const utilsParse = {
             populateData.xmlHash = hashCode(populateData.xmlSource)
 
             populateData['@guid'] = short.generate()
+
+            // console.log("-------------------------------- deepth")
+            // console.log(this.getXmlDepth(populateData.xmlSource))
+            // do a deepHierarchy check here to see if it is a very nested bf:relation property if so we will mark it here
+            if (populateData.propertyURI == 'http://id.loc.gov/ontologies/bibframe/relation'){
+              if (e.innerHTML.indexOf("bf:hasInstance")>-1){
+                // console.log("Setting deepHierarchy to true for bf:relation", ptk)
+                populateData.deepHierarchy=true
+              }
+            }
+
+
 
             // if (this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)]){
             //   populateData.valueConstraint.valueTemplateRefs.push(this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)])
@@ -1191,7 +1276,10 @@ const utilsParse = {
                                 lastClass = ggggChild.tagName
 
                                 // we will flag this as having a deep hiearcy to review later if we should let them be able to edit it
-                                ptk.deepHierarchy = true
+                                populateData.deepHierarchy = true
+                                // console.log("Setting deepHierarchy to true for", populateData.propertyURI, populateData)
+
+                                
 
                                 // <bf:genreForm xmlns:bf="http://id.loc.gov/ontologies/bibframe/">
                                 //   <bf:GenreForm xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="https://id.loc.gov/authorities/genreForms/gf2014026639">
@@ -1291,7 +1379,8 @@ const utilsParse = {
                                       gggData[g5ChildProperty] = []
                                     }
 
-                                    ptk.deepHierarchy = true
+                                    populateData.deepHierarchy = true
+                                  // console.log("Setting 2 deepHierarchy to true for", populateData.propertyURI, populateData)
 
 
                                     for (let g6Child of gggggChild.children){
@@ -1333,7 +1422,9 @@ const utilsParse = {
                                           }else if (g7Child.children.length ==0){
 
                                             // console.log("Build literal for:",g7Child)
-                                            ptk.deepHierarchy = true
+                                            populateData.deepHierarchy = true
+                                            // console.log("Setting 3 deepHierarchy to true for", populateData.propertyURI, populateData)
+
 
                                             let g7ChildProperty = this.UriNamespace(g7Child.tagName)
                                             // console.log(g7ChildProperty)
@@ -1381,9 +1472,10 @@ const utilsParse = {
                                           }else{
 
                                            // leaving the scaffloding to go deeper, but this is not designed to edit such deeply nested structures
-                                           // make sure the component is flagged as un-editable ptk.deepHierarchy = true and just reuse the XML on export
-                                           ptk.deepHierarchy = true
+                                           // make sure the component is flagged as un-editable populateData.deepHierarchy = true and just reuse the XML on export
+                                           populateData.deepHierarchy = true
 
+                                           
 
                                             // another level down
                                             // so create a new obj and load it into the structure
@@ -1620,6 +1712,13 @@ const utilsParse = {
                   }
                 }
               }
+
+              // trying to turn it off for transcribed series
+              if (populateData.id.indexOf('transcribed_series') >-1){
+                populateData.deepHierarchy = false
+              }
+
+
             }
 
             // since we created a brand new populateData we either need to
@@ -1643,7 +1742,7 @@ const utilsParse = {
             }
 
 
-
+            // console.log("populateData", JSON.stringify(populateData, null, 2))
 
 
             // do a little sanity check here, loop through and
@@ -1670,6 +1769,8 @@ const utilsParse = {
 
 
         }
+
+        
 
         // we did something with it, so remove it from the xml
         // doing this inside the loop because some PT use the same element (like primary contribuitor vs contributor)
@@ -2002,6 +2103,7 @@ const utilsParse = {
         // if we set any deepHiearchy then make sure that feature is allowed on that property
         if (profile.rt[pkey].pt[key].deepHierarchy){
           if (useConfigStore().exludeDeepHierarchy.indexOf(profile.rt[pkey].pt[key].propertyURI) >-1){
+            // console.log("remoiving depthierarchy from",profile.rt[pkey].pt[key])
             profile.rt[pkey].pt[key].deepHierarchy=false
           }
         }

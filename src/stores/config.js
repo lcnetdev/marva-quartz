@@ -422,7 +422,10 @@ export const useConfigStore = defineStore('config', {
 
     {lccn:'2023548475',label:"Create NAR test", idUrl:'https://id.loc.gov/resources/instances/2023548475.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+    {lccn:'2023478519',label:"bf:relation test", idUrl:'https://id.loc.gov/resources/instances/2023478519.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
+
+    
 
   ],
 
