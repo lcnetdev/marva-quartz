@@ -364,10 +364,17 @@ const utilsParse = {
         let hasAssociatedResource = false
         if (child.innerHTML.indexOf("bf:associatedResource")>-1) { hasAssociatedResource = true}
 
+        let hasExternalLcRel = false
+        if (child.innerHTML.indexOf("bf:title")>-1 && child.innerHTML.indexOf("bf:contribution")>-1) {
+          hasExternalLcRel = true
+        }
+
         if ((hasSeriesProperty || hasSeries) && hasAssociatedResource){
           child.setAttribute('local:pthint', 'lc:RT:bf2:SeriesHub')
         }else if (hasAssociatedResource && (hasWork || hasHub)){
           child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkLookup')
+        } else if (hasExternalLcRel){
+          child.setAttribute('local:pthint', 'lc:RT:bf2:RelWorkInput')
         }
 
       }
@@ -1279,7 +1286,7 @@ const utilsParse = {
                                 populateData.deepHierarchy = true
                                 // console.log("Setting deepHierarchy to true for", populateData.propertyURI, populateData)
 
-                                
+
 
                                 // <bf:genreForm xmlns:bf="http://id.loc.gov/ontologies/bibframe/">
                                 //   <bf:GenreForm xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="https://id.loc.gov/authorities/genreForms/gf2014026639">
@@ -1475,7 +1482,7 @@ const utilsParse = {
                                            // make sure the component is flagged as un-editable populateData.deepHierarchy = true and just reuse the XML on export
                                            populateData.deepHierarchy = true
 
-                                           
+
 
                                             // another level down
                                             // so create a new obj and load it into the structure
@@ -1770,7 +1777,7 @@ const utilsParse = {
 
         }
 
-        
+
 
         // we did something with it, so remove it from the xml
         // doing this inside the loop because some PT use the same element (like primary contribuitor vs contributor)
