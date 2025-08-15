@@ -480,7 +480,7 @@
 
                     <template v-for="(r, index) in results">
                       <template  v-if="r.selected == undefined">
-                        <tr :class="[{nuba: r.notused == 'nuba'}]" :data-bibid="r.bibid" :style="index%2 != 0 ? 'background-color: ' + this.preferenceStore.returnValue('--c-shelflist-line-colors') + '; ': ''">
+                        <tr :class="[{nuba: r.notused == 'nuba'}]" :data-bibid="r.bibid" :style="index%2 != 0 ? 'background-color: ' + this.preferenceStore.returnValue('--c-shelflist-line-colors') + '; color: black;' : ''">
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
@@ -492,7 +492,7 @@
                       </template>
 
                       <template  v-if="(r.selected != undefined && r.selected.trim() == 'selected') || (r.term ==  '' && r.frequency ==  '' && r.creator ==  '' && r.uniformtitle ==  '' && r.title ==  '' && r.pubdate ==  '' && r.subject ==  '' && r.altsubject ==  '' && r.bibid ==  '' && r.sort ==  '')">
-                        <tr class="match-point" style="background-color: yellow;" ref="selected" :data-bibid="r.bibid">
+                        <tr class="match-point" style="background-color: yellow; color: black;" ref="selected" :data-bibid="r.bibid">
                           <td>{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
@@ -597,9 +597,11 @@
     font-weight: bold;
 
   }
-  tbody tr:nth-child(odd) {
+
+  /* tbody tr:nth-child(odd) {
     color: black;
-  }
+  } */
+
   .match-point:hover,
   tbody tr:nth-child(odd):hover,
   tr:hover{
