@@ -2159,7 +2159,7 @@ const utilsExport = {
 				has667 = true
 			}
 		}
-		console.log("extraMarcStatements", extraMarcStatements)
+
 		// check again if they made a 400 in the extraMarcStatements and there is no 667 then set it to a
 		for (let x of extraMarcStatements){
 			console.log("x.tag", x.tag, "has667", has667)
@@ -2311,9 +2311,9 @@ const utilsExport = {
 				for (let v of useValues){
 					let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 					subfield.setAttribute( 'code', key)
-					subfield.innerHTML = v.trim()
+					subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
 					fieldName.appendChild(subfield)
-					oneXXSubfieldsValues.push(`$${key} ${v.trim()}`)
+					oneXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 				}
 
 
@@ -2341,9 +2341,9 @@ const utilsExport = {
 					for (let v of useValues){
 						let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 						subfield.setAttribute( 'code', key)
-						subfield.innerHTML = v.trim()
+						subfield.innerHTML = v.replace(/[\r\n]+/g, ' ').trim()
 						fieldName4xx.appendChild(subfield)
-						fourXXSubfieldsValues.push(`$${key} ${v.trim()}`)
+						fourXXSubfieldsValues.push(`$${key} ${v.replace(/[\r\n]+/g, ' ').trim()}`)
 
 
 					}
@@ -2389,11 +2389,14 @@ const utilsExport = {
 		if (mainTitleDate){
 			title = title + ', ' + mainTitleDate + ': '
 		}
+		title = title.replace(/[\r\n]+/g, ' ')
 		field670a.innerHTML = title
 		field670.appendChild(field670a)
+
 		field670SubfieldsValues.push(`$a ${title}`)
 
 		if (mainTitleNote){
+			mainTitleNote = mainTitleNote.replace(/[\r\n]+/g, ' ')
 			let field670b = document.createElementNS(marcNamespace,"marcxml:subfield");
 			field670b.setAttribute( 'code', 'b')
 			field670b.innerHTML = mainTitleNote
@@ -2457,9 +2460,9 @@ const utilsExport = {
 						if (key.length == 1){
 							let subfield = document.createElementNS(marcNamespace,"marcxml:subfield");
 							subfield.setAttribute( 'code', x[key][0])
-							subfield.innerHTML = x[key][1]
+							subfield.innerHTML = x[key][1].replace(/[\r\n]+/g, ' ')
 							field.appendChild(subfield)
-							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1]}`)
+							useSubfieldsValues.push(`$${x[key][0]} ${x[key][1].replace(/[\r\n]+/g, ' ')}`)
 
 						}
 					}
