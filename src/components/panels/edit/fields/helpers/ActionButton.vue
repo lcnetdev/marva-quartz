@@ -87,9 +87,8 @@
 
 
         </template>
-
-
-        <template v-if="type=='lookupComplex'">
+        <template v-if="type=='lookupComplex' || structure.parent.includes(':Identifiers')">
+        <!-- <template> -->
             <!-- template v-if="(structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.parent.includes(':Agents:') || structure.parentId.includes(':Form') || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic') && showUpDownButtons()[0]" -->
             <template v-if="showUpDownButtons()[0]">
               <button  class="" :id="`action-button-command-${fieldGuid}-u`" @click="moveUp()" :style="buttonStyle">

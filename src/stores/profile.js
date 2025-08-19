@@ -3936,6 +3936,7 @@ export const useProfileStore = defineStore('profile', {
         let subjItems = []
         let contribItems = []
         let gfItems = []
+        let idItems = []
 
         if (pt !== false){
             let workRtId = null
@@ -3969,6 +3970,17 @@ export const useProfileStore = defineStore('profile', {
                   }
                 }
               }
+              if (rtId.indexOf(":Instance") > -1){
+                for (let ptId of this.activeProfile.rt[rtId].ptOrder){
+                  if (this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/identifiedBy'){
+                      idItems.push(ptId)
+                      if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
+                          target = ptId
+                          targetType = "identifier"
+                      }
+                  }
+                }
+              }
             }
         }
 
@@ -3976,10 +3988,11 @@ export const useProfileStore = defineStore('profile', {
             items = subjItems
         } else if (targetType == "gf"){
             items = gfItems
+        } else if (targetType == "identifier"){
+            items = idItems
         } else {
             items = contribItems
         }
-
 
         if (items.length <= 1){
             return [false, false]
@@ -4012,9 +4025,9 @@ export const useProfileStore = defineStore('profile', {
       if (pt !== false){
         let firstHeading = null
         let workRtId = null
+        let instRtId = null
         for (let rtId in this.activeProfile.rt){
           if (rtId.indexOf(":Work") > -1){
-            workRtId = rtId
             for (let ptId of this.activeProfile.rt[rtId].ptOrder){
               if (
                     this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' ||
@@ -4023,6 +4036,20 @@ export const useProfileStore = defineStore('profile', {
                  ){
                 if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
                         target = ptId
+                        workRtId = rtId
+                    }
+              }
+            }
+          }
+
+          if (rtId.indexOf(":Instance") > -1){
+            for (let ptId of this.activeProfile.rt[rtId].ptOrder){
+              if (
+                    this.activeProfile.rt[rtId].pt[ptId].propertyURI == 'http://id.loc.gov/ontologies/bibframe/identifiedBy'
+                 ){
+                if (this.activeProfile.rt[rtId].pt[ptId]["@guid"] == componentGuid){
+                        target = ptId
+                        instRtId = rtId
                     }
               }
             }
@@ -4030,7 +4057,13 @@ export const useProfileStore = defineStore('profile', {
         }
 
         if (target){
-          let currentPos = this.activeProfile.rt[workRtId].ptOrder.indexOf(target)
+          let targetRt = null
+          if (workRtId){
+            targetRt = workRtId
+          } else if (instRtId){
+            targetRt = instRtId
+          }
+          let currentPos = this.activeProfile.rt[targetRt].ptOrder.indexOf(target)
           let newPos
           if (dir == "up"){
               newPos = currentPos-1
@@ -4040,9 +4073,9 @@ export const useProfileStore = defineStore('profile', {
 
           //swap the target with the element in the desired position
           //delete from current pos
-           this.activeProfile.rt[workRtId].ptOrder.splice(currentPos, 1)
+           this.activeProfile.rt[targetRt].ptOrder.splice(currentPos, 1)
           //put in it's new position
-           this.activeProfile.rt[workRtId].ptOrder.splice(newPos, 0, target)
+           this.activeProfile.rt[targetRt].ptOrder.splice(newPos, 0, target)
 
           this.dataChanged()
         }
