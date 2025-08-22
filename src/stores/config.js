@@ -67,7 +67,7 @@ export const useConfigStore = defineStore('config', {
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
-        dev: true,
+        dev: false,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
@@ -425,7 +425,7 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2023478519',label:"bf:relation test", idUrl:'https://id.loc.gov/resources/instances/2023478519.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
 
-    
+
 
   ],
 
