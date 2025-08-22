@@ -4641,6 +4641,15 @@ export const useProfileStore = defineStore('profile', {
           for (let key in this.activeProfile.rt[pt.parentId].pt[pt.id].userValue){
               if (!key.startsWith('@')){
                 delete this.activeProfile.rt[pt.parentId].pt[pt.id].userValue[key]
+
+                // Cleanup for components that are uneditable
+                if (Object.keys(this.activeProfile.rt[pt.parentId].pt[pt.id]).includes("xmlSource")){
+                  delete this.activeProfile.rt[pt.parentId].pt[pt.id].xmlSource
+                  this.activeProfile.rt[pt.parentId].pt[pt.id].hasData = false
+                  this.activeProfile.rt[pt.parentId].pt[pt.id].deepHierarchy = false
+                  this.activeProfile.rt[pt.parentId].pt[pt.id].dataLoaded = false
+                  this.activeProfile.rt[pt.parentId].pt[pt.id].xmlHash = ""
+                }
               }
             }
         }

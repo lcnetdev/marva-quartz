@@ -732,7 +732,7 @@ test('Able to add an edited subject', async ({ page }) => {
     await expect(page.getByRole('dialog')).toContainText('Add [SHIFT+Enter]');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Public schools--Austria--History--18th century--congresses');
-    await page.getByText('Congresses', { exact: true }).nth(1).click();
+    await page.getByText('Congresses', { exact: true }).nth(0).click();
     await expect(page.getByRole('dialog')).toContainText('Add [SHIFT+Enter]');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
