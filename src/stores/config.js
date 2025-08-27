@@ -829,8 +829,14 @@ export const useConfigStore = defineStore('config', {
     "armenian": {
         "code": "hy-Armn"
     },
+    "assamese": {
+        "code": "as-Beng"
+    },
     "azerbaijani_cyrillic": {
         "code": "az-Cyrl"
+    },
+    "balkar_cyrillic":{
+      "code": "krc-Cyrl"
     },
     "bashkir_cyrillic": {
         "code": "ba-Cyrl"
@@ -847,11 +853,17 @@ export const useConfigStore = defineStore('config', {
     "buriat": {
         "code": "bua-Cyrl"
     },
+    "buriat_cyrillic": {
+        "code": "bua-Cyrl"
+    },
     "burmese": {
         "code": "my-Mymr"
     },
     "chinese": {
         "code": "zh-Hani"
+    },
+    "cyrillic_generic": {
+        "code": "und-Cyrl"
     },
     "chukchi_cyrillic": {
         "code": "ckt-Cyrl"
@@ -862,6 +874,9 @@ export const useConfigStore = defineStore('config', {
     },
     "chuvash_cyrillic": {
         "code": "cv-Cyrl"
+    },
+    "devanagari":{
+      "code": "und-Deva"
     },
     "divehi_thaana": {
         "code": "dv-Thaa"
@@ -875,8 +890,14 @@ export const useConfigStore = defineStore('config', {
     "ethiopic": {
         "code": "am-Ethi"
     },
+    "evenki_cyrillic": {
+        "code": "evn-Cyrl"
+    },
     "even-evenki_cyrillic": {
         "code": "evn-Cyrl"
+    },
+    "gurmukhi": {
+        "code": "und-Guru"
     },
     "gagauz_cyrillic": {
         "code": "gag-Cyrl"
@@ -897,6 +918,9 @@ export const useConfigStore = defineStore('config', {
         "code": "he-Hebr"
     },
     "hindi": {
+        "code": "hi-Deva"
+    },
+    "hindi_devanagari": {
         "code": "hi-Deva"
     },
     "hiragana": {
@@ -950,6 +974,9 @@ export const useConfigStore = defineStore('config', {
     "kyrgyz_cyrillic": {
         "code": "ky-Cyrl"
     },
+    "kryashen_cyrillic": {
+        "code": "tt-Cyrl"
+    },
     "lithuanian_cyrillic": {
         "code": "lt-Cyrl"
     },
@@ -958,6 +985,9 @@ export const useConfigStore = defineStore('config', {
     },
     "malayalam": {
       "code": "ml-Mlym"
+    },
+    "manchu":{
+      "code": "mnc-Mong"
     },
     "mansi_cyrillic": {
         "code": "mns-Cyrl"
@@ -996,6 +1026,9 @@ export const useConfigStore = defineStore('config', {
         "code": "pi-Deva"
     },
     "panjabi": {
+        "code": "pa-Guru"
+    },
+    "panjabi_gurmukhi": {
         "code": "pa-Guru"
     },
     "persian": {
@@ -1064,6 +1097,9 @@ export const useConfigStore = defineStore('config', {
     "tibetan": {
         "code": "bo-Tibt"
     },
+    "tod_mongolian": {
+        "code": "tod-Mong"
+    },
     "turkmen_cyrillic": {
         "code": "tk-Cyrl"
     },
@@ -1080,7 +1116,10 @@ export const useConfigStore = defineStore('config', {
         "code": "uk-Cyrl"
     },
     "urdu": {
-      "code": "ur-Urdu"
+      "code": "ur-Arab"
+    },
+    "uighur_arabic":{
+      "code": "ug-Arab"
     },
     "uzbek_cyrillic": {
         "code": "uz-Cyrl"
