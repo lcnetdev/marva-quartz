@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2025-08-29
+### Added
+- Shelflisting update
+- NAR Validation added
+
 
 ## [1.3.23] - 2025-08-12
 ### Added
