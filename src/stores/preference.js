@@ -1332,8 +1332,9 @@ export const usePreferenceStore = defineStore('preference', {
         index: 4
       },
 
+      
       '--c-shelflist-line-colors' : {
-          value:'#a8c7fc;',
+          value:'#f1f7ff;', // old val: #a4c3f9ff == #a8c7fc;
           desc: 'Accent color for the shelf list results.',
           descShort: 'Shelf List Accent',
           type: 'color',
@@ -1519,6 +1520,9 @@ export const usePreferenceStore = defineStore('preference', {
       this.copyMode = this.styleDefault['--c-general-copy-mode'].value
 
       this.panelSizePresets = this.styleDefault['--o-edit-main-splitpane-edit-panel-size-presets'].value
+
+
+
         // fetch(this.configStore.returnUrls.scriptshifter + 'languages', {
         //   method: 'GET'
         // })
@@ -1625,6 +1629,14 @@ export const usePreferenceStore = defineStore('preference', {
 
         this.styleDefault = prefs.styleDefault
         this.panelDisplay = prefs.panelDisplay
+
+        
+        // overwrite some old choices
+        if (this.styleDefault['--c-shelflist-line-colors'].value == '#a8c7fc;'){
+          this.styleDefault['--c-shelflist-line-colors'].value = '#f1f7ff;'
+        }
+
+
       }
     },
     /**

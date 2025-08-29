@@ -98,6 +98,31 @@
 
     methods: {
 
+        async copyToClipboard(event, text) {
+          try {
+            await navigator.clipboard.writeText(text);
+            
+            // Create floating "Copied!" text
+            const copiedEl = document.createElement('div');
+            copiedEl.textContent = 'Copied...';
+            copiedEl.className = 'copy-notification';
+            
+            // Position it relative to the clicked element
+            const rect = event.target.getBoundingClientRect();
+            copiedEl.style.left = rect.left + (rect.width / 2) + 'px';
+            copiedEl.style.top = rect.top + 'px';
+            
+            document.body.appendChild(copiedEl);
+            
+            // Remove after animation completes
+            setTimeout(() => {
+              copiedEl.remove();
+            }, 1000);
+          } catch (err) {
+            console.error('Failed to copy: ', err);
+          }
+        },
+
         dragResize: function(newRect){
 
           this.width = newRect.width
@@ -111,6 +136,7 @@
           this.$refs.shelfListingContent.style.height = newRect.height + 'px'
           this.$refs.shelfListingDisplay.style.height = newRect.height - 44 + 'px'
 
+          console.log("this.$refs.shelfListingDisplay.style.height",this.$refs.shelfListingDisplay.style.height)
 
 
         },
@@ -146,29 +172,47 @@
             let countParam = "&count=201"
 
             let cutter = this.preserveSpace ? this.cutterNumber.trimEnd() : this.cutterNumber.trim()
+            
             let initalResult =  await utilsNetwork.searchShelfList(
               this.classNumber.trim() + '' + cutter,
               contributor + title + subj + date + countParam
             )
+
+
+
+
             let initalFirstClass = initalResult[0].term
             let initalLastClass = initalResult[initalResult.length-1].term
 
             let initalIds = initalResult.map((v) => {return v.bibid})
 
 
+
             // PS3603.R
             // browse-order=ascending&browse=class&count=200&mime=json
             const initalFirstClassPromise = utilsNetwork.searchShelfList(initalFirstClass, "&count=201&browse-order=descending&browse=class&mime=json")
             const initalLastClassPromise = utilsNetwork.searchShelfList(initalLastClass, "&count=201&browse-order=ascending&browse=class&mime=json")
-
-
             let firstExpand = await Promise.all([initalFirstClassPromise, initalLastClassPromise]);
 
+            // we are not lookin for the .selected in the expanse reqs, we its not there, so if the server tries to tell us ignore it
+            firstExpand[0] = firstExpand[0].filter((v) => {return !v.selected}) 
+            firstExpand[1] = firstExpand[1].filter((v) => {return !v.selected}) 
+
+            // ....... :( also remove ones that have all empty reponse too for some reason
+            firstExpand[0] = firstExpand[0].filter(v => {return !( (!v.term || v.term.trim() == '') && (!v.title || v.title.trim() == '') ) })
+            firstExpand[1] = firstExpand[1].filter(v => {return !( (!v.term || v.term.trim() == '') && (!v.title || v.title.trim() == '') ) })
+
+
+
+
+
+
+            
             // const initalFirstClassPos = firstExpand[0].map(e => e.selected).indexOf('selected');
             // const initalLastClassPos = firstExpand[1].map(e => e.selected).indexOf('selected');
 
             for (let toAdd of firstExpand[0].reverse()){
-              if (!toAdd.selected && initalIds.indexOf(toAdd.bibid) == -1){
+              if (!toAdd.selected && initalIds.indexOf(toAdd.bibid) == -1){                
                 initalResult.unshift(toAdd)
               }
             }
@@ -199,10 +243,10 @@
                });
 
 
-               // load up some more results while they start looking
+               // load up some more results while they start looking               
                await this.searchLoadMore()
-              //  await this.searchLoadMore()
 
+              
             });
 
           },750)
@@ -248,58 +292,6 @@
 
         },
 
-
-        async searchOld(){
-          if (!this.classNumber){this.classNumber=''}
-          if (!this.cutterNumber){this.cutterNumber=''}
-
-          const contributor = this.contributor ? "&sp-name="+this.contributor : ""
-          const title = this.title ? "&sp-title="+this.title  : ""
-          const subj = this.subj ? "&sp-subject="+this.subj  : ""
-          const date = this.date ? "&sp-date="+this.date : ""
-          const countParam = this.hitCount ? "&count="+this.hitCount : ""
-
-          this.results = []
-          this.searching=true
-          let cutter = this.preserveSpace ? this.cutterNumber.trimEnd() : this.cutterNumber.trim()
-          this.results =  await utilsNetwork.searchShelfList(
-            this.classNumber.trim() + '' + cutter,
-            contributor + title + subj + date + countParam
-          )
-          this.searching=false
-          this.$nextTick(() => {
-            this.scrollTo();
-          });
-
-          //       altsubject
-          // :
-          // "Railroad trains"
-          // creator
-          // :
-          // ""
-          // frequency
-          // :
-          // ""
-          // lookup
-          // :
-          // "/lds/search.xqy?count=10&sort=score-desc&pg=1&precision=exact&qname=idx:lcclass&q=TF148%20C66%202016"
-          // pubdate
-          // :
-          // "2016"
-          // subject
-          // :
-          // "Railroad trains--Juvenile literature"
-          // term
-          // :
-          // "TF148 C66 2016"
-          // title
-          // :
-          // "Trains"
-
-
-
-        },
-
         async searchLoadMore(){
 
           if (this.loadingMore){ return false}
@@ -310,7 +302,17 @@
           let lastTerm = this.results[this.results.length-1].term
           let ids = this.results.map((v) => {return v.bibid})
 
-          const initalLastClassPromise = await utilsNetwork.searchShelfList(lastTerm, "&count=201&browse-order=ascending&browse=class&mime=json")
+
+          let initalLastClassPromise = await utilsNetwork.searchShelfList(lastTerm, "&count=201&browse-order=ascending&browse=class&mime=json")
+
+          
+          // we are not lookin for the .selected in the expanse reqs, we know its not there, so if the server tries to tell us ignore it
+          initalLastClassPromise = initalLastClassPromise.filter((v) => {return !v.selected}) 
+          // ....... :( also remove ones that have all empty reponse too for some reason
+          initalLastClassPromise = initalLastClassPromise.filter(v => {return !( (!v.term || v.term.trim() == '') && (!v.title || v.title.trim() == '') ) })
+
+
+          
           for (let toAdd of initalLastClassPromise){
               if (!toAdd.selected && ids.indexOf(toAdd.bibid) == -1){
                 this.results.push(toAdd)
@@ -330,7 +332,13 @@
         let firstTerm = this.results[0].term
         let ids = this.results.map((v) => {return v.bibid})
 
-        const initalFirstClassPromise = await utilsNetwork.searchShelfList(firstTerm, "&count=201&browse-order=descending&browse=class&mime=json")
+        let initalFirstClassPromise = await utilsNetwork.searchShelfList(firstTerm, "&count=201&browse-order=descending&browse=class&mime=json")
+
+        // we are not lookin for the .selected in the expanse reqs, we know its not there, so if the server tries to tell us ignore it
+        initalFirstClassPromise = initalFirstClassPromise.filter((v) => {return !v.selected}) 
+        // ....... :( also remove ones that have all empty reponse too for some reason
+        initalFirstClassPromise = initalFirstClassPromise.filter(v => {return !( (!v.term || v.term.trim() == '') && (!v.title || v.title.trim() == '') ) })
+
 
 
         for (let toAdd of initalFirstClassPromise.reverse()){
@@ -392,7 +400,15 @@
     async created(){
 
       // this.width=50
-      this.initalWidth=window.innerWidth/1.25
+      this.initalLeft = 5
+      this.initalWidth=window.innerWidth/1.01
+      this.initalHeight=window.innerHeight/1.05
+
+      this.height = window.innerHeight/1.05
+      this.changedHeight = window.innerHeight/1.05
+
+
+      
     },
 
     async mounted() {
@@ -402,6 +418,14 @@
       if (Object.keys(this.activeShelfListData)==0 && this.$route.path.includes("/edit/")){
         this.profileStore.buildActiveShelfListDataFromProfile()
       }
+
+      // when the modal opens put the cursor into the class input at the top of the screen
+      window.setTimeout(() => {
+        this.$refs.classNumber.focus()
+      }, 100)
+
+      
+
 
       this.classNumber = this.activeShelfListData.class
       this.cutterNumber = this.activeShelfListData.cutter
@@ -427,8 +451,6 @@
       display-directive="show"
       :hide-overlay="false"
       :overlay-transition="'vfm-fade'"
-
-
     >
         <VueDragResize
           :is-active="true"
@@ -443,26 +465,21 @@
           :stickSize="22"
         >
           <div id="shelf-listing-content" ref="shelfListingContent" @mousedown="onSelectElement($event)" @touchstart="onSelectElement($event)" :style="`${this.preferenceStore.styleModalBackgroundColor()} ${this.preferenceStore.styleModalTextColor()}`">
-
               <div class="shelflist-menu">
-                <input v-model="classNumber" class="number-input" placeholder="Class" @input="search()" type="text" />
-                <input v-model="cutterNumber" class="number-input" @input="search()" placeholder="Cutter" type="text" />
+                <input v-model="classNumber" id="class-number" ref="classNumber" class="number-input" placeholder="Class" @input="search()" type="text" />
+                <input v-model="cutterNumber" id="cutter-number" ref="cutterNumber" class="number-input" @input="search()" placeholder="Cutter" type="text" />
                 <button class="number-input" @click="save" :disabled="(!activeShelfListData.componentGuid)">Save</button>
-                <input name="preserveSpace" type="checkbox" v-model="preserveSpace" @click="search()" />
-                <label for="preserveSpace" class="number-input">Preserve Cutter Spaces</label>
-
+                <span class="simptip-position-right" data-tooltip="If checked will not trim space characters at start of cutter">
+                  <input name="preserveSpace" id="preserveSpace" type="checkbox" v-model="preserveSpace" @click="search()" />
+                  <label for="preserveSpace" class="number-input" >Preserve Cutter Spaces</label>
+                </span>
                 <div class="menu-buttons">
                   <button class="close-button"   @pointerup="showShelfListingModal=false">X</button>
                 </div>
-
-
-
               </div>
               <div id="listing-display" ref="shelfListingDisplay" @scroll="watchScroll">
-
                 <div class="loader" v-if="searching"></div>
                 <h3 v-if="searching==false && results.length==0">No Results</h3>
-
                 <table v-if="searching==false">
                   <thead v-if="results.length>0" :style="`${this.preferenceStore.styleModalTextColor()} ${this.preferenceStore.styleModalBackgroundColor()}`">
                     <tr>
@@ -473,15 +490,14 @@
                       <th v-if="displaySubjects" :style="`${this.preferenceStore.styleModalBackgroundColor()}`">Subject</th>
                       <th :style="`${this.preferenceStore.styleModalBackgroundColor()}`">Date</th>
                       <th :style="`${this.preferenceStore.styleModalBackgroundColor()}`"> </th>
-
                     </tr>
                   </thead>
                   <tbody>
-
                     <template v-for="(r, index) in results">
+
                       <template  v-if="r.selected == undefined">
                         <tr :class="[{nuba: r.notused == 'nuba'}]" :data-bibid="r.bibid" :style="index%2 != 0 ? 'background-color: ' + this.preferenceStore.returnValue('--c-shelflist-line-colors') + '; color: black;' : ''">
-                          <td>{{ r.term }}</td>
+                          <td class="shelflist-number" @click="copyToClipboard($event, r.term)" style="cursor: pointer;">{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
                           <td>{{ r.title }}</td>
@@ -490,10 +506,10 @@
                           <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.idbase + 'resources/works/' + r.bibid">view</a></td>
                         </tr>
                       </template>
-
                       <template  v-if="(r.selected != undefined && r.selected.trim() == 'selected') || (r.term ==  '' && r.frequency ==  '' && r.creator ==  '' && r.uniformtitle ==  '' && r.title ==  '' && r.pubdate ==  '' && r.subject ==  '' && r.altsubject ==  '' && r.bibid ==  '' && r.sort ==  '')">
                         <tr class="match-point" style="background-color: yellow; color: black;" ref="selected" :data-bibid="r.bibid">
-                          <td>{{ r.term }}</td>
+
+                          <td class="shelflist-number" @click="copyToClipboard($event, r.term)" style="cursor: pointer;">{{ r.term }}</td>
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
                           <td>{{ r.title }}</td>
@@ -505,17 +521,8 @@
                     </template>
                   </tbody>
                 </table>
-
-
-
-
               </div>
-
-
-
           </div>
-
-
         </VueDragResize>
     </VueFinalModal>
 
@@ -524,7 +531,29 @@
 
 </template>
 <style>
+.copy-notification {
+  position: fixed;
+  padding: 6px 12px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 4px;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translateX(-50%);
+  animation: float-up 1s ease-out forwards;
+}
 
+@keyframes float-up {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-30px);
+  }
+}
 </style>
 
 <style scoped>
@@ -557,8 +586,16 @@
     margin-top: 1em;
   }
 
+  #preserveSpace{
+    height: 20px;
+    width: 20px;
+    vertical-align: text-bottom;
+    margin-left: 1em;
+    margin-right: 0.5em;
+  }
   .number-input{
     font-size: 1.5em;
+    
   }
 
   iframe{
@@ -704,5 +741,8 @@
   }
 }
 
+.shelflist-number:hover {
+  text-decoration: underline;
+}
 
 </style>
