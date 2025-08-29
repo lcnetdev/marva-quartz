@@ -455,7 +455,7 @@ export default {
     ...mapState(usePreferenceStore, ['styleDefault', 'panelDisplay']),
     ...mapState(useConfigStore, ['testData']),
     ...mapState(useProfileStore, ['startingPoints', 'profiles', 'copyCatMode']),
-    ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode']),
+    ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showShelfListingModal']),
 
 
     // // gives read access to this.count and this.double
@@ -1236,6 +1236,10 @@ export default {
       // console.log("showing stats")
       this.loadAllRecords()
     }
+    if (window.location.hash && window.location.hash == '#shelflisting') {
+      this.showShelfListingModal = true
+    }
+
     //reset the title
     document.title = `Marva`;
 
