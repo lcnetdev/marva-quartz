@@ -94,6 +94,9 @@
 
         tmpErrorMessage:false,
 
+        validating: false,
+        validationResult: null
+
       }
     },
     computed: {
@@ -248,8 +251,29 @@
           this.MARCText = results.text
           this.MARClccn = results.lccn
 
+          // kick off the validation process 
+          this.validate()
+
           this.showPreview = true
 
+
+
+        },
+
+        async validate(){
+          this.validationResult = null
+          this.validating = true
+
+
+          // wrap in try catch
+          try {
+            this.validationResult = await utilsNetwork.validateNar(this.MARCXml)
+          } catch (error) {
+            console.error("Validation error:", error)
+            this.validationResult = "ERROR VALIDATING NAR"
+          } finally {
+            this.validating = false
+          }
 
 
         },
@@ -1911,7 +1935,28 @@
                 {{ MARCText }}
               </textarea>
 
+              <div v-if="validating == true">
 
+                <span class="validating-text">Validating NAR</span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              </div>
+              <div v-if="validating == false && validationResult">
+
+                <span class="validating-text"  style="padding-right: 0.5em;">Validation Result:</span>
+                <span v-if="validationResult && validationResult.validation && validationResult.validation[0] && validationResult.validation[0].level && validationResult.validation[0].level == 'SUCCESS' ">
+                  <span class="validating-text"> <span  class="material-icons-outlined check_box nar-valid">check_box</span>NAR passed check</span>
+                </span>
+                <span v-if="validationResult && validationResult.validation && validationResult.validation[0] && validationResult.validation[0].level && validationResult.validation[0].level == 'ERROR' ">
+                  <span class="validating-text"> <span  class="material-icons-outlined error nar-invalid">error</span> NAR failed check</span>
+                  <div><code><pre>{{ validationResult.validation[0].message }}</pre></code></div>
+                </span>
+                <span v-if="validationResult && validationResult.status && validationResult.status.status && validationResult.status.status == 'error'">
+                  <span class="validating-text"> <span  class="material-icons-outlined sentiment_very_dissatisfied nar-invalid">sentiment_very_dissatisfied</span> SERVER ERROR</span>
+                  <div><code><pre>Could not check, server issue: {{ validationResult }}</pre></code></div>
+                </span>
+
+
+                
+              </div>
             </template>
 
 
@@ -1974,6 +2019,23 @@
 </style>
 
 <style scoped>
+
+.nar-valid{
+  color: green;
+  font-weight: bold;
+  vertical-align: bottom;
+
+}
+.nar-invalid{
+  color: red;
+
+  vertical-align: bottom;
+
+}
+.validating-text{
+  font-size: 1.25em;
+  font-weight: bold;
+}
 
 .advanced-row{
   display: flex; align-items: center; margin-bottom: 0.5em;
