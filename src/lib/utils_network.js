@@ -2940,6 +2940,47 @@ const utilsNetwork = {
     return content
   },
 
+  /**
+   * Validate a record send to backend
+   */
+  validateNar: async function(xml){
+    //console.log(">> Validating", xml)
+
+    let url = useConfigStore().returnUrls.validate
+
+    // only on the test DB right now
+    if (!url.endsWith('/stage')){
+      url += '/stage'
+    }
+    // await new Promise(r => setTimeout(r, 2000));
+
+    const rawResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      //signal: AbortSignal.timeout(5000),
+      body: JSON.stringify({rdfxml: xml})
+    });
+
+    const content = await rawResponse.json();
+
+		// let content = {
+		// 	status: {"status": "error","server": 'http://ssss.s.s.s.s.s.', "message": '200' },
+		// 	// validation: [{"level": "SUCCESS", "message": "No issues found."}]
+    //   validation: [{"level": "ERROR", "message": "Something when wrong: some problems have occurred."}]
+		// }
+
+
+
+
+
+    return content
+  },
+
+
+
   worldCatSearch: async function(query, index, type, offset, limit, marc=false){
     console.info("worldCatSearch")
     console.info("     query: ", query)
