@@ -2949,7 +2949,9 @@ const utilsNetwork = {
     let url = useConfigStore().returnUrls.validate
 
     // only on the test DB right now
-    if (!url.endsWith('/stage')){
+    if (url.endsWith('/prod') || url.endsWith('/prod/') ){
+      url = url.replace('/prod', '/stage')
+    }else if (!url.endsWith('/stage')){
       url += '/stage'
     }
     // await new Promise(r => setTimeout(r, 2000));
