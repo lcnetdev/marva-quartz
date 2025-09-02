@@ -430,7 +430,13 @@
       },
 
       buildNacoStub(){
-        this.profileStore.lastComplexLookupString = "" // unset this
+        let struct = this.profileStore.returnStructureByComponentGuid(this.guid)
+        try {
+          let name = struct.userValue["http://id.loc.gov/ontologies/bibframe/contribution"][0]["http://id.loc.gov/ontologies/bibframe/agent"][0]["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
+          this.profileStore.lastComplexLookupString = name
+        } catch {
+          this.profileStore.lastComplexLookupString = "" // unset this
+        }
 
         let source = this.profileStore.returnStructureByComponentGuid(this.guid).propertyURI
 

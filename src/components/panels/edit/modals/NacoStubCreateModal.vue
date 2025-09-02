@@ -1351,8 +1351,8 @@
             }
           }
 
-          if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s*and\s*|,/).length>1){
-            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s*and\s*|,/)
+          if (this.statementOfResponsibility && this.statementOfResponsibility.split(/,?\s+and\s+|,/).length>1){
+            this.statementOfResponsibilityOptions = this.statementOfResponsibility.split(/,?\s+and\s+|,/)
           }
 
           let addingDefaultExtraMarcStatements = false

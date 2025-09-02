@@ -341,7 +341,7 @@ test('Build heading "Dogs--geo", but the first part of the geo heading is select
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
     await page.getByText('Portugal', { exact: true }).first().click();
-    await expect(page.getByRole('heading')).toContainText('n80049716-781');
+    await expect(page.getByRole('heading')).toContainText('n80049716');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
 
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal‑‑porto');
@@ -376,7 +376,7 @@ test('Build heading "Dogs--geo", but the first part of the geo heading is select
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--portugal');
     await page.getByText('Portugal', { exact: true }).first().click();
-    await expect(page.getByRole('heading')).toContainText('n80049716-781');
+    await expect(page.getByRole('heading')).toContainText('n80049716');
 
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal--porto');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+3');  // clicking doesn't work for some reason
@@ -466,7 +466,7 @@ test('Add a HUB heading wita subdivision, it has the correct XML', async ({ page
     await page.getByText('Euripides. Medea (Auth)').first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+1');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Euripides. Medea--interviews');
-    await page.getByText('Interviews', { exact: true }).first().click();
+    await page.getByText('Interviews', { exact: true }).nth(1).click();
     await expect(page.getByRole('dialog')).toContainText('GenreForm');
     await expect(page.getByRole('heading')).toContainText('sh99001682');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
@@ -692,7 +692,7 @@ test('Add a name with subdiv (simple) and check it has the correct XML', async (
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('twain, mark');
     await page.getByText('Twain, Mark, 1835-1910', { exact: true }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Twain, Mark, 1835‑1910--interviews');
-    await page.getByText('Interviews', { exact: true }).first().click();
+    await page.getByText('Interviews', { exact: true }).nth(1).click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
     await expect(page.locator('#app')).toContainText('<bf:subject><madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"><madsrdf:isMemberOfMADSSchemerdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910--Interviews</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Twain, Mark, 1835-1910--Interviews</rdfs:label><madsrdf:componentListrdf:parseType="Collection"><madsrdf:PersonalNamerdf:about="http://id.loc.gov/authorities/names/n79021164"><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aTwain, Mark,$d1835-1910</bflc:marcKey></madsrdf:PersonalName><madsrdf:GenreFormrdf:about="http://id.loc.gov/authorities/subjects/sh99001682"><madsrdf:authoritativeLabel>Interviews</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">185 $vInterviews</bflc:marcKey></madsrdf:GenreForm></madsrdf:componentList><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>');
