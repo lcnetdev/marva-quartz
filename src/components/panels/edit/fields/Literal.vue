@@ -101,6 +101,7 @@
                   v-on:keydown.enter.prevent="submitField"
                   autocomplete="off"
                   @focusin="focused"
+                  @focus="valueChanged"
                   @blur="blured"
                   @input="valueChanged"
                   @keyup="navKey"
@@ -935,7 +936,10 @@ export default {
 
       }
 
-      this.expandHeightToContent()
+      window.setTimeout(()=>{
+        this.expandHeightToContent()
+      }, 100)
+      // this.expandHeightToContent()
     },
 
 
