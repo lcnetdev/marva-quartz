@@ -131,7 +131,7 @@
                         class="input-single-subject subject-input" id="subject-input">
                     </form>
                     <div v-for="(c, idx) in components" :ref="'cBackground' + idx"
-                      :class="['color-holder', { 'color-holder-okay': (c.uri !== null || c.literal) }, { 'color-holder-type-okay': (c.type !== null) }]"
+                      :class="['color-holder', { 'color-holder-okay': (c.uri !== null) }, {'color-holder-literal': c.literal}, { 'color-holder-type-okay': (c.type !== null) }]"
                       v-bind:key="idx">
                       {{ c.label }}
                     </div>
@@ -483,6 +483,9 @@ body #app {
 
 }
 
+.color-holder-literal {
+  background-color: #ffd90047;;
+}
 .color-holder-okay {
   background-color: #0080001f;
 }
