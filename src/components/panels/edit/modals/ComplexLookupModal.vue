@@ -184,9 +184,33 @@
         return config.returnUrls.displayLCOnlyFeatures
       },
       addClassNumber: function(classNum){
+        // 2025454279
         let profile = this.activeProfile
 
-        let targetComponent = this.returnComponentByPropertyLabel('Classification numbers')
+        console.info("profile: ", profile)
+        let label = "Classification numbers"
+        let targetComponent = null //this.returnComponentByPropertyLabel('Classification numbers')
+
+        for (let rt in profile.rt){
+          for (let pt in profile.rt[rt].pt){
+            if (profile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() == label.toLowerCase()){
+              if (rt.includes("lc:RT:bf2:Monograph:Work")){
+                let temp = profile.rt[rt].pt[pt]
+                console.info(">>>>", temp)
+                let userValue = temp.userValue
+                let type = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["@type"]
+                if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"){
+                  targetComponent = temp
+                  break
+                }
+              }
+            }
+          }
+        }
+
+        if (!targetComponent){ return }
+
+        console.info("targetComponent: ", targetComponent)
 
         let propertyPath = [
           { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
