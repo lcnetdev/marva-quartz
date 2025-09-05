@@ -13,7 +13,7 @@ test('Load a class number from a NAR', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
   await page.getByText('Dogs (Auth Hd) public').click();
   await page.getByRole('listitem').filter({ hasText: '(DLC) QL737.C22add --Canidae' }).getByRole('button').click();
-  await page.getByRole('listitem').filter({ hasText: '(DLC) QL737.C22add --Canidae' }).getByRole('button').press('Shift+Enter');
+  await page.getByRole('button', { name: 'check' }).press('Shift+Enter');
   await page.getByRole('button', { name: 'Close' }).click();
   await page.locator('div').filter({ hasText: /^Classification numberClassWeb Search: QL737\.C22ClassWeb Browse: QL737\.C22$/ }).getByRole('textbox').click();
   await expect(page.getByRole('button', { name: 'bolt' })).toHaveCount(1);

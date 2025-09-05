@@ -906,12 +906,20 @@ export default {
             if (rt.includes("lc:RT:bf2:Monograph:Work")){
               let temp = profile.rt[rt].pt[pt]
               let userValue = temp.userValue
-              let type = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["@type"]
-              lastClassifiction = pt
-              if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" && !temp.deleted){
-                targetComponent = temp
-                break
-              }
+              let type = false
+                try {
+                  type = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["@type"]
+                } catch{
+                  // empty component
+                }
+                lastClassifiction = pt
+                if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" && !temp.deleted){
+                  targetComponent = temp
+                  break
+                } else if (!type){
+                  targetComponent = temp
+                  break
+                }
             }
           }
         }
