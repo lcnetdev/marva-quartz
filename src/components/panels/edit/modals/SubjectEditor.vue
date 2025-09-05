@@ -876,7 +876,7 @@ export default {
   computed: {
     ...mapStores(usePreferenceStore),
     ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse', 'diacriticPacks']),
-    ...mapState(useProfileStore, ['returnComponentByPropertyLabel']),
+    ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId']),
 
     ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral', 'activeNARStubComponent', 'lastComplexLookupString', 'searchValueLocal', 'showNacoStubCreateModal', 'returnStructureByComponentGuid']),
   },
@@ -892,21 +892,23 @@ export default {
 
     // Emitted from DetailsPanel
     // Add class number from details to Marva
-    addClassNumber: function (classNum) {
+    addClassNumber: async function (classNum) {
+      // 2025454279
       let profile = this.activeProfile
 
       let label = "Classification numbers"
       let targetComponent = null //this.returnComponentByPropertyLabel('Classification numbers')
+      let lastClassifiction
 
       for (let rt in profile.rt){
         for (let pt in profile.rt[rt].pt){
           if (profile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() == label.toLowerCase()){
             if (rt.includes("lc:RT:bf2:Monograph:Work")){
               let temp = profile.rt[rt].pt[pt]
-              console.info(">>>>", temp)
               let userValue = temp.userValue
               let type = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["@type"]
-              if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"){
+              lastClassifiction = pt
+              if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" && !temp.deleted){
                 targetComponent = temp
                 break
               }
@@ -915,8 +917,13 @@ export default {
         }
       }
 
+      let newClass
       // If no match, need to add component
-      if (!targetComponent){ return }
+      if (!targetComponent){
+        let structure = this.returnComponentByPropertyLabel('Classification numbers')
+        newClass = await this.duplicateComponentGetId(structure['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
+        targetComponent = profile.rt["lc:RT:bf2:Monograph:Work"].pt[newClass[0]]
+      }
 
       let propertyPath = [
         { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
@@ -931,6 +938,8 @@ export default {
       }
 
       this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
+
+
 
     },
 
