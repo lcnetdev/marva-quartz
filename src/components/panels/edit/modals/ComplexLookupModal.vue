@@ -208,6 +208,7 @@
           }
         }
 
+        // If no match, need to add component
         if (!targetComponent){ return }
 
         console.info("targetComponent: ", targetComponent)
@@ -223,12 +224,12 @@
         } catch(err){
           fieldGuid = short.generate()
         }
-        try {
-        this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
 
-        // Give user some feedback
-        let button = this.$refs.addClass[0]
-        button.innerText = "check"
+        try {
+          this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
+          // Give user some feedback
+          let button = this.$refs.addClass[0]
+          button.innerText = "check"
         } catch(err) {
           console.error("Couldn't add the class number: ", err)
         }

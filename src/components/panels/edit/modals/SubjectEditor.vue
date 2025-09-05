@@ -895,7 +895,28 @@ export default {
     addClassNumber: function (classNum) {
       let profile = this.activeProfile
 
-      let targetComponent = this.returnComponentByPropertyLabel('Classification numbers')
+      let label = "Classification numbers"
+      let targetComponent = null //this.returnComponentByPropertyLabel('Classification numbers')
+
+      for (let rt in profile.rt){
+        for (let pt in profile.rt[rt].pt){
+          if (profile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() == label.toLowerCase()){
+            if (rt.includes("lc:RT:bf2:Monograph:Work")){
+              let temp = profile.rt[rt].pt[pt]
+              console.info(">>>>", temp)
+              let userValue = temp.userValue
+              let type = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["@type"]
+              if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"){
+                targetComponent = temp
+                break
+              }
+            }
+          }
+        }
+      }
+
+      // If no match, need to add component
+      if (!targetComponent){ return }
 
       let propertyPath = [
         { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
@@ -908,7 +929,9 @@ export default {
       } catch (err) {
         fieldGuid = short.generate()
       }
+
       this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
+
     },
 
     //parse complex headings so we can have complete and broken up headings
