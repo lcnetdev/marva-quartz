@@ -223,7 +223,16 @@
         } catch(err){
           fieldGuid = short.generate()
         }
+        try {
         this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
+
+        // Give user some feedback
+        let button = this.$refs.addClass[0]
+        button.innerText = "check"
+        } catch(err) {
+          console.error("Couldn't add the class number: ", err)
+        }
+
       },
       checkUsable: function(data){
         let notes = data.extra.notes || []
@@ -1245,7 +1254,7 @@
                               <li class="" v-if="key=='lcclasses'" v-for="v in activeContext.extra['lcclasses']">
                                   <template v-if="v.assigner">({{ v.assigner }}) </template>
                                   <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
-                                <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
+                                <button class="material-icons see-search add-class" @click="addClassNumber(v.code)" ref="addClass">add</button>
                                 <template v-if="v.label">
                                   <span v-if="v.label.split('--').length == 1">
                                     --{{ v.label.split("--").at(-1) }}
@@ -1266,7 +1275,8 @@
                                     <template v-if="typeof v == 'string'">
                                         <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v"
                                             target="_blank">{{ v }}</a>
-                                        <button class="material-icons see-search"
+                                        <button class="material-icons see-search add-class"
+                                            ref="addClass"
                                             @click="addClassNumber(v)">add</button>
                                     </template>
                                     <template v-else>
