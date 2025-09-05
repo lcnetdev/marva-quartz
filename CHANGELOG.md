@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.1] - 2025-0+-05
+### Changed
+- `Add Classification` adds to LC Class Component, instead of first class component
+- `Add Classification` creates LC Class component, if there isn't one
+- `Add Classification` changes icon after clicking on the button
+
+
 ## [1.4.0] - 2025-08-29
 ### Added
 - Shelflisting update

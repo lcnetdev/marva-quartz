@@ -107,7 +107,7 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel']),
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
@@ -183,10 +183,49 @@
 
         return config.returnUrls.displayLCOnlyFeatures
       },
-      addClassNumber: function(classNum){
+      addClassNumber: async function(classNum){
+        // 2025454279
         let profile = this.activeProfile
 
-        let targetComponent = this.returnComponentByPropertyLabel('Classification numbers')
+        let label = "Classification numbers"
+        let targetComponent = null //this.returnComponentByPropertyLabel('Classification numbers')
+        let lastClassifiction
+
+        for (let rt in profile.rt){
+          for (let pt in profile.rt[rt].pt){
+            if (profile.rt[rt].pt[pt]['propertyLabel'].toLowerCase() == label.toLowerCase()){
+              if (rt.includes("lc:RT:bf2:Monograph:Work")){
+                let temp = profile.rt[rt].pt[pt]
+                let userValue = temp.userValue
+                let type = false
+                try {
+                  type = userValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["@type"]
+                } catch{
+                  // empty component
+                }
+                lastClassifiction = pt
+                if (type == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" && !temp.deleted){
+                  targetComponent = temp
+                  break
+                } else if (!type){
+                  targetComponent = temp
+                  break
+                }
+              }
+            }
+          }
+        }
+
+        let newClass
+        // If no match, need to add component
+        if (!targetComponent){
+          console.info("adding new")
+          let structure = this.returnComponentByPropertyLabel('Classification numbers')
+          newClass = await this.duplicateComponentGetId(structure['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
+          targetComponent = profile.rt["lc:RT:bf2:Monograph:Work"].pt[newClass[0]]
+        }
+
+        console.info("targetComponent: ", targetComponent)
 
         let propertyPath = [
           { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
@@ -199,7 +238,16 @@
         } catch(err){
           fieldGuid = short.generate()
         }
-        this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
+
+        try {
+          this.setValueLiteral(targetComponent['@guid'], fieldGuid, propertyPath, classNum, null, null)
+          // Give user some feedback
+          let button = this.$refs.addClass[0]
+          button.innerText = "check"
+        } catch(err) {
+          console.error("Couldn't add the class number: ", err)
+        }
+
       },
       checkUsable: function(data){
         let notes = data.extra.notes || []
@@ -1221,7 +1269,7 @@
                               <li class="" v-if="key=='lcclasses'" v-for="v in activeContext.extra['lcclasses']">
                                   <template v-if="v.assigner">({{ v.assigner }}) </template>
                                   <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+v.code" target="_blank">{{ v.code }}</a>
-                                <button class="material-icons see-search" @click="addClassNumber(v.code)">add</button>
+                                <button class="material-icons see-search add-class" @click="addClassNumber(v.code)" ref="addClass">add</button>
                                 <template v-if="v.label">
                                   <span v-if="v.label.split('--').length == 1">
                                     --{{ v.label.split("--").at(-1) }}
@@ -1242,7 +1290,8 @@
                                     <template v-if="typeof v == 'string'">
                                         <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v"
                                             target="_blank">{{ v }}</a>
-                                        <button class="material-icons see-search"
+                                        <button class="material-icons see-search add-class"
+                                            ref="addClass"
                                             @click="addClassNumber(v)">add</button>
                                     </template>
                                     <template v-else>

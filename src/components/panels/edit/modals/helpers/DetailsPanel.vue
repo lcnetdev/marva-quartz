@@ -146,6 +146,7 @@
                                         <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v.code"
                                             target="_blank">{{ v.code }}</a>
                                         <button class="material-icons see-search"
+                                            ref="addClass"
                                             @click="addClassNumber(v.code)">add</button>
                                     </template>
                                     <template v-else>
@@ -174,6 +175,7 @@
                                         <a :href="'https://classweb.org/min/minaret?app=Class&mod=Search&auto=1&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm=' + v"
                                             target="_blank">{{ v }}</a>
                                         <button class="material-icons see-search"
+                                            ref="addClass"
                                             @click="addClassNumber(v)">add</button>
                                     </template>
                                     <template v-else>
@@ -336,6 +338,9 @@ export default {
             this.$emit('newSearch', term)
         },
         addClassNumber: function (code) {
+            let button = this.$refs.addClass[0]
+            button.innerText = "check"
+
             this.$emit('addClassNumber', code)
         },
         getClassLabel: function (label) {

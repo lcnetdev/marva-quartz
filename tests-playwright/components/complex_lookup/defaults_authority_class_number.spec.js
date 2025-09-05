@@ -12,14 +12,14 @@ test('Load a class number from a NAR', async ({ page }) => {
   await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
   await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs');
   await page.getByText('Dogs (Auth Hd) public').click();
-  await page.getByRole('listitem').filter({ hasText: 'QL737.C22add' }).getByRole('button').click();
-  await page.getByRole('listitem').filter({ hasText: 'QL737.C22add' }).getByRole('button').press('Shift+Enter');
+  await page.getByRole('listitem').filter({ hasText: '(DLC) QL737.C22add --Canidae' }).getByRole('button').click();
+  await page.getByRole('button', { name: 'check' }).press('Shift+Enter');
   await page.getByRole('button', { name: 'Close' }).click();
   await page.locator('div').filter({ hasText: /^Classification numberClassWeb Search: QL737\.C22ClassWeb Browse: QL737\.C22$/ }).getByRole('textbox').click();
   await expect(page.getByRole('button', { name: 'bolt' })).toHaveCount(1);
-  
+
   await page.getByRole('button', { name: 'bolt' }).click();
-  await page.getByRole('button', { name: 'Insert Default Values' }).click();  
+  await page.getByRole('button', { name: 'Insert Default Values' }).click();
   await expect(page.locator('[id="edit_lc\\:RT\\:bf2\\:Monograph\\:Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"]')).toContainText('United States, Library of Congress');
   await expect(page.locator('[id="edit_lc\\:RT\\:bf2\\:Monograph\\:Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"]')).toContainText('used by assigner');
 
