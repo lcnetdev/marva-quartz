@@ -889,7 +889,9 @@ export default {
         currentPos = this.getCaretCharOffset(event.target)
       }
       // console.log("3 v:",v)
-      await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,useLang)
+      if (v != ""){
+        await this.profileStore.setValueLiteral(this.guid,event.target.dataset.guid,this.propertyPath,v,useLang)
+      }
 
 
 
