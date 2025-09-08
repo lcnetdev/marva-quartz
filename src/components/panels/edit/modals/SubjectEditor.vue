@@ -2707,6 +2707,7 @@ export default {
             } else {
               data = target
             }
+
             let subs
             subs = target.marcKey.slice(5)
             // subfields = subfields.match(/\$./g)
@@ -2736,6 +2737,9 @@ export default {
                     break
                   case "100":
                     subfield = "madsrdf:PersonalName"
+                    break
+                  case "185":
+                    subfield = "madsrdf:GenreForm"
                     break
                   default:
                     subfield = "madsrdf:Topic"

@@ -324,7 +324,7 @@
                               <li v-for="prev in continueRecordsPreviousVersions[record.lccn]">
                                 <router-link :to="{ name: 'Edit', params: { recordId: prev.eid } }">
                                   <span style="opacity: 0.55;">({{ prev.eid }})</span> {{ prev.title }} ({{
-                                    returnTimeAgo(prev.timestamp) }})
+                                    returnTimeAgo(prev.timestamp) }}) {{ prev.status }}
                                 </router-link>
                               </li>
                             </ul>
