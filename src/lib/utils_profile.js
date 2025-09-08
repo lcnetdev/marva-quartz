@@ -288,7 +288,6 @@ const utilsProfile = {
           // first we test to see if the type is a literal (the type returned, not the property of the value), if so then we
           // don't need to set the type, as its not a blank node, just a nested property
           if (utilsRDF.isUriALiteral(type) === false){
-
             // for duration set datatype
             if(pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/duration'){
               pointer[p][0]['@datatype'] = type
@@ -866,14 +865,14 @@ const utilsProfile = {
   },
 
 
-  
+
   returnContributorUris: function(profile){
     let uris = []
     for (let rt in profile["rt"]){
         for (let pt in profile["rt"][rt]["pt"]){
             pt = profile["rt"][rt]["pt"][pt]
             if (pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/contribution'){
-                if (pt.userValue && 
+                if (pt.userValue &&
                     pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'] &&
                     pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] &&
                     pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] &&
@@ -883,7 +882,7 @@ const utilsProfile = {
                     uris.push(pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]['@id'])
                 }
             }
-          
+
         }
     }
 
