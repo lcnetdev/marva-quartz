@@ -315,6 +315,8 @@
                         </template>
                         <div class="material-icons" v-if="record.status == 'published'" title="Posted record">check_box
                         </div>
+                        <div class="alt-posted material-icons" v-if="record.status != 'published' && continueRecordsPreviousVersions[record.lccn] && continueRecordsPreviousVersions[record.lccn].filter((rec) => rec.status == 'published').length > 0" title="Alt Version Posted">check_box
+                        </div>
                       </div>
                       <template v-if="continueRecordsPreviousVersions[record.lccn]">
                         <details class="continue-record-previous-versions-details">
@@ -324,7 +326,7 @@
                               <li v-for="prev in continueRecordsPreviousVersions[record.lccn]">
                                 <router-link :to="{ name: 'Edit', params: { recordId: prev.eid } }">
                                   <span style="opacity: 0.55;">({{ prev.eid }})</span> {{ prev.title }} ({{
-                                    returnTimeAgo(prev.timestamp) }}) {{ prev.status }}
+                                    returnTimeAgo(prev.timestamp) }}) <div class="material-icons" v-if="prev.status == 'published'" title="Posted record">check_box</div>
                                 </router-link>
                               </li>
                             </ul>
@@ -1638,6 +1640,11 @@ summary {
 
 .fake-link{
   cursor: pointer;
+}
+
+.alt-posted {
+  color: rgb(250, 202, 50) !important;
+  cursor: help;
 }
 
 </style>
