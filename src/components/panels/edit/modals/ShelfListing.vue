@@ -515,9 +515,14 @@
                           <td class="shelflist-number" @click="copyToClipboard($event, r.term)" style="cursor: pointer;">
                             <span v-if="!(r.term ==  '' && r.frequency ==  '' && r.creator ==  '' && r.uniformtitle ==  '' && r.title ==  '' && r.pubdate ==  '' && r.subject ==  '' && r.altsubject ==  '' && r.bibid ==  '' && r.sort ==  '') && r.lookup.includes('precision=exact&qname=idx:lcclass')"
                               class="material-icons number-match simptip-position-right"
-                              data-tooltip="EXISTING CLASS NUM"
+                              data-tooltip="OCCUPIED"
                               >
-                              layers
+                              radio_button_checked
+                            </span>
+                            <span v-else-if="!r.lookup.includes('precision=exact&qname=idx:lcclass')"
+                              class="material-icons number-match simptip-position-right"
+                              data-tooltip="AVAILABLE">
+                              radio_button_unchecked
                             </span>
                             {{ r.term }}
                           </td>
@@ -759,6 +764,7 @@
 .number-match {
   font-size: 1em;
   vertical-align: middle;
+  color: unset;
 }
 
 </style>
