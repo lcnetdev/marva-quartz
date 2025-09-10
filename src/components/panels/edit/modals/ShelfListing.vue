@@ -101,19 +101,19 @@
         async copyToClipboard(event, text) {
           try {
             await navigator.clipboard.writeText(text);
-            
+
             // Create floating "Copied!" text
             const copiedEl = document.createElement('div');
             copiedEl.textContent = 'Copied...';
             copiedEl.className = 'copy-notification';
-            
+
             // Position it relative to the clicked element
             const rect = event.target.getBoundingClientRect();
             copiedEl.style.left = rect.left + (rect.width / 2) + 'px';
             copiedEl.style.top = rect.top + 'px';
-            
+
             document.body.appendChild(copiedEl);
-            
+
             // Remove after animation completes
             setTimeout(() => {
               copiedEl.remove();
@@ -172,7 +172,7 @@
             let countParam = "&count=201"
 
             let cutter = this.preserveSpace ? this.cutterNumber.trimEnd() : this.cutterNumber.trim()
-            
+
             let initalResult =  await utilsNetwork.searchShelfList(
               this.classNumber.trim() + '' + cutter,
               contributor + title + subj + date + countParam
@@ -195,8 +195,8 @@
             let firstExpand = await Promise.all([initalFirstClassPromise, initalLastClassPromise]);
 
             // we are not lookin for the .selected in the expanse reqs, we its not there, so if the server tries to tell us ignore it
-            firstExpand[0] = firstExpand[0].filter((v) => {return !v.selected}) 
-            firstExpand[1] = firstExpand[1].filter((v) => {return !v.selected}) 
+            firstExpand[0] = firstExpand[0].filter((v) => {return !v.selected})
+            firstExpand[1] = firstExpand[1].filter((v) => {return !v.selected})
 
             // ....... :( also remove ones that have all empty reponse too for some reason
             firstExpand[0] = firstExpand[0].filter(v => {return !( (!v.term || v.term.trim() == '') && (!v.title || v.title.trim() == '') ) })
@@ -207,12 +207,12 @@
 
 
 
-            
+
             // const initalFirstClassPos = firstExpand[0].map(e => e.selected).indexOf('selected');
             // const initalLastClassPos = firstExpand[1].map(e => e.selected).indexOf('selected');
 
             for (let toAdd of firstExpand[0].reverse()){
-              if (!toAdd.selected && initalIds.indexOf(toAdd.bibid) == -1){                
+              if (!toAdd.selected && initalIds.indexOf(toAdd.bibid) == -1){
                 initalResult.unshift(toAdd)
               }
             }
@@ -243,10 +243,10 @@
                });
 
 
-               // load up some more results while they start looking               
+               // load up some more results while they start looking
                await this.searchLoadMore()
 
-              
+
             });
 
           },750)
@@ -305,14 +305,14 @@
 
           let initalLastClassPromise = await utilsNetwork.searchShelfList(lastTerm, "&count=201&browse-order=ascending&browse=class&mime=json")
 
-          
+
           // we are not lookin for the .selected in the expanse reqs, we know its not there, so if the server tries to tell us ignore it
-          initalLastClassPromise = initalLastClassPromise.filter((v) => {return !v.selected}) 
+          initalLastClassPromise = initalLastClassPromise.filter((v) => {return !v.selected})
           // ....... :( also remove ones that have all empty reponse too for some reason
           initalLastClassPromise = initalLastClassPromise.filter(v => {return !( (!v.term || v.term.trim() == '') && (!v.title || v.title.trim() == '') ) })
 
 
-          
+
           for (let toAdd of initalLastClassPromise){
               if (!toAdd.selected && ids.indexOf(toAdd.bibid) == -1){
                 this.results.push(toAdd)
@@ -335,7 +335,7 @@
         let initalFirstClassPromise = await utilsNetwork.searchShelfList(firstTerm, "&count=201&browse-order=descending&browse=class&mime=json")
 
         // we are not lookin for the .selected in the expanse reqs, we know its not there, so if the server tries to tell us ignore it
-        initalFirstClassPromise = initalFirstClassPromise.filter((v) => {return !v.selected}) 
+        initalFirstClassPromise = initalFirstClassPromise.filter((v) => {return !v.selected})
         // ....... :( also remove ones that have all empty reponse too for some reason
         initalFirstClassPromise = initalFirstClassPromise.filter(v => {return !( (!v.term || v.term.trim() == '') && (!v.title || v.title.trim() == '') ) })
 
@@ -408,7 +408,7 @@
       this.changedHeight = window.innerHeight/1.05
 
 
-      
+
     },
 
     async mounted() {
@@ -424,7 +424,7 @@
         this.$refs.classNumber.focus()
       }, 100)
 
-      
+
 
 
       this.classNumber = this.activeShelfListData.class
@@ -494,7 +494,6 @@
                   </thead>
                   <tbody>
                     <template v-for="(r, index) in results">
-
                       <template  v-if="r.selected == undefined">
                         <tr :class="[{nuba: r.notused == 'nuba'}]" :data-bibid="r.bibid" :style="index%2 != 0 ? 'background-color: ' + this.preferenceStore.returnValue('--c-shelflist-line-colors') + '; color: black;' : ''">
                           <td class="shelflist-number" @click="copyToClipboard($event, r.term)" style="cursor: pointer;">{{ r.term }}</td>
@@ -506,10 +505,27 @@
                           <td><a v-if="r.bibid.trim() != ''" style="color: inherit; text-decoration: none;" target="_blank" :href="this.idbase + 'resources/works/' + r.bibid">view</a></td>
                         </tr>
                       </template>
+
+                      <!--
+                        If most things are an empty string but the lookup has parameters for the search, there is a match to an existing record. Is this reliable?
+                      -->
                       <template  v-if="(r.selected != undefined && r.selected.trim() == 'selected') || (r.term ==  '' && r.frequency ==  '' && r.creator ==  '' && r.uniformtitle ==  '' && r.title ==  '' && r.pubdate ==  '' && r.subject ==  '' && r.altsubject ==  '' && r.bibid ==  '' && r.sort ==  '')">
                         <tr class="match-point" style="background-color: yellow; color: black;" ref="selected" :data-bibid="r.bibid">
 
-                          <td class="shelflist-number" @click="copyToClipboard($event, r.term)" style="cursor: pointer;">{{ r.term }}</td>
+                          <td class="shelflist-number" @click="copyToClipboard($event, r.term)" style="cursor: pointer;">
+                            <span v-if="!(r.term ==  '' && r.frequency ==  '' && r.creator ==  '' && r.uniformtitle ==  '' && r.title ==  '' && r.pubdate ==  '' && r.subject ==  '' && r.altsubject ==  '' && r.bibid ==  '' && r.sort ==  '') && r.lookup.includes('precision=exact&qname=idx:lcclass')"
+                              class="material-icons number-match simptip-position-right"
+                              data-tooltip="OCCUPIED"
+                              >
+                              radio_button_checked
+                            </span>
+                            <span v-else-if="!r.lookup.includes('precision=exact&qname=idx:lcclass')"
+                              class="material-icons number-match simptip-position-right"
+                              data-tooltip="AVAILABLE">
+                              radio_button_unchecked
+                            </span>
+                            {{ r.term }}
+                          </td>
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
                           <td>{{ r.title }}</td>
@@ -595,7 +611,7 @@
   }
   .number-input{
     font-size: 1.5em;
-    
+
   }
 
   iframe{
@@ -743,6 +759,12 @@
 
 .shelflist-number:hover {
   text-decoration: underline;
+}
+
+.number-match {
+  font-size: 1em;
+  vertical-align: middle;
+  color: unset;
 }
 
 </style>
