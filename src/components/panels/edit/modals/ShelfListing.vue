@@ -515,7 +515,7 @@
                           <td class="shelflist-number" @click="copyToClipboard($event, r.term)" style="cursor: pointer;">
                             <span v-if="!(r.term ==  '' && r.frequency ==  '' && r.creator ==  '' && r.uniformtitle ==  '' && r.title ==  '' && r.pubdate ==  '' && r.subject ==  '' && r.altsubject ==  '' && r.bibid ==  '' && r.sort ==  '') && r.lookup.includes('precision=exact&qname=idx:lcclass')"
                               class="material-icons number-match simptip-position-right"
-                              data-tooltip="EXACT MATCH"
+                              data-tooltip="EXISTING CLASS NUM"
                               >
                               layers
                             </span>
