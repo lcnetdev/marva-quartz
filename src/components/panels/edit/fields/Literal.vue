@@ -101,7 +101,7 @@
                   v-on:keydown.enter.prevent="submitField"
                   autocomplete="off"
                   @focusin="focused"
-                  @focus="valueChanged"
+                  @focus="expandHeightToContent"
                   @blur="blured"
                   @input="valueChanged"
                   @keyup="navKey"
@@ -443,13 +443,16 @@ export default {
     },
 
     expandHeightToContent: function(){
-      for (let key of Object.keys(this.$refs)){
-        if (key.startsWith('input_')){
-          if (this.$refs[key] && this.$refs[key][0]){
-            this.$refs[key][0].style.height =  this.$refs[key][0].scrollHeight + "px"
+      console.info("expand")
+      window.setTimeout(()=>{
+        for (let key of Object.keys(this.$refs)){
+          if (key.startsWith('input_')){
+            if (this.$refs[key] && this.$refs[key][0]){
+              this.$refs[key][0].style.height =  this.$refs[key][0].scrollHeight + "px"
+            }
           }
         }
-      }
+      }, 50)
 
     },
 
