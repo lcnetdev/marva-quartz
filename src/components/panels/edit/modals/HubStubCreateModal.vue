@@ -901,7 +901,6 @@
               </div>
               <div style="flex-shrink: 1;">
                <button v-if="activeHubStubData && activeHubStubData.title" class="title-button" @click="hubTitle=activeHubStubData.title"><span class="material-icons" style="font-size: 20px;">arrow_back</span><span class="title-button-copy">Use Work Title</span></button>
-
               </div>
               <template v-if="activeHubStubData && activeHubStubData.title && activeHubStubData.title.trim() != ''">
               </template>
@@ -927,6 +926,7 @@
             <div style="display: flex; margin-bottom: 1em; clear: both; padding-top: 1em;">
               <div style="flex-grow: 1;">
                 <input type="text" ref="hub-title-variant" v-model="hubTitleVariant" class="title" placeholder="Hub Variant Title" @keydown="keydown" @keyup="keyup">
+                <button v-if="activeHubStubData && activeHubStubData.titleNonLatin" class="" @click="hubTitleVariant=activeHubStubData.titleNonLatin"><span class="material-icons" style="font-size: 20px;">arrow_upward</span><span class="title-button-copy">Use Work Non-Latin Title</span></button>
               </div>
               <div style="flex-shrink: 1;">
                 <button style="height: 29px;" @click="setVariantLang">{{ (hubTitleVariantLang) ? '@' + hubTitleVariantLang : 'Set Lang'}}</button>
