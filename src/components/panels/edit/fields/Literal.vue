@@ -443,7 +443,6 @@ export default {
     },
 
     expandHeightToContent: function(){
-      console.info("expand")
       window.setTimeout(()=>{
         for (let key of Object.keys(this.$refs)){
           if (key.startsWith('input_')){

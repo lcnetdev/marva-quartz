@@ -3671,6 +3671,8 @@ export const useProfileStore = defineStore('profile', {
       let firstSubject = null
       let contributors = []
 
+      let titleNonLatin = null
+
       // find the work and pull out stuff
       for (let rtId in this.activeProfile.rt){
         let target = false
@@ -3720,20 +3722,26 @@ export const useProfileStore = defineStore('profile', {
               titleUserValue = titleUserValue['http://id.loc.gov/ontologies/bibframe/title'][0]
               if (titleUserValue && titleUserValue["@type"]=="http://id.loc.gov/ontologies/bibframe/Title" && titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle']){
 
-
                 let titleBnodeSorted = titleUserValue
-
 
                 if (titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 1){
                   // there are multiple titles, we want to make sure to pick the latin one
                   titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'] = this.sortObjectsByLatinMatch(titleUserValue['http://id.loc.gov/ontologies/bibframe/mainTitle'],'http://id.loc.gov/ontologies/bibframe/mainTitle')
                 }
 
-
-
-
                 if (titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 0 && titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0] && titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                   title = titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'][0]['http://id.loc.gov/ontologies/bibframe/mainTitle']
+                  // there could be a non-latin title
+                  if (titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle'].length > 1){
+                    for (let temp of titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle']){
+                      if (temp["@language"]){
+                        let lang = temp["@language"]
+                        if (!lang.includes("-latin") && !lang.includes("en")){
+                          titleNonLatin = temp["http://id.loc.gov/ontologies/bibframe/mainTitle"]
+                        }
+                      }
+                    }
+                  }
                 }
 
               }
@@ -3842,11 +3850,9 @@ export const useProfileStore = defineStore('profile', {
           // console.log('titleNonSort',titleNonSort)
           // console.log("contributors",contributors)
 
-
-
-
           return {
             title: title,
+            titleNonLatin: titleNonLatin,
             classNumber:classNumber,
             cutterNumber:cutterNumber,
             titleNonSort:titleNonSort,
@@ -3861,6 +3867,7 @@ export const useProfileStore = defineStore('profile', {
 
           return {
             title: null,
+            titleNonLatin: null,
             classNumber:null,
             cutterNumber:null,
             titleNonSort:null,
@@ -3885,6 +3892,7 @@ export const useProfileStore = defineStore('profile', {
           // it is a new record, so there is no info but the LCC classification is by default so populate the other stuff
           return {
             title: title,
+            titleNonLatin: titleNonLatin,
             classNumber:null,
             cutterNumber:null,
             titleNonSort:titleNonSort,
@@ -3898,6 +3906,7 @@ export const useProfileStore = defineStore('profile', {
         } else if (pt && (pt.userValue && pt.propertyURI == 'http://id.loc.gov/ontologies/bibframe/expressionOf')){
           return {
             title: title,
+            titleNonLatin: titleNonLatin,
             classNumber:null,
             cutterNumber:null,
             titleNonSort:null,
