@@ -3736,7 +3736,7 @@ export const useProfileStore = defineStore('profile', {
                     for (let temp of titleBnodeSorted['http://id.loc.gov/ontologies/bibframe/mainTitle']){
                       if (temp["@language"]){
                         let lang = temp["@language"]
-                        if (!lang.includes("-latin") && !lang.includes("en")){
+                        if (!lang.includes("-latin") && lang != "en"){
                           titleNonLatin = temp["http://id.loc.gov/ontologies/bibframe/mainTitle"]
                         }
                       }
