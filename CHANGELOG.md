@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.4.1] - 2025-0+-05
+
+## [1.4.2] - 2025-09-15
+### Fixed
+- `returnAllNonLatinAgentOptions` sometimes haveng `undefined` in the scripts
+
+## [1.4.1] - 2025-09-05
 ### Changed
 - `Add Classification` adds to LC Class Component, instead of first class component
 - `Add Classification` creates LC Class component, if there isn't one
