@@ -5076,7 +5076,10 @@ export const useProfileStore = defineStore('profile', {
               }
            }
           if (nl && nl.node  && nl.node['@language']){
-            nonLatinMap[ptFound['@guid']].scripts.push(nl.node['@language'].split("-")[1])
+            let script = nl.node['@language'].split("-")[1]
+            if (script){
+              nonLatinMap[ptFound['@guid']].scripts.push(script)
+            }
           }
 
 

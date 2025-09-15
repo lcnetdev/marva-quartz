@@ -506,8 +506,12 @@
 
            const customLayouts = this.preferenceStore.returnValue("--l-custom-layouts")
            if (customLayouts != {}){
+
             layoutsMenu.push({ is: "separator" })
             const layoutList = Object.keys(customLayouts)
+
+            if (this.activeProfile == null){ return }
+
             for (let idx in layoutList){
               let layout = customLayouts[layoutList[idx]]
               layoutsMenu.push({
