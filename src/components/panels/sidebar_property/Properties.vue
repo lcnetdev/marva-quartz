@@ -37,7 +37,7 @@
       // gives access to this.counterStore and this.userStore
       ...mapStores(useProfileStore,usePreferenceStore),
       // // gives read access to this.count and this.double
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent', 'emptyComponents','returnComponentLibrary', 'componentLibrary']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile', 'dataChanged','rtLookup', 'activeComponent', 'emptyComponents','returnComponentLibrary', 'componentLibrary', 'displaySubject']),
       ...mapState(usePreferenceStore, ['styleDefault', 'isEmptyComponent', 'layoutActive', 'layoutActiveFilter', 'createLayoutMode']),
 
 
@@ -503,28 +503,30 @@
                             @change="change"
                             item-key="id">
                             <template #item="{element}">
-                              <template v-if="!hideAdminField(activeProfile.rt[profileName].pt[element], profileName) && !activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI) && ( (layoutActive && layoutActiveFilter['properties'][profileName] && includeInLayout(activeProfile.rt[profileName].pt[element].id, layoutActiveFilter['properties'][profileName])) || !layoutActive || (createLayoutMode && layoutActive))">
-                                <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) && !layoutActive )}]">
-                                  <a href="#" @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-ul-alink', {'primary-component': isPrimaryComponent(profileName, activeProfile, activeProfile.rt[profileName].pt[element].id)}]">
-                                      <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
-                                      <span v-if="replacePropertyWithValue(activeProfile.rt[profileName].pt[element].propertyURI)">
-                                        {{ returnHeadingLabel(activeProfile.rt[profileName].pt[element]) }}
-                                      </span>
-                                      <span v-else>
-                                        {{activeProfile.rt[profileName].pt[element].propertyLabel}}
-                                      </span>
+                              <template v-if="displaySubject(activeProfile.rt[profileName].pt[element])">
+                                <template v-if="!hideAdminField(activeProfile.rt[profileName].pt[element], profileName) && !activeProfile.rt[profileName].pt[element].deleted && !hideProps.includes(activeProfile.rt[profileName].pt[element].propertyURI) && ( (layoutActive && layoutActiveFilter['properties'][profileName] && includeInLayout(activeProfile.rt[profileName].pt[element].id, layoutActiveFilter['properties'][profileName])) || !layoutActive || (createLayoutMode && layoutActive))">
+                                  <li @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-li sidebar-property-li-empty', {'user-populated': (hasData(activeProfile.rt[profileName].pt[element]) == 'user')} , {'system-populated': (hasData(activeProfile.rt[profileName].pt[element])) == 'system'}  , {'not-populated-hide': (preferenceStore.returnValue('--c-general-ad-hoc') && emptyComponents[profileName] && emptyComponents[profileName].includes(element) && !layoutActive )}]">
+                                    <a href="#" @click.stop="jumpToElement(profileName, element)" :class="['sidebar-property-ul-alink', {'primary-component': isPrimaryComponent(profileName, activeProfile, activeProfile.rt[profileName].pt[element].id)}]">
+                                        <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-number-labels')">{{activeProfile.rt[profileName].ptOrder.indexOf(element)}}</template>
+                                        <span v-if="replacePropertyWithValue(activeProfile.rt[profileName].pt[element].propertyURI)">
+                                          {{ returnHeadingLabel(activeProfile.rt[profileName].pt[element]) }}
+                                        </span>
+                                        <span v-else>
+                                          {{activeProfile.rt[profileName].pt[element].propertyLabel}}
+                                        </span>
 
-                                  </a>
-                                  <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-show-types')">
-                                    <template v-if="activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs.length>1">
-                                        <ul class="sidebar-property-ul sidebar-property-ul-sub-ul">
-                                            <li class="sidebar-property-li sidebar-property-li-sub-li" :key="t" v-for="t in returnTemplateTypes(activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs)">
-                                              <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}!</a>
-                                            </li>
-                                        </ul>
+                                    </a>
+                                    <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-properties-show-types')">
+                                      <template v-if="activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs.length>1">
+                                          <ul class="sidebar-property-ul sidebar-property-ul-sub-ul">
+                                              <li class="sidebar-property-li sidebar-property-li-sub-li" :key="t" v-for="t in returnTemplateTypes(activeProfile.rt[profileName].pt[element].valueConstraint.valueTemplateRefs)">
+                                                <a tabindex="-1" href="#" class="sidebar-property-ul-alink sidebar-property-ul-alink-sublink" >{{t}}!</a>
+                                              </li>
+                                          </ul>
+                                      </template>
                                     </template>
-                                  </template>
-                                </li>
+                                  </li>
+                                </template>
                               </template>
                             </template>
                           </draggable>

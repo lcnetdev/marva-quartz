@@ -7044,7 +7044,6 @@ export const useProfileStore = defineStore('profile', {
         if (!pref){ return true }
 
         if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
-          console.info("\n\ndisplaySubject: ", comp)
           let userValue = comp.userValue
           let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]
           if (data["http://id.loc.gov/ontologies/bibframe/source"]){
