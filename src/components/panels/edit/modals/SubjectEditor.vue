@@ -1311,19 +1311,17 @@ export default {
             this.subjectStringChanged()
 
             let inputField = document.getElementById("subject-input")
-            inputField.focus()
             inputField.setSelectionRange(posStart, posStart)
+            inputField.focus()
 
             this.navStringClick({})
           }
         }
-        // art schools--massachusetts--boston--biography
-        // art schools—massachusetts—boston—biography
+
         /**
          * When dealing with a switch to GEO, we need to combine the "loose" components
          * into 1 so the search will work.
          */
-
         //get the loose components
         let looseComponents = []
         let indx = []
