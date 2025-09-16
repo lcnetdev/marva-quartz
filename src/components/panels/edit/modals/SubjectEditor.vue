@@ -1074,7 +1074,6 @@ export default {
           for (let i in this.componetLookup) {
             for (let j in this.componetLookup[i]) {
               targetType = this.componetLookup[i][j].type
-
               if (this.componetLookup[i][j].label.includes("--")) {
                 target = this.componetLookup[i][j].label.replaceAll("--", "‑‑")
                 targetIndex = i  // needs this to ensure the target will go into the search string in the right place
@@ -1109,6 +1108,19 @@ export default {
 
       let activePosStart = 0
 
+      // if the componentlist is as long as the split string, but the indexes aren't continuous, adjust them
+      let prev = 0
+      if (subjectStringSplit.length == Object.keys(this.componetLookup).length) {
+        for (let idx in this.componetLookup){
+          if (idx != prev + 1 && idx != 0){
+            this.componetLookup[Number(prev)+1] = this.componetLookup[idx]
+            delete this.componetLookup[idx]
+            idx = Number(prev) + 1
+          }
+          prev = Number(idx)
+        }
+      }
+
       /**
        * When a string in the middle of a heading changes
        * Need a way to track this.
@@ -1135,7 +1147,6 @@ export default {
         let nonLatinMarcKey = null
 
         let tempSs = ss.replace("‑", "-")
-
 
         if (this.componetLookup[id + offset] && this.componetLookup[id + offset][tempSs]) {
           literal = this.componetLookup[id + offset][tempSs].literal
@@ -1298,10 +1309,14 @@ export default {
             let posStart = posEnd - 2
             this.subjectString = this.subjectString.slice(0, posStart) + '‑‑' + this.subjectString.slice(posEnd)
             this.subjectStringChanged()
+
+            let inputField = document.getElementById("subject-input")
+            inputField.setSelectionRange(posStart, posStart)
+            inputField.focus()
+
             this.navStringClick({})
           }
         }
-
 
         /**
          * When dealing with a switch to GEO, we need to combine the "loose" components
@@ -1312,7 +1327,7 @@ export default {
         let indx = []
         let componentMap = []
         for (let c in this.components) {
-          if (this.components[c].uri == null && this.components[c].literal != true) {
+          if (this.components[c].uri == null && this.components[c].literal != true && !this.components[c].label.includes("‑‑")) {
             looseComponents.push(this.components[c])
             indx.push(c)
             componentMap.push("-")
@@ -1343,9 +1358,11 @@ export default {
               } else {
                 part1 = this.activeComponent.label
               }
-              const part2 = looseComponents[c].label
-              this.activeComponent.label = part1 + "‑‑" + part2
-              this.activeComponent.posEnd = looseComponents[c].posEnd
+              if (!part1.includes("‑‑")){
+                const part2 = looseComponents[c].label
+                this.activeComponent.label = part1 + "‑‑" + part2
+                this.activeComponent.posEnd = looseComponents[c].posEnd
+              }
             }
           }
           this.activeComponent.posStart = looseComponents[0].posStart
@@ -2420,7 +2437,7 @@ export default {
     },
 
     subjectStringChanged: async function (event) {
-      this.subjectString = this.subjectString.replace("—", "--")
+      this.subjectString = this.subjectString.replaceAll("—", "--")
       this.validateOkayToAdd()
 
       //fake the "click" so the results panel populates
@@ -2930,7 +2947,7 @@ export default {
 
     let searchValue = this.searchValue
     if (!searchValue) { return }
-    searchValue = searchValue.replace("—", "--")
+    searchValue = searchValue.replaceAll("—", "--")
 
     if (searchValue.includes("---")) {
       searchValue = searchValue.replace("---", "‑--")
@@ -2949,7 +2966,7 @@ export default {
 
     // this supports loading existing information into the forms
     if (this.authorityLookup != null) {
-      this.authorityLookupLocal = this.authorityLookup.replace("—", "--")
+      this.authorityLookupLocal = this.authorityLookup.replaceAll("—", "--")
       this.subjectInput = this.authorityLookupLocal
       this.linkModeString = this.authorityLookupLocal
       try {
