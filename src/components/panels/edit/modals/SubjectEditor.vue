@@ -1295,7 +1295,6 @@ export default {
        */
 
       if (mode == "GEO") {
-        console.info("components 1: ", JSON.parse(JSON.stringify(this.components)))
         // if the User selected the first part of an indirect geo from the LCSH/LCNAF
         // search and then swaps to GEO to finish, replace the `--` between the two
         // to ease the process
@@ -1324,7 +1323,6 @@ export default {
          * into 1 so the search will work.
          */
 
-        console.info("components 2: ", JSON.parse(JSON.stringify(this.components)))
         //get the loose components
         let looseComponents = []
         let indx = []
@@ -1338,7 +1336,6 @@ export default {
             componentMap.push(c)
           }
         }
-        console.info("looseComponents: ", JSON.parse(JSON.stringify(looseComponents)))
         //only stitch the loose components togethere if there are 2 next to each other
         if (indx.length == 2 && indx[1] - 1 == indx[0]) {
           /** !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1362,7 +1359,6 @@ export default {
               } else {
                 part1 = this.activeComponent.label
               }
-              console.info("part1: ", part1)
               if (!part1.includes("‑‑")){
                 const part2 = looseComponents[c].label
                 this.activeComponent.label = part1 + "‑‑" + part2
