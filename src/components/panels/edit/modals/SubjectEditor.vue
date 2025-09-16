@@ -1318,6 +1318,7 @@ export default {
           }
         }
         // art schools--massachusetts--boston--biography
+        // art schools—massachusetts—boston—biography
         /**
          * When dealing with a switch to GEO, we need to combine the "loose" components
          * into 1 so the search will work.
@@ -2438,7 +2439,7 @@ export default {
     },
 
     subjectStringChanged: async function (event) {
-      this.subjectString = this.subjectString.replace("—", "--")
+      this.subjectString = this.subjectString.replaceAll("—", "--")
       this.validateOkayToAdd()
 
       //fake the "click" so the results panel populates
@@ -2948,7 +2949,7 @@ export default {
 
     let searchValue = this.searchValue
     if (!searchValue) { return }
-    searchValue = searchValue.replace("—", "--")
+    searchValue = searchValue.replaceAll("—", "--")
 
     if (searchValue.includes("---")) {
       searchValue = searchValue.replace("---", "‑--")
@@ -2967,7 +2968,7 @@ export default {
 
     // this supports loading existing information into the forms
     if (this.authorityLookup != null) {
-      this.authorityLookupLocal = this.authorityLookup.replace("—", "--")
+      this.authorityLookupLocal = this.authorityLookup.replaceAll("—", "--")
       this.subjectInput = this.authorityLookupLocal
       this.linkModeString = this.authorityLookupLocal
       try {
