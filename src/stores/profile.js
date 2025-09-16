@@ -7035,7 +7035,36 @@ export const useProfileStore = defineStore('profile', {
         return false
       }
       return true
-    }
+    },
+
+    displaySubject: function(comp){
+    // if the prefernce is set to only show LCSH terms, return true/false based on the source
+      try {
+        let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc")
+        if (!pref){ return true }
+
+        if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+          console.info("\n\ndisplaySubject: ", comp)
+          let userValue = comp.userValue
+          let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]
+          if (data["http://id.loc.gov/ontologies/bibframe/source"]){
+            let source = data["http://id.loc.gov/ontologies/bibframe/source"][0]
+            let code   = source["http://id.loc.gov/ontologies/bibframe/code"] ? source["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] : ""
+            let label  = source["http://www.w3.org/2000/01/rdf-schema#label"] ? source["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] : ""
+
+            if (!["lcsh"].includes(code) && !["Library of Congress Subject Headings"].includes(label)){
+              return false
+            } else {
+              return true
+            }
+          }
+        }
+        return true
+      } catch(err){
+        console.error("Error with displaySubject preference: ", err)
+        return true
+      }
+    },
 
 
 
