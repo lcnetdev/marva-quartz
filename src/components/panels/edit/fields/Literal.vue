@@ -763,9 +763,7 @@ export default {
     },
 
     valueChanged: async function(event,setFocus){
-      console.info("valueChanged: ", event)
       let v = event.target.value
-      console.info("value: ", v)
 
       if (event.target.tagName === 'SPAN'){
         v = event.target.innerText
@@ -793,10 +791,8 @@ export default {
       }
       // if the value is empty then wait 2 seconds and check if it is empty again, if it is then continue with the removal
       if (v == ''){
-        console.info("empty")
         await new Promise(r => setTimeout(r, 2000));
         if (event && event.target && event.target.value != ''){
-          console.info("is this returning?")
           return false
         }
       }
