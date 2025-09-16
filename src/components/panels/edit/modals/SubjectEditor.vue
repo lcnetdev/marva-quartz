@@ -1074,7 +1074,6 @@ export default {
           for (let i in this.componetLookup) {
             for (let j in this.componetLookup[i]) {
               targetType = this.componetLookup[i][j].type
-
               if (this.componetLookup[i][j].label.includes("--")) {
                 target = this.componetLookup[i][j].label.replaceAll("--", "‑‑")
                 targetIndex = i  // needs this to ensure the target will go into the search string in the right place
@@ -1109,6 +1108,19 @@ export default {
 
       let activePosStart = 0
 
+      // if the componentlist is as long as the split string, but the indexes aren't continuous, adjust them
+      let prev = 0
+      if (subjectStringSplit.length == Object.keys(this.componetLookup).length) {
+        for (let idx in this.componetLookup){
+          if (idx != prev + 1 && idx != 0){
+            this.componetLookup[Number(prev)+1] = this.componetLookup[idx]
+            delete this.componetLookup[idx]
+            idx = Number(prev) + 1
+          }
+          prev = Number(idx)
+        }
+      }
+
       /**
        * When a string in the middle of a heading changes
        * Need a way to track this.
@@ -1135,7 +1147,6 @@ export default {
         let nonLatinMarcKey = null
 
         let tempSs = ss.replace("‑", "-")
-
 
         if (this.componetLookup[id + offset] && this.componetLookup[id + offset][tempSs]) {
           literal = this.componetLookup[id + offset][tempSs].literal
@@ -1299,6 +1310,11 @@ export default {
             let posStart = posEnd - 2
             this.subjectString = this.subjectString.slice(0, posStart) + '‑‑' + this.subjectString.slice(posEnd)
             this.subjectStringChanged()
+
+            let inputField = document.getElementById("subject-input")
+            inputField.focus()
+            inputField.setSelectionRange(posStart, posStart)
+
             this.navStringClick({})
           }
         }
