@@ -80,6 +80,8 @@
 
 
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
+          ??{{ Object.keys(activeProfile.rt[profileName].pt[profileCompoent]) }}
+          {{ displaySubject(activeProfile.rt[profileName].pt[profileCompoent]) }}
           <template v-if="(createLayoutMode && layoutActive) || layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])) ">
             <template v-if="activeProfile.rt[profileName].pt[profileCompoent] && !hideProps.includes(activeProfile.rt[profileName].pt[profileCompoent].propertyURI)">
 
@@ -244,6 +246,27 @@
     },
 
     methods: {
+        displaySubject: function(comp){
+          if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+            console.info("\n\ndisplaySubject: ", comp)
+            let userValue = comp.userValue
+            let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]
+            if (data["http://id.loc.gov/ontologies/bibframe/source"]){
+              let source = data["http://id.loc.gov/ontologies/bibframe/source"][0]
+              let code   = source["http://id.loc.gov/ontologies/bibframe/code"] ? source["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] : ""
+              let label  = source["http://www.w3.org/2000/01/rdf-schema#label"] ? source["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] : ""
+              console.info("userValue: ", userValue)
+              console.info("data: ", data)
+              console.info("source: ", source)
+              console.info("code: ", code)
+              console.info("label: ", label)
+            }
+
+          }
+
+
+          return true
+        },
 
         addComponent: function(profileName, profileCompoent){
           let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
