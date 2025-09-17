@@ -80,7 +80,9 @@
 
 
         <template v-for="(profileCompoent,idx) in activeProfile.rt[profileName].ptOrder" :key="profileCompoent">
-          <template v-if="(displaySubject(activeProfile.rt[profileName].pt[profileCompoent]))">
+          <!-- <template v-if="(displaySubject(activeProfile.rt[profileName].pt[profileCompoent]))"> -->
+          <!-- <template v-if="!preferenceStore.returnValue('--b-edit-main-hide-non-lc') || ( preferenceStore.returnValue('--b-edit-main-hide-non-lc') && profileStore.hiddenComponents[profileName] && !profileStore.hiddenComponents[profileName].includes(profileCompoent)  )"> -->
+          <template v-if="true">
             <template v-if="(createLayoutMode && layoutActive) || layoutActive == false || (layoutActive == true && layoutActiveFilter.properties[profileName] && includeInLayout(activeProfile.rt[profileName].pt[profileCompoent].id, layoutActiveFilter['properties'][profileName])) ">
               <template v-if="activeProfile.rt[profileName].pt[profileCompoent] && !hideProps.includes(activeProfile.rt[profileName].pt[profileCompoent].propertyURI)">
 
@@ -89,8 +91,8 @@
                   <template v-if="((preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === false) || (preferenceStore.returnValue('--b-edit-main-splitpane-edit-switch-between-resource-button') === true && profileName == activeResourceName ))">
 
                     <template v-if="!activeProfile.rt[profileName].pt[profileCompoent].deleted && !hideAdminField(activeProfile.rt[profileName].pt[profileCompoent], profileName)">
-                      <!-- if createLatoutMode is active, and there is an active layout, show everything -->
-                      <div v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])}">
+                      <!-- if createLayoutMode is active, and there is an active layout, show everything -->
+                      <div v-if="(!preferenceStore.returnValue('--c-general-ad-hoc') || (createLayoutMode && !layoutActive)) || (layoutActive || (preferenceStore.returnValue('--c-general-ad-hoc') && !profileStore.emptyComponents[profileName].includes(profileCompoent)))" :class="{ 'inline-mode' : (preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')), 'edit-panel-scroll-x-child': preferenceStore.returnValue('--b-edit-main-splitpane-edit-scroll-x'), 'read-only': isReadOnly(activeProfile.rt[profileName].pt[profileCompoent]), 'hide-component': preferenceStore.returnValue('--b-edit-main-hide-non-lc') && activeProfile.rt[profileName].pt[profileCompoent].hide}">
                         <template v-if="this.dualEdit == false">
                           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false">
                             <div class="component-label 2" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">
@@ -100,6 +102,7 @@
                               <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
 
                               <div class="icon-container">
+                                <span v-if="preferenceStore.returnValue('--b-edit-main-hide-non-lc') && !displaySubject(activeProfile.rt[profileName].pt[profileCompoent])" class="material-icons inline-icon preview" @click="activeProfile.rt[profileName].pt[profileCompoent].hide=!activeProfile.rt[profileName].pt[profileCompoent].hide">preview</span>
                                 <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
                                 <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
                               </div>
@@ -165,9 +168,6 @@
                 </template>
             </template>
           </template>
-          <template v-else>
-            <!-- Hiding {{ numberSubjectsShowing(activeProfile).hidden }} Subjects -->
-          </template>
         </template>
       </template>
 
@@ -231,7 +231,7 @@
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged', 'returnComponentLibrary', 'displaySubject', 'numberSubjectsShowing']),
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
-      ...mapWritableState(useProfileStore, ['emptyComponents']),
+      ...mapWritableState(useProfileStore, ['emptyComponents', 'hiddenComponents']),
 
       activeResourceName(){
 
@@ -577,6 +577,15 @@ div.instanceInfoWrapper {
 
 .icon-container{
   float: right;
+}
+.preview {
+  font-size: 1.2em;
+}
+.hide-component {
+  margin-bottom: 4px;
+}
+.hide-component > *:not(:first-child) {
+  display: none;
 }
 
 

@@ -154,10 +154,11 @@ export const useProfileStore = defineStore('profile', {
 
     // List of empty components for ad hoc mode
     emptyComponents: {},
-
-    // tracking how many subjects, vs how many hidden
+    // List of components that should be hidden
+    hiddenComponents: {},
     subjectsTotal: 0,
     subjectsHidden: 0,
+
   }),
   getters: {
 
@@ -4411,6 +4412,13 @@ export const useProfileStore = defineStore('profile', {
 
 
         let newPt = JSON.parse(JSON.stringify(pt))
+
+        // cleanout the newPt
+        newPt.xmlSource = ""
+        newPt.dataLoaded = false
+        newPt.hasData = false
+        delete newPt.hide
+
         newPt.id = newPropertyId
         newPt['@guid'] = short.generate()
 
@@ -7044,7 +7052,8 @@ export const useProfileStore = defineStore('profile', {
     displaySubject: function(comp){
       // if the prefernce is set to only show LCSH terms, return true/false based on the source
       // how to handle if everything is hidden??
-      //    maybe move to the place the ad hoc gets set in initial load
+      //    need to show something, or show that things are hidden and
+      // should it be like when ad hoc hides components?
       let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc")
       if (!pref){ return true }
 
