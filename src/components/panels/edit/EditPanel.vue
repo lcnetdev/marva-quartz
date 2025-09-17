@@ -257,7 +257,6 @@
         },
 
         removeComponent: function(profileName, profileCompoent){
-          console.info("delete")
           let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
           this.profileStore.deleteComponent(guid)
         },

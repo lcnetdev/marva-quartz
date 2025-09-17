@@ -154,6 +154,10 @@ export const useProfileStore = defineStore('profile', {
 
     // List of empty components for ad hoc mode
     emptyComponents: {},
+
+    // tracking how many subjects, vs how many hidden
+    subjectsTotal: 0,
+    subjectsHidden: 0,
   }),
   getters: {
 
@@ -7041,9 +7045,10 @@ export const useProfileStore = defineStore('profile', {
       // if the prefernce is set to only show LCSH terms, return true/false based on the source
       // how to handle if everything is hidden??
       //    maybe move to the place the ad hoc gets set in initial load
-      try {
-        let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc")
+      let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc")
+      if (!pref){ return true }
 
+      try {
         if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
           let userValue = comp.userValue
           let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"] ? userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] : {}
@@ -7053,20 +7058,8 @@ export const useProfileStore = defineStore('profile', {
             let label  = source["http://www.w3.org/2000/01/rdf-schema#label"] ? source["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] : ""
             let sourceURI = source["@id"] ? source["@id"] : ""
 
-            if (!pref){
-              if (comp.hide){
-                comp.deleted = false
-                comp.hide = false
-              }
-              return true
-            }
-
             if (!label.includes("Library of Congress") ){
-              comp.deleted = true
-              comp.hide = true
-              return true
-            } else {
-              return true
+              return false
             }
           }
         }
