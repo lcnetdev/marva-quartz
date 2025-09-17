@@ -1991,8 +1991,6 @@ const utilsParse = {
       let uniquePropertyURIs  = {}
       // we are now going to do some ananlyis on profile, see how many properties are acutally used, what is not used, etc
       // also do some post-load data cleanup (like &amp; -> &)
-      let total = 0
-      let hidden = 0
       for (let key in profile.rt[pkey].pt){
 
         if (Object.keys(uniquePropertyURIs).indexOf(profile.rt[pkey].pt[key].propertyURI)===-1){
@@ -2006,15 +2004,11 @@ const utilsParse = {
           // check if this could be hidden
           let comp = profile.rt[pkey].pt[key]
           let display = useProfileStore().displaySubject(comp)
-          if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){ total++ }
           if (!display && comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
-            console.info(display, ": ", comp)
             profile.rt[pkey].pt[key].hide = true
             if (Object.keys(useProfileStore().hiddenComponents).includes(pkey)){
-              hidden++
               useProfileStore().hiddenComponents[pkey].push(key)
             } else {
-              hidden++
               useProfileStore().hiddenComponents[pkey] = [key]
             }
           }
