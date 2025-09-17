@@ -165,6 +165,9 @@
                 </template>
             </template>
           </template>
+          <template v-else>
+            <!-- Hiding {{ numberSubjectsShowing(activeProfile).hidden }} Subjects -->
+          </template>
         </template>
       </template>
 
@@ -226,7 +229,7 @@
 
       // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged', 'returnComponentLibrary', 'displaySubject']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged', 'returnComponentLibrary', 'displaySubject', 'numberSubjectsShowing']),
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
       ...mapWritableState(useProfileStore, ['emptyComponents']),
 
@@ -254,6 +257,7 @@
         },
 
         removeComponent: function(profileName, profileCompoent){
+          console.info("delete")
           let guid = this.activeProfile.rt[profileName].pt[profileCompoent]['@guid']
           this.profileStore.deleteComponent(guid)
         },

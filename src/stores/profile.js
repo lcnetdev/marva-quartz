@@ -7038,26 +7038,39 @@ export const useProfileStore = defineStore('profile', {
     },
 
     displaySubject: function(comp){
-    // if the prefernce is set to only show LCSH terms, return true/false based on the source
+      // if the prefernce is set to only show LCSH terms, return true/false based on the source
+      // how to handle if everything is hidden??
+      //    maybe move to the place the ad hoc gets set in initial load
       try {
         let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc")
-        if (!pref){ return true }
 
         if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
           let userValue = comp.userValue
-          let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"][0]
+          let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"] ? userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] : {}
           if (data["http://id.loc.gov/ontologies/bibframe/source"]){
             let source = data["http://id.loc.gov/ontologies/bibframe/source"][0]
             let code   = source["http://id.loc.gov/ontologies/bibframe/code"] ? source["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] : ""
             let label  = source["http://www.w3.org/2000/01/rdf-schema#label"] ? source["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] : ""
+            let sourceURI = source["@id"] ? source["@id"] : ""
 
-            if (!["lcsh"].includes(code) && !["Library of Congress Subject Headings"].includes(label)){
-              return false
+            if (!pref){
+              if (comp.hide){
+                comp.deleted = false
+                comp.hide = false
+              }
+              return true
+            }
+
+            if (!label.includes("Library of Congress") ){
+              comp.deleted = true
+              comp.hide = true
+              return true
             } else {
               return true
             }
           }
         }
+
         return true
       } catch(err){
         console.error("Error with displaySubject preference: ", err)
