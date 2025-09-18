@@ -4407,6 +4407,13 @@ export const useProfileStore = defineStore('profile', {
 
 
         let newPt = JSON.parse(JSON.stringify(pt))
+
+        // cleanout the newPt
+        newPt.xmlSource = ""
+        newPt.dataLoaded = false
+        newPt.hasData = false
+        delete newPt.hide
+
         newPt.id = newPropertyId
         newPt['@guid'] = short.generate()
 
@@ -7035,7 +7042,38 @@ export const useProfileStore = defineStore('profile', {
         return false
       }
       return true
-    }
+    },
+
+    displaySubject: function(comp){
+      // if the prefernce is set to only show LCSH terms, return true/false based on the source
+      // how to handle if everything is hidden??
+      //    need to show something, or show that things are hidden and
+      // should it be like when ad hoc hides components?
+      let pref = usePreferenceStore().returnValue("--b-edit-main-hide-non-lc")
+      if (!pref){ return true }
+
+      try {
+        if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+          let userValue = comp.userValue
+          let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"] ? userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] : {}
+          if (data["http://id.loc.gov/ontologies/bibframe/source"]){
+            let source = data["http://id.loc.gov/ontologies/bibframe/source"][0]
+            let code   = source["http://id.loc.gov/ontologies/bibframe/code"] ? source["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] : ""
+            let label  = source["http://www.w3.org/2000/01/rdf-schema#label"] ? source["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"] : ""
+            let sourceURI = source["@id"] ? source["@id"] : ""
+
+            if (!label.includes("Library of Congress") ){
+              return false
+            }
+          }
+        }
+
+        return true
+      } catch(err){
+        console.error("Error with displaySubject preference: ", err)
+        return true
+      }
+    },
 
 
 

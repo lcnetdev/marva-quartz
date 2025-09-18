@@ -587,6 +587,16 @@ export const usePreferenceStore = defineStore('preference', {
         range: null
     },
 
+    '--b-edit-main-hide-non-lc' : {
+          desc: 'Do not display nonLC subjects.',
+          descShort: 'Hide non-LC Subjects',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+      },
+
 
 
 
@@ -1332,7 +1342,7 @@ export const usePreferenceStore = defineStore('preference', {
         index: 4
       },
 
-      
+
       '--c-shelflist-line-colors' : {
           value:'#f1f7ff;', // old val: #a4c3f9ff == #a8c7fc;
           desc: 'Accent color for the shelf list results.',
@@ -1630,7 +1640,7 @@ export const usePreferenceStore = defineStore('preference', {
         this.styleDefault = prefs.styleDefault
         this.panelDisplay = prefs.panelDisplay
 
-        
+
         // overwrite some old choices
         if (this.styleDefault['--c-shelflist-line-colors'].value == '#a8c7fc;'){
           this.styleDefault['--c-shelflist-line-colors'].value = '#f1f7ff;'
