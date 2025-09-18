@@ -2001,16 +2001,11 @@ const utilsParse = {
           // there could be one property for all components, the @root id
           profile.rt[pkey].pt[key].dataLoaded=true
 
-          // check if this could be hidden
+          // check if this could be a hidden subject
           let comp = profile.rt[pkey].pt[key]
           let display = useProfileStore().displaySubject(comp)
           if (!display && comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
-            profile.rt[pkey].pt[key].hide = true
-            if (Object.keys(useProfileStore().hiddenComponents).includes(pkey)){
-              useProfileStore().hiddenComponents[pkey].push(key)
-            } else {
-              useProfileStore().hiddenComponents[pkey] = [key]
-            }
+            profile.rt[pkey].pt[key].hideSubject = true
           }
         }else{
           profile.rt[pkey].pt[key].dataLoaded=false
@@ -2127,10 +2122,6 @@ const utilsParse = {
           }
         }
       }
-
-
-
-
 
       profile.rt[pkey].propertyLoadReport = uniquePropertyURIs
 
