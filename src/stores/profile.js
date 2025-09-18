@@ -154,11 +154,6 @@ export const useProfileStore = defineStore('profile', {
 
     // List of empty components for ad hoc mode
     emptyComponents: {},
-    // List of components that should be hidden
-    hiddenComponents: {},
-    subjectsTotal: 0,
-    subjectsHidden: 0,
-
   }),
   getters: {
 
