@@ -513,6 +513,7 @@
                         <tr class="match-point" style="background-color: yellow; color: black;" ref="selected" :data-bibid="r.bibid">
 
                           <td class="shelflist-number" @click="copyToClipboard($event, r.term)" style="cursor: pointer;">
+                            {{ r.term }}
                             <span v-if="!(r.term ==  '' && r.frequency ==  '' && r.creator ==  '' && r.uniformtitle ==  '' && r.title ==  '' && r.pubdate ==  '' && r.subject ==  '' && r.altsubject ==  '' && r.bibid ==  '' && r.sort ==  '') && r.lookup.includes('precision=exact&qname=idx:lcclass')"
                               class="material-icons number-match simptip-position-right"
                               data-tooltip="OCCUPIED"
@@ -524,7 +525,6 @@
                               data-tooltip="AVAILABLE">
                               radio_button_unchecked
                             </span>
-                            {{ r.term }}
                           </td>
                           <td>{{ r.creator }}</td>
                           <td>{{ r.uniformtitle }}</td>
