@@ -15,7 +15,7 @@
           </div>
           <button @click="editorModeSwitch('build')" data-tooltip="Build LCSH headings using a lookup list"
             class="subjectEditorModeButtons simptip-position-left"
-            style="margin-right: 1em; background-color: black; height: 2em; display: inline-flex;">
+            style="margin-right: 1em; background-color: black; height: 2em; display: inline-flex; display: none;">
             <svg fill="#F2F2F2" width="20px" height="20px" version="1.1" viewBox="0 0 100 100"
               xmlns="http://www.w3.org/2000/svg">
               <g>
@@ -42,7 +42,7 @@
           </button>
           <button @click="editorModeSwitch('link')" data-tooltip="Build LCSH headings by entering a MARC encoded string"
             class="subjectEditorModeButtons simptip-position-left"
-            style="background-color: black; height: 2em; display: inline-flex;">
+            style="background-color: black; height: 2em; display: inline-flex; display: none;">
 
             <svg fill="#F2F2F2" width="20px" height="20px" version="1.1" viewBox="0 0 100 100"
               xmlns="http://www.w3.org/2000/svg">
