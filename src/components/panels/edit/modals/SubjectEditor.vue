@@ -13,7 +13,8 @@
           <div class="menu-buttons">
             <button @click="closeEditor()">Close</button>
           </div>
-          <button @click="editorModeSwitch('build')" data-tooltip="Build LCSH headings using a lookup list"
+          <button v-if="subjectEditorMode=='link'"
+            @click="editorModeSwitch('build')" data-tooltip="Build LCSH headings using a lookup list"
             class="subjectEditorModeButtons simptip-position-left"
             style="margin-right: 1em; background-color: black; height: 2em; display: inline-flex; display: none;">
             <svg fill="#F2F2F2" width="20px" height="20px" version="1.1" viewBox="0 0 100 100"
@@ -40,7 +41,8 @@
 
             <span :class="[{ 'subjectEditorModeTextEnabled': (subjectEditorMode === 'build') }]">Build Mode</span>
           </button>
-          <button @click="editorModeSwitch('link')" data-tooltip="Build LCSH headings by entering a MARC encoded string"
+          <button v-if="subjectEditorMode=='build'"
+            @click="editorModeSwitch('link')" data-tooltip="Build LCSH headings by entering a MARC encoded string"
             class="subjectEditorModeButtons simptip-position-left"
             style="background-color: black; height: 2em; display: inline-flex; display: none;">
 
