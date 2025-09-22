@@ -229,7 +229,7 @@
 
       // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged', 'returnComponentLibrary']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged', 'returnComponentLibrary', 'displaySubject']),
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
       ...mapWritableState(useProfileStore, ['emptyComponents']),
 
