@@ -154,6 +154,7 @@ export const useProfileStore = defineStore('profile', {
 
     // List of empty components for ad hoc mode
     emptyComponents: {},
+    hiddenSubjects: false,
   }),
   getters: {
 
@@ -4369,6 +4370,9 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     duplicateComponent: async function(componentGuid, structure){
+      console.info("\nduplicateComponent")
+      console.info("componentGuid: ", componentGuid)
+      console.info("structure: ", structure)
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
@@ -4412,6 +4416,8 @@ export const useProfileStore = defineStore('profile', {
         newPt.xmlSource = ""
         newPt.dataLoaded = false
         newPt.hasData = false
+        delete newPt.deleted
+        delete newPt.hideSubject
         delete newPt.hide
 
         newPt.id = newPropertyId
@@ -7045,7 +7051,7 @@ export const useProfileStore = defineStore('profile', {
     },
 
     displaySubject: function(comp){
-      // if the prefernce is set to only show LCSH terms, return true/false based on the source
+      // if the preference is set to only show LCSH terms, return true/false based on the source
       // how to handle if everything is hidden??
       //    need to show something, or show that things are hidden and
       // should it be like when ad hoc hides components?
@@ -7073,6 +7079,47 @@ export const useProfileStore = defineStore('profile', {
         console.error("Error with displaySubject preference: ", err)
         return true
       }
+    },
+
+    numberHiddenShown: function(profile){
+      let subjectCount = 0
+      let subjectHidden = 0
+      let subjectLast = null
+      for (let rt in profile.rt){
+        for (let pt in profile.rt[rt].pt){
+          if (pt.includes("id_loc_gov_ontologies_bibframe_subject__subjects")){
+            let comp =  profile.rt[rt].pt[pt]
+            console.info("comp: ", comp, "--", comp.deleted)
+            if (comp.deleted === undefined || (Object.keys(comp).includes('deleted') && comp.deleted != true)){
+              subjectCount++
+            }
+            if (comp.hideSubject){
+              subjectHidden++
+            }
+            subjectLast = comp
+          }
+        }
+      }
+
+      // console.info("last: ", subjectLast)
+      // console.info("structure: ", this.returnStructureByGUID(subjectLast["@guid"]))
+
+      let showing = subjectCount - subjectHidden
+      if (showing == 0){
+        // add an empty subject component
+        // componentGuid, structure
+        this.duplicateComponent(subjectLast["@guid"], this.returnStructureByGUID(subjectLast["@guid"]))
+      }
+      if (subject.Hidden > 0){
+        this.hiddenSubjects = true
+      }
+
+      let results = {'subjects': subjectCount, 'hidden': subjectHidden, 'showing': showing}
+
+      console.info("results: ", results)
+      // console.info("profile: ", profile)
+
+      return results
     },
 
 

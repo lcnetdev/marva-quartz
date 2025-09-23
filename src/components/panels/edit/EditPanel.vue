@@ -102,7 +102,7 @@
                               <span v-if="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])"> (HISTORICAL - READ ONLY) <a style="color:black" href="#" @click="showDebug($event,activeProfile.rt[profileName].pt[profileCompoent])">debug</a></span>
 
                               <div class="icon-container">
-                                <span v-if="preferenceStore.returnValue('--b-edit-main-hide-non-lc') && !displaySubject(activeProfile.rt[profileName].pt[profileCompoent])" class="material-icons inline-icon preview" @click="activeProfile.rt[profileName].pt[profileCompoent].hideSubject=!activeProfile.rt[profileName].pt[profileCompoent].hideSubject">preview</span>
+                                <span v-if="preferenceStore.returnValue('--b-edit-main-hide-non-lc') && !displaySubject(activeProfile.rt[profileName].pt[profileCompoent])" class="material-icons inline-icon preview" @click="activeProfile.rt[profileName].pt[profileCompoent].hideSubject=!activeProfile.rt[profileName].pt[profileCompoent].hideSubject">visibility</span>
                                 <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="removeComponent(profileName, profileCompoent)">delete</span>
                                 <span v-if="!profileCompoent.includes('adminmetadata') && preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-add-delete')" :class="['material-icons','inline-icon', {'work': profileName.includes('Work'), 'instance': profileName.includes('Instance'), 'item': profileName.includes('Item'),}]" @click="addComponent(profileName, profileCompoent)">add</span>
                               </div>
@@ -110,8 +110,8 @@
                             </div>
 
                           </template>
-                      </template>
-                      <template v-if="this.dualEdit == true">
+                        </template>
+                        <template v-if="this.dualEdit == true">
                           <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode') == false && preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode') == false && (profileName.indexOf(':Instance') == -1 && profileName.indexOf(':Item') == -1 )">
                             <div class="component-label 3" :class="{'label-bold': preferenceStore.returnValue('--b-edit-main-splitpane-edit-show-field-labels-bold')}">
                             <input v-if="!createLayoutMode && preferenceStore.copyMode && !activeProfile.rt[profileName].pt[profileCompoent].propertyLabel.includes('Admin')" type="checkbox" class="copy-selection" :id="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
@@ -126,7 +126,7 @@
 
                             </div>
                           </template>
-                      </template>
+                        </template>
 
                         <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
                           <div v-if="profileName.split(':').slice(-1)[0] == 'Work'" class="inline-mode-resource-color-work">&nbsp;</div>
@@ -156,12 +156,16 @@
                           :id="activeProfile.rt[profileName].pt[profileCompoent].id"
                           :parentId="activeProfile.rt[profileName].pt[profileCompoent].parentId"
                           :readOnly="isReadOnly(activeProfile.rt[profileName].pt[profileCompoent])" />
-
                             <template v-if="preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')">
                               <InlineModeAddField :guid="activeProfile.rt[profileName].pt[profileCompoent]['@guid']" />
                             </template>
-
                         </div>
+
+                        <!-- There's a hidden subject -->
+                        <template v-if="preferenceStore.returnValue('--b-edit-main-hide-non-lc') && activeProfile.rt[profileName].pt[profileCompoent].hideSubject">
+                          <div v-if="numberHiddenShown(activeProfile).hidden > 0"></div>
+                        </template>
+
                       </template>
                     </template>
                   </template>
@@ -229,7 +233,7 @@
 
       // gives read access to this.count and this.double
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
-      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged', 'returnComponentLibrary', 'displaySubject']),
+      ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged', 'returnComponentLibrary', 'displaySubject', 'numberHiddenShown', 'hiddenSubjects']),
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
       ...mapWritableState(useProfileStore, ['emptyComponents']),
 
@@ -575,6 +579,11 @@ div.instanceInfoWrapper {
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-item')");
 }
 
+.inline-icon.preview:hover {
+  background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-component-label-color')");
+  color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-background-color-work')");
+}
+
 .icon-container{
   float: right;
 }
@@ -583,6 +592,7 @@ div.instanceInfoWrapper {
 }
 .hide-component {
   margin-bottom: 4px;
+  display: none;
 }
 .hide-component > *:not(:first-child) {
   display: none;
