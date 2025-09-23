@@ -7110,7 +7110,7 @@ export const useProfileStore = defineStore('profile', {
         // componentGuid, structure
         this.duplicateComponent(subjectLast["@guid"], this.returnStructureByGUID(subjectLast["@guid"]))
       }
-      if (subject.Hidden > 0){
+      if (subjectHidden > 0){
         this.hiddenSubjects = true
       }
 
