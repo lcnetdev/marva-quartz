@@ -2000,6 +2000,13 @@ const utilsParse = {
         if (Object.keys(profile.rt[pkey].pt[key].userValue).length>1){
           // there could be one property for all components, the @root id
           profile.rt[pkey].pt[key].dataLoaded=true
+
+          // check if this could be a hidden subject
+          let comp = profile.rt[pkey].pt[key]
+          let display = useProfileStore().displaySubject(comp)
+          if (!display && comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
+            profile.rt[pkey].pt[key].hideSubject = true
+          }
         }else{
           profile.rt[pkey].pt[key].dataLoaded=false
           // if there is no data loaded, add it to the list for ad hoc
@@ -2115,10 +2122,6 @@ const utilsParse = {
           }
         }
       }
-
-
-
-
 
       profile.rt[pkey].propertyLoadReport = uniquePropertyURIs
 
