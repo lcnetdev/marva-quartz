@@ -2829,7 +2829,6 @@ const utilsNetwork = {
     */
 
     saveRecord: async function(xml, eId){
-      console.info("saveRecord: ", xml)
       const putMethod = {
         method: 'PUT', // Method itself
         headers: {
@@ -2884,9 +2883,6 @@ const utilsNetwork = {
      },
 
      searchSavedRecords: async function(user,search){
-
-      console.info("searchSavedRecords: ", search)
-
       let utilUrl = useConfigStore().returnUrls.util
       let utilPath = useConfigStore().returnUrls.env
 
