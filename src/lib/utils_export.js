@@ -1569,7 +1569,6 @@ const utilsExport = {
 							for (let cc of lccnEl.children){
 								if (cc.tagName == 'rdf:value'){
 									xmlVoidDataLccn = cc.innerText || cc.textContent
-									console.info("set lccn 2: ", xmlVoidDataLccn)
 								}
 							}
 
