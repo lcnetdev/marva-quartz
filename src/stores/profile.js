@@ -4370,9 +4370,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     duplicateComponent: async function(componentGuid, structure){
-      console.info("\nduplicateComponent")
-      console.info("componentGuid: ", componentGuid)
-      console.info("structure: ", structure)
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
@@ -7100,9 +7097,6 @@ export const useProfileStore = defineStore('profile', {
         }
       }
 
-      // console.info("last: ", subjectLast)
-      // console.info("structure: ", this.returnStructureByGUID(subjectLast["@guid"]))
-
       let showing = subjectCount - subjectHidden
       if (showing == 0){
         // add an empty subject component
@@ -7114,8 +7108,6 @@ export const useProfileStore = defineStore('profile', {
       }
 
       let results = {'subjects': subjectCount, 'hidden': subjectHidden, 'showing': showing}
-
-      // console.info("profile: ", profile)
 
       return results
     },

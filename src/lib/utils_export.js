@@ -438,8 +438,6 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
-    // console.info("buildXML: ", JSON.stringify(profile))
-
     // keep track of the proces for later
 	// let debugHistory = []
 	let xmlLog = []
@@ -1535,8 +1533,6 @@ const utilsExport = {
 			}
 		}
 
-		console.info("rdfBasic: ", rdfBasic)
-
 		if (rdfBasic.getElementsByTagName("bf:Instance").length>0){
 			let i = rdfBasic.getElementsByTagName("bf:Instance")[0] // If there's an associatedResource this can find that instead of the instance of this record
 
@@ -1551,24 +1547,17 @@ const utilsExport = {
 				}
 			}
 
-			console.info("i: ", i)
-
 			// then find all the lccns and living in the bf:identifiedBy
 			for (let c of i.children){
 				if (c.tagName === 'bf:identifiedBy'){
-					console.info(c.tagName, ": ", c)
-					console.info(">>>", c.getElementsByTagName("bf:Lccn"))
 					// grab the lccn bnode
 					if (c.getElementsByTagName("bf:Lccn").length>0){
 						let lccnEl = c.getElementsByTagName("bf:Lccn")[0]
-
-						console.info("lccnEl: ", lccnEl)
 
 						// does it have a status
 						if (lccnEl.getElementsByTagName("bf:Status").length==0){
 							// no status element, so this is it
 							xmlVoidDataLccn = lccnEl.innerText || lccnEl.textContent
-							console.info("set lccn 1: ", xmlVoidDataLccn)
 							//break
 						}else if (lccnEl.getElementsByTagName("bf:Status").length>0){
 							// it does have a status, if it is canceled then we dont wnat to use it
@@ -1745,9 +1734,6 @@ const utilsExport = {
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
 	// console.info("strXmlBasic: ", strXmlBasic)
-	// for (let item of xmlLog){
-	// 	console.info(item)
-	// }
 
 	return {
 		xmlDom: rdf,
