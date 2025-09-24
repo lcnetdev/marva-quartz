@@ -91,6 +91,7 @@ export const useConfigStore = defineStore('config', {
         publicEndpoints:true,
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
         bfdb : 'https://preprod-8230.id.loc.gov/',
+        isBibframeDotOrg: false,
 
       },
 
@@ -165,6 +166,7 @@ export const useConfigStore = defineStore('config', {
         publicEndpoints:true,
         displayLCOnlyFeatures: false,
         simpleLookupLang: 'en',
+        isBibframeDotOrg: true,
       },
 
       playwrightTestConfig:{

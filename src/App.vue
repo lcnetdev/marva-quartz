@@ -94,7 +94,8 @@ export default {
 //     const configStore = useConfigStore()
 // const profileStore = useProfileStore()
 
-    this.preferenceStore.initalize()
+
+    this.preferenceStore.initalize(this.configStore.returnUrls)
     // this.profileStore.buildProfiles()
     //window.setTimeout(async ()=>{
 

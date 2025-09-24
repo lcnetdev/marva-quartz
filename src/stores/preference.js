@@ -1501,7 +1501,7 @@ export const usePreferenceStore = defineStore('preference', {
     * Setup the preference store, access settings stored in localstorage, etc.
     * @return {void} -
     */
-    initalize: function(){
+    initalize: function(configUrls=null){
 
       // check to see if we have the settings locally we can populate
       if (window.localStorage.getItem('marva-catInitals')){
@@ -1522,7 +1522,78 @@ export const usePreferenceStore = defineStore('preference', {
 
       this.styleDefaultOrginal = JSON.parse(JSON.stringify(this.styleDefault))
       this.panelDisplayOrginal = JSON.parse(JSON.stringify(this.panelDisplay))
+
+      let setInitalBibframeDotOrgPrefs = false
+      if (configUrls && configUrls.isBibframeDotOrg && !this.catInitals){
+        console.log("Setting initial prefs for bibframe.org")
+        // take the last 5 digits of the timestamp
+        let ts = Date.now().toString()
+        let rand = Math.floor(Math.random() * 100).toString().padStart(2,'0')
+        let useRandom = ts.substring(ts.length - 3) + rand
+        this.catInitals = "Guest-" + useRandom
+        this.catCode = "G" + useRandom
+        setInitalBibframeDotOrgPrefs = true
+      }
+
       this.loadPreferences()
+
+      // write some basic defaults if they are a new user on bibframe.org
+      if (setInitalBibframeDotOrgPrefs){
+
+        console.log("added default prefs for bibframe.org")
+        let quickViewDefaults = [
+                    {
+                        "view": {
+                            "properties": true,
+                            "dualEdit": true,
+                            "opac": false,
+                            "xml": false,
+                            "marc": true,
+                            "linkedData": false
+                        },
+                        "percents": {
+                            "edit-main-splitpane-opac": null,
+                            "edit-main-splitpane-marc": "29.1005%",
+                            "edit-main-splitpane-xml": null,
+                            "edit-main-splitpane-edit-combined": null,
+                            "edit-main-splitpane-edit-work": "29.828%",
+                            "edit-main-splitpane-edit-instance": "30.8201%",
+                            "edit-main-splitpane-properties": "10.2513%"
+                        },
+                        "default": true,
+                        "icon": "edit",
+                        "color": "#000000",
+                        "id": "uUoRfG8ZAJQ7dCBToPDMV2"
+                    },
+                    {
+                        "view": {
+                            "properties": false,
+                            "dualEdit": true,
+                            "opac": false,
+                            "xml": true,
+                            "marc": true,
+                            "linkedData": false
+                        },
+                        "percents": {
+                            "edit-main-splitpane-opac": null,
+                            "edit-main-splitpane-marc": "24.8677%",
+                            "edit-main-splitpane-xml": "27.381%",
+                            "edit-main-splitpane-edit-combined": null,
+                            "edit-main-splitpane-edit-work": "23.082%",
+                            "edit-main-splitpane-edit-instance": "24.6693%",
+                            "edit-main-splitpane-properties": null
+                        },
+                        "default": false,
+                        "icon": "preview",
+                        "color": "#000000",
+                        "id": "rhJgQTRXuvJKabjYQtHgcc"
+                    }
+                ]
+        this.setValue('--o-edit-main-splitpane-edit-panel-size-presets', quickViewDefaults)
+
+
+        
+      }
 
       this.buildDiacriticSettings()
 
@@ -1530,7 +1601,6 @@ export const usePreferenceStore = defineStore('preference', {
       this.copyMode = this.styleDefault['--c-general-copy-mode'].value
 
       this.panelSizePresets = this.styleDefault['--o-edit-main-splitpane-edit-panel-size-presets'].value
-
 
 
         // fetch(this.configStore.returnUrls.scriptshifter + 'languages', {
