@@ -290,7 +290,7 @@
                                   <span
                                     class="material-icons delete-icon"
                                     @click.stop.prevent="removeRecord(record)"
-                                    v-if="!Object.keys(record).includes('title')"
+                                    v-if="!Object.keys(record).includes('title') && !Object.keys(record).includes('lccn')"
                                     >
                                     delete_forever
                                   </span>
