@@ -86,11 +86,12 @@ export const useConfigStore = defineStore('config', {
         id: 'https://id.loc.gov/',
         env : 'staging',
         dev: true,
-        displayLCOnlyFeatures: true,
+        displayLCOnlyFeatures: false,
         simpleLookupLang: 'en',
         publicEndpoints:true,
         lcap: 'https://c2vwscf01.loc.gov/cflsops/toolkit-training-lcsg/lcap-productivity/marva/bibId/',
         bfdb : 'https://preprod-8230.id.loc.gov/',
+        isBibframeDotOrg: true,
 
       },
 
@@ -165,6 +166,7 @@ export const useConfigStore = defineStore('config', {
         publicEndpoints:true,
         displayLCOnlyFeatures: false,
         simpleLookupLang: 'en',
+        isBibframeDotOrg: true,
       },
 
       playwrightTestConfig:{

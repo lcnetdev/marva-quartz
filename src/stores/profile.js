@@ -3196,6 +3196,40 @@ export const useProfileStore = defineStore('profile', {
       return utilsExport.buildXML(this.activeProfile)
     },
 
+
+    downloadBFDotOrg: async function(format='marc'){
+
+      let xml = await utilsExport.buildXML(this.activeProfile)
+      let marc = await utilsNetwork.marcPreview(xml.bf2Marc, false)
+      
+      xml = xml.xmlStringFormatted
+      marc =marc[0].results.stdout
+      let use = marc
+      let filename = `${this.activeProfile.eId}.marcxml.xml`
+      if (format=='marc'){
+        use = marc
+      }else{
+        use = xml
+        filename = `${this.activeProfile.eId}.rdfxml.xml`
+      }
+
+      const blob = new Blob([use], { type: "text/xml" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+
+      // Append to body and trigger click (some browsers might require this for reliable click event)
+      document.body.appendChild(a); 
+      a.click();
+      document.body.removeChild(a); // Clean up
+
+      URL.revokeObjectURL(url);
+
+
+    },
+
     /**
     * return the MARC transformation from the back end
     *

@@ -575,7 +575,10 @@
             click: () => { this.profileStore.saveRecord() }
           }
           )
-          menu.push(
+          
+
+          if (config.returnUrls.displayLCOnlyFeatures){
+menu.push(
             {
               text: "Validate",
               icon: "check",
@@ -613,7 +616,6 @@
             }
           )
 
-          if (config.returnUrls.displayLCOnlyFeatures){
             menu.push(
               {
                 text: "Open in LCAP",
@@ -705,7 +707,27 @@
         // anything after this point will  be on the right of nav menu
         menu.push({ is: "spacer" })
 
+        if (useConfigStore().returnUrls.isBibframeDotOrg && this.$route.path.startsWith('/edit/')){
+          menu.push(
+          {
+              text: 'Download MARC',
+              click: () => { 
+                this.profileStore.downloadBFDotOrg('marc')
 
+               }
+          }
+          )
+          menu.push(
+          {
+              text: 'Download BF',
+              click: () => { 
+                this.profileStore.downloadBFDotOrg('bf')
+
+               }
+          }
+          )          
+          
+        }
 
         menu.push(
         {
