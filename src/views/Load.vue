@@ -1186,9 +1186,7 @@ export default {
 
 
     async refreshSavedRecords() {
-
       console.log("refreshSavedRecords")
-
 
       let records = await utilsNetwork.searchSavedRecords(this.preferenceStore.returnUserNameForSaving)
 

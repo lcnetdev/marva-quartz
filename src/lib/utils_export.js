@@ -438,8 +438,6 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
-    // console.info("buildXML: ", JSON.stringify(profile))
-
     // keep track of the proces for later
 	// let debugHistory = []
 	let xmlLog = []
@@ -1536,12 +1534,22 @@ const utilsExport = {
 		}
 
 		if (rdfBasic.getElementsByTagName("bf:Instance").length>0){
-			let i = rdfBasic.getElementsByTagName("bf:Instance")[0]
+			let i = rdfBasic.getElementsByTagName("bf:Instance")[0] // If there's an associatedResource this can find that instead of the instance of this record
+
+			if (i.parentNode.tagName != 'RDF'){
+				// Only look at the top `bf:Instance`
+				for (let inst of rdfBasic.getElementsByTagName("bf:Instance")){
+					let parentNode = inst.parentNode.tagName
+					if (parentNode == 'RDF'){
+						i = inst
+						break
+					}
+				}
+			}
 
 			// then find all the lccns and living in the bf:identifiedBy
 			for (let c of i.children){
 				if (c.tagName === 'bf:identifiedBy'){
-
 					// grab the lccn bnode
 					if (c.getElementsByTagName("bf:Lccn").length>0){
 						let lccnEl = c.getElementsByTagName("bf:Lccn")[0]
@@ -1725,9 +1733,6 @@ const utilsExport = {
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
 	// console.info("strXmlBasic: ", strXmlBasic)
-	// for (let item of xmlLog){
-	// 	console.info(item)
-	// }
 
 	return {
 		xmlDom: rdf,

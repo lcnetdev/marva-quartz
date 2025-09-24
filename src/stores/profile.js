@@ -4404,9 +4404,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     duplicateComponent: async function(componentGuid, structure){
-      console.info("\nduplicateComponent")
-      console.info("componentGuid: ", componentGuid)
-      console.info("structure: ", structure)
       let createEmpty = true
 
       // locate the correct pt to work on in the activeProfile
@@ -7123,7 +7120,6 @@ export const useProfileStore = defineStore('profile', {
         for (let pt in profile.rt[rt].pt){
           if (pt.includes("id_loc_gov_ontologies_bibframe_subject__subjects")){
             let comp =  profile.rt[rt].pt[pt]
-            console.info("comp: ", comp, "--", comp.deleted)
             if (comp.deleted === undefined || (Object.keys(comp).includes('deleted') && comp.deleted != true)){
               subjectCount++
             }
@@ -7134,9 +7130,6 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       }
-
-      // console.info("last: ", subjectLast)
-      // console.info("structure: ", this.returnStructureByGUID(subjectLast["@guid"]))
 
       let showing = subjectCount - subjectHidden
       if (showing == 0){
@@ -7149,9 +7142,6 @@ export const useProfileStore = defineStore('profile', {
       }
 
       let results = {'subjects': subjectCount, 'hidden': subjectHidden, 'showing': showing}
-
-      console.info("results: ", results)
-      // console.info("profile: ", profile)
 
       return results
     },

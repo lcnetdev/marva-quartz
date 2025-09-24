@@ -2883,7 +2883,6 @@ const utilsNetwork = {
      },
 
      searchSavedRecords: async function(user,search){
-
       let utilUrl = useConfigStore().returnUrls.util
       let utilPath = useConfigStore().returnUrls.env
 
