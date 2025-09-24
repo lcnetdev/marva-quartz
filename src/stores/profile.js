@@ -7089,7 +7089,6 @@ export const useProfileStore = defineStore('profile', {
         for (let pt in profile.rt[rt].pt){
           if (pt.includes("id_loc_gov_ontologies_bibframe_subject__subjects")){
             let comp =  profile.rt[rt].pt[pt]
-            console.info("comp: ", comp, "--", comp.deleted)
             if (comp.deleted === undefined || (Object.keys(comp).includes('deleted') && comp.deleted != true)){
               subjectCount++
             }
@@ -7116,7 +7115,6 @@ export const useProfileStore = defineStore('profile', {
 
       let results = {'subjects': subjectCount, 'hidden': subjectHidden, 'showing': showing}
 
-      console.info("results: ", results)
       // console.info("profile: ", profile)
 
       return results

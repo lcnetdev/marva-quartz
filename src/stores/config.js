@@ -66,7 +66,7 @@ export const useConfigStore = defineStore('config', {
         copyCatUpload: 'http://localhost:9401/copycat/upload/stag',
 
         id: 'https://preprod-8080.id.loc.gov/',
-        env : 'production',
+        env : 'staging',
         dev: false,
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
