@@ -287,7 +287,11 @@
                                 <span class="continue-record-title">{{ record.title }}</span>
                                 <span v-if="record.contributor">
                                   by {{ record.contributor }}</span><span> ({{ record.lccn }})
-                                  <span class="material-icons delete-icon" @click.stop.prevent="removeRecord(record)">
+                                  <span
+                                    class="material-icons delete-icon"
+                                    @click.stop.prevent="removeRecord(record)"
+                                    v-if="!Object.keys(record).includes('title')"
+                                    >
                                     delete_forever
                                   </span>
                                 </span>
