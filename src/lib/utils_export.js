@@ -1539,12 +1539,15 @@ const utilsExport = {
 
 		if (rdfBasic.getElementsByTagName("bf:Instance").length>0){
 			let i = rdfBasic.getElementsByTagName("bf:Instance")[0] // If there's an associatedResource this can find that instead of the instance of this record
-			// Only look at the top `bf:Instance`
-			for (let inst of rdfBasic.getElementsByTagName("bf:Instance")){
-				let parentNode = inst.parentNode.tagName
-				if (parentNode == 'RDF'){
-					i = inst
-					break
+
+			if (i.parentNode.tagName != 'RDF'){
+				// Only look at the top `bf:Instance`
+				for (let inst of rdfBasic.getElementsByTagName("bf:Instance")){
+					let parentNode = inst.parentNode.tagName
+					if (parentNode == 'RDF'){
+						i = inst
+						break
+					}
 				}
 			}
 
