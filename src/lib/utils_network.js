@@ -2882,6 +2882,23 @@ const utilsNetwork = {
        }
      },
 
+     deleteMyRecord: async function(user, id, loc){
+      let utilUrl = useConfigStore().returnUrls.util
+
+      let url = `${utilUrl}delete/${loc}/${user}/${id}`
+
+      let resp =  await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: ""
+      });
+
+      return resp
+     },
+
      searchSavedRecords: async function(user,search){
       let utilUrl = useConfigStore().returnUrls.util
       let utilPath = useConfigStore().returnUrls.env
