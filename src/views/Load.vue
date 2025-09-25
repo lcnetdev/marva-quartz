@@ -500,14 +500,7 @@ export default {
       let user = this.preferenceStore.returnUserNameForSaving
       let loc = config.returnUrls.env
 
-      console.info("removing: ", record)
-      console.info("target: ", target)
-      console.info("user: ", user)
-      console.info("loc: ", loc)
-
       let resp = await utilsNetwork.deleteMyRecord(user, target, loc)
-
-      console.info("resp: ", resp)
 
       this.refreshSavedRecords()
     },
@@ -1226,8 +1219,7 @@ export default {
       // in this view we want to remove any records that are repeats, so only show the latest LCCN being edited
       this.continueRecords = []
       for (let r of records) {
-        if (r.status == 'deleted'){
-          console.info("ignore this: ", r)
+        if (r.status == 'deleted'){ // prevent deleted record from being counted which would otherwise, hide all the alternatives too.
           continue
         }
         if (r.lccn && r.lccn != '' && r.lccn !== null) {
@@ -1251,8 +1243,6 @@ export default {
 
       }
 
-      console.info("records: ", records)
-      console.info("continueRecords: ", this.continueRecords)
     },
 
 
