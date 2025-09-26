@@ -81,7 +81,7 @@ export const useProfileStore = defineStore('profile', {
     // the current active profile
     activeProfile: {},
 
-    activeProfileSaved: true,
+    activeProfileSaved: false,
     activeProfilePosted: false,
     activeProfilePostedTimestamp: false,
 
@@ -3202,7 +3202,7 @@ export const useProfileStore = defineStore('profile', {
 
       let xml = await utilsExport.buildXML(this.activeProfile)
       let marc = await utilsNetwork.marcPreview(xml.bf2Marc, false)
-      
+
       xml = xml.xmlStringFormatted
       marc =marc[0].results.stdout
       let use = marc
@@ -3222,7 +3222,7 @@ export const useProfileStore = defineStore('profile', {
       a.download = filename;
 
       // Append to body and trigger click (some browsers might require this for reliable click event)
-      document.body.appendChild(a); 
+      document.body.appendChild(a);
       a.click();
       document.body.removeChild(a); // Clean up
 
@@ -3298,11 +3298,14 @@ export const useProfileStore = defineStore('profile', {
     */
     saveRecord: async function(){
       let xml = await utilsExport.buildXML(this.activeProfile)
+      let saved = false
       if (!this.isTestEnv()){  //Don't try to save if in test env
-        utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
+        saved = await utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
       }
 
-      this.activeProfileSaved = true
+      if (saved){
+        this.activeProfileSaved = true
+      }
     },
 
     /**
@@ -3315,8 +3318,10 @@ export const useProfileStore = defineStore('profile', {
       let xml = await utilsExport.buildXML(this.activeProfile)
       // console.log("*****")
       // console.log(xml)
-      utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
-      this.activeProfileSaved = true
+      let saved = await utilsNetwork.saveRecord(xml.xlmStringBasic, this.activeProfile.eId)
+      if (saved){
+        this.activeProfileSaved = true
+      }
     },
 
   /**
