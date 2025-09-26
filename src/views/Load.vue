@@ -278,63 +278,72 @@
                     No saved records found.
                   </div>
                   <ul class="continue-record-list">
-                    <li class="" v-for="record in continueRecords">
-                      <div class="continue-record">
-                        <template v-if="record.status == 'unposted'">
-                          <router-link :to="{ name: 'Edit', params: { recordId: record.eid } }">
-                            <div>
-                              <span class="continue-record-title">{{ record.title }}</span>
-                              <span v-if="record.contributor">
-                                by {{ record.contributor }}</span><span> ({{ record.lccn }})
-                              </span>
-                            </div>
-                            <div class="continue-record-lastedit">
-                              <span>last edited</span>
-                               <span>
+                    <template v-for="record in continueRecords">
+                      <li class="" v-if="record.status != 'deleted'">
+                        <div class="continue-record">
+                          <template v-if="record.status == 'unposted'">
+                            <router-link :to="{ name: 'Edit', params: { recordId: record.eid } }">
+                              <div>
+                                <span class="continue-record-title">{{ record.title }}</span>
+                                <span v-if="record.contributor">
+                                  by {{ record.contributor }}</span><span> ({{ record.lccn }})
+                                  <span
+                                    class="material-icons delete-icon"
+                                    @click.stop.prevent="removeRecord(record)"
+                                    v-if="!Object.keys(record).includes('title') && !Object.keys(record).includes('lccn')"
+                                    >
+                                    delete_forever
+                                  </span>
+                                </span>
+                              </div>
+                              <div class="continue-record-lastedit">
+                                <span>last edited </span>
+                                <span>
+                                    {{returnTimeAgo(record.timestamp) }}
+                                  </span>
+                              </div>
+                            </router-link>
+                          </template>
+                          <template v-else>
+                            <div @click="reloadRecord(record)" class="fake-link">
+                              <div>
+                                <span class="continue-record-title">{{ record.title }}</span>
+                                <span v-if="record.contributor">
+                                    by {{ record.contributor }}</span>
+                                  <span> ({{ record.lccn }})</span>
+                                  <br><span>[Load from BFDB]</span>
+                              </div>
+                              <div class="continue-record-lastedit">
+                                <span>Posted </span>
+                                <span>
                                   {{returnTimeAgo(record.timestamp) }}
                                 </span>
+                              </div>
                             </div>
-                          </router-link>
-                        </template>
-                        <template v-else>
-                          <div @click="reloadRecord(record)" class="fake-link">
-                            <div>
-                              <span class="continue-record-title">{{ record.title }}</span>
-                              <span v-if="record.contributor">
-                                  by {{ record.contributor }}</span>
-                                <span> ({{ record.lccn }})</span>
-                                <br><span>[Load from BFDB]</span>
-                            </div>
-                            <div class="continue-record-lastedit">
-                              <span>Posted </span>
-                              <span>
-                                {{returnTimeAgo(record.timestamp) }}
-                              </span>
-                            </div>
+                          </template>
+                          <div class="material-icons" v-if="record.status == 'published'" title="Posted record">check_box
                           </div>
-                        </template>
-                        <div class="material-icons" v-if="record.status == 'published'" title="Posted record">check_box
-                        </div>
-                        <div class="alt-posted material-icons" v-if="record.status != 'published' && continueRecordsPreviousVersions[record.lccn] && continueRecordsPreviousVersions[record.lccn].filter((rec) => rec.status == 'published').length > 0" title="Alt Version Posted">check_box
-                        </div>
-                      </div>
-                      <template v-if="continueRecordsPreviousVersions[record.lccn]">
-                        <details class="continue-record-previous-versions-details">
-                          <summary>Alternate Versions</summary>
-                          <div class="continue-record-previous-versions">
-                            <ul>
-                              <li v-for="prev in continueRecordsPreviousVersions[record.lccn]">
-                                <router-link :to="{ name: 'Edit', params: { recordId: prev.eid } }">
-                                  <span style="opacity: 0.55;">({{ prev.eid }})</span> {{ prev.title }} ({{
-                                    returnTimeAgo(prev.timestamp) }}) <div class="material-icons" v-if="prev.status == 'published'" title="Posted record">check_box</div>
-                                </router-link>
-                              </li>
-                            </ul>
+                          <div class="alt-posted material-icons" v-if="record.status != 'published' && continueRecordsPreviousVersions[record.lccn] && continueRecordsPreviousVersions[record.lccn].filter((rec) => rec.status == 'published').length > 0" title="Alt Version Posted">check_box
                           </div>
-                        </details>
-                      </template>
+                        </div>
+                        <template v-if="continueRecordsPreviousVersions[record.lccn]">
+                          <details class="continue-record-previous-versions-details">
+                            <summary>Alternate Versions</summary>
+                            <div class="continue-record-previous-versions">
+                              <ul>
+                                <li v-for="prev in continueRecordsPreviousVersions[record.lccn]">
+                                  <router-link :to="{ name: 'Edit', params: { recordId: prev.eid } }">
+                                    <span style="opacity: 0.55;">({{ prev.eid }})</span> {{ prev.title }} ({{
+                                      returnTimeAgo(prev.timestamp) }}) <div class="material-icons" v-if="prev.status == 'published'" title="Posted record">check_box</div>
+                                  </router-link>
+                                </li>
+                              </ul>
+                            </div>
+                          </details>
+                        </template>
 
-                    </li>
+                      </li>
+                    </template>
                   </ul>
                 </div>
               </div>
@@ -481,6 +490,21 @@ export default {
   },
 
   methods: {
+    removeRecord: async function(record){
+      let checkContinue = confirm("Do you really want to delete this?")
+      if (!checkContinue){ return }
+
+      let config = useConfigStore()
+
+      let target = record.eid
+      let user = this.preferenceStore.returnUserNameForSaving
+      let loc = config.returnUrls.env
+
+      let resp = await utilsNetwork.deleteMyRecord(user, target, loc)
+
+      this.refreshSavedRecords()
+    },
+
     showLoadTypeSelection: function () {
       let config = useConfigStore()
       return config.returnUrls.displayLCOnlyFeatures
@@ -1195,6 +1219,9 @@ export default {
       // in this view we want to remove any records that are repeats, so only show the latest LCCN being edited
       this.continueRecords = []
       for (let r of records) {
+        if (r.status == 'deleted'){ // prevent deleted record from being counted which would otherwise, hide all the alternatives too.
+          continue
+        }
         if (r.lccn && r.lccn != '' && r.lccn !== null) {
           if (!lccnLookup[r.lccn]) {
             this.continueRecords.push(r)
@@ -1424,6 +1451,19 @@ ol {
   margin-bottom: 2em;
 }
 
+span.delete-icon.material-icons{
+  position: unset;
+  float: right;
+  color: black;
+  cursor: pointer;
+  font-size: 1.2em;
+  margin-right: 10px;
+}
+span.delete-icon.material-icons:hover{
+  color: white;
+  background-color: black;
+
+}
 .continue-record .material-icons {
   position: absolute;
   right: 0;

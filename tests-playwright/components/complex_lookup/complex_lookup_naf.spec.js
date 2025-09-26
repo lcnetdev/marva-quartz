@@ -10,7 +10,7 @@ test('Basic NAF Search and Add Monograph Profile', async ({ page }) => {
   await page.locator('form').filter({ hasText: 'Search LCNAFbolt' }).getByRole('textbox').fill('s');
   await page.getByRole('dialog').getByRole('textbox').fill('smith, alan');
   await page.getByRole('listbox').selectOption('http://id.loc.gov/authorities/names/n94104979');
-  await expect(page.getByRole('dialog')).toContainText('Smith, Alan, 1931-');
+  await expect(page.getByRole('dialog')).toContainText('Smith, Alan, 1933-');
   await page.getByRole('button', { name: 'Add [Shift+Enter]' }).click();
   await expect(page.locator('[id="edit_lc\\:RT\\:bf2\\:Monograph\\:Work_id_loc_gov_ontologies_bibframe_contribution__creator_of_work"]')).toContainText('Smith, Alan, 1933-');
 
