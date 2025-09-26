@@ -2834,21 +2834,28 @@ const utilsNetwork = {
         headers: {
           'Content-type': 'application/xml', // Indicates the content
         },
+        signal: AbortSignal.timeout(3000),  // add a timeout
         body: xml // We send data in JSON format
       }
       // console.log(putMethod)
       let url = useConfigStore().returnUrls.ldpjs +'ldp/' + eId
 
+      let saved = false
+
       await fetch(url, putMethod)
-      .then(response => response.text())
-      .then((responseText)=>{
-        // console.log(responseText)
-      })
-      // .then(data => console.log(data)) // Manipulate the data retrieved back, if we want to do something with it
-      .catch((err) => {
-       console.log(err, " => ", url)
-       alert("Error: Could not save the record!", err)
-      }) // Do something with the error
+        .then(response => response.text())
+        .then((responseText)=>{
+          // console.log(responseText)
+          saved = true
+        })
+        // .then(data => console.log(data)) // Manipulate the data retrieved back, if we want to do something with it
+        .catch((err) => {
+          console.log(err, " => ", url)
+          alert("Error: Could not save the record!", err)
+          saved = false
+        }) // Do something with the error
+
+        return saved
      },
 
     /**
