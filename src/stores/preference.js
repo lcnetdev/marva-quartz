@@ -1679,6 +1679,7 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {void}
     */
     loadPreferences: function(data=null){
+      // How to get the order set
       if (window.localStorage.getItem('marva-preferences') || data){
         let prefs = null
 
@@ -1688,8 +1689,10 @@ export const usePreferenceStore = defineStore('preference', {
           prefs = data
         }
 
+        let order = Object.keys(this.styleDefault)
+
         // TEMP - 10/24 remove eventually
-        for (let k in prefs.styleDefault){
+        for (let k of order){  //in prefs.styleDefault
           if (prefs.styleDefault[k].group == "Sidebars - OPAC"){
             prefs.styleDefault[k].group = "Sidebars - Previews"
           }
@@ -1702,22 +1705,20 @@ export const usePreferenceStore = defineStore('preference', {
             prefs.styleDefault[k].desc = 'Compact Advanced Modular Mode.'
             prefs.styleDefault[k].descShort = 'Use CAMM Mode'
             // prefs.styleDefault[k].value = false
-
-
-
           }
-
-
         }
 
         // if there is a new style in the defaults that is not in their saved prefs.
         for (let k in this.styleDefault){
-          if (!prefs.styleDefault[k]){
+          if (!prefs.styleDefault[k] || prefs.styleDefault[k] != this.styleDefault[k]){
             prefs.styleDefault[k] = this.styleDefault[k]
           }
         }
 
-        this.styleDefault = prefs.styleDefault
+        // this.styleDefault = prefs.styleDefault
+        for (let k of order){
+          this.styleDefault[k] = prefs.styleDefault[k]
+        }
         this.panelDisplay = prefs.panelDisplay
 
 

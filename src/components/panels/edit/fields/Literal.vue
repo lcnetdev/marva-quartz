@@ -96,7 +96,7 @@
               </template>
               <template v-else>
                 <textarea
-                  :class="['literal-textarea 1', 'can-select',{'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'script-text': preferenceStore.returnValue('--n-edit-main-literal-font-size-script') != '1em'}]"
+                  :class="['literal-textarea', 'can-select',{'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'script-text': preferenceStore.returnValue('--n-edit-main-literal-font-size-script') != '1em'}]"
                   v-model="lValue.value"
                   v-on:keydown.enter.prevent="submitField"
                   autocomplete="off"
