@@ -1267,6 +1267,14 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Shelflisting',
         range: [1,6]
     },
+    '--c-shelflist-line-colors' : {
+          value:'#f1f7ff;', // old val: #a4c3f9ff == #a8c7fc;
+          desc: 'Accent color for the shelf list results.',
+          descShort: 'Shelf List Accent',
+          type: 'color',
+          group: 'Shelflisting',
+          range: null
+       },
       '--b-shelflist-link-1-label' : {
         desc: 'Label for link 1.',
         descShort: 'Link 1 Label',
@@ -1352,15 +1360,56 @@ export const usePreferenceStore = defineStore('preference', {
         index: 4
       },
 
+      '--b-shelflist-link-6-label' : {
+        desc: 'Label for link 6.',
+        descShort: 'Link 6 Label',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 4
+      },
+      '--b-shelflist-link-6' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 6 URL',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 4
+      },
 
-      '--c-shelflist-line-colors' : {
-          value:'#f1f7ff;', // old val: #a4c3f9ff == #a8c7fc;
-          desc: 'Accent color for the shelf list results.',
-          descShort: 'Shelf List Accent',
-          type: 'color',
-          group: 'Shelflisting',
-          range: null
-       },
+      '--b-shelflist-link-7-label' : {
+        desc: 'Label for link 7.',
+        descShort: 'Link 7 Label',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 4
+      },
+      '--b-shelflist-link-7' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 7 URL',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 4
+      },
+
+      '--b-shelflist-link-8-label' : {
+        desc: 'Label for link 8.',
+        descShort: 'Link 8 Label',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 4
+      },
+      '--b-shelflist-link-8' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 8 URL',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 4
+      },
 
     '--b-edit-main-splitpane-edit-inline-mode' : {
       desc: 'Compact Advanced Modular Mode.',
@@ -1693,10 +1742,10 @@ export const usePreferenceStore = defineStore('preference', {
 
         // TEMP - 10/24 remove eventually
         for (let k of order){  //in prefs.styleDefault
-          if (prefs.styleDefault[k].group == "Sidebars - OPAC"){
+          if (prefs.styleDefault[k] && prefs.styleDefault[k].group == "Sidebars - OPAC"){
             prefs.styleDefault[k].group = "Sidebars - Previews"
           }
-          if (prefs.styleDefault[k].group == "Shelflisting"){
+          if (prefs.styleDefault[k] && prefs.styleDefault[k].group == "Shelflisting"){
             prefs.styleDefault[k].group = "Shelflisting"
           }
 
@@ -1710,7 +1759,7 @@ export const usePreferenceStore = defineStore('preference', {
 
         // if there is a new style in the defaults that is not in their saved prefs.
         for (let k in this.styleDefault){
-          if (!prefs.styleDefault[k] || prefs.styleDefault[k] != this.styleDefault[k]){
+          if (!prefs.styleDefault[k]){
             prefs.styleDefault[k] = this.styleDefault[k]
           }
         }

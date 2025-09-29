@@ -2455,6 +2455,11 @@ const utilsParse = {
    */
    reorderAllNonLatinLiterals: function(profile){
 
+    console.info(profile, ": ", profile=={})
+    if (profile == {}) {
+      return profile
+    }
+
     function process (obj, func) {
       if (obj && obj.userValue){
         obj = obj.userValue
@@ -2475,6 +2480,7 @@ const utilsParse = {
         }
       }
     }
+
     for (let rt of profile.rtOrder){
       for (let pt of profile.rt[rt].ptOrder){
         let ptObj = profile.rt[rt].pt[pt]
