@@ -654,6 +654,16 @@ export const usePreferenceStore = defineStore('preference', {
           group: 'Literal Field',
           range: [1,2]
       },
+      '--n-edit-main-literal-font-size-script' : {
+          desc: 'The fontsize of the script in the literal field',
+          descShort: 'Font Size Script',
+          value: 1,
+          step: 0.1,
+          type: 'number',
+          unit: 'em',
+          group: 'Literal Field',
+          range: [1,2]
+      },
       '--c-edit-main-literal-font-color' : {
         desc: 'The color of the text',
         descShort: 'Font Color',
@@ -1592,7 +1602,7 @@ export const usePreferenceStore = defineStore('preference', {
         this.setValue('--o-edit-main-splitpane-edit-panel-size-presets', quickViewDefaults)
 
 
-        
+
       }
 
       this.buildDiacriticSettings()

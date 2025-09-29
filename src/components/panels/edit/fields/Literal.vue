@@ -96,7 +96,7 @@
               </template>
               <template v-else>
                 <textarea
-                  :class="['literal-textarea', 'can-select',{'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
+                  :class="['literal-textarea 1', 'can-select',{'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
                   v-model="lValue.value"
                   v-on:keydown.enter.prevent="submitField"
                   autocomplete="off"
@@ -1341,7 +1341,6 @@ fieldset{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
   height: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
 
-
 }
 .inline-mode-editable-span-input:focus-within {
   background-color: #dfe5f1;
@@ -1356,11 +1355,6 @@ fieldset{
   outline: none;
   margin-right: 15px;
   padding-right: 1em;
-
-
-
-
-
 }
 .inline-mode-editable-span-space-maker{
   display: inline-block;
@@ -1427,7 +1421,9 @@ fieldset{
   left: 2px;
 }
 
-
+.literal-field:has( + .lang-display) > form > textarea{
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size-script')");
+}
 
 textarea{
   border: none;
