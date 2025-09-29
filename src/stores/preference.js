@@ -1366,7 +1366,7 @@ export const usePreferenceStore = defineStore('preference', {
         value: "",
         type: 'string',
         group: 'Shelflisting',
-        index: 4
+        index: 5
       },
       '--b-shelflist-link-6' : {
         desc: 'Link to an outside resource to help with shelf listing.',
@@ -1374,7 +1374,7 @@ export const usePreferenceStore = defineStore('preference', {
         value: "",
         type: 'string',
         group: 'Shelflisting',
-        index: 4
+        index: 5
       },
 
       '--b-shelflist-link-7-label' : {
@@ -1383,7 +1383,7 @@ export const usePreferenceStore = defineStore('preference', {
         value: "",
         type: 'string',
         group: 'Shelflisting',
-        index: 4
+        index: 6
       },
       '--b-shelflist-link-7' : {
         desc: 'Link to an outside resource to help with shelf listing.',
@@ -1391,7 +1391,7 @@ export const usePreferenceStore = defineStore('preference', {
         value: "",
         type: 'string',
         group: 'Shelflisting',
-        index: 4
+        index: 6
       },
 
       '--b-shelflist-link-8-label' : {
@@ -1400,7 +1400,7 @@ export const usePreferenceStore = defineStore('preference', {
         value: "",
         type: 'string',
         group: 'Shelflisting',
-        index: 4
+        index: 7
       },
       '--b-shelflist-link-8' : {
         desc: 'Link to an outside resource to help with shelf listing.',
@@ -1408,7 +1408,7 @@ export const usePreferenceStore = defineStore('preference', {
         value: "",
         type: 'string',
         group: 'Shelflisting',
-        index: 4
+        index: 7
       },
 
     '--b-edit-main-splitpane-edit-inline-mode' : {
