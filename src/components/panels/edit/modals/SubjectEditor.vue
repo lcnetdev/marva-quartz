@@ -1301,12 +1301,12 @@ export default {
         // search and then swaps to GEO to finish, replace the `--` between the two
         // to ease the process
         // if there is a component that is != literal and uri == null, get the index
-        let potentialGeoIdx = this.components.findIndex((i) => i.literal == null && i.uri == null)
+        let potentialGeoIdx = this.components.findIndex((i) => (i.literal == null || i.literal == true) && i.uri == null)
         let prevComponent
         if (potentialGeoIdx > 1) {
           prevComponent = JSON.parse(JSON.stringify(this.components.at(potentialGeoIdx - 1)))
           // if the previous component is geographic, swap the -- for not `‑‑` between
-          if (prevComponent.type == 'madsrdf:Geographic') {
+          if (prevComponent.type == 'madsrdf:Geographic' || prevComponent.type == "http://www.loc.gov/mads/rdf/v1#Geographic") {
             let posEnd = this.subjectString.indexOf(this.components[potentialGeoIdx].label)
             let posStart = posEnd - 2
             this.subjectString = this.subjectString.slice(0, posStart) + '‑‑' + this.subjectString.slice(posEnd)
@@ -2902,7 +2902,7 @@ export default {
       },
 
       displayProvisonalNAR: function(){
-        if (!this.activeComponent.literal){ return false }
+        if (this.activeComponent && !this.activeComponent.literal){ return false }
         if (!useConfigStore().returnUrls.displayLCOnlyFeatures){ return false}
         if (this.structure && this.structure.valueConstraint && this.structure.valueConstraint.useValuesFrom && this.structure.valueConstraint.useValuesFrom.length>0 && this.structure.valueConstraint.useValuesFrom.join(' ').indexOf('id.loc.gov/authorities/subjects')>-1){
           return true
