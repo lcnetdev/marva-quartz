@@ -574,8 +574,18 @@ export const usePreferenceStore = defineStore('preference', {
       group: 'Edit Panel',
       range: null
     },
-
-      '--o-edit-main-splitpane-edit-panel-size-presets' : {
+    '--b-edit-main-hide-non-lc' : {
+          desc: 'Do not display nonLC subjects.',
+          descShort: 'Hide non-LC Subjects',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+    },
+    // This doesn't have an input. It does show up in the preference modal.
+    // It's used to capture the quick view options
+    '--o-edit-main-splitpane-edit-panel-size-presets' : {
         desc: 'Panel Size Presets',
         descShort: 'Panel Size Presets',
         value: [],
@@ -586,16 +596,6 @@ export const usePreferenceStore = defineStore('preference', {
         hide: true,
         range: null
     },
-
-    '--b-edit-main-hide-non-lc' : {
-          desc: 'Do not display nonLC subjects.',
-          descShort: 'Hide non-LC Subjects',
-          value: false,
-          type: 'boolean',
-          unit: null,
-          group: 'Edit Panel',
-          range: [true,false]
-      },
 
 
 
@@ -1133,19 +1133,19 @@ export const usePreferenceStore = defineStore('preference', {
 
 
       //general
-      '--c-general-icon-instance-color' : {
-          desc: 'The color of the instance icon.',
-          descShort: 'Instance icon color',
-          value: '#8b588b',
+      '--c-general-icon-work-color' : {
+          desc: 'The color of the work icon.',
+          descShort: 'Work icon color',
+          value: '#7badad',
           type: 'color',
           unit: null,
           group: 'General',
           range: null
       },
-      '--c-general-icon-work-color' : {
-          desc: 'The color of the work icon.',
-          descShort: 'Work icon color',
-          value: '#7badad',
+      '--c-general-icon-instance-color' : {
+          desc: 'The color of the instance icon.',
+          descShort: 'Instance icon color',
+          value: '#8b588b',
           type: 'color',
           unit: null,
           group: 'General',

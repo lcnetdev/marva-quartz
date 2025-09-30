@@ -1265,7 +1265,7 @@ export default {
 
     //get the preferences to load into the page
     for (let k in this.styleDefault){
-      if (k.includes("shelflist")){
+      if (k.includes("shelflist-link")){
         let o = Object.assign({}, this.styleDefault[k])
         if (o.index in this.preferences){
           //save `k` so the information in the page will match the preferences in real time
