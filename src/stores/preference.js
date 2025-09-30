@@ -574,8 +574,18 @@ export const usePreferenceStore = defineStore('preference', {
       group: 'Edit Panel',
       range: null
     },
-
-      '--o-edit-main-splitpane-edit-panel-size-presets' : {
+    '--b-edit-main-hide-non-lc' : {
+          desc: 'Do not display nonLC subjects.',
+          descShort: 'Hide non-LC Subjects',
+          value: false,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+    },
+    // This doesn't have an input. It does show up in the preference modal.
+    // It's used to capture the quick view options
+    '--o-edit-main-splitpane-edit-panel-size-presets' : {
         desc: 'Panel Size Presets',
         descShort: 'Panel Size Presets',
         value: [],
@@ -586,16 +596,6 @@ export const usePreferenceStore = defineStore('preference', {
         hide: true,
         range: null
     },
-
-    '--b-edit-main-hide-non-lc' : {
-          desc: 'Do not display nonLC subjects.',
-          descShort: 'Hide non-LC Subjects',
-          value: false,
-          type: 'boolean',
-          unit: null,
-          group: 'Edit Panel',
-          range: [true,false]
-      },
 
 
 
@@ -647,6 +647,16 @@ export const usePreferenceStore = defineStore('preference', {
       '--n-edit-main-literal-font-size' : {
           desc: 'The fontsize of the text in the literal field',
           descShort: 'Font Size',
+          value: 1,
+          step: 0.1,
+          type: 'number',
+          unit: 'em',
+          group: 'Literal Field',
+          range: [1,2]
+      },
+      '--n-edit-main-literal-font-size-script' : {
+          desc: 'The fontsize of the script in the literal field',
+          descShort: 'Font Size Script',
           value: 1,
           step: 0.1,
           type: 'number',
@@ -1123,19 +1133,19 @@ export const usePreferenceStore = defineStore('preference', {
 
 
       //general
-      '--c-general-icon-instance-color' : {
-          desc: 'The color of the instance icon.',
-          descShort: 'Instance icon color',
-          value: '#8b588b',
+      '--c-general-icon-work-color' : {
+          desc: 'The color of the work icon.',
+          descShort: 'Work icon color',
+          value: '#7badad',
           type: 'color',
           unit: null,
           group: 'General',
           range: null
       },
-      '--c-general-icon-work-color' : {
-          desc: 'The color of the work icon.',
-          descShort: 'Work icon color',
-          value: '#7badad',
+      '--c-general-icon-instance-color' : {
+          desc: 'The color of the instance icon.',
+          descShort: 'Instance icon color',
+          value: '#8b588b',
           type: 'color',
           unit: null,
           group: 'General',
@@ -1257,6 +1267,14 @@ export const usePreferenceStore = defineStore('preference', {
         group: 'Shelflisting',
         range: [1,6]
     },
+    '--c-shelflist-line-colors' : {
+          value:'#f1f7ff;', // old val: #a4c3f9ff == #a8c7fc;
+          desc: 'Accent color for the shelf list results.',
+          descShort: 'Shelf List Accent',
+          type: 'color',
+          group: 'Shelflisting',
+          range: null
+       },
       '--b-shelflist-link-1-label' : {
         desc: 'Label for link 1.',
         descShort: 'Link 1 Label',
@@ -1342,15 +1360,56 @@ export const usePreferenceStore = defineStore('preference', {
         index: 4
       },
 
+      '--b-shelflist-link-6-label' : {
+        desc: 'Label for link 6.',
+        descShort: 'Link 6 Label',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 5
+      },
+      '--b-shelflist-link-6' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 6 URL',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 5
+      },
 
-      '--c-shelflist-line-colors' : {
-          value:'#f1f7ff;', // old val: #a4c3f9ff == #a8c7fc;
-          desc: 'Accent color for the shelf list results.',
-          descShort: 'Shelf List Accent',
-          type: 'color',
-          group: 'Shelflisting',
-          range: null
-       },
+      '--b-shelflist-link-7-label' : {
+        desc: 'Label for link 7.',
+        descShort: 'Link 7 Label',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 6
+      },
+      '--b-shelflist-link-7' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 7 URL',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 6
+      },
+
+      '--b-shelflist-link-8-label' : {
+        desc: 'Label for link 8.',
+        descShort: 'Link 8 Label',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 7
+      },
+      '--b-shelflist-link-8' : {
+        desc: 'Link to an outside resource to help with shelf listing.',
+        descShort: 'Link 8 URL',
+        value: "",
+        type: 'string',
+        group: 'Shelflisting',
+        index: 7
+      },
 
     '--b-edit-main-splitpane-edit-inline-mode' : {
       desc: 'Compact Advanced Modular Mode.',
@@ -1592,7 +1651,7 @@ export const usePreferenceStore = defineStore('preference', {
         this.setValue('--o-edit-main-splitpane-edit-panel-size-presets', quickViewDefaults)
 
 
-        
+
       }
 
       this.buildDiacriticSettings()
@@ -1669,6 +1728,7 @@ export const usePreferenceStore = defineStore('preference', {
     * @return {void}
     */
     loadPreferences: function(data=null){
+      // How to get the order set
       if (window.localStorage.getItem('marva-preferences') || data){
         let prefs = null
 
@@ -1678,12 +1738,14 @@ export const usePreferenceStore = defineStore('preference', {
           prefs = data
         }
 
+        let order = Object.keys(this.styleDefault)
+
         // TEMP - 10/24 remove eventually
-        for (let k in prefs.styleDefault){
-          if (prefs.styleDefault[k].group == "Sidebars - OPAC"){
+        for (let k of order){  //in prefs.styleDefault
+          if (prefs.styleDefault[k] && prefs.styleDefault[k].group == "Sidebars - OPAC"){
             prefs.styleDefault[k].group = "Sidebars - Previews"
           }
-          if (prefs.styleDefault[k].group == "Shelflisting"){
+          if (prefs.styleDefault[k] && prefs.styleDefault[k].group == "Shelflisting"){
             prefs.styleDefault[k].group = "Shelflisting"
           }
 
@@ -1692,12 +1754,7 @@ export const usePreferenceStore = defineStore('preference', {
             prefs.styleDefault[k].desc = 'Compact Advanced Modular Mode.'
             prefs.styleDefault[k].descShort = 'Use CAMM Mode'
             // prefs.styleDefault[k].value = false
-
-
-
           }
-
-
         }
 
         // if there is a new style in the defaults that is not in their saved prefs.
@@ -1707,7 +1764,10 @@ export const usePreferenceStore = defineStore('preference', {
           }
         }
 
-        this.styleDefault = prefs.styleDefault
+        // this.styleDefault = prefs.styleDefault
+        for (let k of order){
+          this.styleDefault[k] = prefs.styleDefault[k]
+        }
         this.panelDisplay = prefs.panelDisplay
 
 

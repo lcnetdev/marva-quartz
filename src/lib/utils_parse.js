@@ -2475,6 +2475,7 @@ const utilsParse = {
         }
       }
     }
+
     for (let rt of profile.rtOrder){
       for (let pt of profile.rt[rt].ptOrder){
         let ptObj = profile.rt[rt].pt[pt]

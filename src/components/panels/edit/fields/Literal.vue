@@ -96,7 +96,7 @@
               </template>
               <template v-else>
                 <textarea
-                  :class="['literal-textarea', 'can-select',{'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
+                  :class="['literal-textarea', 'can-select',{'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'script-text': preferenceStore.returnValue('--n-edit-main-literal-font-size-script') != '1em'}]"
                   v-model="lValue.value"
                   v-on:keydown.enter.prevent="submitField"
                   autocomplete="off"
@@ -1265,7 +1265,7 @@ export default {
 
     //get the preferences to load into the page
     for (let k in this.styleDefault){
-      if (k.includes("shelflist")){
+      if (k.includes("shelflist-link")){
         let o = Object.assign({}, this.styleDefault[k])
         if (o.index in this.preferences){
           //save `k` so the information in the page will match the preferences in real time
@@ -1341,7 +1341,6 @@ fieldset{
   font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
   height: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size')");
 
-
 }
 .inline-mode-editable-span-input:focus-within {
   background-color: #dfe5f1;
@@ -1356,11 +1355,6 @@ fieldset{
   outline: none;
   margin-right: 15px;
   padding-right: 1em;
-
-
-
-
-
 }
 .inline-mode-editable-span-space-maker{
   display: inline-block;
@@ -1427,7 +1421,9 @@ fieldset{
   left: 2px;
 }
 
-
+.literal-field:has( + .lang-display) > form > textarea.script-text{
+  font-size: v-bind("preferenceStore.returnValue('--n-edit-main-literal-font-size-script')");
+}
 
 textarea{
   border: none;
