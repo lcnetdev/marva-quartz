@@ -71,6 +71,7 @@
                 <div class="bfcode-display-mode-holder-value">
                   <textarea
                     :class="['literal-textarea', 'can-select',{'bfcode-textarea': preferenceStore.returnValue('--b-edit-main-splitpane-edit-shortcode-display-mode'), 'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font')}]"
+                    :spellcheck="preferenceStore.returnValue('--b-edit-main-spellcheck')"
                     v-model="lValue.value"
                     v-on:keydown.enter.prevent="submitField"
                     autocomplete="off"
@@ -97,6 +98,7 @@
               <template v-else>
                 <textarea
                   :class="['literal-textarea', 'can-select',{'literal-bold': preferenceStore.returnValue('--b-edit-main-literal-bold-font'), 'script-text': preferenceStore.returnValue('--n-edit-main-literal-font-size-script') != '1em'}]"
+                  :spellcheck="preferenceStore.returnValue('--b-edit-main-spellcheck')"
                   v-model="lValue.value"
                   v-on:keydown.enter.prevent="submitField"
                   autocomplete="off"
