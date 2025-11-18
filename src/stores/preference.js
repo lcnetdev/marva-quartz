@@ -596,6 +596,15 @@ export const usePreferenceStore = defineStore('preference', {
         hide: true,
         range: null
     },
+    '--b-edit-main-spellcheck' : {
+          desc: "Allow browser's spellcheck in literal fields.",
+          descShort: 'Spellcheck',
+          value: true,
+          type: 'boolean',
+          unit: null,
+          group: 'Edit Panel',
+          range: [true,false]
+    },
 
 
 
@@ -1196,7 +1205,7 @@ export const usePreferenceStore = defineStore('preference', {
         unit: null,
         group: 'General'
     },
-      '--b-general-default-load-tupe' : {
+    '--b-general-default-load-tupe' : {
         desc: 'Set the default load type to "Continue Editing BF". Note: Reconverting ensures the record has gone through the most recent version of the marc-bf conversion.',
         descShort: 'Default Load Type "Continue"',
         value: false,
