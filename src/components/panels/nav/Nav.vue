@@ -53,6 +53,8 @@
 
   import PanelSizeModal from '../edit/modals/PanelSizeModal.vue'
 
+  import StatusIndicator from './StatusIndicator.vue'
+
 
   import TimeAgo from 'javascript-time-ago'
   import en from 'javascript-time-ago/locale/en'
@@ -579,7 +581,7 @@
             click: () => { this.profileStore.saveRecord() }
           }
           )
-          
+
 
           if (config.returnUrls.displayLCOnlyFeatures){
 menu.push(
@@ -699,6 +701,7 @@ menu.push(
         }
 
         if (this.activeProfile.id && this.$route.name == 'Edit'){
+          console.info("profile: ", this.activeProfile)
           menu.push(
             {
               text: "Profile: " + this.activeProfile.id,
@@ -706,7 +709,7 @@ menu.push(
 
             }
           )
-          }
+        }
 
         // anything after this point will  be on the right of nav menu
         menu.push({ is: "spacer" })
@@ -715,7 +718,7 @@ menu.push(
           menu.push(
           {
               text: 'Download MARC',
-              click: () => { 
+              click: () => {
                 this.profileStore.downloadBFDotOrg('marc')
 
                }
@@ -724,23 +727,31 @@ menu.push(
           menu.push(
           {
               text: 'Download BF',
-              click: () => { 
+              click: () => {
                 this.profileStore.downloadBFDotOrg('bf')
 
                }
           }
-          )          
-          
+          )
+
         }
 
         menu.push(
-        {
-            text: this.userName,
-            // active: this.happy,
-            icon: "account_circle",
-            click: () => { this.showLoginModal = true }
-        }
+          {
+            is: StatusIndicator,
+            text: "",
+          }
         )
+
+        menu.push(
+          {
+              text: this.userName,
+              // active: this.happy,
+              icon: "account_circle",
+              click: () => { this.showLoginModal = true }
+          }
+        )
+
 
 
 
