@@ -54,6 +54,7 @@
   import PanelSizeModal from '../edit/modals/PanelSizeModal.vue'
 
   import StatusIndicator from './StatusIndicator.vue'
+  import RecordHistory from './RecordHistory.vue'
 
 
   import TimeAgo from 'javascript-time-ago'
@@ -701,12 +702,26 @@ menu.push(
         }
 
         if (this.activeProfile.id && this.$route.name == 'Edit'){
+          let statusMenu = []
+          statusMenu.push(
+            {
+              text: "",
+              is: RecordHistory,
+              profile: this.activeProfile
+            }
+          )
+
           console.info("profile: ", this.activeProfile)
           menu.push(
             {
               text: "Profile: " + this.activeProfile.id,
               class: "current-profile",
-
+            },
+            { is: "separator" },
+            {
+              text:"Record Details",
+              menu: statusMenu,
+              menu_width: 650
             }
           )
         }
@@ -736,12 +751,14 @@ menu.push(
 
         }
 
-        menu.push(
-          {
-            is: StatusIndicator,
-            text: "",
-          }
-        )
+        if (config.returnUrls.displayLCOnlyFeatures){
+          menu.push(
+            {
+              is: StatusIndicator,
+              text: "",
+            }
+          )
+        }
 
         menu.push(
           {

@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="led-box simptip-position-left" :data-tooltip="'Load Status: ' + currentStatus">
+        <div class="led-box simptip-position-left" :data-tooltip="'Load Status: ' + (currentStatus == 'current' ? ':)' : ':(')">
             <div :class="currentStatus"></div>
         </div>
     </div>
@@ -11,7 +11,7 @@
 export default {
     data() {
         return {
-            currentStatus: "slow"
+            currentStatus: "current"
         }
     },
     props: {
@@ -34,7 +34,7 @@ export default {
         getStatus: async function () {
             // Get the status from ID
             // let response = await something()
-            this.currentStatus = "slow"
+            this.currentStatus = "current"
         }
     },
 
