@@ -53,8 +53,8 @@
 
   import PanelSizeModal from '../edit/modals/PanelSizeModal.vue'
 
-  import StatusIndicator from './StatusIndicator.vue'
-  import RecordHistory from './RecordHistory.vue'
+  import StatusIndicator from './nav_components/StatusIndicator.vue'
+  import RecordHistory from './nav_components/RecordHistory.vue'
 
 
   import TimeAgo from 'javascript-time-ago'
@@ -701,7 +701,7 @@ menu.push(
           }
         }
 
-        if (this.activeProfile.id && this.$route.name == 'Edit'){
+        if (this.activeProfile.id && this.$route.name == 'Edit' && config.returnUrls.displayLCOnlyFeatures){
           let statusMenu = []
           statusMenu.push(
             {
@@ -719,9 +719,10 @@ menu.push(
             },
             { is: "separator" },
             {
-              text:"Record Details",
+              chevron: true,
+              text:"Record Metadata",
               menu: statusMenu,
-              menu_width: 650
+              menu_width: 650,
             }
           )
         }
@@ -736,7 +737,7 @@ menu.push(
               click: () => {
                 this.profileStore.downloadBFDotOrg('marc')
 
-               }
+              }
           }
           )
           menu.push(
@@ -745,7 +746,7 @@ menu.push(
               click: () => {
                 this.profileStore.downloadBFDotOrg('bf')
 
-               }
+              }
           }
           )
 
@@ -755,7 +756,6 @@ menu.push(
           menu.push(
             {
               is: StatusIndicator,
-              text: "",
             }
           )
         }

@@ -37,7 +37,7 @@ export default {
             adminMetadata: null,
             nineXX: null,
             encLvl: null,
-            authentication: null
+            authentication: []
         }
     },
     props: {
@@ -119,6 +119,7 @@ export default {
     border: 1px solid black;
 }
 
+tr:nth-child(odd):hover,
 tr:hover {
     background-color: rgb(143, 141, 141);
     color: whitesmoke;
@@ -130,5 +131,9 @@ tr:hover {
 
 .record-id {
     margin-bottom: 8px;
+}
+
+tr:nth-child(odd){
+    background-color: blanchedalmond;
 }
 </style>
