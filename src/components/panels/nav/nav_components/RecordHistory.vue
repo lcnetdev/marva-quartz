@@ -1,13 +1,13 @@
 <template>
     <div class="container">
         <div class="record-id">
-            ID: <a :href="'https://id.loc.gov/resources/works/' + recordId" target="_blank">{{ recordId }}</a>
+            <strong>ID:</strong> <a :href="'https://id.loc.gov/resources/works/' + recordId" target="_blank">{{ recordId }}</a>
             <br>
-            Encoding Level: {{ encLvl }}
+            <strong>Encoding Level:</strong> {{ encLvl }}
             <br>
-            Cataloging Authentication Code(s): {{ authentication.join(" ") }}
+            <strong>Cataloging Authentication Code(s):</strong> {{ authentication.join(" ") }}
         </div>
-        <p>History</p>
+        <strong>History</strong>
         <table class="history">
             <tr v-for="datum in adminMetadata">
                 <td>
@@ -135,5 +135,9 @@ tr:hover {
 
 tr:nth-child(odd){
     background-color: blanchedalmond;
+}
+
+strong {
+    font-weight: bold;
 }
 </style>
