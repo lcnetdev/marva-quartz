@@ -3318,7 +3318,7 @@ const utilsNetwork = {
       }
 
       let searchTerm
-      if (search.at(0) == 'P'){
+      if (search.startsWith('PZ')){
         searchTerm = search
       } else {
         searchTerm = search.toUpperCase()
