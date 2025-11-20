@@ -91,7 +91,6 @@
           <template v-else>
 
             <div class="lookup-fake-input-entities 2">
-              !!{{ simpleLookupValues }}
               <draggable  style="padding-right: 0.3em; font-weight: bold"
                     v-model="simpleLookupValues"
                     group="simple"
@@ -406,7 +405,7 @@ export default {
         this.profileStore.removeValueSimple(this.guid, cpParent[val]['@guid'])
       }
 
-      // this.dataChanged()
+      this.dataChanged()
 
     },
 
