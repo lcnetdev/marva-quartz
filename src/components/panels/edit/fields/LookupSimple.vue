@@ -90,13 +90,28 @@
 
           <template v-else>
 
-            <div class="lookup-fake-input-entities">
-              <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
+            <div class="lookup-fake-input-entities 2">
+              <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container" >
 
-                <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
-                  <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span></span>
-                  <span @click="removeValue(idx)" v-if="!avl.uneditable" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
-                  <span v-else>(uneditable)</span>
+                <!-- <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold "> -->
+                <draggable  v-if="!avl.needsDereference"  style="padding-right: 0.3em; font-weight: bold"
+                    :list=this.getList(this)
+                    group="items"
+                    @start="drag=true"
+                    @end="drag=false"
+                >
+                  {{avl.label}}
+                  <span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span>
+                  <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span>
+                </draggable>
+                <!-- </span> -->
+
+                <span v-else style="padding-right: 0.3em; font-weight: bold">
+                  <LabelDereference :URI="avl.URI"/>
+                  <span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span>
+                </span>
+                <span @click="removeValue(idx)" v-if="!avl.uneditable" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+                <span v-else>(uneditable)</span>
               </div>
             </div>
             <div class="lookup-fake-input-text">
@@ -152,6 +167,8 @@ import { usePreferenceStore } from '@/stores/preference'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
 
+import draggable from 'vuedraggable'
+
 import utilsNetwork from '@/lib/utils_network';
 import utilsProfile from '@/lib/utils_profile'
 import utilsMisc from '@/lib/utils_misc'
@@ -180,6 +197,7 @@ export default {
     ActionButton,
     LabelDereference,
     // EditLabelRemark
+    draggable,
   },
 
 
@@ -358,7 +376,13 @@ export default {
 
 
   methods:{
-
+    getList: function(event){
+      console.info(">>>>> ", event)
+      let structure = this.profileStore.returnStructureByComponentGuid(this.guid)
+      let userValue = structure.userValue
+      console.info("userValue: ", userValue)
+      return ["a", "b", "c"]
+    },
     focusClick: function(){
 
       this.$refs.lookupInput.focus()
@@ -1507,5 +1531,9 @@ export default {
 
 .component .lookup-fake-input{
   border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')");
+}
+
+.draggable {
+  cursor: grab;
 }
 </style>
