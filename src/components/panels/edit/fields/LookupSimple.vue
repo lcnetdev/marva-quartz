@@ -98,9 +98,8 @@
                     @end="drag=false"
                     item-key="URI"
                     @change="setValueList">
-                <template #item="{element}">
+                <template #item="{element, index}">
                   <div class="selected-value-container">
-
                   <span v-if="!element.needsDereference" style="padding-right: 0.3em; font-weight: bold ">
 
                     {{ element.label }}
@@ -113,7 +112,7 @@
                     <LabelDereference :URI="element.URI"/>
                     <span v-if="!element.isLiteral" title="Controlled Term" class="selected-value-icon"></span>
                   </span>
-                  <span @click="removeValue(idx)" v-if="!element.uneditable" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+                  <span @click="removeValue(index)" v-if="!element.uneditable" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
                   <span v-else>(uneditable)</span>
                 </div>
                 </template>
