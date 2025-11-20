@@ -394,9 +394,23 @@ export default {
       let parent = utilsProfile.returnGuidParent(pt.userValue, this.simpleLookupValues[0]['@guid'])
       let lastProperty = this.propertyPath.at(-1).propertyURI
 
-      const cpValues = this.simpleLookupValues
-      const cpParent = parent[lastProperty]
+      let cpValues = this.simpleLookupValues
+      let cpParent = parent[lastProperty]
 
+      if (!cpParent) {
+        cpParent = parent
+       }
+
+      console.info("setValueList")
+      console.info("pt: ", pt)
+      console.info("parent: ", parent)
+      console.info("lastProperty: ", lastProperty)
+      console.info("cpValues: ", cpValues)
+      console.info("cpParent: ", cpParent)
+
+
+
+      // parent doesn't have lastProperty
 
       // update the structure at the path
       for (let val in cpValues){
