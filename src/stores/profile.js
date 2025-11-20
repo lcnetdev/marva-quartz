@@ -1509,7 +1509,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     setValueSimple: async function(componentGuid, fieldGuid, propertyPath, URI, label){
-      console.info("setValueSimple")
       console.log("componentGuid, fieldGuid, propertyPath, URI, label")
       console.log(componentGuid, fieldGuid, propertyPath, URI, label)
       propertyPath = JSON.parse(JSON.stringify(propertyPath))
@@ -1525,8 +1524,6 @@ export const useProfileStore = defineStore('profile', {
       let lastProperty = propertyPath.at(-1).propertyURI
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-
-      console.info("pt: ", pt)
 
       if (pt !== false){
 
@@ -1545,7 +1542,6 @@ export const useProfileStore = defineStore('profile', {
 
           // now we can make a link to the parent of where the literal value should live
           blankNode = utilsProfile.returnGuidLocation(pt.userValue,buildBlankNodeResult[1])
-          console.info("bNode: ", blankNode)
 
           // set the URI
           // if its null then we are adding a literal
@@ -1720,7 +1716,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     removeValueSimple: async function(componentGuid, fieldGuid){
-
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
@@ -1775,7 +1770,7 @@ export const useProfileStore = defineStore('profile', {
                 return true
               }
             })
-          }if (['object'].includes(typeof parent[p]) && parent[p] !== null){
+          } if (['object'].includes(typeof parent[p]) && parent[p] !== null){
 
             // check the parent if there are only two keys this is a top level
             // simple lookup, blank out the non-root key and that should clear this value
@@ -1837,7 +1832,6 @@ export const useProfileStore = defineStore('profile', {
 
                 for (let k in pt.userValue){
                   if (k != '@root'){
-
                     delete pt.userValue[k]
                   }
                 }

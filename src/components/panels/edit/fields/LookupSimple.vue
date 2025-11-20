@@ -388,7 +388,7 @@ export default {
 
 
   methods:{
-    setValueList: function(){
+    setValueList: async function(){
       // set the UserValue to match the new order
       let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
       let parent = utilsProfile.returnGuidParent(pt.userValue, this.simpleLookupValues[0]['@guid'])
@@ -396,13 +396,17 @@ export default {
 
       const cpValues = this.simpleLookupValues
       const cpParent = parent[lastProperty]
+
+
       // update the structure at the path
       for (let val in cpValues){
         // Add new value
-        this.profileStore.setValueSimple(this.guid, cpParent[val]['@guid'], this.propertyPath, this.simpleLookupValues[val]['URI'], this.simpleLookupValues[val]['label'])
+        await this.profileStore.setValueSimple(this.guid, cpParent[val]['@guid'], this.propertyPath, cpValues[val]['URI'], cpValues[val]['label'])
+
         // Remove old value
-        this.profileStore.removeValueSimple(this.guid, cpParent[val]['@guid'])
+        await this.profileStore.removeValueSimple(this.guid, cpParent[val]['@guid'])
       }
+
 
       this.dataChanged()
 
