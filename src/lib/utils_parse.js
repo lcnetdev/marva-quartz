@@ -444,9 +444,6 @@ const utilsParse = {
   },
 
   transformRts: async function(profile){
-    console.info("Starting Profile: ", JSON.parse(JSON.stringify(profile)))
-    console.info("Profile: ", profile)
-
     let toDeleteNoData = []
 
     // before we start processing make sure we have enough instance rts for the number needed
@@ -640,11 +637,6 @@ const utilsParse = {
         // make sure each new one has a unique guid
         ptk['@guid'] = short.generate()
 
-        if (k == 'id_loc_gov_ontologies_bibframe_content__content_type'){
-          console.info("ptk: ", ptk)
-          console.info("xml: ", xml)
-        }
-
         // remove any default values since we will be populating from the record
         // ptk.valueConstraint.defaultsBackup = JSON.parse(JSON.stringify(ptk.valueConstraint.defaults))
         ptk.valueConstraint.defaults=[]
@@ -663,9 +655,6 @@ const utilsParse = {
         let el = []
         // let elHashOrder = []
         for (let e of xml.children){
-          if (['id_loc_gov_ontologies_bibframe_content__content_type', 'id_loc_gov_ontologies_bibframe_contribution__creator_of_work'].includes(k) ){
-            console.info("e: ", e)
-          }
           if (this.UriNamespace(e.tagName) == propertyURI){
 
 
@@ -764,10 +753,6 @@ const utilsParse = {
           // holds the ids of all the pts we are about to create so we can do some post processing on them
           let ptsCreatedThisLoop = []
 
-          if (['id_loc_gov_ontologies_bibframe_content__content_type', 'id_loc_gov_ontologies_bibframe_contribution__creator_of_work'].includes(k) ){
-            console.info("el: ", el)
-          }
-
           // loop through all of them
           let counter = 0
           for (let e of el){
@@ -842,10 +827,6 @@ const utilsParse = {
             populateData.xmlHash = hashCode(populateData.xmlSource)
 
             populateData['@guid'] = short.generate()
-
-            if (['id_loc_gov_ontologies_bibframe_content__content_type', 'id_loc_gov_ontologies_bibframe_contribution__creator_of_work'].includes(k) ){
-              console.info("populateData: ", JSON.parse(JSON.stringify(populateData)))
-            }
 
             // console.log("-------------------------------- deepth")
             // console.log(this.getXmlDepth(populateData.xmlSource))
@@ -1751,12 +1732,6 @@ const utilsParse = {
             // need to make a new one and add it to the resource template list
             // since each piece of data in the property is its own resource template
 
-            if (['id_loc_gov_ontologies_bibframe_content__content_type', 'id_loc_gov_ontologies_bibframe_contribution__creator_of_work'].includes(k) ){
-              console.info("populateData getting reattached: ", JSON.parse(JSON.stringify(populateData)))
-              console.info("counter: ", counter)
-            }
-
-
             if (counter === 0){
               pt[k] = populateData
               ptsCreatedThisLoop.push(populateData.id)
@@ -1764,7 +1739,7 @@ const utilsParse = {
               // if (type == lookup), it's a simple lookup, keep the pieces together
               if (populateData.type == 'lookup'){
                 pt[k].userValue[populateData['propertyURI']].push(populateData.userValue[populateData['propertyURI']][0])
-              } else { // otherwise, create an new pt
+              } else { // otherwise, create a new pt
                 let newKey = `${k}_${counter}`
                 let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
                 let newpos = currentpos + 1

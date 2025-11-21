@@ -1633,8 +1633,6 @@ export const useProfileStore = defineStore('profile', {
         // they changed something
         this.dataChanged()
 
-        console.info("pt: ", pt)
-
       }else{
         console.error('setValueSimple: Cannot locate the component by guid', componentGuid, this.activeProfile)
       }

@@ -10,7 +10,6 @@
         <input v-model="activeValue" class="inline-lookup-input can-select 1" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
         <Transition name="action" v-if="showActionButton && myGuid == activeField">
             <div :class="{'lookup-action':true, 'lookup-action-camm':preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')}" >
-
               <action-button :type="'lookupSimple'" :structure="structure" :guid="guid" :small="true" :id="`action-button-${structure['@guid']}`" @action-button-command="actionButtonCommand" />
             </div>
           </Transition>
@@ -301,7 +300,7 @@ export default {
 
   watch: {
     getSimpleLookupValues(newVal){
-      console.info("New: ", newVal)
+      // this doesn't do anything, but without it the reordering won't work
     }
   },
 
@@ -399,18 +398,7 @@ export default {
 
       if (!cpParent) {
         cpParent = parent
-       }
-
-      console.info("setValueList")
-      console.info("pt: ", pt)
-      console.info("parent: ", parent)
-      console.info("lastProperty: ", lastProperty)
-      console.info("cpValues: ", cpValues)
-      console.info("cpParent: ", cpParent)
-
-
-
-      // parent doesn't have lastProperty
+      }
 
       // update the structure at the path
       for (let val in cpValues){
@@ -420,7 +408,6 @@ export default {
         // Remove old value
         await this.profileStore.removeValueSimple(this.guid, cpParent[val]['@guid'])
       }
-
 
       this.dataChanged()
 
