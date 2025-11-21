@@ -1716,7 +1716,6 @@ export const useProfileStore = defineStore('profile', {
     * @return {void}
     */
     removeValueSimple: async function(componentGuid, fieldGuid){
-
       // locate the correct pt to work on in the activeProfile
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
@@ -1771,7 +1770,7 @@ export const useProfileStore = defineStore('profile', {
                 return true
               }
             })
-          }if (['object'].includes(typeof parent[p]) && parent[p] !== null){
+          } if (['object'].includes(typeof parent[p]) && parent[p] !== null){
 
             // check the parent if there are only two keys this is a top level
             // simple lookup, blank out the non-root key and that should clear this value
@@ -1833,7 +1832,6 @@ export const useProfileStore = defineStore('profile', {
 
                 for (let k in pt.userValue){
                   if (k != '@root'){
-
                     delete pt.userValue[k]
                   }
                 }

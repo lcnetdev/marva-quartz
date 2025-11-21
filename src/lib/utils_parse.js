@@ -633,7 +633,6 @@ const utilsParse = {
       // at this point we have the main piece of the xml tree that has all our data
       // loop through properties we are looking for and build out the the profile
       for (let k in pt){
-
         let ptk = JSON.parse(JSON.stringify(pt[k]))
         // make sure each new one has a unique guid
         ptk['@guid'] = short.generate()
@@ -1733,20 +1732,25 @@ const utilsParse = {
             // need to make a new one and add it to the resource template list
             // since each piece of data in the property is its own resource template
 
-
-
             if (counter === 0){
               pt[k] = populateData
               ptsCreatedThisLoop.push(populateData.id)
             }else{
-              let newKey = `${k}_${counter}`
-              let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
-              let newpos = currentpos + 1
-              profile.rt[pkey].ptOrder.splice(newpos, 0, newKey);
-              populateData.id = newKey
-              ptsCreatedThisLoop.push(newKey)
-              pt[newKey] = populateData
+              // if (type == lookup), it's a simple lookup, keep the pieces together
+              if (populateData.type == 'lookup'){
+                pt[k].userValue[populateData['propertyURI']].push(populateData.userValue[populateData['propertyURI']][0])
+              } else { // otherwise, create a new pt
+                let newKey = `${k}_${counter}`
+                let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
+                let newpos = currentpos + 1
+                profile.rt[pkey].ptOrder.splice(newpos, 0, newKey);
+                populateData.id = newKey
+                ptsCreatedThisLoop.push(newKey)
+                pt[newKey] = populateData
+              }
             }
+
+
 
 
             // console.log("populateData", JSON.stringify(populateData, null, 2))
