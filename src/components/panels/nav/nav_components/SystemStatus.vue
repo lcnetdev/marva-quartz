@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container" v-if="status">
         <div class="updates">
             Last Update:
             <div v-for="(date, type) in status.status.updates">
@@ -43,6 +43,7 @@ export default {
 .container {
     padding: 5px;
 }
+
 .history {
     border: 1px solid black;
 }
@@ -61,7 +62,7 @@ tr:hover {
     margin-bottom: 8px;
 }
 
-tr:nth-child(odd){
+tr:nth-child(odd) {
     background-color: blanchedalmond;
 }
 
