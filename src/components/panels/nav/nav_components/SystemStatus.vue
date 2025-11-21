@@ -28,7 +28,6 @@ export default {
         getStatus: async function () {
             // Get the status from ID
             this.status = await utilsNetwork.systemStatus()
-            console.info("status: ", this.status)
         }
     },
 

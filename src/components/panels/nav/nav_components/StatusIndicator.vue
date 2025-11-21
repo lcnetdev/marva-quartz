@@ -18,17 +18,6 @@ export default {
         item: Object
     },
 
-    // watch: {
-    //     currentStatus(current){
-    //         if (current != "current"){
-    //             console.info("checking?")
-    //             // set an intervale to keep getting status, every 15 seconds
-    //             this.timer = window.setInterval(() => {
-    //                 this.getStatus()
-    //             }, 150000)
-    //         }
-    //     }
-    // },
 
     methods: {
         getStatus: async function () {
@@ -37,7 +26,6 @@ export default {
             this.currentStatus = "current"
 
             // let status = await utilsNetwork.systemStatus()
-            // console.info("status: ", status)
         }
     },
 

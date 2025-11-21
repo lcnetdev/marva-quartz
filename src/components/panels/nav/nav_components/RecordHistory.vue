@@ -69,7 +69,6 @@ export default {
                         let dt = new Date(date).toLocaleString()
                         admin.push({ "date": date, "status": status, "dateString": dt })
                     } catch {
-                        console.info("data: ", data)
                         try {
                             for (let thing in data) {
                                 if (thing.includes("/d9")) {
