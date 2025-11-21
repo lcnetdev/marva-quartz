@@ -55,6 +55,7 @@
 
   import StatusIndicator from './nav_components/StatusIndicator.vue'
   import RecordHistory from './nav_components/RecordHistory.vue'
+  import SystemStatus from './nav_components/SystemStatus.vue'
 
 
   import TimeAgo from 'javascript-time-ago'
@@ -702,8 +703,8 @@ menu.push(
         }
 
         if (this.activeProfile.id && this.$route.name == 'Edit' && config.returnUrls.displayLCOnlyFeatures){
-          let statusMenu = []
-          statusMenu.push(
+          let recordMenu = []
+          recordMenu.push(
             {
               text: "",
               is: RecordHistory,
@@ -721,7 +722,7 @@ menu.push(
             {
               chevron: true,
               text:"Record Metadata",
-              menu: statusMenu,
+              menu: recordMenu,
               menu_width: 650,
             }
           )
@@ -753,7 +754,23 @@ menu.push(
         }
 
         if (config.returnUrls.displayLCOnlyFeatures){
+          let statusMenu = []
+          statusMenu.push(
+            {
+              text: "",
+              is: SystemStatus,
+              profile: this.activeProfile
+            }
+          )
+
           menu.push(
+            {
+              chevron: true,
+              text:"System Status",
+              menu: statusMenu,
+              menu_width: 200,
+            },
+
             {
               is: StatusIndicator,
             }

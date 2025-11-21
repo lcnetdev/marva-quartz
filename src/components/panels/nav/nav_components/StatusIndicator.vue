@@ -35,6 +35,9 @@ export default {
             // Get the status from ID
             // let response = await something()
             this.currentStatus = "current"
+
+            // let status = await utilsNetwork.systemStatus()
+            // console.info("status: ", status)
         }
     },
 
