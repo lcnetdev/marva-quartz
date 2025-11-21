@@ -99,7 +99,7 @@
                     item-key="URI"
                     @change="setValueList">
                 <template #item="{element, index}">
-                  <div class="selected-value-container">
+                  <div class="selected-value-container draggable-value">
                   <span v-if="!element.needsDereference" style="padding-right: 0.3em; font-weight: bold ">
 
                     {{ element.label }}
@@ -1576,7 +1576,10 @@ export default {
   border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')");
 }
 
-.draggable {
+.draggable-value {
   cursor: grab;
+}
+.draggable-value:active {
+  cursor: grabbing;
 }
 </style>
