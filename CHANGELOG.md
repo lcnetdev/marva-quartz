@@ -1,6 +1,15 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.4.4] - 2025-10-24
+### Fixed
+- Orphaned langauge names in scriptshifter were sticking around in the localStorage causing scriptshifter options to appear in the action menu but they did not exist. This was caused by renaming tables in scriptshifter making their keys different. The scriptshifter config interface now clean out invalid langauges from localStorage when adding and removing (by selecting or deselecting langauges)
+
+
+## [1.4.3] - 2025-10-20
+### Changed
+- In the quick NAR interface the Heading search would populate everything returning from the suggest2/ search which inclduded variant matches. This was confusing to the user because it didn't show the variant label, just the auth label. This causes the search results to seem unreilable. The NAR interface heading search now shows more details on what was exactly matched vs partial match vs variant label match.
+
 
 
 ## [1.4.2] - 2025-09-15
