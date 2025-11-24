@@ -1,7 +1,8 @@
 <template>
     <div class="container">
         <div class="record-id">
-            <strong>ID:</strong> <a :href="'https://id.loc.gov/resources/works/' + recordId" target="_blank">{{ recordId }}</a>
+            <strong>ID:</strong> <a :href="'https://id.loc.gov/resources/works/' + recordId" target="_blank">{{ recordId
+                }}</a>
             <br>
             <strong>Encoding Level:</strong> {{ encLvl }}
             <br>
@@ -75,16 +76,16 @@ export default {
                                     nines.push(data[thing][0][thing])
                                 }
                             }
-                        } catch {}
-                        if (Object.keys(data).includes("http://id.loc.gov/ontologies/bibframe/identifiedBy")){
+                        } catch { }
+                        if (Object.keys(data).includes("http://id.loc.gov/ontologies/bibframe/identifiedBy")) {
                             this.recordId = data["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"]
                         }
-                        if (Object.keys(data).includes("http://id.loc.gov/ontologies/bflc/encodingLevel")){
+                        if (Object.keys(data).includes("http://id.loc.gov/ontologies/bflc/encodingLevel")) {
                             this.encLvl = data["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
                         }
-                        if (Object.keys(data).includes("http://id.loc.gov/ontologies/bibframe/descriptionAuthentication")){
+                        if (Object.keys(data).includes("http://id.loc.gov/ontologies/bibframe/descriptionAuthentication")) {
                             let authDesc = []
-                            for (let auth of data["http://id.loc.gov/ontologies/bibframe/descriptionAuthentication"]){
+                            for (let auth of data["http://id.loc.gov/ontologies/bibframe/descriptionAuthentication"]) {
                                 let id = auth["@id"].split("/").at(-1)
                                 authDesc.push(id)
                             }
@@ -104,7 +105,9 @@ export default {
     },
 
     mounted() {
-        this.getAdminMetadata()
+        window.setTimeout(()=>{
+            this.getAdminMetadata()
+        },2000)
     }
 }
 
@@ -114,6 +117,7 @@ export default {
 .container {
     padding: 5px;
 }
+
 .history {
     border: 1px solid black;
 }
@@ -132,7 +136,7 @@ tr:hover {
     margin-bottom: 8px;
 }
 
-tr:nth-child(odd){
+tr:nth-child(odd) {
     background-color: blanchedalmond;
 }
 

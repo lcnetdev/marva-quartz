@@ -1,9 +1,12 @@
 <template>
     <div class="container" v-if="status">
         <div class="updates">
-            Last Update:
+            <p>Last Update:</p>
             <div v-for="(date, type) in status.status.updates">
-                {{ type.replace("lastUpdate", "") }}: {{ date }}
+                <dl>
+                    <dt>{{ type.replace("lastUpdate", "") }}: </dt>
+                    <dd>{{ date }}</dd>
+                </dl>
             </div>
         </div>
     </div>
@@ -65,7 +68,17 @@ tr:nth-child(odd) {
     background-color: blanchedalmond;
 }
 
-strong {
+p {
+    font-size: 1.3em;
+}
+
+.updates > p,
+strong,
+dt {
     font-weight: bold;
+}
+dd {
+    font-size: .9em;
+    padding-left: 8px;
 }
 </style>

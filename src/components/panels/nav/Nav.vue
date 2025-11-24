@@ -230,7 +230,7 @@ export default {
         )
       }
 
-      if (this.windowWidth < 1500) {
+      if (this.windowWidth < 1500 && config.returnUrls.displayLCOnlyFeatures) {
         let statusMenu = []
         statusMenu.push(
           {
@@ -244,14 +244,14 @@ export default {
           { is: "separator" },
           {
             chevron: true,
-            text: "System Status",
+            text: "System Info",
             menu: statusMenu,
             menu_width: 200,
           },
         )
       }
 
-      if (this.windowWidth < 1500 && this.$route.path.startsWith('/edit/')) {
+      if (this.windowWidth < 1500 && this.$route.path.startsWith('/edit/') && config.returnUrls.displayLCOnlyFeatures) {
         let recordMenu = []
         recordMenu.push(
           {
@@ -841,7 +841,7 @@ export default {
         menu.push(
           {
             chevron: true,
-            text: "System Status",
+            text: "System Info",
             menu: statusMenu,
             menu_width: 200,
           },
