@@ -257,7 +257,8 @@ export default {
           {
             text: "",
             is: RecordHistory,
-            profile: this.activeProfile
+            profile: this.activeProfile,
+            class:"record-history",
           }
         )
 
@@ -265,7 +266,8 @@ export default {
         menuButtonSubMenu.push(
           {
             chevron: true,
-            text: "Record Metadata",
+            text: "Record Info",
+            class: "record-info",
             menu: recordMenu,
             menu_width: 650,
           },
@@ -797,7 +799,7 @@ export default {
           { is: "separator" },
           {
             chevron: true,
-            text: "Record Metadata",
+            text: "Record Info",
             menu: recordMenu,
             menu_width: 650,
           }
