@@ -133,6 +133,16 @@
             }
           }
 
+
+          // also validate that all the languages in current exist in scriptshifterLanguages
+          for (let y in current){
+            if (!this.scriptshifterLanguages[y]){
+              delete current[y]
+            }
+          }
+
+
+
           window.localStorage.setItem('marva-scriptShifterOptions',JSON.stringify(current))
           this.scriptShifterOptions = JSON.parse(JSON.stringify(current))
         },
@@ -174,7 +184,11 @@
 
       // console.log("Mounted")
 
-
+      
+      this.$nextTick(()=>{
+        // this causes the scriptshifter modal to be focused and the scrollbar to appear correctly
+        this.$refs.debugContent.style.height = this.initalHeight + 'px'
+      })
 
 
 
@@ -267,9 +281,9 @@
             <div class="menu-buttons">
               <button class="close-button" @pointerup="showScriptshifterConfigModal=false">X</button>
             </div>
-            <p>Visit <a href="https://bibframe.org/scriptshifter" target="_blank">bibframe.org/scriptshifter</a> to test these languages.</p>
+            <p>Visit <a ref="bfLink" href="https://bibframe.org/scriptshifter" target="_blank">bibframe.org/scriptshifter</a> to test these languages.</p>
 
-            <hr style="margin-top: 1em; margin-bottom: 1em;">
+            <hr ref="hrLine" style="margin-top: 1em; margin-bottom: 1em;">
             <div style="display: flex; align-items: center;">
               <div style="flex: 0;"><input type="checkbox" v-model="capitalizeFirstWord" id="capitalizeFirstWord"></div>
               <div style="flex:1; padding-left: 1em;"><label for="capitalizeFirstWord"> Capitalize first letter of transliteration</label></div>
