@@ -3730,7 +3730,6 @@ export const useProfileStore = defineStore('profile', {
       if (work){
         for (let ptId of work.ptOrder){
           let pt = JSON.parse(JSON.stringify(work.pt[ptId]))
-
           /*
           //
           {
@@ -3838,7 +3837,7 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
-          if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/subject' && (firstSubject === null || secondSubject === null)){
+          if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/subject' && (firstSubject === null || secondSubject === null) && !pt.deleted){
             let subjectUserValue = pt.userValue
             if (subjectUserValue && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'].length > 0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
               if (subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
@@ -3917,6 +3916,7 @@ export const useProfileStore = defineStore('profile', {
             titleNonSort:null,
             contributors:[],
             firstSubject:null,
+            secondSubject:null,
             cutterGuid:null,
             classGuid:null
           }
@@ -3942,6 +3942,7 @@ export const useProfileStore = defineStore('profile', {
             titleNonSort:titleNonSort,
             contributors:contributors,
             firstSubject:firstSubject,
+            secondSubject:secondSubject,
             cutterGuid:null,
             classGuid:null
           }
@@ -3956,6 +3957,7 @@ export const useProfileStore = defineStore('profile', {
             titleNonSort:null,
             contributors:contributors,
             firstSubject:null,
+            secondSubject:null,
             cutterGuid:null,
             classGuid:null
           }
