@@ -3707,6 +3707,7 @@ export const useProfileStore = defineStore('profile', {
       let title = null
       let titleNonSort = null
       let firstSubject = null
+      let secondSubject = null
       let contributors = []
 
       let titleNonLatin = null
@@ -3837,11 +3838,15 @@ export const useProfileStore = defineStore('profile', {
             }
           }
 
-          if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/subject' && firstSubject === null){
+          if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/subject' && (firstSubject === null || secondSubject === null)){
             let subjectUserValue = pt.userValue
             if (subjectUserValue && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'].length > 0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
               if (subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-                firstSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+                if (firstSubject === null){
+                  firstSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+                } else {
+                  secondSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+                }
               }
             }
           }
@@ -3896,6 +3901,7 @@ export const useProfileStore = defineStore('profile', {
             titleNonSort:titleNonSort,
             contributors:contributors,
             firstSubject:firstSubject,
+            secondSubject:secondSubject,
             cutterGuid:cutterGuid,
             classGuid:classGuid
           }
