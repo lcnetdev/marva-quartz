@@ -19,7 +19,7 @@ export const useConfigStore = defineStore('config', {
         ldpjs : 'http://localhost:9401/api-staging/',
 
         util  : 'http://localhost:9401/util/',
-        // util  : 'http://localhost:5200/',
+        // util  : 'http://localhost:5200/util',
         // util  :  'https://preprod-3001.id.loc.gov/bfe2/util/',
         // util  :  'https://editor.id.loc.gov/bfe2/util/',
 
@@ -27,7 +27,8 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
 
-        validate: 'http://localhost:5200/validate/stage',
+        validate: 'http://localhost:9401/validate/stage',
+        // validate: 'http://localhost:5200/validate/stage',
         // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate/stage',
         publishNar: 'http://localhost:9401/util/nacostub/staging',
 
