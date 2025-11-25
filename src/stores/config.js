@@ -27,7 +27,7 @@ export const useConfigStore = defineStore('config', {
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
 
-        validate: 'http://localhost:9401/validate/stage',
+        validate: 'http://localhost:9401/util/validate/prod',
         // validate: 'http://localhost:5200/validate/stage',
         // validate: 'https://preprod-3001.id.loc.gov/bfe2/util/validate/stage',
         publishNar: 'http://localhost:9401/util/nacostub/staging',
@@ -63,8 +63,8 @@ export const useConfigStore = defineStore('config', {
 
         // worldCat: 'http://localhost:5200/worldcat/',
         // copyCatUpload: 'http://localhost:5200/copycat/upload/stag',
-        worldCat: 'http://localhost:9401/worldcat/',
-        copyCatUpload: 'http://localhost:9401/copycat/upload/stag',
+        worldCat: 'http://localhost:9401/util/worldcat/',
+        copyCatUpload: 'http://localhost:9401/util/copycat/upload/stag',
 
         id: 'https://preprod-8080.id.loc.gov/',
         env : 'staging',
