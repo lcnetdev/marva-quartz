@@ -165,8 +165,14 @@ const utilsExport = {
 			bnode.appendChild(rdftype)
 			return bnode
 		}else{
+			console.info("userValue: ", userValue)
 			// just normally make it
-			let bnode = this.createElByBestNS(userValue['@type'])
+			let bnode
+			try {
+				bnode = this.createElByBestNS(userValue['@type'])
+			} catch {
+				return false
+			}
 			if (userValue['@id']){
 				bnode.setAttributeNS(this.namespace.rdf, 'rdf:about', userValue['@id'])
 			}
@@ -1044,8 +1050,10 @@ const utilsExport = {
 								}
 
 								// add to the structure
-								pLvl1Sibling.appendChild(bnodeLvl1Sibling)
-								rootEl.appendChild(pLvl1Sibling)
+								if (bnodeLvl1Sibling){
+									pLvl1Sibling.appendChild(bnodeLvl1Sibling)
+									rootEl.appendChild(pLvl1Sibling)
+								}
 							}
 						}
 
