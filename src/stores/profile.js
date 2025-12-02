@@ -77,6 +77,7 @@ export const useProfileStore = defineStore('profile', {
     // the starting points that display on the create new page
     startingPoints: {},
     copyCatMode: false,
+    copyCatSearch: null,
 
     // the current active profile
     activeProfile: {},

@@ -123,6 +123,10 @@
                     <div><button @click="loadSearch(); showSyncOptions = false">Click to Run Search Again</button></div>
                   </li>
 
+                  <div v-if="searchByLccnResults && searchByLccnResults.length === 0">
+                    <a href="#" @click="ccSearch(urlToLoad)">Search CopyCat: {{ urlToLoad }}</a>
+                  </div>
+
                   <template v-if="searchByLccnResults && typeof searchByLccnResults === 'string'">
 
                     <li>Searching...</li>
@@ -466,7 +470,7 @@ export default {
     ...mapState(usePreferenceStore, ['styleDefault', 'panelDisplay']),
     ...mapState(useConfigStore, ['testData']),
     ...mapState(useProfileStore, ['startingPoints', 'profiles', 'copyCatMode']),
-    ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showShelfListingModal']),
+    ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'showShelfListingModal', 'copyCatSearch']),
 
 
     // // gives read access to this.count and this.double
@@ -490,6 +494,15 @@ export default {
   },
 
   methods: {
+    ccSearch: function(isbn){
+      this.profileStore.copyCatSearch = isbn
+
+      if (this.$route.path.includes('edit')){
+        this.$router.push('/load')
+      }
+      this.profileStore.copyCatMode = true
+    },
+
     removeRecord: async function(record){
       let checkContinue = confirm("Do you really want to delete this?")
       if (!checkContinue){ return }
