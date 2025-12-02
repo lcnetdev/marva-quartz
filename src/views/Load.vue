@@ -123,7 +123,8 @@
                     <div><button @click="loadSearch(); showSyncOptions = false">Click to Run Search Again</button></div>
                   </li>
 
-                  <div v-if="searchByLccnResults && searchByLccnResults.length === 0">
+                  <div v-if="searchByLccnResults && searchByLccnResults.length === 0 && showLoadTypeSelection()">
+                    <br /><br />
                     <a href="#" @click="ccSearch(urlToLoad)">Search CopyCat: {{ urlToLoad }}</a>
                   </div>
 
