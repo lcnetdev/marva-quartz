@@ -165,7 +165,6 @@ const utilsExport = {
 			bnode.appendChild(rdftype)
 			return bnode
 		}else{
-			console.info("userValue: ", userValue)
 			// just normally make it
 			let bnode
 			try {

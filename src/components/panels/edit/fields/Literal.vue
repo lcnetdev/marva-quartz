@@ -142,7 +142,7 @@
         <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://classweb.org/min/minaret?app=Class&auto=1&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+lccFeatureData.classNumber" target="_blank">ClassWeb Browse: {{ lccFeatureData.classNumber }}</a><br/>
 
         <a style="color:black" v-if="lccFeatureData.firstSubject" :href="'https://classweb.org/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a><br/>
-        <a style="color:black" v-if="lccFeatureData.secondSubject" :href="'https://classweb.org/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a>
+        <a style="color:black" v-if="lccFeatureData.secondSubject" :href="'https://classweb.org/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.secondSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a>
 
 
       </div>
