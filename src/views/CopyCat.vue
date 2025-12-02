@@ -274,7 +274,7 @@ export default {
     ...mapState(usePreferenceStore, ['styleDefault', 'panelDisplay']),
     ...mapState(useConfigStore, ['testData']),
     ...mapState(useProfileStore, ['startingPoints', 'profiles', 'copyCatMode']),
-    ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode']),
+    ...mapWritableState(useProfileStore, ['activeProfile', 'emptyComponents', 'activeProfilePosted', 'activeProfilePostedTimestamp', 'copyCatMode', 'copyCatSearch']),
 
 
     // // gives read access to this.count and this.double
@@ -811,6 +811,13 @@ export default {
     document.title = `Marva`;
 
     this.jackphyCheck = this.preferenceStore.returnValue("--b-edit-copy-cat-non-latin")
+
+    if (this.copyCatSearch !== null){
+      this.wcQuery = this.copyCatSearch
+      this.worldCatSearch(false, true)
+
+      this.copyCatSearch = null
+    }
   },
   created: async function () { }
 }
