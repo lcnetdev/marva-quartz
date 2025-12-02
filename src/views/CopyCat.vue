@@ -812,10 +812,12 @@ export default {
 
     this.jackphyCheck = this.preferenceStore.returnValue("--b-edit-copy-cat-non-latin")
 
-    this.wcQuery = this.copyCatSearch
-    this.worldCatSearch(false, true)
+    if (this.copyCatSearch !== null){
+      this.wcQuery = this.copyCatSearch
+      this.worldCatSearch(false, true)
 
-    this.copyCatSearch = null
+      this.copyCatSearch = null
+    }
   },
   created: async function () { }
 }
