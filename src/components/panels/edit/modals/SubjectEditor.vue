@@ -1060,6 +1060,7 @@ export default {
      * but there won't be components.
      */
     buildComponents: function (searchString) {
+      console.info("buildComponents: ", this.components)
       // searchString = searchString.replace("—", "--") // when copying a heading from class web
 
       let subjectStringSplit = searchString.split('--')
@@ -1150,18 +1151,24 @@ export default {
 
         let tempSs = ss.replace("‑", "-")
 
-        if (this.componetLookup[id + offset] && this.componetLookup[id + offset][tempSs]) {
-          literal = this.componetLookup[id + offset][tempSs].literal
-          uri = this.componetLookup[id + offset][tempSs].uri
-          marcKey = this.componetLookup[id + offset][tempSs].marcKey
-          nonLatinLabel = this.componetLookup[id + offset][tempSs].nonLatinTitle
-          nonLatinMarcKey = this.componetLookup[id + offset][tempSs].nonLatinMarcKey
-        } else if (this.componetLookup[id + offset] && this.componetLookup[id + offset][ss]) {
+        console.info("this.componetLookup: ", this.componetLookup)
+        console.info("id: ", id)
+        console.info("offset: ", offset)
+        console.info("tempSs: ", tempSs)
+        console.info("ss: ", ss)
+
+        if (this.componetLookup[id + offset] && this.componetLookup[id + offset][ss]) {
           literal = this.componetLookup[id + offset][ss].literal
           uri = this.componetLookup[id + offset][ss].uri
           marcKey = this.componetLookup[id + offset][ss].marcKey
           nonLatinLabel = this.componetLookup[id + offset][ss].nonLatinTitle
           nonLatinMarcKey = this.componetLookup[id + offset][ss].nonLatinMarcKey
+        } else if (this.componetLookup[id + offset] && this.componetLookup[id + offset][tempSs]) {
+          literal = this.componetLookup[id + offset][tempSs].literal
+          uri = this.componetLookup[id + offset][tempSs].uri
+          marcKey = this.componetLookup[id + offset][tempSs].marcKey
+          nonLatinLabel = this.componetLookup[id + offset][tempSs].nonLatinTitle
+          nonLatinMarcKey = this.componetLookup[id + offset][tempSs].nonLatinMarcKey
         }
 
         if (uri && uri.includes("/hubs/")) {
@@ -1173,6 +1180,7 @@ export default {
         } catch(e){
           type = null
         }
+        console.info("push?")
         this.components.push({
           label: ss,
           uri: uri,
@@ -1195,6 +1203,8 @@ export default {
 
       //make sure the searchString matches the components
       this.subjectString = this.components.map((component) => component.label).join("--")
+
+      console.info(">>>>>", this.components)
 
     },
 
@@ -1797,6 +1807,7 @@ export default {
     },
 
     getContext: async function () {
+      console.info("get context")
       if (this.pickLookup[this.pickPostion].literal) {
         this.contextData = this.pickLookup[this.pickPostion]
         return false
@@ -1804,7 +1815,10 @@ export default {
       //let temp = await utilsNetwork.returnContext(this.pickLookup[this.pickPostion].uri)
       this.contextData = this.pickLookup[this.pickPostion].extra
 
+      console.info("data: ", this.contextData)
+
       if (this.pickLookup[this.pickPostion].uri) {
+        console.info("1")
         // Pull information into contextData from 1 level up
         this.contextData.literal = false
         this.contextData.title = this.pickLookup[this.pickPostion].label
@@ -1829,6 +1843,7 @@ export default {
         this.contextData.gacs = this.pickLookup[this.pickPostion].extra.gacs
 
       } else {
+        console.info("2")
         this.contextData.literal = true
       }
 
