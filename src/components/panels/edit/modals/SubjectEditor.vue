@@ -1150,18 +1150,18 @@ export default {
 
         let tempSs = ss.replace("‑", "-")
 
-        if (this.componetLookup[id + offset] && this.componetLookup[id + offset][tempSs]) {
-          literal = this.componetLookup[id + offset][tempSs].literal
-          uri = this.componetLookup[id + offset][tempSs].uri
-          marcKey = this.componetLookup[id + offset][tempSs].marcKey
-          nonLatinLabel = this.componetLookup[id + offset][tempSs].nonLatinTitle
-          nonLatinMarcKey = this.componetLookup[id + offset][tempSs].nonLatinMarcKey
-        } else if (this.componetLookup[id + offset] && this.componetLookup[id + offset][ss]) {
+        if (this.componetLookup[id + offset] && this.componetLookup[id + offset][ss]) {
           literal = this.componetLookup[id + offset][ss].literal
           uri = this.componetLookup[id + offset][ss].uri
           marcKey = this.componetLookup[id + offset][ss].marcKey
           nonLatinLabel = this.componetLookup[id + offset][ss].nonLatinTitle
           nonLatinMarcKey = this.componetLookup[id + offset][ss].nonLatinMarcKey
+        } else if (this.componetLookup[id + offset] && this.componetLookup[id + offset][tempSs]) {
+          literal = this.componetLookup[id + offset][tempSs].literal
+          uri = this.componetLookup[id + offset][tempSs].uri
+          marcKey = this.componetLookup[id + offset][tempSs].marcKey
+          nonLatinLabel = this.componetLookup[id + offset][tempSs].nonLatinTitle
+          nonLatinMarcKey = this.componetLookup[id + offset][tempSs].nonLatinMarcKey
         }
 
         if (uri && uri.includes("/hubs/")) {
