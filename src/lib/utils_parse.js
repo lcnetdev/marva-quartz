@@ -1221,7 +1221,7 @@ const utilsParse = {
 
                             if (gggChild.attributes && gggChild.attributes['rdf:about']){
                               gChildData['@type'] = gggChild.attributes['rdf:about'].value
-                            } else if (gChildData['@type'] == 'http://id.loc.gov/ontologies/bibframe/Note'){
+                            } else if (gggChild.attributes && gggChild.attributes['rdf:resource'] && gChildData['@type'] == 'http://id.loc.gov/ontologies/bibframe/Note'){
                               gChildData['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] = [
                                 {
                                 "@guid": short.generate(),
