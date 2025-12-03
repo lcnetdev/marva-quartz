@@ -126,6 +126,7 @@ const utilsExport = {
 		if (!elStr.startsWith('http')){
 			elStr = this.UriNamespace(elStr)
 		}
+
 		for (let ns of Object.keys(this.namespace)){
 			if (elStr.startsWith(this.namespace[ns])){
 				return document.createElementNS(this.namespace[ns],this.namespaceUri(elStr))
@@ -178,6 +179,7 @@ const utilsExport = {
 			if (userValue['@parseType']){
 				bnode.setAttribute('rdf:parseType', userValue['@parseType'])
 			}
+
 			return bnode
 		}
 
@@ -789,6 +791,7 @@ const utilsExport = {
 
 						let pLvl1 = this.createElByBestNS(ptObj.propertyURI)
 
+
 						let bnodeLvl1 = this.createBnode(userValue, ptObj.propertyURI)
 
 						xmlLog.push(`Created lvl 1 predicate: ${pLvl1.tagName} and bnode: ${bnodeLvl1.tagName}`)
@@ -810,7 +813,6 @@ const utilsExport = {
 								if (userValue[key1] && userValue[key1][0] && userValue[key1][0]['@id']){
 									let rdftype = this.createElByBestNS(key1)
 									rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1][0]['@id'])
-
 									bnodeLvl1.appendChild(rdftype)
 									xmlLog.push(`This bnode just has a rdf:type : ${rdftype} setting it an continuing`)
 									continue
@@ -818,7 +820,6 @@ const utilsExport = {
 									let rdftype = this.createElByBestNS(key1)
 									rdftype.innerHTML=escapeHTML(userValue[key1][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
 									xmlLog.push(`This bnode just has a rdf:type and label : ${rdftype} setting it an continuing`)
-
                                     bnodeLvl1.appendChild(rdftype)
 									continue
 								}
@@ -856,6 +857,23 @@ const utilsExport = {
                   					// now loop through its properties and see whats nested
 									for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 										let pLvl3 = this.createElByBestNS(key2)
+
+										if (key2 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
+											if (userValue[key1][0][key2] && userValue[key1][0][key2][0] && userValue[key1][0][key2][0]['@id']){
+												let rdftype = this.createElByBestNS(key2)
+												rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1][0][key2][0]['@id'])
+												bnodeLvl2.appendChild(rdftype)
+												xmlLog.push(`This bnode just has a rdf:type : ${rdftype} setting it an continuing`)
+												continue
+											}else if (userValue[key1][0][key2] && userValue[key1][0][key2][0] && userValue[key1][0][key2][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+												let rdftype = this.createElByBestNS(key2)
+												rdftype.innerHTML=escapeHTML(userValue[key1][0][key2][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
+												xmlLog.push(`This bnode just has a rdf:type and label : ${rdftype} setting it an continuing`)
+
+												bnodeLvl2.appendChild(rdftype)
+												continue
+											}
+										}
 
 										xmlLog.push(`Creating lvl 3 property: ${pLvl3.tagName} for ${key2}`)
 										let lastBnodeLvl3TagName = null
