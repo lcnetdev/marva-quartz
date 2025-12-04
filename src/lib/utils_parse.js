@@ -1320,6 +1320,7 @@ const utilsParse = {
                                 }
                                 lastClass = ggggChild.tagName
 
+
                                 // we will flag this as having a deep hiearcy to review later if we should let them be able to edit it
                                 populateData.deepHierarchy = true
                                 // console.log("Setting deepHierarchy to true for", populateData.propertyURI, populateData)
@@ -1348,6 +1349,12 @@ const utilsParse = {
                                 //     </bf:identifiedBy>
                                 //   </bf:GenreForm>
                                 // </bf:genreForm>
+
+                                if (ggggChild.tagName == "bf:Note" && populateData.propertyLabel == 'Ensemble'){
+                                  console.info("ggggChild.tagName: ", ggggChild.tagName, "--", populateData)
+                                  console.info("gggData: ", gggData)
+                                  populateData.deepHierarchy = false
+                                }
 
                                 gggData['@type'] = this.UriNamespace(ggggChild.tagName)
 
