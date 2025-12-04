@@ -640,7 +640,6 @@ export default {
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
       let marva001 = await utilsNetwork.getMarva001()
-      console.info("marva001: ", marva001)
       let regex = /(<controlfield tag="001">)(on[0-9]*)(<\/controlfield>)/g
       strXmlBasic = strXmlBasic.replaceAll(regex, "$1" + marva001 + "$3")
 
@@ -649,8 +648,7 @@ export default {
       this.posting = true
       this.postResults = {}
 
-      return
-      // this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
+      this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
       this.posting = false
 
       console.info("this.postResults: ", this.postResults)

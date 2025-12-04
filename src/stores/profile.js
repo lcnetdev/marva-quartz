@@ -3361,13 +3361,10 @@ export const useProfileStore = defineStore('profile', {
         pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, {id: 'Hub'})
       }else{
         let marva001 = await utilsNetwork.getMarva001()
-        console.info("marva001: ", marva001)
         if (xml.xlmStringBasic.includes("[IDonSubmit]")){
           xml.xlmStringBasic = xml.xlmStringBasic.replaceAll("[IDonSubmit]", marva001) //
           xml.xlmStringBasic = xml.xlmStringBasic.replaceAll(/(\/)(e[0-9]*)/g, "$1" + marva001)
         }
-        console.info("xml: ", xml.xlmStringBasic)
-        return
         pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
       }
 
