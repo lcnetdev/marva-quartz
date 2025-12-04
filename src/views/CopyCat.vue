@@ -575,7 +575,7 @@ export default {
       parent.appendChild(subfield)
     },
 
-    loadCopyCat: async function (profile) {
+    loadCopyCat: async function (profile) { // load into BFDB/ID
       let continueWithLoad = true
       if (this.existingLCCN) {
         continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
@@ -639,11 +639,18 @@ export default {
 
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
+      let marva001 = await utilsNetwork.getMarva001()
+      console.info("marva001: ", marva001)
+      let regex = /(<controlfield tag="001">)(on[0-9]*)(<\/controlfield>)/g
+      strXmlBasic = strXmlBasic.replaceAll(regex, "$1" + marva001 + "$3")
+
       console.info("strXmlBasic: ", strXmlBasic)
 
       this.posting = true
       this.postResults = {}
-      this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
+
+      return
+      // this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
       this.posting = false
 
       console.info("this.postResults: ", this.postResults)
