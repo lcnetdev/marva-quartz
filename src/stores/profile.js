@@ -3388,8 +3388,8 @@ export const useProfileStore = defineStore('profile', {
           let type = rt.split(':').slice(-1)[0]
           if (this.localMarva){
             this.activeProfile.rt[rt].URI = this.activeProfile.rt[rt].URI.replaceAll(/(\/)(e[0-9]+)/g, "$1" + marva001)
-            this.localMarva = false
           }
+          // this.localMarva = false
           let url = config.convertToRegionUrl(this.activeProfile.rt[rt].URI)
           let env = config.returnUrls.env
 
