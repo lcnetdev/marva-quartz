@@ -235,7 +235,7 @@
       // ...mapState(usePreferenceStore, ['profilesLoaded']),
       ...mapState(useProfileStore, ['profilesLoaded','activeProfile','activeComponent', 'dataChanged', 'returnComponentLibrary', 'displaySubject', 'numberHiddenShown', 'hiddenSubjects']),
       ...mapWritableState(usePreferenceStore, ['debugModalData','showDebugModal']),
-      ...mapWritableState(useProfileStore, ['emptyComponents']),
+      ...mapWritableState(useProfileStore, ['emptyComponents', 'copyCatMode']),
 
       activeResourceName(){
 
@@ -438,6 +438,9 @@
         //populate when loading from a search
         this.populateTitle()
         this.profileStore.useCustomComponentOrder()
+
+        // reset copycat
+        this.copyCatMode = false
     },
 
     updated: function(){
