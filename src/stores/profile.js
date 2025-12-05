@@ -3366,7 +3366,7 @@ export const useProfileStore = defineStore('profile', {
         marva001 = await utilsNetwork.getMarva001()
         if (xml.xlmStringBasic.includes("[IDonSubmit]")){
           xml.xlmStringBasic = xml.xlmStringBasic.replaceAll("[IDonSubmit]", marva001) //
-          xml.xlmStringBasic = xml.xlmStringBasic.replaceAll(/(\/)(e[0-9]*)/g, "$1" + marva001)
+          xml.xlmStringBasic = xml.xlmStringBasic.replaceAll(/(\/)(e[0-9]+)/g, "$1" + marva001)
           this.localMarva = true
         }
         pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
@@ -3387,7 +3387,7 @@ export const useProfileStore = defineStore('profile', {
         for (let rt in this.activeProfile.rt){
           let type = rt.split(':').slice(-1)[0]
           if (this.localMarva){
-            this.activeProfile.rt[rt].URI = this.activeProfile.rt[rt].URI.replaceAll(/(\/)(e[0-9]*)/g, "$1" + marva001)
+            this.activeProfile.rt[rt].URI = this.activeProfile.rt[rt].URI.replaceAll(/(\/)(e[0-9]+)/g, "$1" + marva001)
             this.localMarva = false
           }
           let url = config.convertToRegionUrl(this.activeProfile.rt[rt].URI)
