@@ -269,7 +269,7 @@ export default {
             text: "Record Info",
             class: "record-info",
             menu: recordMenu,
-            menu_width: 650,
+            menu_width: 750,
           },
         )
       }
@@ -801,7 +801,7 @@ export default {
             chevron: true,
             text: "Record Info",
             menu: recordMenu,
-            menu_width: 650,
+            menu_width: 750,
           }
         )
       }
@@ -831,7 +831,7 @@ export default {
 
       }
 
-      if (config.returnUrls.displayLCOnlyFeatures && this.windowWidth > 1500) {
+      if (false && config.returnUrls.displayLCOnlyFeatures && this.windowWidth > 1500) {
         let statusMenu = []
         statusMenu.push(
           {
@@ -851,9 +851,9 @@ export default {
       }
 
       menu.push(
-        {
-          is: StatusIndicator,
-        },
+        // {
+        //   is: StatusIndicator,
+        // },
         {
           text: this.userName,
           // active: this.happy,

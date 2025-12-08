@@ -10,13 +10,52 @@
         </div>
         <strong>History</strong>
         <table class="history">
-            <tr v-for="datum in adminMetadata">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Agent</th>
+                    <th>EncLvl</th>
+                    <th>Label</th>
+                    <th>Comment</th>
+                    <th>GenProcess</th>
+                    <th>CatID</th>
+                </tr>
+            </thead>
+            <tr v-for="event in adminMetadata">
                 <td>
-                    {{ datum.dateString }}
+                    {{ event.date.value }}
                 </td>
                 <td>
-                    {{ datum.status }}
+                    {{ event.status.value }}
                 </td>
+                <td v-if="event.agent">
+                    {{ event.agent.value }}
+                </td>
+                <td v-else></td>
+
+                <td v-if="event.encodingLevel">
+                    {{ event.encodingLevel.value }}
+                </td>
+                <td v-else></td>
+
+                <td v-if="event.label">
+                    {{ event.label.value }}
+                </td>
+                <td v-else></td>
+                <td v-if="event.comment">
+                    {{ event.comment.value }}
+                </td>
+                <td v-else></td>
+                <td v-if="event.generationProcess">
+                    {{ event.generationProcess.value }}
+                </td>
+                <td v-else></td>
+
+                <td v-if="event.catalogerId">
+                    {{ event.catalogerId.value }}
+                </td>
+                <td v-else></td>
             </tr>
         </table>
 
@@ -31,14 +70,17 @@
 </template>
 
 <script>
+import utilsNetwork from '@/lib/utils_network'
+
 export default {
     data() {
         return {
             recordId: null,
-            adminMetadata: null,
+            adminMetadata: [],
             nineXX: null,
             encLvl: null,
-            authentication: []
+            authentication: [],
+            history: {}
         }
     },
     props: {
@@ -47,7 +89,7 @@ export default {
 
 
     methods: {
-        getAdminMetadata: function () {
+        getAdminMetadata: async function () {
             let p = this.item.profile
             let work
             for (let rt in p.rt) {
@@ -64,11 +106,9 @@ export default {
                     let data = userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]
                     let date
                     let status
+
                     try {
-                        date = data["http://id.loc.gov/ontologies/bibframe/date"][0]["http://id.loc.gov/ontologies/bibframe/date"]
                         status = data["http://id.loc.gov/ontologies/bibframe/status"][0]["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
-                        let dt = new Date(date).toLocaleString()
-                        admin.push({ "date": date, "status": status, "dateString": dt })
                     } catch {
                         try {
                             for (let thing in data) {
@@ -77,6 +117,7 @@ export default {
                                 }
                             }
                         } catch { }
+
                         if (Object.keys(data).includes("http://id.loc.gov/ontologies/bibframe/identifiedBy")) {
                             this.recordId = data["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"]
                         }
@@ -96,18 +137,57 @@ export default {
                 }
             }
 
-            this.adminMetadata = admin.sort((a, b) => {
-                return new Date(a.date) - new Date(b.date)
-            })
+            this.history = await utilsNetwork.recordHistory(this.recordId)
+            console.info("@@@@@@", this.history)
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(this.history.history.replace(/[\n\r]/g, ''), "text/xml");
+            console.info("xmlDoc: ", xmlDoc)
+            let history = xmlDoc.getElementsByTagName("bf:AdminMetadata")
+            console.info("history: ", history)
+            for (let h of history){
+                let event = {}
+                // console.info("children: ", h.children)
+                for (let child of h.children){
+                    let tag = child.tagName
+                    tag = tag.replace(/[a-z]+\:/, '')
+                    let rdfResource
+                    let value
+                    if (child.hasAttribute("rdf:resource")){
+                        rdfResource = child.getAttribute('rdf:resource')
+                    }
+                    if (child.innerHTML){
+                        value = child.innerHTML
+                    }
+
+                    if (value===undefined){
+                        value = rdfResource.split("/").at(-1)
+                    }
+
+                    console.info("event: ", tag, "--", rdfResource, "--", value)
+                    event[tag] = {
+                        'value': value,
+                        'uri': rdfResource,
+                    }
+
+                }
+                this.adminMetadata.push(event)
+
+            }
+
+
+            // this.adminMetadata = admin.sort((a, b) => {
+            //     return new Date(a.date) - new Date(b.date)
+            // })
             this.nineXX = nines
 
         }
     },
 
     mounted() {
+        // this.getAdminMetadata()
         window.setTimeout(()=>{
-            this.getAdminMetadata()
-        },2000)
+            this.getAdminMetadata() // for menu access
+        }, 2000)
     }
 }
 
