@@ -2169,6 +2169,13 @@ const utilsExport = {
 				pos29 = 'b'
 				has667 = true
 			}
+			if (/5[0-9]{2}/.test(x.fieldTag) && pos29 == "n"){ // treat 5XX like 4XX
+				if (add667){
+					pos29 = 'b'
+				} else if (!add667){
+					pos29 = 'a'
+				}
+			}
 		}
 
 		// check again if they made a 400 in the extraMarcStatements and there is no 667 then set it to a
