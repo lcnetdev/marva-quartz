@@ -240,15 +240,15 @@ export default {
           }
         )
 
-        menuButtonSubMenu.push(
-          { is: "separator" },
-          {
-            chevron: true,
-            text: "System Info",
-            menu: statusMenu,
-            menu_width: 200,
-          },
-        )
+        // menuButtonSubMenu.push(
+        //   { is: "separator" },
+        //   {
+        //     chevron: true,
+        //     text: "System Info",
+        //     menu: statusMenu,
+        //     menu_width: 200,
+        //   },
+        // )
       }
 
       if (this.windowWidth < 1500 && this.$route.path.startsWith('/edit/') && config.returnUrls.displayLCOnlyFeatures) {
