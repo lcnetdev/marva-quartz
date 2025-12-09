@@ -426,17 +426,10 @@ const utilsNetwork = {
     },
 
     recordHistory: async function(bibid){
-
       let returnUrls = useConfigStore().returnUrls
-
       let r = await fetch(returnUrls.util + 'history' + '/' + bibid)
-
-      console.info("r: ", r)
-
       let data = await r.json()
-      console.info("data: ", data)
       return data
-
     },
 
     searchLccn: async function name(lccn) {
