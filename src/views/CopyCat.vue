@@ -655,10 +655,6 @@ export default {
 
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
-      // let marva001 = await utilsNetwork.getMarva001()
-      // let regex = /(<controlfield tag="001">)(on[0-9]*)(<\/controlfield>)/g
-      // strXmlBasic = strXmlBasic.replaceAll(regex, "$1" + marva001 + "$3")
-
       console.info("strXmlBasic: ", strXmlBasic)
 
       return

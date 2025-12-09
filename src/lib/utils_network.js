@@ -420,7 +420,6 @@ const utilsNetwork = {
       let r = await fetch(returnUrls.util + 'marva001')
 
       let data = await r.json()
-      console.info("data: ", data)
       return data.marva001
     },
 

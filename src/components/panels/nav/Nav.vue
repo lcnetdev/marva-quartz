@@ -634,7 +634,6 @@ menu.push(
                   for (let rt in this.activeProfile.rt){
                     let type = rt.split(':').slice(-1)[0]
                     let url = this.activeProfile.rt[rt].URI
-                    console.info("active: ", this.activeProfile.rt[rt].URI)
                     bibId =  url.split("/")[url.split('/').length - 1]
                   }
                   window.open(url + bibId)
