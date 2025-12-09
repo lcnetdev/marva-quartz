@@ -236,4 +236,13 @@ tr:nth-child(odd) {
 strong {
     font-weight: bold;
 }
+
+
+
+</style>
+
+<style>
+#record-panel{
+    left: -600px !important;
+}
 </style>

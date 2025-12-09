@@ -276,7 +276,7 @@ export default {
 
       if (!this.disable.includes('Menu')) {
         menu.push(
-          { text: "Menu", menu: menuButtonSubMenu }
+          { text: "Menu", menu: menuButtonSubMenu}
         )
       }
 
@@ -802,6 +802,7 @@ export default {
             text: "Record Info",
             menu: recordMenu,
             menu_width: 750,
+            menu_id: 'record-panel'
           }
         )
       }
