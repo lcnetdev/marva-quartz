@@ -111,7 +111,6 @@ export default {
                     } catch {
                         try {
                             for (let thing in data) {
-                                console.info("thing: ", thing)
                                 if (thing.includes("/d9") && !thing.includes("/d955")) {
                                     nines.push(data[thing][0][thing])
                                 }
@@ -138,15 +137,11 @@ export default {
             }
 
             this.history = await utilsNetwork.recordHistory(this.recordId)
-            console.info("@@@@@@", this.history)
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(this.history.history.replace(/[\n\r]/g, ''), "text/xml");
-            console.info("xmlDoc: ", xmlDoc)
             let history = xmlDoc.getElementsByTagName("bf:AdminMetadata")
-            console.info("history: ", history)
             for (let h of history){
                 let event = {}
-                // console.info("children: ", h.children)
                 for (let child of h.children){
                     let tag = child.tagName
                     tag = tag.replace(/[a-z]+\:/, '')
@@ -163,7 +158,6 @@ export default {
                         value = rdfResource.split("/").at(-1)
                     }
 
-                    console.info("event: ", tag, "--", rdfResource, "--", value)
                     event[tag] = {
                         'value': value,
                         'uri': rdfResource,
