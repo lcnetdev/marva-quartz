@@ -575,7 +575,7 @@ export default {
       parent.appendChild(subfield)
     },
 
-    loadCopyCat: async function (profile) {
+    loadCopyCat: async function (profile) { // load into BFDB/ID
       let continueWithLoad = true
       if (this.existingLCCN) {
         continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
@@ -610,10 +610,26 @@ export default {
       dummyField.setAttribute("ind1", " ")
       dummyField.setAttribute("ind2", " ")
 
+      /*
+      * 998:
+      * a: LCCN
+      * b: Priority
+      * c: JACKPHY
+      * d: Record Quality
+      * e: Overlay
+      * f: BibID for Overlay
+      * x: Local ID
+      * z: Cataloger Code
+      */
+
+
       this.createSubField("a", this.urlToLoad, dummyField)
       this.createSubField("b", this.recordPriority, dummyField)
       this.createSubField("c", this.jackphyCheck, dummyField)
       this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummyField)
+
+      let marva001 = await utilsNetwork.getMarva001()
+      this.createSubField("x", marva001, dummyField)
 
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
@@ -639,10 +655,17 @@ export default {
 
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
+      // let marva001 = await utilsNetwork.getMarva001()
+      // let regex = /(<controlfield tag="001">)(on[0-9]*)(<\/controlfield>)/g
+      // strXmlBasic = strXmlBasic.replaceAll(regex, "$1" + marva001 + "$3")
+
       console.info("strXmlBasic: ", strXmlBasic)
+
+      return
 
       this.posting = true
       this.postResults = {}
+
       this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
       this.posting = false
 
