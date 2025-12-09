@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container" @click="(e) => e.stopPropagation()"> <!-- keep the window open when clicking -->
         <div class="record-id">
             <strong>ID:</strong> <a :href="'https://id.loc.gov/resources/works/' + recordId" target="_blank">{{ recordId
                 }}</a>
@@ -9,63 +9,62 @@
             <strong>Cataloging Authentication Code(s):</strong> {{ authentication.join(" ") }}
         </div>
         <strong>History</strong>
-        <table class="history">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Agent</th>
-                    <th>EncLvl</th>
-                    <th>Label</th>
-                    <th>Comment</th>
-                    <th>GenProcess</th>
-                    <th>CatID</th>
+        <div class="table-container">
+            <table class="history">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>EncLvl</th>
+                        <th>Type</th>
+                        <th>Comment</th>
+                        <th>GenProcess</th>
+                        <th>Agent</th>
+                    </tr>
+                </thead>
+                <tr v-for="event in adminMetadata">
+                    <td>
+                        {{ event.date.value }}
+                    </td>
+
+                    <td v-if="event.encodingLevel">
+                        {{ event.encodingLevel.value }}
+                    </td>
+                    <td v-else></td>
+
+                    <td v-if="event.label">
+                        {{ event.label.value }}
+                    </td>
+                    <td v-else></td>
+                    <td v-if="event.comment">
+                        {{ event.comment.value }}
+                    </td>
+                    <td v-else></td>
+                    <td v-if="event.generationProcess">
+                        {{ event.generationProcess.value }}
+                    </td>
+                    <td v-else></td>
+
+                    <td v-if="event.catalogerId">
+                        {{ event.catalogerId.value }}
+                    </td>
+                    <td v-else-if="event.agent">
+                        {{ event.agent.value }}
+                    </td>
+                    <td v-else></td>
                 </tr>
-            </thead>
-            <tr v-for="event in adminMetadata">
-                <td>
-                    {{ event.date.value }}
-                </td>
-                <td>
-                    {{ event.status.value }}
-                </td>
-                <td v-if="event.agent">
-                    {{ event.agent.value }}
-                </td>
-                <td v-else></td>
+            </table>
+        </div>
 
-                <td v-if="event.encodingLevel">
-                    {{ event.encodingLevel.value }}
-                </td>
-                <td v-else></td>
-
-                <td v-if="event.label">
-                    {{ event.label.value }}
-                </td>
-                <td v-else></td>
-                <td v-if="event.comment">
-                    {{ event.comment.value }}
-                </td>
-                <td v-else></td>
-                <td v-if="event.generationProcess">
-                    {{ event.generationProcess.value }}
-                </td>
-                <td v-else></td>
-
-                <td v-if="event.catalogerId">
-                    {{ event.catalogerId.value }}
-                </td>
-                <td v-else></td>
-            </tr>
-        </table>
-
-        <table class="nines">
-            <tr v-for="nine in nineXX">
-                <td colspan="2">
-                    {{ nine }}
-                </td>
-            </tr>
-        </table>
+        <div class="nines-container">
+            <strong>9XX</strong>
+            <table class="nines">
+                <tr v-for="nine in nineXX">
+                    <td colspan="2">
+                        {{ nine }}
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
 </template>
 
@@ -112,7 +111,8 @@ export default {
                     } catch {
                         try {
                             for (let thing in data) {
-                                if (thing.includes("/d9")) {
+                                console.info("thing: ", thing)
+                                if (thing.includes("/d9") && !thing.includes("/d955")) {
                                     nines.push(data[thing][0][thing])
                                 }
                             }
@@ -188,7 +188,8 @@ export default {
         window.setTimeout(()=>{
             this.getAdminMetadata() // for menu access
         }, 2000)
-    }
+    },
+
 }
 
 </script>
@@ -200,17 +201,35 @@ export default {
 
 .history {
     border: 1px solid black;
+    table-layout: fixed;
+    width: 735px;
 }
 
+.table-container {
+    overflow-y: scroll;
+    height: 65vh;
+}
+
+.history tr {
+    text-align: center;
+}
+tr th{
+    font-weight: bold;
+}
 tr:nth-child(odd):hover,
 tr:hover {
     background-color: rgb(143, 141, 141);
     color: whitesmoke;
 }
 
-.nines {
+td {
+    word-wrap: anywhere;
+}
+
+.nines-container{
     margin-top: 8px;
 }
+
 
 .record-id {
     margin-bottom: 8px;
