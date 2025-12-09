@@ -618,6 +618,7 @@ export default {
       * d: Record Quality
       * e: Overlay
       * f: BibID for Overlay
+      * x: Local ID
       * z: Cataloger Code
       */
 
@@ -626,6 +627,9 @@ export default {
       this.createSubField("b", this.recordPriority, dummyField)
       this.createSubField("c", this.jackphyCheck, dummyField)
       this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummyField)
+
+      let marva001 = await utilsNetwork.getMarva001()
+      this.createSubField("x", marva001, dummyField)
 
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
@@ -656,6 +660,8 @@ export default {
       // strXmlBasic = strXmlBasic.replaceAll(regex, "$1" + marva001 + "$3")
 
       console.info("strXmlBasic: ", strXmlBasic)
+
+      return
 
       this.posting = true
       this.postResults = {}
