@@ -1315,30 +1315,13 @@ const utilsParse = {
                                   populateData.deepHierarchy = false // stop this from being `uneditable`
                                 }
 
-                                // TODO
-                                // else if (gggChild.attributes && gggChild.attributes['rdf:resource'] && gChildData['@type'] == 'http://id.loc.gov/ontologies/bibframe/Note'){
-                                // gChildData['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] = [
-                                //   {
-                                //   "@guid": short.generate(),
-                                //   "@id" : gggChild.attributes['rdf:resource'].value
-                                //   }
-                                // ]
-
                                 gggData['@type'] = this.UriNamespace(ggggChild.tagName)
                                 // check for URI
                                 if (ggggChild.attributes && ggggChild.attributes['rdf:about']){
                                   gggData['@id'] = this.extractURI(ggggChild.attributes['rdf:about'].value)
                                 }else if (ggggChild.attributes && ggggChild.attributes['rdf:resource']){
                                   gggData['@id'] = this.extractURI(ggggChild.attributes['rdf:resource'].value)
-                                } else if (gggData['@type'] == 'http://id.loc.gov/ontologies/bibframe/Note') {
-                                  // TODO: delete this?
-                                  // gChildData['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] = [
-                                  //   {
-                                  //   "@guid": short.generate(),
-                                  //   "@id" : gChildData['http://id.loc.gov/ontologies/bibframe/note'][0]['@type']
-                                  //   }
-                                  // ]
-                                }else{
+                                } else {
                                   // console.log('No URI for this child property')
                                 }
 
