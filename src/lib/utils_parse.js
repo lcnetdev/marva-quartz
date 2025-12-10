@@ -659,7 +659,6 @@ const utilsParse = {
         let el = []
         // let elHashOrder = []
         for (let e of xml.children){
-          // console.info(propertyURI, ": ", e.tagName, "--", e)
           if (this.UriNamespace(e.tagName) == propertyURI){
 
 
@@ -707,9 +706,6 @@ const utilsParse = {
 
           }
         }
-
-        // console.info("el: ", el)
-
         // for (let e of el){
         //   console.log((new XMLSerializer()).serializeToString(e))
         // }
@@ -844,12 +840,6 @@ const utilsParse = {
               }
             }
 
-            if (['bf:extent', 'bf:note'].includes(e.tagName)){
-              console.info("populateData: ", JSON.parse(JSON.stringify(populateData)))
-            }
-
-
-
             // if (this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)]){
             //   populateData.valueConstraint.valueTemplateRefs.push(this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)])
             // }
@@ -979,11 +969,6 @@ const utilsParse = {
 
 
             }else{
-
-            if (['bf:extent', 'bf:note'].includes(e.tagName)){
-              console.info("children: ", e.children.length, "--", e.children)
-            }
-
               if (e.children.length > 1){
                 console.error('---------------------------------------------')
                 console.error('There are more than one 1st lvl bnodes!!!!!!!')
@@ -995,11 +980,6 @@ const utilsParse = {
               // loop through.... though don't really need to loop,
               // this is the main bnode <bf:title><bf:Title>
               for (let child of e.children){
-
-                if (['bf:extent', 'bf:note'].includes(e.tagName)){
-                  console.info("child: ", child)
-                }
-
                 // the inital bnode
                 userValue['@guid'] = short.generate()
 
@@ -1022,9 +1002,6 @@ const utilsParse = {
 
                 // now loop through all the children
                 for (let gChild of child.children){
-                  if (['bf:extent', 'bf:note'].includes(e.tagName)){
-                    console.info("gChild: ", gChild)
-                  }
                   if (this.UriNamespace(gChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
                     if (this.testSeperateRdfTypeProperty(populateData)){
@@ -1151,12 +1128,6 @@ const utilsParse = {
 
 
                     for (let ggChild of gChild.children){
-
-                      if (['bf:extent', 'bf:note'].includes(e.tagName)){
-                        console.info("\tggChild: ", ggChild)
-                      }
-
-
                       // if its a bnode then loop through the children,
                       if (this.isClass(ggChild.tagName)){
 
@@ -1201,22 +1172,12 @@ const utilsParse = {
 
                         // now loop through these ggchildren, they are properties of this bnode
                         for (let gggChild of ggChild.children){
-
-                          if (['bf:extent', 'bf:note'].includes(e.tagName)){
-                            console.info("\t\tgggChild: ", gggChild)
-                          }
-
                           // not a bnode, just a one liner property of the bnode
                           if (this.UriNamespace(gggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
                             // expception for bf:Hubs, so it sticks
                             if (gChildData['@type'] == 'http://id.loc.gov/ontologies/bibframe/Hub'){
                               continue
-                            }
-
-                            if (['bf:extent', 'bf:note'].includes(e.tagName)){
-                              console.info("\t\t\tgChildData: ", gChildData)
-                              console.info("\t\t\tgggAttributes: ", gggChild.attributes)
                             }
 
                             if (gggChild.attributes && gggChild.attributes['rdf:about']){
@@ -1351,9 +1312,6 @@ const utilsParse = {
                                 // </bf:genreForm>
 
                                 if (ggggChild.tagName == "bf:Note" && populateData.propertyLabel == 'Ensemble'){
-                                  console.info("ggggChild.tagName: ", ggggChild.tagName, "--", populateData)
-                                  console.info("ggggChild: ", ggggChild)
-                                  console.info("gggData: ", gggData)
                                   populateData.deepHierarchy = false // stop this from being `uneditable`
                                 }
 
@@ -1367,19 +1325,13 @@ const utilsParse = {
                                 // ]
 
                                 gggData['@type'] = this.UriNamespace(ggggChild.tagName)
-
-                                if (ggggChild.tagName == "bf:Note" && populateData.propertyLabel == 'Ensemble'){
-                                  console.info("gggData > ", gggData)
-                                }
-
                                 // check for URI
                                 if (ggggChild.attributes && ggggChild.attributes['rdf:about']){
                                   gggData['@id'] = this.extractURI(ggggChild.attributes['rdf:about'].value)
                                 }else if (ggggChild.attributes && ggggChild.attributes['rdf:resource']){
                                   gggData['@id'] = this.extractURI(ggggChild.attributes['rdf:resource'].value)
                                 } else if (gggData['@type'] == 'http://id.loc.gov/ontologies/bibframe/Note') {
-                                  console.info("childNodes: ", ggggChild.childNodes)
-                                  console.info("gChildData: ", JSON.parse(JSON.stringify(gChildData)))
+                                  // TODO: delete this?
                                   // gChildData['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] = [
                                   //   {
                                   //   "@guid": short.generate(),
@@ -1390,22 +1342,15 @@ const utilsParse = {
                                   // console.log('No URI for this child property')
                                 }
 
-                                if (ggggChild.tagName == "bf:Note" && populateData.propertyLabel == 'Ensemble'){
-                                  console.info("gggData > ", gggData)
-                                }
-
-
                                 // now loop through this bnodes descendants
                                 for (let gggggChild of ggggChild.children){
                                   if (this.UriNamespace(gggggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
                                     if (gggggChild.attributes && gggggChild.attributes['rdf:about']){
                                       gggData['@type'] = gggggChild.attributes['rdf:about'].value
                                     }else if (gggggChild.attributes && gggggChild.attributes['rdf:resource']){
-                                      console.info(">>>", gggggChild.tagName, "--", gggggChild.attributes['rdf:resource'].value)
                                       // gggData['@type'] = gggggChild.attributes['rdf:resource'].value
 
                                       if (gggggChild.tagName != 'rdf:type'){
-                                        console.info("???????")
                                         gggData['@type'] = gggggChild.attributes['rdf:resource'].value
                                       }else {
                                         gggData['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] = [
@@ -1427,7 +1372,6 @@ const utilsParse = {
                                       let gggggChildProperty = this.UriNamespace(gggggChild.tagName)
 
                                       if (!gggData[gggggChildProperty]){
-                                        console.info("this thing?", gggggChildProperty)
                                         gggData[gggggChildProperty] = []
                                       }
 
@@ -1685,22 +1629,14 @@ const utilsParse = {
                                   if (ggggChild.attributes && ggggChild.attributes['rdf:parseType']){
                                     ggggChildData['@parseType'] = ggggChild.attributes['rdf:parseType'].value
                                   }
-
-
                                 }
-
                                 gggData[ggggChildProperty].push(ggggChildData)
-
                               }
-
                             }
 
                             // last thing is add it to the lat structure
-                            console.info("here? ", gggChildProperty, "--", gggData)
                             gChildData[gggChildProperty].push(gggData)
-
                           }
-
                         }
 
                         userValue[gChildProperty].push(gChildData)

@@ -811,9 +811,6 @@ const utilsExport = {
 								pLvl2.setAttribute('rdf:parseType', 'Collection')
 							}
 							xmlLog.push(`Created lvl 2 predicate: ${pLvl2.tagName}`)
-
-							// console.info("key1: ", key1, "--", userValue)
-
 							// if we have a rdf:type here build a stand alone type element and move on
 							// TODO: add the label if present(?)
 
@@ -874,14 +871,10 @@ const utilsExport = {
                   					// now loop through its properties and see whats nested
 									for (let key2 of Object.keys(value1).filter(k => (!k.includes('@') ? true : false ) )){
 										let pLvl3 = this.createElByBestNS(key2)
-
-										// console.info("key2: ", key2, "--", userValue)
-
 										// Build the note type correctly when it appears at this level
 										if (key2 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 											if (userValue[key1][0][key2] && userValue[key1][0][key2][0] && userValue[key1][0][key2][0]['@id']){
 												let rdftype = this.createElByBestNS(key2)
-												console.info("rdftype: ", key2,"=>", rdftype)
 												rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1][0][key2][0]['@id'])
 												bnodeLvl2.appendChild(rdftype)
 												xmlLog.push(`This bnode just has a rdf:type : ${rdftype} setting it an continuing`)
@@ -932,9 +925,7 @@ const utilsExport = {
 													if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 														if (userValue[key1][0][key2][0][key3] && userValue[key1][0][key2][0][key3][0] && userValue[key1][0][key2][0][key3][0]['@id']){
 															let rdftype = this.createElByBestNS(key3)
-															console.info("rdftype: ", key3,"=>", rdftype)
 															rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1][0][key2][0][key3][0]['@id'])
-															console.info("rdftype: ", key3,"=>", rdftype)
 															bnodeLvl3.appendChild(rdftype)
 															xmlLog.push(`This bnode just has a rdf:type : ${rdftype} setting it an continuing`)
 															continue
@@ -966,37 +957,6 @@ const utilsExport = {
                                                             xmlLog.push(`Creating lvl 4 bnode: ${bnodeLvl4.tagName} for ${key3}`)
 
                                                             for (let key4 of Object.keys(value3).filter(k => (!k.includes('@') ? true : false ) )){
-
-																// console.info("key1: ", key1)
-																// console.info("key2: ", key2, "--", value1)
-																// console.info("key3: ", key3, "--", value2)
-																// console.info("key4: ", key4, "--", value3)
-																// console.info("uservalue1: ", userValue[key1][0])
-																// console.info("uservalue2: ", userValue[key1][0][key2][0])
-
-																// console.info("pLvl4: ", pLvl4)
-																// console.info("bnodeLvl4: ", bnodeLvl4)
-
-																// Build the note type correctly when it appears at this level, ensemble > mediumComponent > note
-																// if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
-																// 	if (userValue[key1][0][key2][0][key3] && userValue[key1][0][key2][0][key3][0] && userValue[key1][0][key2][0][key3][0]['@id']){
-																// 		let rdftype = this.createElByBestNS(key3)
-																// 		console.info("rdftype: ", key3,"=>", rdftype)
-																// 		rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1][0][key2][0][key3][0]['@id'])
-																// 		console.info("rdftype: ", key3,"=>", rdftype)
-																// 		bnodeLvl4.appendChild(rdftype)
-																// 		xmlLog.push(`This bnode just has a rdf:type : ${rdftype} setting it an continuing`)
-																// 		continue
-																// 	}else if (userValue[key1][0][key2][key3]  && userValue[key1][0][key2][0][key3][0] && userValue[key1][0][key2][0][key3][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-																// 		let rdftype = this.createElByBestNS(key3)
-																// 		rdftype.innerHTML=escapeHTML(userValue[key1][0][key2][0][key3][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
-																// 		xmlLog.push(`This bnode just has a rdf:type and label : ${rdftype} setting it an continuing`)
-
-																// 		bnodeLvl4.appendChild(rdftype)
-																// 		continue
-																// 	}
-																// }
-
                                                                 for (let value4 of value3[key4]){
                                                                     if (this.isBnode(value4)){
                                                                         console.error("Max hierarchy depth reached, but there are more levels left:", key4, 'in', userValue )
@@ -1005,9 +965,6 @@ const utilsExport = {
                                                                     }else{
 
                                                                         for (let key5 of Object.keys(value4).filter(k => (!k.includes('@') ? true : false ) )){
-
-																			console.info("key5: ", key5)
-
                                                                             if (typeof value4[key5] == 'string' || typeof value4[key5] == 'number'){
                                                                                 // its a label or some other literal
                                                                                 let p5 = this.createLiteral(key5, value4)
@@ -1169,7 +1126,6 @@ const utilsExport = {
 
 
 					}else{
-						console.info("not bnode looking")
 						// this.debug(ptObj.propertyURI, 'root level element does not look like a bnode', userValue)
 						xmlLog.push(`Root level does not look like a bnode: ${ptObj.propertyURI}`)
 						let userValueArray = userValue
@@ -1357,7 +1313,6 @@ const utilsExport = {
 					// if (rootElName ==='Item'){
 					// }
 				}else{
-					// console.info("skipping: ", userValue)
 					xmlLog.push(`Skpping it because hasUserValue == false`)
 				}
 			}
@@ -1421,8 +1376,6 @@ const utilsExport = {
 
 			if (orginalProfile.rt[rt].unusedXml){
 				let unusedXmlNode = xmlParser.parseFromString(orginalProfile.rt[rt].unusedXml, "text/xml")
-
-				console.info("unused? ", unusedXmlNode)
 
 				unusedXmlNode = unusedXmlNode.children[0]
 				for (let el of unusedXmlNode.children){
