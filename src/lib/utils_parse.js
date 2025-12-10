@@ -1352,19 +1352,46 @@ const utilsParse = {
 
                                 if (ggggChild.tagName == "bf:Note" && populateData.propertyLabel == 'Ensemble'){
                                   console.info("ggggChild.tagName: ", ggggChild.tagName, "--", populateData)
+                                  console.info("ggggChild: ", ggggChild)
                                   console.info("gggData: ", gggData)
-                                  populateData.deepHierarchy = false
+                                  populateData.deepHierarchy = false // stop this from being `uneditable`
                                 }
 
+                                // TODO
+                                // else if (gggChild.attributes && gggChild.attributes['rdf:resource'] && gChildData['@type'] == 'http://id.loc.gov/ontologies/bibframe/Note'){
+                                // gChildData['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] = [
+                                //   {
+                                //   "@guid": short.generate(),
+                                //   "@id" : gggChild.attributes['rdf:resource'].value
+                                //   }
+                                // ]
+
                                 gggData['@type'] = this.UriNamespace(ggggChild.tagName)
+
+                                if (ggggChild.tagName == "bf:Note" && populateData.propertyLabel == 'Ensemble'){
+                                  console.info("gggData > ", gggData)
+                                }
 
                                 // check for URI
                                 if (ggggChild.attributes && ggggChild.attributes['rdf:about']){
                                   gggData['@id'] = this.extractURI(ggggChild.attributes['rdf:about'].value)
                                 }else if (ggggChild.attributes && ggggChild.attributes['rdf:resource']){
                                   gggData['@id'] = this.extractURI(ggggChild.attributes['rdf:resource'].value)
+                                } else if (gggData['@type'] == 'http://id.loc.gov/ontologies/bibframe/Note') {
+                                  console.info("childNodes: ", ggggChild.childNodes)
+                                  console.info("gChildData: ", JSON.parse(JSON.stringify(gChildData)))
+                                  // gChildData['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] = [
+                                  //   {
+                                  //   "@guid": short.generate(),
+                                  //   "@id" : gChildData['http://id.loc.gov/ontologies/bibframe/note'][0]['@type']
+                                  //   }
+                                  // ]
                                 }else{
                                   // console.log('No URI for this child property')
+                                }
+
+                                if (ggggChild.tagName == "bf:Note" && populateData.propertyLabel == 'Ensemble'){
+                                  console.info("gggData > ", gggData)
                                 }
 
 
@@ -1374,7 +1401,20 @@ const utilsParse = {
                                     if (gggggChild.attributes && gggggChild.attributes['rdf:about']){
                                       gggData['@type'] = gggggChild.attributes['rdf:about'].value
                                     }else if (gggggChild.attributes && gggggChild.attributes['rdf:resource']){
-                                      gggData['@type'] = gggggChild.attributes['rdf:resource'].value
+                                      console.info(">>>", gggggChild.tagName, "--", gggggChild.attributes['rdf:resource'].value)
+                                      // gggData['@type'] = gggggChild.attributes['rdf:resource'].value
+
+                                      if (gggggChild.tagName != 'rdf:type'){
+                                        console.info("???????")
+                                        gggData['@type'] = gggggChild.attributes['rdf:resource'].value
+                                      }else {
+                                        gggData['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] = [
+                                          {
+                                          "@guid": short.generate(),
+                                          "@id" : gggggChild.attributes['rdf:resource'].value
+                                          }
+                                        ]
+                                      }
                                     }else{
                                       console.warn('---------------------------------------------')
                                       console.warn('There was a gggChild RDF Type node but could not extract the type')
@@ -1387,6 +1427,7 @@ const utilsParse = {
                                       let gggggChildProperty = this.UriNamespace(gggggChild.tagName)
 
                                       if (!gggData[gggggChildProperty]){
+                                        console.info("this thing?", gggggChildProperty)
                                         gggData[gggggChildProperty] = []
                                       }
 
@@ -1655,6 +1696,7 @@ const utilsParse = {
                             }
 
                             // last thing is add it to the lat structure
+                            console.info("here? ", gggChildProperty, "--", gggData)
                             gChildData[gggChildProperty].push(gggData)
 
                           }

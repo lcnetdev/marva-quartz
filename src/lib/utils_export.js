@@ -879,11 +879,6 @@ const utilsExport = {
 
 										// Build the note type correctly when it appears at this level
 										if (key2 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
-											// console.info("key1: ", key1)
-											// console.info("key2: ", key2)
-											// console.info("userValue: ", userValue)
-											// console.info("userValue2: ", userValue[key1][0][key2][0])
-
 											if (userValue[key1][0][key2] && userValue[key1][0][key2][0] && userValue[key1][0][key2][0]['@id']){
 												let rdftype = this.createElByBestNS(key2)
 												console.info("rdftype: ", key2,"=>", rdftype)
@@ -932,13 +927,6 @@ const utilsExport = {
 
                                                 for (let key3 of Object.keys(value2).filter(k => (!k.includes('@') ? true : false ) )){
                                                     let pLvl4 = this.createElByBestNS(key3) // this was key2, was that a typo or is this going to break stuff?
-
-													// console.info("key3: ", key3, "--", userValue)
-													console.info("key1: ", key1)
-													console.info("key2: ", key2, "--", value1)
-													console.info("key3: ", key3, "--", value2)
-													console.info("uservalue1: ", userValue[key1][0])
-													console.info("uservalue2: ", userValue[key1][0][key2][0])
 
 													// Build the note type correctly when it appears at this level, ensemble > mediumComponent > note
 													if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
