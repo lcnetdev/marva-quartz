@@ -437,6 +437,25 @@ const utilsExport = {
   },
 
 
+  /**
+   * Build the rdf:type for the NoteType
+   */
+  buildNoteType: function(bnode, userValue, key, xmlLog){
+	if (userValue[key] && userValue[key][0] && userValue[key][0]['@id']){
+		let rdftype = this.createElByBestNS(key)
+		rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key][0]['@id'])
+		bnode.appendChild(rdftype)
+		xmlLog.push(`This bnode just has a rdf:type : ${rdftype} setting it an continuing`)
+		return true
+	}else if (userValue[key] && userValue[key][0] && userValue[key][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+		let rdftype = this.createElByBestNS(key)
+		rdftype.innerHTML=escapeHTML(userValue[key][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
+		xmlLog.push(`This bnode just has a rdf:type and label : ${rdftype} setting it an continuing`)
+		bnode.appendChild(rdftype)
+		return true
+	}
+	return false
+  },
 
   /**
   *
@@ -815,19 +834,8 @@ const utilsExport = {
 							// TODO: add the label if present(?)
 
 							if (key1 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
-								if (userValue[key1] && userValue[key1][0] && userValue[key1][0]['@id']){
-									let rdftype = this.createElByBestNS(key1)
-									rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1][0]['@id'])
-									bnodeLvl1.appendChild(rdftype)
-									xmlLog.push(`This bnode just has a rdf:type : ${rdftype} setting it an continuing`)
-									continue
-								}else if (userValue[key1] && userValue[key1][0] && userValue[key1][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-									let rdftype = this.createElByBestNS(key1)
-									rdftype.innerHTML=escapeHTML(userValue[key1][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
-									xmlLog.push(`This bnode just has a rdf:type and label : ${rdftype} setting it an continuing`)
-                                    bnodeLvl1.appendChild(rdftype)
-									continue
-								}
+								let cont = this.buildNoteType(bnodeLvl1, userValue, key1, xmlLog)
+								if (cont){ continue }
 							}
 
 
@@ -873,20 +881,8 @@ const utilsExport = {
 										let pLvl3 = this.createElByBestNS(key2)
 										// Build the note type correctly when it appears at this level
 										if (key2 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
-											if (userValue[key1][0][key2] && userValue[key1][0][key2][0] && userValue[key1][0][key2][0]['@id']){
-												let rdftype = this.createElByBestNS(key2)
-												rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1][0][key2][0]['@id'])
-												bnodeLvl2.appendChild(rdftype)
-												xmlLog.push(`This bnode just has a rdf:type : ${rdftype} setting it an continuing`)
-												continue
-											}else if (userValue[key1][0][key2] && userValue[key1][0][key2][0] && userValue[key1][0][key2][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-												let rdftype = this.createElByBestNS(key2)
-												rdftype.innerHTML=escapeHTML(userValue[key1][0][key2][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
-												xmlLog.push(`This bnode just has a rdf:type and label : ${rdftype} setting it an continuing`)
-
-												bnodeLvl2.appendChild(rdftype)
-												continue
-											}
+											let cont = this.buildNoteType(bnodeLvl2, userValue[key1][0], key2, xmlLog)
+											if (cont){ continue }
 										}
 
 										xmlLog.push(`Creating lvl 3 property: ${pLvl3.tagName} for ${key2}`)
@@ -923,20 +919,8 @@ const utilsExport = {
 
 													// Build the note type correctly when it appears at this level, ensemble > mediumComponent > note
 													if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
-														if (userValue[key1][0][key2][0][key3] && userValue[key1][0][key2][0][key3][0] && userValue[key1][0][key2][0][key3][0]['@id']){
-															let rdftype = this.createElByBestNS(key3)
-															rdftype.setAttributeNS(this.namespace.rdf, 'rdf:resource', userValue[key1][0][key2][0][key3][0]['@id'])
-															bnodeLvl3.appendChild(rdftype)
-															xmlLog.push(`This bnode just has a rdf:type : ${rdftype} setting it an continuing`)
-															continue
-														}else if (userValue[key1][0][key2][key3]  && userValue[key1][0][key2][0][key3][0] && userValue[key1][0][key2][0][key3][0]['http://www.w3.org/2000/01/rdf-schema#label']){
-															let rdftype = this.createElByBestNS(key3)
-															rdftype.innerHTML=escapeHTML(userValue[key1][0][key2][0][key3][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label'])
-															xmlLog.push(`This bnode just has a rdf:type and label : ${rdftype} setting it an continuing`)
-
-															bnodeLvl3.appendChild(rdftype)
-															continue
-														}
+														let cont = this.buildNoteType(bnodeLvl3, userValue[key1][0][key2][0], key3, xmlLog)
+														if (cont){ continue }
 													}
 
                                                     for (let value3 of value2[key3]){
