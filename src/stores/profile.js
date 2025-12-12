@@ -6701,6 +6701,13 @@ export const useProfileStore = defineStore('profile', {
                     {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
                     {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
                   ]
+                }else{
+                  // there is no existing LCC data populated
+                  this.activeShelfListData.componentGuid = pt['@guid']
+                  this.activeShelfListData.componentPropertyPath = [
+                    {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
+                    {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
+                  ]
                 }
           }
         }
