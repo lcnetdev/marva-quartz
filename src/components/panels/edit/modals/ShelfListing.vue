@@ -415,7 +415,7 @@
       // If they launched the shefllist from the tools menu then it does not have the
       // context of launching from the component, so fake it via the profile.
       // Unless, it's being loaded from the loading screen
-      if (Object.keys(this.activeShelfListData)==0 && this.$route.path.includes("/edit/")){
+      if (Object.keys(this.activeShelfListData).length==0 && this.$route.path.includes("/edit/")){
         this.profileStore.buildActiveShelfListDataFromProfile()
       }
 
