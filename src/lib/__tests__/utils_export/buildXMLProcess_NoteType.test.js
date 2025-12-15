@@ -34,7 +34,7 @@ usePreferenceStore().catCode = "test"
 
 
 describe('XML is correct', () => {
-    describe("Monograph Work Note ", () => {
+    describe("Monograph Work Note", () => {
         test('should contain the expectedMonoWorkNoteXml', async () => {
             let profile = mono_work_note_xml
             useProfileStore().activeProfile = profile
@@ -45,7 +45,7 @@ describe('XML is correct', () => {
         });
     })
 
-    describe("Monograph Instance Note ", () => {
+    describe("Monograph Instance Note", () => {
         test('should contain the expectedMonoInstNoteXml', async () => {
             let profile = mono_inst_note_xml
             useProfileStore().activeProfile = profile
@@ -56,7 +56,7 @@ describe('XML is correct', () => {
         });
     })
 
-    describe("Monograph Instance Extent Note ", () => {
+    describe("Monograph Instance Extent Note", () => {
         test('should contain the expectedMonoInstExtentNoteXml', async () => {
             let profile = mono_inst_note_extent_xml
             useProfileStore().activeProfile = profile
@@ -67,7 +67,7 @@ describe('XML is correct', () => {
         });
     })
 
-    describe("Notated Music Full Notes ", () => {
+    describe("Notated Music Full Notes", () => {
         test('should contain the expectedMonoInstExtentNoteXml', async () => {
             let profile = notated_music_notes_xml
             useProfileStore().activeProfile = profile

@@ -230,6 +230,7 @@ const utilsRDF = {
   * @return {string|boolean} URI - the uri of the type or false
   */
   suggestTypeNetwork: async function(propertyURI){
+    console.info(">>>>>>>>>>>>>>>propertyURI: ", propertyURI)
     let result = false
 
     // some very common hardcoded options
@@ -259,8 +260,13 @@ const utilsRDF = {
 
     // at this point we have a well cached lookup of the whole onotlogy in localstorage
     // ask for this one, if it idoesnt have it, it will relookup (or if it is expired)
+    console.info(":::::::::::::::::::", propertyURI)
     let propXml = await this.fetchOntology(propertyURI)
-    let prop = XMLParser.parseFromString(propXml, "text/xml");
+    console.info("@@@@@@@@@@@@@@@@@@@ ", propXml)
+    let prop
+    try {
+      prop= XMLParser.parseFromString(propXml, "text/xml");
+    } catch(err) { return }
     let range = prop.getElementsByTagName("rdfs:range")
 
     let objProp = prop.getElementsByTagName("owl:ObjectProperty")
@@ -414,7 +420,7 @@ const utilsRDF = {
 
 
     // if we got here set that localstorage for next time
-    if (window.localStorage){
+    if (window && window.localStorage){
       let toset = {response: r, ts: currentTS}
       window.localStorage.setItem('ontology_'+url, JSON.stringify(toset))
     }

@@ -76,7 +76,7 @@
                         "valueConstraint": {
                             "valueTemplateRefs": [
                                 "lc:RT:bflc:Agents:PrimaryContribution",
-                                "lc:RT:bf2:Agent:PersonTest"
+                                "lc:RT:bf2:Agent:Person"
                             ],
                             "useValuesFrom": [],
                             "valueDataType": {
