@@ -9,7 +9,7 @@
     "test:e2e": "npx playwright test --headed --trace=on",
     "build": "vite build",
     "preview": "vite preview",
-    "test:unit": "vitest --environment jsdom --silent --no-isolate --root src/",
+    "test:unit": "vitest --environment jsdom --silent=false --no-isolate --root src/",
     "test:unit_debug": "vitest --environment jsdom --silent=false --no-isolate --root src/",
     "coverage": "vitest --coverage.enabled ",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
