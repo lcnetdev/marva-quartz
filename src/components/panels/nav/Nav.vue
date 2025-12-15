@@ -74,6 +74,7 @@
         modalSettings: [],
         importSelection: [],
         showSelectionModal: false,
+        dancerWorkspaces: [],
       }
     },
     props:{
@@ -734,6 +735,42 @@ menu.push(
 
         }
 
+
+        if (config.returnUrls.dancerEnabled){
+          let dancerMenuItems = []
+          const currentWorkspace = window.localStorage.getItem('marva-dancerWorkspace')
+
+          for (let workspace of this.dancerWorkspaces) {
+            dancerMenuItems.push({
+              text: workspace.name,
+              icon: currentWorkspace === workspace.id ? 'check' : '',
+              click: () => {
+                window.localStorage.setItem('marva-dancerWorkspace', workspace.id)
+                window.location.reload()
+              }
+            })
+          }
+
+          if (dancerMenuItems.length === 0) {
+            dancerMenuItems.push({
+              text: 'Loading workspaces...',
+              disabled: true
+            })
+          }
+
+          // Find the current workspace name
+          let currentWorkspaceName = 'Select'
+          const selectedWorkspace = this.dancerWorkspaces.find(w => w.id === currentWorkspace)
+          if (selectedWorkspace) {
+            currentWorkspaceName = selectedWorkspace.name.substring(0, 10)
+          }
+
+          menu.push({
+            text: 'DCTap: ' + currentWorkspaceName,
+            menu: dancerMenuItems
+          })
+        }
+
         menu.push(
         {
             text: this.userName,
@@ -1100,6 +1137,23 @@ menu.push(
         }
       },
 
+      fetchDancerWorkspaces: async function() {
+        const config = useConfigStore()
+        if (!config.returnUrls.dancerEnabled || !config.returnUrls.dancerWorkspaceList) {
+          return
+        }
+
+        try {
+          const response = await fetch(config.returnUrls.dancerWorkspaceList)
+          const data = await response.json()
+          if (data.success && data.data) {
+            this.dancerWorkspaces = data.data
+          }
+        } catch (error) {
+          console.error('Failed to fetch dancer workspaces:', error)
+        }
+      },
+
       addAllDefaults: function(){
         for (let rt in this.activeProfile.rt){
           for (let pt in this.activeProfile.rt[rt].pt){
@@ -1176,7 +1230,9 @@ menu.push(
       }
     },
 
-    mounted() {}
+    mounted() {
+      this.fetchDancerWorkspaces()
+    }
   }
 
 
