@@ -1003,7 +1003,6 @@ const utilsParse = {
 
                 // now loop through all the children
                 for (let gChild of child.children){
-                  console.info("gChild: ", gChild)
                   if (this.UriNamespace(gChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
                     if (this.testSeperateRdfTypeProperty(populateData)){
