@@ -593,7 +593,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       let profileData;
-      try{        
+      try{
         let response = await fetch(profilesURL);
         profileData =  await response.json()
       }catch(err){
@@ -3388,7 +3388,6 @@ export const useProfileStore = defineStore('profile', {
         }
         pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
       }
-
 
       pubResuts.resourceLinks=[]
       // if it was accepted by the system send it to the marva backend to store as posted

@@ -628,9 +628,6 @@ export default {
       this.createSubField("c", this.jackphyCheck, dummyField)
       this.createSubField("d", this.determineLevel(this.selectedWcRecord), dummyField)
 
-      let marva001 = await utilsNetwork.getMarva001()
-      this.createSubField("x", marva001, dummyField)
-
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
       if (this.existingLCCN || this.existingISBN) {
@@ -639,6 +636,9 @@ export default {
           bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
           this.createSubField("f", bibId, dummyField)
         }
+      } else {
+        let marva001 = await utilsNetwork.getMarva001()
+        this.createSubField("x", marva001, dummyField)
       }
 
       // cataloger code
@@ -681,13 +681,7 @@ export default {
       }
 
       console.info("recordId: ", recordId)
-
       this.urlToLoad = "https://preprod-8080.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
-
-      // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
-      // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
-      // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
-
       this.existingLCCN = false
       this.existingISBN = false
 
