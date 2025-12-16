@@ -1,8 +1,9 @@
 <template>
   <div>
     <Teleport to="body">
-      <div id="nav-holder">
-        <vue-file-toolbar-menu :content="my_menu" />
+      <div id="nav-holder" class="bars">
+        <vue-file-toolbar-menu v-if="!preferenceStore.copyMode" :content="my_menu[0]" />
+        <vue-file-toolbar-menu v-else v-for="(content, index) in my_menu" :content="content" />
       </div>
       <template v-if="showValidateModal==true">
         <ValidateModal ref="validatemodal" v-model="showValidateModal" />
@@ -135,7 +136,8 @@
 
       my_menu () {
 
-        let menu =  []
+        let menu = []
+        let botMenu = []
 
         // if (!this.disable.includes('logo')){
         //   menu.push({
@@ -646,58 +648,6 @@ menu.push(
               }
             )
             }
-
-
-
-          if (this.preferenceStore.copyMode){
-              menu.push({ is: "separator" })
-              menu.push(
-                {
-                  text: "Copy Selected",
-                  icon: "content_copy",
-                  id: "copy-selected-button",
-                  click: () => {
-                    this.$nextTick(()=>{
-                      this.profileStore.copySelected()
-                    })
-                  }
-                },
-                {
-                  text: "Paste Content",
-                  icon: "content_paste",
-                  click: () => {
-                    this.$nextTick(()=>{
-                      this.profileStore.pasteSelected()
-                    })
-                  }
-                },
-                {
-                  text: "Cut Selected",
-                  icon: "content_cut",
-                  click: () => {
-                    this.$nextTick(()=>{
-                      this.profileStore.copySelected(true)
-                    })
-                  }
-                },
-              )
-
-              menu.push(
-
-              )
-
-              menu.push(
-                {
-                  text: !this.allSelected ? "Select All" : "Deselect All",
-                  icon: !this.allSelected ? "select_all" : "deselect",
-                  click: () => {
-                    this.$nextTick(()=>{
-                      this.selectAll()
-                    })
-                  }
-                }
-              )
-          }
         }
 
         if (this.activeProfile.id && this.$route.name == 'Edit'){
@@ -791,12 +741,60 @@ menu.push(
         )
 
 
+// Put Copy Mode options below the main menu
+      if (this.preferenceStore.copyMode) {
+          botMenu.push(
+            {
+              text: "Copy Selected",
+              icon: "content_copy",
+              id: "copy-selected-button",
+              click: () => {
+                this.$nextTick(() => {
+                  this.profileStore.copySelected()
+                })
+              }
+            },
+            {
+              text: "Paste Content",
+              icon: "content_paste",
+              click: () => {
+                this.$nextTick(() => {
+                  this.profileStore.pasteSelected()
+                })
+              }
+            },
+            {
+              text: "Cut Selected",
+              icon: "content_cut",
+              click: () => {
+                this.$nextTick(() => {
+                  this.profileStore.copySelected(true)
+                })
+              }
+            },
+          )
 
+          botMenu.push(
 
+          )
 
+          botMenu.push(
+            {
+              text: !this.allSelected ? "Select All" : "Deselect All",
+              icon: !this.allSelected ? "select_all" : "deselect",
+              click: () => {
+                this.$nextTick(() => {
+                  this.selectAll()
+                })
+              }
+            }
+          )
+        }
 
-
-        return menu
+      return [
+        menu,
+        botMenu
+      ]
 
 
       }
@@ -1295,7 +1293,7 @@ menu.push(
     }
     .bars > .bar:first-child {
       border-bottom: 1px solid rgb(218, 220, 224);
-      margin-bottom: 3px;
+      /* margin-bottom: 3px; */
     }
 
     .bar{
