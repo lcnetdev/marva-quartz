@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 4,
-    versionPatch: 4,
+    versionPatch: 5,
 
 
 
@@ -128,7 +128,7 @@ export const useConfigStore = defineStore('config', {
         dancerEnabled: true,
         dancerWorkspaceList: "https://editor.id.loc.gov/bfe2/dancer/api/serve/workspaces/",
 
-        
+
       },
 
       production:{
