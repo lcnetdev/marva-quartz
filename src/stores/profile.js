@@ -5089,7 +5089,7 @@ export const useProfileStore = defineStore('profile', {
 
           }else{
 
-            if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) >-1){
+            if (ptObj && useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) >-1){
               continue
             }
 

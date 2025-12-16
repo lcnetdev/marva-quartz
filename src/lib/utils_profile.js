@@ -295,7 +295,7 @@ const utilsProfile = {
 
             // if it doesn't yet have a type then go ahead and set it
             // OR if the suggested type is PrimaryContribution, override the existing type
-            else if (!pointer[p][0]['@type'] || type.includes("PrimaryContribution")){
+            else if (!pointer[p][0]['@type'] || (type && type.includes("PrimaryContribution"))){
               pointer[p][0]['@type'] = type
             }
           }else{
