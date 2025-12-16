@@ -743,7 +743,7 @@ menu.push(
 
 
       // Put Copy Mode options below the main menu
-      if (this.preferenceStore.copyMode) {
+      if (this.preferenceStore.copyMode && this.$route.path.startsWith('/edit/')) {
           botMenu.push(
             {
               text: "Copy Selected",
@@ -792,7 +792,7 @@ menu.push(
           )
         }
 
-      if (this.preferenceStore.copyMode) {
+      if (this.preferenceStore.copyMode && this.$route.path.startsWith('/edit/')) {
         return [
           menu,
           botMenu
