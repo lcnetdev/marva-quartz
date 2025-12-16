@@ -575,9 +575,26 @@ export const useProfileStore = defineStore('profile', {
     async buildProfiles() {
       const config = useConfigStore()
 
+      let profilesURL = config.returnUrls.profiles
+      let startingURL = config.returnUrls.starting
+
+      // if dancer is enabled check to see if they have a custom workspace set
+      if (config.returnUrls.dancerEnabled){
+        // does the local storage have a custom workspace set
+        console.log("localStorage.getItem('marva-dancerWorkspace')",localStorage.getItem('marva-dancerWorkspace'))
+        if (localStorage.getItem('marva-dancerWorkspace') && localStorage.getItem('marva-dancerWorkspace') != "null"){
+          let dancerWorkspace = localStorage.getItem('marva-dancerWorkspace')
+          // dancerWorkspace is now the UUID of the workspace, so we need to build the URI
+          let dancerBaseUrl = config.returnUrls.dancerWorkspaceList.split('workspaces')[0]
+          profilesURL = dancerBaseUrl + dancerWorkspace + '/profile'
+          startingURL = dancerBaseUrl + dancerWorkspace + '/starting-points'
+        }
+      }
+
+
       let profileData;
-      try{
-        let response = await fetch(config.returnUrls.profiles);
+      try{        
+        let response = await fetch(profilesURL);
         profileData =  await response.json()
       }catch(err){
         console.log("Error Downloading profiles from:", config.returnUrls.profiles)
@@ -591,7 +608,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       try{
-        let response = await fetch(config.returnUrls.starting);
+        let response = await fetch(startingURL);
         startingPointData =  await response.json()
       }catch(err){
         console.log("Error Downloading Starting Points from:", config.returnUrls.starting)
@@ -5085,7 +5102,7 @@ export const useProfileStore = defineStore('profile', {
 
           }else{
 
-            if (useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) >-1){
+            if (ptObj && useConfigStore().excludeFromNonLatinLiteralCheck.indexOf(ptObj.propertyURI) >-1){
               continue
             }
 
@@ -6709,6 +6726,13 @@ export const useProfileStore = defineStore('profile', {
                     this.activeShelfListData.cutterGuid = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['@guid']
                   }
 
+                  this.activeShelfListData.componentGuid = pt['@guid']
+                  this.activeShelfListData.componentPropertyPath = [
+                    {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
+                    {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
+                  ]
+                }else{
+                  // there is no existing LCC data populated
                   this.activeShelfListData.componentGuid = pt['@guid']
                   this.activeShelfListData.componentPropertyPath = [
                     {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},

@@ -74,6 +74,7 @@
         modalSettings: [],
         importSelection: [],
         showSelectionModal: false,
+        dancerWorkspaces: [],
       }
     },
     props:{
@@ -193,7 +194,8 @@
             {
               text: 'LC Marva Manual',
               click: () => {
-                const routeData = window.open('https://libgov-my.sharepoint.com/personal/pfrank_lib_loc_gov/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fpfrank%5Flib%5Floc%5Fgov%2FDocuments%2FMarva%2DManual%2DShare%2FLibrary%2Dof%2DCongress%2DMarva%2DQuartz%2DUser%2DManual%2Epdf&parent=%2Fpersonal%2Fpfrank%5Flib%5Floc%5Fgov%2FDocuments%2FMarva%2DManual%2DShare')
+                // const routeData = window.open('https://libgov-my.sharepoint.com/personal/pfrank_lib_loc_gov/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fpfrank%5Flib%5Floc%5Fgov%2FDocuments%2FMarva%2DManual%2DShare%2FLibrary%2Dof%2DCongress%2DMarva%2DQuartz%2DUser%2DManual%2Epdf&parent=%2Fpersonal%2Fpfrank%5Flib%5Floc%5Fgov%2FDocuments%2FMarva%2DManual%2DShare')
+                const routeData = window.open('https://www.loc.gov/catworkshop/bibframe/Library-of-Congress-Marva-Quartz-User-Manual.pdf')
                },
               icon:"📄"
             }
@@ -731,6 +733,52 @@ menu.push(
 
         }
 
+
+        if (config.returnUrls.dancerEnabled){
+          let dancerMenuItems = []
+          const currentWorkspace = window.localStorage.getItem('marva-dancerWorkspace')
+
+          for (let workspace of this.dancerWorkspaces) {
+            dancerMenuItems.push({
+              text: workspace.name,
+              icon: currentWorkspace === workspace.id ? 'check' : '',
+              click: () => {
+                window.localStorage.setItem('marva-dancerWorkspace', workspace.id)
+                window.location.reload()
+              }
+            })
+          }
+
+          if (dancerMenuItems.length === 0) {
+            dancerMenuItems.push({
+              text: 'Loading workspaces...',
+              disabled: true
+            })
+          }
+
+          // Add Legacy Profiles option at the bottom
+          dancerMenuItems.push({
+            text: 'Legacy Profiles',
+            icon: !currentWorkspace ? 'check' : '',
+            click: () => {
+              window.localStorage.removeItem('marva-dancerWorkspace')
+              window.location.reload()
+            }
+          })
+
+          // Find the current workspace name
+          let currentWorkspaceName = 'Legacy'
+          const selectedWorkspace = this.dancerWorkspaces.find(w => w.id === currentWorkspace)
+          if (selectedWorkspace) {
+            currentWorkspaceName = selectedWorkspace.name.substring(0, 10)
+          }
+
+          menu.push({
+            text: 'DCTap: ' + currentWorkspaceName,
+            menu: dancerMenuItems
+          })
+        }
+
         menu.push(
         {
             text: this.userName,
@@ -1097,6 +1145,23 @@ menu.push(
         }
       },
 
+      fetchDancerWorkspaces: async function() {
+        const config = useConfigStore()
+        if (!config.returnUrls.dancerEnabled || !config.returnUrls.dancerWorkspaceList) {
+          return
+        }
+
+        try {
+          const response = await fetch(config.returnUrls.dancerWorkspaceList)
+          const data = await response.json()
+          if (data.success && data.data) {
+            this.dancerWorkspaces = data.data
+          }
+        } catch (error) {
+          console.error('Failed to fetch dancer workspaces:', error)
+        }
+      },
+
       addAllDefaults: function(){
         for (let rt in this.activeProfile.rt){
           for (let pt in this.activeProfile.rt[rt].pt){
@@ -1173,7 +1238,9 @@ menu.push(
       }
     },
 
-    mounted() {}
+    mounted() {
+      this.fetchDancerWorkspaces()
+    }
   }
 
 
