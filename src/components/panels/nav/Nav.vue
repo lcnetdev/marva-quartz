@@ -2,8 +2,8 @@
   <div>
     <Teleport to="body">
       <div id="nav-holder" class="bars">
-        <!-- <vue-file-toolbar-menu :content="my_menu" /> -->
-         <vue-file-toolbar-menu v-for="(content, index) in my_menu" :content="content" />
+        <vue-file-toolbar-menu v-if="!preferenceStore.copyMode" :content="my_menu[0]" />
+        <vue-file-toolbar-menu v-else v-for="(content, index) in my_menu" :content="content" />
       </div>
       <template v-if="showValidateModal == true">
         <ValidateModal ref="validatemodal" v-model="showValidateModal" />
@@ -1345,8 +1345,7 @@ export default {
   --bar-sub-menu-border-radius: 3px;
 }
 
-.bars>.bar,
-.bars>.bar:first-child {
+.bars>.bar:fist-child {
   border-bottom: 1px solid rgb(218, 220, 224);
   /* margin-bottom: 3px; */
 }
