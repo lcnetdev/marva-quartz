@@ -2,8 +2,9 @@
   <div>
     <Teleport to="body">
       <div id="nav-holder" class="bars">
-        <vue-file-toolbar-menu v-if="!preferenceStore.copyMode" :content="my_menu[0]" />
-        <vue-file-toolbar-menu v-else v-for="(content, index) in my_menu" :content="content" />
+        <!-- <vue-file-toolbar-menu v-if="!preferenceStore.copyMode" :content="my_menu[0]" />
+        <vue-file-toolbar-menu v-else v-for="(content, index) in my_menu" :content="content" /> -->
+        <vue-file-toolbar-menu v-for="(content, index) in my_menu" :content="content" />
       </div>
       <template v-if="showValidateModal==true">
         <ValidateModal ref="validatemodal" v-model="showValidateModal" />
@@ -741,7 +742,7 @@ menu.push(
         )
 
 
-// Put Copy Mode options below the main menu
+      // Put Copy Mode options below the main menu
       if (this.preferenceStore.copyMode) {
           botMenu.push(
             {
@@ -791,10 +792,13 @@ menu.push(
           )
         }
 
-      return [
-        menu,
-        botMenu
-      ]
+      if (this.preferenceStore.copyMode) {
+        return [
+          menu,
+          botMenu
+        ]
+      }
+      return [menu]
 
 
       }
