@@ -657,8 +657,6 @@ export default {
 
       console.info("strXmlBasic: ", strXmlBasic)
 
-      return
-
       this.posting = true
       this.postResults = {}
 
@@ -679,7 +677,7 @@ export default {
       if (this.existingLCCN || this.existingISBN) {
         recordId = bibId
       } else {
-        recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
+        recordId = marva001
       }
 
       console.info("recordId: ", recordId)
