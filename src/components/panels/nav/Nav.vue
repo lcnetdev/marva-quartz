@@ -758,8 +758,18 @@ menu.push(
             })
           }
 
+          // Add Legacy Profiles option at the bottom
+          dancerMenuItems.push({
+            text: 'Legacy Profiles',
+            icon: !currentWorkspace ? 'check' : '',
+            click: () => {
+              window.localStorage.removeItem('marva-dancerWorkspace')
+              window.location.reload()
+            }
+          })
+
           // Find the current workspace name
-          let currentWorkspaceName = 'Select'
+          let currentWorkspaceName = 'Legacy'
           const selectedWorkspace = this.dancerWorkspaces.find(w => w.id === currentWorkspace)
           if (selectedWorkspace) {
             currentWorkspaceName = selectedWorkspace.name.substring(0, 10)
