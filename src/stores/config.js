@@ -94,6 +94,9 @@ export const useConfigStore = defineStore('config', {
         bfdb : 'https://preprod-8230.id.loc.gov/',
         isBibframeDotOrg: false,
 
+        dancerEnabled: true,
+        dancerWorkspaceList: "http://localhost:9401/dancer/api/serve/workspaces",
+
       },
 
       staging:{
@@ -121,6 +124,11 @@ export const useConfigStore = defineStore('config', {
         env : 'staging',
         displayLCOnlyFeatures: true,
         simpleLookupLang: 'en',
+
+        dancerEnabled: true,
+        dancerWorkspaceList: "https://editor.id.loc.gov/bfe2/dancer/api/serve/workspaces/",
+
+        
       },
 
       production:{
