@@ -166,6 +166,9 @@
 
 
       returnPixleAsPercent: function(pixles){
+        if (this.preferenceStore.copyMode){
+          return pixles/window.innerHeight*200
+        }
         return pixles/window.innerHeight*100
       },
       confirmLeaving (event) {
