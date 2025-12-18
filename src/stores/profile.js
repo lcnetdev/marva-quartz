@@ -1182,8 +1182,9 @@ export const useProfileStore = defineStore('profile', {
 
       // also give it an ID for storage
       if (!useProfile.eId){
-      let uuid = 'e' + decimalTranslator.new()
-      uuid = uuid.substring(0,8)
+      // let uuid = 'e' + decimalTranslator.new()
+      // uuid = uuid.substring(0,8)
+      let uuid = 'e' + Date.now().toString()
       useProfile.eId= uuid
 
       }
@@ -5589,8 +5590,9 @@ export const useProfileStore = defineStore('profile', {
       let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,variant,variantLanguage,langObj,catCode)
 
       console.log(xml)
-      let eid = 'e' + decimalTranslator.new()
-      eid = eid.substring(0,8)
+      // let eid = 'e' + decimalTranslator.new()
+      let eid = 'e' + Date.now().toString()
+      // eid = eid.substring(0,8)
 
       // pass a fake activeprofile with id == Hub to trigger hub protocols
       let pubResuts
