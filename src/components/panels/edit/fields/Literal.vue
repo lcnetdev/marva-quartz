@@ -133,7 +133,7 @@
         </Transition>
       </div>
     </div>
-
+    <!-- {{ lccFeatureData }} -->
     <div class="lcc-action-zone" v-if="lccFeatureData !== false && preferenceStore.returnValue('--b-shelflist-show-cutter-helpers')">
 
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/classificationPortion'">
@@ -1189,7 +1189,9 @@ export default {
     lccFeatureData(){
       this.lccFeatureDataCounter
       if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length-1].propertyURI)>-1){
+        
         let data = this.profileStore.returnLccInfo(this.guid, this.structure)
+        // console.log("HERE for LCC data", data,  this.guid, this.structure)
         if (data.contributors && data.contributors.length>0){
           data.contributors[0].secondLetterLabel = data.contributors[0].label.substring(1)
         }
