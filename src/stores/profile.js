@@ -3714,6 +3714,20 @@ export const useProfileStore = defineStore('profile', {
     */
     returnLccInfo: function(componentGuid){
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
+      
+      // if it is empty and brand new dont do the next check it wont have any data
+      if (Object.keys(pt.userValue).length > 1){ // this means it doesn't only have @root in the userValue and has data populated
+        
+        // maybe it it is a dewy or other classifciation, only proceed if it is LCC
+        if (pt.userValue?.['http://id.loc.gov/ontologies/bibframe/classification']?.[0]?.['@type'] !== 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
+          // console.log("RETURN FALSE 1")
+
+          return false
+
+        }
+        
+      }
+
 
       let classNumber = null
       let classGuid = null
@@ -3925,7 +3939,7 @@ export const useProfileStore = defineStore('profile', {
 
         } else {
           // This is a LCC field, it shouldn't return `false`. False causes things to disappear
-
+          // console.log("RETRUN FA:LSE 2")
           return {
             title: null,
             titleNonLatin: null,
@@ -3989,6 +4003,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       //ClassificationLcc
+      // console.log("RETRUN FA:LSE 3")
       return false
 
     },
@@ -6684,48 +6699,95 @@ export const useProfileStore = defineStore('profile', {
      */
     buildActiveShelfListDataFromProfile(){
       // look through the active profile for the LCC data
+      let classificationCount = 0
+      let foundLCC = false
       for (let rt in this.activeProfile.rt){
         for (let pt in this.activeProfile.rt[rt].pt){
           pt = this.activeProfile.rt[rt].pt[pt]
           if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
+            classificationCount++
+          }
+        }
+      }
+      // console.log("classificationCount ===",classificationCount)
+
+      for (let rt in this.activeProfile.rt){
+        for (let pt in this.activeProfile.rt[rt].pt){
+          pt = this.activeProfile.rt[rt].pt[pt]
+          if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
+            // console.log(pt)
             if (pt.userValue &&
                 pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] &&
                 pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0] &&
-                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] &&
-                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"){
+                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type']){
 
-                  let classObj = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
+                  // if it is a LCC node good, and it is not deleted:
+                  if (pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" && !pt.deleted){
 
-                  if (
-                    classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'] &&
-                    classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] &&
-                    classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
-                  ){
-                    this.activeShelfListData.class = classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
-                    this.activeShelfListData.classGuid = classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['@guid']
+                    
+
+                    let classObj = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
+
+                    if (
+                      classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'] &&
+                      classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] &&
+                      classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+                    ){
+                      this.activeShelfListData.class = classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+                      this.activeShelfListData.classGuid = classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['@guid']
+                    }
+                    if (
+                      classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'] &&
+                      classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0] &&
+                      classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
+                    ){
+                      this.activeShelfListData.cutter = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
+                      this.activeShelfListData.cutterGuid = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['@guid']
+                    }
+
+                    this.activeShelfListData.componentGuid = pt['@guid']
+                    this.activeShelfListData.componentPropertyPath = [
+                      {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
+                      {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
+                    ]
+
+                    console.log("Found LCC data:",this.activeShelfListData)
+                    console.log(JSON.stringify(pt,null,2))
+                    foundLCC = true
+                  }else{
+                    // not LCC
+                    // continue
+
                   }
-                  if (
-                    classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'] &&
-                    classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0] &&
-                    classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
-                  ){
-                    this.activeShelfListData.cutter = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
-                    this.activeShelfListData.cutterGuid = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['@guid']
-                  }
 
-                  this.activeShelfListData.componentGuid = pt['@guid']
-                  this.activeShelfListData.componentPropertyPath = [
-                    {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
-                    {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
-                  ]
                 }else{
-                  // there is no existing LCC data populated
-                  this.activeShelfListData.componentGuid = pt['@guid']
-                  this.activeShelfListData.componentPropertyPath = [
-                    {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
-                    {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
-                  ]
+
+                  // if it is only one classification and it is empty then we can use it
+                  // console.log(Object.keys(pt.userValue).length)
+                  if (classificationCount == 1 && Object.keys(pt.userValue).length == 1){
+                    // console.log("Using empty classification for shelf list",pt)
+                    this.activeShelfListData.componentGuid = pt['@guid']
+                    this.activeShelfListData.componentPropertyPath = [
+                      {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
+                      {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
+                    ]
+                    foundLCC = true
+
+                  }else if (foundLCC == false && pt?.preferenceId.toLowerCase().indexOf(":lcc") > -1){
+                  // if we dont have one but we found a LCC template use it
+                   this.activeShelfListData.componentGuid = pt['@guid']
+                    this.activeShelfListData.componentPropertyPath = [
+                      {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
+                      {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
+                    ]
+                    foundLCC = true
+
+                  }
+
+
                 }
+
+
           }
         }
       }
