@@ -765,8 +765,9 @@ export default {
 
       // also give it an ID for storage
       if (!useProfile.eId) {
-        let uuid = 'e' + decimalTranslator.new()
-        uuid = uuid.substring(0, 8)
+        // let uuid = 'e' + decimalTranslator.new()
+        // uuid = uuid.substring(0, 8)
+        let uuid = 'e' + Date.now().toString()
         useProfile.eId = uuid
         useProfile.neweId = true
       }
