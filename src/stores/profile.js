@@ -156,6 +156,8 @@ export const useProfileStore = defineStore('profile', {
     // List of empty components for ad hoc mode
     emptyComponents: {},
     hiddenSubjects: false,
+
+    localMarva: false,
   }),
   getters: {
 
@@ -591,7 +593,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       let profileData;
-      try{        
+      try{
         let response = await fetch(profilesURL);
         profileData =  await response.json()
       }catch(err){
@@ -3373,13 +3375,19 @@ export const useProfileStore = defineStore('profile', {
       let xml = await utilsExport.buildXML(this.activeProfile)
 
       let pubResuts
+      let marva001
 
       if (postingHub){
         pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, {id: 'Hub'})
       }else{
+        marva001 = await utilsNetwork.getMarva001()
+        if (xml.xlmStringBasic.includes("[IDonSubmit]")){
+          xml.xlmStringBasic = xml.xlmStringBasic.replaceAll("[IDonSubmit]", marva001) //
+          xml.xlmStringBasic = xml.xlmStringBasic.replaceAll(/(\/)(e[0-9]+)/g, "$1" + marva001)
+          this.localMarva = true
+        }
         pubResuts = await utilsNetwork.publish(xml.xlmStringBasic, this.activeProfile.eId, this.activeProfile)
       }
-
 
       pubResuts.resourceLinks=[]
       // if it was accepted by the system send it to the marva backend to store as posted
@@ -3394,6 +3402,10 @@ export const useProfileStore = defineStore('profile', {
 
         for (let rt in this.activeProfile.rt){
           let type = rt.split(':').slice(-1)[0]
+          if (this.localMarva){
+            this.activeProfile.rt[rt].URI = this.activeProfile.rt[rt].URI.replaceAll(/(\/)(e[0-9]+)/g, "$1" + marva001)
+          }
+          // this.localMarva = false
           let url = config.convertToRegionUrl(this.activeProfile.rt[rt].URI)
           let env = config.returnUrls.env
 
