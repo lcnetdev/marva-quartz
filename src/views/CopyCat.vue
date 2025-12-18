@@ -630,6 +630,7 @@ export default {
 
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
+      let marva001 = ""
       if (this.existingLCCN || this.existingISBN) {
         this.createSubField("e", "overlay bib", dummyField)
         if (this.existingRecordUrl != "") {
@@ -637,7 +638,7 @@ export default {
           this.createSubField("f", bibId, dummyField)
         }
       } else {
-        let marva001 = await utilsNetwork.getMarva001()
+        marva001 = await utilsNetwork.getMarva001()
         this.createSubField("x", marva001, dummyField)
       }
 
