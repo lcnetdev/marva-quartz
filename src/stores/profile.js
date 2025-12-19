@@ -591,7 +591,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       let profileData;
-      try{        
+      try{
         let response = await fetch(profilesURL);
         profileData =  await response.json()
       }catch(err){
@@ -3715,10 +3715,10 @@ export const useProfileStore = defineStore('profile', {
     */
     returnLccInfo: function(componentGuid){
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-      
+
       // if it is empty and brand new dont do the next check it wont have any data
       if (Object.keys(pt.userValue).length > 1){ // this means it doesn't only have @root in the userValue and has data populated
-        
+
         // maybe it it is a dewy or other classifciation, only proceed if it is LCC
         if (pt.userValue?.['http://id.loc.gov/ontologies/bibframe/classification']?.[0]?.['@type'] !== 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
           // console.log("RETURN FALSE 1")
@@ -3726,7 +3726,7 @@ export const useProfileStore = defineStore('profile', {
           return false
 
         }
-        
+
       }
 
 
@@ -6726,7 +6726,7 @@ export const useProfileStore = defineStore('profile', {
                   // if it is a LCC node good, and it is not deleted:
                   if (pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" && !pt.deleted){
 
-                    
+
 
                     let classObj = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
 

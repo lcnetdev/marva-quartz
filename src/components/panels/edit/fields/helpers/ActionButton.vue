@@ -853,7 +853,10 @@
       // Can be used in either direction.
       sendToOtherProfile: async function(target=null){
         const Rts = Object.keys(this.profileStore.activeProfile.rt)
+        console.info("Profile: ", this.profileStore.activeProfile)
+        console.info("RTs: ", Rts)
         let thisRt = this.profileStore.returnRtByGUID(this.guid)
+        console.info("thisRt: ", thisRt)
         this.currentRt = thisRt
 
         //get the structure that will be copied over
@@ -861,6 +864,18 @@
 
         //Structure that will get the changes and be passed on
         const activeStructure = JSON.parse(JSON.stringify(structure))
+
+        console.info("source: ", JSON.parse(JSON.stringify(activeStructure)))
+        let subTitleCheck = false
+        let subTitle = false
+        if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){ //if source == instance && there's a subtitle
+          let userValue = activeStructure.userValue
+          let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
+          if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
+            subTitleCheck = true
+            subTitle = title["http://id.loc.gov/ontologies/bibframe/subtitle"][0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
+          }
+        }
 
         //This works when there is only 1 of each
         let oldRt = thisRt
@@ -893,7 +908,9 @@
           return
         }
 
+        console.info("newRt: ", newRt)
         if (!Array.isArray(newRt)){
+          console.info("?????")
           activeStructure.parent = activeStructure.parent.replace(oldRt, newRt)
           activeStructure.parentId = activeStructure.parentId.replace(oldRt, newRt)
 
@@ -904,13 +921,34 @@
           if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){
             let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
             if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
+              console.info("remove subtitle??")
               delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
             }
           }
 
           //do the change
           this.profileStore.parseActiveInsert(activeStructure, thisRt)
+
+          // make adjustment for subtitles in instance
+          if (newRt.includes(":Work")){
+            console.info("going into the work")
+            let additionalTitleStructure = false
+            if (subTitleCheck){
+              console.info("there is a subtitle")
+              additionalTitleStructure = JSON.parse(JSON.stringify(activeStructure))
+              // get a new GUID
+              this.profileStore.changeGuid(additionalTitleStructure)
+              // update the type
+              additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
+              //update the value
+              additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
+              //Add it
+              this.profileStore.parseActiveInsert(additionalTitleStructure, thisRt)
+            }
+            console.info("additionalTitle: ", additionalTitleStructure)
+          }
         } else {
+          console.info("!!!")
           for (let rt of newRt){
             activeStructure.parent = activeStructure.parent.replace(oldRt, rt)
             activeStructure.parentId = activeStructure.parentId.replace(oldRt, rt) // when there's more than 1 instance this is the most important change.
@@ -928,6 +966,25 @@
 
             //do the change
             this.profileStore.parseActiveInsert(activeStructure, thisRt, rt)
+
+            // make adjustment for subtitles in instance
+            if (rt.includes(":Work")){
+              console.info("going into the work")
+              let additionalTitleStructure = false
+              if (subTitleCheck){
+                console.info("there is a subtitle")
+                additionalTitleStructure = JSON.parse(JSON.stringify(activeStructure))
+                // get a new GUID
+                this.profileStore.changeGuid(additionalTitleStructure)
+                // update the type
+                additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
+                //update the value
+                additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
+                //Add it
+                this.profileStore.parseActiveInsert(additionalTitleStructure, thisRt)
+              }
+              console.info("additionalTitle: ", additionalTitleStructure)
+            }
           }
         }
 
