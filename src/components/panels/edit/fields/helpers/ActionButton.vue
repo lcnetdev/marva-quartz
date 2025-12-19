@@ -926,9 +926,6 @@
             }
           }
 
-          //do the change
-          this.profileStore.parseActiveInsert(activeStructure, thisRt)
-
           // make adjustment for subtitles in instance
           if (newRt.includes(":Work")){
             console.info("going into the work")
@@ -947,6 +944,9 @@
             }
             console.info("additionalTitle: ", additionalTitleStructure)
           }
+
+          //do the main change
+          this.profileStore.parseActiveInsert(activeStructure, thisRt)
         } else {
           console.info("!!!")
           for (let rt of newRt){
@@ -963,9 +963,6 @@
                 delete title["http://id.loc.gov/ontologies/bibframe/subtitle"]
               }
             }
-
-            //do the change
-            this.profileStore.parseActiveInsert(activeStructure, thisRt, rt)
 
             // make adjustment for subtitles in instance
             if (rt.includes(":Work")){
@@ -985,6 +982,9 @@
               }
               console.info("additionalTitle: ", additionalTitleStructure)
             }
+
+            //do the main change
+            this.profileStore.parseActiveInsert(activeStructure, thisRt, rt)
           }
         }
 
