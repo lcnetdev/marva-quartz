@@ -54,6 +54,9 @@
             <span class="button-shortcut-label">4</span>
             Send to {{ this.profileStore.returnRtByGUID(this.guid).includes(":Work") ? "Instance" : (Object.keys(this.profileStore.activeProfile.rt).length > 2 ? "Work/Instance" : "Work") }}
           </button>
+          <button  class="" @click="sendToOtherProfile(null, true)" :style="buttonStyle" v-if="this.profileStore.returnRtByGUID(this.guid).includes(':Instance')">
+            Send Subtitle to Work Variant
+          </button>
         </template>
 
         <hr>
@@ -851,7 +854,7 @@
 
       //Send the information in a component between Work and Instances
       // Can be used in either direction.
-      sendToOtherProfile: async function(target=null){
+      sendToOtherProfile: async function(target=null, variant=false){
         const Rts = Object.keys(this.profileStore.activeProfile.rt)
         let thisRt = this.profileStore.returnRtByGUID(this.guid)
         this.currentRt = thisRt
@@ -871,6 +874,14 @@
             subTitleCheck = true
             subTitle = title["http://id.loc.gov/ontologies/bibframe/subtitle"][0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
           }
+        }
+
+        if (!subTitle){
+          alert("There is no subtitle to send.")
+        }
+
+        if (!variant){
+          subTitleCheck = false
         }
 
         //This works when there is only 1 of each
@@ -936,7 +947,9 @@
           }
 
           //do the main change
-          this.profileStore.parseActiveInsert(activeStructure, thisRt)
+          if (!subTitleCheck){
+            this.profileStore.parseActiveInsert(activeStructure, thisRt)
+          }
         } else {
           for (let rt of newRt){
             activeStructure.parent = activeStructure.parent.replace(oldRt, rt)
@@ -970,7 +983,9 @@
             }
 
             //do the main change
-            this.profileStore.parseActiveInsert(activeStructure, thisRt, rt)
+            if (!subTitleCheck){
+              this.profileStore.parseActiveInsert(activeStructure, thisRt)
+            }
           }
         }
 
