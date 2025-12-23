@@ -107,7 +107,7 @@
       // array of the pssobile groups from the stlyes
 
       ...mapState(useConfigStore, ['lookupConfig']),
-      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId']),
+      ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent']),
 
       ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse','diacriticPacks', 'lastComplexLookupString']),
 
@@ -183,6 +183,11 @@
 
         return config.returnUrls.displayLCOnlyFeatures
       },
+      /**
+       * Add class number to the work
+       *
+       * @param classNum - number to add
+       */
       addClassNumber: async function(classNum){
         // 2025454279
         let profile = this.activeProfile
@@ -218,7 +223,7 @@
 
         let newClass
         // If no match, need to add component
-        if (!targetComponent){
+        if (!targetComponent || !this.isEmptyComponent(targetComponent)){
           let structure = this.returnComponentByPropertyLabel('Classification numbers')
           newClass = await this.duplicateComponentGetId(structure['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
           targetComponent = profile.rt["lc:RT:bf2:Monograph:Work"].pt[newClass[0]]

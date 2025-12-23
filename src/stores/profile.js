@@ -591,7 +591,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       let profileData;
-      try{        
+      try{
         let response = await fetch(profilesURL);
         profileData =  await response.json()
       }catch(err){
@@ -3715,10 +3715,10 @@ export const useProfileStore = defineStore('profile', {
     */
     returnLccInfo: function(componentGuid){
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
-      
+
       // if it is empty and brand new dont do the next check it wont have any data
       if (Object.keys(pt.userValue).length > 1){ // this means it doesn't only have @root in the userValue and has data populated
-        
+
         // maybe it it is a dewy or other classifciation, only proceed if it is LCC
         if (pt.userValue?.['http://id.loc.gov/ontologies/bibframe/classification']?.[0]?.['@type'] !== 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
           // console.log("RETURN FALSE 1")
@@ -3726,7 +3726,7 @@ export const useProfileStore = defineStore('profile', {
           return false
 
         }
-        
+
       }
 
 
@@ -4576,8 +4576,9 @@ export const useProfileStore = defineStore('profile', {
     * Duplicate / create new component with a given userValue
     *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
-    * @param {object} structure - structure of the component(?)s
-    * @param {object} incomingUserValue - the incoming userValue to set
+    * @param {object} structure - structure of the component being copied
+    * @param {string} profileName - name of the target profile
+    * @param {string} predecessor - id of componenet comes before in the order
     * @return {array} the id and guid of the newPropertyId
     */
     duplicateComponentGetId: async function(componentGuid, structure, profileName, predecessor){
@@ -4602,14 +4603,16 @@ export const useProfileStore = defineStore('profile', {
 
           //find the last position in the order of related components so we can insert
           // the new components at the end of that list
-          for (let idx in this.activeProfile.rt[r].ptOrder){
-              let item = this.activeProfile.rt[r].ptOrder[idx]
-              //TODO: fix order when there's a deleted element? Can't reproduce now
-              if (item.includes(key)){
+          if (r == profileName){ // does this have any sideffects?!
+            for (let idx in this.activeProfile.rt[r].ptOrder){
+                let item = this.activeProfile.rt[r].ptOrder[idx]
+                //TODO: fix order when there's a deleted element? Can't reproduce now
+                if (item.includes(key)){
                   lastPosition = idx
-              }
+                }
+            }
+            profile = profileName
           }
-          profile = profileName
 
         }
 
@@ -4625,12 +4628,6 @@ export const useProfileStore = defineStore('profile', {
         // console.log(propertyPosition)
         // console.log(key,newPropertyId)
         if (createEmpty){
-
-
-          // store.state.activeUndoLog.push(`Added another property ${exportXML.namespaceUri(activeProfile.rt[profile].pt[id].propertyURI)}`)
-
-          // console.log(activeProfile.rt[profile].pt[newPropertyId])
-          // console.log(profile,newPropertyId)
           newPt.userValue = {
               '@guid': short.generate(),
               '@root' : newPt.propertyURI
@@ -4650,6 +4647,11 @@ export const useProfileStore = defineStore('profile', {
           // let defaults = null
           let defaultsProperty
 
+          // If it's deleted, flip it
+          if (newPt.deleted){
+            newPt.deleted = false
+          }
+
           let useProfile = profile
           // if the profile is a multiple, like lc:RT:bf2:Monograph:Item-0 split off the -0 for it to find it in the RT lookup
           if (!this.rtLookup[useProfile]){
@@ -4668,6 +4670,7 @@ export const useProfileStore = defineStore('profile', {
         }else{
           // doesn't support duplicating components yet
         }
+
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
         // For moving titles between work/instance, we want to use the last postion, otherwise
         //    should be after the predecessor
@@ -5362,6 +5365,12 @@ export const useProfileStore = defineStore('profile', {
     },
 
     //parse the activeProfile and insert the copied data where appropriate
+    /**
+     *
+     * @param {Object} newComponent - The new component
+     * @param {String} sourceRt - RT it came from
+     * @param {String} incomingTargetRt - RT it's going to
+     */
     parseActiveInsert: async function(newComponent, sourceRt=null, incomingTargetRt=null){
       this.changeGuid(newComponent)
       let profile = this.activeProfile
@@ -5470,15 +5479,16 @@ export const useProfileStore = defineStore('profile', {
               if (!key.startsWith("@")){
                   let result = false
                   try{
-                      // this makes sure that the propertiesPanel will have the correct symbol when the incoming data
-                      //  has an populate electronicLocator
-                      if (component.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
-                          result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
-                      } else {
-                          result = !Object.keys(userValue[key][0]).some((childKey) => childKey.startsWith("@id"))
-                      }
+                    if (userValue[key].length == 0){ return }
+                    // this makes sure that the propertiesPanel will have the correct symbol when the incoming data
+                    //  has an populate electronicLocator
+                    if (component.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
+                        result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
+                    } else {
+                        result = !Object.keys(userValue[key][0]).some((childKey) => childKey.startsWith("@id"))
+                    }
                   } catch(err) {
-                      console.error("error: Checking if component is empty")
+                      console.debug("error: Checking if component is empty, ", err)
                   }
 
                   return result
@@ -6726,7 +6736,7 @@ export const useProfileStore = defineStore('profile', {
                   // if it is a LCC node good, and it is not deleted:
                   if (pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" && !pt.deleted){
 
-                    
+
 
                     let classObj = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
 

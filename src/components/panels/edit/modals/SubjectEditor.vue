@@ -878,7 +878,7 @@ export default {
   computed: {
     ...mapStores(usePreferenceStore),
     ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse', 'diacriticPacks']),
-    ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId']),
+    ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent']),
 
     ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral', 'activeNARStubComponent', 'lastComplexLookupString', 'searchValueLocal', 'showNacoStubCreateModal', 'returnStructureByComponentGuid']),
   },
@@ -929,7 +929,7 @@ export default {
 
       let newClass
       // If no match, need to add component
-      if (!targetComponent){
+      if (!targetComponent || !this.isEmptyComponent(targetComponent)){
         let structure = this.returnComponentByPropertyLabel('Classification numbers')
         newClass = await this.duplicateComponentGetId(structure['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
         targetComponent = profile.rt["lc:RT:bf2:Monograph:Work"].pt[newClass[0]]

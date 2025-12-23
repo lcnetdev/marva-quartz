@@ -54,6 +54,9 @@
             <span class="button-shortcut-label">4</span>
             Send to {{ this.profileStore.returnRtByGUID(this.guid).includes(":Work") ? "Instance" : (Object.keys(this.profileStore.activeProfile.rt).length > 2 ? "Work/Instance" : "Work") }}
           </button>
+          <button  class="" @click="sendToOtherProfile(null, true)" :style="buttonStyle" v-if="this.profileStore.returnRtByGUID(this.guid).includes(':Instance')">
+            Send Subtitle to Work Variant
+          </button>
         </template>
 
         <hr>
@@ -849,9 +852,13 @@
         this.sendToOtherProfile(data)
       },
 
-      //Send the information in a component between Work and Instances
-      // Can be used in either direction.
-      sendToOtherProfile: async function(target=null){
+      /**
+       * Send the information in a component between Work and Instances
+       * Can be used in either direction.
+       * @param target = When there's more than 1 instance, says which instance  to insert into
+       * @param variant = Create a varianet title
+       */
+      sendToOtherProfile: async function(target=null, variant=false){
         const Rts = Object.keys(this.profileStore.activeProfile.rt)
         let thisRt = this.profileStore.returnRtByGUID(this.guid)
         this.currentRt = thisRt
@@ -861,6 +868,26 @@
 
         //Structure that will get the changes and be passed on
         const activeStructure = JSON.parse(JSON.stringify(structure))
+
+        let subTitleCheck = false
+        let subTitle = false
+        if (thisRt.includes("lc:RT:bf2:Monograph:Instance")){ //if source == instance && there's a subtitle
+          let userValue = activeStructure.userValue
+          let title = userValue["http://id.loc.gov/ontologies/bibframe/title"][0]
+          if (Object.keys(title).includes("http://id.loc.gov/ontologies/bibframe/subtitle")){
+            subTitleCheck = true
+            subTitle = title["http://id.loc.gov/ontologies/bibframe/subtitle"][0]["http://id.loc.gov/ontologies/bibframe/subtitle"]
+          }
+        }
+
+        if (variant && !subTitle){
+          alert("There is no subtitle to send.")
+          return
+        }
+
+        if (!variant){
+          subTitleCheck = false
+        }
 
         //This works when there is only 1 of each
         let oldRt = thisRt
@@ -908,8 +935,26 @@
             }
           }
 
-          //do the change
-          this.profileStore.parseActiveInsert(activeStructure, thisRt)
+          // make adjustment for subtitles in instance
+          if (newRt.includes(":Work")){
+            let additionalTitleStructure = false
+            if (subTitleCheck){
+              additionalTitleStructure = JSON.parse(JSON.stringify(activeStructure))
+              // get a new GUID
+              this.profileStore.changeGuid(additionalTitleStructure)
+              // update the type
+              additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
+              //update the value
+              additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
+              //Add it
+              this.profileStore.parseActiveInsert(additionalTitleStructure, thisRt)
+            }
+          }
+
+          //do the main change
+          if (!subTitleCheck){
+            this.profileStore.parseActiveInsert(activeStructure, thisRt)
+          }
         } else {
           for (let rt of newRt){
             activeStructure.parent = activeStructure.parent.replace(oldRt, rt)
@@ -926,8 +971,26 @@
               }
             }
 
-            //do the change
-            this.profileStore.parseActiveInsert(activeStructure, thisRt, rt)
+            // make adjustment for subtitles in instance
+            if (rt.includes(":Work")){
+              let additionalTitleStructure = false
+              if (subTitleCheck){
+                additionalTitleStructure = JSON.parse(JSON.stringify(activeStructure))
+                // get a new GUID
+                this.profileStore.changeGuid(additionalTitleStructure)
+                // update the type
+                additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["@type"] = "http://id.loc.gov/ontologies/bibframe/VariantTitle"
+                //update the value
+                additionalTitleStructure.userValue["http://id.loc.gov/ontologies/bibframe/title"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"][0]["http://id.loc.gov/ontologies/bibframe/mainTitle"] = subTitle
+                //Add it
+                this.profileStore.parseActiveInsert(additionalTitleStructure, thisRt)
+              }
+            }
+
+            //do the main change
+            if (!subTitleCheck){
+              this.profileStore.parseActiveInsert(activeStructure, thisRt)
+            }
           }
         }
 
