@@ -2131,7 +2131,6 @@ export default {
 
         this.subjectString = splitString.join('--')
 
-
         if (!this.componetLookup[this.activeComponentIndex]) {
           this.componetLookup[this.activeComponentIndex] = {}
         }
@@ -2155,6 +2154,19 @@ export default {
         } catch(err){
           type = null
           console.error("Couldn't get type: ", err)
+        }
+
+        if (Object.keys(this.componetLookup[this.activeComponentIndex]).length > 1){
+          let keys = Object.keys(this.componetLookup[this.activeComponentIndex])
+          let deleteTargets = []
+          for (let k of keys){
+            if (k != this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')){
+              deleteTargets.push(k)
+            }
+          }
+          for (let t of deleteTargets){
+            delete this.componetLookup[this.activeComponentIndex][t]
+          }
         }
 
         // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
