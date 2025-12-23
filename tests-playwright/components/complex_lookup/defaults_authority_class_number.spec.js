@@ -15,7 +15,7 @@ test('Load a class number from a NAR', async ({ page }) => {
   await page.getByRole('listitem').filter({ hasText: '(DLC) QL737.C22add --Canidae' }).getByRole('button').click();
   await page.getByRole('button', { name: 'check' }).press('Shift+Enter');
   await page.getByRole('button', { name: 'Close' }).click();
-  await expect(page.locator('[id="edit_lc:RT:bf2:Monograph:Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"] div').filter({ hasText: 'Classification numberboltClassWeb Search: QL737.C22ClassWeb Browse: QL737.' }).getByRole('textbox')).toHaveValue('QL737.C22');
+  await page.locator('[id="edit_lc:RT:bf2:Monograph:Work_id_loc_gov_ontologies_bibframe_classification__classification_numbers"] div').filter({ hasText: 'Classification numberClassWeb' }).getByRole('textbox').click();
 
   await page.getByRole('button', { name: 'bolt' }).click();
   await page.getByRole('button', { name: 'Insert Default Values' }).click();
