@@ -36,7 +36,11 @@
                     </td>
                     <td v-else></td>
                     <td v-if="event.comment">
-                        {{ event.comment.value }}
+                        <span v-if="event.seeAlso" v-html="setCommentString(event)">
+                        </span>
+                        <span v-else>
+                            {{ event.comment.value }}
+                        </span>
                     </td>
                     <td v-else></td>
                     <td v-if="event.generationProcess">
@@ -88,6 +92,22 @@ export default {
 
 
     methods: {
+        setCommentString: function(data){
+            console.info("SET")
+            let seeAlso = data.seeAlso.value
+            let string = data.comment.value
+            let targets = {}
+            for (let idx in seeAlso){
+                let key = seeAlso[idx].split("/").at(-1)
+                targets[key] = seeAlso[idx]
+            }
+            for (let target in targets){
+                console.info(string, "--", target)
+                string = string.replace(target, "<a target='_blank' href='"+ targets[target] +"'>" + target + "</a>")
+            }
+
+            return string
+        },
         getAdminMetadata: async function () {
             let p = this.item.profile
             let work
@@ -137,41 +157,56 @@ export default {
             }
 
             this.history = await utilsNetwork.recordHistory(this.recordId)
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(this.history.history.replace(/[\n\r]/g, ''), "text/xml");
-            let history = xmlDoc.getElementsByTagName("bf:AdminMetadata")
-            for (let h of history){
-                let event = {}
-                for (let child of h.children){
-                    let tag = child.tagName
-                    tag = tag.replace(/[a-z]+\:/, '')
-                    let rdfResource
+
+            // const parser = new DOMParser();
+            // const xmlDoc = parser.parseFromString(this.history.history.replace(/[\n\r]/g, ''), "text/xml");
+            // let history = xmlDoc.getElementsByTagName("bf:AdminMetadata")
+
+            let historyJSON = JSON.parse(this.history.history)
+            for (let event of historyJSON['@graph']){
+                let e = {}
+                console.info("event: ", event)
+                for (let key of Object.keys(event)){
+                    let data = event[key]
+                    key = key.replace(/[a-z]+\:/, '')
+                    console.info("\t", key, ": ", data)
                     let value
-                    if (child.hasAttribute("rdf:resource")){
-                        rdfResource = child.getAttribute('rdf:resource')
+                    let uri
+                    if (Object.keys(data).includes("@id")){
+                        uri = data['@id']
+                    } else {
+                        uri = false
                     }
-                    if (child.innerHTML){
-                        value = child.innerHTML
+                    if (key == 'agent' && Object.keys(data).includes("rdfs:label")){
+                        value = data['rdfs:label']
+                    } else if (key == 'agent' && Object.keys(data).includes("bf:code")){
+                        value = data['bf:code']
+                    } else if (Object.keys(data).includes("@value")){
+                        value  = data['@value']
+                    } else if (Object.keys(data).includes("@id")){
+                        value = data['@id'].split("/").at(-1)
+                    } else {
+                        if (Array.isArray(data)){
+                            value = data.map((d) => d['@id'])
+                        } else {
+                            value = data
+                        }
                     }
 
-                    if (value===undefined){
-                        value = rdfResource.split("/").at(-1)
+                    if (key == 'date'){
+                        value = value.replace("+00:00", "")
                     }
 
-                    event[tag] = {
+                    e[key] = {
                         'value': value,
-                        'uri': rdfResource,
+                        'uri': uri,
                     }
-
                 }
-                this.adminMetadata.push(event)
-
+                console.info("e: ", e)
+                this.adminMetadata.push(e)
+                console.info("admin: ", this.adminMetadata)
             }
 
-
-            // this.adminMetadata = admin.sort((a, b) => {
-            //     return new Date(a.date) - new Date(b.date)
-            // })
             this.nineXX = nines
 
         }
