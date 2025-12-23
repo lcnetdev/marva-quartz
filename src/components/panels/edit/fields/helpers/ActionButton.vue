@@ -852,8 +852,12 @@
         this.sendToOtherProfile(data)
       },
 
-      //Send the information in a component between Work and Instances
-      // Can be used in either direction.
+      /**
+       * Send the information in a component between Work and Instances
+       * Can be used in either direction.
+       * @param target = When there's more than 1 instance, says which instance  to insert into
+       * @param variant = Create a varianet title
+       */
       sendToOtherProfile: async function(target=null, variant=false){
         const Rts = Object.keys(this.profileStore.activeProfile.rt)
         let thisRt = this.profileStore.returnRtByGUID(this.guid)
@@ -876,8 +880,9 @@
           }
         }
 
-        if (!subTitle){
+        if (variant && !subTitle){
           alert("There is no subtitle to send.")
+          return
         }
 
         if (!variant){
