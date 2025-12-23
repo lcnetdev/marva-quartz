@@ -4603,15 +4603,11 @@ export const useProfileStore = defineStore('profile', {
 
           //find the last position in the order of related components so we can insert
           // the new components at the end of that list
-          console.info("profileName: ", profileName)
-          console.info("structure: ", structure)
-          console.info(r, "--starting order: ", this.activeProfile.rt[r].ptOrder)
           if (r == profileName){ // does this have any sideffects?!
             for (let idx in this.activeProfile.rt[r].ptOrder){
                 let item = this.activeProfile.rt[r].ptOrder[idx]
                 //TODO: fix order when there's a deleted element? Can't reproduce now
                 if (item.includes(key)){
-                  console.info(">>>", idx, "--", item, " [", key, "]")
                   lastPosition = idx
                 }
             }
@@ -4619,9 +4615,6 @@ export const useProfileStore = defineStore('profile', {
           }
 
         }
-
-        console.info("lastPosition: ", lastPosition)
-        console.info("predecessor: ", predecessor)
 
         let newPropertyId = key + '_'+ (+ new Date())
 
@@ -4634,14 +4627,7 @@ export const useProfileStore = defineStore('profile', {
         // console.log(this.activeProfile)
         // console.log(propertyPosition)
         // console.log(key,newPropertyId)
-        console.info("createEmpty: ", createEmpty)
         if (createEmpty){
-
-
-          // store.state.activeUndoLog.push(`Added another property ${exportXML.namespaceUri(activeProfile.rt[profile].pt[id].propertyURI)}`)
-
-          // console.log(activeProfile.rt[profile].pt[newPropertyId])
-          // console.log(profile,newPropertyId)
           newPt.userValue = {
               '@guid': short.generate(),
               '@root' : newPt.propertyURI
@@ -4685,8 +4671,6 @@ export const useProfileStore = defineStore('profile', {
           // doesn't support duplicating components yet
         }
 
-        console.info("order: ", this.activeProfile.rt[profile].ptOrder)
-        console.info("last: ", this.activeProfile.rt[profile].ptOrder[lastPosition])
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
         // For moving titles between work/instance, we want to use the last postion, otherwise
         //    should be after the predecessor
@@ -5423,10 +5407,6 @@ export const useProfileStore = defineStore('profile', {
                       let currentPos = order.indexOf(current.id)
                       let newPos = order.indexOf(newComponent.id)
 
-                      console.info("currentPos: ", currentPos)
-                      console.info("newPos: ", newPos)
-                      console.info("current: ", current)
-
                       // if (Object.keys(current.userValue).length == 1){
                       if (this.isEmptyComponent(current)){
                           current.userValue = newComponent.userValue
@@ -5508,8 +5488,7 @@ export const useProfileStore = defineStore('profile', {
                         result = !Object.keys(userValue[key][0]).some((childKey) => childKey.startsWith("@id"))
                     }
                   } catch(err) {
-                      console.debug("error: Checking if component is empty")
-                      console.info("Error: ", err)
+                      console.debug("error: Checking if component is empty, ", err)
                   }
 
                   return result
