@@ -4634,6 +4634,7 @@ export const useProfileStore = defineStore('profile', {
         // console.log(this.activeProfile)
         // console.log(propertyPosition)
         // console.log(key,newPropertyId)
+        console.info("createEmpty: ", createEmpty)
         if (createEmpty){
 
 
@@ -4659,6 +4660,11 @@ export const useProfileStore = defineStore('profile', {
           let baseURI = newPt.propertyURI
           // let defaults = null
           let defaultsProperty
+
+          // If it's deleted, flip it
+          if (newPt.deleted){
+            newPt.deleted = false
+          }
 
           let useProfile = profile
           // if the profile is a multiple, like lc:RT:bf2:Monograph:Item-0 split off the -0 for it to find it in the RT lookup

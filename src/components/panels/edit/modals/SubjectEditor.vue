@@ -930,10 +930,13 @@ export default {
       let newClass
       // If no match, need to add component
       if (!targetComponent || !this.isEmptyComponent(targetComponent)){
+        console.info("????: ", targetComponent)
         let structure = this.returnComponentByPropertyLabel('Classification numbers')
         newClass = await this.duplicateComponentGetId(structure['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
         targetComponent = profile.rt["lc:RT:bf2:Monograph:Work"].pt[newClass[0]]
       }
+
+      console.info("!!!!: ", targetComponent)
 
       let propertyPath = [
         { level: 0, propertyURI: "http://id.loc.gov/ontologies/bibframe/classification" },
