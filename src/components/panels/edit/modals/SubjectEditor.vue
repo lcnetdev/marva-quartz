@@ -1307,7 +1307,7 @@ export default {
           prevComponent = JSON.parse(JSON.stringify(this.components.at(potentialGeoIdx - 1)))
           // if the previous component is geographic, swap the -- for not `‑‑` between
           if (prevComponent.type == 'madsrdf:Geographic' || prevComponent.type == "http://www.loc.gov/mads/rdf/v1#Geographic") {
-            let posEnd = this.subjectString.indexOf(this.components[potentialGeoIdx].label)
+            let posEnd = this.subjectString.lastIndexOf(this.components[potentialGeoIdx].label)
             let posStart = posEnd - 2
             this.subjectString = this.subjectString.slice(0, posStart) + '‑‑' + this.subjectString.slice(posEnd)
             this.subjectStringChanged()
