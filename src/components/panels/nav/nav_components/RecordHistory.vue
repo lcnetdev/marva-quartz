@@ -93,13 +93,19 @@ export default {
 
     methods: {
         setCommentString: function(data){
-            console.info("SET")
+            console.info("SET: ", data)
             let seeAlso = data.seeAlso.value
             let string = data.comment.value
             let targets = {}
-            for (let idx in seeAlso){
-                let key = seeAlso[idx].split("/").at(-1)
-                targets[key] = seeAlso[idx]
+            console.info("string: ", string)
+            console.info("seeAlso: ", seeAlso)
+            if (Array.isArray(seeAlso)){
+                for (let idx in seeAlso){
+                    let key = seeAlso[idx].split("/").at(-1)
+                    targets[key] = seeAlso[idx]
+                }
+            } else {
+                targets[data.seeAlso.value] = data.seeAlso.uri
             }
             for (let target in targets){
                 console.info(string, "--", target)
