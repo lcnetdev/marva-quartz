@@ -167,48 +167,47 @@ export default {
             this.history = await utilsNetwork.recordHistory(this.recordId)
             if (this.history.error) {
                 this.error = true
-                return
-            }
-
-            let historyJSON = JSON.parse(this.history.history)
-            for (let event of historyJSON['@graph']) {
-                let e = {}
-                for (let key of Object.keys(event)) {
-                    let data = event[key]
-                    key = key.replace(/[a-z]+\:/, '')
-                    let value
-                    let uri
-                    if (Object.keys(data).includes("@id")) {
-                        uri = data['@id']
-                    } else {
-                        uri = false
-                    }
-                    if (key == 'agent' && Object.keys(data).includes("rdfs:label")) {
-                        value = data['rdfs:label']
-                    } else if (key == 'agent' && Object.keys(data).includes("bf:code")) {
-                        value = data['bf:code']
-                    } else if (Object.keys(data).includes("@value")) {
-                        value = data['@value']
-                    } else if (Object.keys(data).includes("@id")) {
-                        value = data['@id'].split("/").at(-1)
-                    } else {
-                        if (Array.isArray(data)) {
-                            value = data.map((d) => d['@id'])
+            } else {
+                let historyJSON = JSON.parse(this.history.history)
+                for (let event of historyJSON['@graph']) {
+                    let e = {}
+                    for (let key of Object.keys(event)) {
+                        let data = event[key]
+                        key = key.replace(/[a-z]+\:/, '')
+                        let value
+                        let uri
+                        if (Object.keys(data).includes("@id")) {
+                            uri = data['@id']
                         } else {
-                            value = data
+                            uri = false
+                        }
+                        if (key == 'agent' && Object.keys(data).includes("rdfs:label")) {
+                            value = data['rdfs:label']
+                        } else if (key == 'agent' && Object.keys(data).includes("bf:code")) {
+                            value = data['bf:code']
+                        } else if (Object.keys(data).includes("@value")) {
+                            value = data['@value']
+                        } else if (Object.keys(data).includes("@id")) {
+                            value = data['@id'].split("/").at(-1)
+                        } else {
+                            if (Array.isArray(data)) {
+                                value = data.map((d) => d['@id'])
+                            } else {
+                                value = data
+                            }
+                        }
+
+                        if (key == 'date') {
+                            value = value.replace("+00:00", "")
+                        }
+
+                        e[key] = {
+                            'value': value,
+                            'uri': uri,
                         }
                     }
-
-                    if (key == 'date') {
-                        value = value.replace("+00:00", "")
-                    }
-
-                    e[key] = {
-                        'value': value,
-                        'uri': uri,
-                    }
+                    this.adminMetadata.push(e)
                 }
-                this.adminMetadata.push(e)
             }
 
             this.nineXX = nines
