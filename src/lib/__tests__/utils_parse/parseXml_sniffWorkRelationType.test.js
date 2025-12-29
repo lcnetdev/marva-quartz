@@ -11,7 +11,6 @@ const app = createApp()
 app.use(pinia)
 
 
-
 let transcribedSeriesXml = `
 <rdf:RDF xmlns:bf="http://id.loc.gov/ontologies/bibframe/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <bf:Work rdf:about="http://id.loc.gov/resources/works/1111111">

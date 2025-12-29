@@ -26,7 +26,7 @@
         top: 200,
         left: 0,
 
-        initalHeight: 650,
+        initalHeight: 750,
         initalLeft: 400,
 
 
@@ -46,6 +46,7 @@
         oneXXParts: {},
         oneXXErrors: [],
         oneXXResults: [],
+        oneXXExactMatches: [],
         oneXXResultsTimeout: null,
 
 
@@ -147,6 +148,60 @@
     },
 
     methods: {
+
+      // Find exact match for authLabel in API response
+      findAuthExactMatch(response, searchValue) {
+        if (!response || !response.metadata || !response.metadata.values || !searchValue) {
+          return []
+        }
+
+        // Normalize string for comparison (remove diacritics and lowercase)
+        const normalize = (str) => {
+          return str
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim()
+        }
+
+        const normalizedSearch = normalize(searchValue)
+        const matches = []
+
+        for (const uri in response.metadata.values) {
+          const entry = response.metadata.values[uri]
+          if (entry && entry.authLabel) {
+            const normalizedAuthLabel = normalize(entry.authLabel)
+            if (normalizedAuthLabel === normalizedSearch) {
+              matches.push(entry)
+            }
+          }
+        }
+
+        return matches
+      },
+
+      // Find left-anchored matches from array of strings
+      matchVariant(strings, searchValue) {
+        if (!strings || !Array.isArray(strings) || !searchValue) {
+          return []
+        }
+
+        // Normalize string for comparison (remove diacritics and lowercase)
+        const normalize = (str) => {
+          return str
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim()
+        }
+
+        const normalizedSearch = normalize(searchValue)
+
+        return strings.filter(str => {
+          const normalizedStr = normalize(str)
+          return normalizedStr.startsWith(normalizedSearch)
+        })
+      },
 
       // Check that the advanced marc entry have indicators
       goodIndicators: function(){
@@ -496,7 +551,10 @@
             return false
           }
           let results = await utilsNetwork.loadSimpleLookupKeyword('https://preprod-8080.id.loc.gov/authorities/names',authLabel,true )
-
+          // console.log("search results",results)
+          
+          this.oneXXExactMatches = this.findAuthExactMatch(results, authLabel)
+          // console.log("oneXXExactMatches", this.oneXXExactMatches)
           let formatted = []
           for (let key of Object.keys(results)){
             if (key != 'metadata'){
@@ -514,11 +572,13 @@
               if(toAdd.more && toAdd.more.rdftypes && toAdd.more.rdftypes.length>0 && toAdd.more.rdftypes.indexOf("NameTitle") >-1 ){
                 continue
               }
-
+              toAdd.variantMatch = this.matchVariant(toAdd.more.variantLabels, authLabel)
               formatted.push(toAdd)
 
             }
           }
+
+          // console.log("formatted",formatted)
 
           if (field=='4xx'){
             this.fourXXResults = formatted
@@ -583,7 +643,7 @@
             dollarKey.indicators = indicators.replace(/[#]/g,' ')
 
             this.oneXXParts = dollarKey
-            console.log("dollarKey",dollarKey)
+            // console.log("dollarKey",dollarKey)
             let authLabel = ""
             if (dollarKey.a){
               authLabel = authLabel + dollarKey.a
@@ -1693,33 +1753,51 @@
                         <span class="error-info-display-field">Enter 1XX value to search</span>
                       </div>
 
-                      <template v-if="oneXXResults.length>0">
+                      <template v-if="oneXXExactMatches.length>0">
                         <div>
                           <span class="material-icons not-unique-icon">cancel</span>
                           <span class="not-unique-text">1XX Heading FOUND in LCNAF file:</span>
+                          <div v-for="r in oneXXExactMatches" style="margin-bottom: 0.25em; padding-left: 2em;">
+                            <a :href="r.uri" target="_blank">{{ r.authLabel }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                          </div>
+
+
                         </div>
                       </template>
 
 
-                      <template v-if="oneXXResults.length==0 && oneXXParts && oneXXParts.a && searching==false">
+                      <template v-if="oneXXExactMatches.length==0 && oneXXParts && oneXXParts.a && searching==false">
                         <div>
                           <span class="material-icons unique-icon">check</span>
                           <span class="not-unique-text">1XX: Heading NOT found in LCNAF file:</span>
                         </div>
                       </template>
 
-                      <template v-if="oneXXResults.length>0 && oneXXResults.length<=5">
-                        <div v-for="r in oneXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
-                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                      <template v-if="oneXXResults.length>0">
+                        
+                        <div>
+                          1XX: Partial Matches:
                         </div>
-                      </template>
-                      <template v-else-if="oneXXResults.length>0 && oneXXResults.length>5">
-                      <details style="margin-bottom: 1em; padding-left: 2em;">
-                        <summary>There are {{ oneXXResults.length }} hits on that name.</summary>
-                        <div v-for="r in oneXXResults">
-                          <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
-                        </div>
-                      </details>
+
+                        <template v-if="oneXXResults.length>0 && oneXXResults.length<=5">
+                          <div v-for="r in oneXXResults" style="margin-bottom: 0.25em; padding-left: 2em;">
+                            <a v-if="oneXXExactMatches.map(r => r.uri).indexOf(r.uri) === -1" :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                            <div class="variantMatchIndent" v-if="r.variantMatch && r.variantMatch.length>0">
+                              <div v-for="l in r.variantMatch">{{ l }} (variant label)</div>
+                            </div>
+                          </div>
+                        </template>
+
+
+                        <template v-else-if="oneXXResults.length>0 && oneXXResults.length>5">
+                        <details style="margin-bottom: 1em; padding-left: 2em;">
+                          <summary>There are {{ oneXXResults.length }} hits on that name.</summary>
+                          <div v-for="r in oneXXResults">
+                            <a :href="r.uri" target="_blank">{{ r.name }}</a> <span v-if="r.contributions">({{ r.contributions  }} Contributions)</span>
+                          </div>
+                        </details>
+                        </template>
+
                       </template>
 
 
@@ -2020,6 +2098,11 @@
 
 <style scoped>
 
+.variantMatchIndent{
+  padding-left: 1em;
+  font-size: 0.9em;
+  color: gray;
+}
 .nar-valid{
   color: green;
   font-weight: bold;

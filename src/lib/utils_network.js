@@ -2825,7 +2825,7 @@ const utilsNetwork = {
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
-        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel > b.suggestLabel ? 1 : a.suggestLabel < b.suggestLabel ? -1 : 1) : resultsNamesSubdivision,
+        'names': pos == 0 ? resultsNames.concat(resultsNamesGeo).sort((a,b) => a.suggestLabel.toLowerCase() > b.suggestLabel.toLowerCase() ? 1 : a.suggestLabel.toLowerCase() < b.suggestLabel.toLowerCase() ? -1 : 1) : resultsNamesSubdivision,
         'hierarchicalGeographic': pos == 0 ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
@@ -3335,7 +3335,13 @@ const utilsNetwork = {
         dir ='ascending'
       }
 
-      let urlSearch = "lds/browse.xqy?bq=" + search.toUpperCase() +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
+      let searchTerm
+      if (search.startsWith('PZ')){
+        searchTerm = search
+      } else {
+        searchTerm = search.toUpperCase()
+      }
+      let urlSearch = "lds/browse.xqy?bq=" + searchTerm +"&browse-order=" + dir + "&browse=class" + details + "&mime=json"
 
       // try{
         //let req = await fetch(useConfigStore().returnUrls.shelfListing + `browse/class/${dir}/${search}.json` )

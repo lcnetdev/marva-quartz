@@ -395,7 +395,8 @@ const utilsParse = {
         if ( child.innerHTML.indexOf("bf:language")>-1){
           child.setAttribute('local:pthint', 'lc:RT:bf2:LangNote')
         }else{
-          // leave blank?
+          // leave blank? lc:RT:bf2:Note
+          child.setAttribute('local:pthint', 'lc:RT:bf2:Note')
         }
       }
     }
@@ -621,6 +622,10 @@ const utilsParse = {
         xml = this.sniffNoteType(xml)
       }
 
+      if (tle == "bf:Instance"){
+        xml = this.sniffNoteType(xml)
+      }
+
       if (isHub){
         xml = this.sniffTitleType(xml)
 
@@ -633,7 +638,6 @@ const utilsParse = {
       // at this point we have the main piece of the xml tree that has all our data
       // loop through properties we are looking for and build out the the profile
       for (let k in pt){
-
         let ptk = JSON.parse(JSON.stringify(pt[k]))
         // make sure each new one has a unique guid
         ptk['@guid'] = short.generate()
@@ -703,8 +707,6 @@ const utilsParse = {
 
           }
         }
-
-
         // for (let e of el){
         //   console.log((new XMLSerializer()).serializeToString(e))
         // }
@@ -839,8 +841,6 @@ const utilsParse = {
               }
             }
 
-
-
             // if (this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)]){
             //   populateData.valueConstraint.valueTemplateRefs.push(this.tempTemplates[hashCode(populateData.propertyURI + populateData.xmlSource)])
             // }
@@ -970,9 +970,6 @@ const utilsParse = {
 
 
             }else{
-
-
-
               if (e.children.length > 1){
                 console.error('---------------------------------------------')
                 console.error('There are more than one 1st lvl bnodes!!!!!!!')
@@ -984,7 +981,6 @@ const utilsParse = {
               // loop through.... though don't really need to loop,
               // this is the main bnode <bf:title><bf:Title>
               for (let child of e.children){
-
                 // the inital bnode
                 userValue['@guid'] = short.generate()
 
@@ -1133,8 +1129,6 @@ const utilsParse = {
 
 
                     for (let ggChild of gChild.children){
-
-
                       // if its a bnode then loop through the children,
                       if (this.isClass(ggChild.tagName)){
 
@@ -1179,7 +1173,6 @@ const utilsParse = {
 
                         // now loop through these ggchildren, they are properties of this bnode
                         for (let gggChild of ggChild.children){
-
                           // not a bnode, just a one liner property of the bnode
                           if (this.UriNamespace(gggChild.tagName) == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
 
@@ -1190,6 +1183,13 @@ const utilsParse = {
 
                             if (gggChild.attributes && gggChild.attributes['rdf:about']){
                               gChildData['@type'] = gggChild.attributes['rdf:about'].value
+                            } else if (gggChild.attributes && gggChild.attributes['rdf:resource'] && gChildData['@type'] == 'http://id.loc.gov/ontologies/bibframe/Note'){
+                              gChildData['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] = [
+                                {
+                                "@guid": short.generate(),
+                                "@id" : gggChild.attributes['rdf:resource'].value
+                                }
+                              ]
                             }else if (gggChild.attributes && gggChild.attributes['rdf:resource']){
                               let value = gggChild.attributes['rdf:resource'].value
                               // gChildData['@type'] = value //gggChild.attributes['rdf:resource'].value
@@ -1282,6 +1282,7 @@ const utilsParse = {
                                 }
                                 lastClass = ggggChild.tagName
 
+
                                 // we will flag this as having a deep hiearcy to review later if we should let them be able to edit it
                                 populateData.deepHierarchy = true
                                 // console.log("Setting deepHierarchy to true for", populateData.propertyURI, populateData)
@@ -1311,17 +1312,19 @@ const utilsParse = {
                                 //   </bf:GenreForm>
                                 // </bf:genreForm>
 
-                                gggData['@type'] = this.UriNamespace(ggggChild.tagName)
+                                if (ggggChild.tagName == "bf:Note" && populateData.propertyLabel == 'Ensemble'){
+                                  populateData.deepHierarchy = false // stop this from being `uneditable`
+                                }
 
+                                gggData['@type'] = this.UriNamespace(ggggChild.tagName)
                                 // check for URI
                                 if (ggggChild.attributes && ggggChild.attributes['rdf:about']){
                                   gggData['@id'] = this.extractURI(ggggChild.attributes['rdf:about'].value)
                                 }else if (ggggChild.attributes && ggggChild.attributes['rdf:resource']){
                                   gggData['@id'] = this.extractURI(ggggChild.attributes['rdf:resource'].value)
-                                }else{
+                                } else {
                                   // console.log('No URI for this child property')
                                 }
-
 
                                 // now loop through this bnodes descendants
                                 for (let gggggChild of ggggChild.children){
@@ -1329,7 +1332,18 @@ const utilsParse = {
                                     if (gggggChild.attributes && gggggChild.attributes['rdf:about']){
                                       gggData['@type'] = gggggChild.attributes['rdf:about'].value
                                     }else if (gggggChild.attributes && gggggChild.attributes['rdf:resource']){
-                                      gggData['@type'] = gggggChild.attributes['rdf:resource'].value
+                                      // gggData['@type'] = gggggChild.attributes['rdf:resource'].value
+
+                                      if (gggggChild.tagName != 'rdf:type'){
+                                        gggData['@type'] = gggggChild.attributes['rdf:resource'].value
+                                      }else {
+                                        gggData['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] = [
+                                          {
+                                          "@guid": short.generate(),
+                                          "@id" : gggggChild.attributes['rdf:resource'].value
+                                          }
+                                        ]
+                                      }
                                     }else{
                                       console.warn('---------------------------------------------')
                                       console.warn('There was a gggChild RDF Type node but could not extract the type')
@@ -1599,21 +1613,14 @@ const utilsParse = {
                                   if (ggggChild.attributes && ggggChild.attributes['rdf:parseType']){
                                     ggggChildData['@parseType'] = ggggChild.attributes['rdf:parseType'].value
                                   }
-
-
                                 }
-
                                 gggData[ggggChildProperty].push(ggggChildData)
-
                               }
-
                             }
 
                             // last thing is add it to the lat structure
                             gChildData[gggChildProperty].push(gggData)
-
                           }
-
                         }
 
                         userValue[gChildProperty].push(gChildData)
@@ -1733,20 +1740,25 @@ const utilsParse = {
             // need to make a new one and add it to the resource template list
             // since each piece of data in the property is its own resource template
 
-
-
             if (counter === 0){
               pt[k] = populateData
               ptsCreatedThisLoop.push(populateData.id)
             }else{
-              let newKey = `${k}_${counter}`
-              let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
-              let newpos = currentpos + 1
-              profile.rt[pkey].ptOrder.splice(newpos, 0, newKey);
-              populateData.id = newKey
-              ptsCreatedThisLoop.push(newKey)
-              pt[newKey] = populateData
+              // if (type == lookup), it's a simple lookup, keep the pieces together
+              if (populateData.type == 'lookup'){
+                pt[k].userValue[populateData['propertyURI']].push(populateData.userValue[populateData['propertyURI']][0])
+              } else { // otherwise, create a new pt
+                let newKey = `${k}_${counter}`
+                let currentpos = profile.rt[pkey].ptOrder.indexOf(k)
+                let newpos = currentpos + 1
+                profile.rt[pkey].ptOrder.splice(newpos, 0, newKey);
+                populateData.id = newKey
+                ptsCreatedThisLoop.push(newKey)
+                pt[newKey] = populateData
+              }
             }
+
+
 
 
             // console.log("populateData", JSON.stringify(populateData, null, 2))

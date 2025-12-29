@@ -10,7 +10,6 @@
         <input v-model="activeValue" class="inline-lookup-input can-select 1" ref="lookupInput" @focusin="focused" @blur="blur" type="text" @keydown="keyDownEvent($event, true)" @keyup="keyUpEvent($event)" :disabled="readOnly" />
         <Transition name="action" v-if="showActionButton && myGuid == activeField">
             <div :class="{'lookup-action':true, 'lookup-action-camm':preferenceStore.returnValue('--b-edit-main-splitpane-edit-inline-mode')}" >
-
               <action-button :type="'lookupSimple'" :structure="structure" :guid="guid" :small="true" :id="`action-button-${structure['@guid']}`" @action-button-command="actionButtonCommand" />
             </div>
           </Transition>
@@ -90,14 +89,33 @@
 
           <template v-else>
 
-            <div class="lookup-fake-input-entities">
-              <div v-for="(avl,idx) in simpleLookupValues" class="selected-value-container">
+            <div class="lookup-fake-input-entities 2">
+              <draggable  style="padding-right: 0.3em; font-weight: bold"
+                    v-model="simpleLookupValues"
+                    group="simple"
+                    @start="drag=true"
+                    @end="drag=false"
+                    item-key="URI"
+                    @change="setValueList">
+                <template #item="{element, index}">
+                  <div class="selected-value-container draggable-value">
+                  <span v-if="!element.needsDereference" style="padding-right: 0.3em; font-weight: bold ">
 
-                <span v-if="!avl.needsDereference" style="padding-right: 0.3em; font-weight: bold">{{avl.label}}<span class="uncontrolled" v-if="avl.isLiteral">(uncontrolled)</span><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span></span>
-                  <span v-else style="padding-right: 0.3em; font-weight: bold"><LabelDereference :URI="avl.URI"/><span v-if="!avl.isLiteral" title="Controlled Term" class="selected-value-icon"></span></span>
-                  <span @click="removeValue(idx)" v-if="!avl.uneditable" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
+                    {{ element.label }}
+                    <span class="uncontrolled" v-if="element.isLiteral">(uncontrolled)</span>
+                    <span v-if="!element.isLiteral" title="Controlled Term" class="selected-value-icon" style=""></span>
+
+                  </span>
+
+                  <span v-else style="padding-right: 0.3em; font-weight: bold">
+                    <LabelDereference :URI="element.URI"/>
+                    <span v-if="!element.isLiteral" title="Controlled Term" class="selected-value-icon"></span>
+                  </span>
+                  <span @click="removeValue(index)" v-if="!element.uneditable" style="border-left: solid 1px black; padding: 0 0.5em; font-size: 1em; cursor: pointer;">x</span>
                   <span v-else>(uneditable)</span>
-              </div>
+                </div>
+                </template>
+              </draggable>
             </div>
             <div class="lookup-fake-input-text">
               <input v-model="activeValue" class="inline-lookup-input can-select 3" ref="lookupInput" :data-guid="structure['@guid']" @blur="blur" @focusin="focused" type="text" @keydown="keyDownEvent($event)" @keyup="keyUpEvent($event)" :disabled="readOnly" :placeholder="activePlaceholderText" />
@@ -152,6 +170,8 @@ import { usePreferenceStore } from '@/stores/preference'
 
 import { mapStores, mapState, mapWritableState } from 'pinia'
 
+import draggable from 'vuedraggable'
+
 import utilsNetwork from '@/lib/utils_network';
 import utilsProfile from '@/lib/utils_profile'
 import utilsMisc from '@/lib/utils_misc'
@@ -180,13 +200,13 @@ export default {
     ActionButton,
     LabelDereference,
     // EditLabelRemark
+    draggable,
   },
 
 
 
   data: function() {
     return {
-
       showActionButton: false,
 
       // helps populate the autocomplete list
@@ -213,6 +233,8 @@ export default {
       needsCAMMInitalValidation:null,
 
       usesSuggest: false,
+
+      simpleLookupValues: [],
 
 
     }
@@ -276,6 +298,12 @@ export default {
 
   },
 
+  watch: {
+    getSimpleLookupValues(newVal){
+      // this doesn't do anything, but without it the reordering won't work
+    }
+  },
+
   computed: {
     // other computed properties
     // ...
@@ -284,15 +312,16 @@ export default {
     ...mapStores(usePreferenceStore),
 
     ...mapWritableState(useProfileStore, ['activeField','activeProfile']),
+    ...mapState(useProfileStore, ['dataChanged']),
 
-    simpleLookupValues(){
+    getSimpleLookupValues(){
       // profileStore.setActiveField()
       let values = this.profileStore.returnSimpleLookupValueFromProfile(this.guid, this.propertyPath)
       if (this.readOnly && values.length==0){
         this.showField=false
       }
 
-      return values
+      this.simpleLookupValues = values
     },
 
     // if there is already a value we just need one of them so we can find its parent to put new ones into
@@ -358,6 +387,31 @@ export default {
 
 
   methods:{
+    setValueList: async function(){
+      // set the UserValue to match the new order
+      let pt = this.profileStore.returnStructureByComponentGuid(this.guid)
+      let parent = utilsProfile.returnGuidParent(pt.userValue, this.simpleLookupValues[0]['@guid'])
+      let lastProperty = this.propertyPath.at(-1).propertyURI
+
+      let cpValues = this.simpleLookupValues
+      let cpParent = parent[lastProperty]
+
+      if (!cpParent) {
+        cpParent = parent
+      }
+
+      // update the structure at the path
+      for (let val in cpValues){
+        // Add new value
+        await this.profileStore.setValueSimple(this.guid, cpParent[val]['@guid'], this.propertyPath, cpValues[val]['URI'], cpValues[val]['label'])
+
+        // Remove old value
+        await this.profileStore.removeValueSimple(this.guid, cpParent[val]['@guid'])
+      }
+
+      this.dataChanged()
+
+    },
 
     focusClick: function(){
 
@@ -1507,5 +1561,12 @@ export default {
 
 .component .lookup-fake-input{
   border-top:solid 1px v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-edit-field-border-color')");
+}
+
+.draggable-value {
+  cursor: grab;
+}
+.draggable-value:active {
+  cursor: grabbing;
 }
 </style>
