@@ -2,62 +2,67 @@
     <div class="container" @click="(e) => e.stopPropagation()"> <!-- keep the window open when clicking -->
         <div class="record-id">
             <strong>ID:</strong> <a :href="'https://id.loc.gov/resources/works/' + recordId" target="_blank">{{ recordId
-                }}</a>
+            }}</a>
             <br>
             <strong>Encoding Level:</strong> {{ encLvl }}
             <br>
             <strong>Cataloging Authentication Code(s):</strong> {{ authentication.join(" ") }}
         </div>
         <strong>History</strong>
-        <div class="table-container">
-            <table class="history">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>EncLvl</th>
-                        <th>Type</th>
-                        <th>Comment</th>
-                        <th>GenProcess</th>
-                        <th>Agent</th>
+        <span v-if="error">
+            <p>There was an error getting the history for this record.</p>
+        </span>
+        <span v-else>
+            <div class="table-container">
+                <table class="history">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>EncLvl</th>
+                            <th>Type</th>
+                            <th>Comment</th>
+                            <th>GenProcess</th>
+                            <th>Agent</th>
+                        </tr>
+                    </thead>
+                    <tr v-for="event in adminMetadata">
+                        <td>
+                            {{ event.date.value }}
+                        </td>
+
+                        <td v-if="event.encodingLevel">
+                            {{ event.encodingLevel.value }}
+                        </td>
+                        <td v-else></td>
+
+                        <td v-if="event.label">
+                            {{ event.label.value }}
+                        </td>
+                        <td v-else></td>
+                        <td v-if="event.comment">
+                            <span v-if="event.seeAlso" v-html="setCommentString(event)">
+                            </span>
+                            <span v-else>
+                                {{ event.comment.value }}
+                            </span>
+                        </td>
+                        <td v-else></td>
+                        <td v-if="event.generationProcess">
+                            {{ event.generationProcess.value }}
+                        </td>
+                        <td v-else></td>
+
+                        <td v-if="event.catalogerId">
+                            {{ event.catalogerId.value }}
+                        </td>
+                        <td v-else-if="event.agent">
+                            {{ event.agent.value }}
+                        </td>
+                        <td v-else></td>
                     </tr>
-                </thead>
-                <tr v-for="event in adminMetadata">
-                    <td>
-                        {{ event.date.value }}
-                    </td>
-
-                    <td v-if="event.encodingLevel">
-                        {{ event.encodingLevel.value }}
-                    </td>
-                    <td v-else></td>
-
-                    <td v-if="event.label">
-                        {{ event.label.value }}
-                    </td>
-                    <td v-else></td>
-                    <td v-if="event.comment">
-                        <span v-if="event.seeAlso" v-html="setCommentString(event)">
-                        </span>
-                        <span v-else>
-                            {{ event.comment.value }}
-                        </span>
-                    </td>
-                    <td v-else></td>
-                    <td v-if="event.generationProcess">
-                        {{ event.generationProcess.value }}
-                    </td>
-                    <td v-else></td>
-
-                    <td v-if="event.catalogerId">
-                        {{ event.catalogerId.value }}
-                    </td>
-                    <td v-else-if="event.agent">
-                        {{ event.agent.value }}
-                    </td>
-                    <td v-else></td>
-                </tr>
-            </table>
-        </div>
+                </table>
+            </div>
+        </span>
 
         <div class="nines-container">
             <strong>9XX</strong>
@@ -83,7 +88,8 @@ export default {
             nineXX: null,
             encLvl: null,
             authentication: [],
-            history: {}
+            history: {},
+            error: false,
         }
     },
     props: {
@@ -92,24 +98,20 @@ export default {
 
 
     methods: {
-        setCommentString: function(data){
-            console.info("SET: ", data)
+        setCommentString: function (data) {
             let seeAlso = data.seeAlso.value
             let string = data.comment.value
             let targets = {}
-            console.info("string: ", string)
-            console.info("seeAlso: ", seeAlso)
-            if (Array.isArray(seeAlso)){
-                for (let idx in seeAlso){
+            if (Array.isArray(seeAlso)) {
+                for (let idx in seeAlso) {
                     let key = seeAlso[idx].split("/").at(-1)
                     targets[key] = seeAlso[idx]
                 }
             } else {
                 targets[data.seeAlso.value] = data.seeAlso.uri
             }
-            for (let target in targets){
-                console.info(string, "--", target)
-                string = string.replace(target, "<a target='_blank' href='"+ targets[target] +"'>" + target + "</a>")
+            for (let target in targets) {
+                string = string.replace(target, "<a target='_blank' href='" + targets[target] + "'>" + target + "</a>")
             }
 
             return string
@@ -163,43 +165,41 @@ export default {
             }
 
             this.history = await utilsNetwork.recordHistory(this.recordId)
-
-            // const parser = new DOMParser();
-            // const xmlDoc = parser.parseFromString(this.history.history.replace(/[\n\r]/g, ''), "text/xml");
-            // let history = xmlDoc.getElementsByTagName("bf:AdminMetadata")
+            if (this.history.error) {
+                this.error = true
+                return
+            }
 
             let historyJSON = JSON.parse(this.history.history)
-            for (let event of historyJSON['@graph']){
+            for (let event of historyJSON['@graph']) {
                 let e = {}
-                console.info("event: ", event)
-                for (let key of Object.keys(event)){
+                for (let key of Object.keys(event)) {
                     let data = event[key]
                     key = key.replace(/[a-z]+\:/, '')
-                    console.info("\t", key, ": ", data)
                     let value
                     let uri
-                    if (Object.keys(data).includes("@id")){
+                    if (Object.keys(data).includes("@id")) {
                         uri = data['@id']
                     } else {
                         uri = false
                     }
-                    if (key == 'agent' && Object.keys(data).includes("rdfs:label")){
+                    if (key == 'agent' && Object.keys(data).includes("rdfs:label")) {
                         value = data['rdfs:label']
-                    } else if (key == 'agent' && Object.keys(data).includes("bf:code")){
+                    } else if (key == 'agent' && Object.keys(data).includes("bf:code")) {
                         value = data['bf:code']
-                    } else if (Object.keys(data).includes("@value")){
-                        value  = data['@value']
-                    } else if (Object.keys(data).includes("@id")){
+                    } else if (Object.keys(data).includes("@value")) {
+                        value = data['@value']
+                    } else if (Object.keys(data).includes("@id")) {
                         value = data['@id'].split("/").at(-1)
                     } else {
-                        if (Array.isArray(data)){
+                        if (Array.isArray(data)) {
                             value = data.map((d) => d['@id'])
                         } else {
                             value = data
                         }
                     }
 
-                    if (key == 'date'){
+                    if (key == 'date') {
                         value = value.replace("+00:00", "")
                     }
 
@@ -208,9 +208,7 @@ export default {
                         'uri': uri,
                     }
                 }
-                console.info("e: ", e)
                 this.adminMetadata.push(e)
-                console.info("admin: ", this.adminMetadata)
             }
 
             this.nineXX = nines
@@ -220,7 +218,7 @@ export default {
 
     mounted() {
         // this.getAdminMetadata()
-        window.setTimeout(()=>{
+        window.setTimeout(() => {
             this.getAdminMetadata() // for menu access
         }, 2000)
     },
@@ -248,9 +246,11 @@ export default {
 .history tr {
     text-align: center;
 }
-tr th{
+
+tr th {
     font-weight: bold;
 }
+
 tr:nth-child(odd):hover,
 tr:hover {
     background-color: rgb(143, 141, 141);
@@ -261,7 +261,7 @@ td {
     word-wrap: anywhere;
 }
 
-.nines-container{
+.nines-container {
     margin-top: 8px;
 }
 
@@ -277,13 +277,10 @@ tr:nth-child(odd) {
 strong {
     font-weight: bold;
 }
-
-
-
 </style>
 
 <style>
-#record-panel{
+#record-panel {
     left: -600px !important;
 }
 </style>
