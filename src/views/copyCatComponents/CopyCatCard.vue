@@ -1,5 +1,5 @@
 <template>
-    <div class="card" :class="['wc-row', {'selected': selectedWcRecord['oclcNumber'] == record['oclcNumber']}, {'serial': isSerial(record)}]" @click="$emit('selectedCard', record)">
+    <div class="card" :class="['wc-row', {'selected-card': selectedWcRecord['oclcNumber'] == record['oclcNumber']}, {'serial': isSerial(record)}]" @click="$emit('selectedCard', record)">
         <div class="card-body">
             <div class="card-icon"></div>
             <div class="card-title">
@@ -188,7 +188,7 @@ export default{
 </script>
 
 <style>
-.selected {
+.selected-card {
     background-color: v-bind("preferenceStore.returnValue('--c-edit-copy-cat-card-color-selected')") !important;
     color: black;
     filter: saturate(.75);

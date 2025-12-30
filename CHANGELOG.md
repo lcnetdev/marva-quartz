@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.4.5] - 2025-12-16
+### Added
+- Support for custom 001s from Marva backend. They are applied to origbf records on posting and added to the `998 $x` for copy cat records that don't overlay existing records.
+
 ## [1.4.4] - 2025-10-24
 ### Fixed
 - Orphaned langauge names in scriptshifter were sticking around in the localStorage causing scriptshifter options to appear in the action menu but they did not exist. This was caused by renaming tables in scriptshifter making their keys different. The scriptshifter config interface now clean out invalid langauges from localStorage when adding and removing (by selecting or deselecting langauges)

@@ -1008,7 +1008,7 @@ export default {
                         "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
                           {
                             "@guid": "8wJoYGrC8ut67SxhnXMEQp",
-                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": useProfile.eId
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": "[IDonSubmit]"
                           }
                         ],
                         "http://id.loc.gov/ontologies/bibframe/assigner": [
@@ -1064,7 +1064,7 @@ export default {
                     "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
                       {
                         "@guid": short.generate(),
-                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": useProfile.eId
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": "[IDonSubmit]"
                       }
                     ],
                     "http://id.loc.gov/ontologies/bibframe/assigner": [{
