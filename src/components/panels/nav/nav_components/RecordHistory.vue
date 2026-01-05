@@ -64,7 +64,7 @@
             </div>
         </span>
 
-        <div class="nines-container" v-if="nineXX.length > 0">
+        <div class="nines-container" v-if="nineXX && nineXX.length > 0">
             <strong>9XX</strong>
             <table class="nines">
                 <tr v-for="nine in nineXX">
@@ -79,6 +79,7 @@
 
 <script>
 import utilsNetwork from '@/lib/utils_network'
+
 
 export default {
     data() {

@@ -828,7 +828,8 @@ export default {
           {
             text: "",
             is: RecordHistory,
-            profile: this.activeProfile
+            profile: this.activeProfile,
+            class:"record-history",
           }
         )
 
