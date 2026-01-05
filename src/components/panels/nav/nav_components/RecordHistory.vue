@@ -64,7 +64,7 @@
             </div>
         </span>
 
-        <div class="nines-container">
+        <div class="nines-container" v-if="nineXX.length > 0">
             <strong>9XX</strong>
             <table class="nines">
                 <tr v-for="nine in nineXX">
@@ -116,6 +116,7 @@ export default {
 
             return string
         },
+
         getAdminMetadata: async function () {
             let p = this.item.profile
             let work
@@ -221,7 +222,6 @@ export default {
             this.getAdminMetadata() // for menu access
         }, 2000)
     },
-
 }
 
 </script>
