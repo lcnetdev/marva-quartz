@@ -779,6 +779,7 @@ export default {
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
       console.log("useInstanceProfile", useInstanceProfile)
       let useLoadUrl = ''
+      let marva001 = null
       if (this.lccnLoadSelected) {
         useLoadUrl = this.lccnLoadSelected.bfdbPackageURL
         if (this.loadType == 'loadBf') {
@@ -788,9 +789,11 @@ export default {
         useLoadUrl = this.urlToLoad
       } else if (this.urlToLoad == 'new') {
         // continue on with a empty profile
+        marva001 = await utilsNetwork.getMarva001() // get the Marva001
       } else {
         alert("Please enter a valid URL or identifier to load.")
       }
+
 
       // did they just hit enter and the record is loading, and not ready to go yet
       if (useLoadUrl.trim() === '' && this.searchByLccnResults && typeof this.searchByLccnResults === 'string') {
@@ -915,6 +918,8 @@ export default {
         useProfile.neweId = true
       }
 
+      // LOCAL Marva ID
+      useProfile.marvaLocalId = marva001
 
       if (!useProfile.user) {
         useProfile.user = this.preferenceStore.returnUserNameForSaving
@@ -1008,7 +1013,7 @@ export default {
                         "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
                           {
                             "@guid": "8wJoYGrC8ut67SxhnXMEQp",
-                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": "[IDonSubmit]"
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": marva001
                           }
                         ],
                         "http://id.loc.gov/ontologies/bibframe/assigner": [
@@ -1064,7 +1069,7 @@ export default {
                     "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": [
                       {
                         "@guid": short.generate(),
-                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": "[IDonSubmit]"
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#value": marva001
                       }
                     ],
                     "http://id.loc.gov/ontologies/bibframe/assigner": [{
