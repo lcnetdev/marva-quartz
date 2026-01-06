@@ -1530,17 +1530,18 @@ const utilsNetwork = {
         try{
           regexResults = regexResults.slice(1,regexResults.length)
           for (let r of regexResults){
-            if (r.slice(0,2).toLowerCase() != '$v' &&
+            if (
+                // r.slice(0,2).toLowerCase() != '$v' &&
                 r.slice(0,2).toLowerCase() != '$a' &&
                 r.slice(0,2).toLowerCase() != '$x' &&
                 r.slice(0,2).toLowerCase() != '$y' &&
                 r.slice(0,2).toLowerCase() != '$z' &&
-                r.slice(0,2).toLowerCase() != '‡v' &&
+                // r.slice(0,2).toLowerCase() != '‡v' &&
                 r.slice(0,2).toLowerCase() != '‡a' &&
                 r.slice(0,2).toLowerCase() != '‡x' &&
                 r.slice(0,2).toLowerCase() != '‡y' &&
                 r.slice(0,2).toLowerCase() != '‡z' &&
-                r.slice(0,2).toLowerCase() != '|v' &&
+                // r.slice(0,2).toLowerCase() != '|v' &&
                 r.slice(0,2).toLowerCase() != '|a' &&
                 r.slice(0,2).toLowerCase() != '|x' &&
                 r.slice(0,2).toLowerCase() != '|y' &&
@@ -2798,6 +2799,11 @@ const utilsNetwork = {
       if (pos > 0){
         complexHeadings = resultsSubjectsComplex.concat(resultsSubjectsComplexSubdivision1)
       }
+
+      console.info("resultsPayloadSubjectsSimpleSubdivision >> ", resultsPayloadSubjectsSimpleSubdivision)
+      // don't surface GenreForm headings
+      resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((hd) => ((hd.extra && !hd.extra.collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")) || hd.literal) )
+
 
       if (complexVal.includes("--")){
         resultsSubjectsSimple = resultsSubjectsSimpleComplex.concat(resultsSubjectsSimple)
