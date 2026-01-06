@@ -1184,8 +1184,9 @@ export const useProfileStore = defineStore('profile', {
 
       // also give it an ID for storage
       if (!useProfile.eId){
-      let uuid = 'e' + decimalTranslator.new()
-      uuid = uuid.substring(0,8)
+      // let uuid = 'e' + decimalTranslator.new()
+      // uuid = uuid.substring(0,8)
+      let uuid = 'e' + Date.now().toString()
       useProfile.eId= uuid
 
       }
@@ -3727,6 +3728,20 @@ export const useProfileStore = defineStore('profile', {
     returnLccInfo: function(componentGuid){
       let pt = utilsProfile.returnPt(this.activeProfile,componentGuid)
 
+      // if it is empty and brand new dont do the next check it wont have any data
+      if (Object.keys(pt.userValue).length > 1){ // this means it doesn't only have @root in the userValue and has data populated
+
+        // maybe it it is a dewy or other classifciation, only proceed if it is LCC
+        if (pt.userValue?.['http://id.loc.gov/ontologies/bibframe/classification']?.[0]?.['@type'] !== 'http://id.loc.gov/ontologies/bibframe/ClassificationLcc'){
+          // console.log("RETURN FALSE 1")
+
+          return false
+
+        }
+
+      }
+
+
       let classNumber = null
       let classGuid = null
 
@@ -3937,7 +3952,7 @@ export const useProfileStore = defineStore('profile', {
 
         } else {
           // This is a LCC field, it shouldn't return `false`. False causes things to disappear
-
+          // console.log("RETRUN FA:LSE 2")
           return {
             title: null,
             titleNonLatin: null,
@@ -4001,6 +4016,7 @@ export const useProfileStore = defineStore('profile', {
 
 
       //ClassificationLcc
+      // console.log("RETRUN FA:LSE 3")
       return false
 
     },
@@ -4572,8 +4588,9 @@ export const useProfileStore = defineStore('profile', {
     * Duplicate / create new component with a given userValue
     *
     * @param {string} componentGuid - the guid of the component (the parent of all fields)
-    * @param {object} structure - structure of the component(?)s
-    * @param {object} incomingUserValue - the incoming userValue to set
+    * @param {object} structure - structure of the component being copied
+    * @param {string} profileName - name of the target profile
+    * @param {string} predecessor - id of componenet comes before in the order
     * @return {array} the id and guid of the newPropertyId
     */
     duplicateComponentGetId: async function(componentGuid, structure, profileName, predecessor){
@@ -4598,14 +4615,16 @@ export const useProfileStore = defineStore('profile', {
 
           //find the last position in the order of related components so we can insert
           // the new components at the end of that list
-          for (let idx in this.activeProfile.rt[r].ptOrder){
-              let item = this.activeProfile.rt[r].ptOrder[idx]
-              //TODO: fix order when there's a deleted element? Can't reproduce now
-              if (item.includes(key)){
+          if (r == profileName){ // does this have any sideffects?!
+            for (let idx in this.activeProfile.rt[r].ptOrder){
+                let item = this.activeProfile.rt[r].ptOrder[idx]
+                //TODO: fix order when there's a deleted element? Can't reproduce now
+                if (item.includes(key)){
                   lastPosition = idx
-              }
+                }
+            }
+            profile = profileName
           }
-          profile = profileName
 
         }
 
@@ -4621,12 +4640,6 @@ export const useProfileStore = defineStore('profile', {
         // console.log(propertyPosition)
         // console.log(key,newPropertyId)
         if (createEmpty){
-
-
-          // store.state.activeUndoLog.push(`Added another property ${exportXML.namespaceUri(activeProfile.rt[profile].pt[id].propertyURI)}`)
-
-          // console.log(activeProfile.rt[profile].pt[newPropertyId])
-          // console.log(profile,newPropertyId)
           newPt.userValue = {
               '@guid': short.generate(),
               '@root' : newPt.propertyURI
@@ -4646,6 +4659,11 @@ export const useProfileStore = defineStore('profile', {
           // let defaults = null
           let defaultsProperty
 
+          // If it's deleted, flip it
+          if (newPt.deleted){
+            newPt.deleted = false
+          }
+
           let useProfile = profile
           // if the profile is a multiple, like lc:RT:bf2:Monograph:Item-0 split off the -0 for it to find it in the RT lookup
           if (!this.rtLookup[useProfile]){
@@ -4664,6 +4682,7 @@ export const useProfileStore = defineStore('profile', {
         }else{
           // doesn't support duplicating components yet
         }
+
         this.activeProfile.rt[profile].pt[newPropertyId] = JSON.parse(JSON.stringify(newPt))
         // For moving titles between work/instance, we want to use the last postion, otherwise
         //    should be after the predecessor
@@ -5358,6 +5377,12 @@ export const useProfileStore = defineStore('profile', {
     },
 
     //parse the activeProfile and insert the copied data where appropriate
+    /**
+     *
+     * @param {Object} newComponent - The new component
+     * @param {String} sourceRt - RT it came from
+     * @param {String} incomingTargetRt - RT it's going to
+     */
     parseActiveInsert: async function(newComponent, sourceRt=null, incomingTargetRt=null){
       this.changeGuid(newComponent)
       let profile = this.activeProfile
@@ -5466,15 +5491,16 @@ export const useProfileStore = defineStore('profile', {
               if (!key.startsWith("@")){
                   let result = false
                   try{
-                      // this makes sure that the propertiesPanel will have the correct symbol when the incoming data
-                      //  has an populate electronicLocator
-                      if (component.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
-                          result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
-                      } else {
-                          result = !Object.keys(userValue[key][0]).some((childKey) => childKey.startsWith("@id"))
-                      }
+                    if (userValue[key].length == 0){ return }
+                    // this makes sure that the propertiesPanel will have the correct symbol when the incoming data
+                    //  has an populate electronicLocator
+                    if (component.propertyURI != "http://id.loc.gov/ontologies/bibframe/electronicLocator"){
+                        result = Object.keys(userValue[key][0]).every((childKey) => childKey.startsWith("@"))
+                    } else {
+                        result = !Object.keys(userValue[key][0]).some((childKey) => childKey.startsWith("@id"))
+                    }
                   } catch(err) {
-                      console.error("error: Checking if component is empty")
+                      console.debug("error: Checking if component is empty, ", err)
                   }
 
                   return result
@@ -5586,8 +5612,9 @@ export const useProfileStore = defineStore('profile', {
       let xml = await utilsExport.createHubStubXML(hubCreatorObj,title,variant,variantLanguage,langObj,catCode)
 
       console.log(xml)
-      let eid = 'e' + decimalTranslator.new()
-      eid = eid.substring(0,8)
+      // let eid = 'e' + decimalTranslator.new()
+      let eid = 'e' + Date.now().toString()
+      // eid = eid.substring(0,8)
 
       // pass a fake activeprofile with id == Hub to trigger hub protocols
       let pubResuts
@@ -6696,48 +6723,95 @@ export const useProfileStore = defineStore('profile', {
      */
     buildActiveShelfListDataFromProfile(){
       // look through the active profile for the LCC data
+      let classificationCount = 0
+      let foundLCC = false
       for (let rt in this.activeProfile.rt){
         for (let pt in this.activeProfile.rt[rt].pt){
           pt = this.activeProfile.rt[rt].pt[pt]
           if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
+            classificationCount++
+          }
+        }
+      }
+      // console.log("classificationCount ===",classificationCount)
+
+      for (let rt in this.activeProfile.rt){
+        for (let pt in this.activeProfile.rt[rt].pt){
+          pt = this.activeProfile.rt[rt].pt[pt]
+          if (pt.propertyURI == "http://id.loc.gov/ontologies/bibframe/classification"){
+            // console.log(pt)
             if (pt.userValue &&
                 pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'] &&
                 pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0] &&
-                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] &&
-                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc"){
+                pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type']){
 
-                  let classObj = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
+                  // if it is a LCC node good, and it is not deleted:
+                  if (pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]['@type'] == "http://id.loc.gov/ontologies/bibframe/ClassificationLcc" && !pt.deleted){
 
-                  if (
-                    classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'] &&
-                    classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] &&
-                    classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
-                  ){
-                    this.activeShelfListData.class = classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
-                    this.activeShelfListData.classGuid = classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['@guid']
+
+
+                    let classObj = pt.userValue['http://id.loc.gov/ontologies/bibframe/classification'][0]
+
+                    if (
+                      classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'] &&
+                      classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0] &&
+                      classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+                    ){
+                      this.activeShelfListData.class = classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['http://id.loc.gov/ontologies/bibframe/classificationPortion']
+                      this.activeShelfListData.classGuid = classObj['http://id.loc.gov/ontologies/bibframe/classificationPortion'][0]['@guid']
+                    }
+                    if (
+                      classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'] &&
+                      classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0] &&
+                      classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
+                    ){
+                      this.activeShelfListData.cutter = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
+                      this.activeShelfListData.cutterGuid = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['@guid']
+                    }
+
+                    this.activeShelfListData.componentGuid = pt['@guid']
+                    this.activeShelfListData.componentPropertyPath = [
+                      {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
+                      {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
+                    ]
+
+                    console.log("Found LCC data:",this.activeShelfListData)
+                    console.log(JSON.stringify(pt,null,2))
+                    foundLCC = true
+                  }else{
+                    // not LCC
+                    // continue
+
                   }
-                  if (
-                    classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'] &&
-                    classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0] &&
-                    classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
-                  ){
-                    this.activeShelfListData.cutter = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['http://id.loc.gov/ontologies/bibframe/itemPortion']
-                    this.activeShelfListData.cutterGuid = classObj['http://id.loc.gov/ontologies/bibframe/itemPortion'][0]['@guid']
-                  }
 
-                  this.activeShelfListData.componentGuid = pt['@guid']
-                  this.activeShelfListData.componentPropertyPath = [
-                    {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
-                    {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
-                  ]
                 }else{
-                  // there is no existing LCC data populated
-                  this.activeShelfListData.componentGuid = pt['@guid']
-                  this.activeShelfListData.componentPropertyPath = [
-                    {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
-                    {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
-                  ]
+
+                  // if it is only one classification and it is empty then we can use it
+                  // console.log(Object.keys(pt.userValue).length)
+                  if (classificationCount == 1 && Object.keys(pt.userValue).length == 1){
+                    // console.log("Using empty classification for shelf list",pt)
+                    this.activeShelfListData.componentGuid = pt['@guid']
+                    this.activeShelfListData.componentPropertyPath = [
+                      {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
+                      {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
+                    ]
+                    foundLCC = true
+
+                  }else if (foundLCC == false && pt?.preferenceId.toLowerCase().indexOf(":lcc") > -1){
+                  // if we dont have one but we found a LCC template use it
+                   this.activeShelfListData.componentGuid = pt['@guid']
+                    this.activeShelfListData.componentPropertyPath = [
+                      {level: 0, propertyURI: 'http://id.loc.gov/ontologies/bibframe/classification'},
+                      {level: 1, propertyURI: 'http://id.loc.gov/ontologies/bibframe/itemPortion'}
+                    ]
+                    foundLCC = true
+
+                  }
+
+
                 }
+
+
           }
         }
       }

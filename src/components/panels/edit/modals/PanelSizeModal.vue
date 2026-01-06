@@ -34,7 +34,7 @@
         useAsDefault: false,
 
 
-        
+
       }
     },
     computed: {
@@ -58,7 +58,7 @@
 
     watch: {
 
-      
+
     },
 
     methods: {
@@ -67,7 +67,7 @@
           this.width = newRect.width
           this.height = newRect.height
           this.top = newRect.top
-          this.left = newRect.left          
+          this.left = newRect.left
         },
 
 
@@ -101,9 +101,7 @@
 
           panelData.icon = useIcon
           panelData.color = this.iconColor
-          panelData.default = this.useAsDefault        
-
-          
+          panelData.default = this.useAsDefault
 
           this.panelSizePresets.push(panelData)
 
@@ -131,9 +129,9 @@
 
 
 
-      
+
       this.panelSizePresets = this.preferenceStore.returnValue('--o-edit-main-splitpane-edit-panel-size-presets')
-      
+
 
 
 
@@ -209,7 +207,7 @@
 
 
 
-            
+
             <div style="text-align:center">
               <button @click="add" style="margin-top: 1em; font-size: 1.25em;">Add Button</button>
             </div>
@@ -227,8 +225,8 @@
 
             </div>
 
-            
-            
+
+
           </div>
 
 

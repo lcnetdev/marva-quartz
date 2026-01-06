@@ -878,7 +878,7 @@ export default {
   computed: {
     ...mapStores(usePreferenceStore),
     ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse', 'diacriticPacks']),
-    ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId']),
+    ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent']),
 
     ...mapWritableState(useProfileStore, ['activeProfile', 'setValueLiteral', 'activeNARStubComponent', 'lastComplexLookupString', 'searchValueLocal', 'showNacoStubCreateModal', 'returnStructureByComponentGuid']),
   },
@@ -929,7 +929,7 @@ export default {
 
       let newClass
       // If no match, need to add component
-      if (!targetComponent){
+      if (!targetComponent || !this.isEmptyComponent(targetComponent)){
         let structure = this.returnComponentByPropertyLabel('Classification numbers')
         newClass = await this.duplicateComponentGetId(structure['@guid'], structure, "lc:RT:bf2:Monograph:Work", lastClassifiction)
         targetComponent = profile.rt["lc:RT:bf2:Monograph:Work"].pt[newClass[0]]
@@ -1307,7 +1307,7 @@ export default {
           prevComponent = JSON.parse(JSON.stringify(this.components.at(potentialGeoIdx - 1)))
           // if the previous component is geographic, swap the -- for not `‑‑` between
           if (prevComponent.type == 'madsrdf:Geographic' || prevComponent.type == "http://www.loc.gov/mads/rdf/v1#Geographic") {
-            let posEnd = this.subjectString.indexOf(this.components[potentialGeoIdx].label)
+            let posEnd = this.subjectString.lastIndexOf(this.components[potentialGeoIdx].label)
             let posStart = posEnd - 2
             this.subjectString = this.subjectString.slice(0, posStart) + '‑‑' + this.subjectString.slice(posEnd)
             this.subjectStringChanged()
@@ -2131,7 +2131,6 @@ export default {
 
         this.subjectString = splitString.join('--')
 
-
         if (!this.componetLookup[this.activeComponentIndex]) {
           this.componetLookup[this.activeComponentIndex] = {}
         }
@@ -2155,6 +2154,19 @@ export default {
         } catch(err){
           type = null
           console.error("Couldn't get type: ", err)
+        }
+
+        if (Object.keys(this.componetLookup[this.activeComponentIndex]).length > 1){
+          let keys = Object.keys(this.componetLookup[this.activeComponentIndex])
+          let deleteTargets = []
+          for (let k of keys){
+            if (k != this.pickLookup[this.pickPostion].label.replaceAll('-', '‑')){
+              deleteTargets.push(k)
+            }
+          }
+          for (let t of deleteTargets){
+            delete this.componetLookup[this.activeComponentIndex][t]
+          }
         }
 
         // console.log('2',JSON.parse(JSON.stringify(this.componetLookup)))
