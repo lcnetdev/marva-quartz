@@ -464,7 +464,6 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
-	console.info("buildXML: ", JSON.parse(JSON.stringify(profile)))
     // keep track of the proces for later
 	// let debugHistory = []
 	let xmlLog = []
@@ -558,7 +557,6 @@ const utilsExport = {
 
 				rootEl.setAttributeNS(this.namespace.rdf, 'rdf:about', URI)
 				xmlLog.push(`Setting URI for this resource rdf:about to: ${URI}`)
-				console.info("externalID: ", URI, "--", profile)
 				xmlVoidExternalID.push(externalID)
 			}
 			if (profile.rt[rt]['@type']){
