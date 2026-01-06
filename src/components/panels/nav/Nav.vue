@@ -1009,10 +1009,13 @@ export default {
           )
         }
 
-      return [
-        menu,
-        botMenu
-      ]
+      if (this.preferenceStore.copyMode && this.$route.path.startsWith('/edit/')) {
+        return [
+          menu,
+          botMenu
+        ]
+      }
+      return [menu]
 
 
     }
