@@ -1017,20 +1017,17 @@ export default {
         ]
       }
       return [menu]
-
-
     }
-
   },
 
-  watch: {
-    // // whenever question changes, this function will run
-    // question(newVal, oldVal) {
-    //   if(newVal===true){
+  // watch: {
+  //   // // whenever question changes, this function will run
+  //   // question(newVal, oldVal) {
+  //   //   if(newVal===true){
 
-    //   }
-    // }
-  },
+  //   //   }
+  //   // }
+  // },
 
   methods: {
 

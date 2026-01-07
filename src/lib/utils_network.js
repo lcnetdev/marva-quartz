@@ -333,7 +333,6 @@ const utilsNetwork = {
           // console.error("There was an error retriving the record from ", url, ". Likely from the search being aborted because the user was typing.");
         }else{
           console.error(err)
-          console.error("data: ", data)
         }
         return false
         // Handle errors here
