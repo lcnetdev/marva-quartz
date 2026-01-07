@@ -313,9 +313,9 @@ const utilsNetwork = {
       }
       // console.log("url:",url)
       // console.log('options:',options)
+      let data = null
       try{
         let response = await fetch(url,options);
-        let data = null
         if (response.status == 404){
           return false
         }
@@ -412,6 +412,27 @@ const utilsNetwork = {
       let data = await r.json()
       return data.id
 
+    },
+
+    systemStatus: async function(){
+
+      let returnUrls = useConfigStore().returnUrls
+
+      let r = await fetch(returnUrls.util + 'status')
+
+      let data = await r.json()
+      return data
+
+    },
+
+    recordHistory: async function(bibid){
+      if (bibid){
+        let returnUrls = useConfigStore().returnUrls
+        let r = await fetch(returnUrls.util + 'history' + '/' + bibid)
+        let data = await r.json()
+        return data
+      }
+      return false
     },
 
     getMarva001: async function(){
