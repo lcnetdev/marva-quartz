@@ -789,7 +789,11 @@ export default {
         useLoadUrl = this.urlToLoad
       } else if (this.urlToLoad == 'new') {
         // continue on with a empty profile
-        marva001 = await utilsNetwork.getMarva001() // get the Marva001
+        try {
+          marva001 = await utilsNetwork.getMarva001() // get the Marva001
+        } catch(err){
+          marva001 = '!!testValue!!'
+        }
       } else {
         alert("Please enter a valid URL or identifier to load.")
       }
