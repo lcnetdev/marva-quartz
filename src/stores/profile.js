@@ -3399,6 +3399,9 @@ export const useProfileStore = defineStore('profile', {
           let type = rt.split(':').slice(-1)[0]
           // this.localMarva = false
           let url = config.convertToRegionUrl(this.activeProfile.rt[rt].URI)
+          if (this.activeProfile.marvaLocalId){
+            url = url.replace(this.activeProfile.eId, this.activeProfile.marvaLocalId)
+          }
           let env = config.returnUrls.env
 
           // populate the title
