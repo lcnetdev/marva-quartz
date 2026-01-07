@@ -437,9 +437,9 @@ body #app {
   color: #999999;
 }
 
-.selected {
+/* .selected {
   background-color: whitesmoke;
-}
+} */
 
 .selected::before {
   content: "> ";

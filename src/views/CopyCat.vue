@@ -575,7 +575,7 @@ export default {
       parent.appendChild(subfield)
     },
 
-    loadCopyCat: async function (profile) {
+    loadCopyCat: async function (profile) { // load into BFDB/ID
       let continueWithLoad = true
       if (this.existingLCCN) {
         continueWithLoad = confirm("There is a record with the LCCN already. If you continue, the Copy Cat record will be merged with it. Do you want to continue?")
@@ -610,6 +610,19 @@ export default {
       dummyField.setAttribute("ind1", " ")
       dummyField.setAttribute("ind2", " ")
 
+      /*
+      * 998:
+      * a: LCCN
+      * b: Priority
+      * c: JACKPHY
+      * d: Record Quality
+      * e: Overlay
+      * f: BibID for Overlay
+      * x: Local ID
+      * z: Cataloger Code
+      */
+
+
       this.createSubField("a", this.urlToLoad, dummyField)
       this.createSubField("b", this.recordPriority, dummyField)
       this.createSubField("c", this.jackphyCheck, dummyField)
@@ -617,12 +630,16 @@ export default {
 
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
+      let marva001 = ""
       if (this.existingLCCN || this.existingISBN) {
         this.createSubField("e", "overlay bib", dummyField)
         if (this.existingRecordUrl != "") {
           bibId = this.existingRecordUrl.split("/").at(-1).replace(".html", "")
           this.createSubField("f", bibId, dummyField)
         }
+      } else {
+        marva001 = await utilsNetwork.getMarva001()
+        this.createSubField("x", marva001, dummyField)
       }
 
       // cataloger code
@@ -643,6 +660,7 @@ export default {
 
       this.posting = true
       this.postResults = {}
+
       this.postResults = await utilsNetwork.addCopyCat(strXmlBasic)
       this.posting = false
 
@@ -660,17 +678,11 @@ export default {
       if (this.existingLCCN || this.existingISBN) {
         recordId = bibId
       } else {
-        recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
+        recordId = marva001
       }
 
       console.info("recordId: ", recordId)
-
       this.urlToLoad = "https://preprod-8080.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
-
-      // https://preprod-8299.id.loc.gov/resources/works/ocm45532466.html <the URL that works>
-      // load url: https://preprod-8230.id.loc.gov/resources/instances/<id>.convertedit-pkg.xml <what Marva loads>
-      // https://preprod-8230.id.loc.gov/resources/instances/12243040.editor-pkg.xml            <what BFDB loads>
-
       this.existingLCCN = false
       this.existingISBN = false
 

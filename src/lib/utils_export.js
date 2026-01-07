@@ -548,9 +548,16 @@ const utilsExport = {
 
 
 			if (profile.rt[rt].URI){
-				rootEl.setAttributeNS(this.namespace.rdf, 'rdf:about', profile.rt[rt].URI)
-				xmlLog.push(`Setting URI for this resource rdf:about to: ${profile.rt[rt].URI}`)
-				xmlVoidExternalID.push(profile.rt[rt].URI)
+				let externalID = profile.rt[rt].URI
+				let URI = profile.rt[rt].URI
+				if (profile.marvaLocalId){
+					externalID = externalID.replace(profile.eId, profile.marvaLocalId)
+					URI = URI.replace(profile.eId, profile.marvaLocalId)
+				}
+
+				rootEl.setAttributeNS(this.namespace.rdf, 'rdf:about', URI)
+				xmlLog.push(`Setting URI for this resource rdf:about to: ${URI}`)
+				xmlVoidExternalID.push(externalID)
 			}
 			if (profile.rt[rt]['@type']){
 				let type = this.createElByBestNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
@@ -1479,6 +1486,9 @@ const utilsExport = {
 			// there is only one work, so add it as the instanceOf
 			for (let WorkURI in tleLookup['Work']){
 				let instanceOf = this.createElByBestNS('bf:instanceOf')
+				if (profile.marvaLocalId){
+					WorkURI = WorkURI.replace(profile.eId, profile.marvaLocalId)
+				}
 				instanceOf.setAttributeNS(this.namespace.rdf, 'rdf:resource', WorkURI)
 				instance.appendChild(instanceOf)
 			}

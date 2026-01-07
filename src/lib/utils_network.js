@@ -436,6 +436,15 @@ const utilsNetwork = {
       return false
     },
 
+    getMarva001: async function(){
+      let returnUrls = useConfigStore().returnUrls
+
+      let r = await fetch(returnUrls.util + 'marva001')
+
+      let data = await r.json()
+      return data.marva001
+    },
+
     searchLccn: async function name(lccn) {
       if (this.subjectSearchActive){
         this.controllers["lccnSearchController"].abort()

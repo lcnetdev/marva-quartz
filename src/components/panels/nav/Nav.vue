@@ -147,8 +147,8 @@ export default {
 
     my_menu() {
 
-        let menu = []
-        let botMenu = []
+      let menu = []
+      let botMenu = []
 
       // if (!this.disable.includes('logo')){
       //   menu.push({
@@ -262,11 +262,11 @@ export default {
             text: "",
             is: RecordHistory,
             profile: this.activeProfile,
-            class:"record-history",
+            class: "record-history",
           }
         )
         const config = useConfigStore()
-        if (config.returnUrls.displayLCOnlyFeatures){
+        if (config.returnUrls.displayLCOnlyFeatures) {
           menuButtonSubMenu.push(
             {
               text: 'LC Marva Manual',
@@ -274,7 +274,7 @@ export default {
                 // const routeData = window.open('https://libgov-my.sharepoint.com/personal/pfrank_lib_loc_gov/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fpfrank%5Flib%5Floc%5Fgov%2FDocuments%2FMarva%2DManual%2DShare%2FLibrary%2Dof%2DCongress%2DMarva%2DQuartz%2DUser%2DManual%2Epdf&parent=%2Fpersonal%2Fpfrank%5Flib%5Floc%5Fgov%2FDocuments%2FMarva%2DManual%2DShare')
                 const routeData = window.open('https://www.loc.gov/catworkshop/bibframe/Library-of-Congress-Marva-Quartz-User-Manual.pdf')
               },
-              icon:"📄"
+              icon: "📄"
             }
           )
         }
@@ -293,7 +293,7 @@ export default {
 
       if (!this.disable.includes('Menu')) {
         menu.push(
-          { text: "Menu", menu: menuButtonSubMenu}
+          { text: "Menu", menu: menuButtonSubMenu }
         )
       }
 
@@ -730,86 +730,13 @@ export default {
                 for (let rt in this.activeProfile.rt) {
                   let type = rt.split(':').slice(-1)[0]
                   let url = this.activeProfile.rt[rt].URI
-                  if (type == 'Instance') {
-                    bibId = url.split("/")[url.split('/').length - 1]
-                  }
+                  bibId = url.split("/")[url.split('/').length - 1]
                 }
                 window.open(url + bibId)
               },
               class: (this.activeProfilePosted || this.isStaging() || (this.activeProfile && this.activeProfile.status && this.activeProfile.status == 'published')) ? "record-posted-folio-ok" : "record-unposted-folio-no",
             }
           )
-          }
-
-        // anything after this point will  be on the right of nav menu
-        menu.push({ is: "spacer" })
-
-        if (useConfigStore().returnUrls.isBibframeDotOrg && this.$route.path.startsWith('/edit/')){
-          menu.push(
-          {
-              text: 'Download MARC',
-              click: () => {
-                this.profileStore.downloadBFDotOrg('marc')
-
-              }
-          }
-          )
-          menu.push(
-          {
-              text: 'Download BF',
-              click: () => {
-                this.profileStore.downloadBFDotOrg('bf')
-
-              }
-          }
-          )
-
-        }
-
-
-        if (config.returnUrls.dancerEnabled){
-          let dancerMenuItems = []
-          const currentWorkspace = window.localStorage.getItem('marva-dancerWorkspace')
-
-          for (let workspace of this.dancerWorkspaces) {
-            dancerMenuItems.push({
-              text: workspace.name,
-              icon: currentWorkspace === workspace.id ? 'check' : '',
-              click: () => {
-                window.localStorage.setItem('marva-dancerWorkspace', workspace.id)
-                window.location.reload()
-              }
-            })
-          }
-
-          if (dancerMenuItems.length === 0) {
-            dancerMenuItems.push({
-              text: 'Loading workspaces...',
-              disabled: true
-            })
-          }
-
-          // Add Legacy Profiles option at the bottom
-          dancerMenuItems.push({
-            text: 'Legacy Profiles',
-            icon: !currentWorkspace ? 'check' : '',
-            click: () => {
-              window.localStorage.removeItem('marva-dancerWorkspace')
-              window.location.reload()
-            }
-          })
-
-          // Find the current workspace name
-          let currentWorkspaceName = 'Legacy'
-          const selectedWorkspace = this.dancerWorkspaces.find(w => w.id === currentWorkspace)
-          if (selectedWorkspace) {
-            currentWorkspaceName = selectedWorkspace.name.substring(0, 10)
-          }
-
-          menu.push({
-            text: 'DCTap: ' + currentWorkspaceName,
-            menu: dancerMenuItems
-          })
         }
       }
 
@@ -818,7 +745,8 @@ export default {
           {
             text: "Profile: " + this.activeProfile.id,
             class: "current-profile",
-          },
+
+          }
         )
       }
 
@@ -829,7 +757,7 @@ export default {
             text: "",
             is: RecordHistory,
             profile: this.activeProfile,
-            class:"record-history",
+            class: "record-history",
           }
         )
 
@@ -867,8 +795,81 @@ export default {
             }
           }
         )
-      // Put Copy Mode options below the main menu
-      if (this.preferenceStore.copyMode && this.$route.path.startsWith('/edit/')) {
+
+      }
+
+
+      if (config.returnUrls.dancerEnabled) {
+        let dancerMenuItems = []
+        const currentWorkspace = window.localStorage.getItem('marva-dancerWorkspace')
+
+        for (let workspace of this.dancerWorkspaces) {
+          dancerMenuItems.push({
+            text: workspace.name,
+            icon: currentWorkspace === workspace.id ? 'check' : '',
+            click: () => {
+              window.localStorage.setItem('marva-dancerWorkspace', workspace.id)
+              window.location.reload()
+            }
+          })
+        }
+
+        if (dancerMenuItems.length === 0) {
+          dancerMenuItems.push({
+            text: 'Loading workspaces...',
+            disabled: true
+          })
+        }
+
+        // Add Legacy Profiles option at the bottom
+        dancerMenuItems.push({
+          text: 'Legacy Profiles',
+          icon: !currentWorkspace ? 'check' : '',
+          click: () => {
+            window.localStorage.removeItem('marva-dancerWorkspace')
+            window.location.reload()
+          }
+        })
+
+        // Find the current workspace name
+        let currentWorkspaceName = 'Legacy'
+        const selectedWorkspace = this.dancerWorkspaces.find(w => w.id === currentWorkspace)
+        if (selectedWorkspace) {
+          currentWorkspaceName = selectedWorkspace.name.substring(0, 10)
+        }
+
+        menu.push({
+          text: 'DCTap: ' + currentWorkspaceName,
+          menu: dancerMenuItems
+        })
+      }
+
+
+
+      // anything after this point will  be on the right of nav menu
+      menu.push({ is: "spacer" })
+
+      if (useConfigStore().returnUrls.isBibframeDotOrg && this.$route.path.startsWith('/edit/')) {
+        menu.push(
+          {
+            text: 'Download MARC',
+            click: () => {
+              this.profileStore.downloadBFDotOrg('marc')
+
+            }
+          }
+        )
+        menu.push(
+          {
+            text: 'Download BF',
+            click: () => {
+              this.profileStore.downloadBFDotOrg('bf')
+
+            }
+          }
+        )
+        // Put Copy Mode options below the main menu
+        if (this.preferenceStore.copyMode && this.$route.path.startsWith('/edit/')) {
           botMenu.push(
             {
               text: "Copy Selected",
@@ -917,13 +918,13 @@ export default {
           )
         }
 
-      if (this.preferenceStore.copyMode && this.$route.path.startsWith('/edit/')) {
-        return [
-          menu,
-          botMenu
-        ]
-      }
-      return [menu]
+        if (this.preferenceStore.copyMode && this.$route.path.startsWith('/edit/')) {
+          return [
+            menu,
+            botMenu
+          ]
+        }
+        return [menu]
 
 
       }
@@ -961,53 +962,53 @@ export default {
 
       // Put Copy Mode options below the main menu
       if (this.preferenceStore.copyMode) {
-          botMenu.push(
-            {
-              text: "Copy Selected",
-              icon: "content_copy",
-              id: "copy-selected-button",
-              click: () => {
-                this.$nextTick(() => {
-                  this.profileStore.copySelected()
-                })
-              }
-            },
-            {
-              text: "Paste Content",
-              icon: "content_paste",
-              click: () => {
-                this.$nextTick(() => {
-                  this.profileStore.pasteSelected()
-                })
-              }
-            },
-            {
-              text: "Cut Selected",
-              icon: "content_cut",
-              click: () => {
-                this.$nextTick(() => {
-                  this.profileStore.copySelected(true)
-                })
-              }
-            },
-          )
-
-          botMenu.push(
-
-          )
-
-          botMenu.push(
-            {
-              text: !this.allSelected ? "Select All" : "Deselect All",
-              icon: !this.allSelected ? "select_all" : "deselect",
-              click: () => {
-                this.$nextTick(() => {
-                  this.selectAll()
-                })
-              }
+        botMenu.push(
+          {
+            text: "Copy Selected",
+            icon: "content_copy",
+            id: "copy-selected-button",
+            click: () => {
+              this.$nextTick(() => {
+                this.profileStore.copySelected()
+              })
             }
-          )
-        }
+          },
+          {
+            text: "Paste Content",
+            icon: "content_paste",
+            click: () => {
+              this.$nextTick(() => {
+                this.profileStore.pasteSelected()
+              })
+            }
+          },
+          {
+            text: "Cut Selected",
+            icon: "content_cut",
+            click: () => {
+              this.$nextTick(() => {
+                this.profileStore.copySelected(true)
+              })
+            }
+          },
+        )
+
+        botMenu.push(
+
+        )
+
+        botMenu.push(
+          {
+            text: !this.allSelected ? "Select All" : "Deselect All",
+            icon: !this.allSelected ? "select_all" : "deselect",
+            click: () => {
+              this.$nextTick(() => {
+                this.selectAll()
+              })
+            }
+          }
+        )
+      }
 
       if (this.preferenceStore.copyMode && this.$route.path.startsWith('/edit/')) {
         return [
@@ -1019,8 +1020,6 @@ export default {
 
 
     }
-
-
 
   },
 
@@ -1366,22 +1365,22 @@ export default {
       }
     },
 
-    fetchDancerWorkspaces: async function() {
-        const config = useConfigStore()
-        if (!config.returnUrls.dancerEnabled || !config.returnUrls.dancerWorkspaceList) {
-          return
-        }
+    fetchDancerWorkspaces: async function () {
+      const config = useConfigStore()
+      if (!config.returnUrls.dancerEnabled || !config.returnUrls.dancerWorkspaceList) {
+        return
+      }
 
-        try {
-          const response = await fetch(config.returnUrls.dancerWorkspaceList)
-          const data = await response.json()
-          if (data.success && data.data) {
-            this.dancerWorkspaces = data.data
-          }
-        } catch (error) {
-          console.error('Failed to fetch dancer workspaces:', error)
+      try {
+        const response = await fetch(config.returnUrls.dancerWorkspaceList)
+        const data = await response.json()
+        if (data.success && data.data) {
+          this.dancerWorkspaces = data.data
         }
-      },
+      } catch (error) {
+        console.error('Failed to fetch dancer workspaces:', error)
+      }
+    },
 
     addAllDefaults: function () {
       for (let rt in this.activeProfile.rt) {
@@ -1459,10 +1458,10 @@ export default {
     }
   },
 
-    mounted() {
-      this.fetchDancerWorkspaces()
-    }
+  mounted() {
+    this.fetchDancerWorkspaces()
   }
+}
 
 
 
@@ -1500,22 +1499,23 @@ export default {
   /* --bar-menu-item-hover-bkg: rgb(241, 243, 244); */
   --bar-menu-item-hover-bkg: rgb(26, 115, 232);
 
-      --bar-menu-item-padding: 5px 8px 5px 35px;
-      --bar-menu-item-icon-size: 15px;
-      --bar-menu-item-icon-margin: 0 9px 0 -25px;
-      --bar-menu-padding: 6px 1px;
-      --bar-menu-shadow: 0 2px 6px 2px rgba(60, 64, 67, 0.15);
-      --bar-menu-separator-height: 1px;
-      --bar-menu-separator-margin: 5px 0 5px 34px;
-      --bar-menu-separator-color: rgb(227, 229, 233);
-      --bar-separator-color: rgb(218, 220, 224);
-      --bar-separator-width: 1px;
-      --bar-sub-menu-border-radius: 3px;
-    }
-    .bars > .bar:first-child {
-      border-bottom: 1px solid rgb(218, 220, 224);
-      /* margin-bottom: 3px; */
-    }
+  --bar-menu-item-padding: 5px 8px 5px 35px;
+  --bar-menu-item-icon-size: 15px;
+  --bar-menu-item-icon-margin: 0 9px 0 -25px;
+  --bar-menu-padding: 6px 1px;
+  --bar-menu-shadow: 0 2px 6px 2px rgba(60, 64, 67, 0.15);
+  --bar-menu-separator-height: 1px;
+  --bar-menu-separator-margin: 5px 0 5px 34px;
+  --bar-menu-separator-color: rgb(227, 229, 233);
+  --bar-separator-color: rgb(218, 220, 224);
+  --bar-separator-width: 1px;
+  --bar-sub-menu-border-radius: 3px;
+}
+
+.bars>.bar:first-child {
+  border-bottom: 1px solid rgb(218, 220, 224);
+  /* margin-bottom: 3px; */
+}
 
 .bars>.bar:fist-child {
   border-bottom: 1px solid rgb(218, 220, 224);
