@@ -167,7 +167,8 @@ export default {
             }
 
             this.history = await utilsNetwork.recordHistory(this.recordId)
-            if (this.history.error) {
+
+            if (this.history.error || !this.history) {
                 this.error = true
             } else {
                 let historyJSON = JSON.parse(this.history.history)

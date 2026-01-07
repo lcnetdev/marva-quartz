@@ -313,9 +313,9 @@ const utilsNetwork = {
       }
       // console.log("url:",url)
       // console.log('options:',options)
+      let data = null
       try{
         let response = await fetch(url,options);
-        let data = null
         if (response.status == 404){
           return false
         }
@@ -333,6 +333,7 @@ const utilsNetwork = {
           // console.error("There was an error retriving the record from ", url, ". Likely from the search being aborted because the user was typing.");
         }else{
           console.error(err)
+          console.error("data: ", data)
         }
         return false
         // Handle errors here
@@ -426,10 +427,13 @@ const utilsNetwork = {
     },
 
     recordHistory: async function(bibid){
-      let returnUrls = useConfigStore().returnUrls
-      let r = await fetch(returnUrls.util + 'history' + '/' + bibid)
-      let data = await r.json()
-      return data
+      if (bibid){
+        let returnUrls = useConfigStore().returnUrls
+        let r = await fetch(returnUrls.util + 'history' + '/' + bibid)
+        let data = await r.json()
+        return data
+      }
+      return false
     },
 
     searchLccn: async function name(lccn) {
