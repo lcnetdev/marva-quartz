@@ -59,7 +59,7 @@ test('Build heading "Dogs--History" with correct XML and MARC', async ({ page })
     await expect(page.getByRole('heading')).toContainText('sh85038796');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--history');
-    await page.getByText('History', { exact: true }).first().click();
+    await page.getByText('History', { exact: true }).nth(1).click();
     await expect(page.getByRole('heading')).toContainText('sh99005024');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
@@ -114,7 +114,7 @@ test('add subdivision to a complex heading with correct XML and MARC', async ({ 
     await expect(page.getByRole('heading')).toContainText('sh85146353');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Whales‑‑Anatomy--history');
-    await page.getByText('History', { exact: true }).first().click();
+    await page.getByText('History', { exact: true }).nth(1).click();
     await expect(page.getByRole('heading')).toContainText('sh99005024');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
@@ -142,7 +142,7 @@ test('Write the entire string before validation', async ({ page }) => {
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAF' }).getByRole('textbox').click();
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('d');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('dogs--portugal--porto--history');
-    await page.getByText('History', { exact: true }).first().click();
+    await page.getByText('History', { exact: true }).nth(1).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).click();
     // playwright plugin does not work well with the mouse
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('ControlOrMeta+ArrowLeft');
@@ -191,7 +191,7 @@ test('Validate string as each piece is written', async ({ page }) => {
     await page.getByText('Portugal--Porto', { exact: true }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+1');  // clicking doesn't work for some reason
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Dogs--Portugal‑‑Porto--history');
-    await page.getByText('History', { exact: true }).first().click();
+    await page.getByText('History', { exact: true }).nth(1).click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
     await expect(page.locator('#app')).toContainText('Dogs--Portugal--Porto--History');
