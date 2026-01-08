@@ -76,7 +76,7 @@
 
             <template v-for="(lang,index) in scriptShifterOptionsForMenu">
 
-                <button      class="" :id="`action-button-command-${fieldGuid}-${index + 7}`"  @click="$emit('actionButtonCommand', 'trans', {lang:lang.lang,dir:lang.dir, fieldGuid: fieldGuid} )" :style="buttonStyle">
+                <button      class="" :id="`action-button-command-${fieldGuid}-${index + 7}`"  @click="$emit('actionButtonCommand', 'trans', {lang:lang.lang,dir:lang.dir, fieldGuid: fieldGuid, actionButtonIndex: index + 7, event:$event} )" :style="buttonStyle">
                   <span v-if="index<3" class="button-shortcut-label">{{index + 7}}</span>
                   <span class="material-icons icon" style="font-size:95%; vertical-align: middle; padding-right: 5px;">translate</span><span>{{ lang.label||lang.name }}</span>
 
@@ -510,7 +510,13 @@
 
           let buttonToClick = document.getElementById(`action-button-command-${this.fieldGuid}-${event.key}`)
           if (buttonToClick){
+            //set the dataset to indicate this was a shortcut key activation
+            buttonToClick.dataset.shortcutActivated = 'true'           
             buttonToClick.click()
+            window.setTimeout(()=>{
+              // give it a moment to process the emit and read the event in the parent element
+              delete buttonToClick.dataset.shortcutActivated
+            },1000)
             this.isMenuShown=false
             this.sendFocusHome()
           }

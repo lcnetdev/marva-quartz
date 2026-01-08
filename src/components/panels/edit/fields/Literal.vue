@@ -964,6 +964,17 @@ export default {
       if (cmd == 'trans'){
 
         let fieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] == options.fieldGuid) })
+
+        if (options.event && options.event?.target?.dataset?.shortcutActivated == 'true'){
+          // check if the string value (fieldValue[0].value) ends with a single digit number
+          if (/[0-9]$/.test(fieldValue[0].value)){
+            // check if it is the same number used as the shortcut (options.actionButtonIndex)
+            if (fieldValue[0].value.endsWith('' + options.actionButtonIndex)){
+              // remove the last digit from the string
+              fieldValue[0].value = fieldValue[0].value.slice(0, -1);
+            }          
+          }
+        }
         let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
 
 
@@ -978,6 +989,8 @@ export default {
           }
 
         }
+
+        console.log("index number pressed is:", options.actionButtonIndex)
 
         // add the new string
         this.profileStore.setValueLiteral(this.guid,short.generate(),this.propertyPath,transValue.output,toLang,true)
