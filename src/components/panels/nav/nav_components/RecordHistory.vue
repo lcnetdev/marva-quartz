@@ -17,7 +17,7 @@
                 <table class="history">
                     <thead>
                         <tr>
-                            <th>Date</th>
+                            <th>Date<button class="material-icons sort-button" @click="sortHistory()">{{ desc ? 'arrow_drop_down' : 'arrow_drop_up'}}</button></th>
                             <th>EncLvl</th>
                             <th>Type</th>
                             <th>Comment</th>
@@ -91,6 +91,7 @@ export default {
             authentication: [],
             history: {},
             error: false,
+            desc: true,
         }
     },
     props: {
@@ -99,6 +100,10 @@ export default {
 
 
     methods: {
+        sortHistory: function(){
+            this.adminMetadata = this.adminMetadata.reverse()
+            this.desc = !this.desc
+        },
         setCommentString: function (data) {
             let seeAlso = data.seeAlso.value
             let string = data.comment.value
@@ -277,6 +282,10 @@ tr:nth-child(odd) {
 
 strong {
     font-weight: bold;
+}
+
+.sort-button {
+    font-size: 12px;
 }
 </style>
 
