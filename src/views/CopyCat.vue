@@ -291,8 +291,7 @@ export default {
       points.push({ "name": "HUB", "work": null, "instance": "lc:RT:bf2:HubBasic:Hub", "item": null },)
 
       return points
-    }
-
+    },
 
   },
 
@@ -678,7 +677,12 @@ export default {
       if (this.existingLCCN || this.existingISBN) {
         recordId = bibId
       } else {
-        recordId = marva001
+        if (useConfigStore().returnUrls.env != 'production'){
+          recordId = marva001
+          console.info("eNumber: ", this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, ''))
+        } else {
+          recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
+        }
       }
 
       console.info("recordId: ", recordId)
@@ -774,15 +778,6 @@ export default {
       // setup the log and set the procinfo so the post process knows what to do with this record
       useProfile.log.push({ action: 'loadInstance', from: this.urlToLoad })
       useProfile.procInfo = "update instance"
-
-      // also give it an ID for storage
-      if (!useProfile.eId) {
-        // let uuid = 'e' + decimalTranslator.new()
-        // uuid = uuid.substring(0, 8)
-        let uuid = 'e' + Date.now().toString()
-        useProfile.eId = uuid
-        useProfile.neweId = true
-      }
 
       if (!useProfile.user) {
         useProfile.user = this.preferenceStore.returnUserNameForSaving
