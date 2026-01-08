@@ -779,6 +779,15 @@ export default {
       useProfile.log.push({ action: 'loadInstance', from: this.urlToLoad })
       useProfile.procInfo = "update instance"
 
+      // also give it an ID for storage
+      if (!useProfile.eId) {
+        // let uuid = 'e' + decimalTranslator.new()
+        // uuid = uuid.substring(0, 8)
+        let uuid = 'e' + Date.now().toString()
+        useProfile.eId = uuid
+        useProfile.neweId = true
+      }
+
       if (!useProfile.user) {
         useProfile.user = this.preferenceStore.returnUserNameForSaving
       }
