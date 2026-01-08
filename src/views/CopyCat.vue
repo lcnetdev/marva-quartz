@@ -291,8 +291,7 @@ export default {
       points.push({ "name": "HUB", "work": null, "instance": "lc:RT:bf2:HubBasic:Hub", "item": null },)
 
       return points
-    }
-
+    },
 
   },
 
@@ -678,7 +677,12 @@ export default {
       if (this.existingLCCN || this.existingISBN) {
         recordId = bibId
       } else {
-        recordId = marva001
+        if (useConfigStore().returnUrls.env != 'production'){
+          recordId = marva001
+          console.info("eNumber: ", this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, ''))
+        } else {
+          recordId = this.responseURL.split("/").at(-1).replaceAll(/\.[^/.]+/g, '')
+        }
       }
 
       console.info("recordId: ", recordId)
