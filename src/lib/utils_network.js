@@ -2804,6 +2804,8 @@ const utilsNetwork = {
 
       // don't surface GenreForm headings
       resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((hd) => ((hd.extra && !hd.extra.collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")) || hd.literal) )
+      console.info("Complex: ", JSON.parse(JSON.stringify(complexHeadings)))
+      complexHeadings = complexHeadings.filter((hd) => ((hd.extra && !hd.extra.collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")) || hd.literal) )
 
 
       if (complexVal.includes("--")){
@@ -2820,6 +2822,8 @@ const utilsNetwork = {
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
         'exact': exact
       }
+
+      console.info("results: ", results)
 
       this.subjectSearchActive = false
 
