@@ -29,18 +29,18 @@
                         <!-- <td>
                             {{ event.date.value }}
                         </td> -->
-                        <td v-html="buildHTMLdate(event.date.value)"></td>
+                        <td v-html="buildHTMLdate(event.date.value)" class="left-align no-wrap"></td>
 
                         <td v-if="event.encodingLevel">
                             {{ event.encodingLevel.value }}
                         </td>
                         <td v-else></td>
 
-                        <td v-if="event.label">
+                        <td v-if="event.label" class="left-align">
                             {{ event.label.value }}
                         </td>
                         <td v-else></td>
-                        <td v-if="event.comment">
+                        <td v-if="event.comment" class="left-align">
                             <span v-if="event.seeAlso" v-html="setCommentString(event)">
                             </span>
                             <span v-else>
@@ -255,7 +255,7 @@ export default {
 
 .history {
     border: 1px solid black;
-    table-layout: fixed;
+    table-layout: auto;
     width: 735px;
 }
 
@@ -266,6 +266,15 @@ export default {
 
 .history tr {
     text-align: center;
+}
+
+.left-align {
+    text-align: left;
+    padding: 5px;
+}
+
+.no-wrap {
+    white-space: nowrap;
 }
 
 tr th {
