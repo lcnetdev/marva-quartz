@@ -110,9 +110,7 @@ export default {
                 let dateParts = date.split("T")
                 let day = dateParts[0]
                 let time = dateParts[1]
-                console.info("time: ", time)
                 if (time.length > 8){
-                    console.info("slicing")
                     time = time.slice(0, 8)
                 }
                 date = day + "<br>" + time
