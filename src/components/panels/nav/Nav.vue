@@ -218,19 +218,6 @@ export default {
         }
       )
 
-      const config = useConfigStore()
-      if (config.returnUrls.displayLCOnlyFeatures) {
-        menuButtonSubMenu.push(
-          {
-            text: 'LC Marva Manual',
-            click: () => {
-              const routeData = window.open('https://www.loc.gov/catworkshop/bibframe/Library-of-Congress-Marva-Quartz-User-Manual.pdf')
-            },
-            icon: "📄"
-          }
-        )
-      }
-
 
       if (this.$route.path.startsWith('/edit/')) {
         menuButtonSubMenu.push({ is: 'separator' })
