@@ -218,6 +218,8 @@ export default {
         }
       )
 
+      const config = useConfigStore()
+
 
       if (this.$route.path.startsWith('/edit/')) {
         menuButtonSubMenu.push({ is: 'separator' })
