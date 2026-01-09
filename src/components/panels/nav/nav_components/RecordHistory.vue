@@ -17,7 +17,7 @@
                 <table class="history">
                     <thead>
                         <tr>
-                            <th>Date</th>
+                            <th>Date<button class="material-icons sort-button" @click="sortHistory()">{{ desc ? 'arrow_drop_down' : 'arrow_drop_up'}}</button></th>
                             <th>EncLvl</th>
                             <th>Type</th>
                             <th>Comment</th>
@@ -26,20 +26,21 @@
                         </tr>
                     </thead>
                     <tr v-for="event in adminMetadata">
-                        <td>
+                        <!-- <td>
                             {{ event.date.value }}
-                        </td>
+                        </td> -->
+                        <td v-html="buildHTMLdate(event.date.value)" class="left-align no-wrap"></td>
 
                         <td v-if="event.encodingLevel">
                             {{ event.encodingLevel.value }}
                         </td>
                         <td v-else></td>
 
-                        <td v-if="event.label">
+                        <td v-if="event.label" class="left-align">
                             {{ event.label.value }}
                         </td>
                         <td v-else></td>
-                        <td v-if="event.comment">
+                        <td v-if="event.comment" class="left-align">
                             <span v-if="event.seeAlso" v-html="setCommentString(event)">
                             </span>
                             <span v-else>
@@ -91,6 +92,7 @@ export default {
             authentication: [],
             history: {},
             error: false,
+            desc: true,
         }
     },
     props: {
@@ -99,6 +101,24 @@ export default {
 
 
     methods: {
+        sortHistory: function(){
+            this.adminMetadata = this.adminMetadata.reverse()
+            this.desc = !this.desc
+        },
+        buildHTMLdate: function(date){
+            if (date.includes("T")){
+                let dateParts = date.split("T")
+                let day = dateParts[0]
+                let time = dateParts[1]
+                if (time.length > 8){
+                    time = time.slice(0, 8)
+                }
+                date = day + "<br>" + time
+            }
+
+            return date
+        },
+
         setCommentString: function (data) {
             let seeAlso = data.seeAlso.value
             let string = data.comment.value
@@ -235,7 +255,7 @@ export default {
 
 .history {
     border: 1px solid black;
-    table-layout: fixed;
+    table-layout: auto;
     width: 735px;
 }
 
@@ -246,6 +266,15 @@ export default {
 
 .history tr {
     text-align: center;
+}
+
+.left-align {
+    text-align: left;
+    padding: 5px;
+}
+
+.no-wrap {
+    white-space: nowrap;
 }
 
 tr th {
@@ -277,6 +306,10 @@ tr:nth-child(odd) {
 
 strong {
     font-weight: bold;
+}
+
+.sort-button {
+    font-size: 12px;
 }
 </style>
 

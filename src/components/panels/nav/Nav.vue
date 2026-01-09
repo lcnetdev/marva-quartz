@@ -168,8 +168,24 @@ export default {
       //   })
       // }
 
-
-
+        if (this.$route.path.includes('edit')){
+          menu.push({
+            icon: "home",
+            class: "panel-size-preset-button",
+            click: () => {
+              try {
+                this.$nextTick(() => {
+                  if (this.profileStore.copyCatMode) {
+                    this.profileStore.copyCatMode = false
+                  }
+                  this.$router.push('/load')
+                })
+              } catch {
+                // expected error :(
+              }
+            }
+          })
+        }
 
 
       let menuButtonSubMenu = [
