@@ -26,9 +26,10 @@
                         </tr>
                     </thead>
                     <tr v-for="event in adminMetadata">
-                        <td>
+                        <!-- <td>
                             {{ event.date.value }}
-                        </td>
+                        </td> -->
+                        <td v-html="buildHTMLdate(event.date.value)"></td>
 
                         <td v-if="event.encodingLevel">
                             {{ event.encodingLevel.value }}
@@ -104,6 +105,22 @@ export default {
             this.adminMetadata = this.adminMetadata.reverse()
             this.desc = !this.desc
         },
+        buildHTMLdate: function(date){
+            if (date.includes("T")){
+                let dateParts = date.split("T")
+                let day = dateParts[0]
+                let time = dateParts[1]
+                console.info("time: ", time)
+                if (time.length > 8){
+                    console.info("slicing")
+                    time = time.slice(0, 8)
+                }
+                date = day + "<br>" + time
+            }
+
+            return date
+        },
+
         setCommentString: function (data) {
             let seeAlso = data.seeAlso.value
             let string = data.comment.value
