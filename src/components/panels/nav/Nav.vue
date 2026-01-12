@@ -738,10 +738,6 @@ export default {
                   // if (this.activeProfile.marvaLocalId){
                   //   url = url.replace(this.activeProfile.eId, this.activeProfile.marvaLocalId)
                   // }
-                  if (!url.includes(this.activeProfile.eId)){
-                    let target = url.split("/").at(-1)
-                    url =  url.replace(target, this.activeProfile.eId)
-                  }
                   bibId = url.split("/")[url.split('/').length - 1]
                   break
                 }
