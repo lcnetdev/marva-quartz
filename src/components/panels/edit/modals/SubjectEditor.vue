@@ -2018,11 +2018,6 @@ export default {
         let splitString = this.subjectString.split('--')
         let splitStringLower = this.subjectString.toLowerCase().split('--')
 
-        console.info("splitString: ", splitString)
-        console.info("this.searchStringPos: ", this.searchStringPos)
-        console.info("idx: ", this.activeComponentIndex)
-
-
         // if the selected heading is made of parts of the search string
         let replacePos = []
 
