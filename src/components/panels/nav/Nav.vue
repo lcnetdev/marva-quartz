@@ -735,10 +735,11 @@ export default {
                 for (let rt in this.activeProfile.rt) {
                   let type = rt.split(':').slice(-1)[0]
                   let url = this.activeProfile.rt[rt].URI
-                  if (this.activeProfile.marvaLocalId){
-                    url = url.replace(this.activeProfile.eId, this.activeProfile.marvaLocalId)
-                  }
+                  // if (this.activeProfile.marvaLocalId){
+                  //   url = url.replace(this.activeProfile.eId, this.activeProfile.marvaLocalId)
+                  // }
                   bibId = url.split("/")[url.split('/').length - 1]
+                  break
                 }
                 window.open(url + bibId)
               },
