@@ -743,6 +743,7 @@ export default {
                     url =  url.replace(target, this.activeProfile.eId)
                   }
                   bibId = url.split("/")[url.split('/').length - 1]
+                  break
                 }
                 window.open(url + bibId)
               },
