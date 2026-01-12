@@ -2018,7 +2018,6 @@ export default {
         let splitString = this.subjectString.split('--')
         let splitStringLower = this.subjectString.toLowerCase().split('--')
 
-
         // if the selected heading is made of parts of the search string
         let replacePos = []
 
@@ -2034,6 +2033,8 @@ export default {
               for (let idx in set1) {
                 if (set2[idx].includes(set1[idx])) {
                   matches.push(true)
+                } else {
+                  matches.push(false)
                 }
               }
             }
