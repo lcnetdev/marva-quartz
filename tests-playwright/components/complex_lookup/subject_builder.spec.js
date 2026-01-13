@@ -466,17 +466,17 @@ test('Add a HUB heading wita subdivision, it has the correct XML', async ({ page
     await page.getByText('Euripides. Medea (Auth)').first().click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).press('Alt+ControlOrMeta+1');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Euripides. Medea--interviews');
-    await page.getByText('Interviews', { exact: true }).nth(1).click();
-    await expect(page.getByRole('dialog')).toContainText('GenreForm');
-    await expect(page.getByRole('heading')).toContainText('sh99001682');
+    await page.getByText('Interviews', { exact: true }).nth(0).click();
+    await expect(page.getByRole('dialog')).toContainText('Topic');
+    await expect(page.getByRole('heading')).toContainText('sh2010013210');
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
     await expect(page.locator('#app')).toContainText('Euripides. Medea--Interviews');
     await expect(page.locator('#app')).toContainText('Euripides. Medea');
     await expect(page.locator('#app')).toContainText('1000 $aEuripides.$tMedea');
     await expect(page.locator('#app')).toContainText('Interviews');
-    await expect(page.locator('#app')).toContainText('185 $vInterviews');
-    await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/subjects/sh99001682');
+    await expect(page.locator('#app')).toContainText('180 $xInterviews');
+    await expect(page.locator('#app')).toContainText('http://id.loc.gov/authorities/subjects/sh2010013210');
     await expect(page.locator('#app')).toContainText('http://id.loc.gov/resources/hubs/7b8475be-4aeb-83dc-7bf7-18a0dc7eae58');
 });
 
@@ -519,10 +519,10 @@ test('Add a literal and set type Genre, it has the correct XML', async ({ page }
     await page.locator('form').filter({ hasText: 'Search LCSH/LCNAFbolt' }).getByRole('textbox').fill('l');
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('literal');
     await page.getByText('literal [Literal]').click();
-    await page.getByText('Genre ($v)').click();
+    await page.getByText('Topic / Heading ($a $x)').click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('<madsrdf:GenreFormxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
+    await expect(page.locator('#app')).toContainText('<madsrdf:Topicxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#">');
     await expect(page.locator('#app')).toContainText('<rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">');
     await expect(page.locator('#app')).toContainText('literal');
 });
@@ -692,10 +692,10 @@ test('Add a name with subdiv (simple) and check it has the correct XML', async (
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('twain, mark');
     await page.getByText('Twain, Mark, 1835-1910', { exact: true }).click();
     await page.getByRole('textbox', { name: 'Enter Subject Headings Here' }).fill('Twain, Mark, 1835‑1910--interviews');
-    await page.getByText('Interviews', { exact: true }).nth(1).click();
+    await page.getByText('Interviews', { exact: true }).nth(0).click();
     await page.getByRole('button', { name: 'Add [SHIFT+Enter]' }).click();
     await page.getByText('bf:Work').click();
-    await expect(page.locator('#app')).toContainText('<bf:subject><madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"><madsrdf:isMemberOfMADSSchemerdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910--Interviews</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Twain, Mark, 1835-1910--Interviews</rdfs:label><madsrdf:componentListrdf:parseType="Collection"><madsrdf:PersonalNamerdf:about="http://id.loc.gov/authorities/names/n79021164"><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aTwain, Mark,$d1835-1910</bflc:marcKey></madsrdf:PersonalName><madsrdf:GenreFormrdf:about="http://id.loc.gov/authorities/subjects/sh99001682"><madsrdf:authoritativeLabel>Interviews</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">185 $vInterviews</bflc:marcKey></madsrdf:GenreForm></madsrdf:componentList><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>');
+    await expect(page.locator('#app')).toContainText('<bf:subject><madsrdf:ComplexSubjectxmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#"><madsrdf:isMemberOfMADSSchemerdf:resource="http://id.loc.gov/authorities/subjects" /><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910--Interviews</madsrdf:authoritativeLabel><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Twain, Mark, 1835-1910--Interviews</rdfs:label><madsrdf:componentListrdf:parseType="Collection"><madsrdf:PersonalNamerdf:about="http://id.loc.gov/authorities/names/n79021164"><madsrdf:authoritativeLabel>Twain, Mark, 1835-1910</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">1001 $aTwain, Mark,$d1835-1910</bflc:marcKey></madsrdf:PersonalName><madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh2010013210"><madsrdf:authoritativeLabel>Interviews</madsrdf:authoritativeLabel><bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">180 $xInterviews</bflc:marcKey></madsrdf:Topic></madsrdf:componentList><bf:source><bf:Sourcerdf:about="http://id.loc.gov/vocabulary/subjectSchemes/lcsh"><rdfs:labelxmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">Library of Congress subject headings</rdfs:label></bf:Source></bf:source></madsrdf:ComplexSubject></bf:subject>');
 });
 
 // jurisdiction
@@ -739,9 +739,9 @@ test('Able to add an edited subject', async ({ page }) => {
     await expect(page.locator('#app')).toContainText('<madsrdf:authoritativeLabel>Public schools--Austria--History--18th century--Congresses</madsrdf:authoritativeLabel>');
     await expect(page.locator('#app')).toContainText('<madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh85108801">');
     await expect(page.locator('#app')).toContainText('<bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">150  $aPublic schools</bflc:marcKey>');
-    await expect(page.locator('#app')).toContainText('<madsrdf:GenreFormrdf:about="http://id.loc.gov/authorities/subjects/sh99001533">');
+    await expect(page.locator('#app')).toContainText('<madsrdf:Topicrdf:about="http://id.loc.gov/authorities/subjects/sh99001964">');
     await expect(page.locator('#app')).toContainText('<madsrdf:authoritativeLabel>Congresses</madsrdf:authoritativeLabel>');
-    await expect(page.locator('#app')).toContainText('bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">185  $vCongresses</bflc:marcKey>');
+    await expect(page.locator('#app')).toContainText('bflc:marcKeyxmlns:bflc="http://id.loc.gov/ontologies/bflc/">180  $xCongresses</bflc:marcKey>');
 });
 
 
