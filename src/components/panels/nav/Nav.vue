@@ -1609,4 +1609,9 @@ export default {
   width: 100vw;
   height: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-height', true) - 1 + 'px'");
 }
+
+.bar :deep(.bar-menu) > .extended-hover-zone {
+  top: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-height', true) - 35 + 'px'")
+}
+
 </style>
