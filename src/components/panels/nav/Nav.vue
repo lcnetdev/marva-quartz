@@ -1539,6 +1539,7 @@ export default {
 .bar-menu-items {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-background-color')") !important;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
+  padding: unset !important;
 }
 
 
@@ -1609,4 +1610,9 @@ export default {
   width: 100vw;
   height: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-height', true) - 1 + 'px'");
 }
+
+.bar :deep(.bar-menu) > .extended-hover-zone {
+  top: v-bind("preferenceStore.returnValue('--n-edit-main-splitpane-nav-height', true) - 35 + 'px'")
+}
+
 </style>
