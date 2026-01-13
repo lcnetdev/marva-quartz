@@ -1539,7 +1539,6 @@ export default {
 .bar-menu-items {
   background-color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-background-color')") !important;
   color: v-bind("preferenceStore.returnValue('--c-edit-main-splitpane-nav-font-color')") !important;
-  padding: unset !important;
 }
 
 
