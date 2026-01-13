@@ -2034,6 +2034,8 @@ export default {
               for (let idx in set1) {
                 if (set2[idx].includes(set1[idx])) {
                   matches.push(true)
+                } else {
+                  matches.push(false)
                 }
               }
             }
@@ -2098,8 +2100,6 @@ export default {
           this.pickLookup[k].picked = false
         }
         // complex headings are all topics (...probably)
-        console.info("idx: ", this.activeComponentIndex)
-        console.info("components: ", this.components)
         this.components[this.activeComponentIndex].type = 'madsrdf:Topic'
         this.pickLookup[this.pickPostion].picked = true
 

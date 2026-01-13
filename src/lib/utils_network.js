@@ -1818,8 +1818,6 @@ const utilsNetwork = {
           // resultsWorksAnchored = resultsWorksAnchored.filter((r)=>{ return (!r.literal) })
           resultsHubsAnchored = resultsHubsAnchored.filter((r)=>{ return (!r.literal) })
           // resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
-          // filter out GenreForm from subdivisions
-          resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((hd) => ((hd.extra && !hd.extra.collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")) || !hd.literal) )
           resultsChildren = resultsChildren.filter((r)=>{ return (!r.literal) })
           resultsChildrenSubDiv = resultsChildrenSubDiv.filter((r)=>{ return (!r.literal) })
 
@@ -2169,44 +2167,46 @@ const utilsNetwork = {
             }
 
 
-          } else if (heading.type === 'v'){ // Genre
-
-            [resultsGenre] = await Promise.all([
-                this.searchComplex(searchPayloadGenre)
-            ]);
-
-            // take out the literal values that are automatically added
-            resultsGenre = resultsGenre.filter((r)=>{ return (!r.literal) })
-            if (resultsGenre.length>0){
-              for (let r of resultsGenre){
-                // lower case, remove end space, make double whitespace into one and remove any punctuation
-                if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
-                  r.heading = heading
-                  result.hit.push(r)
-
-
-                  foundHeading = true
-                }
-              }
-              if (foundHeading){ continue }
-            }
-
-
-            if (!foundHeading){
-              // wasn't found, we need to make it a literal
-              result.hit.push(        {
-                label: heading.label,
-                suggestLabel: heading.label,
-                uri: null,
-                literal: true,
-                depreciated: false,
-                extra: '',
-                heading: heading
-              })
-            }
-
-
           }
+
+          // else if (heading.type === 'v'){ // Genre
+
+          //   [resultsGenre] = await Promise.all([
+          //       this.searchComplex(searchPayloadGenre)
+          //   ]);
+
+          //   // take out the literal values that are automatically added
+          //   resultsGenre = resultsGenre.filter((r)=>{ return (!r.literal) })
+          //   if (resultsGenre.length>0){
+          //     for (let r of resultsGenre){
+          //       // lower case, remove end space, make double whitespace into one and remove any punctuation
+          //       if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
+          //         r.heading = heading
+          //         result.hit.push(r)
+
+
+          //         foundHeading = true
+          //       }
+          //     }
+          //     if (foundHeading){ continue }
+          //   }
+
+
+          //   if (!foundHeading){
+          //     // wasn't found, we need to make it a literal
+          //     result.hit.push(        {
+          //       label: heading.label,
+          //       suggestLabel: heading.label,
+          //       uri: null,
+          //       literal: true,
+          //       depreciated: false,
+          //       extra: '',
+          //       heading: heading
+          //     })
+          //   }
+
+
+          // }
         }
       }
 
@@ -2803,12 +2803,6 @@ const utilsNetwork = {
         complexHeadings = resultsSubjectsComplex.concat(resultsSubjectsComplexSubdivision1)
       }
 
-      // don't surface GenreForm headings
-      // resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((hd) => ((hd.extra && !hd.extra.collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")) || hd.literal) )
-      // console.info("Complex: ", JSON.parse(JSON.stringify(complexHeadings)))
-      // complexHeadings = complexHeadings.filter((hd) => ((hd.extra && !hd.extra.collections.includes("http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions")) || hd.literal) )
-
-
       if (complexVal.includes("--")){
         resultsSubjectsSimple = resultsSubjectsSimpleComplex.concat(resultsSubjectsSimple)
         resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
@@ -2824,12 +2818,9 @@ const utilsNetwork = {
         'exact': exact
       }
 
-      console.info("results: ", results)
-
       this.subjectSearchActive = false
 
       return results
-
     },
 
     /**
