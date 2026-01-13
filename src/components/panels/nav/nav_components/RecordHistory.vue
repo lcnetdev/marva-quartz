@@ -261,7 +261,7 @@ export default {
 
 .table-container {
     overflow-y: scroll;
-    height: 65vh;
+    max-height: 65vh;
 }
 
 .history tr {
