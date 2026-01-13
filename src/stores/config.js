@@ -53,12 +53,12 @@ export const useConfigStore = defineStore('config', {
         // starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-prod/data.json',
 
         // offical stage profiles inside the firewall
-        starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
-        profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
+        // starting: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/starting/stage',
+        // profiles: 'https://preprod-3001.id.loc.gov/bfe2/util/profiles/profile/stage',
 
         // offical prod profiles inside the firewall
-        // starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
-        // profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
+        starting: 'https://editor.id.loc.gov/bfe2/util/profiles/starting/prod',
+        profiles: 'https://editor.id.loc.gov/bfe2/util/profiles/profile/prod',
 
 
         // worldCat: 'http://localhost:5200/worldcat/',
@@ -128,7 +128,7 @@ export const useConfigStore = defineStore('config', {
         dancerEnabled: true,
         dancerWorkspaceList: "https://editor.id.loc.gov/bfe2/dancer/api/serve/workspaces/",
 
-        
+
       },
 
       production:{
@@ -449,8 +449,8 @@ export const useConfigStore = defineStore('config', {
                     'LCSHAC All':{"url":"https://id.loc.gov/authorities/childrensSubjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
                 }
             ]
-     },
-     "http://id.loc.gov/bflists/intendedAudiences" : {
+    },
+    "http://id.loc.gov/bflists/intendedAudiences" : {
         "name":"intendedAudiences",
         "type":"complex",
         "processor" : 'lcAuthorities',
@@ -460,8 +460,8 @@ export const useConfigStore = defineStore('config', {
                 'MARC':{"url":"https://id.loc.gov/vocabulary/maudience/suggest2/?q=<QUERY>&count=10&offset=<OFFSET>", "all": true}
             }
         ]
-     },
-     "http://id.loc.gov/authorities/demographicTerms/collection_LCDGT_General" : {
+    },
+    "http://id.loc.gov/authorities/demographicTerms/collection_LCDGT_General" : {
         "name":"creatorCharacteristic",
         "type":"complex",
         "processor" : 'lcAuthorities',
@@ -470,7 +470,7 @@ export const useConfigStore = defineStore('config', {
                 'LCDGT':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all": true},
             }
         ]
-     },
+    },
     // "http://id.loc.gov/authorities/demographicTerms" : {"name":"demographicTerms", "type":"complex", "modes":[
     //   {
     //   'LCDGT All':{"url":"https://id.loc.gov/authorities/demographicTerms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
@@ -484,7 +484,6 @@ export const useConfigStore = defineStore('config', {
         {
           'LCGFT All':{"url":"https://id.loc.gov/authorities/genreForms/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
           'RBMS':{"url":"https://id.loc.gov/vocabulary/rbmscv/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>"},
-
         }
       ]
 
