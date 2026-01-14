@@ -709,6 +709,7 @@ export default {
 
       }
       // lccns are not short
+      console.info("URLtoLoad: ", this.urlToLoad)
       if (this.urlToLoad.length < 8) { return false }
 
       window.clearTimeout(this.lccnToSearchTimeout)
