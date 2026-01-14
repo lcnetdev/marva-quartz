@@ -709,7 +709,6 @@ export default {
 
       }
       // lccns are not short
-      console.info("URLtoLoad: ", this.urlToLoad)
       if (this.urlToLoad.length < 8) { return false }
 
       window.clearTimeout(this.lccnToSearchTimeout)
@@ -778,8 +777,6 @@ export default {
     },
 
     loadUrl: async function (useInstanceProfile, multiTestFlag) {
-      console.info("loading: ", useInstanceProfile)
-      console.info("active: ", JSON.parse(JSON.stringify(this.activeProfile)))
       console.log("useInstanceProfile", useInstanceProfile)
       let useLoadUrl = ''
       let marva001 = null
@@ -939,7 +936,6 @@ export default {
       if (useLoadUrl.trim() !== '') {
         let profileDataMerge = await utilsParse.transformRts(useProfile)
         this.activeProfile = profileDataMerge
-        console.info("active: ", JSON.parse(JSON.stringify(this.activeProfile)))
       } else {
         // if there is not url they are making it from scratch, so we need to link the instances and work together
         useProfile = utilsParse.linkInstancesWorks(useProfile)
@@ -1229,8 +1225,6 @@ export default {
         this.$router.push(`/multiedit/`)
         return true
       }
-
-      console.info("active: ", JSON.parse(JSON.stringify(this.activeProfile)))
 
       this.$router.push(`/edit/${useProfile.eId}`)
 
