@@ -1948,20 +1948,18 @@ const utilsParse = {
             }
           }
 
-          // 2026/01/14 Remove this. Only want the catID in the last piece of instance admin. That is added in util_export.js/buildXMLProcess()
           // if we're working on the primary admin field
-          // if (profile.rt[pkey].pt[key].adminMetadataType == 'primary'){
-          //   console.info("\n\nuserValue: ", userValue)
-          //   //if it doesnt already have a cataloger id use ours and is the Primary
-          //   if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
-          //     userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
-          //       {
-          //         "@guid": short.generate(),
-          //         "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
-          //       }
-          //     ]
-          //   }
-          // }
+          if (profile.rt[pkey].pt[key].adminMetadataType == 'primary'){
+            //if it doesnt already have a cataloger id use ours and is the Primary
+            if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
+              userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
+                {
+                  "@guid": short.generate(),
+                  "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
+                }
+              ]
+            }
+          }
 
         }
 
