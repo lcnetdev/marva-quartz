@@ -1876,7 +1876,6 @@ const utilsParse = {
 
       let adminMedtataPrimary = null
       let adminMedtataSecondary = []
-      let lastAdmin = null
       for (let key in profile.rt[pkey].pt){
         // populate the admin data
         if (profile.rt[pkey].pt[key].propertyURI == 'http://id.loc.gov/ontologies/bibframe/adminMetadata'){
