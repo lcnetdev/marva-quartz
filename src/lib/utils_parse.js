@@ -1953,38 +1953,38 @@ const utilsParse = {
                 }
               ]
             }
-            // if (!userValue['http://id.loc.gov/ontologies/bibframe/agent']){
-            //   userValue['http://id.loc.gov/ontologies/bibframe/agent'] = [
-            //     {
-            //       "@guid": short.generate(),
-            //       "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
-            //       "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
-            //       "http://id.loc.gov/ontologies/bibframe/code": [
-            //         {
-            //           "@datatype": "http://id.loc.gov/datatypes/orgs/code",
-            //           "@guid": short.generate(),
-            //           "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC"
-            //         },
-            //         {
-            //           "@datatype": "http://id.loc.gov/datatypes/orgs/normalized",
-            //           "@guid": short.generate(),
-            //           "http://id.loc.gov/ontologies/bibframe/code": "dlcmrc"
-            //         },
-            //         {
-            //           "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511",
-            //           "@guid": short.generate(),
-            //           "http://id.loc.gov/ontologies/bibframe/code": "US-dlcmrc"
-            //         }
-            //       ],
-            //       "http://www.w3.org/2000/01/rdf-schema#label": [
-            //         {
-            //           "@guid": short.generate(),
-            //           "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congress, Network Development and MARC Standards Office"
-            //         }
-            //       ]
-            //     }
-            //   ]
-            // }
+            if (!userValue['http://id.loc.gov/ontologies/bibframe/agent']){
+              userValue['http://id.loc.gov/ontologies/bibframe/agent'] = [
+                {
+                  "@guid": short.generate(),
+                  "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
+                  "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
+                  "http://id.loc.gov/ontologies/bibframe/code": [
+                    {
+                      "@datatype": "http://id.loc.gov/datatypes/orgs/code",
+                      "@guid": short.generate(),
+                      "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC"
+                    },
+                    {
+                      "@datatype": "http://id.loc.gov/datatypes/orgs/normalized",
+                      "@guid": short.generate(),
+                      "http://id.loc.gov/ontologies/bibframe/code": "dlcmrc"
+                    },
+                    {
+                      "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511",
+                      "@guid": short.generate(),
+                      "http://id.loc.gov/ontologies/bibframe/code": "US-dlcmrc"
+                    }
+                  ],
+                  "http://www.w3.org/2000/01/rdf-schema#label": [
+                    {
+                      "@guid": short.generate(),
+                      "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congress, Network Development and MARC Standards Office"
+                    }
+                  ]
+                }
+              ]
+            }
           }
 
         }
