@@ -464,6 +464,7 @@ const utilsExport = {
   * @return {object} multiple XML strings
   */
   buildXMLProcess: async function(profile){
+	console.info("Profile: ", JSON.parse(JSON.stringify(profile)))
     // keep track of the proces for later
 	// let debugHistory = []
 	let xmlLog = []
@@ -1399,6 +1400,8 @@ const utilsExport = {
 		// let catCode = profile.user.split(" (")
 		// catCode = catCode[catCode.length-1]
 		// catCode=catCode.split(")")[0]
+
+		console.info("Building AdminXML")
 
 		let bf_adminMetadata = this.createElByBestNS("bf:adminMetadata")
 		let bf_AdminMetadtat = this.createElByBestNS("bf:AdminMetadata")

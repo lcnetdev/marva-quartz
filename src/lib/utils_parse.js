@@ -1874,26 +1874,20 @@ const utilsParse = {
       profile = this.groupSubjects(profile)
       this.buildPairedLiteralsIndicators(profile)
 
+      console.info("profile: ", JSON.parse(JSON.stringify(profile)))
+
       let adminMedtataPrimary = null
       let adminMedtataSecondary = []
       for (let key in profile.rt[pkey].pt){
         // populate the admin data
         if (profile.rt[pkey].pt[key].propertyURI == 'http://id.loc.gov/ontologies/bibframe/adminMetadata'){
+          console.info("key: ", key, "--", profile.rt[pkey].pt[key])
 
           if (!profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata']){
             profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'] = [{}]
           }
           let userValue = profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'][0]
-
-          // // if it doesnt already have a cataloger id use ours
-          if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
-            userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
-              {
-                "@guid": short.generate(),
-                "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
-              }
-            ]
-          }
+          console.info("UserValue: ", JSON.parse(JSON.stringify(userValue)))
 
           // // we need to set the procInfo, so use whatever we have in the profile
           // userValue['http://id.loc.gov/ontologies/bflc/procInfo'] = [
@@ -1948,6 +1942,51 @@ const utilsParse = {
 
             }
           }
+          // if we're working on the primary admin field
+          if (profile.rt[pkey].pt[key].adminMetadataType == 'primary'){
+            //if it doesnt already have a cataloger id use ours and is the Primary
+            if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
+              userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
+                {
+                  "@guid": short.generate(),
+                  "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
+                }
+              ]
+            }
+            // if (!userValue['http://id.loc.gov/ontologies/bibframe/agent']){
+            //   userValue['http://id.loc.gov/ontologies/bibframe/agent'] = [
+            //     {
+            //       "@guid": short.generate(),
+            //       "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
+            //       "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
+            //       "http://id.loc.gov/ontologies/bibframe/code": [
+            //         {
+            //           "@datatype": "http://id.loc.gov/datatypes/orgs/code",
+            //           "@guid": short.generate(),
+            //           "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC"
+            //         },
+            //         {
+            //           "@datatype": "http://id.loc.gov/datatypes/orgs/normalized",
+            //           "@guid": short.generate(),
+            //           "http://id.loc.gov/ontologies/bibframe/code": "dlcmrc"
+            //         },
+            //         {
+            //           "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511",
+            //           "@guid": short.generate(),
+            //           "http://id.loc.gov/ontologies/bibframe/code": "US-dlcmrc"
+            //         }
+            //       ],
+            //       "http://www.w3.org/2000/01/rdf-schema#label": [
+            //         {
+            //           "@guid": short.generate(),
+            //           "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congress, Network Development and MARC Standards Office"
+            //         }
+            //       ]
+            //     }
+            //   ]
+            // }
+          }
+
         }
 
         // if we have multiple types of adminMetadata we want to reorder them
@@ -2168,6 +2207,7 @@ const utilsParse = {
 
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
 
+    console.info("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
     return profile
 
 
