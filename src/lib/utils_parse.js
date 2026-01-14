@@ -1878,6 +1878,7 @@ const utilsParse = {
 
       let adminMedtataPrimary = null
       let adminMedtataSecondary = []
+      let lastAdmin = null
       for (let key in profile.rt[pkey].pt){
         // populate the admin data
         if (profile.rt[pkey].pt[key].propertyURI == 'http://id.loc.gov/ontologies/bibframe/adminMetadata'){
@@ -1887,7 +1888,11 @@ const utilsParse = {
             profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'] = [{}]
           }
           let userValue = profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'][0]
-          console.info("UserValue: ", JSON.parse(JSON.stringify(userValue)))
+          try {
+            console.info("UserValue Date: ", JSON.parse(JSON.stringify(userValue['http://id.loc.gov/ontologies/bibframe/date'][0]['http://id.loc.gov/ontologies/bibframe/date'])))
+          } catch(err){
+
+          }
 
           // // we need to set the procInfo, so use whatever we have in the profile
           // userValue['http://id.loc.gov/ontologies/bflc/procInfo'] = [
@@ -1909,7 +1914,7 @@ const utilsParse = {
             } else if (profile.rt[pkey].pt[key].parentId.includes(":Hub") && Object.keys(userValue).length > 7){
               profile.rt[pkey].pt[key].adminMetadataType = 'primary'
               adminMedtataPrimary = key
-            }else{
+            } else {
               profile.rt[pkey].pt[key].adminMetadataType = 'secondary'
 
               let useDate = "00000000"
@@ -1942,50 +1947,21 @@ const utilsParse = {
 
             }
           }
+
+          // 2026/01/14 Remove this. Only want the catID in the last piece of instance admin. That is added in util_export.js/buildXMLProcess()
           // if we're working on the primary admin field
-          if (profile.rt[pkey].pt[key].adminMetadataType == 'primary'){
-            //if it doesnt already have a cataloger id use ours and is the Primary
-            if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
-              userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
-                {
-                  "@guid": short.generate(),
-                  "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
-                }
-              ]
-            }
-            if (!userValue['http://id.loc.gov/ontologies/bibframe/agent']){
-              userValue['http://id.loc.gov/ontologies/bibframe/agent'] = [
-                {
-                  "@guid": short.generate(),
-                  "@id": "http://id.loc.gov/vocabulary/organizations/dlcmrc",
-                  "@type": "http://id.loc.gov/ontologies/bibframe/Organization",
-                  "http://id.loc.gov/ontologies/bibframe/code": [
-                    {
-                      "@datatype": "http://id.loc.gov/datatypes/orgs/code",
-                      "@guid": short.generate(),
-                      "http://id.loc.gov/ontologies/bibframe/code": "DLC-MRC"
-                    },
-                    {
-                      "@datatype": "http://id.loc.gov/datatypes/orgs/normalized",
-                      "@guid": short.generate(),
-                      "http://id.loc.gov/ontologies/bibframe/code": "dlcmrc"
-                    },
-                    {
-                      "@datatype": "http://id.loc.gov/datatypes/orgs/iso15511",
-                      "@guid": short.generate(),
-                      "http://id.loc.gov/ontologies/bibframe/code": "US-dlcmrc"
-                    }
-                  ],
-                  "http://www.w3.org/2000/01/rdf-schema#label": [
-                    {
-                      "@guid": short.generate(),
-                      "http://www.w3.org/2000/01/rdf-schema#label": "United States, Library of Congress, Network Development and MARC Standards Office"
-                    }
-                  ]
-                }
-              ]
-            }
-          }
+          // if (profile.rt[pkey].pt[key].adminMetadataType == 'primary'){
+          //   console.info("\n\nuserValue: ", userValue)
+          //   //if it doesnt already have a cataloger id use ours and is the Primary
+          //   if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
+          //     userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
+          //       {
+          //         "@guid": short.generate(),
+          //         "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
+          //       }
+          //     ]
+          //   }
+          // }
 
         }
 

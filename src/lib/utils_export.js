@@ -1424,6 +1424,19 @@ const utilsExport = {
 		let bf_date = this.createElByBestNS("bf:date")
 		bf_date.innerHTML = new Date().toISOString()
 
+		// Add agent
+		let bf_agent = this.createElByBestNS("bf:agent")
+		let bf_Agent = this.createElByBestNS("bf:Agent")
+		let bf_Agent_type = this.createElByBestNS("rdf:type")
+		bf_Agent_type.setAttributeNS(this.namespace.rdf, 'rdf:resource', 'http://id.loc.gov/ontologies/bibframe/Agent')
+		let bf_Agent_code = this.createElByBestNS("bf:code")
+		bf_Agent_code.innerHTML = "DLC"
+		bf_Agent.appendChild(bf_Agent_code)
+		bf_Agent.appendChild(bf_Agent_type)
+		bf_agent.appendChild(bf_Agent)
+		bf_AdminMetadtat.appendChild(bf_agent)
+
+
 		bf_AdminMetadtat.appendChild(bf_date)
 		bf_AdminMetadtat.appendChild(bf_catalogerId)
 
@@ -1802,7 +1815,7 @@ const utilsExport = {
 
 	let strBf2MarcXmlElBib = (new XMLSerializer()).serializeToString(bf2MarcXmlElRdf)
 
-	// console.info("strXmlBasic: ", strXmlBasic)
+	console.info("strXmlBasic: ", strXmlBasic)
 
 	return {
 		xmlDom: rdf,

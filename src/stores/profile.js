@@ -4790,6 +4790,7 @@ export const useProfileStore = defineStore('profile', {
         // console.log("this.activeProfilethis.activeProfilethis.activeProfile",this.activeProfile)
         // this will trigger the preview rebuild
         this.dataChangedTimestamp = Date.now()
+        console.info("\n>>>>>>>>>>>>\n>>>>>>>>>>>>Change time: ", this.dataChangedTimestamp)
         // console.log("Data changed, this.activeProfile", this.activeProfile)
         // if they have auto save on then save it also
         if (usePreferenceStore().returnValue('--b-general-auto-save')){
