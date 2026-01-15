@@ -925,7 +925,7 @@ const utilsExport = {
                                                     let pLvl4 = this.createElByBestNS(key3) // this was key2, was that a typo or is this going to break stuff?
 
 													// Build the note type correctly when it appears at this level, ensemble > mediumComponent > note
-													if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'){
+													if (key3 == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && userValue['@type'] != 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
 														let cont = this.buildNoteType(bnodeLvl3, userValue[key1][0][key2][0], key3, xmlLog)
 														if (cont){ continue }
 													}
