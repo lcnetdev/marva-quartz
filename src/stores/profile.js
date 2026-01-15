@@ -3316,6 +3316,7 @@ export const useProfileStore = defineStore('profile', {
     * @return {boolean} - did it save
     */
     saveRecord: async function(){
+      console.info("this.activeProfile: ", JSON.parse(JSON.stringify(this.activeProfile)))
       let xml = await utilsExport.buildXML(this.activeProfile)
       let saved = false
       if (!this.isTestEnv()){  //Don't try to save if in test env

@@ -336,6 +336,7 @@
 
 
         getBibId: function(){
+          console.info(">>>>", JSON.parse(JSON.stringify(this.activeProfile)))
             for (let rt in this.activeProfile.rt){
               let type = rt.split(':').slice(-1)[0]
               let url = this.activeProfile.rt[rt].URI
@@ -353,7 +354,12 @@
         //Add the BibId to the title
         populateTitle: function(){
             let eId = this.activeProfile.eId
-            let bibId = this.getBibId()
+            let bibId = null
+            try {
+              bibId = this.getBibId()
+            } catch(err){
+              bibId = eId
+            }
 
             if (bibId && eId != bibId){
                 document.title = `Marva | ${bibId}`;
@@ -444,7 +450,12 @@
     },
 
     updated: function(){
-      let bibId = this.getBibId()
+      let bibId = null
+      try {
+        bibId = this.getBibId()
+      } catch(err){
+        bibId = "???"
+      }
     // Add the ID to the title when loading from "Your Records"
       if (!document.title.includes(bibId)){
           this.populateTitle()
