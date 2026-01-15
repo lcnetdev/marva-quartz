@@ -1885,16 +1885,6 @@ const utilsParse = {
           }
           let userValue = profile.rt[pkey].pt[key].userValue['http://id.loc.gov/ontologies/bibframe/adminMetadata'][0]
 
-          // // if it doesnt already have a cataloger id use ours
-          if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
-            userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
-              {
-                "@guid": short.generate(),
-                "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
-              }
-            ]
-          }
-
           // // we need to set the procInfo, so use whatever we have in the profile
           // userValue['http://id.loc.gov/ontologies/bflc/procInfo'] = [
           //   {
@@ -1915,7 +1905,7 @@ const utilsParse = {
             } else if (profile.rt[pkey].pt[key].parentId.includes(":Hub") && Object.keys(userValue).length > 7){
               profile.rt[pkey].pt[key].adminMetadataType = 'primary'
               adminMedtataPrimary = key
-            }else{
+            } else {
               profile.rt[pkey].pt[key].adminMetadataType = 'secondary'
 
               let useDate = "00000000"
@@ -1948,6 +1938,20 @@ const utilsParse = {
 
             }
           }
+
+          // if we're working on the primary admin field
+          if (profile.rt[pkey].pt[key].adminMetadataType == 'primary'){
+            //if it doesnt already have a cataloger id use ours and is the Primary
+            if (!userValue['http://id.loc.gov/ontologies/bflc/catalogerId']){
+              userValue['http://id.loc.gov/ontologies/bflc/catalogerId'] = [
+                {
+                  "@guid": short.generate(),
+                  "http://id.loc.gov/ontologies/bflc/catalogerId": usePreferenceStore().catInitals
+                }
+              ]
+            }
+          }
+
         }
 
         // if we have multiple types of adminMetadata we want to reorder them
@@ -2169,10 +2173,6 @@ const utilsParse = {
     console.log("profileprofileprofileprofile",JSON.parse(JSON.stringify(profile)))
 
     return profile
-
-
-
-
   },
 
 

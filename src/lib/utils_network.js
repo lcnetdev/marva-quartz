@@ -3247,7 +3247,7 @@ const utilsNetwork = {
       // If there isn't one, make the adjustment
       const re = /^[a-z]{2}/g          // not sure if it's only every 2 characters
       const found = lccn.match(re)
-      if (found != null){
+      if (found != null && !lccn.startsWith('in')){ // records originating FOLIO and Marva have IDs starting `in`, allow searching on those IDs
         lccn = lccn.slice(0,2) + " " + lccn.slice(2)
       }
 
