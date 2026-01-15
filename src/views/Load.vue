@@ -708,8 +708,8 @@ export default {
         this.urlToLoadIsHttp = false
 
       }
-      // lccns are not short
-      if (this.urlToLoad.length < 8) { return false }
+      // lccns are not short, make this more permisive to work with smaller IDs
+      if (this.urlToLoad.length < 4) { return false }
 
       window.clearTimeout(this.lccnToSearchTimeout)
       this.searchByLccnResults = 'Searching...'
