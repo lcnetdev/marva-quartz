@@ -336,7 +336,6 @@
 
 
         getBibId: function(){
-          console.info(">>>>", JSON.parse(JSON.stringify(this.activeProfile)))
             for (let rt in this.activeProfile.rt){
               let type = rt.split(':').slice(-1)[0]
               let url = this.activeProfile.rt[rt].URI
