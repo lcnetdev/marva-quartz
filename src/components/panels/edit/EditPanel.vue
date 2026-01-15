@@ -354,12 +354,7 @@
         //Add the BibId to the title
         populateTitle: function(){
             let eId = this.activeProfile.eId
-            let bibId = null
-            try {
-              bibId = this.getBibId()
-            } catch(err){
-              bibId = eId
-            }
+            let bibId = this.getBibId()
 
             if (bibId && eId != bibId){
                 document.title = `Marva | ${bibId}`;
@@ -450,12 +445,8 @@
     },
 
     updated: function(){
-      let bibId = null
-      try {
-        bibId = this.getBibId()
-      } catch(err){
-        bibId = "???"
-      }
+      let bibId = this.getBibId()
+
     // Add the ID to the title when loading from "Your Records"
       if (!document.title.includes(bibId)){
           this.populateTitle()
