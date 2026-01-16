@@ -1279,7 +1279,7 @@ export default {
   },
 
   mounted: async function () {
-    console.info("mounted: ", window.location)
+    console.info("mounted: ", window.location.has)
     this.loadingRecord = false
     this.refreshSavedRecords()
     if (window.location.hash && window.location.hash == '#stats') {
@@ -1296,7 +1296,7 @@ export default {
     // this.defaultProfile = 'lc:RT:bf2:Monograph:Instance'
     this.defaultProfile = this.preferenceStore.returnValue('--s-general-default-profile')
 
-    if (window.location.href.includes('copycat=true')){
+    if (window.location.hash && window.location.hash =='#copycat'){
       this.profileStore.copyCatMode = true
     }
   },
