@@ -2,7 +2,7 @@
     <div class="container" @click="(e) => e.stopPropagation()"> <!-- keep the window open when clicking -->
         <div class="record-id">
             <strong>ID:</strong> <a :href="'https://id.loc.gov/resources/works/' + recordId" target="_blank">{{ recordId
-            }}</a>
+                }}</a>
             <br>
             <strong>Encoding Level:</strong> {{ encLvl }}
             <br>
@@ -17,7 +17,8 @@
                 <table class="history">
                     <thead>
                         <tr>
-                            <th>Date<button class="material-icons sort-button" @click="sortHistory()">{{ desc ? 'arrow_drop_down' : 'arrow_drop_up'}}</button></th>
+                            <th>Date<button class="material-icons sort-button" @click="sortHistory()">{{ desc ?
+                                    'arrow_drop_down' : 'arrow_drop_up'}}</button></th>
                             <th>EncLvl</th>
                             <th>Type</th>
                             <th>Comment</th>
@@ -101,16 +102,16 @@ export default {
 
 
     methods: {
-        sortHistory: function(){
+        sortHistory: function () {
             this.adminMetadata = this.adminMetadata.reverse()
             this.desc = !this.desc
         },
-        buildHTMLdate: function(date){
-            if (date.includes("T")){
+        buildHTMLdate: function (date) {
+            if (date.includes("T")) {
                 let dateParts = date.split("T")
                 let day = dateParts[0]
                 let time = dateParts[1]
-                if (time.length > 8){
+                if (time.length > 8) {
                     time = time.slice(0, 8)
                 }
                 date = day + "<br>" + time
@@ -141,47 +142,48 @@ export default {
         getAdminMetadata: async function () {
             let p = this.item.profile
             let work
+            let instance
             for (let rt in p.rt) {
                 if (rt.includes(":Work")) {
                     work = p.rt[rt]
                 }
+                if (rt.includes(":Instance")) {
+                    instance = p.rt[rt]
+                }
             }
             let admin = []
             let nines = []
-            for (let pt in work.pt) {
-                if (pt.includes('_adminmetadata')) {
-                    let target = work.pt[pt]
+            for (let pt in instance.pt) {
+                if (pt.includes('_adminmetadata')  && instance.pt[pt].adminMetadataType == 'primary') {
+
+                    let target = instance.pt[pt]
                     let userValue = target.userValue
                     let data = userValue["http://id.loc.gov/ontologies/bibframe/adminMetadata"][0]
                     let date
                     let status
 
+
                     try {
-                        status = data["http://id.loc.gov/ontologies/bibframe/status"][0]["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
-                    } catch {
-                        try {
-                            for (let thing in data) {
-                                if (thing.includes("/d9") && !thing.includes("/d955")) {
-                                    nines.push(data[thing][0][thing])
-                                }
+                        for (let thing in data) {
+                            if (thing.includes("/d9") && !thing.includes("/d955")) {
+                                nines.push(data[thing][0][thing])
                             }
-                        } catch { }
+                        }
+                    } catch { }
 
-                        if (Object.keys(data).includes("http://id.loc.gov/ontologies/bibframe/identifiedBy")) {
-                            this.recordId = data["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"]
+                    if (Object.keys(data).includes("http://id.loc.gov/ontologies/bibframe/identifiedBy")) {
+                        this.recordId = data["http://id.loc.gov/ontologies/bibframe/identifiedBy"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"][0]["http://www.w3.org/1999/02/22-rdf-syntax-ns#value"]
+                    }
+                    if (Object.keys(data).includes("http://id.loc.gov/ontologies/bflc/encodingLevel")) {
+                        this.encLvl = data["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
+                    }
+                    if (Object.keys(data).includes("http://id.loc.gov/ontologies/bibframe/descriptionAuthentication")) {
+                        let authDesc = []
+                        for (let auth of data["http://id.loc.gov/ontologies/bibframe/descriptionAuthentication"]) {
+                            let id = auth["@id"].split("/").at(-1)
+                            authDesc.push(id)
                         }
-                        if (Object.keys(data).includes("http://id.loc.gov/ontologies/bflc/encodingLevel")) {
-                            this.encLvl = data["http://id.loc.gov/ontologies/bflc/encodingLevel"][0]["http://www.w3.org/2000/01/rdf-schema#label"][0]["http://www.w3.org/2000/01/rdf-schema#label"]
-                        }
-                        if (Object.keys(data).includes("http://id.loc.gov/ontologies/bibframe/descriptionAuthentication")) {
-                            let authDesc = []
-                            for (let auth of data["http://id.loc.gov/ontologies/bibframe/descriptionAuthentication"]) {
-                                let id = auth["@id"].split("/").at(-1)
-                                authDesc.push(id)
-                            }
-                            this.authentication = authDesc
-                        }
-
+                        this.authentication = authDesc
                     }
                 }
             }
