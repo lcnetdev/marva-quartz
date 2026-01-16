@@ -1279,7 +1279,6 @@ export default {
   },
 
   mounted: async function () {
-    console.info("mounted: ", window.location.has)
     this.loadingRecord = false
     this.refreshSavedRecords()
     if (window.location.hash && window.location.hash == '#stats') {
