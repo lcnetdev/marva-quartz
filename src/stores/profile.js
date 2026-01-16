@@ -5881,6 +5881,7 @@ export const useProfileStore = defineStore('profile', {
       let pt = utilsProfile.returnPt(this.activeProfile,guid)
       let URI = null
       let marcKey = null
+      let marcKey4xx = null
 
       if (pt &&
           pt.userValue &&
@@ -5888,7 +5889,7 @@ export const useProfileStore = defineStore('profile', {
           pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0] &&
           pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'] &&
           pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]){
-
+            console.log("pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent']",pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'])
             let agent = pt.userValue['http://id.loc.gov/ontologies/bibframe/contribution'][0]['http://id.loc.gov/ontologies/bibframe/agent'][0]
             if (agent && agent['@id']){
               URI = agent['@id']
@@ -5899,6 +5900,17 @@ export const useProfileStore = defineStore('profile', {
               ){
                 marcKey = agent['http://id.loc.gov/ontologies/bflc/marcKey'][0]['http://id.loc.gov/ontologies/bflc/marcKey']
             }
+
+            if (agent && agent['http://id.loc.gov/ontologies/bflc/marcKey'] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][1] &&
+                agent['http://id.loc.gov/ontologies/bflc/marcKey'][1]['http://id.loc.gov/ontologies/bflc/marcKey']
+              ){
+                marcKey4xx = agent['http://id.loc.gov/ontologies/bflc/marcKey'][1]['http://id.loc.gov/ontologies/bflc/marcKey']
+            }
+
+            
+
+
 
           }
 
@@ -5923,6 +5935,7 @@ export const useProfileStore = defineStore('profile', {
       return {
         URI: URI,
         marcKey: marcKey,
+        marcKey4xx: marcKey4xx
       }
 
     },

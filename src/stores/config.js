@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', {
 
     versionMajor: 1,
     versionMinor: 4,
-    versionPatch: 5,
+    versionPatch: 6,
 
 
 
@@ -81,7 +81,7 @@ export const useConfigStore = defineStore('config', {
         utilLang: 'http://localhost:9401/util-lang/',
         scriptshifter: 'http://localhost:9401/scriptshifter/',
         publish : 'http://localhost:9401/util/publish/staging',
-        validate: 'http://localhost:5200/validate/stage',
+        validate: 'http://localhost:9401/util/validate/prod',
         profiles: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/profile-stage/data.json',
         starting: 'https://raw.githubusercontent.com/lcnetdev/bfe-profiles/main/starting-stage/data.json',
         id: 'https://id.loc.gov/',
@@ -434,6 +434,7 @@ export const useConfigStore = defineStore('config', {
     {lccn:'2023548475',label:"Create NAR test", idUrl:'https://id.loc.gov/resources/instances/2023548475.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
     {lccn:'2023478519',label:"bf:relation test", idUrl:'https://id.loc.gov/resources/instances/2023478519.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
+    {lccn:'2025443360',label:"NAR Tests", idUrl:'https://id.loc.gov/resources/instances/2025443360.html', profile:'Monograph',profileId:'lc:RT:bf2:Monograph:Instance'},
 
 
 
