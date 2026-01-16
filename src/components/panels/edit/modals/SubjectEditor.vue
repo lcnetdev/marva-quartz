@@ -2731,7 +2731,7 @@ export default {
         let allComplex = frozenComponents.every(c => c.complex)
         for (let component in frozenComponents) {
           const target = frozenComponents[component]
-          if (frozenComponents.length > 1 && !(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic'].includes(target.type)) && target.complex) {
+          if (frozenComponents.length > 1 && !(['madsrdf:Geographic', 'madsrdf:HierarchicalGeographic', 'http://www.loc.gov/mads/rdf/v1#HierarchicalGeographic'].includes(target.type)) && target.complex) {
             let uri = target.uri
             let data = false //await this.parseComplexSubject(uri)  //This can take a while, and is only need for the URI, but lots of things don't have URIs
             if (uri) {
