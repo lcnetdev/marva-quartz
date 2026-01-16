@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.4.6] - 2025-01-16
+### Added
+- Added support for automatically populating 4xx from the MARC key if present.
+- NAR will strip trailing period if at end of string and previous char is lowercase.
+
 ## [1.4.5] - 2025-12-16
 ### Added
 - Support for custom 001s from Marva backend. They are applied to origbf records on posting and added to the `998 $x` for copy cat records that don't overlay existing records.

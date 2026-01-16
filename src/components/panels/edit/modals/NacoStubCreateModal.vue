@@ -1474,7 +1474,7 @@
 
 
           this.populatedValue = this.profileStore.nacoStubReturnPopulatedValue(this.profileStore.activeNARStubComponent.guid)
-
+          console.log("populatedValue",this.populatedValue)
           if (this.populatedValue && this.populatedValue.marcKey && !resetMode){
 
             // we never want 7xx so replace it
@@ -1482,9 +1482,17 @@
               this.populatedValue.marcKey = this.populatedValue.marcKey.replace("7","1")
             }
 
-            // strip out the $e or $4
-            this.populatedValue.marcKey = this.populatedValue.marcKey.split("$e")[0]
-            this.populatedValue.marcKey = this.populatedValue.marcKey.split("$4")[0]
+            // strip out the $e or $4 subfields only (not everything after)
+            this.populatedValue.marcKey = this.populatedValue.marcKey.replace(/\$e[^$]*/g, '')
+            this.populatedValue.marcKey = this.populatedValue.marcKey.replace(/\$4[^$]*/g, '')
+
+            // remove $6 subfield content but keep any following subfield (e.g., $6880-05$a becomes $a)
+            this.populatedValue.marcKey = this.populatedValue.marcKey.replace(/\$6[^$]+(\$|$)/g, '$1')
+
+            // remove trailing period unless it follows an initial (single uppercase letter)
+            if (this.populatedValue.marcKey.endsWith('.') && !/\s[A-Z]\.$/.test(this.populatedValue.marcKey)) {
+              this.populatedValue.marcKey = this.populatedValue.marcKey.slice(0, -1)
+            }
 
             // Make sure the string doesn't end with a comma
             if (this.populatedValue.marcKey.at(-1) == ','){
@@ -1493,6 +1501,44 @@
 
             this.oneXX = this.populatedValue.marcKey
             this.checkOneXX()
+
+            // if marcKey4xx is populated use it for fourXX
+            if (this.populatedValue.marcKey4xx){
+              let possible4xx = this.populatedValue.marcKey4xx
+              // it will look like this: 8801 $6700-06/$1$a西谷拓哉,$c弁護士
+
+              // if possible4xx starts with '8' and marcKey starts with '1', transform to 4xx
+              if (possible4xx.startsWith('8') && this.populatedValue.marcKey.startsWith('1')) {
+                possible4xx = '4' + this.populatedValue.marcKey[1] + this.populatedValue.marcKey[2] + this.populatedValue.marcKey[3] + possible4xx.slice(4)
+              }
+
+              // strip out the $e or $4 subfields only (not everything after)
+              possible4xx = possible4xx.replace(/\$e[^$]*/g, '')
+              possible4xx = possible4xx.replace(/\$4[^$]*/g, '')
+              possible4xx = possible4xx.replace(/\$1[^$]*/g, '')
+
+
+              // remove $6 subfield content but keep any following subfield (e.g., $6880-05$a becomes $a)
+              possible4xx = possible4xx.replace(/\$6[^$]+(\$|$)/g, '$1')
+
+              // remove trailing period unless it follows an initial (single uppercase letter)
+              if (possible4xx.endsWith('.') && !/\s[A-Z]\.$/.test(possible4xx)) {
+                possible4xx = possible4xx.slice(0, -1)
+              }
+
+              // Make sure the string doesn't end with a comma
+              if (possible4xx.at(-1) == ',') {
+                possible4xx = possible4xx.slice(0, -1)
+              }
+
+              this.fourXX = possible4xx
+              this.checkFourXX()
+
+
+            }
+
+
+
           }
 
           let current = window.localStorage.getItem('marva-scriptShifterOptions')
