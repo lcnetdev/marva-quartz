@@ -708,8 +708,8 @@ export default {
         this.urlToLoadIsHttp = false
 
       }
-      // lccns are not short
-      if (this.urlToLoad.length < 8) { return false }
+      // lccns are not short, make this more permisive to work with smaller IDs
+      if (this.urlToLoad.length < 4) { return false }
 
       window.clearTimeout(this.lccnToSearchTimeout)
       this.searchByLccnResults = 'Searching...'
@@ -1295,6 +1295,9 @@ export default {
     // this.defaultProfile = 'lc:RT:bf2:Monograph:Instance'
     this.defaultProfile = this.preferenceStore.returnValue('--s-general-default-profile')
 
+    if (window.location.hash && window.location.hash =='#copycat'){
+      this.profileStore.copyCatMode = true
+    }
   },
 
 
