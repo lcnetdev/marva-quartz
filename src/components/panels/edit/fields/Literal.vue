@@ -141,9 +141,24 @@
         <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://' + classWebURL() + '/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan='+lccFeatureData.classNumber+'&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'">ClassWeb Search: {{ lccFeatureData.classNumber }}</a><br/>
         <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://' + classWebURL() + '/min/minaret?app=Class&auto=1&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+lccFeatureData.classNumber" target="_blank">ClassWeb Browse: {{ lccFeatureData.classNumber }}</a><br/>
 
-        <a style="color:black" v-if="lccFeatureData.firstSubject" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a><br/>
-        <a style="color:black" v-if="lccFeatureData.secondSubject" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.secondSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a>
+        <!-- If it's topical -->
+        <template v-if="lccFeatureData.firstSubject && !lccFeatureData.firstSubjectType.includes('PersonalName')">
+          <a style="color:black" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a><br/>
+        </template>
+        <template v-else> <!-- If it's a Name -->
+          <a style="color:black" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a><br/>
+        </template>
 
+        <!-- If it's topical -->
+        <template v-if="lccFeatureData.secondSubject && !lccFeatureData.firstSubjectType.includes('PersonalName')">
+          <a style="color:black" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.secondSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a>
+        </template>
+        <template v-else> <!-- If it's a Name -->
+          <a style="color:black" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm='+lccFeatureData.secondSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a><br/>
+        </template>
+
+
+        {{ lccFeatureData.firstSubjectType }}
 
       </div>
 
@@ -972,7 +987,7 @@ export default {
             if (fieldValue[0].value.endsWith('' + options.actionButtonIndex)){
               // remove the last digit from the string
               fieldValue[0].value = fieldValue[0].value.slice(0, -1);
-            }          
+            }
           }
         }
         let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
@@ -1202,7 +1217,7 @@ export default {
     lccFeatureData(){
       this.lccFeatureDataCounter
       if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length-1].propertyURI)>-1){
-        
+
         let data = this.profileStore.returnLccInfo(this.guid, this.structure)
         // console.log("HERE for LCC data", data,  this.guid, this.structure)
         if (data.contributors && data.contributors.length>0){
