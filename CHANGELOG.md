@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Added support for automatically populating 4xx from the MARC key if present.
 - NAR will strip trailing period if at end of string and previous char is lowercase.
+- If part of a literal field's text is highlighted (selected) and scriptshifter is envoked it will only operate on the selected text.
 
 ## [1.4.5] - 2025-12-16
 ### Added
