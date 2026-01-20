@@ -351,9 +351,9 @@ export default {
     classWebURL(){
       let url = "classweb.org"
 
-      // if (useConfigStore().returnUrls.env == 'staging'){
-      //   url = "test." + url
-      // }
+      if (useConfigStore().returnUrls.env == 'staging'){
+        url = "test." + url
+      }
 
       return url
     },
