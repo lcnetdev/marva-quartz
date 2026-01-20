@@ -145,21 +145,17 @@
         <template v-if="lccFeatureData.firstSubject && !lccFeatureData.firstSubjectType.includes('PersonalName')">
           <a style="color:black" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a><br/>
         </template>
-        <template v-else> <!-- If it's a Name -->
+        <template v-else-if="lccFeatureData.firstSubject && lccFeatureData.firstSubjectType.includes('PersonalName')"> <!-- If it's a Name -->
           <a style="color:black" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a><br/>
         </template>
 
         <!-- If it's topical -->
-        <template v-if="lccFeatureData.secondSubject && !lccFeatureData.firstSubjectType.includes('PersonalName')">
+        <template v-if="lccFeatureData.secondSubject && !lccFeatureData.secondSubjectType.includes('PersonalName')">
           <a style="color:black" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.secondSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a>
         </template>
-        <template v-else> <!-- If it's a Name -->
+        <template v-else-if="lccFeatureData.secondSubject && lccFeatureData.secondSubjectType.includes('PersonalName')"> <!-- If it's a Name -->
           <a style="color:black" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm='+lccFeatureData.secondSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a><br/>
         </template>
-
-
-        {{ lccFeatureData.firstSubjectType }}
-
       </div>
 
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/itemPortion'">
@@ -355,9 +351,9 @@ export default {
     classWebURL(){
       let url = "classweb.org"
 
-      if (useConfigStore().returnUrls.env == 'staging'){
-        url = "test." + url
-      }
+      // if (useConfigStore().returnUrls.env == 'staging'){
+      //   url = "test." + url
+      // }
 
       return url
     },
