@@ -962,7 +962,6 @@ export default {
       if (cmd == 'trans'){
 
         let fieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] == options.fieldGuid) })
-
         if (options.event && options.event?.target?.dataset?.shortcutActivated == 'true'){
           // check if the string value (fieldValue[0].value) ends with a single digit number
           if (/[0-9]$/.test(fieldValue[0].value)){
@@ -973,7 +972,19 @@ export default {
             }
           }
         }
-        let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
+
+        let useTextToTrans = fieldValue[0].value
+
+        // check if any text is highlighted in the textarea
+        let textarea = document.querySelector(`textarea[data-guid="${fieldValue[0]['@guid']}"]`)        
+        if (textarea && textarea.selectionStart !== textarea.selectionEnd) {
+          let highlightedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
+          useTextToTrans = highlightedText
+        }
+
+
+
+        let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,useTextToTrans,null,options.dir)
 
 
         let toLang = null
