@@ -977,14 +977,20 @@ export default {
 
         // check if any text is highlighted in the textarea
         let textarea = document.querySelector(`textarea[data-guid="${fieldValue[0]['@guid']}"]`)        
+        let highlightTemplate = null
         if (textarea && textarea.selectionStart !== textarea.selectionEnd) {
           let highlightedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
           useTextToTrans = highlightedText
+          highlightTemplate = fieldValue[0].value.replace(highlightedText, '<TRANSLITERATED_TEXT_HERE>')
         }
 
 
 
         let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,useTextToTrans,null,options.dir)
+
+        if (highlightTemplate){
+          transValue.output = highlightTemplate.replace('<TRANSLITERATED_TEXT_HERE>', transValue.output)
+        }
 
 
         let toLang = null
