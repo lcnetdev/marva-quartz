@@ -2799,7 +2799,7 @@ export const useProfileStore = defineStore('profile', {
           // add the source for Genre/Form
           if (propertyPath.map((obj) => obj.propertyURI).includes("http://id.loc.gov/ontologies/bibframe/genreForm")){
             let objId = blankNode['@id']
-            if (nodeMap.collections.includes('http://id.loc.gov/authorities/genreForms/collection_LCGFT_General')){
+            if (nodeMap.collections && nodeMap.collections.includes('http://id.loc.gov/authorities/genreForms/collection_LCGFT_General')){
               blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
                 {
                       "@guid": short.generate(),
@@ -2813,7 +2813,7 @@ export const useProfileStore = defineStore('profile', {
                       ]
                   }
               ]
-            } if (nodeMap.collections.includes('http://id.loc.gov/vocabulary/rbms/collection_rbmscv')){
+            } if (nodeMap.collections && nodeMap.collections.includes('http://id.loc.gov/vocabulary/rbms/collection_rbmscv')){
               blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
                 {
                       "@guid": short.generate(),
