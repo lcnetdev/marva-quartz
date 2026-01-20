@@ -3749,9 +3749,6 @@ export const useProfileStore = defineStore('profile', {
       let secondSubject = null
       let contributors = []
 
-      let firstSubjectType = null
-      let secondSubjectType = null
-
       let titleNonLatin = null
 
       // find the work and pull out stuff
@@ -3885,10 +3882,8 @@ export const useProfileStore = defineStore('profile', {
               if (subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
                 if (firstSubject === null){
                   firstSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
-                  firstSubjectType = this.getSubjectType(subjectUserValue)
                 } else {
                   secondSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
-                  secondSubjectType = this.getSubjectType(subjectUserValue)
                 }
               }
             }
@@ -3945,8 +3940,6 @@ export const useProfileStore = defineStore('profile', {
             contributors:contributors,
             firstSubject:firstSubject,
             secondSubject:secondSubject,
-            firstSubjectType: firstSubjectType,
-            secondSubjectType: secondSubjectType,
             cutterGuid:cutterGuid,
             classGuid:classGuid
           }
@@ -3963,8 +3956,6 @@ export const useProfileStore = defineStore('profile', {
             contributors:[],
             firstSubject:null,
             secondSubject:null,
-            firstSubjectType: null,
-            secondSubjectType: null,
             cutterGuid:null,
             classGuid:null
           }
@@ -3991,8 +3982,6 @@ export const useProfileStore = defineStore('profile', {
             contributors:contributors,
             firstSubject:firstSubject,
             secondSubject:secondSubject,
-            firstSubjectType: firstSubjectType,
-            secondSubjectType: secondSubjectType,
             cutterGuid:null,
             classGuid:null
           }
@@ -4008,8 +3997,6 @@ export const useProfileStore = defineStore('profile', {
             contributors:contributors,
             firstSubject:null,
             secondSubject:null,
-            firstSubjectType: null,
-            secondSubjectType: null,
             cutterGuid:null,
             classGuid:null
           }
@@ -4026,26 +4013,6 @@ export const useProfileStore = defineStore('profile', {
       // console.log("RETRUN FA:LSE 3")
       return false
 
-    },
-
-    /**
-     * get the type of subject. To help with creating ClassWeb Searches
-     * @param {Object} subjectUserValue  = subject object
-     *
-     * @return {string} - type of subject
-     */
-    getSubjectType: function(subjectUserValue){
-      let type = 'topic'
-      let subject = subjectUserValue["http://id.loc.gov/ontologies/bibframe/subject"][0]
-
-      if (subject['@type'] == 'http://www.loc.gov/mads/rdf/v1#ComplexSubject'){
-        let target = subject['http://www.loc.gov/mads/rdf/v1#componentList'][0]
-        type = target['@type']
-      } else {
-        type = subject['@type']
-      }
-
-      return type
     },
 
     /**
