@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.4.7] - 2025-01-20
+### Changed
+- ClassWeb search will search `LCSH (w/names)` to do a combined search.
+
 ## [1.4.6] - 2025-01-16
 ### Added
 - Added support for automatically populating 4xx from the MARC key if present.
