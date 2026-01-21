@@ -541,6 +541,7 @@ const utilsNetwork = {
               // remove last ? from searchPayload.searchValue and replace the searchtype
               searchPayload.searchValue = searchPayload.searchValue.replace(/\?$/,'')
               url = url.replace('searchtype=left','searchtype=keyword')
+              url = url.replace('searchtype=<TYPE>','searchtype=keyword')
             }
 
 
