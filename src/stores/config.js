@@ -538,20 +538,20 @@ export const useConfigStore = defineStore('config', {
 
       "modes":[
         {
-          'LCSH All':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>", "all":true},
-          'LCSH Topics':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Topic&count=25&offset=<OFFSET>"},
-          'LCSH Geographic':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>"},
-          'LCSH Name':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Name&count=25&offset=<OFFSET>"},
-          'LCSH FamilyName':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=FamilyName&count=25&offset=<OFFSET>"},
-          'LCSH CorporateName':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=CorporateName&count=25&offset=<OFFSET>"},
-          'LCSH GenreForm':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=GenreForm&count=25&offset=<OFFSET>"},
-          'LCSH Simple Type':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=SimpleType&count=25&offset=<OFFSET>"},
-          'LCSH Complex Subject':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=ComplexSubject&count=25&offset=<OFFSET>"},
-          'LCSH Temporal':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Temporal&count=25&offset=<OFFSET>"},
+          'LCSH All':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype=left", "all":true},
+          'LCSH Topics':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Topic&count=25&offset=<OFFSET>&searchtype=left"},
+          'LCSH Geographic':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Geographic&count=25&offset=<OFFSET>&searchtype=left"},
+          'LCSH Name':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Name&count=25&offset=<OFFSET>&searchtype=left"},
+          'LCSH FamilyName':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=FamilyName&count=25&offset=<OFFSET>&searchtype=left"},
+          'LCSH CorporateName':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=CorporateName&count=25&offset=<OFFSET>&searchtype=left"},
+          'LCSH GenreForm':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=GenreForm&count=25&offset=<OFFSET>&searchtype=left"},
+          'LCSH Simple Type':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=SimpleType&count=25&offset=<OFFSET>&searchtype=left"},
+          'LCSH Complex Subject':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=ComplexSubject&count=25&offset=<OFFSET>&searchtype=left"},
+          'LCSH Temporal':{"url":"https://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&rdftype=Temporal&count=25&offset=<OFFSET>&searchtype=left"},
 
-          'LCSH Auth Subjects':{"url":"http://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&count=25&offset=<OFFSET>"},
-          'LCSH SubDiv Subjects':{"url":"http://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&count=25&offset=<OFFSET>"},
-          'LCSH GnFrm Subjects':{"url":"http://id.loc.gov/authorities/genreForms/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/genreForms/collection_LCGFT_General&count=25&offset=<OFFSET>"},
+          'LCSH Auth Subjects':{"url":"http://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&count=25&offset=<OFFSET>&searchtype=left"},
+          'LCSH SubDiv Subjects':{"url":"http://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&count=25&offset=<OFFSET>&searchtype=left"},
+          'LCSH GnFrm Subjects':{"url":"http://id.loc.gov/authorities/genreForms/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/genreForms/collection_LCGFT_General&count=25&offset=<OFFSET>&searchtype=left"},
         }
       ]
     },

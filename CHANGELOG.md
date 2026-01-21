@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [1.4.7] - 2025-01-20
 ### Changed
 - ClassWeb search will search `LCSH (w/names)` to do a combined search.
+- Ability to keyword search subject by appending `?` to the search term
 
 ## [1.4.6] - 2025-01-16
 ### Added
