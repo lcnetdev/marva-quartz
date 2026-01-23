@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - ClassWeb search will search `LCSH (w/names)` to do a combined search.
 - Ability to keyword search subject by appending `?` to the search term
+- CopyCat will update the 001 with the Marva001
 
 ## [1.4.6] - 2025-01-16
 ### Added

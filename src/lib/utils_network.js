@@ -438,10 +438,14 @@ const utilsNetwork = {
     getMarva001: async function(){
       let returnUrls = useConfigStore().returnUrls
 
-      let r = await fetch(returnUrls.util + 'marva001')
-
-      let data = await r.json()
-      return data.marva001
+      try {
+        let r = await fetch(returnUrls.util + 'marva001')
+        let data = await r.json()
+        return data.marva001
+      } catch(err) {
+        console.warn("Couldn't get 001")
+        return "0000000000"
+      }
     },
 
     searchLccn: async function name(lccn) {
