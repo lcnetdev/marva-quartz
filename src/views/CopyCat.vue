@@ -655,6 +655,10 @@ export default {
 
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
+      // inject 001
+      let regex = /(<controlfield tag="001">)(on[0-9]*)(<\/controlfield>)/g
+      strXmlBasic = strXmlBasic.replaceAll(regex, "$1" + marva001 + "$3")
+
       console.info("strXmlBasic: ", strXmlBasic)
 
       this.posting = true
