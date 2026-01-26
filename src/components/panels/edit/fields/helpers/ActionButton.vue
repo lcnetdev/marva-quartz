@@ -42,7 +42,7 @@
           Delete Component
         </button>
 
-        <template v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic'">
+        <template v-if="structure.propertyURI == 'http://id.loc.gov/ontologies/bibframe/subject' || structure.propertyURI == 'http://www.loc.gov/mads/rdf/v1#Topic' || structure.parent.includes('lc:profile:bf2:Topiclc')">
           <button  class="" :id="`action-button-command-${fieldGuid}-4`" @click="makeSubjectHeadingPrimary()" :style="buttonStyle">
             <span class="button-shortcut-label">4</span>
             Make Primary Heading
@@ -511,7 +511,7 @@
           let buttonToClick = document.getElementById(`action-button-command-${this.fieldGuid}-${event.key}`)
           if (buttonToClick){
             //set the dataset to indicate this was a shortcut key activation
-            buttonToClick.dataset.shortcutActivated = 'true'           
+            buttonToClick.dataset.shortcutActivated = 'true'
             buttonToClick.click()
             window.setTimeout(()=>{
               // give it a moment to process the emit and read the event in the parent element
