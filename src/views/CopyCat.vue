@@ -78,7 +78,7 @@
             <input name="oveerrid" id="overrid" type="checkbox" v-model="overrideAllow" /><br>
             <template v-if="overrideAllow">
               <label for="matchPoint">Known BibId (001): </label>
-              <input name="matchPoint" id="overrideBibid" type="text" v-model="isbn" @input="checkLccn" />
+              <input name="matchPoint" id="overrideBibid" type="text" v-model="overrideBibid" @input="checkLccn" />
             </template>
           </template>
           <template v-else>
@@ -270,7 +270,7 @@ export default {
       isbn: '',
       matchTitle: '',
       overrideAllow: false,
-      overrideBibid: false,
+      overrideBibid: "",
 
     }
   },
@@ -380,11 +380,19 @@ export default {
 
     checkLccn: async function () {
       console.info("checkLCCN")
-      this.existingLCCN = false
-      this.existingISBN = false
+
 
       console.info("urlToLoad: ", this.urlToLoad)
       // if (this.urlToLoad.length < 3){ return }
+
+      if(this.overrideAllow && this.overrideBibid !=''){
+        console.info("checking override: ", this.overrideBibid)
+        this.existingRecordUrl = "https://preprod-8080.id.loc.gov/resources/instances/" + this.overrideBibid + ".html"
+        this.searchType = 'bibid'
+      } else {
+        this.existingLCCN = false
+        this.existingISBN = false
+      }
 
       if (this.searchType == 'lccn') {
         this.checkingLCCN = true
@@ -439,6 +447,7 @@ export default {
         }
       }
 
+      console.info("this.existingRecordUrl: ", this.existingRecordUrl)
       if (this.existingRecordUrl) {
         let data = await utilsNetwork.fetchSimpleLookup(this.existingRecordUrl)
         const parser = new DOMParser()
@@ -669,6 +678,7 @@ export default {
       strXmlBasic = strXmlBasic.replaceAll(regex, "$1" + marva001 + "$3")
 
       console.info("strXmlBasic: ", strXmlBasic)
+      return
 
       this.posting = true
       this.postResults = {}
