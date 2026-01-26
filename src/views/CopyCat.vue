@@ -678,7 +678,6 @@ export default {
       strXmlBasic = strXmlBasic.replaceAll(regex, "$1" + marva001 + "$3")
 
       console.info("strXmlBasic: ", strXmlBasic)
-      return
 
       this.posting = true
       this.postResults = {}
