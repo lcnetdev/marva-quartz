@@ -74,6 +74,12 @@
               <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{
                 existingLCCN ? 'LCCN' : 'identifier' }}: "{{ matchTitle }}"</a>
             </h4>
+            <label for="override">Override this match? </label>
+            <input name="oveerrid" id="overrid" type="checkbox" v-model="overrideAllow" /><br>
+            <template v-if="overrideAllow">
+              <label for="matchPoint">Known BibId (001): </label>
+              <input name="matchPoint" id="overrideBibid" type="text" v-model="isbn" @input="checkLccn" />
+            </template>
           </template>
           <template v-else>
             <Badge v-if="urlToLoad != '' && !checkingLCCN && !existingLCCN && searchType == 'lccn' && wcIndex == 'sn'"
@@ -263,6 +269,9 @@ export default {
       searchType: 'lccn',
       isbn: '',
       matchTitle: '',
+      overrideAllow: false,
+      overrideBibid: false,
+
     }
   },
   computed: {
@@ -375,7 +384,7 @@ export default {
       this.existingISBN = false
 
       console.info("urlToLoad: ", this.urlToLoad)
-      if (this.urlToLoad.length < 3){ return }
+      // if (this.urlToLoad.length < 3){ return }
 
       if (this.searchType == 'lccn') {
         this.checkingLCCN = true
