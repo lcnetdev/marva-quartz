@@ -589,7 +589,9 @@ export default {
       let subfield = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
       subfield.setAttribute("code", code)
       subfield.innerHTML = value
-      parent.appendChild(subfield)
+      if (value != ''){
+        parent.appendChild(subfield)
+      }
     },
 
     loadCopyCat: async function (profile) { // load into BFDB/ID
@@ -625,14 +627,14 @@ export default {
 
       /*
       * 998:
-      * a: LCCN
-      * b: Priority
-      * c: JACKPHY
-      * d: Record Quality
-      * e: Overlay
-      * f: BibID for Overlay
-      * x: Local ID
-      * z: Cataloger Code
+      * $a: LCCN
+      * $b: Priority
+      * $c: JACKPHY
+      * $d: Record Quality
+      * $e: Overlay
+      * $f: BibID for Overlay
+      * $x: Local ID
+      * $z: Cataloger Code
       */
 
 
@@ -643,7 +645,7 @@ export default {
 
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
-      let marva001 = ""
+      let marva001 = false
       if (this.existingLCCN || this.existingISBN) {
         this.createSubField("e", "overlay bib", dummyField)
         if (this.existingRecordUrl != "") {
@@ -653,8 +655,6 @@ export default {
       } else {
         marva001 = await utilsNetwork.getMarva001()
         this.createSubField("x", marva001, dummyField)
-        this.createSubField("e", "overlay bib", dummyField)
-        this.createSubField("f", marva001, dummyField)
       }
 
       // cataloger code
@@ -670,10 +670,6 @@ export default {
       xml.documentElement.appendChild(dummyField)
 
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
-
-      // inject 001
-      // let regex = /(<controlfield tag="001">)(on[0-9]*)(<\/controlfield>)/g
-      // strXmlBasic = strXmlBasic.replaceAll(regex, "$1" + marva001 + "$3")
 
       console.info("strXmlBasic: ", strXmlBasic)
 
