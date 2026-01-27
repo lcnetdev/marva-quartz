@@ -74,7 +74,7 @@
               <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{
                 existingLCCN ? 'LCCN' : 'identifier' }}: "{{ matchTitle }}"</a>
             </h4>
-            <label for="override">Override this match? </label>
+            <label for="override">Override this match with a BibId? </label>
             <input name="oveerrid" id="overrid" type="checkbox" v-model="overrideAllow" /><br>
             <template v-if="overrideAllow">
               <label for="matchPoint">Known BibId (001): </label>
@@ -372,7 +372,7 @@ export default {
       let recordSelected = (this.selectedWcRecord) ? true : false
 
       if (this.checkRecordHasLccn(this.selectedWcRecord)) { return false }
-      if (!this.urlToLoad) { return true }
+      //if (!this.urlToLoad) { return true }
       if (this.checkingLCCN) { return true }
 
       return !recordSelected
@@ -607,14 +607,10 @@ export default {
       xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
       let continueWithLccn = true
       // if (!this.copyCatLccn){
-      if (!this.urlToLoad) {
-        alert("This needs an LCCN to continue.")
-        return
-      } else {
-        if (this.urlToLoad.length != 10) {
-          continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
-        }
+      if (this.urlToLoad.length != 10) {
+        continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
       }
+
 
       if (!continueWithLccn) { return }
 
@@ -657,6 +653,8 @@ export default {
       } else {
         marva001 = await utilsNetwork.getMarva001()
         this.createSubField("x", marva001, dummyField)
+        this.createSubField("e", "overlay bib", dummyField)
+        this.createSubField("f", marva001, dummyField)
       }
 
       // cataloger code
@@ -674,8 +672,8 @@ export default {
       let strXmlBasic = (new XMLSerializer()).serializeToString(xml.documentElement)
 
       // inject 001
-      let regex = /(<controlfield tag="001">)(on[0-9]*)(<\/controlfield>)/g
-      strXmlBasic = strXmlBasic.replaceAll(regex, "$1" + marva001 + "$3")
+      // let regex = /(<controlfield tag="001">)(on[0-9]*)(<\/controlfield>)/g
+      // strXmlBasic = strXmlBasic.replaceAll(regex, "$1" + marva001 + "$3")
 
       console.info("strXmlBasic: ", strXmlBasic)
 
