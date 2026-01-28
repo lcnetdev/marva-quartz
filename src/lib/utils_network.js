@@ -1492,7 +1492,7 @@ const utilsNetwork = {
         result.msg = 'REGEX Error: That value doesn\'t look like a valid MARC encoded LCSH string (not string)'
       }
 
-      lcsh=lcsh.replace(/[\|\$\‡]{1}[bcd]{1}/g, ' ').replace(/\s{2,}/g, ' ')
+      lcsh=lcsh.replace(/[\|\$\‡]{1}[bcdt]{1}/g, ' ').replace(/\s{2,}/g, ' ')
 
       // .replace(/\$b/g,' ').replace(/\|b/g,' ').replace(/‡b/g,' ')
       //          .replace(/\$c/g,'').replace(/\|c/g,'').replace(/‡c/g,'')
