@@ -702,7 +702,11 @@ export default {
       }
 
       console.info("recordId: ", recordId)
-      this.urlToLoad = "https://preprod-8080.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
+      if(useConfigStore().returnUrls.env == 'staging'){
+        this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
+      } else {
+        this.urlToLoad = "https://preprod-8080.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
+      }
       this.existingLCCN = false
       this.existingISBN = false
 
