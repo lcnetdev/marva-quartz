@@ -96,6 +96,8 @@
                 <!-- <button @click="searchModeSwitch('WORKS')" :data-tooltip="'Shortcut: CTRL+ALT+4'" :class="['simptip-position-bottom',{'active':(searchMode==='WORKS')}]">Works</button> -->
                 <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'"
                   :class="['simptip-position-bottom', { 'active': (searchMode === 'HUBS') }]">Hubs</button>
+                <button @click="searchModeSwitch('ENTITIES')" :data-tooltip="'Shortcut: CTRL+ALT+5'"
+                  :class="['simptip-position-bottom', { 'active': (searchMode === 'ENTITIES') }]">Entities</button>
               </div>
 
 
@@ -1534,6 +1536,13 @@ export default {
 
       for (let x in this.searchResults.exact) {
         this.pickLookup[(this.searchResults.names.length - x) * -1 - 2] = this.searchResults.exact[x]
+      }
+
+      console.info("entities: ", this.searchResults.entities)
+      for (let x in this.searchResults.entities) {
+        console.info("pickup: ", x, "==", this.searchResults.entities[x])
+        this.pickLookup[x] = this.searchResults.entities[x]
+
       }
     },
 

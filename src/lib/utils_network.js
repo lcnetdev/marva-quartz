@@ -20,7 +20,7 @@ const utilsNetwork = {
     lookupLibrary : {},
 
     //Controllers to manage searches
-    controllers: {
+    controllers: { // there's got to be a better way
       "controllerNames": new AbortController(),
       "controllerNamesGeo": new AbortController(),
       "controllerNamesSubdivision": new AbortController(),
@@ -45,6 +45,7 @@ const utilsNetwork = {
       "exactName": new AbortController(),
       "exactSubject": new AbortController(),
       "lccnSearchController": new AbortController(),
+      "controllerEntities": new AbortController(),
     },
     subjectSearchActive: false,
 
@@ -512,6 +513,8 @@ const utilsNetwork = {
           }
         }
 
+        console.info("payload: ", searchPayload)
+
         let results = []
         for (let url of urlTemplate) {
             // kind of hack, change to the public endpoint if we are in dev or public mode
@@ -548,6 +551,7 @@ const utilsNetwork = {
               url = url.replace('searchtype=<TYPE>','searchtype=keyword')
             }
 
+            console.info("url: ", url)
 
             let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
@@ -2415,6 +2419,7 @@ const utilsNetwork = {
     * @return {} -
     */
     subjectSearch: async function(searchVal, complexVal, complexSub, mode){
+      console.info("subjectSearch: ", searchVal, "--", mode)
       // subjectSearch: async function(searchVal, complexVal, mode){
       //encode the URLs
       searchVal = encodeURIComponent(searchVal)
@@ -2470,6 +2475,10 @@ const utilsNetwork = {
       let exactName = exactUri.replace('<SCHEME>', 'names')
       let exactSubject = exactUri.replace('<SCHEME>', 'subjects')
       //children's subjects is supported by known-label lookup?
+
+      let subjectEntitiesUrl = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['ENTITIES'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=50').replace("<OFFSET>", "1")
+
+      console.info("URL: ", subjectEntitiesUrl)
 
       if (mode == 'GEO'){
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
@@ -2641,6 +2650,14 @@ const utilsNetwork = {
         signal: this.controllers.controllerHubsKeyword.signal,
       }
 
+      let searchPayloadEntities = {
+        processor: 'lcAuthorities',
+        url: [subjectEntitiesUrl],
+        searchValue: searchVal,
+        subjectSearch: true,
+        signal: this.controllers.controllerEntities.signal,
+      }
+
 
 
       let resultsNames =[]
@@ -2666,6 +2683,8 @@ const utilsNetwork = {
 
       let resultsExactName = []
       let resultsExactSubject = []
+
+      let resultsEntities = []
 
       // this.searchExact(exactPayloadName),
       // this.searchExact(exactPayloadSubject),
@@ -2724,7 +2743,14 @@ const utilsNetwork = {
             this.searchComplex(searchPayloadHubsKeyword)
         ]);
 
+      } else if (mode == "ENTITIES"){
+        [resultsEntities] = await Promise.all([
+            this.searchComplex(searchPayloadEntities)
+        ]);
       }
+
+      console.info("entity search: ", searchPayloadEntities)
+      console.info("complex search: ", searchPayloadSubjectsComplex)
 
       // drop the litearl value from names and complex
       if (resultsNames.length>0){
@@ -2756,6 +2782,10 @@ const utilsNetwork = {
       resultsSubjectsSimpleComplex = resultsSubjectsSimpleComplex.filter((r) => {return (!r.literal)})
       if (resultsSubjectsSimpleComplex.length>0){
         resultsSubjectsSimpleComplex.push(resultsSubjectsSimpleComplex.pop())
+      }
+
+      if (resultsEntities.length>0){
+        resultsEntities.push(resultsEntities.pop())
       }
 
       // resultsSubjectsComplex.reverse()
@@ -2843,6 +2873,10 @@ const utilsNetwork = {
         resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
       }
 
+
+      console.info("resultsSubjectsSimple: ", resultsSubjectsSimple)
+      console.info("entities: ", resultsEntities)
+
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
         'subjectsComplex': complexHeadings,
@@ -2850,7 +2884,8 @@ const utilsNetwork = {
         'hierarchicalGeographic': pos == 0 ? [] : resultsHierarchicalGeographic,
         'subjectsChildren': pos == 0 ? resultsChildrenSubjects : resultsChildrenSubjectsSubdivisions,
         'subjectsChildrenComplex': resultsChildrenSubjectsComplex,
-        'exact': exact
+        'exact': exact,
+        'entities': resultsEntities,
       }
 
       this.subjectSearchActive = false

@@ -551,6 +551,7 @@ export const useConfigStore = defineStore('config', {
           'LCSH Auth Subjects':{"url":"http://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&count=25&offset=<OFFSET>&searchtype=left"},
           'LCSH SubDiv Subjects':{"url":"http://id.loc.gov/authorities/subjects/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&count=25&offset=<OFFSET>&searchtype=left"},
           'LCSH GnFrm Subjects':{"url":"http://id.loc.gov/authorities/genreForms/suggest2/?q=<QUERY>&memberOf=http://id.loc.gov/authorities/genreForms/collection_LCGFT_General&count=25&offset=<OFFSET>&searchtype=left"},
+          'ENTITIES': {"url":"https://id.loc.gov/entities/subjects/suggest2/?q=<QUERY>&count=25&offset=<OFFSET>&searchtype=left"}
         }
       ]
     },
