@@ -61,6 +61,7 @@ import PanelSizeModal from '../edit/modals/PanelSizeModal.vue'
 import StatusIndicator from './nav_components/StatusIndicator.vue'
 import RecordHistory from './nav_components/RecordHistory.vue'
 import SystemStatus from './nav_components/SystemStatus.vue'
+import short from 'short-uuid'
 
 
 import TimeAgo from 'javascript-time-ago'
@@ -1418,8 +1419,9 @@ export default {
 
       // copyright
       let copyrightComponent = this.profileStore.returnComponentByPropertyLabel('Copyright date')
+      console.info("copyrightComponent: ", copyrightComponent)
       this.profileStore.setValueLiteral(
-        copyrightComponent['@guid'], null,
+        copyrightComponent['@guid'], short.generate(),
         [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/copyrightDate"}],
         year, null, null
       )
