@@ -97,7 +97,7 @@
                 <button @click="searchModeSwitch('HUBS')" :data-tooltip="'Shortcut: CTRL+ALT+4'"
                   :class="['simptip-position-bottom', { 'active': (searchMode === 'HUBS') }]">Hubs</button>
                 <button @click="searchModeSwitch('ENTITIES')" :data-tooltip="'Shortcut: CTRL+ALT+5'"
-                  :class="['simptip-position-bottom', { 'active': (searchMode === 'ENTITIES') }]">Entities</button>
+                  :class="['simptip-position-bottom', { 'active': (searchMode === 'ENTITIES') }]" v-if="configStore.returnUrls.env == 'staging'">Entities</button>
               </div>
 
 
@@ -879,6 +879,7 @@ export default {
 
   computed: {
     ...mapStores(usePreferenceStore),
+    ...mapStores(useConfigStore),
     ...mapState(usePreferenceStore, ['diacriticUseValues', 'diacriticUse', 'diacriticPacks']),
     ...mapState(useProfileStore, ['returnComponentByPropertyLabel', 'duplicateComponentGetId', 'isEmptyComponent']),
 
