@@ -1538,9 +1538,7 @@ export default {
         this.pickLookup[(this.searchResults.names.length - x) * -1 - 2] = this.searchResults.exact[x]
       }
 
-      console.info("entities: ", this.searchResults.entities)
       for (let x in this.searchResults.entities) {
-        console.info("pickup: ", x, "==", this.searchResults.entities[x])
         this.pickLookup[x] = this.searchResults.entities[x]
 
       }

@@ -513,8 +513,6 @@ const utilsNetwork = {
           }
         }
 
-        console.info("payload: ", searchPayload)
-
         let results = []
         for (let url of urlTemplate) {
             // kind of hack, change to the public endpoint if we are in dev or public mode
@@ -550,8 +548,6 @@ const utilsNetwork = {
               url = url.replace('searchtype=left','searchtype=keyword')
               url = url.replace('searchtype=<TYPE>','searchtype=keyword')
             }
-
-            console.info("url: ", url)
 
             let r = await this.fetchSimpleLookup(url, false, searchPayload.signal)
 
@@ -2419,7 +2415,6 @@ const utilsNetwork = {
     * @return {} -
     */
     subjectSearch: async function(searchVal, complexVal, complexSub, mode){
-      console.info("subjectSearch: ", searchVal, "--", mode)
       // subjectSearch: async function(searchVal, complexVal, mode){
       //encode the URLs
       searchVal = encodeURIComponent(searchVal)
@@ -2477,8 +2472,6 @@ const utilsNetwork = {
       //children's subjects is supported by known-label lookup?
 
       let subjectEntitiesUrl = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['ENTITIES'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=50').replace("<OFFSET>", "1")
-
-      console.info("URL: ", subjectEntitiesUrl)
 
       if (mode == 'GEO'){
         subjectUrlHierarchicalGeographic = subjectUrlHierarchicalGeographic.replace('&count=4','&count=12').replace("<OFFSET>", "1")
@@ -2749,9 +2742,6 @@ const utilsNetwork = {
         ]);
       }
 
-      console.info("entity search: ", searchPayloadEntities)
-      console.info("complex search: ", searchPayloadSubjectsComplex)
-
       // drop the litearl value from names and complex
       if (resultsNames.length>0){
         resultsNames.pop()
@@ -2872,10 +2862,6 @@ const utilsNetwork = {
         resultsSubjectsSimple = resultsSubjectsSimpleComplex.concat(resultsSubjectsSimple)
         resultsPayloadSubjectsSimpleSubdivision = resultsSubjectsSimpleComplex.concat(resultsPayloadSubjectsSimpleSubdivision)
       }
-
-
-      console.info("resultsSubjectsSimple: ", resultsSubjectsSimple)
-      console.info("entities: ", resultsEntities)
 
       let results = {
         'subjectsSimple': pos == 0 ? resultsSubjectsSimple : resultsPayloadSubjectsSimpleSubdivision,
