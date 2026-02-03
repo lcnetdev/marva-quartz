@@ -2231,7 +2231,9 @@ export default {
         this.searchModeSwitch("GEO")
       } else if (event.ctrlKey && event.key == "4") {
         this.searchModeSwitch("HUBS")
-      } else if (this.searchMode == 'GEO' && event.key == "-") {
+      } else if (event.ctrlKey && event.key == "5") {
+        this.searchModeSwitch("ENTITIES")
+      } else if ((this.searchMode == 'GEO' || this.searchMode == 'ENTITIES') && event.key == "-") {
         if (this.components.length > 0) {
           let lastC = this.components[this.components.length - 1]
 
