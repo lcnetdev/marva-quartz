@@ -1417,7 +1417,7 @@ export default {
 
       // year goes into
 
-      // copyright
+      // copyright, is this necessary if the provistion activity's 264 is set?
       let copyrightComponent = this.profileStore.returnComponentByPropertyLabel('Copyright date')
       console.info("copyrightComponent: ", copyrightComponent)
       this.profileStore.setValueLiteral(
@@ -1436,7 +1436,7 @@ export default {
         let itemPortion = callNumValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/itemPortion"][0]
         let itemValue = itemPortion["http://id.loc.gov/ontologies/bibframe/itemPortion"]
         // does it look like a year?
-        let possibleYear = itemValue.slice(-5) // <space>YYYY
+        let possibleYear = itemValue.slice(-5) // ""<space>YYYY"
         if (/ \d{4}/.test(possibleYear)){
           let itemNumber = itemValue.slice(0,-5)
           if (!possibleYear.includes(year)){
@@ -1446,6 +1446,12 @@ export default {
               itemNumber + " " + year, null, null
             )
           }
+        } else {
+          this.profileStore.setValueLiteral(
+            callNumComponent['@guid'], itemPortion['@guid'],
+            [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/classification"},{"level":1,"propertyURI":"http://id.loc.gov/ontologies/bibframe/itemPortion"}],
+            itemValue + " " + year, null, null
+          )
         }
       }
 
