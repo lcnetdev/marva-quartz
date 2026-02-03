@@ -1394,7 +1394,7 @@ export default {
     finishCip: function(){
       console.info("doing CIP stuff")
 
-      // remove provision date
+      // remove projected publication date
       let projDateComponent = this.profileStore.returnComponentByPropertyLabel('Projected publication date (YYMM)')
       let projDateValue
       let projYear
@@ -1406,18 +1406,13 @@ export default {
       } else {
         console.warn("No projected date.")
       }
-      this.profileStore.deleteComponent(projDateComponent['@guid'])
 
-      let year = prompt("What year should be used to populate Call Number, CopyRight, Provistion Activity dates?", projYear)
+      let year = prompt("What year should be used to populate Call Number, Copyright, & Provision Activity dates?", projYear)
+      if (!year){ return }
+      this.profileStore.deleteComponent(projDateComponent['@guid'])
       // let extent = prompt("What's the extent of the resource?", "pages cm")
 
-      // projYear to copyright date? Or prompt for date and use that to fill in?
-      // provisision activity dates match projYear?
-      // prompt for extent?
-
-      // year goes into
-
-      // copyright, is this necessary if the provistion activity's 264 is set?
+      // copyright, is this necessary if the provision activity's 264 $c is set?
       let copyrightComponent = this.profileStore.returnComponentByPropertyLabel('Copyright date')
       let ccGuid = short.generate()
       if (copyrightComponent.userValue["http://id.loc.gov/ontologies/bibframe/copyrightDate"] && copyrightComponent.userValue["http://id.loc.gov/ontologies/bibframe/copyrightDate"][0]){
@@ -1429,13 +1424,10 @@ export default {
         year, null, null
       )
 
-      // pubyear?
-
       // call number
       let callNumComponent = this.profileStore.returnComponentByPropertyLabel('Classification numbers')
       let callNumValue = callNumComponent.userValue
-      console.info("callNumValue: ", callNumValue)
-      if (callNumValue["http://id.loc.gov/ontologies/bibframe/classification"]){
+      if (callNumValue["http://id.loc.gov/ontologies/bibframe/classification"] && callNumValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/itemPortion"]){
         let itemPortion = callNumValue["http://id.loc.gov/ontologies/bibframe/classification"][0]["http://id.loc.gov/ontologies/bibframe/itemPortion"][0]
         let itemValue = itemPortion["http://id.loc.gov/ontologies/bibframe/itemPortion"]
         // does it look like a year?
@@ -1458,8 +1450,6 @@ export default {
         }
       }
 
-
-
       // provision activity
       let provActComponent = this.profileStore.returnComponentByPropertyLabel('Provision activity')
       let proveUserValue = provActComponent.userValue
@@ -1478,7 +1468,6 @@ export default {
         [{"level":0,"propertyURI":"http://id.loc.gov/ontologies/bibframe/provisionActivity"},{"level":1,"propertyURI":"http://id.loc.gov/ontologies/bflc/simpleDate"}],
         year, null, null
       )
-
 
       // change encoding level to `full`
       let adminComponent = false
