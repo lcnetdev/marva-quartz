@@ -176,6 +176,11 @@ export const useConfigStore = defineStore('config', {
         displayLCOnlyFeatures: false,
         simpleLookupLang: 'en',
         isBibframeDotOrg: true,
+
+        dancerEnabled: true,
+        dancerWorkspaceList: "https://bibframe.org/dancer/api/serve/workspaces/",
+
+
       },
 
       playwrightTestConfig:{
