@@ -91,8 +91,7 @@
                             this.labelMap[key] : key }}:</span>
                         <ul>
                             <li class="modal-context-data-li" v-if="Array.isArray(contextData[key])"
-                                v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx">
-                                {{ v }}
+                                v-for="(v, idx) in contextData[key]" v-bind:key="'var' + idx" v-html="buildSource(v)">
                             </li>
                         </ul>
                     </template>
@@ -324,6 +323,12 @@ export default {
     },
 
     methods: {
+        buildSource: function(source){
+            if (source.includes("id.loc.gov")){
+                source = source.replace(/(.*)(http.*id.loc.gov.*)$/g, '$1 <a href="$2" _target="blank">$2</a>')
+            }
+            return source
+        },
         getUsabilityNote: function(data){
             let notes = data.notes || []
             let needsNote = notes.filter((i) => i.includes("CANNOT BE USED") ? true : false)

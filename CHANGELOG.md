@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.4.8] - 2025-02-03
+### Added
+- Support for Subject Entities in Subject Builder
+
 ## [1.4.7] - 2025-01-20
 ### Changed
 - ClassWeb search will search `LCSH (w/names)` to do a combined search.
