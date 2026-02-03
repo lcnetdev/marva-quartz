@@ -438,10 +438,14 @@ const utilsNetwork = {
     getMarva001: async function(){
       let returnUrls = useConfigStore().returnUrls
 
-      let r = await fetch(returnUrls.util + 'marva001')
-
-      let data = await r.json()
-      return data.marva001
+      try {
+        let r = await fetch(returnUrls.util + 'marva001')
+        let data = await r.json()
+        return data.marva001
+      } catch(err) {
+        console.warn("Couldn't get 001")
+        return "0000000000"
+      }
     },
 
     searchLccn: async function name(lccn) {
@@ -541,6 +545,7 @@ const utilsNetwork = {
               // remove last ? from searchPayload.searchValue and replace the searchtype
               searchPayload.searchValue = searchPayload.searchValue.replace(/\?$/,'')
               url = url.replace('searchtype=left','searchtype=keyword')
+              url = url.replace('searchtype=<TYPE>','searchtype=keyword')
             }
 
 
@@ -1491,7 +1496,7 @@ const utilsNetwork = {
         result.msg = 'REGEX Error: That value doesn\'t look like a valid MARC encoded LCSH string (not string)'
       }
 
-      lcsh=lcsh.replace(/[\|\$\‡]{1}[bcd]{1}/g, ' ').replace(/\s{2,}/g, ' ')
+      lcsh=lcsh.replace(/[\|\$\‡]{1}[bcdt]{1}/g, ' ').replace(/\s{2,}/g, ' ')
 
       // .replace(/\$b/g,' ').replace(/\|b/g,' ').replace(/‡b/g,' ')
       //          .replace(/\$c/g,'').replace(/\|c/g,'').replace(/‡c/g,'')
@@ -1560,17 +1565,18 @@ const utilsNetwork = {
         try{
           regexResults = regexResults.slice(1,regexResults.length)
           for (let r of regexResults){
-            if (r.slice(0,2).toLowerCase() != '$v' &&
+            if (
+                // r.slice(0,2).toLowerCase() != '$v' &&
                 r.slice(0,2).toLowerCase() != '$a' &&
                 r.slice(0,2).toLowerCase() != '$x' &&
                 r.slice(0,2).toLowerCase() != '$y' &&
                 r.slice(0,2).toLowerCase() != '$z' &&
-                r.slice(0,2).toLowerCase() != '‡v' &&
+                // r.slice(0,2).toLowerCase() != '‡v' &&
                 r.slice(0,2).toLowerCase() != '‡a' &&
                 r.slice(0,2).toLowerCase() != '‡x' &&
                 r.slice(0,2).toLowerCase() != '‡y' &&
                 r.slice(0,2).toLowerCase() != '‡z' &&
-                r.slice(0,2).toLowerCase() != '|v' &&
+                // r.slice(0,2).toLowerCase() != '|v' &&
                 r.slice(0,2).toLowerCase() != '|a' &&
                 r.slice(0,2).toLowerCase() != '|x' &&
                 r.slice(0,2).toLowerCase() != '|y' &&
@@ -1846,7 +1852,7 @@ const utilsNetwork = {
           resultsHierarchicalGeographicLCSH = resultsHierarchicalGeographicLCSH.filter((r)=>{ return (!r.literal) })
           // resultsWorksAnchored = resultsWorksAnchored.filter((r)=>{ return (!r.literal) })
           resultsHubsAnchored = resultsHubsAnchored.filter((r)=>{ return (!r.literal) })
-          resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
+          // resultsPayloadSubjectsSimpleSubdivision = resultsPayloadSubjectsSimpleSubdivision.filter((r)=>{ return (!r.literal) })
           resultsChildren = resultsChildren.filter((r)=>{ return (!r.literal) })
           resultsChildrenSubDiv = resultsChildrenSubDiv.filter((r)=>{ return (!r.literal) })
 
@@ -2196,44 +2202,46 @@ const utilsNetwork = {
             }
 
 
-          } else if (heading.type === 'v'){ // Genre
-
-            [resultsGenre] = await Promise.all([
-                this.searchComplex(searchPayloadGenre)
-            ]);
-
-            // take out the literal values that are automatically added
-            resultsGenre = resultsGenre.filter((r)=>{ return (!r.literal) })
-            if (resultsGenre.length>0){
-              for (let r of resultsGenre){
-                // lower case, remove end space, make double whitespace into one and remove any punctuation
-                if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
-                  r.heading = heading
-                  result.hit.push(r)
-
-
-                  foundHeading = true
-                }
-              }
-              if (foundHeading){ continue }
-            }
-
-
-            if (!foundHeading){
-              // wasn't found, we need to make it a literal
-              result.hit.push(        {
-                label: heading.label,
-                suggestLabel: heading.label,
-                uri: null,
-                literal: true,
-                depreciated: false,
-                extra: '',
-                heading: heading
-              })
-            }
-
-
           }
+
+          // else if (heading.type === 'v'){ // Genre
+
+          //   [resultsGenre] = await Promise.all([
+          //       this.searchComplex(searchPayloadGenre)
+          //   ]);
+
+          //   // take out the literal values that are automatically added
+          //   resultsGenre = resultsGenre.filter((r)=>{ return (!r.literal) })
+          //   if (resultsGenre.length>0){
+          //     for (let r of resultsGenre){
+          //       // lower case, remove end space, make double whitespace into one and remove any punctuation
+          //       if (heading.label.toLowerCase().trim().replace(/\s+/g,' ').replace(/[\p{P}$+<=>^`|~]/gu, '') == r.label.toLowerCase().trim().replace(/[\p{P}$+<=>^`|~]/gu, '')){
+          //         r.heading = heading
+          //         result.hit.push(r)
+
+
+          //         foundHeading = true
+          //       }
+          //     }
+          //     if (foundHeading){ continue }
+          //   }
+
+
+          //   if (!foundHeading){
+          //     // wasn't found, we need to make it a literal
+          //     result.hit.push(        {
+          //       label: heading.label,
+          //       suggestLabel: heading.label,
+          //       uri: null,
+          //       literal: true,
+          //       depreciated: false,
+          //       extra: '',
+          //       heading: heading
+          //     })
+          //   }
+
+
+          // }
         }
       }
 
@@ -2433,15 +2441,16 @@ const utilsNetwork = {
 
       let subjectUrlComplexSearchVal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
       let subjectUrlComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
-      let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")+'&rdftype=SimpleType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
-      let subjectUrlSimpleSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let subjectUrlSimple = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")+'&rdftype=SimpleType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings&memberOf=-http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions'
+
+      let subjectUrlSimpleSubdivison = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=SimpleType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&memberOf=-http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions'
       let subjectUrlTemporal = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_TemporalSubdivisions'
       let subjectUrlGenre = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=5').replace("<OFFSET>", "1")+'&rdftype=GenreForm'
 
       // To find Complex "Use"s for simple headings
       let subjectUrlSimpleComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',complexVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")+'&rdftype=SimpleType'+'&memberOf=http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings'
 
-      let subjectUrlComplexSubdivison1 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[0])).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let subjectUrlComplexSubdivison1 = useConfigStore().lookupConfig['http://id.loc.gov/authorities/subjects'].modes[0]['LCSH All'].url.replace('<QUERY>',  encodeURIComponent(complexSub[0])).replace('&count=25','&count='+numResultsComplex).replace("<OFFSET>", "1")+'&rdftype=ComplexType&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&memberOf=-http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions'
 
       // let worksUrlKeyword = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Keyword'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
       // let worksUrlAnchored = useConfigStore().lookupConfig['https://preprod-8080.id.loc.gov/resources/works'].modes[0]['Works - Left Anchored'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsSimple).replace("<OFFSET>", "1")
@@ -2451,7 +2460,7 @@ const utilsNetwork = {
 
       let childrenSubject = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&-memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
       let childrenSubjectComplex = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count='+numResultsCyac).replace("<OFFSET>", "1")+'&rdftype=ComplexType'
-      let childrenSubjectSubdivision = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions'
+      let childrenSubjectSubdivision = useConfigStore().lookupConfig['http://id.loc.gov/authorities/childrensSubjects'].modes[0]['LCSHAC All'].url.replace('<QUERY>',searchVal).replace('&count=25','&count=4').replace("<OFFSET>", "1")+'&memberOf=http://id.loc.gov/authorities/subjects/collection_Subdivisions&memberOf=-http://id.loc.gov/authorities/subjects/collection_GenreFormSubdivisions'
 
       let searchValHierarchicalGeographic = searchVal.replaceAll('‑','-') //.split(' ').join('--')
 
@@ -2847,7 +2856,6 @@ const utilsNetwork = {
       this.subjectSearchActive = false
 
       return results
-
     },
 
     /**

@@ -74,6 +74,12 @@
               <a class="existing-lccn-note" :href="existingRecordUrl" target="_blank">Existing Record with this {{
                 existingLCCN ? 'LCCN' : 'identifier' }}: "{{ matchTitle }}"</a>
             </h4>
+            <label for="override">Override this match with a BibId? </label>
+            <input name="oveerrid" id="overrid" type="checkbox" v-model="overrideAllow" /><br>
+            <template v-if="overrideAllow">
+              <label for="matchPoint">Known BibId (001): </label>
+              <input name="matchPoint" id="overrideBibid" type="text" v-model="overrideBibid" @input="checkLccn" />
+            </template>
           </template>
           <template v-else>
             <Badge v-if="urlToLoad != '' && !checkingLCCN && !existingLCCN && searchType == 'lccn' && wcIndex == 'sn'"
@@ -263,6 +269,9 @@ export default {
       searchType: 'lccn',
       isbn: '',
       matchTitle: '',
+      overrideAllow: false,
+      overrideBibid: "",
+
     }
   },
   computed: {
@@ -363,7 +372,7 @@ export default {
       let recordSelected = (this.selectedWcRecord) ? true : false
 
       if (this.checkRecordHasLccn(this.selectedWcRecord)) { return false }
-      if (!this.urlToLoad) { return true }
+      //if (!this.urlToLoad) { return true }
       if (this.checkingLCCN) { return true }
 
       return !recordSelected
@@ -371,11 +380,19 @@ export default {
 
     checkLccn: async function () {
       console.info("checkLCCN")
-      this.existingLCCN = false
-      this.existingISBN = false
+
 
       console.info("urlToLoad: ", this.urlToLoad)
-      if (this.urlToLoad.length < 3){ return }
+      // if (this.urlToLoad.length < 3){ return }
+
+      if(this.overrideAllow && this.overrideBibid !=''){
+        console.info("checking override: ", this.overrideBibid)
+        this.existingRecordUrl = "https://preprod-8080.id.loc.gov/resources/instances/" + this.overrideBibid + ".html"
+        this.searchType = 'bibid'
+      } else {
+        this.existingLCCN = false
+        this.existingISBN = false
+      }
 
       if (this.searchType == 'lccn') {
         this.checkingLCCN = true
@@ -430,6 +447,7 @@ export default {
         }
       }
 
+      console.info("this.existingRecordUrl: ", this.existingRecordUrl)
       if (this.existingRecordUrl) {
         let data = await utilsNetwork.fetchSimpleLookup(this.existingRecordUrl)
         const parser = new DOMParser()
@@ -571,7 +589,9 @@ export default {
       let subfield = document.createElementNS("http://www.loc.gov/MARC21/slim", "subfield")
       subfield.setAttribute("code", code)
       subfield.innerHTML = value
-      parent.appendChild(subfield)
+      if (value != ''){
+        parent.appendChild(subfield)
+      }
     },
 
     loadCopyCat: async function (profile) { // load into BFDB/ID
@@ -589,14 +609,10 @@ export default {
       xml = xml.replace("<record>", "<record xmlns='http://www.loc.gov/MARC21/slim'>")
       let continueWithLccn = true
       // if (!this.copyCatLccn){
-      if (!this.urlToLoad) {
-        alert("This needs an LCCN to continue.")
-        return
-      } else {
-        if (this.urlToLoad.length != 10) {
-          continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
-        }
+      if (this.urlToLoad.length != 10) {
+        continueWithLccn = confirm("This LCCN is not the expected length. Do you want to continue with it?")
       }
+
 
       if (!continueWithLccn) { return }
 
@@ -611,14 +627,14 @@ export default {
 
       /*
       * 998:
-      * a: LCCN
-      * b: Priority
-      * c: JACKPHY
-      * d: Record Quality
-      * e: Overlay
-      * f: BibID for Overlay
-      * x: Local ID
-      * z: Cataloger Code
+      * $a: LCCN
+      * $b: Priority
+      * $c: JACKPHY
+      * $d: Record Quality
+      * $e: Overlay
+      * $f: BibID for Overlay
+      * $x: Local ID
+      * $z: Cataloger Code
       */
 
 
@@ -629,7 +645,7 @@ export default {
 
       console.info("setting up overlay: ", this.existingLCCN, "--", this.existingISBN)
       let bibId = ""
-      let marva001 = ""
+      let marva001 = false
       if (this.existingLCCN || this.existingISBN) {
         this.createSubField("e", "overlay bib", dummyField)
         if (this.existingRecordUrl != "") {
@@ -686,7 +702,11 @@ export default {
       }
 
       console.info("recordId: ", recordId)
-      this.urlToLoad = "https://preprod-8080.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
+      if(useConfigStore().returnUrls.env == 'staging'){
+        this.urlToLoad = "https://preprod-8299.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
+      } else {
+        this.urlToLoad = "https://preprod-8080.id.loc.gov/resources/instances/" + recordId + ".cbd.xml"
+      }
       this.existingLCCN = false
       this.existingISBN = false
 

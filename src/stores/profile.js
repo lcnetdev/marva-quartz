@@ -2799,7 +2799,7 @@ export const useProfileStore = defineStore('profile', {
           // add the source for Genre/Form
           if (propertyPath.map((obj) => obj.propertyURI).includes("http://id.loc.gov/ontologies/bibframe/genreForm")){
             let objId = blankNode['@id']
-            if (nodeMap.collections.includes('http://id.loc.gov/authorities/genreForms/collection_LCGFT_General')){
+            if (nodeMap.collections && nodeMap.collections.includes('http://id.loc.gov/authorities/genreForms/collection_LCGFT_General')){
               blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
                 {
                       "@guid": short.generate(),
@@ -2813,7 +2813,7 @@ export const useProfileStore = defineStore('profile', {
                       ]
                   }
               ]
-            } if (nodeMap.collections.includes('http://id.loc.gov/vocabulary/rbms/collection_rbmscv')){
+            } if (nodeMap.collections && nodeMap.collections.includes('http://id.loc.gov/vocabulary/rbms/collection_rbmscv')){
               blankNode['http://id.loc.gov/ontologies/bibframe/source'] =  [
                 {
                       "@guid": short.generate(),
@@ -3878,12 +3878,18 @@ export const useProfileStore = defineStore('profile', {
 
           if (pt && pt.propertyURI=='http://id.loc.gov/ontologies/bibframe/subject' && (firstSubject === null || secondSubject === null) && !pt.deleted){
             let subjectUserValue = pt.userValue
-            if (subjectUserValue && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'].length > 0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
+            if (subjectUserValue && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'].length > 0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0] && (subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'] || subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'])){
               if (subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'].length>0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']){
                 if (firstSubject === null){
                   firstSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
                 } else {
                   secondSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.w3.org/2000/01/rdf-schema#label'][0]['http://www.w3.org/2000/01/rdf-schema#label']
+                }
+              } else if (subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'].length>0 && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0] && subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']){
+                if (firstSubject === null){
+                  firstSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
+                } else {
+                  secondSubject = subjectUserValue['http://id.loc.gov/ontologies/bibframe/subject'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel'][0]['http://www.loc.gov/mads/rdf/v1#authoritativeLabel']
                 }
               }
             }
@@ -5908,7 +5914,7 @@ export const useProfileStore = defineStore('profile', {
                 marcKey4xx = agent['http://id.loc.gov/ontologies/bflc/marcKey'][1]['http://id.loc.gov/ontologies/bflc/marcKey']
             }
 
-            
+
 
 
 

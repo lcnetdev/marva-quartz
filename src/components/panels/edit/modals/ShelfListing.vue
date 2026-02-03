@@ -166,7 +166,7 @@
             if (!this.cutterNumber){this.cutterNumber=''}
 
             let contributor = this.contributor ? "&sp-name="+this.contributor : ""
-            let title = this.title ? "&sp-title="+this.title  : ""
+            let title = this.title ? "&sp-title="+ encodeURIComponent(this.title)  : ""
             let subj = this.subj ? "&sp-subject="+this.subj  : ""
             let date = this.date ? "&sp-date="+this.date : ""
             let countParam = "&count=201"

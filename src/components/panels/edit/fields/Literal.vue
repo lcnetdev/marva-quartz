@@ -141,10 +141,8 @@
         <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://' + classWebURL() + '/min/minaret?app=Class&mod=Search&look=1&query=&index=id&cmd2=&auto=1&Fspan='+lccFeatureData.classNumber+'&Fcaption=&Fkeyword=&Fterm=&Fcap_term=&count=75&display=1&table=schedules&logic=0&style=0&cmd=Search'">ClassWeb Search: {{ lccFeatureData.classNumber }}</a><br/>
         <a style="color:black" v-if="lccFeatureData.classNumber" :href="'https://' + classWebURL() + '/min/minaret?app=Class&auto=1&mod=Search&table=schedules&table=tables&tid=1&menu=/Menu/&iname=span&ilabel=Class%20number&iterm='+lccFeatureData.classNumber" target="_blank">ClassWeb Browse: {{ lccFeatureData.classNumber }}</a><br/>
 
-        <a style="color:black" v-if="lccFeatureData.firstSubject" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a><br/>
-        <a style="color:black" v-if="lccFeatureData.secondSubject" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=sh2l&iterm='+lccFeatureData.secondSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a>
-
-
+        <a style="color:black" v-if="lccFeatureData.firstSubject" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm='+lccFeatureData.firstSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.firstSubject }}</a><br/>
+        <a style="color:black" v-if="lccFeatureData.secondSubject" :href="'https://' + classWebURL() + '/min/minaret?app=Corr&mod=Search&count=75&auto=1&close=1&display=1&menu=/Auto/&iname=nh2l&iterm='+lccFeatureData.secondSubject" target="_blank">ClassWeb Search: {{ lccFeatureData.secondSubject }}</a><br/>
       </div>
 
       <div v-if="structure.propertyURI=='http://id.loc.gov/ontologies/bibframe/itemPortion'">
@@ -964,7 +962,6 @@ export default {
       if (cmd == 'trans'){
 
         let fieldValue = this.literalValues.filter((v)=>{ return (v['@guid'] == options.fieldGuid) })
-
         if (options.event && options.event?.target?.dataset?.shortcutActivated == 'true'){
           // check if the string value (fieldValue[0].value) ends with a single digit number
           if (/[0-9]$/.test(fieldValue[0].value)){
@@ -972,10 +969,28 @@ export default {
             if (fieldValue[0].value.endsWith('' + options.actionButtonIndex)){
               // remove the last digit from the string
               fieldValue[0].value = fieldValue[0].value.slice(0, -1);
-            }          
+            }
           }
         }
-        let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,fieldValue[0].value,null,options.dir)
+
+        let useTextToTrans = fieldValue[0].value
+
+        // check if any text is highlighted in the textarea
+        let textarea = document.querySelector(`textarea[data-guid="${fieldValue[0]['@guid']}"]`)        
+        let highlightTemplate = null
+        if (textarea && textarea.selectionStart !== textarea.selectionEnd) {
+          let highlightedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
+          useTextToTrans = highlightedText
+          highlightTemplate = fieldValue[0].value.replace(highlightedText, '<TRANSLITERATED_TEXT_HERE>')
+        }
+
+
+
+        let transValue = await utilsNetwork.scriptShifterRequestTrans(options.lang,useTextToTrans,null,options.dir)
+
+        if (highlightTemplate){
+          transValue.output = highlightTemplate.replace('<TRANSLITERATED_TEXT_HERE>', transValue.output)
+        }
 
 
         let toLang = null
@@ -1202,7 +1217,7 @@ export default {
     lccFeatureData(){
       this.lccFeatureDataCounter
       if (this.lccFeatureProperties.indexOf(this.propertyPath[this.propertyPath.length-1].propertyURI)>-1){
-        
+
         let data = this.profileStore.returnLccInfo(this.guid, this.structure)
         // console.log("HERE for LCC data", data,  this.guid, this.structure)
         if (data.contributors && data.contributors.length>0){
