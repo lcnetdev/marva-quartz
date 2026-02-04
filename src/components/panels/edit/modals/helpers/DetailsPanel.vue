@@ -332,7 +332,7 @@ export default {
         getUsabilityNote: function(data){
             let notes = data.notes || []
             let needsNote = notes.filter((i) => i.includes("CANNOT BE USED") ? true : false)
-            if (needsNote){
+            if (needsNote.length < 1){
                 needsNote = notes.filter((i) => i.includes("not valid for use as a subject") ? true : false)
             }
             return needsNote[0]
