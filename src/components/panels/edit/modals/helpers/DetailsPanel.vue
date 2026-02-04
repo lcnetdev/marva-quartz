@@ -227,7 +227,7 @@
                                             <a target="_blank" :href="v">{{ v.split("/").at(-1).split("_").at(-1) }}</a>
                                         </template>
                                         <template v-else-if="key == 'notes'">
-                                            <span :class="{ unusable: v.includes('CANNOT BE USED UNDER RDA') }">{{ v
+                                            <span :class="{ unusable: (v.includes('CANNOT BE USED UNDER RDA') || v.includes('not valid for use as a subject')) }">{{ v
                                                 }}</span>
                                         </template>
                                         <template v-else>
@@ -332,11 +332,17 @@ export default {
         getUsabilityNote: function(data){
             let notes = data.notes || []
             let needsNote = notes.filter((i) => i.includes("CANNOT BE USED") ? true : false)
+            if (needsNote){
+                needsNote = notes.filter((i) => i.includes("not valid for use as a subject") ? true : false)
+            }
             return needsNote[0]
         },
         checkIsUsable: function(data){
             let notes = data.notes || []
             let needsUpdate = notes.filter((i) => i.includes("CANNOT BE USED") ? true : false).length > 0
+            if (!needsUpdate){
+                needsUpdate = notes.filter((i) => i.includes("not valid for use as a subject") ? true : false).length > 0
+            }
             return !needsUpdate
         },
         newSearch: function (term) {
