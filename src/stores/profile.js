@@ -7228,6 +7228,9 @@ export const useProfileStore = defineStore('profile', {
         if (comp.propertyURI == "http://id.loc.gov/ontologies/bibframe/subject"){
           let userValue = comp.userValue
           let data = userValue["http://id.loc.gov/ontologies/bibframe/subject"] ? userValue["http://id.loc.gov/ontologies/bibframe/subject"][0] : {}
+          if (data['@id'] && data['@id'].includes('http://id.loc.gov/authorities/')){
+            return true
+          }
           if (data["http://id.loc.gov/ontologies/bibframe/source"]){
             let source = data["http://id.loc.gov/ontologies/bibframe/source"][0]
             let code   = source["http://id.loc.gov/ontologies/bibframe/code"] ? source["http://id.loc.gov/ontologies/bibframe/code"][0]["http://id.loc.gov/ontologies/bibframe/code"] : ""
@@ -7237,6 +7240,8 @@ export const useProfileStore = defineStore('profile', {
             if (!label.includes("Library of Congress") ){
               return false
             }
+          } else if(Object.keys(data).length == 2) {
+            return false
           }
         }
 
