@@ -96,10 +96,14 @@ export default {
             )
 
             if (!this.updateDates){ return}
-            console.info(">>>", this.zerozero8Date, "--", this.zerozero8Date == '')
             if (this.zerozero8Date == ''){
-                alert("No 'Publication Year' provided. No dates were changed.")
-                return
+                let confirmation = confirm("No 'Publication Year' provided. Continue without changes dates? [Ok], or go back and provide a year. [Cancel]")
+                if (confirmation){
+                    return
+                } else {
+                    this.showCipModal = true
+                    return
+                }
             }
 
             // -------------------------------- Date stuff below here --------------------------------
